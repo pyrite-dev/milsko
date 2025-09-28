@@ -2,17 +2,26 @@
 #ifndef __MILSKO_CORE_H__
 #define __MILSKO_CORE_H__
 
+#include <Milsko/MachDep.h>
+
 #ifdef _MILSKO
 #include <Milsko/LowLevel.h>
 
+typedef struct _Milsko* HMILSKO;
+
 typedef struct _Milsko {
 	HMILSKOLL lowlevel;
+	HMILSKO	  parent;
+	HMILSKO*  children;
 }* HMILSKO;
 #else
 typedef void* HMILSKO;
 #endif
 
-HMILSKO MilskoCreateWidget(HMILSKO parent, int x, int y, unsigned int width, unsigned int height);
-void	MilskoDestroyWidget(HMILSKO handle);
+typedef struct _MilskoClass {
+}* MilskoClass;
+
+MILSKODECL HMILSKO MilskoCreateWidget(MilskoClass class, HMILSKO parent, int x, int y, unsigned int width, unsigned int height);
+MILSKODECL void	   MilskoDestroyWidget(HMILSKO handle);
 
 #endif
