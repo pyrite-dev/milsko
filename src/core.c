@@ -77,6 +77,8 @@ void MilskoDestroyWidget(MilskoWidget handle) {
 }
 
 void MilskoStep(MilskoWidget handle) {
+	int i;
+	for(i = 0; i < arrlen(handle->children); i++) MilskoStep(handle->children[i]);
 	MilskoLLNextEvent(handle->lowlevel);
 }
 
@@ -120,6 +122,8 @@ void MilskoSetText(MilskoWidget handle, const char* key, const char* value) {
 	} else {
 		char* v = malloc(strlen(value) + 1);
 		strcpy(v, value);
+
+		if(shgeti(handle->text, key) != -1) free(shget(handle->text, key));
 
 		shput(handle->text, key, v);
 	}

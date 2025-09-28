@@ -59,3 +59,59 @@ void MilskoDrawRect(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color) 
 
 	MilskoLLPolygon(handle->lowlevel, p, 4, color);
 }
+
+void MilskoDrawFrame(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color, int invert) {
+	MilskoPoint   p[6];
+	const int     diff    = 128;
+	const int     border  = 4;
+	MilskoLLColor darker  = MilskoLLAllocColor(handle->lowlevel, color->red - diff, color->green - diff, color->blue - diff);
+	MilskoLLColor lighter = MilskoLLAllocColor(handle->lowlevel, color->red + diff, color->green + diff, color->blue + diff);
+
+	p[0].x = rect->x;
+	p[0].y = rect->y;
+
+	p[1].x = rect->x + rect->width;
+	p[1].y = rect->y;
+
+	p[2].x = rect->x + rect->width - border;
+	p[2].y = rect->y + border;
+
+	p[3].x = rect->x + border;
+	p[3].y = rect->y + border;
+
+	p[4].x = rect->x + border;
+	p[4].y = rect->y + rect->height - border;
+
+	p[5].x = rect->x;
+	p[5].y = rect->y + rect->height;
+
+	MilskoLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
+
+	p[0].x = rect->x + rect->width;
+	p[0].y = rect->y;
+
+	p[1].x = rect->x + rect->width - border;
+	p[1].y = rect->y + border;
+
+	p[2].x = rect->x + rect->width - border;
+	p[2].y = rect->y + rect->height - border;
+
+	p[3].x = rect->x + border;
+	p[3].y = rect->y + rect->height - border;
+
+	p[4].x = rect->x;
+	p[4].y = rect->y + rect->height;
+
+	p[5].x = rect->x + rect->height;
+	p[5].y = rect->y + rect->height;
+
+	MilskoLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
+
+	MilskoLLFreeColor(lighter);
+	MilskoLLFreeColor(darker);
+
+	rect->x += border;
+	rect->y += border;
+	rect->width -= border * 2;
+	rect->height -= border * 2;
+}
