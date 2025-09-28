@@ -26,5 +26,6 @@ void	     MilskoLLPolygon(HMILSKO handle, MilskoPoint* points, int points_count,
 HMILSKOCOLOR MilskoLLAllocColor(HMILSKO handle, int r, int g, int b);
 void	     MilskoLLGetXYWH(HMILSKO handle, int* x, int* y, unsigned int* w, unsigned int* h);
 int	     MilskoLLPending(HMILSKO handle);
+void	     MilskoLLNextEvent(HMILSKO handle);
 
 #endif
