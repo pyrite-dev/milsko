@@ -7,7 +7,7 @@
 	if(x->class != NULL && x->class->y != NULL) x->class->y(x)
 
 static void llhandler(MilskoLL handle) {
-	MilskoWidget h = (MilskoWidget)handle;
+	MilskoWidget h = (MilskoWidget)handle->user;
 	Dispatch(h, draw);
 }
 
@@ -86,7 +86,7 @@ int MilskoPending(MilskoWidget handle) {
 void MilskoLoop(MilskoWidget handle) {
 	while(1) {
 		MilskoStep(handle);
-		MilskoLLSleep(10);
+		MilskoLLSleep(5);
 	}
 }
 
