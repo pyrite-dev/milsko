@@ -7,7 +7,7 @@ CFLAGS = -fPIC -Iinclude -D_MILSKO
 LDFLAGS =
 LIBS =
 
-L_OBJS = src/ds.o src/core.o src/default.o src/draw.o
+L_OBJS = src/ds.o src/core.o src/default.o src/draw.o src/lowlevel.o
 L_OBJS += src/window.o src/button.o
 L_LIBS = -lfreetype
 
