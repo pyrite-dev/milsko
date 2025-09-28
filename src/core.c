@@ -162,3 +162,44 @@ void MilskoApply(MilskoWidget handle, ...) {
 	}
 	va_end(va);
 }
+
+static int hex(const char* txt, int len) {
+	int i;
+	int r = 0;
+	for(i = 0; i < len; i++) {
+		char c = txt[i];
+		int  n = 0;
+		if('a' <= c && c <= 'f') {
+			n = c - 'a' + 10;
+		} else if('A' <= c && c <= 'F') {
+			n = c - 'A' + 10;
+		} else if('0' <= c && c <= '9') {
+			n = c - '0';
+		}
+		r = r << 4;
+		r |= n;
+	}
+	return r;
+}
+
+MilskoLLColor MilskoParseColor(MilskoWidget handle, const char* text) {
+	int r = 0;
+	int g = 0;
+	int b = 0;
+
+	if(text[0] == '#' && strlen(text) == 4) {
+		r = hex(text + 1, 1);
+		g = hex(text + 2, 1);
+		b = hex(text + 3, 1);
+
+		r |= r << 4;
+		g |= g << 4;
+		b |= b << 4;
+	} else if(text[0] == '#' && strlen(text) == 7) {
+		r = hex(text + 1, 2);
+		g = hex(text + 3, 2);
+		b = hex(text + 5, 2);
+	}
+
+	return MilskoLLAllocColor(handle->lowlevel, r, g, b);
+}

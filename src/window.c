@@ -1,8 +1,12 @@
 /* $Id$ */
 #include <Milsko/Milsko.h>
 
+static void create(MilskoWidget handle) {
+	MilskoSetText(handle, MilskoNbackground, MILSKO_BACKGROUND);
+}
+
 static void draw(MilskoWidget handle) {
-	MilskoLLColor c = MilskoLLAllocColor(handle->lowlevel, 255, 0, 0);
+	MilskoLLColor c = MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground));
 	MilskoPoint   p[4];
 
 	p[0].x = 0;
@@ -23,10 +27,10 @@ static void draw(MilskoWidget handle) {
 }
 
 MilskoClassRec MilskoWindowClassRec = {
-    NULL, /* opaque */
-    NULL, /* create */
-    NULL, /* destroy */
-    draw, /* draw */
-    NULL  /* click */
+    NULL,   /* opaque */
+    create, /* create */
+    NULL,   /* destroy */
+    draw,   /* draw */
+    NULL    /* click */
 };
 MilskoClass MilskoWindowClass = &MilskoWindowClassRec;
