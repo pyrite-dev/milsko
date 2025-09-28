@@ -12,6 +12,7 @@ MILSKODECL void	   MilskoStep(HMILSKO handle);
 MILSKODECL int	   MilskoPending(HMILSKO handle);
 
 MILSKODECL void MilskoSetInteger(HMILSKO handle, const char* key, int n);
+MILSKODECL void MilskoSetText(HMILSKO handle, const char* key, const char* value);
 MILSKODECL void MilskoApply(HMILSKO handle, ...);
 
 #endif

@@ -7,4 +7,6 @@
 #define MilskoNwidth "Iwidth"
 #define MilskoNheight "Iheight"
 
+#define MilskoNtitle "Stitle"
+
 #endif
