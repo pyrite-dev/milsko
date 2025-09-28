@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#ifdef _WIN32
+#else
+#include <unistd.h>
+#endif
 
 #if defined(_MILSKO) && defined(_WIN32)
 #define MILSKODECL extern __declsped(dllexport)

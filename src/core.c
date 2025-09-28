@@ -8,10 +8,10 @@ HMILSKO MilskoCreateWidget(MilskoClass class, HMILSKO parent, int x, int y, unsi
 
 	h->parent   = parent;
 	h->children = NULL;
-	h->lowlevel = MilskoLLCreate(parent->lowlevel, x, y, width, height);
+	h->lowlevel = MilskoLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height);
 	h->class    = class;
 
-	arrput(parent->children, h);
+	if(parent != NULL) arrput(parent->children, h);
 
 	return h;
 }
@@ -39,4 +39,23 @@ void MilskoDestroyWidget(HMILSKO handle) {
 	}
 	MilskoLLDestroy(handle->lowlevel);
 	free(handle);
+}
+
+MILSKODECL void MilskoStep(HMILSKO handle){
+	MilskoLLNextEvent(handle->lowlevel);
+}
+
+MILSKODECL int MilskoPending(HMILSKO handle){
+	int i;
+	for(i = 0; i < arrlen(handle->children); i++){
+		if(MilskoPending(handle->children[i])) return 1;
+	}
+	return MilskoLLPending(handle->lowlevel);
+}
+
+MILSKODECL void MilskoLoop(HMILSKO handle){
+	while(1){
+		MilskoStep(handle);
+		MilskoLLSleep(10);
+	}
 }

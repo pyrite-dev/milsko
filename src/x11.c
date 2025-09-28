@@ -88,3 +88,7 @@ void MilskoLLNextEvent(HMILSKOLL handle) {
 	if(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 	}
 }
+
+void MilskoLLSleep(int ms){
+	usleep(ms * 1000);
+}

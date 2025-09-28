@@ -6,4 +6,6 @@
 #include <Milsko/LowLevel.h>
 #include <Milsko/Core.h>
 
+#include <Milsko/Window.h>
+
 #endif

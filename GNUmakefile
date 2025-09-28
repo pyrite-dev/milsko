@@ -8,6 +8,7 @@ LDFLAGS =
 LIBS =
 
 L_OBJS = src/ds.o src/core.o
+L_OBJS += src/window.o
 
 ifeq ($(TARGET),NetBSD)
 CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
