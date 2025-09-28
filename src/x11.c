@@ -70,6 +70,10 @@ void MilskoLLGetXYWH(HMILSKOLL handle, int* x, int* y, unsigned int* w, unsigned
 	*h = handle->height;
 }
 
+void MilskoLLSetXYWH(HMILSKOLL handle, int x, int y, unsigned int w, unsigned int h) {
+	XMoveResizeWindow(handle->display, handle->window, x, y, w, h);
+}
+
 void MilskoLLFreeColor(HMILSKOCOLOR color) {
 	free(color);
 }
