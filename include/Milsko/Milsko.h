@@ -7,6 +7,7 @@
 #include <Milsko/StringDefs.h>
 #include <Milsko/TypeDefs.h>
 #include <Milsko/Core.h>
+#include <Milsko/Default.h>
 
 #include <Milsko/Window.h>
 

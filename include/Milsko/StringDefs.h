@@ -8,5 +8,6 @@
 #define MilskoNheight "Iheight"
 
 #define MilskoNtitle "Stitle"
+#define MilskoNbackground "Sbackground"
 
 #endif

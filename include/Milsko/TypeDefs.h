@@ -56,6 +56,9 @@ typedef struct _MilskoClass {
 	MilskoHandler destroy;
 	MilskoHandler draw;
 	MilskoHandler click;
+
+	MilskoTextKeyValue*    text;
+	MilskoIntegerKeyValue* integer;
 } *MilskoClass, MilskoClassRec;
 
 #endif
