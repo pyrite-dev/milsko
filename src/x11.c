@@ -9,11 +9,14 @@ MilskoLL MilskoLLCreate(MilskoLL parent, int x, int y, int width, int height) {
 	Window	     root;
 	unsigned int border, depth;
 
-	r	  = malloc(sizeof(*r));
-	r->x	  = x;
-	r->y	  = y;
-	r->width  = width;
-	r->height = height;
+	r	    = malloc(sizeof(*r));
+	r->x	    = x;
+	r->y	    = y;
+	r->width    = width;
+	r->height   = height;
+	r->callback = malloc(sizeof(*r->callback));
+
+	memset(r->callback, 0, sizeof(*r->callback));
 
 	if(parent == NULL) {
 		r->display = XOpenDisplay(NULL);
@@ -114,7 +117,7 @@ void MilskoLLNextEvent(MilskoLL handle) {
 	XEvent ev;
 	if(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 		if(ev.type == Expose) {
-			if(handle->draw != NULL) handle->draw(handle);
+			MilskoLLDispatch(handle, draw);
 		}
 	}
 }

@@ -4,36 +4,49 @@
 
 #include <Milsko/MachDep.h>
 
-typedef struct _MilskoPoint {
+typedef struct _MilskoClass *	      MilskoClass, MilskoClassRec;
+typedef struct _MilskoPoint	      MilskoPoint;
+typedef struct _MilskoRect	      MilskoRect;
+typedef struct _MilskoTextKeyValue    MilskoTextKeyValue;
+typedef struct _MilskoIntegerKeyValue MilskoIntegerKeyValue;
+#ifdef _MILSKO
+typedef struct _Milsko *MilskoWidget, MilskoWidgetRec;
+#else
+typedef void* MilskoWidget;
+#endif
+typedef void (*MilskoHandler)(MilskoWidget handle);
+
+#ifdef _MILSKO
+#include <Milsko/LowLevel.h>
+#endif
+
+#define MilskoDispatch(x, y) \
+	if(x->class != NULL && x->class->y != NULL) x->class->y(x)
+
+struct _MilskoPoint {
 	int x;
 	int y;
-} MilskoPoint;
+};
 
-typedef struct _MilskoRect {
+struct _MilskoRect {
 	int	     x;
 	int	     y;
 	unsigned int width;
 	unsigned int height;
-} MilskoRect;
+};
 
-typedef struct _MilskoTextKeyValue {
+struct _MilskoTextKeyValue {
 	char* key;
 	char* value;
-} MilskoTextKeyValue;
+};
 
-typedef struct _MilskoIntegerKeyValue {
+struct _MilskoIntegerKeyValue {
 	char* key;
 	int   value;
-} MilskoIntegerKeyValue;
-
-typedef struct _MilskoClass* MilskoClass;
+};
 
 #ifdef _MILSKO
-#include <Milsko/LowLevel.h>
-
-typedef struct _Milsko* MilskoWidget;
-
-typedef struct _Milsko {
+struct _Milsko {
 	char* name;
 
 	MilskoLL      lowlevel;
@@ -43,19 +56,15 @@ typedef struct _Milsko {
 
 	MilskoTextKeyValue*    text;
 	MilskoIntegerKeyValue* integer;
-}* MilskoWidget;
-#else
-typedef void* MilskoWidget;
+};
 #endif
 
-typedef void (*MilskoHandler)(MilskoWidget handle);
-
-typedef struct _MilskoClass {
+struct _MilskoClass {
 	void*	      opaque;
 	MilskoHandler create;
 	MilskoHandler destroy;
 	MilskoHandler draw;
 	MilskoHandler click;
-} *MilskoClass, MilskoClassRec;
+};
 
 #endif
