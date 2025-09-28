@@ -15,7 +15,7 @@ typedef void* HMILSKOCOLOR;
 #endif
 
 #include <Milsko/MachDep.h>
-#include <Milsko/TypeDef.h>
+#include <Milsko/TypeDefs.h>
 
 MILSKODECL HMILSKOLL	MilskoLLCreate(HMILSKOLL parent, int x, int y, int width, int height);
 MILSKODECL void		MilskoLLDestroy(HMILSKOLL handle);
