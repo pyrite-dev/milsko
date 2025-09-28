@@ -28,8 +28,8 @@ typedef void* MilskoLLColor;
 
 struct _MilskoLLCallback {
 	void (*draw)(MilskoLL handle);
-	void (*down)(MilskoLL handle);
 	void (*up)(MilskoLL handle);
+	void (*down)(MilskoLL handle);
 };
 
 /* lowlevel.c, common part */

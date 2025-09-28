@@ -3,9 +3,21 @@
 
 #include "stb_ds.h"
 
-static void llhandler(MilskoLL handle) {
+static void lldrawhandler(MilskoLL handle) {
 	MilskoWidget h = (MilskoWidget)handle->user;
 	MilskoDispatch(h, draw);
+}
+
+static void lluphandler(MilskoLL handle) {
+	MilskoWidget h = (MilskoWidget)handle->user;
+	h->pressed     = 0;
+
+	MilskoDispatch(h, click);
+}
+
+static void lldownhandler(MilskoLL handle) {
+	MilskoWidget h = (MilskoWidget)handle->user;
+	h->pressed     = 1;
 }
 
 MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height) {
@@ -18,9 +30,12 @@ MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidge
 	h->children = NULL;
 	h->lowlevel = MilskoLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height);
 	h->class    = class;
+	h->pressed  = 0;
 
 	h->lowlevel->user	    = h;
-	h->lowlevel->callback->draw = llhandler;
+	h->lowlevel->callback->draw = lldrawhandler;
+	h->lowlevel->callback->up   = lluphandler;
+	h->lowlevel->callback->down = lldownhandler;
 
 	if(parent != NULL) arrput(parent->children, h);
 
