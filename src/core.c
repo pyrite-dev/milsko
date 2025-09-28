@@ -3,6 +3,9 @@
 
 #include "stb_ds.h"
 
+#define Dispatch(x, y) \
+	if(x->class != NULL && x->class->y != NULL) x->class->y(x)
+
 HMILSKO MilskoCreateWidget(MilskoClass class, HMILSKO parent, int x, int y, unsigned int width, unsigned int height) {
 	HMILSKO h = malloc(sizeof(*h));
 
@@ -19,11 +22,15 @@ HMILSKO MilskoCreateWidget(MilskoClass class, HMILSKO parent, int x, int y, unsi
 	shdefault(h->text, NULL);
 	shdefault(h->integer, -1);
 
+	Dispatch(h, create);
+
 	return h;
 }
 
 void MilskoDestroyWidget(HMILSKO handle) {
 	int i;
+
+	Dispatch(handle, destroy);
 
 	if(handle->children != NULL) {
 		for(i = 0; i < arrlen(handle->children); i++) {
@@ -103,6 +110,27 @@ void MilskoSetText(HMILSKO handle, const char* key, const char* value) {
 
 		shput(handle->text, key, v);
 	}
+}
+
+int MilskoGetInteger(HMILSKO handle, const char* key) {
+	if(strcmp(key, MilskoNx) == 0 || strcmp(key, MilskoNy) == 0 || strcmp(key, MilskoNwidth) == 0 || strcmp(key, MilskoNheight) == 0) {
+		int	     x, y;
+		unsigned int w, h;
+
+		MilskoLLGetXYWH(handle->lowlevel, &x, &y, &w, &h);
+
+		if(strcmp(key, MilskoNx) == 0) return x;
+		if(strcmp(key, MilskoNy) == 0) return y;
+		if(strcmp(key, MilskoNwidth) == 0) return w;
+		if(strcmp(key, MilskoNheight) == 0) return h;
+		return -1;
+	} else {
+		return shget(handle->integer, key);
+	}
+}
+
+const char* MilskoGetText(HMILSKO handle, const char* key) {
+	return shget(handle->text, key);
 }
 
 void MilskoApply(HMILSKO handle, ...) {
