@@ -9,6 +9,7 @@ HMILSKO MilskoCreateWidget(MilskoClass class, HMILSKO parent, int x, int y, unsi
 	h->parent   = parent;
 	h->children = NULL;
 	h->lowlevel = MilskoLLCreate(parent->lowlevel, x, y, width, height);
+	h->class    = class;
 
 	arrput(parent->children, h);
 
