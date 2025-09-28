@@ -18,11 +18,15 @@ static void draw(MilskoWidget handle) {
 	MilskoDrawRect(handle, &r, MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground)));
 }
 
+static void click(MilskoWidget handle) {
+	MilskoDispatchHandler(handle, MilskoNactivateHandler);
+}
+
 MilskoClassRec MilskoButtonClassRec = {
     NULL,   /* opaque */
     create, /* create */
     NULL,   /* destroy */
     draw,   /* draw */
-    NULL    /* click */
+    click   /* click */
 };
 MilskoClass MilskoButtonClass = &MilskoButtonClassRec;

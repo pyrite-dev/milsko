@@ -20,7 +20,7 @@ struct _MilskoLL {
 	Colormap colormap;
 	void*	 user;
 
-	MilskoLLCallback callback;
+	MilskoLLHandler handler;
 };
 
 struct _MilskoLLColor {

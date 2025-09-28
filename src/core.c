@@ -32,18 +32,19 @@ MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidge
 	h->class    = class;
 	h->pressed  = 0;
 
-	h->lowlevel->user	    = h;
-	h->lowlevel->callback->draw = lldrawhandler;
-	h->lowlevel->callback->up   = lluphandler;
-	h->lowlevel->callback->down = lldownhandler;
+	h->lowlevel->user	   = h;
+	h->lowlevel->handler->draw = lldrawhandler;
+	h->lowlevel->handler->up   = lluphandler;
+	h->lowlevel->handler->down = lldownhandler;
 
 	if(parent != NULL) arrput(parent->children, h);
 
 	sh_new_strdup(h->text);
 	sh_new_strdup(h->integer);
 
-	shdefault(h->text, NULL);
 	shdefault(h->integer, -1);
+	shdefault(h->text, NULL);
+	shdefault(h->handler, NULL);
 
 	MilskoDispatch(h, create);
 
@@ -141,6 +142,10 @@ void MilskoSetText(MilskoWidget handle, const char* key, const char* value) {
 	}
 }
 
+void MilskoSetHandler(MilskoWidget handle, const char* key, MilskoHandler value) {
+	shput(handle->handler, key, value);
+}
+
 int MilskoGetInteger(MilskoWidget handle, const char* key) {
 	if(strcmp(key, MilskoNx) == 0 || strcmp(key, MilskoNy) == 0 || strcmp(key, MilskoNwidth) == 0 || strcmp(key, MilskoNheight) == 0) {
 		int	     x, y;
@@ -162,6 +167,10 @@ const char* MilskoGetText(MilskoWidget handle, const char* key) {
 	return shget(handle->text, key);
 }
 
+MilskoHandler MilskoGetHandler(MilskoWidget handle, const char* key) {
+	return shget(handle->handler, key);
+}
+
 void MilskoApply(MilskoWidget handle, ...) {
 	va_list va;
 	char*	key;
@@ -174,6 +183,9 @@ void MilskoApply(MilskoWidget handle, ...) {
 		} else if(key[0] == 'S') {
 			char* t = va_arg(va, char*);
 			MilskoSetText(handle, key, t);
+		} else if(key[0] == 'C') {
+			MilskoHandler h = va_arg(va, MilskoHandler);
+			MilskoSetHandler(handle, key, h);
 		}
 	}
 	va_end(va);
@@ -181,4 +193,9 @@ void MilskoApply(MilskoWidget handle, ...) {
 
 void MilskoSetDefault(MilskoWidget handle) {
 	MilskoSetText(handle, MilskoNbackground, MilskoDefaultBackground);
+}
+
+void MilskoDispatchHandler(MilskoWidget handle, const char* key) {
+	MilskoHandler handler = MilskoGetHandler(handle, key);
+	if(handler != NULL) handler(handle);
 }
