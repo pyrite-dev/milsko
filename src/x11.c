@@ -109,6 +109,6 @@ void MilskoLLSleep(int ms) {
 	usleep(ms * 1000);
 }
 
-MILSKODECL void MilskoLLSetTitle(HMILSKOLL handle, const char* title) {
+void MilskoLLSetTitle(HMILSKOLL handle, const char* title) {
 	XSetStandardProperties(handle->display, handle->window, title, "Milsko Widget Toolkit", None, (char**)NULL, 0, NULL);
 }
