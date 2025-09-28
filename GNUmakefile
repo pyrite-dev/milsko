@@ -27,10 +27,13 @@ L_OBJS += src/x11.o
 L_LIBS += -lX11
 endif
 
-.PHONY: all clean
+.PHONY: all format clean
 .SUFFIXES: .c .o
 
 all: $(LIB)milsko$(SO)
+
+format:
+	clang-format --verbose -i $(shell find src include -name "*.c" -or -name "*.h")
 
 $(LIB)milsko$(SO): $(L_OBJS)
 	$(CC) $(LDFLAGS) -shared -o $@ $(L_OBJS) $(L_LIBS)

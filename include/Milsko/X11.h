@@ -6,12 +6,12 @@
 #include <X11/Xutil.h>
 
 typedef struct __Milsko {
-	Display* display;
-	Window window;
-	GC gc;
-	Colormap colormap;
-	int x;
-	int y;
+	Display*     display;
+	Window	     window;
+	GC	     gc;
+	Colormap     colormap;
+	int	     x;
+	int	     y;
 	unsigned int width;
 	unsigned int height;
 }* HMILSKO;
