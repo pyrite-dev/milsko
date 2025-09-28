@@ -1,10 +1,6 @@
 /* $Id$ */
-#ifndef __MILSKO_PLATFORM_H__
-#define __MILSKO_PLATFORM_H__
-
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#ifndef __MILSKO_LL_H__
+#define __MILSKO_LL_H__
 
 #include <Milsko/TypeDef.h>
 
@@ -16,16 +12,16 @@
 #include <Milsko/GDI.h>
 #endif
 #else
-typedef void* HMILSKO;
+typedef void* HMILSKOLL;
 typedef void* HMILSKOCOLOR;
 #endif
 
-HMILSKO	     MilskoLLCreate(HMILSKO parent, int x, int y, int width, int height);
-void	     MilskoLLDestroy(HMILSKO handle);
-void	     MilskoLLPolygon(HMILSKO handle, MilskoPoint* points, int points_count, HMILSKOCOLOR color);
-HMILSKOCOLOR MilskoLLAllocColor(HMILSKO handle, int r, int g, int b);
-void	     MilskoLLGetXYWH(HMILSKO handle, int* x, int* y, unsigned int* w, unsigned int* h);
-int	     MilskoLLPending(HMILSKO handle);
-void	     MilskoLLNextEvent(HMILSKO handle);
+HMILSKOLL    MilskoLLCreate(HMILSKOLL parent, int x, int y, int width, int height);
+void	     MilskoLLDestroy(HMILSKOLL handle);
+void	     MilskoLLPolygon(HMILSKOLL handle, MilskoPoint* points, int points_count, HMILSKOCOLOR color);
+HMILSKOCOLOR MilskoLLAllocColor(HMILSKOLL handle, int r, int g, int b);
+void	     MilskoLLGetXYWH(HMILSKOLL handle, int* x, int* y, unsigned int* w, unsigned int* h);
+int	     MilskoLLPending(HMILSKOLL handle);
+void	     MilskoLLNextEvent(HMILSKOLL handle);
 
 #endif

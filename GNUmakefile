@@ -7,7 +7,7 @@ CFLAGS = -fPIC -Iinclude -D_MILSKO
 LDFLAGS =
 LIBS =
 
-L_OBJS =
+L_OBJS = src/ds.o src/core.o
 
 ifeq ($(TARGET),NetBSD)
 CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include

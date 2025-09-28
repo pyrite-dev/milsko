@@ -1,13 +1,11 @@
 /* $Id$ */
 #include <Milsko/Milsko.h>
 
-#include <stdlib.h>
-
 static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask;
 
-HMILSKO MilskoLLCreate(HMILSKO parent, int x, int y, int width, int height) {
-	HMILSKO r;
-	Window	p;
+HMILSKOLL MilskoLLCreate(HMILSKOLL parent, int x, int y, int width, int height) {
+	HMILSKOLL r;
+	Window	  p;
 
 	r	  = malloc(sizeof(*r));
 	r->x	  = x;
@@ -32,13 +30,13 @@ HMILSKO MilskoLLCreate(HMILSKO parent, int x, int y, int width, int height) {
 	return r;
 }
 
-void MilskoLLDestroy(HMILSKO handle) {
+void MilskoLLDestroy(HMILSKOLL handle) {
 	XFreeGC(handle->display, handle->gc);
 	XDestroyWindow(handle->display, handle->window);
 	free(handle);
 }
 
-void MilskoLLPolygon(HMILSKO handle, MilskoPoint* points, int points_count, HMILSKOCOLOR color) {
+void MilskoLLPolygon(HMILSKOLL handle, MilskoPoint* points, int points_count, HMILSKOCOLOR color) {
 	int	i;
 	XPoint* p = malloc(sizeof(*p) * points_count);
 
@@ -53,7 +51,7 @@ void MilskoLLPolygon(HMILSKO handle, MilskoPoint* points, int points_count, HMIL
 	free(p);
 }
 
-HMILSKOCOLOR MilskoLLAllocColor(HMILSKO handle, int r, int g, int b) {
+HMILSKOCOLOR MilskoLLAllocColor(HMILSKOLL handle, int r, int g, int b) {
 	HMILSKOCOLOR c = malloc(sizeof(*c));
 	XColor	     xc;
 	xc.red	 = 256 * r;
@@ -65,7 +63,7 @@ HMILSKOCOLOR MilskoLLAllocColor(HMILSKO handle, int r, int g, int b) {
 	return c;
 }
 
-void MilskoLLGetXYWH(HMILSKO handle, int* x, int* y, unsigned int* w, unsigned int* h) {
+void MilskoLLGetXYWH(HMILSKOLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
 	*x = handle->x;
 	*y = handle->y;
 	*w = handle->width;
@@ -76,7 +74,7 @@ void MilskoLLFreeColor(HMILSKOCOLOR color) {
 	free(color);
 }
 
-int MilskoLLPending(HMILSKO handle) {
+int MilskoLLPending(HMILSKOLL handle) {
 	XEvent ev;
 	if(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 		XPutBackEvent(handle->display, &ev);
@@ -85,7 +83,7 @@ int MilskoLLPending(HMILSKO handle) {
 	return 0;
 }
 
-void MilskoLLNextEvent(HMILSKO handle) {
+void MilskoLLNextEvent(HMILSKOLL handle) {
 	XEvent ev;
 	if(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 	}

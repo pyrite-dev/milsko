@@ -5,7 +5,7 @@
 #include <X11/X.h>
 #include <X11/Xutil.h>
 
-typedef struct __Milsko {
+typedef struct _MilskoLowLevel {
 	Display*     display;
 	Window	     window;
 	GC	     gc;
@@ -14,9 +14,9 @@ typedef struct __Milsko {
 	int	     y;
 	unsigned int width;
 	unsigned int height;
-}* HMILSKO;
+}* HMILSKOLL;
 
-typedef struct __MilskoColor {
+typedef struct _MilskoColor {
 	unsigned long pixel;
 }* HMILSKOCOLOR;
 
