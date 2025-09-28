@@ -2,7 +2,7 @@
 #include <Milsko/Milsko.h>
 
 static void create(MilskoWidget handle) {
-	MilskoSetText(handle, MilskoNbackground, MilskoDefaultBackground);
+	MilskoSetDefault(handle);
 }
 
 static void draw(MilskoWidget handle) {
