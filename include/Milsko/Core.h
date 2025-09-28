@@ -4,6 +4,8 @@
 
 #include <Milsko/MachDep.h>
 
+typedef struct _MilskoClass* MilskoClass;
+
 #ifdef _MILSKO
 #include <Milsko/LowLevel.h>
 
@@ -13,6 +15,7 @@ typedef struct _Milsko {
 	HMILSKOLL lowlevel;
 	HMILSKO	  parent;
 	HMILSKO*  children;
+	MilskoClass class;
 }* HMILSKO;
 #else
 typedef void* HMILSKO;
