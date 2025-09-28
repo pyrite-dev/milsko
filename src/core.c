@@ -77,6 +77,12 @@ void MilskoSetInteger(HMILSKO handle, const char* key, int n) {
 	}
 }
 
+void MilskoSetText(HMILSKO handle, const char* key, const char* value) {
+	if(strcmp(key, MilskoNtitle) == 0) {
+		MilskoLLSetTitle(handle->lowlevel, value);
+	}
+}
+
 void MilskoApply(HMILSKO handle, ...) {
 	va_list va;
 	char*	key;
@@ -86,6 +92,9 @@ void MilskoApply(HMILSKO handle, ...) {
 		if(key[0] == 'I') {
 			int n = va_arg(va, int);
 			MilskoSetInteger(handle, key, n);
+		} else if(key[0] == 'S') {
+			char* t = va_arg(va, char*);
+			MilskoSetText(handle, key, t);
 		}
 	}
 	va_end(va);
