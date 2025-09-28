@@ -12,9 +12,9 @@
 #endif
 
 #if defined(_MILSKO) && defined(_WIN32)
-#define MILSKODECL extern __declsped(dllexport)
+#define MILSKODECL extern __declspec(dllexport)
 #elif defined(_WIN32)
-#define MILSKODECL extern __declsped(dllimport)
+#define MILSKODECL extern __declspec(dllimport)
 #else
 #define MILSKODECL extern
 #endif

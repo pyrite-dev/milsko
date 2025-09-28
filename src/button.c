@@ -14,6 +14,7 @@ static void draw(MilskoWidget handle) {
 	r.height = MilskoGetInteger(handle, MilskoNheight);
 
 	MilskoDrawFrame(handle, &r, MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground)), 0);
+
 	MilskoDrawRect(handle, &r, MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground)));
 }
 

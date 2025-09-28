@@ -63,7 +63,7 @@ void MilskoDrawRect(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color) 
 void MilskoDrawFrame(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color, int invert) {
 	MilskoPoint   p[6];
 	const int     diff    = 128;
-	const int     border  = 4;
+	const int     border  = 2;
 	MilskoLLColor darker  = MilskoLLAllocColor(handle->lowlevel, color->red - diff, color->green - diff, color->blue - diff);
 	MilskoLLColor lighter = MilskoLLAllocColor(handle->lowlevel, color->red + diff, color->green + diff, color->blue + diff);
 
