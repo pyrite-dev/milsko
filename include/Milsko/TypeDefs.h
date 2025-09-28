@@ -9,6 +9,13 @@ typedef struct _MilskoPoint {
 	int y;
 } MilskoPoint;
 
+typedef struct _MilskoRect {
+	int	     x;
+	int	     y;
+	unsigned int width;
+	unsigned int height;
+} MilskoRect;
+
 typedef struct _MilskoTextKeyValue {
 	char* key;
 	char* value;
@@ -40,6 +47,11 @@ typedef void* HMILSKO;
 #endif
 
 typedef struct _MilskoClass {
+	void* opaque;
+	void (*create)(HMILSKO handle);
+	void (*destroy)(HMILSKO handle);
+	void (*draw)(HMILSKO handle);
+	void (*click)(HMILSKO handle);
 } *MilskoClass, MilskoClassRec;
 
 #endif
