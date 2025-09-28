@@ -8,7 +8,9 @@
 #include <Milsko/TypeDefs.h>
 #include <Milsko/Core.h>
 #include <Milsko/Default.h>
+#include <Milsko/Draw.h>
 
 #include <Milsko/Window.h>
+#include <Milsko/Button.h>
 
 #endif

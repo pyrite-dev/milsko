@@ -7,21 +7,14 @@ static void create(MilskoWidget handle) {
 
 static void draw(MilskoWidget handle) {
 	MilskoLLColor c = MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground));
-	MilskoPoint   p[4];
+	MilskoRect    r;
 
-	p[0].x = 0;
-	p[0].y = 0;
+	r.x	 = 0;
+	r.y	 = 0;
+	r.width	 = MilskoGetInteger(handle, MilskoNwidth);
+	r.height = MilskoGetInteger(handle, MilskoNheight);
 
-	p[1].x = MilskoGetInteger(handle, MilskoNwidth);
-	p[1].y = 0;
-
-	p[2].x = MilskoGetInteger(handle, MilskoNwidth);
-	p[2].y = MilskoGetInteger(handle, MilskoNheight);
-
-	p[3].x = 0;
-	p[3].y = MilskoGetInteger(handle, MilskoNheight);
-
-	MilskoLLPolygon(handle->lowlevel, p, 4, c);
+	MilskoDrawRect(handle, &r, c);
 
 	MilskoLLFreeColor(c);
 }
