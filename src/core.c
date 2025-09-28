@@ -60,12 +60,33 @@ MILSKODECL void MilskoLoop(HMILSKO handle) {
 	}
 }
 
+void MilskoSetInteger(HMILSKO handle, const char* key, int n) {
+	int xy = 0;
+	int wh = 0;
+	if((xy = (strcmp(key, MilskoNx) == 0 || strcmp(key, MilskoNy) == 0)) || (wh = (strcmp(key, MilskoNwidth) == 0 || strcmp(key, MilskoNheight) == 0))) {
+		int	     x, y;
+		unsigned int w, h;
+
+		MilskoLLGetXYWH(handle->lowlevel, &x, &y, &w, &h);
+		if(strcmp(key, MilskoNx) == 0) x = n;
+		if(strcmp(key, MilskoNy) == 0) y = n;
+		if(strcmp(key, MilskoNwidth) == 0) w = n;
+		if(strcmp(key, MilskoNheight) == 0) h = n;
+		if(xy) MilskoLLSetXY(handle->lowlevel, x, y);
+		if(wh) MilskoLLSetWH(handle->lowlevel, w, h);
+	}
+}
+
 void MilskoApply(HMILSKO handle, ...) {
 	va_list va;
-	char* key;
+	char*	key;
 
 	va_start(va, handle);
-	while((key = va_arg(va, char*)) != NULL){
+	while((key = va_arg(va, char*)) != NULL) {
+		if(key[0] == 'I') {
+			int n = va_arg(va, int);
+			MilskoSetInteger(handle, key, n);
+		}
 	}
 	va_end(va);
 }
