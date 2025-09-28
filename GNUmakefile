@@ -11,7 +11,7 @@ L_OBJS =
 
 ifeq ($(TARGET),NetBSD)
 CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
-LDFLAGS += -L/usr/X11R7/lib -L/usr/pkg/lib
+LDFLAGS += -L/usr/X11R7/lib -L/usr/pkg/lib -Wl,-R/usr/X11R7/lib -Wl,-R/usr/pkg/lib
 UNIX = 1
 else ifeq ($(TARGET),Linux)
 UNIX = 1
