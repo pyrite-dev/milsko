@@ -1,6 +1,17 @@
 /* $Id$ */
-#ifndef __MILSKO_LL_H__
-#define __MILSKO_LL_H__
+#ifndef __MILSKO_LOWLEVEL_H__
+#define __MILSKO_LOWLEVEL_H__
+
+#include <Milsko/MachDep.h>
+
+typedef struct _MilskoLLCallback *MilskoLLCallback, MilskoLLCallbackRec;
+#ifdef _MILSKO
+typedef struct _MilskoLL *     MilskoLL, MilskoLLRec;
+typedef struct _MilskoLLColor *MilskoLLColor, MilskoLLColorRec;
+#else
+typedef void* MilskoLL;
+typedef void* MilskoLLColor;
+#endif
 
 #ifdef _MILSKO
 #ifdef USE_X11
@@ -9,13 +20,17 @@
 #ifdef USE_GDI
 #include <Milsko/GDI.h>
 #endif
-#else
-typedef void* MilskoLL;
-typedef void* MilskoLLColor;
 #endif
-
-#include <Milsko/MachDep.h>
 #include <Milsko/TypeDefs.h>
+
+#define MilskoLLDispatch(x, y) \
+	if(x->callback != NULL && x->callback->y != NULL) x->callback->y(x)
+
+struct _MilskoLLCallback {
+	void (*draw)(MilskoLL handle);
+	void (*down)(MilskoLL handle);
+	void (*up)(MilskoLL handle);
+};
 
 MILSKODECL MilskoLL MilskoLLCreate(MilskoLL parent, int x, int y, int width, int height);
 MILSKODECL void	    MilskoLLDestroy(MilskoLL handle);

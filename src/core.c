@@ -3,12 +3,9 @@
 
 #include "stb_ds.h"
 
-#define Dispatch(x, y) \
-	if(x->class != NULL && x->class->y != NULL) x->class->y(x)
-
 static void llhandler(MilskoLL handle) {
 	MilskoWidget h = (MilskoWidget)handle->user;
-	Dispatch(h, draw);
+	MilskoDispatch(h, draw);
 }
 
 MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height) {
@@ -22,8 +19,8 @@ MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidge
 	h->lowlevel = MilskoLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height);
 	h->class    = class;
 
-	h->lowlevel->user = h;
-	h->lowlevel->draw = llhandler;
+	h->lowlevel->user	    = h;
+	h->lowlevel->callback->draw = llhandler;
 
 	if(parent != NULL) arrput(parent->children, h);
 
@@ -33,7 +30,7 @@ MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidge
 	shdefault(h->text, NULL);
 	shdefault(h->integer, -1);
 
-	Dispatch(h, create);
+	MilskoDispatch(h, create);
 
 	return h;
 }
@@ -41,7 +38,7 @@ MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidge
 void MilskoDestroyWidget(MilskoWidget handle) {
 	int i;
 
-	Dispatch(handle, destroy);
+	MilskoDispatch(handle, destroy);
 
 	free(handle->name);
 

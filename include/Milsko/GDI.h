@@ -1,25 +1,27 @@
 /* $Id$ */
-#ifndef __MILSKO_X11_H__
-#define __MILSKO_X11_H__
-
-typedef struct _MilskoLowLevel* MilskoLL;
-typedef struct _MilskoColor*	MilskoLLColor;
+#ifndef __MILSKO_GDI_H__
+#define __MILSKO_GDI_H__
 
 #include <Milsko/MachDep.h>
+
+typedef struct _MilskoLL *     MilskoLL, MilskoLLRec;
+typedef struct _MilskoLLColor *MilskoLLColor, MilskoLLColorRec;
+
 #include <Milsko/TypeDefs.h>
+#include <Milsko/LowLevel.h>
 
 #include <windows.h>
 
-typedef struct _MilskoLowLevel {
+struct _MilskoLL {
 	void* user;
 
 	void (*draw)(MilskoLL handle);
-}* MilskoLL;
+};
 
-typedef struct _MilskoColor {
-	int	      red;
-	int	      green;
-	int	      blue;
-}* MilskoLLColor;
+struct _MilskoColor {
+	int red;
+	int green;
+	int blue;
+};
 
 #endif
