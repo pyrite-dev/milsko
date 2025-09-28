@@ -41,20 +41,20 @@ void MilskoDestroyWidget(HMILSKO handle) {
 	free(handle);
 }
 
-MILSKODECL void MilskoStep(HMILSKO handle){
+MILSKODECL void MilskoStep(HMILSKO handle) {
 	MilskoLLNextEvent(handle->lowlevel);
 }
 
-MILSKODECL int MilskoPending(HMILSKO handle){
+MILSKODECL int MilskoPending(HMILSKO handle) {
 	int i;
-	for(i = 0; i < arrlen(handle->children); i++){
+	for(i = 0; i < arrlen(handle->children); i++) {
 		if(MilskoPending(handle->children[i])) return 1;
 	}
 	return MilskoLLPending(handle->lowlevel);
 }
 
-MILSKODECL void MilskoLoop(HMILSKO handle){
-	while(1){
+MILSKODECL void MilskoLoop(HMILSKO handle) {
+	while(1) {
 		MilskoStep(handle);
 		MilskoLLSleep(10);
 	}

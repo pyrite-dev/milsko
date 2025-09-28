@@ -24,6 +24,6 @@ MILSKODECL HMILSKOCOLOR MilskoLLAllocColor(HMILSKOLL handle, int r, int g, int b
 MILSKODECL void		MilskoLLGetXYWH(HMILSKOLL handle, int* x, int* y, unsigned int* w, unsigned int* h);
 MILSKODECL int		MilskoLLPending(HMILSKOLL handle);
 MILSKODECL void		MilskoLLNextEvent(HMILSKOLL handle);
-MILSKODECL void MilskoLLSleep(int ms);
+MILSKODECL void		MilskoLLSleep(int ms);
 
 #endif

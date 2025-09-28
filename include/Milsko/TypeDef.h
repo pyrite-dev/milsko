@@ -27,6 +27,6 @@ typedef void* HMILSKO;
 #endif
 
 typedef struct _MilskoClass {
-}* MilskoClass, MilskoClassRec;
+} *MilskoClass, MilskoClassRec;
 
 #endif
