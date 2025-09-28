@@ -10,4 +10,6 @@
 #define MilskoNtitle "Stitle"
 #define MilskoNbackground "Sbackground"
 
+#define MilskoNactivateHandler "Cactivate"
+
 #endif

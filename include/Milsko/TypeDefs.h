@@ -7,8 +7,9 @@
 typedef struct _MilskoClass *	      MilskoClass, MilskoClassRec;
 typedef struct _MilskoPoint	      MilskoPoint;
 typedef struct _MilskoRect	      MilskoRect;
-typedef struct _MilskoTextKeyValue    MilskoTextKeyValue;
 typedef struct _MilskoIntegerKeyValue MilskoIntegerKeyValue;
+typedef struct _MilskoTextKeyValue    MilskoTextKeyValue;
+typedef struct _MilskoHandlerKeyValue MilskoHandlerKeyValue;
 #ifdef _MILSKO
 typedef struct _MilskoWidget *MilskoWidget, MilskoWidgetRec;
 #else
@@ -19,9 +20,6 @@ typedef void (*MilskoHandler)(MilskoWidget handle);
 #ifdef _MILSKO
 #include <Milsko/LowLevel.h>
 #endif
-
-#define MilskoDispatch(x, y) \
-	if(x->class != NULL && x->class->y != NULL) x->class->y(x)
 
 struct _MilskoPoint {
 	int x;
@@ -45,6 +43,11 @@ struct _MilskoIntegerKeyValue {
 	int   value;
 };
 
+struct _MilskoHandlerKeyValue {
+	char*	      key;
+	MilskoHandler value;
+};
+
 #ifdef _MILSKO
 struct _MilskoWidget {
 	char* name;
@@ -56,8 +59,9 @@ struct _MilskoWidget {
 
 	int pressed;
 
-	MilskoTextKeyValue*    text;
 	MilskoIntegerKeyValue* integer;
+	MilskoTextKeyValue*    text;
+	MilskoHandlerKeyValue* handler;
 };
 #endif
 

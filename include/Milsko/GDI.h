@@ -15,7 +15,7 @@ typedef struct _MilskoLLColor *MilskoLLColor, MilskoLLColorRec;
 struct _MilskoLL {
 	void* user;
 
-	void (*draw)(MilskoLL handle);
+	MilskoLLHandler handler;
 };
 
 struct _MilskoColor {

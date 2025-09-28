@@ -2,10 +2,10 @@
 #include <Milsko/Milsko.h>
 
 void MilskoLLCreateCommon(MilskoLL handle) {
-	handle->callback = malloc(sizeof(*handle->callback));
-	memset(handle->callback, 0, sizeof(*handle->callback));
+	handle->handler = malloc(sizeof(*handle->handler));
+	memset(handle->handler, 0, sizeof(*handle->handler));
 }
 
 void MilskoLLDestroyCommon(MilskoLL handle) {
-	free(handle->callback);
+	free(handle->handler);
 }

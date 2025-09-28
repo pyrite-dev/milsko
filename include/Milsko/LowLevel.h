@@ -4,7 +4,7 @@
 
 #include <Milsko/MachDep.h>
 
-typedef struct _MilskoLLCallback *MilskoLLCallback, MilskoLLCallbackRec;
+typedef struct _MilskoLLHandler *MilskoLLHandler, MilskoLLHandlerRec;
 #ifdef _MILSKO
 typedef struct _MilskoLL *     MilskoLL, MilskoLLRec;
 typedef struct _MilskoLLColor *MilskoLLColor, MilskoLLColorRec;
@@ -24,9 +24,9 @@ typedef void* MilskoLLColor;
 #include <Milsko/TypeDefs.h>
 
 #define MilskoLLDispatch(x, y) \
-	if(x->callback != NULL && x->callback->y != NULL) x->callback->y(x)
+	if(x->handler != NULL && x->handler->y != NULL) x->handler->y(x)
 
-struct _MilskoLLCallback {
+struct _MilskoLLHandler {
 	void (*draw)(MilskoLL handle);
 	void (*up)(MilskoLL handle);
 	void (*down)(MilskoLL handle);
