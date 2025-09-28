@@ -5,7 +5,7 @@
 #include <Milsko/MachDep.h>
 #include <Milsko/TypeDefs.h>
 
-MILSKODECL MilskoWidget MilskoCreateWidget(MilskoClass class, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height);
+MILSKODECL MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height);
 MILSKODECL void		MilskoDestroyWidget(MilskoWidget handle);
 
 MILSKODECL void MilskoLoop(MilskoWidget handle);

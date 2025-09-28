@@ -34,6 +34,8 @@ typedef struct _MilskoClass* MilskoClass;
 typedef struct _Milsko* MilskoWidget;
 
 typedef struct _Milsko {
+	char* name;
+
 	MilskoLL      lowlevel;
 	MilskoWidget  parent;
 	MilskoWidget* children;

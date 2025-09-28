@@ -11,8 +11,11 @@ static void llhandler(MilskoLL handle) {
 	Dispatch(h, draw);
 }
 
-MilskoWidget MilskoCreateWidget(MilskoClass class, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height) {
+MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	MilskoWidget h = malloc(sizeof(*h));
+
+	h->name = malloc(strlen(name) + 1);
+	strcpy(h->name, name);
 
 	h->parent   = parent;
 	h->children = NULL;
@@ -39,6 +42,8 @@ void MilskoDestroyWidget(MilskoWidget handle) {
 	int i;
 
 	Dispatch(handle, destroy);
+
+	free(handle->name);
 
 	if(handle->children != NULL) {
 		for(i = 0; i < arrlen(handle->children); i++) {
