@@ -84,3 +84,9 @@ int MilskoLLPending(HMILSKO handle) {
 	}
 	return 0;
 }
+
+void MilskoLLNextEvent(HMILSKO handle) {
+	XEvent ev;
+	if(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
+	}
+}
