@@ -57,6 +57,14 @@ void MilskoLLPolygon(MilskoLL handle, MilskoPoint* points, int points_count, Mil
 MilskoLLColor MilskoLLAllocColor(MilskoLL handle, int r, int g, int b) {
 	MilskoLLColor c = malloc(sizeof(*c));
 	XColor	      xc;
+
+	if(r > 255) r = 255;
+	if(g > 255) g = 255;
+	if(b > 255) b = 255;
+	if(r < 0) r = 0;
+	if(g < 0) g = 0;
+	if(b < 0) b = 0;
+
 	xc.red	 = 256 * r;
 	xc.green = 256 * g;
 	xc.blue	 = 256 * b;

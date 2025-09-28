@@ -9,5 +9,6 @@
 MILSKODECL MilskoLLColor MilskoParseColor(MilskoWidget handle, const char* text);
 
 MILSKODECL void MilskoDrawRect(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color);
+MILSKODECL void MilskoDrawFrame(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color, int invert);
 
 #endif

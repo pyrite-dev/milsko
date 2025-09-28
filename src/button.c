@@ -6,7 +6,15 @@ static void create(MilskoWidget handle) {
 }
 
 static void draw(MilskoWidget handle) {
-	MilskoPoint p[6];
+	MilskoRect r;
+
+	r.x	 = 0;
+	r.y	 = 0;
+	r.width	 = MilskoGetInteger(handle, MilskoNwidth);
+	r.height = MilskoGetInteger(handle, MilskoNheight);
+
+	MilskoDrawFrame(handle, &r, MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground)), 0);
+	MilskoDrawRect(handle, &r, MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground)));
 }
 
 MilskoClassRec MilskoButtonClassRec = {
