@@ -7,7 +7,7 @@ CFLAGS = -fPIC -Iinclude -D_MILSKO
 LDFLAGS =
 LIBS =
 
-L_OBJS = src/ds.o src/core.o
+L_OBJS = src/ds.o src/core.o src/default.o
 L_OBJS += src/window.o
 
 ifeq ($(TARGET),NetBSD)
