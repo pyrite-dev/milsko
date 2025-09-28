@@ -3,8 +3,8 @@
 
 static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask;
 
-HMILSKOLL MilskoLLCreate(HMILSKOLL parent, int x, int y, int width, int height) {
-	HMILSKOLL    r;
+MilskoLL MilskoLLCreate(MilskoLL parent, int x, int y, int width, int height) {
+	MilskoLL     r;
 	Window	     p;
 	Window	     root;
 	unsigned int border, depth;
@@ -33,13 +33,13 @@ HMILSKOLL MilskoLLCreate(HMILSKOLL parent, int x, int y, int width, int height) 
 	return r;
 }
 
-void MilskoLLDestroy(HMILSKOLL handle) {
+void MilskoLLDestroy(MilskoLL handle) {
 	XFreeGC(handle->display, handle->gc);
 	XDestroyWindow(handle->display, handle->window);
 	free(handle);
 }
 
-void MilskoLLPolygon(HMILSKOLL handle, MilskoPoint* points, int points_count, HMILSKOCOLOR color) {
+void MilskoLLPolygon(MilskoLL handle, MilskoPoint* points, int points_count, MilskoLLColor color) {
 	int	i;
 	XPoint* p = malloc(sizeof(*p) * points_count);
 
@@ -54,9 +54,9 @@ void MilskoLLPolygon(HMILSKOLL handle, MilskoPoint* points, int points_count, HM
 	free(p);
 }
 
-HMILSKOCOLOR MilskoLLAllocColor(HMILSKOLL handle, int r, int g, int b) {
-	HMILSKOCOLOR c = malloc(sizeof(*c));
-	XColor	     xc;
+MilskoLLColor MilskoLLAllocColor(MilskoLL handle, int r, int g, int b) {
+	MilskoLLColor c = malloc(sizeof(*c));
+	XColor	      xc;
 	xc.red	 = 256 * r;
 	xc.green = 256 * g;
 	xc.blue	 = 256 * b;
@@ -66,7 +66,7 @@ HMILSKOCOLOR MilskoLLAllocColor(HMILSKOLL handle, int r, int g, int b) {
 	return c;
 }
 
-void MilskoLLGetXYWH(HMILSKOLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
+void MilskoLLGetXYWH(MilskoLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
 	Window	     root;
 	unsigned int border, depth;
 
@@ -78,19 +78,19 @@ void MilskoLLGetXYWH(HMILSKOLL handle, int* x, int* y, unsigned int* w, unsigned
 	handle->height = *h;
 }
 
-void MilskoLLSetXY(HMILSKOLL handle, int x, int y) {
+void MilskoLLSetXY(MilskoLL handle, int x, int y) {
 	XMoveWindow(handle->display, handle->window, x, y);
 }
 
-void MilskoLLSetWH(HMILSKOLL handle, int w, int h) {
+void MilskoLLSetWH(MilskoLL handle, int w, int h) {
 	XResizeWindow(handle->display, handle->window, w, h);
 }
 
-void MilskoLLFreeColor(HMILSKOCOLOR color) {
+void MilskoLLFreeColor(MilskoLLColor color) {
 	free(color);
 }
 
-int MilskoLLPending(HMILSKOLL handle) {
+int MilskoLLPending(MilskoLL handle) {
 	XEvent ev;
 	if(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 		XPutBackEvent(handle->display, &ev);
@@ -99,7 +99,7 @@ int MilskoLLPending(HMILSKOLL handle) {
 	return 0;
 }
 
-void MilskoLLNextEvent(HMILSKOLL handle) {
+void MilskoLLNextEvent(MilskoLL handle) {
 	XEvent ev;
 	if(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 	}
@@ -109,6 +109,6 @@ void MilskoLLSleep(int ms) {
 	usleep(ms * 1000);
 }
 
-void MilskoLLSetTitle(HMILSKOLL handle, const char* title) {
+void MilskoLLSetTitle(MilskoLL handle, const char* title) {
 	XSetStandardProperties(handle->display, handle->window, title, "Milsko Widget Toolkit", None, (char**)NULL, 0, NULL);
 }

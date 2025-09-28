@@ -31,27 +31,29 @@ typedef struct _MilskoClass* MilskoClass;
 #ifdef _MILSKO
 #include <Milsko/LowLevel.h>
 
-typedef struct _Milsko* HMILSKO;
+typedef struct _Milsko* MilskoWidget;
 
 typedef struct _Milsko {
-	HMILSKOLL lowlevel;
-	HMILSKO	  parent;
-	HMILSKO*  children;
+	MilskoLL      lowlevel;
+	MilskoWidget  parent;
+	MilskoWidget* children;
 	MilskoClass class;
 
 	MilskoTextKeyValue*    text;
 	MilskoIntegerKeyValue* integer;
-}* HMILSKO;
+}* MilskoWidget;
 #else
-typedef void* HMILSKO;
+typedef void* MilskoWidget;
 #endif
 
+typedef void (*MilskoHandler)(MilskoWidget handle);
+
 typedef struct _MilskoClass {
-	void* opaque;
-	void (*create)(HMILSKO handle);
-	void (*destroy)(HMILSKO handle);
-	void (*draw)(HMILSKO handle);
-	void (*click)(HMILSKO handle);
+	void*	      opaque;
+	MilskoHandler create;
+	MilskoHandler destroy;
+	MilskoHandler draw;
+	MilskoHandler click;
 } *MilskoClass, MilskoClassRec;
 
 #endif
