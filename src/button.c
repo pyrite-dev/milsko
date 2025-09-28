@@ -13,7 +13,7 @@ static void draw(MilskoWidget handle) {
 	r.width	 = MilskoGetInteger(handle, MilskoNwidth);
 	r.height = MilskoGetInteger(handle, MilskoNheight);
 
-	MilskoDrawFrame(handle, &r, MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground)), 0);
+	MilskoDrawFrame(handle, &r, MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground)), handle->pressed);
 
 	MilskoDrawRect(handle, &r, MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground)));
 }

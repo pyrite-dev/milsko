@@ -10,7 +10,7 @@ typedef struct _MilskoRect	      MilskoRect;
 typedef struct _MilskoTextKeyValue    MilskoTextKeyValue;
 typedef struct _MilskoIntegerKeyValue MilskoIntegerKeyValue;
 #ifdef _MILSKO
-typedef struct _Milsko *MilskoWidget, MilskoWidgetRec;
+typedef struct _MilskoWidget *MilskoWidget, MilskoWidgetRec;
 #else
 typedef void* MilskoWidget;
 #endif
@@ -46,13 +46,15 @@ struct _MilskoIntegerKeyValue {
 };
 
 #ifdef _MILSKO
-struct _Milsko {
+struct _MilskoWidget {
 	char* name;
 
 	MilskoLL      lowlevel;
 	MilskoWidget  parent;
 	MilskoWidget* children;
 	MilskoClass class;
+
+	int pressed;
 
 	MilskoTextKeyValue*    text;
 	MilskoIntegerKeyValue* integer;

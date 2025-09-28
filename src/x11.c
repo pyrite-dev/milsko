@@ -110,6 +110,16 @@ void MilskoLLNextEvent(MilskoLL handle) {
 	if(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 		if(ev.type == Expose) {
 			MilskoLLDispatch(handle, draw);
+		} else if(ev.type == ButtonPress) {
+			if(ev.xbutton.button == Button1) {
+				MilskoLLDispatch(handle, down);
+				MilskoLLDispatch(handle, draw);
+			}
+		} else if(ev.type == ButtonRelease) {
+			if(ev.xbutton.button == Button1) {
+				MilskoLLDispatch(handle, up);
+				MilskoLLDispatch(handle, draw);
+			}
 		}
 	}
 }
