@@ -9,14 +9,9 @@ MilskoLL MilskoLLCreate(MilskoLL parent, int x, int y, int width, int height) {
 	Window	     root;
 	unsigned int border, depth;
 
-	r	    = malloc(sizeof(*r));
-	r->x	    = x;
-	r->y	    = y;
-	r->width    = width;
-	r->height   = height;
-	r->callback = malloc(sizeof(*r->callback));
+	r = malloc(sizeof(*r));
 
-	memset(r->callback, 0, sizeof(*r->callback));
+	MilskoLLCreateCommon(r);
 
 	if(parent == NULL) {
 		r->display = XOpenDisplay(NULL);
@@ -37,6 +32,8 @@ MilskoLL MilskoLLCreate(MilskoLL parent, int x, int y, int width, int height) {
 }
 
 void MilskoLLDestroy(MilskoLL handle) {
+	MilskoLLDestroyCommon(handle);
+
 	XFreeGC(handle->display, handle->gc);
 	XDestroyWindow(handle->display, handle->window);
 	free(handle);
@@ -85,11 +82,6 @@ void MilskoLLGetXYWH(MilskoLL handle, int* x, int* y, unsigned int* w, unsigned 
 	unsigned int border, depth;
 
 	XGetGeometry(handle->display, handle->window, &root, x, y, w, h, &border, &depth);
-
-	handle->x      = *x;
-	handle->y      = *y;
-	handle->width  = *w;
-	handle->height = *h;
 }
 
 void MilskoLLSetXY(MilskoLL handle, int x, int y) {

@@ -32,6 +32,11 @@ struct _MilskoLLCallback {
 	void (*up)(MilskoLL handle);
 };
 
+/* lowlevel.c, common part */
+MILSKODECL void MilskoLLCreateCommon(MilskoLL handle);
+MILSKODECL void MilskoLLDestroyCommon(MilskoLL handle);
+
+/* driver-specific */
 MILSKODECL MilskoLL MilskoLLCreate(MilskoLL parent, int x, int y, int width, int height);
 MILSKODECL void	    MilskoLLDestroy(MilskoLL handle);
 

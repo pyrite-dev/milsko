@@ -14,15 +14,11 @@ typedef struct _MilskoLLColor *MilskoLLColor, MilskoLLColorRec;
 #include <X11/Xutil.h>
 
 struct _MilskoLL {
-	Display*     display;
-	Window	     window;
-	GC	     gc;
-	Colormap     colormap;
-	int	     x;
-	int	     y;
-	unsigned int width;
-	unsigned int height;
-	void*	     user;
+	Display* display;
+	Window	 window;
+	GC	 gc;
+	Colormap colormap;
+	void*	 user;
 
 	MilskoLLCallback callback;
 };
