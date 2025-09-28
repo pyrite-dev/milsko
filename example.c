@@ -3,7 +3,7 @@
 #include <Milsko/Milsko.h>
 
 int main(){
-	MilskoWidget window = MilskoCreateWidget(MilskoWindowClass, NULL, 0, 0, 640, 480);
+	MilskoWidget window = MilskoCreateWidget(MilskoWindowClass, "main", NULL, 0, 0, 640, 480);
 
 	MilskoApply(window,
 		MilskoNwidth, 480 * 2,
