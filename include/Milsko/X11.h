@@ -2,7 +2,11 @@
 #ifndef __MILSKO_X11_H__
 #define __MILSKO_X11_H__
 
+typedef struct _MilskoLowLevel* MilskoLL;
+typedef struct _MilskoColor*	MilskoLLColor;
+
 #include <Milsko/MachDep.h>
+#include <Milsko/TypeDefs.h>
 
 #include <X11/X.h>
 #include <X11/Xutil.h>
@@ -16,10 +20,13 @@ typedef struct _MilskoLowLevel {
 	int	     y;
 	unsigned int width;
 	unsigned int height;
-}* HMILSKOLL;
+	void*	     user;
+
+	void (*draw)(MilskoLL handle);
+}* MilskoLL;
 
 typedef struct _MilskoColor {
 	unsigned long pixel;
-}* HMILSKOCOLOR;
+}* MilskoLLColor;
 
 #endif

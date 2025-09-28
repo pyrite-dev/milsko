@@ -10,23 +10,23 @@
 #include <Milsko/GDI.h>
 #endif
 #else
-typedef void* HMILSKOLL;
-typedef void* HMILSKOCOLOR;
+typedef void* MilskoLL;
+typedef void* MilskoLLColor;
 #endif
 
 #include <Milsko/MachDep.h>
 #include <Milsko/TypeDefs.h>
 
-MILSKODECL HMILSKOLL	MilskoLLCreate(HMILSKOLL parent, int x, int y, int width, int height);
-MILSKODECL void		MilskoLLDestroy(HMILSKOLL handle);
-MILSKODECL void		MilskoLLPolygon(HMILSKOLL handle, MilskoPoint* points, int points_count, HMILSKOCOLOR color);
-MILSKODECL HMILSKOCOLOR MilskoLLAllocColor(HMILSKOLL handle, int r, int g, int b);
-MILSKODECL void		MilskoLLGetXYWH(HMILSKOLL handle, int* x, int* y, unsigned int* w, unsigned int* h);
-MILSKODECL void		MilskoLLSetXY(HMILSKOLL handle, int x, int y);
-MILSKODECL void		MilskoLLSetWH(HMILSKOLL handle, int w, int h);
-MILSKODECL void		MilskoLLSetTitle(HMILSKOLL handle, const char* title);
-MILSKODECL int		MilskoLLPending(HMILSKOLL handle);
-MILSKODECL void		MilskoLLNextEvent(HMILSKOLL handle);
-MILSKODECL void		MilskoLLSleep(int ms);
+MILSKODECL MilskoLL	 MilskoLLCreate(MilskoLL parent, int x, int y, int width, int height);
+MILSKODECL void		 MilskoLLDestroy(MilskoLL handle);
+MILSKODECL void		 MilskoLLPolygon(MilskoLL handle, MilskoPoint* points, int points_count, MilskoLLColor color);
+MILSKODECL MilskoLLColor MilskoLLAllocColor(MilskoLL handle, int r, int g, int b);
+MILSKODECL void		 MilskoLLGetXYWH(MilskoLL handle, int* x, int* y, unsigned int* w, unsigned int* h);
+MILSKODECL void		 MilskoLLSetXY(MilskoLL handle, int x, int y);
+MILSKODECL void		 MilskoLLSetWH(MilskoLL handle, int w, int h);
+MILSKODECL void		 MilskoLLSetTitle(MilskoLL handle, const char* title);
+MILSKODECL int		 MilskoLLPending(MilskoLL handle);
+MILSKODECL void		 MilskoLLNextEvent(MilskoLL handle);
+MILSKODECL void		 MilskoLLSleep(int ms);
 
 #endif
