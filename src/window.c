@@ -7,10 +7,13 @@ static void draw(MilskoWidget handle) {
 
 	p[0].x = 0;
 	p[0].y = 0;
+
 	p[1].x = MilskoGetInteger(handle, MilskoNwidth);
 	p[1].y = 0;
+
 	p[2].x = MilskoGetInteger(handle, MilskoNwidth);
 	p[2].y = MilskoGetInteger(handle, MilskoNheight);
+
 	p[3].x = 0;
 	p[3].y = MilskoGetInteger(handle, MilskoNheight);
 
