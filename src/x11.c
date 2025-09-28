@@ -4,8 +4,10 @@
 static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask;
 
 HMILSKOLL MilskoLLCreate(HMILSKOLL parent, int x, int y, int width, int height) {
-	HMILSKOLL r;
-	Window	  p;
+	HMILSKOLL    r;
+	Window	     p;
+	Window	     root;
+	unsigned int border, depth;
 
 	r	  = malloc(sizeof(*r));
 	r->x	  = x;
@@ -22,7 +24,8 @@ HMILSKOLL MilskoLLCreate(HMILSKOLL parent, int x, int y, int width, int height) 
 	}
 	r->window   = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, XDefaultScreen(r->display)));
 	r->colormap = DefaultColormap(r->display, XDefaultScreen(r->display));
-	r->gc	    = XCreateGC(r->display, r->window, 0, 0);
+
+	r->gc = XCreateGC(r->display, r->window, 0, 0);
 
 	XSelectInput(r->display, r->window, mask);
 	XMapWindow(r->display, r->window);
@@ -64,14 +67,23 @@ HMILSKOCOLOR MilskoLLAllocColor(HMILSKOLL handle, int r, int g, int b) {
 }
 
 void MilskoLLGetXYWH(HMILSKOLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
-	*x = handle->x;
-	*y = handle->y;
-	*w = handle->width;
-	*h = handle->height;
+	Window	     root;
+	unsigned int border, depth;
+
+	XGetGeometry(handle->display, handle->window, &root, x, y, w, h, &border, &depth);
+
+	handle->x      = *x;
+	handle->y      = *y;
+	handle->width  = *w;
+	handle->height = *h;
 }
 
-void MilskoLLSetXYWH(HMILSKOLL handle, int x, int y, unsigned int w, unsigned int h) {
-	XMoveResizeWindow(handle->display, handle->window, x, y, w, h);
+void MilskoLLSetXY(HMILSKOLL handle, int x, int y) {
+	XMoveWindow(handle->display, handle->window, x, y);
+}
+
+void MilskoLLSetWH(HMILSKOLL handle, int w, int h) {
+	XResizeWindow(handle->display, handle->window, w, h);
 }
 
 void MilskoLLFreeColor(HMILSKOCOLOR color) {

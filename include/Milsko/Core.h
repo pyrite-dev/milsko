@@ -10,6 +10,8 @@ MILSKODECL void	   MilskoDestroyWidget(HMILSKO handle);
 MILSKODECL void	   MilskoLoop(HMILSKO handle);
 MILSKODECL void	   MilskoStep(HMILSKO handle);
 MILSKODECL int	   MilskoPending(HMILSKO handle);
-MILSKODECL void	   MilskoApply(HMILSKO handle, ...);
+
+MILSKODECL void MilskoSetInteger(HMILSKO handle, const char* key, int n);
+MILSKODECL void MilskoApply(HMILSKO handle, ...);
 
 #endif
