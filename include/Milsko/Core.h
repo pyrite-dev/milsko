@@ -9,6 +9,8 @@
 	if(x->class != NULL && x->class->y != NULL) x->class->y(x)
 
 MILSKODECL MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height);
+MILSKODECL MilskoWidget MilskoVaCreateWidget(MilskoClass class, const char* name, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height, ...);
+MILSKODECL MilskoWidget MilskoVaListCreateWidget(MilskoClass class, const char* name, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va);
 MILSKODECL void		MilskoDestroyWidget(MilskoWidget handle);
 
 MILSKODECL void MilskoLoop(MilskoWidget handle);
@@ -23,6 +25,7 @@ MILSKODECL const char*	 MilskoGetText(MilskoWidget handle, const char* key);
 MILSKODECL MilskoHandler MilskoGetHandler(MilskoWidget handle, const char* key);
 MILSKODECL void		 MilskoDispatchHandler(MilskoWidget handle, const char* key);
 MILSKODECL void		 MilskoSetDefault(MilskoWidget handle);
-MILSKODECL void		 MilskoApply(MilskoWidget handle, ...);
+MILSKODECL void		 MilskoVaApply(MilskoWidget handle, ...);
+MILSKODECL void		 MilskoVaListApply(MilskoWidget handle, va_list va);
 
 #endif

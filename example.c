@@ -7,14 +7,10 @@ void handler(MilskoWidget handle){
 }
 
 int main(){
-	MilskoWidget window = MilskoCreateWidget(MilskoWindowClass, "main", NULL, 0, 0, 400, 400);
-	MilskoWidget button = MilskoCreateWidget(MilskoButtonClass, "button", window, 50, 50, 300, 300);
-
-	MilskoApply(window,
+	MilskoWidget window = MilskoVaCreateWidget(MilskoWindowClass, "main", NULL, 0, 0, 400, 400,
 		MilskoNtitle, "hello world",
 	NULL);
-
-	MilskoApply(button,
+	MilskoWidget button = MilskoVaCreateWidget(MilskoButtonClass, "button", window, 50, 50, 300, 300,
 		MilskoNactivateHandler, handler,
 	NULL);
 

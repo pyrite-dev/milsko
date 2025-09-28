@@ -51,6 +51,26 @@ MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidge
 	return h;
 }
 
+MilskoWidget MilskoVaCreateWidget(MilskoClass class, const char* name, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height, ...) {
+	MilskoWidget h;
+	va_list	     va;
+
+	va_start(va, height);
+	h = MilskoVaListCreateWidget(class, name, parent, x, y, width, height, va);
+	va_end(va);
+
+	return h;
+}
+
+MilskoWidget MilskoVaListCreateWidget(MilskoClass class, const char* name, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va) {
+	MilskoWidget h;
+
+	h = MilskoCreateWidget(class, name, parent, x, y, width, height);
+	MilskoVaListApply(h, va);
+
+	return h;
+}
+
 void MilskoDestroyWidget(MilskoWidget handle) {
 	int i;
 
@@ -171,11 +191,17 @@ MilskoHandler MilskoGetHandler(MilskoWidget handle, const char* key) {
 	return shget(handle->handler, key);
 }
 
-void MilskoApply(MilskoWidget handle, ...) {
+void MilskoVaApply(MilskoWidget handle, ...) {
 	va_list va;
-	char*	key;
 
 	va_start(va, handle);
+	MilskoVaListApply(handle, va);
+	va_end(va);
+}
+
+void MilskoVaListApply(MilskoWidget handle, va_list va) {
+	char* key;
+
 	while((key = va_arg(va, char*)) != NULL) {
 		if(key[0] == 'I') {
 			int n = va_arg(va, int);
@@ -188,7 +214,6 @@ void MilskoApply(MilskoWidget handle, ...) {
 			MilskoSetHandler(handle, key, h);
 		}
 	}
-	va_end(va);
 }
 
 void MilskoSetDefault(MilskoWidget handle) {
