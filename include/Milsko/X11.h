@@ -10,6 +10,10 @@ typedef struct __Milsko {
 	Window window;
 	GC gc;
 	Colormap colormap;
+	int x;
+	int y;
+	unsigned int width;
+	unsigned int height;
 }* HMILSKO;
 
 typedef struct __MilskoColor {
