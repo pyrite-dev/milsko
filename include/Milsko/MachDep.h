@@ -6,4 +6,12 @@
 #include <string.h>
 #include <stdio.h>
 
+#if defined(_MILSKO) && defined(_WIN32)
+#define MILSKODECL extern __declsped(dllexport)
+#elif defined(_WIN32)
+#define MILSKODECL extern __declsped(dllimport)
+#else
+#define MILSKODECL extern
+#endif
+
 #endif

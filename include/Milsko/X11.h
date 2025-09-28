@@ -2,6 +2,8 @@
 #ifndef __MILSKO_X11_H__
 #define __MILSKO_X11_H__
 
+#include <Milsko/MachDep.h>
+
 #include <X11/X.h>
 #include <X11/Xutil.h>
 
