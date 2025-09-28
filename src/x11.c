@@ -10,6 +10,11 @@ HMILSKO MilskoLLCreate(HMILSKO parent, int x, int y, int width, int height){
 	Window p;
 
 	r = malloc(sizeof(*r));
+	r->x = x;
+	r->y = y;
+	r->width = width;
+	r->height = height;
+
 	if(parent == NULL){
 		r->display = XOpenDisplay(NULL);
 		p = XRootWindow(r->display, XDefaultScreen(r->display));
@@ -61,10 +66,10 @@ HMILSKOCOLOR MilskoLLAllocColor(HMILSKO handle, int r, int g, int b){
 }
 
 void MilskoLLGetXYWH(HMILSKO handle, int* x, int* y, unsigned int* w, unsigned int* h){
-	Window root;
-	unsigned int depth, border;
-
-	XGetGeometry(handle->display, handle->window, &root, x, y, w, h, &border, &depth);
+	*x = handle->x;
+	*y = handle->y;
+	*w = handle->width;
+	*h = handle->height;
 }
 
 void MilskoLLFreeColor(HMILSKOCOLOR color){
