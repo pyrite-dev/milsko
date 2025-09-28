@@ -1,6 +1,5 @@
 /* $Id$ */
 #include <Milsko/Milsko.h>
 
-MilskoClassRec MilskoWindowClassRec = {
-};
-MilskoClass MilskoWindowClass = &MilskoWindowClassRec;
+MilskoClassRec MilskoWindowClassRec = {};
+MilskoClass    MilskoWindowClass    = &MilskoWindowClassRec;

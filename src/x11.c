@@ -89,6 +89,6 @@ void MilskoLLNextEvent(HMILSKOLL handle) {
 	}
 }
 
-void MilskoLLSleep(int ms){
+void MilskoLLSleep(int ms) {
 	usleep(ms * 1000);
 }
