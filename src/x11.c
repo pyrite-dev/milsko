@@ -102,6 +102,9 @@ int MilskoLLPending(MilskoLL handle) {
 void MilskoLLNextEvent(MilskoLL handle) {
 	XEvent ev;
 	if(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
+		if(ev.type == Expose) {
+			if(handle->draw != NULL) handle->draw(handle);
+		}
 	}
 }
 
