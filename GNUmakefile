@@ -20,6 +20,7 @@ $(error Add your platform definition)
 endif
 
 ifeq ($(UNIX),1)
+CFLAGS += -DUSE_X11
 LIB = lib
 SO = .so
 L_OBJS += src/x11.o
