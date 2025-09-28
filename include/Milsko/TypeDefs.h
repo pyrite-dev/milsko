@@ -9,6 +9,16 @@ typedef struct _MilskoPoint {
 	int y;
 } MilskoPoint;
 
+typedef struct _MilskoTextKeyValue {
+	char* key;
+	char* value;
+} MilskoTextKeyValue;
+
+typedef struct _MilskoIntegerKeyValue {
+	char* key;
+	int   value;
+} MilskoIntegerKeyValue;
+
 typedef struct _MilskoClass* MilskoClass;
 
 #ifdef _MILSKO
@@ -21,6 +31,9 @@ typedef struct _Milsko {
 	HMILSKO	  parent;
 	HMILSKO*  children;
 	MilskoClass class;
+
+	MilskoTextKeyValue*    text;
+	MilskoIntegerKeyValue* integer;
 }* HMILSKO;
 #else
 typedef void* HMILSKO;
