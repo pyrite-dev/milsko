@@ -16,6 +16,7 @@ MILSKODECL void	       MilskoSetInteger(MilskoWidget handle, const char* key, in
 MILSKODECL void	       MilskoSetText(MilskoWidget handle, const char* key, const char* value);
 MILSKODECL int	       MilskoGetInteger(MilskoWidget handle, const char* key);
 MILSKODECL const char* MilskoGetText(MilskoWidget handle, const char* key);
+MILSKODECL void	       MilskoSetDefault(MilskoWidget handle);
 MILSKODECL void	       MilskoApply(MilskoWidget handle, ...);
 
 #endif

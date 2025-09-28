@@ -2,9 +2,11 @@
 #include <Milsko/Milsko.h>
 
 static void create(MilskoWidget handle) {
+	MilskoSetDefault(handle);
 }
 
 static void draw(MilskoWidget handle) {
+	MilskoPoint p[6];
 }
 
 MilskoClassRec MilskoButtonClassRec = {

@@ -162,3 +162,7 @@ void MilskoApply(MilskoWidget handle, ...) {
 	}
 	va_end(va);
 }
+
+void MilskoSetDefault(MilskoWidget handle) {
+	MilskoSetText(handle, MilskoNbackground, MilskoDefaultBackground);
+}

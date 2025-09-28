@@ -63,6 +63,9 @@ MilskoLLColor MilskoLLAllocColor(MilskoLL handle, int r, int g, int b) {
 	XAllocColor(handle->display, handle->colormap, &xc);
 
 	c->pixel = xc.pixel;
+	c->red	 = r;
+	c->green = g;
+	c->blue	 = b;
 	return c;
 }
 

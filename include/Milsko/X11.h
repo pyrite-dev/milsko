@@ -27,6 +27,9 @@ typedef struct _MilskoLowLevel {
 
 typedef struct _MilskoColor {
 	unsigned long pixel;
+	int	      red;
+	int	      green;
+	int	      blue;
 }* MilskoLLColor;
 
 #endif
