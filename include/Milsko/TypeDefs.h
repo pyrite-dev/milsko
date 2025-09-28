@@ -1,6 +1,6 @@
 /* $Id$ */
-#ifndef __MILSKO_TYPEDEF_H__
-#define __MILSKO_TYPEDEF_H__
+#ifndef __MILSKO_TYPEDEFS_H__
+#define __MILSKO_TYPEDEFS_H__
 
 #include <Milsko/MachDep.h>
 

@@ -59,3 +59,13 @@ MILSKODECL void MilskoLoop(HMILSKO handle) {
 		MilskoLLSleep(10);
 	}
 }
+
+void MilskoApply(HMILSKO handle, ...) {
+	va_list va;
+	char* key;
+
+	va_start(va, handle);
+	while((key = va_arg(va, char*)) != NULL){
+	}
+	va_end(va);
+}
