@@ -9,6 +9,7 @@
 
 #define MwNtitle "Stitle"
 #define MwNbackground "Sbackground"
+#define MwNforeground "Sforeground"
 
 #define MwNactivateHandler "Cactivate"
 

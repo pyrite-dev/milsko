@@ -215,6 +215,7 @@ void MwVaListApply(MwWidget handle, va_list va) {
 
 void MwSetDefault(MwWidget handle) {
 	MwSetText(handle, MwNbackground, MwDefaultBackground);
+	MwSetText(handle, MwNforeground, MwDefaultForeground);
 }
 
 void MwDispatchUserHandler(MwWidget handle, const char* key, void* handler_data) {

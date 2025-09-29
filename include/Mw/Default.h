@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 MWDECL const char* MwDefaultBackground;
+MWDECL const char* MwDefaultForeground;
 
 #ifdef __cplusplus
 }

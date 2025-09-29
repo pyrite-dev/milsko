@@ -6,16 +6,26 @@ static void create(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect r;
+	MwRect	  r;
+	MwPoint	  point;
+	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 
 	r.x	 = 0;
 	r.y	 = 0;
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 
-	MwDrawFrame(handle, &r, MwParseColor(handle, MwGetText(handle, MwNbackground)), handle->pressed);
+	MwDrawFrame(handle, &r, base, handle->pressed);
+	MwDrawRect(handle, &r, base);
 
-	//	MwDrawRect(handle, &r, MwParseColor(handle, MwGetText(handle, MwNbackground)));
+	point.x = r.x + r.width / 2;
+	point.y = r.x + r.height / 2;
+
+	MwDrawText(handle, &point, "test", text);
+
+	MwLLFreeColor(text);
+	MwLLFreeColor(base);
 }
 
 static void click(MwWidget handle) {
