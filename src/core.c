@@ -20,6 +20,12 @@ static void lldownhandler(MwLL handle) {
 	h->pressed = 1;
 }
 
+static void llresizehandler(MwLL handle) {
+	MwWidget h = (MwWidget)handle->user;
+
+	MwDispatchUserHandler(h, MwNresizeHandler, NULL);
+}
+
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	MwWidget h = malloc(sizeof(*h));
 
@@ -32,10 +38,11 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->widget_class = widget_class;
 	h->pressed	= 0;
 
-	h->lowlevel->user	   = h;
-	h->lowlevel->handler->draw = lldrawhandler;
-	h->lowlevel->handler->up   = lluphandler;
-	h->lowlevel->handler->down = lldownhandler;
+	h->lowlevel->user	     = h;
+	h->lowlevel->handler->draw   = lldrawhandler;
+	h->lowlevel->handler->up     = lluphandler;
+	h->lowlevel->handler->down   = lldownhandler;
+	h->lowlevel->handler->resize = llresizehandler;
 
 	if(parent != NULL) arrput(parent->children, h);
 

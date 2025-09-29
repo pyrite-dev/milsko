@@ -13,5 +13,6 @@
 #define MwNforeground "Sforeground"
 
 #define MwNactivateHandler "Cactivate"
+#define MwNresizeHandler "Cresize"
 
 #endif

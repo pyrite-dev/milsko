@@ -2,6 +2,8 @@
 
 #include <Mw/Milsko.h>
 
+MwWidget window, button, button2, button3, button4;
+
 void handler(MwWidget handle, void* user_data, void* call_data){
 	(void)handle;
 	(void)user_data;
@@ -10,26 +12,59 @@ void handler(MwWidget handle, void* user_data, void* call_data){
 	printf("hello world!\n");
 }
 
+void resize(MwWidget handle, void* user_data, void* call_data){
+	unsigned int w, h;
+	w = MwGetInteger(handle, MwNwidth);
+	h = MwGetInteger(handle, MwNheight);
+
+	(void)user_data;
+	(void)call_data;
+
+	MwVaApply(button,
+		MwNwidth, w - 50 * 2,
+		MwNheight, h - 125 - 50 * 3,
+	NULL);
+
+	MwVaApply(button2,
+		MwNx, 50 + (w - 50 * 2) / 3 * 0,
+		MwNy, h - 50 - 125,
+		MwNwidth, (w - 50 * 2) / 3,
+	NULL);
+
+	MwVaApply(button3,
+		MwNx, 50 + (w - 50 * 2) / 3 * 1,
+		MwNy, h - 50 - 125,
+		MwNwidth, (w - 50 * 2) / 3,
+	NULL);
+
+	MwVaApply(button4,
+		MwNx, 50 + (w - 50 * 2) / 3 * 2,
+		MwNy, h - 50 - 125,
+		MwNwidth, (w - 50 * 2) / 3,
+	NULL);
+}
+
 int main(){
-	MwWidget window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 400,
+	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 400,
 		MwNtitle, "hello world",
 	NULL);
-	MwWidget button = MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 300, 125,
+	button = MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 300, 125,
 		MwNtext, "lorem ipsum",
 	NULL);
-	MwWidget button2 = MwVaCreateWidget(MwButtonClass, "button", window, 50, 225, 100, 125,
+	button2 = MwVaCreateWidget(MwButtonClass, "button", window, 50, 225, 100, 125,
 		MwNtext, "lorem ipsum",
 		MwNbackground, "#f66",
 	NULL);
-	MwWidget button3 = MwVaCreateWidget(MwButtonClass, "button", window, 150, 225, 100, 125,
+	button3 = MwVaCreateWidget(MwButtonClass, "button", window, 150, 225, 100, 125,
 		MwNtext, "lorem ipsum",
 		MwNbackground, "#6f6",
 	NULL);
-	MwWidget button4 = MwVaCreateWidget(MwButtonClass, "button", window, 250, 225, 100, 125,
+	button4 = MwVaCreateWidget(MwButtonClass, "button", window, 250, 225, 100, 125,
 		MwNtext, "lorem ipsum",
 		MwNbackground, "#66f",
 	NULL);
 
+	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
 	MwAddUserHandler(button, MwNactivateHandler, handler, NULL);
 	MwAddUserHandler(button2, MwNactivateHandler, handler, NULL);
 	MwAddUserHandler(button3, MwNactivateHandler, handler, NULL);

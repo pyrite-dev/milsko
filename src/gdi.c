@@ -24,6 +24,8 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		SetCapture(NULL);
 		MwLLDispatch(u->ll, up);
 		InvalidateRect(hWnd, NULL, FALSE);
+	} else if(msg == WM_SIZE) {
+		MwLLDispatch(u->ll, resize);
 	} else if(msg == WM_ERASEBKGND) {
 	} else if(msg == WM_NCHITTEST) {
 		return HTCLIENT;
@@ -140,6 +142,7 @@ void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) 
 	RECT rc;
 
 	GetClientRect(handle->hWnd, &rc);
+	MapWindowPoints(handle->hWnd, GetParent(handle->hWnd), (LPPOINT)&rc, 2);
 
 	*x = rc.left;
 	*y = rc.top;
@@ -149,10 +152,12 @@ void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) 
 
 void MwLLSetXY(MwLL handle, int x, int y) {
 	SetWindowPos(handle->hWnd, NULL, x, y, 0, 0, SWP_NOSIZE);
+	InvalidateRect(handle->hWnd, NULL, FALSE);
 }
 
 void MwLLSetWH(MwLL handle, int w, int h) {
 	SetWindowPos(handle->hWnd, NULL, 0, 0, w, h, SWP_NOMOVE);
+	InvalidateRect(handle->hWnd, NULL, FALSE);
 }
 
 void MwLLSetTitle(MwLL handle, const char* title) {
