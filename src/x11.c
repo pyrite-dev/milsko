@@ -4,10 +4,8 @@
 static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask;
 
 MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
-	MwLL	     r;
-	Window	     p;
-	Window	     root;
-	unsigned int border, depth;
+	MwLL   r;
+	Window p;
 
 	r = malloc(sizeof(*r));
 
