@@ -2,18 +2,20 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_BITMAP_H
+#include FT_BDF_H
 
 #include <stdio.h>
 #include <stdlib.h>
 
 int main(int argc, char** argv) {
-	FT_Library lib;
-	FT_Face	   face;
-	int	   i;
-	int	   ay = 0;
-	int	   ax = 0;
-	int	   sy = 0;
-	int	   sx = 0;
+	FT_Library	lib;
+	FT_Face		face;
+	int		i;
+	int		ay = 0;
+	int		ax = 0;
+	int		sy = 0;
+	int		sx = 0;
+	BDF_PropertyRec rec;
 
 	FT_Init_FreeType(&lib);
 	if(FT_New_Face(lib, argv[1], 0, &face)) {
@@ -26,9 +28,15 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
+	FT_Get_BDF_Property(face, "COPYRIGHT", &rec);
+
 	printf("/* $Id$ */\n");
 	printf("#include <Mw/Milsko.h>\n");
 	printf("\n");
+	printf("/**\n");
+	printf(" * Copyright notice:\n");
+	printf(" *   \"%s\"\n", rec.u.atom);
+	printf(" */\n");
 	printf("MwFont MwFontData[] = {\n");
 	for(i = 0; i < 0x80; i++) {
 		int	      y, x;

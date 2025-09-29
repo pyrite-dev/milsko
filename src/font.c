@@ -1,6 +1,10 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
+/**
+ * Copyright notice:
+ *   "Public domain font.  Share and enjoy."
+ */
 MwFont MwFontData[] = {
     {0, 12, {0, 90, 66, 0, 66, 66, 0, 66, 66, 0, 66, 90, 0, 0}},      /* 0 */
     {0, 12, {0, 90, 66, 0, 66, 66, 0, 66, 66, 0, 66, 90, 0, 0}},      /* 1 */
