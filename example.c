@@ -10,7 +10,9 @@ int main(){
 	MwWidget window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 400,
 		MwNtitle, "hello world",
 	NULL);
-	MwWidget button = MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 300, 300, NULL);
+	MwWidget button = MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 300, 300,
+		MwNtext, "lorem ipsum",
+	NULL);
 
 	MwAddUserHandler(button, MwNactivateHandler, handler, NULL);
 

@@ -8,6 +8,7 @@
 #define MwNheight "Iheight"
 
 #define MwNtitle "Stitle"
+#define MwNtext "Stext"
 #define MwNbackground "Sbackground"
 #define MwNforeground "Sforeground"
 
