@@ -1,6 +1,6 @@
 /* $Id$ */
-#ifndef __MW_MW_H__
-#define __MW_MW_H__
+#ifndef __MW_MILSKO_H__
+#define __MW_MILSKO_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/LowLevel.h>

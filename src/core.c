@@ -1,5 +1,5 @@
 /* $Id$ */
-#include <Mw/Mw.h>
+#include <Mw/Milsko.h>
 
 #include "stb_ds.h"
 
@@ -10,14 +10,14 @@ static void lldrawhandler(MwLL handle) {
 
 static void lluphandler(MwLL handle) {
 	MwWidget h = (MwWidget)handle->user;
-	h->pressed     = 0;
+	h->pressed = 0;
 
 	MwDispatch(h, click);
 }
 
 static void lldownhandler(MwLL handle) {
 	MwWidget h = (MwWidget)handle->user;
-	h->pressed     = 1;
+	h->pressed = 1;
 }
 
 MwWidget MwCreateWidget(MwClass class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
@@ -53,7 +53,7 @@ MwWidget MwCreateWidget(MwClass class, const char* name, MwWidget parent, int x,
 
 MwWidget MwVaCreateWidget(MwClass class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, ...) {
 	MwWidget h;
-	va_list	     va;
+	va_list	 va;
 
 	va_start(va, height);
 	h = MwVaListCreateWidget(class, name, parent, x, y, width, height, va);
@@ -204,7 +204,7 @@ void MwVaListApply(MwWidget handle, va_list va) {
 			MwSetText(handle, key, t);
 		} else if(key[0] == 'C') {
 			MwUserHandler h = va_arg(va, MwUserHandler);
-			int		  ind;
+			int	      ind;
 
 			shput(handle->handler, key, h);
 			ind			       = shgeti(handle->handler, key);

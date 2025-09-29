@@ -1,10 +1,10 @@
 /* $Id$ */
-#include <Mw/Mw.h>
+#include <Mw/Milsko.h>
 
 static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask;
 
 MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
-	MwLL     r;
+	MwLL	     r;
 	Window	     p;
 	Window	     root;
 	unsigned int border, depth;
@@ -56,7 +56,7 @@ void MwLLPolygon(MwLL handle, MwPoint* points, int points_count, MwLLColor color
 
 MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b) {
 	MwLLColor c = malloc(sizeof(*c));
-	XColor	      xc;
+	XColor	  xc;
 
 	if(r > 255) r = 255;
 	if(g > 255) g = 255;

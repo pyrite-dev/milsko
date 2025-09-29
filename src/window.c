@@ -1,5 +1,5 @@
 /* $Id$ */
-#include <Mw/Mw.h>
+#include <Mw/Milsko.h>
 
 static void create(MwWidget handle) {
 	MwSetDefault(handle);
@@ -7,7 +7,7 @@ static void create(MwWidget handle) {
 
 static void draw(MwWidget handle) {
 	MwLLColor c = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwRect    r;
+	MwRect	  r;
 
 	r.x	 = 0;
 	r.y	 = 0;
