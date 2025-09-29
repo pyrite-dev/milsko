@@ -31,6 +31,7 @@ L_OBJS += src/x11.o
 L_LIBS += -lX11
 else ifeq ($(WINDOWS),1)
 CFLAGS += -DUSE_GDI
+LDFLAGS += -Wl,--out-implib,Mw.lib
 LIB =
 SO = .dll
 L_OBJS += src/gdi.o
@@ -49,4 +50,4 @@ $(LIB)Mw$(SO): $(L_OBJS)
 	$(CC) $(LDFLAGS) -shared -o $@ $(L_OBJS) $(L_LIBS)
 
 clean:
-	rm -f *.dll *.so *.a */*.o
+	rm -f *.dll *.so *.a *.lib */*.o
