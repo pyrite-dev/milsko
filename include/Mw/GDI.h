@@ -4,7 +4,7 @@
 
 #include <Mw/MachDep.h>
 
-typedef struct _MwLL *     MwLL, MwLLRec;
+typedef struct _MwLL *	   MwLL, MwLLRec;
 typedef struct _MwLLColor *MwLLColor, MwLLColorRec;
 
 #include <Mw/TypeDefs.h>

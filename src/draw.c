@@ -1,5 +1,5 @@
 /* $Id$ */
-#include <Mw/Mw.h>
+#include <Mw/Milsko.h>
 
 static int hex(const char* txt, int len) {
 	int i;
@@ -61,9 +61,9 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
-	MwPoint   p[6];
-	const int     diff    = 128;
-	const int     border  = 2;
+	MwPoint	  p[6];
+	const int diff	  = 128;
+	const int border  = 2;
 	MwLLColor darker  = MwLLAllocColor(handle->lowlevel, color->red - diff, color->green - diff, color->blue - diff);
 	MwLLColor lighter = MwLLAllocColor(handle->lowlevel, color->red + diff, color->green + diff, color->blue + diff);
 

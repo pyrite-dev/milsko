@@ -4,11 +4,11 @@
 
 #include <Mw/MachDep.h>
 
-typedef struct _MwClass *		  MwClass, MwClassRec;
-typedef struct _MwPoint		  MwPoint;
-typedef struct _MwRect		  MwRect;
-typedef struct _MwIntegerKeyValue	  MwIntegerKeyValue;
-typedef struct _MwTextKeyValue	  MwTextKeyValue;
+typedef struct _MwClass *	      MwClass, MwClassRec;
+typedef struct _MwPoint		      MwPoint;
+typedef struct _MwRect		      MwRect;
+typedef struct _MwIntegerKeyValue     MwIntegerKeyValue;
+typedef struct _MwTextKeyValue	      MwTextKeyValue;
 typedef struct _MwUserHandlerKeyValue MwUserHandlerKeyValue;
 #ifdef _MILSKO
 typedef struct _MwWidget *MwWidget, MwWidgetRec;
@@ -45,8 +45,8 @@ struct _MwIntegerKeyValue {
 };
 
 struct _MwUserHandlerKeyValue {
-	char*		  key;
-	void*		  user_data;
+	char*	      key;
+	void*	      user_data;
 	MwUserHandler value;
 };
 
@@ -54,21 +54,21 @@ struct _MwUserHandlerKeyValue {
 struct _MwWidget {
 	char* name;
 
-	MwLL      lowlevel;
+	MwLL	  lowlevel;
 	MwWidget  parent;
 	MwWidget* children;
 	MwClass class;
 
 	int pressed;
 
-	MwIntegerKeyValue*	   integer;
-	MwTextKeyValue*	   text;
+	MwIntegerKeyValue*     integer;
+	MwTextKeyValue*	       text;
 	MwUserHandlerKeyValue* handler;
 };
 #endif
 
 struct _MwClass {
-	void*	      opaque;
+	void*	  opaque;
 	MwHandler create;
 	MwHandler destroy;
 	MwHandler draw;

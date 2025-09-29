@@ -1,4 +1,4 @@
 /* $Id$ */
-#include <Mw/Mw.h>
+#include <Mw/Milsko.h>
 
 const char* MwDefaultBackground = "#ddd";

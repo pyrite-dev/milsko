@@ -1,5 +1,5 @@
 /* $Id$ */
-#include <Mw/Mw.h>
+#include <Mw/Milsko.h>
 
 static void create(MwWidget handle) {
 	MwSetDefault(handle);

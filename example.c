@@ -1,6 +1,6 @@
 /* $Id$ */
 
-#include <Mw/Mw.h>
+#include <Mw/Milsko.h>
 
 void handler(MwWidget handle, void* user_data, void* call_data){
 	printf("hello world!\n");
