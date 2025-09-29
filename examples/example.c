@@ -4,7 +4,7 @@
 
 MwWidget window, button, button2, button3, button4;
 
-void handler(MwWidget handle, void* user_data, void* call_data){
+void handler(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
 	(void)call_data;
@@ -12,7 +12,7 @@ void handler(MwWidget handle, void* user_data, void* call_data){
 	printf("hello world!\n");
 }
 
-void resize(MwWidget handle, void* user_data, void* call_data){
+void resize(MwWidget handle, void* user_data, void* call_data) {
 	unsigned int w, h;
 
 	(void)user_data;
@@ -22,48 +22,48 @@ void resize(MwWidget handle, void* user_data, void* call_data){
 	h = MwGetInteger(handle, MwNheight);
 
 	MwVaApply(button,
-		MwNwidth, w - 50 * 2,
-		MwNheight, h - 125 - 50 * 3,
-	NULL);
+		  MwNwidth, w - 50 * 2,
+		  MwNheight, h - 125 - 50 * 3,
+		  NULL);
 
 	MwVaApply(button2,
-		MwNx, 50 + (w - 50 * 2) / 3 * 0,
-		MwNy, h - 50 - 125,
-		MwNwidth, (w - 50 * 2) / 3,
-	NULL);
+		  MwNx, 50 + (w - 50 * 2) / 3 * 0,
+		  MwNy, h - 50 - 125,
+		  MwNwidth, (w - 50 * 2) / 3,
+		  NULL);
 
 	MwVaApply(button3,
-		MwNx, 50 + (w - 50 * 2) / 3 * 1,
-		MwNy, h - 50 - 125,
-		MwNwidth, (w - 50 * 2) / 3,
-	NULL);
+		  MwNx, 50 + (w - 50 * 2) / 3 * 1,
+		  MwNy, h - 50 - 125,
+		  MwNwidth, (w - 50 * 2) / 3,
+		  NULL);
 
 	MwVaApply(button4,
-		MwNx, 50 + (w - 50 * 2) / 3 * 2,
-		MwNy, h - 50 - 125,
-		MwNwidth, (w - 50 * 2) / 3,
-	NULL);
+		  MwNx, 50 + (w - 50 * 2) / 3 * 2,
+		  MwNy, h - 50 - 125,
+		  MwNwidth, (w - 50 * 2) / 3,
+		  NULL);
 }
 
-int main(){
-	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 400,
-		MwNtitle, "hello world",
-	NULL);
-	button = MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 300, 125,
-		MwNtext, "lorem ipsum",
-	NULL);
+int main() {
+	window	= MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 400,
+				   MwNtitle, "hello world",
+				   NULL);
+	button	= MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 300, 125,
+				   MwNtext, "lorem ipsum",
+				   NULL);
 	button2 = MwVaCreateWidget(MwButtonClass, "button", window, 50, 225, 100, 125,
-		MwNtext, "lorem ipsum",
-		MwNbackground, "#f66",
-	NULL);
+				   MwNtext, "lorem ipsum",
+				   MwNbackground, "#f66",
+				   NULL);
 	button3 = MwVaCreateWidget(MwButtonClass, "button", window, 150, 225, 100, 125,
-		MwNtext, "lorem ipsum",
-		MwNbackground, "#6f6",
-	NULL);
+				   MwNtext, "lorem ipsum",
+				   MwNbackground, "#6f6",
+				   NULL);
 	button4 = MwVaCreateWidget(MwButtonClass, "button", window, 250, 225, 100, 125,
-		MwNtext, "lorem ipsum",
-		MwNbackground, "#66f",
-	NULL);
+				   MwNtext, "lorem ipsum",
+				   MwNbackground, "#66f",
+				   NULL);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
 	MwAddUserHandler(button, MwNactivateHandler, handler, NULL);

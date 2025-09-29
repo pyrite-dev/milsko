@@ -5,9 +5,10 @@
 #include <GL/gl.h>
 
 MwWidget window, opengl;
-int ow, oh;
+int	 ow, oh;
+double	 deg = 0;
 
-void resize(MwWidget handle, void* user_data, void* call_data){
+void resize(MwWidget handle, void* user_data, void* call_data) {
 	unsigned int w, h;
 
 	(void)user_data;
@@ -17,12 +18,12 @@ void resize(MwWidget handle, void* user_data, void* call_data){
 	h = MwGetInteger(handle, MwNheight);
 
 	MwVaApply(opengl,
-		MwNwidth, (ow = w - 100),
-		MwNheight, (oh = h - 100),
-	NULL);
+		  MwNwidth, (ow = w - 100),
+		  MwNheight, (oh = h - 100),
+		  NULL);
 }
 
-void tick(MwWidget handle, void* user_data, void* call_data){
+void tick(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
 	(void)call_data;
@@ -39,19 +40,27 @@ void tick(MwWidget handle, void* user_data, void* call_data){
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	glPushMatrix();
+	glRotatef(deg, 0, 0, 1);
 	glBegin(GL_TRIANGLES);
-		glColor3f(1, 0, 0); glVertex2f(0, 0.8);
-		glColor3f(0, 1, 0); glVertex2f(-0.8, -0.8);
-		glColor3f(0, 0, 1); glVertex2f(0.8, -0.8);
+	glColor3f(1, 0, 0);
+	glVertex2f(0, 0.8);
+	glColor3f(0, 1, 0);
+	glVertex2f(-0.8, -0.8);
+	glColor3f(0, 0, 1);
+	glVertex2f(0.8, -0.8);
 	glEnd();
+	glPopMatrix();
 
 	MwOpenGLSwapBuffer(opengl);
+
+	deg += 120.0 / (1000.0 / MwWaitMS);
 }
 
-int main(){
+int main() {
 	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 400,
-		MwNtitle, "hello world",
-	NULL);
+				  MwNtitle, "hello world",
+				  NULL);
 	opengl = MwCreateWidget(MwOpenGLClass, "opengl", window, 50, 50, (ow = 300), (oh = 300));
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
