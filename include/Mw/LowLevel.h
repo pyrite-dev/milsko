@@ -31,6 +31,7 @@ struct _MwLLHandler {
 	void (*up)(MwLL handle);
 	void (*down)(MwLL handle);
 	void (*resize)(MwLL handle);
+	void (*close)(MwLL handle);
 };
 
 #ifdef __cplusplus

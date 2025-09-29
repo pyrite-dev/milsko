@@ -19,6 +19,7 @@ struct _MwLL {
 	GC	 gc;
 	Colormap colormap;
 	void*	 user;
+	Atom	 wm_delete;
 
 	MwLLHandler handler;
 };

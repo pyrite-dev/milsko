@@ -47,6 +47,11 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	} else if(msg == WM_ERASEBKGND) {
 	} else if(msg == WM_NCHITTEST) {
 		return HTCLIENT;
+	} else if(msg == WM_DESTROY) {
+		MwLLDispatch(u->ll, close);
+		PostQuitMessage(0);
+	} else if(msg == WM_CLOSE) {
+		DestroyWindow(hWnd);
 	} else {
 		return (u->old == NULL) ? DefWindowProc(hWnd, msg, wp, lp) : CallWindowProc(u->old, hWnd, msg, wp, lp);
 	}

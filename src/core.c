@@ -26,6 +26,12 @@ static void llresizehandler(MwLL handle) {
 	MwDispatchUserHandler(h, MwNresizeHandler, NULL);
 }
 
+static void llclosehandler(MwLL handle) {
+	MwWidget h = (MwWidget)handle->user;
+
+	h->close = 1;
+}
+
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	MwWidget h = malloc(sizeof(*h));
 
@@ -37,12 +43,14 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->lowlevel	= MwLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height);
 	h->widget_class = widget_class;
 	h->pressed	= 0;
+	h->close	= 0;
 
 	h->lowlevel->user	     = h;
 	h->lowlevel->handler->draw   = lldrawhandler;
 	h->lowlevel->handler->up     = lluphandler;
 	h->lowlevel->handler->down   = lldownhandler;
 	h->lowlevel->handler->resize = llresizehandler;
+	h->lowlevel->handler->close  = llclosehandler;
 
 	if(parent != NULL) arrput(parent->children, h);
 
@@ -133,7 +141,7 @@ int MwPending(MwWidget handle) {
 }
 
 void MwLoop(MwWidget handle) {
-	while(1) {
+	while(!handle->close) {
 		MwStep(handle);
 
 		MwDispatchUserHandler(handle, MwNtickHandler, NULL);

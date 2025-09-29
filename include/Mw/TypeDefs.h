@@ -61,6 +61,7 @@ struct _MwWidget {
 	MwClass	  widget_class;
 
 	int pressed;
+	int close;
 
 	MwIntegerKeyValue*     integer;
 	MwTextKeyValue*	       text;
