@@ -1,6 +1,6 @@
 /* $Id$ */
-#ifndef __MILSKO_X11_H__
-#define __MILSKO_X11_H__
+#ifndef __MW_X11_H__
+#define __MW_X11_H__
 
 #include <Mw/MachDep.h>
 

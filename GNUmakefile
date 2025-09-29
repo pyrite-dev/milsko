@@ -3,7 +3,7 @@
 TARGET = $(shell uname -s)
 
 CC = gcc
-CFLAGS = -fPIC -Iinclude -D_MILSKO
+CFLAGS = -fPIC -Iinclude -D_MW
 LDFLAGS =
 LIBS =
 
@@ -40,12 +40,12 @@ endif
 .PHONY: all format clean
 .SUFFIXES: .c .o
 
-all: $(LIB)milsko$(SO)
+all: $(LIB)Mw$(SO)
 
 format:
 	clang-format --verbose -i $(shell find src include -name "*.c" -or -name "*.h")
 
-$(LIB)milsko$(SO): $(L_OBJS)
+$(LIB)Mw$(SO): $(L_OBJS)
 	$(CC) $(LDFLAGS) -shared -o $@ $(L_OBJS) $(L_LIBS)
 
 clean:

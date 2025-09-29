@@ -1,6 +1,6 @@
 /* $Id$ */
-#ifndef __MILSKO_STRINGDEFS_H__
-#define __MILSKO_STRINGDEFS_H__
+#ifndef __MW_STRINGDEFS_H__
+#define __MW_STRINGDEFS_H__
 
 #define MwNx "Ix"
 #define MwNy "Iy"
