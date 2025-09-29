@@ -1,6 +1,6 @@
 /* $Id$ */
-#ifndef __MILSKO_TYPEDEFS_H__
-#define __MILSKO_TYPEDEFS_H__
+#ifndef __MW_TYPEDEFS_H__
+#define __MW_TYPEDEFS_H__
 
 #include <Mw/MachDep.h>
 
@@ -10,7 +10,7 @@ typedef struct _MwRect		  MwRect;
 typedef struct _MwIntegerKeyValue	  MwIntegerKeyValue;
 typedef struct _MwTextKeyValue	  MwTextKeyValue;
 typedef struct _MwUserHandlerKeyValue MwUserHandlerKeyValue;
-#ifdef _MILSKO
+#ifdef _MW
 typedef struct _MwWidget *MwWidget, MwWidgetRec;
 #else
 typedef void* MwWidget;
@@ -18,7 +18,7 @@ typedef void* MwWidget;
 typedef void (*MwHandler)(MwWidget handle);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 
-#ifdef _MILSKO
+#ifdef _MW
 #include <Mw/LowLevel.h>
 #endif
 
@@ -50,7 +50,7 @@ struct _MwUserHandlerKeyValue {
 	MwUserHandler value;
 };
 
-#ifdef _MILSKO
+#ifdef _MW
 struct _MwWidget {
 	char* name;
 

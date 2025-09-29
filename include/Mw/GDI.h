@@ -1,6 +1,6 @@
 /* $Id$ */
-#ifndef __MILSKO_GDI_H__
-#define __MILSKO_GDI_H__
+#ifndef __MW_GDI_H__
+#define __MW_GDI_H__
 
 #include <Mw/MachDep.h>
 

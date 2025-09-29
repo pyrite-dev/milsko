@@ -1,18 +1,18 @@
 /* $Id$ */
 
-#include <Milsko/Milsko.h>
+#include <Mw/Mw.h>
 
-void handler(MilskoWidget handle, void* user_data, void* call_data){
+void handler(MwWidget handle, void* user_data, void* call_data){
 	printf("hello world!\n");
 }
 
 int main(){
-	MilskoWidget window = MilskoVaCreateWidget(MilskoWindowClass, "main", NULL, 0, 0, 400, 400,
-		MilskoNtitle, "hello world",
+	MwWidget window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 400,
+		MwNtitle, "hello world",
 	NULL);
-	MilskoWidget button = MilskoVaCreateWidget(MilskoButtonClass, "button", window, 50, 50, 300, 300, NULL);
+	MwWidget button = MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 300, 300, NULL);
 
-	MilskoAddUserHandler(button, MilskoNactivateHandler, handler, NULL);
+	MwAddUserHandler(button, MwNactivateHandler, handler, NULL);
 
-	MilskoLoop(window);
+	MwLoop(window);
 }
