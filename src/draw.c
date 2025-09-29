@@ -1,5 +1,5 @@
 /* $Id$ */
-#include <Milsko/Milsko.h>
+#include <Mw/Mw.h>
 
 static int hex(const char* txt, int len) {
 	int i;
@@ -20,7 +20,7 @@ static int hex(const char* txt, int len) {
 	return r;
 }
 
-MilskoLLColor MilskoParseColor(MilskoWidget handle, const char* text) {
+MwLLColor MwParseColor(MwWidget handle, const char* text) {
 	int r = 0;
 	int g = 0;
 	int b = 0;
@@ -39,11 +39,11 @@ MilskoLLColor MilskoParseColor(MilskoWidget handle, const char* text) {
 		b = hex(text + 5, 2);
 	}
 
-	return MilskoLLAllocColor(handle->lowlevel, r, g, b);
+	return MwLLAllocColor(handle->lowlevel, r, g, b);
 }
 
-void MilskoDrawRect(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color) {
-	MilskoPoint p[4];
+void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
+	MwPoint p[4];
 
 	p[0].x = rect->x;
 	p[0].y = rect->y;
@@ -57,15 +57,15 @@ void MilskoDrawRect(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color) 
 	p[3].x = rect->x;
 	p[3].y = rect->y + rect->height;
 
-	MilskoLLPolygon(handle->lowlevel, p, 4, color);
+	MwLLPolygon(handle->lowlevel, p, 4, color);
 }
 
-void MilskoDrawFrame(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color, int invert) {
-	MilskoPoint   p[6];
+void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
+	MwPoint   p[6];
 	const int     diff    = 128;
 	const int     border  = 2;
-	MilskoLLColor darker  = MilskoLLAllocColor(handle->lowlevel, color->red - diff, color->green - diff, color->blue - diff);
-	MilskoLLColor lighter = MilskoLLAllocColor(handle->lowlevel, color->red + diff, color->green + diff, color->blue + diff);
+	MwLLColor darker  = MwLLAllocColor(handle->lowlevel, color->red - diff, color->green - diff, color->blue - diff);
+	MwLLColor lighter = MwLLAllocColor(handle->lowlevel, color->red + diff, color->green + diff, color->blue + diff);
 
 	p[0].x = rect->x;
 	p[0].y = rect->y;
@@ -85,7 +85,7 @@ void MilskoDrawFrame(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color,
 	p[5].x = rect->x;
 	p[5].y = rect->y + rect->height;
 
-	MilskoLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
+	MwLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
 
 	p[0].x = rect->x + rect->width;
 	p[0].y = rect->y;
@@ -105,10 +105,10 @@ void MilskoDrawFrame(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color,
 	p[5].x = rect->x + rect->height;
 	p[5].y = rect->y + rect->height;
 
-	MilskoLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
+	MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
 
-	MilskoLLFreeColor(lighter);
-	MilskoLLFreeColor(darker);
+	MwLLFreeColor(lighter);
+	MwLLFreeColor(darker);
 
 	rect->x += border;
 	rect->y += border;

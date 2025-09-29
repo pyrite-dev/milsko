@@ -2,15 +2,15 @@
 #ifndef __MILSKO_MILSKO_H__
 #define __MILSKO_MILSKO_H__
 
-#include <Milsko/MachDep.h>
-#include <Milsko/LowLevel.h>
-#include <Milsko/StringDefs.h>
-#include <Milsko/TypeDefs.h>
-#include <Milsko/Core.h>
-#include <Milsko/Default.h>
-#include <Milsko/Draw.h>
+#include <Mw/MachDep.h>
+#include <Mw/LowLevel.h>
+#include <Mw/StringDefs.h>
+#include <Mw/TypeDefs.h>
+#include <Mw/Core.h>
+#include <Mw/Default.h>
+#include <Mw/Draw.h>
 
-#include <Milsko/Window.h>
-#include <Milsko/Button.h>
+#include <Mw/Window.h>
+#include <Mw/Button.h>
 
 #endif

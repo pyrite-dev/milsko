@@ -2,28 +2,28 @@
 #ifndef __MILSKO_X11_H__
 #define __MILSKO_X11_H__
 
-#include <Milsko/MachDep.h>
+#include <Mw/MachDep.h>
 
-typedef struct _MilskoLL *     MilskoLL, MilskoLLRec;
-typedef struct _MilskoLLColor *MilskoLLColor, MilskoLLColorRec;
+typedef struct _MwLL *     MwLL, MwLLRec;
+typedef struct _MwLLColor *MwLLColor, MwLLColorRec;
 
-#include <Milsko/TypeDefs.h>
-#include <Milsko/LowLevel.h>
+#include <Mw/TypeDefs.h>
+#include <Mw/LowLevel.h>
 
 #include <X11/X.h>
 #include <X11/Xutil.h>
 
-struct _MilskoLL {
+struct _MwLL {
 	Display* display;
 	Window	 window;
 	GC	 gc;
 	Colormap colormap;
 	void*	 user;
 
-	MilskoLLHandler handler;
+	MwLLHandler handler;
 };
 
-struct _MilskoLLColor {
+struct _MwLLColor {
 	unsigned long pixel;
 	int	      red;
 	int	      green;

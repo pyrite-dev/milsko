@@ -2,13 +2,13 @@
 #ifndef __MILSKO_DRAW_H__
 #define __MILSKO_DRAW_H__
 
-#include <Milsko/MachDep.h>
-#include <Milsko/TypeDefs.h>
-#include <Milsko/LowLevel.h>
+#include <Mw/MachDep.h>
+#include <Mw/TypeDefs.h>
+#include <Mw/LowLevel.h>
 
-MILSKODECL MilskoLLColor MilskoParseColor(MilskoWidget handle, const char* text);
+MILSKODECL MwLLColor MwParseColor(MwWidget handle, const char* text);
 
-MILSKODECL void MilskoDrawRect(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color);
-MILSKODECL void MilskoDrawFrame(MilskoWidget handle, MilskoRect* rect, MilskoLLColor color, int invert);
+MILSKODECL void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color);
+MILSKODECL void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
 
 #endif

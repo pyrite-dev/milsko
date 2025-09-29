@@ -1,29 +1,29 @@
 /* $Id$ */
-#include <Milsko/Milsko.h>
+#include <Mw/Mw.h>
 
-static void create(MilskoWidget handle) {
-	MilskoSetDefault(handle);
+static void create(MwWidget handle) {
+	MwSetDefault(handle);
 }
 
-static void draw(MilskoWidget handle) {
-	MilskoLLColor c = MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground));
-	MilskoRect    r;
+static void draw(MwWidget handle) {
+	MwLLColor c = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwRect    r;
 
 	r.x	 = 0;
 	r.y	 = 0;
-	r.width	 = MilskoGetInteger(handle, MilskoNwidth);
-	r.height = MilskoGetInteger(handle, MilskoNheight);
+	r.width	 = MwGetInteger(handle, MwNwidth);
+	r.height = MwGetInteger(handle, MwNheight);
 
-	MilskoDrawRect(handle, &r, c);
+	MwDrawRect(handle, &r, c);
 
-	MilskoLLFreeColor(c);
+	MwLLFreeColor(c);
 }
 
-MilskoClassRec MilskoWindowClassRec = {
+MwClassRec MwWindowClassRec = {
     NULL,   /* opaque */
     create, /* create */
     NULL,   /* destroy */
     draw,   /* draw */
     NULL    /* click */
 };
-MilskoClass MilskoWindowClass = &MilskoWindowClassRec;
+MwClass MwWindowClass = &MwWindowClassRec;

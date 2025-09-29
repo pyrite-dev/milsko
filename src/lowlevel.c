@@ -1,11 +1,11 @@
 /* $Id$ */
-#include <Milsko/Milsko.h>
+#include <Mw/Mw.h>
 
-void MilskoLLCreateCommon(MilskoLL handle) {
+void MwLLCreateCommon(MwLL handle) {
 	handle->handler = malloc(sizeof(*handle->handler));
 	memset(handle->handler, 0, sizeof(*handle->handler));
 }
 
-void MilskoLLDestroyCommon(MilskoLL handle) {
+void MwLLDestroyCommon(MwLL handle) {
 	free(handle->handler);
 }

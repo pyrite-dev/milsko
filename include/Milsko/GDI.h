@@ -2,23 +2,23 @@
 #ifndef __MILSKO_GDI_H__
 #define __MILSKO_GDI_H__
 
-#include <Milsko/MachDep.h>
+#include <Mw/MachDep.h>
 
-typedef struct _MilskoLL *     MilskoLL, MilskoLLRec;
-typedef struct _MilskoLLColor *MilskoLLColor, MilskoLLColorRec;
+typedef struct _MwLL *     MwLL, MwLLRec;
+typedef struct _MwLLColor *MwLLColor, MwLLColorRec;
 
-#include <Milsko/TypeDefs.h>
-#include <Milsko/LowLevel.h>
+#include <Mw/TypeDefs.h>
+#include <Mw/LowLevel.h>
 
 #include <windows.h>
 
-struct _MilskoLL {
+struct _MwLL {
 	void* user;
 
-	MilskoLLHandler handler;
+	MwLLHandler handler;
 };
 
-struct _MilskoColor {
+struct _MwColor {
 	int red;
 	int green;
 	int blue;

@@ -2,8 +2,8 @@
 #ifndef __MILSKO_BUTTON_H__
 #define __MILSKO_BUTTON_H__
 
-#include <Milsko/MachDep.h>
+#include <Mw/MachDep.h>
 
-MILSKODECL MilskoClass MilskoButtonClass;
+MILSKODECL MwClass MwButtonClass;
 
 #endif

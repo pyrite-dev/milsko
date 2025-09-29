@@ -2,57 +2,57 @@
 #ifndef __MILSKO_LOWLEVEL_H__
 #define __MILSKO_LOWLEVEL_H__
 
-#include <Milsko/MachDep.h>
+#include <Mw/MachDep.h>
 
-typedef struct _MilskoLLHandler *MilskoLLHandler, MilskoLLHandlerRec;
+typedef struct _MwLLHandler *MwLLHandler, MwLLHandlerRec;
 #ifdef _MILSKO
-typedef struct _MilskoLL *     MilskoLL, MilskoLLRec;
-typedef struct _MilskoLLColor *MilskoLLColor, MilskoLLColorRec;
+typedef struct _MwLL *     MwLL, MwLLRec;
+typedef struct _MwLLColor *MwLLColor, MwLLColorRec;
 #else
-typedef void* MilskoLL;
-typedef void* MilskoLLColor;
+typedef void* MwLL;
+typedef void* MwLLColor;
 #endif
 
 #ifdef _MILSKO
 #ifdef USE_X11
-#include <Milsko/X11.h>
+#include <Mw/X11.h>
 #endif
 #ifdef USE_GDI
-#include <Milsko/GDI.h>
+#include <Mw/GDI.h>
 #endif
 #endif
-#include <Milsko/TypeDefs.h>
+#include <Mw/TypeDefs.h>
 
-#define MilskoLLDispatch(x, y) \
+#define MwLLDispatch(x, y) \
 	if(x->handler != NULL && x->handler->y != NULL) x->handler->y(x)
 
-struct _MilskoLLHandler {
-	void (*draw)(MilskoLL handle);
-	void (*up)(MilskoLL handle);
-	void (*down)(MilskoLL handle);
+struct _MwLLHandler {
+	void (*draw)(MwLL handle);
+	void (*up)(MwLL handle);
+	void (*down)(MwLL handle);
 };
 
 /* lowlevel.c, common part */
-MILSKODECL void MilskoLLCreateCommon(MilskoLL handle);
-MILSKODECL void MilskoLLDestroyCommon(MilskoLL handle);
+MILSKODECL void MwLLCreateCommon(MwLL handle);
+MILSKODECL void MwLLDestroyCommon(MwLL handle);
 
 /* driver-specific */
-MILSKODECL MilskoLL MilskoLLCreate(MilskoLL parent, int x, int y, int width, int height);
-MILSKODECL void	    MilskoLLDestroy(MilskoLL handle);
+MILSKODECL MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height);
+MILSKODECL void	    MwLLDestroy(MwLL handle);
 
-MILSKODECL void MilskoLLPolygon(MilskoLL handle, MilskoPoint* points, int points_count, MilskoLLColor color);
+MILSKODECL void MwLLPolygon(MwLL handle, MwPoint* points, int points_count, MwLLColor color);
 
-MILSKODECL MilskoLLColor MilskoLLAllocColor(MilskoLL handle, int r, int g, int b);
-MILSKODECL void		 MilskoLLFreeColor(MilskoLLColor color);
+MILSKODECL MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b);
+MILSKODECL void		 MwLLFreeColor(MwLLColor color);
 
-MILSKODECL void MilskoLLGetXYWH(MilskoLL handle, int* x, int* y, unsigned int* w, unsigned int* h);
-MILSKODECL void MilskoLLSetXY(MilskoLL handle, int x, int y);
-MILSKODECL void MilskoLLSetWH(MilskoLL handle, int w, int h);
+MILSKODECL void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h);
+MILSKODECL void MwLLSetXY(MwLL handle, int x, int y);
+MILSKODECL void MwLLSetWH(MwLL handle, int w, int h);
 
-MILSKODECL void MilskoLLSetTitle(MilskoLL handle, const char* title);
+MILSKODECL void MwLLSetTitle(MwLL handle, const char* title);
 
-MILSKODECL int	MilskoLLPending(MilskoLL handle);
-MILSKODECL void MilskoLLNextEvent(MilskoLL handle);
-MILSKODECL void MilskoLLSleep(int ms);
+MILSKODECL int	MwLLPending(MwLL handle);
+MILSKODECL void MwLLNextEvent(MwLL handle);
+MILSKODECL void MwLLSleep(int ms);
 
 #endif

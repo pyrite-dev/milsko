@@ -2,14 +2,14 @@
 #ifndef __MILSKO_STRINGDEFS_H__
 #define __MILSKO_STRINGDEFS_H__
 
-#define MilskoNx "Ix"
-#define MilskoNy "Iy"
-#define MilskoNwidth "Iwidth"
-#define MilskoNheight "Iheight"
+#define MwNx "Ix"
+#define MwNy "Iy"
+#define MwNwidth "Iwidth"
+#define MwNheight "Iheight"
 
-#define MilskoNtitle "Stitle"
-#define MilskoNbackground "Sbackground"
+#define MwNtitle "Stitle"
+#define MwNbackground "Sbackground"
 
-#define MilskoNactivateHandler "Cactivate"
+#define MwNactivateHandler "Cactivate"
 
 #endif

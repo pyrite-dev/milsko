@@ -2,8 +2,8 @@
 #ifndef __MILSKO_WINDOW_H__
 #define __MILSKO_WINDOW_H__
 
-#include <Milsko/MachDep.h>
+#include <Mw/MachDep.h>
 
-MILSKODECL MilskoClass MilskoWindowClass;
+MILSKODECL MwClass MwWindowClass;
 
 #endif
