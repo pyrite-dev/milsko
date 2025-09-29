@@ -110,32 +110,32 @@ void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	MwLLFreeColor(lighter);
 	MwLLFreeColor(darker);
 
-	rect->x += border;
-	rect->y += border;
-	rect->width -= border * 2;
-	rect->height -= border * 2;
+	rect->x += border + (invert ? border : 0);
+	rect->y += border + (invert ? border : 0);
+	rect->width -= border * 2 + (invert ? border : 0);
+	rect->height -= border * 2 + (invert ? border : 0);
 }
 
 void MwDrawText(MwWidget handle, MwPoint* point, const char* text, MwLLColor color) {
-	int    i, x, y, sx, sy;
+	int    i, x, y, sx, sy, sc = 1;
 	MwRect r;
 
-	sx = point->x;
-	sy = point->y;
+	sx = point->x - strlen(text) * 8 * sc / 2;
+	sy = point->y - 16 * sc / 2;
 
 	for(i = 0; text[i] != 0; i++) {
-		for(y = 0; y < 14; y++) {
-			for(x = 0; x < 7; x++) {
-				r.x	 = sx + x;
-				r.y	 = sy + y;
-				r.width	 = 1;
-				r.height = 1;
+		for(y = 0; y < 16; y++) {
+			for(x = 0; x < 8; x++) {
+				r.x	 = sx + x * sc;
+				r.y	 = sy + y * sc;
+				r.width	 = sc;
+				r.height = sc;
 
 				if(MwFontData[(unsigned char)text[i]].data[y] & (1 << (7 - x))) {
 					MwDrawRect(handle, &r, color);
 				}
 			}
 		}
-		sx += 7;
+		sx += 8 * sc;
 	}
 }

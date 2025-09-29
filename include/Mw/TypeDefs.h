@@ -79,7 +79,7 @@ struct _MwClass {
 struct _MwFont {
 	int	      left;
 	int	      top;
-	unsigned char data[14];
+	unsigned char data[16];
 };
 
 #endif

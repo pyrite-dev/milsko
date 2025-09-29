@@ -9,7 +9,7 @@ LIBS =
 
 L_OBJS = src/ds.o src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o
 L_OBJS += src/window.o src/button.o
-L_LIBS = -lfreetype
+L_LIBS =
 
 ifeq ($(TARGET),NetBSD)
 CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
