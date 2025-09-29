@@ -3,7 +3,7 @@
 TARGET = $(shell uname -s)
 
 CC = gcc
-CFLAGS = -fPIC -Iinclude -D_MW
+CFLAGS = -fPIC -Iinclude -D_MILSKO
 LDFLAGS =
 LIBS =
 

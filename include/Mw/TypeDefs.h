@@ -10,7 +10,7 @@ typedef struct _MwRect		  MwRect;
 typedef struct _MwIntegerKeyValue	  MwIntegerKeyValue;
 typedef struct _MwTextKeyValue	  MwTextKeyValue;
 typedef struct _MwUserHandlerKeyValue MwUserHandlerKeyValue;
-#ifdef _MW
+#ifdef _MILSKO
 typedef struct _MwWidget *MwWidget, MwWidgetRec;
 #else
 typedef void* MwWidget;
@@ -18,7 +18,7 @@ typedef void* MwWidget;
 typedef void (*MwHandler)(MwWidget handle);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 
-#ifdef _MW
+#ifdef _MILSKO
 #include <Mw/LowLevel.h>
 #endif
 
@@ -50,7 +50,7 @@ struct _MwUserHandlerKeyValue {
 	MwUserHandler value;
 };
 
-#ifdef _MW
+#ifdef _MILSKO
 struct _MwWidget {
 	char* name;
 
