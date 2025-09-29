@@ -12,8 +12,8 @@ L_LDFLAGS = $(LDFLAGS)
 L_LIBS = $(LIBS)
 
 E_CFLAGS = $(CFLAGS)
-E_LDFLAGS = $(LDFLAGS)
-E_LIBS = $(LIBS)
+E_LDFLAGS = $(LDFLAGS) -Lsrc
+E_LIBS = $(LIBS) -lMw
 
 L_OBJS = src/ds.o src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o
 L_OBJS += src/window.o src/button.o
@@ -35,16 +35,14 @@ L_CFLAGS += -DUSE_X11
 L_OBJS += src/x11.o
 L_LIBS += -lX11
 
-LIB = lib
 SO = .so
 EXEC =
 else ifeq ($(WINDOWS),1)
 L_CFLAGS += -DUSE_GDI
-L_LDFLAGS += -Wl,--out-implib,src/Mw.lib
+L_LDFLAGS += -Wl,--out-implib,src/libMw.lib
 L_OBJS += src/gdi.o
 L_LIBS += -lgdi32
 
-LIB =
 SO = .dll
 EXEC = .exe
 endif
@@ -52,17 +50,17 @@ endif
 .PHONY: all format clean lib examples
 
 all: lib examples	
-lib: src/$(LIB)Mw$(SO)
+lib: src/libMw$(SO)
 examples: examples/example$(EXEC)
 
 format:
 	clang-format --verbose -i $(shell find src include -name "*.c" -or -name "*.h")
 
-src/$(LIB)Mw$(SO): $(L_OBJS)
+src/libMw$(SO): $(L_OBJS)
 	$(CC) $(L_LDFLAGS) -shared -o $@ $(L_OBJS) $(L_LIBS)
 
-examples/%$(EXEC): examples/%.o src/$(LIB)Mw$(SO)
-	$(CC) $(E_LDFLAGS) -o $@ $< src/$(LIB)Mw$(SO) $(E_LIBS)
+examples/%$(EXEC): examples/%.o src/libMw$(SO)
+	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS)
 
 src/%.o: src/%.c
 	$(CC) $(L_CFLAGS) -c -o $@ $<

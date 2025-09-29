@@ -11,20 +11,14 @@ void handler(MwWidget handle, void* user_data, void* call_data){
 }
 
 int main(){
-	int y, x;
-	MwWidget window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 260,
+	MwWidget window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 400,
 		MwNtitle, "hello world",
 	NULL);
+	MwWidget button = MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 300, 300,
+		MwNtext, "lorem ipsum",
+	NULL);
 
-	for(y = 0; y < 5; y++){
-		for(x = 0; x < 2; x++){
-			MwWidget button = MwVaCreateWidget(MwButtonClass, "button", window, 5 + 195 * x, 5 + 50 * y, 195, 50,
-				MwNtext, "lorem ipsum",
-			NULL);
-
-			MwAddUserHandler(button, MwNactivateHandler, handler, NULL);
-		}
-	}
+	MwAddUserHandler(button, MwNactivateHandler, handler, NULL);
 
 	MwLoop(window);
 }
