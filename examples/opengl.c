@@ -4,9 +4,10 @@
 
 #include <GL/gl.h>
 
-MwWidget window, opengl;
+MwWidget window, opengl, button;
 int	 ow, oh;
 double	 deg = 0;
+double	 dir = 1;
 
 void resize(MwWidget handle, void* user_data, void* call_data) {
 	unsigned int w, h;
@@ -19,7 +20,7 @@ void resize(MwWidget handle, void* user_data, void* call_data) {
 
 	MwVaApply(opengl,
 		  MwNwidth, (ow = w - 100),
-		  MwNheight, (oh = h - 100),
+		  MwNheight, (oh = h - 150),
 		  NULL);
 }
 
@@ -54,17 +55,29 @@ void tick(MwWidget handle, void* user_data, void* call_data) {
 
 	MwOpenGLSwapBuffer(opengl);
 
-	deg += 120.0 / (1000.0 / MwWaitMS);
+	deg += 120.0 / (1000.0 / MwWaitMS) * dir;
+}
+
+void activate(MwWidget handle, void* user_data, void* call_data) {
+	(void)handle;
+	(void)user_data;
+	(void)call_data;
+
+	dir = dir == 1 ? -1 : 1;
 }
 
 int main() {
-	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 400,
+	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 450,
 				  MwNtitle, "hello world",
 				  NULL);
-	opengl = MwCreateWidget(MwOpenGLClass, "opengl", window, 50, 50, (ow = 300), (oh = 300));
+	opengl = MwCreateWidget(MwOpenGLClass, "opengl", window, 50, 50, (ow = 300), (oh = 250));
+	button = MwVaCreateWidget(MwButtonClass, "button", window, 50, 350, 300, 50,
+				  MwNtext, "Reverse",
+				  NULL);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
 	MwAddUserHandler(window, MwNtickHandler, tick, NULL);
+	MwAddUserHandler(button, MwNactivateHandler, activate, NULL);
 
 	MwLoop(window);
 }
