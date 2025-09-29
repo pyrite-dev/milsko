@@ -10,7 +10,7 @@ typedef struct _MwRect		      MwRect;
 typedef struct _MwIntegerKeyValue     MwIntegerKeyValue;
 typedef struct _MwTextKeyValue	      MwTextKeyValue;
 typedef struct _MwUserHandlerKeyValue MwUserHandlerKeyValue;
-typedef struct _MwFont MwFont;
+typedef struct _MwFont		      MwFont;
 #ifdef _MILSKO
 typedef struct _MwWidget *MwWidget, MwWidgetRec;
 #else
@@ -77,8 +77,8 @@ struct _MwClass {
 };
 
 struct _MwFont {
-	int left;
-	int top;
+	int	      left;
+	int	      top;
 	unsigned char data[14];
 };
 
