@@ -12,7 +12,7 @@
 #include <unistd.h>
 #endif
 
-#if defined(_MW) && defined(_WIN32)
+#if defined(_MILSKO) && defined(_WIN32)
 #define MWDECL extern __declspec(dllexport)
 #elif defined(_WIN32)
 #define MWDECL extern __declspec(dllimport)

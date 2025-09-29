@@ -13,12 +13,16 @@ typedef struct _MwLLColor *MwLLColor, MwLLColorRec;
 #include <windows.h>
 
 struct _MwLL {
+	HWND  hWnd;
+	HDC   hDC;
 	void* user;
 
 	MwLLHandler handler;
 };
 
-struct _MwColor {
+struct _MwLLColor {
+	HBRUSH brush;
+
 	int red;
 	int green;
 	int blue;
