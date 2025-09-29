@@ -62,7 +62,7 @@ lib: src/libMw$(SO)
 examples: $(EXAMPLES)
 
 format:
-	clang-format --verbose -i $(shell find src include -name "*.c" -or -name "*.h")
+	clang-format --verbose -i $(shell find src include examples -name "*.c" -or -name "*.h")
 
 src/libMw$(SO): $(L_OBJS)
 	$(CC) $(L_LDFLAGS) -shared -o $@ $(L_OBJS) $(L_LIBS)
