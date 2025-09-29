@@ -22,6 +22,12 @@ void resize(MwWidget handle, void* user_data, void* call_data) {
 		  MwNwidth, (ow = w - 100),
 		  MwNheight, (oh = h - 150),
 		  NULL);
+
+	MwVaApply(button,
+		  MwNy, h - 50 - 50,
+		  MwNwidth, ow,
+		  MwNheight, 50,
+		  NULL);
 }
 
 void tick(MwWidget handle, void* user_data, void* call_data) {
