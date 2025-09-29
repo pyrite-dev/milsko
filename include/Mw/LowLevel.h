@@ -5,7 +5,7 @@
 #include <Mw/MachDep.h>
 
 typedef struct _MwLLHandler *MwLLHandler, MwLLHandlerRec;
-#ifdef _MW
+#ifdef _MILSKO
 typedef struct _MwLL *     MwLL, MwLLRec;
 typedef struct _MwLLColor *MwLLColor, MwLLColorRec;
 #else
@@ -13,7 +13,7 @@ typedef void* MwLL;
 typedef void* MwLLColor;
 #endif
 
-#ifdef _MW
+#ifdef _MILSKO
 #ifdef USE_X11
 #include <Mw/X11.h>
 #endif
