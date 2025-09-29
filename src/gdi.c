@@ -17,9 +17,11 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		MwLLDispatch(u->ll, draw);
 		EndPaint(hWnd, &ps);
 	} else if(msg == WM_LBUTTONDOWN) {
+		SetCapture(hWnd);
 		MwLLDispatch(u->ll, down);
 		InvalidateRect(hWnd, NULL, FALSE);
 	} else if(msg == WM_LBUTTONUP) {
+		SetCapture(NULL);
 		MwLLDispatch(u->ll, up);
 		InvalidateRect(hWnd, NULL, FALSE);
 	} else if(msg == WM_ERASEBKGND) {
