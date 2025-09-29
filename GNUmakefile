@@ -13,7 +13,7 @@ L_LIBS = $(LIBS)
 
 E_CFLAGS = $(CFLAGS)
 E_LDFLAGS = $(LDFLAGS) -Lsrc
-E_LIBS = $(LIBS) -lMw $(GL)
+E_LIBS = $(LIBS) -lMw
 
 L_OBJS = src/ds.o src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o
 L_OBJS += src/window.o src/button.o src/opengl.o
@@ -65,7 +65,10 @@ format:
 	clang-format --verbose -i $(shell find src include examples -name "*.c" -or -name "*.h")
 
 src/libMw$(SO): $(L_OBJS)
-	$(CC) $(L_LDFLAGS) -shared -o $@ $(L_OBJS) $(L_LIBS)
+	$(CC) $(L_LDFLAGS) -shared -o $@ $^ $(L_LIBS)
+
+examples/opengl$(EXEC): examples/opengl.o src/libMw$(SO)
+	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS) $(GL)
 
 examples/%$(EXEC): examples/%.o src/libMw$(SO)
 	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS)
@@ -73,7 +76,7 @@ examples/%$(EXEC): examples/%.o src/libMw$(SO)
 src/%.o: src/%.c
 	$(CC) $(L_CFLAGS) -c -o $@ $<
 
-examples/%.o: examples/%.o
+examples/%.o: examples/%.c
 	$(CC) $(E_CFLAGS) -c -o $@ $<
 
 clean:
