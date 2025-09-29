@@ -17,15 +17,15 @@ MILSKODECL void MilskoLoop(MilskoWidget handle);
 MILSKODECL void MilskoStep(MilskoWidget handle);
 MILSKODECL int	MilskoPending(MilskoWidget handle);
 
-MILSKODECL void		 MilskoSetInteger(MilskoWidget handle, const char* key, int n);
-MILSKODECL void		 MilskoSetText(MilskoWidget handle, const char* key, const char* value);
-MILSKODECL void		 MilskoSetHandler(MilskoWidget handle, const char* key, MilskoHandler value);
-MILSKODECL int		 MilskoGetInteger(MilskoWidget handle, const char* key);
-MILSKODECL const char*	 MilskoGetText(MilskoWidget handle, const char* key);
-MILSKODECL MilskoHandler MilskoGetHandler(MilskoWidget handle, const char* key);
-MILSKODECL void		 MilskoDispatchHandler(MilskoWidget handle, const char* key);
-MILSKODECL void		 MilskoSetDefault(MilskoWidget handle);
-MILSKODECL void		 MilskoVaApply(MilskoWidget handle, ...);
-MILSKODECL void		 MilskoVaListApply(MilskoWidget handle, va_list va);
+MILSKODECL void	       MilskoSetInteger(MilskoWidget handle, const char* key, int n);
+MILSKODECL void	       MilskoSetText(MilskoWidget handle, const char* key, const char* value);
+MILSKODECL int	       MilskoGetInteger(MilskoWidget handle, const char* key);
+MILSKODECL const char* MilskoGetText(MilskoWidget handle, const char* key);
+MILSKODECL void	       MilskoSetDefault(MilskoWidget handle);
+MILSKODECL void	       MilskoVaApply(MilskoWidget handle, ...);
+MILSKODECL void	       MilskoVaListApply(MilskoWidget handle, va_list va);
+
+MILSKODECL void MilskoAddUserHandler(MilskoWidget handle, const char* key, MilskoUserHandler handler, void* user_data);
+MILSKODECL void MilskoDispatchUserHandler(MilskoWidget handle, const char* key, void* handler_data);
 
 #endif
