@@ -47,11 +47,13 @@ SO = .dll
 EXEC = .exe
 endif
 
+EXAMPLES = examples/example$(EXEC)
+
 .PHONY: all format clean lib examples
 
 all: lib examples	
 lib: src/libMw$(SO)
-examples: examples/example$(EXEC)
+examples: $(EXAMPLES)
 
 format:
 	clang-format --verbose -i $(shell find src include -name "*.c" -or -name "*.h")
@@ -69,4 +71,4 @@ examples/%.o: examples/%.o
 	$(CC) $(E_CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f src/*.dll src/*.so src/*.a src/*.lib */*.o examples/*.exe examples/example
+	rm -f src/*.dll src/*.so src/*.a src/*.lib */*.o examples/*.exe $(EXAMPLES)
