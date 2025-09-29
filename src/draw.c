@@ -110,10 +110,10 @@ void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	MwLLFreeColor(lighter);
 	MwLLFreeColor(darker);
 
-	rect->x += border + (invert ? border : 0);
-	rect->y += border + (invert ? border : 0);
-	rect->width -= border * 2 + (invert ? border : 0);
-	rect->height -= border * 2 + (invert ? border : 0);
+	rect->x += border;
+	rect->y += border;
+	rect->width -= border * 2;
+	rect->height -= border * 2;
 }
 
 void MwDrawText(MwWidget handle, MwPoint* point, const char* text, MwLLColor color) {
