@@ -6,10 +6,13 @@ static void create(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	  r;
-	MwPoint	  point;
-	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwRect	    r;
+	MwPoint	    point;
+	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	const char* str	 = MwGetText(handle, MwNtext);
+
+	if(str == NULL) str = "";
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -22,7 +25,7 @@ static void draw(MwWidget handle) {
 	point.x = r.x + r.width / 2;
 	point.y = r.x + r.height / 2;
 
-	MwDrawText(handle, &point, "test", text);
+	MwDrawText(handle, &point, str, text);
 
 	MwLLFreeColor(text);
 	MwLLFreeColor(base);
