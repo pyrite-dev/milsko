@@ -8,6 +8,8 @@
 #define MwDispatch(x, y) \
 	if(x->widget_class != NULL && x->widget_class->y != NULL) x->widget_class->y(x)
 
+#define MwWaitMS 5
+
 #ifdef __cplusplus
 extern "C" {
 #endif
