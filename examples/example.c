@@ -14,11 +14,12 @@ void handler(MwWidget handle, void* user_data, void* call_data){
 
 void resize(MwWidget handle, void* user_data, void* call_data){
 	unsigned int w, h;
-	w = MwGetInteger(handle, MwNwidth);
-	h = MwGetInteger(handle, MwNheight);
 
 	(void)user_data;
 	(void)call_data;
+
+	w = MwGetInteger(handle, MwNwidth);
+	h = MwGetInteger(handle, MwNheight);
 
 	MwVaApply(button,
 		MwNwidth, w - 50 * 2,

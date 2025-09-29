@@ -20,7 +20,6 @@ static void draw(MwWidget handle) {
 }
 
 MwClassRec MwWindowClassRec = {
-    NULL,   /* opaque */
     create, /* create */
     NULL,   /* destroy */
     draw,   /* draw */

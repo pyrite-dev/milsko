@@ -36,7 +36,6 @@ static void click(MwWidget handle) {
 }
 
 MwClassRec MwButtonClassRec = {
-    NULL,   /* opaque */
     create, /* create */
     NULL,   /* destroy */
     draw,   /* draw */

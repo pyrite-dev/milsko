@@ -13,5 +13,6 @@
 
 #include <Mw/Window.h>
 #include <Mw/Button.h>
+#include <Mw/OpenGL.h>
 
 #endif
