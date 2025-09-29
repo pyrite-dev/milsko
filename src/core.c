@@ -105,6 +105,7 @@ void MilskoDestroyWidget(MilskoWidget handle) {
 		handle->text[i].value = NULL;
 	}
 	shfree(handle->text);
+	shfree(handle->handler);
 
 	free(handle);
 }
@@ -162,10 +163,6 @@ void MilskoSetText(MilskoWidget handle, const char* key, const char* value) {
 	}
 }
 
-void MilskoSetHandler(MilskoWidget handle, const char* key, MilskoHandler value) {
-	shput(handle->handler, key, value);
-}
-
 int MilskoGetInteger(MilskoWidget handle, const char* key) {
 	if(strcmp(key, MilskoNx) == 0 || strcmp(key, MilskoNy) == 0 || strcmp(key, MilskoNwidth) == 0 || strcmp(key, MilskoNheight) == 0) {
 		int	     x, y;
@@ -187,10 +184,6 @@ const char* MilskoGetText(MilskoWidget handle, const char* key) {
 	return shget(handle->text, key);
 }
 
-MilskoHandler MilskoGetHandler(MilskoWidget handle, const char* key) {
-	return shget(handle->handler, key);
-}
-
 void MilskoVaApply(MilskoWidget handle, ...) {
 	va_list va;
 
@@ -210,8 +203,12 @@ void MilskoVaListApply(MilskoWidget handle, va_list va) {
 			char* t = va_arg(va, char*);
 			MilskoSetText(handle, key, t);
 		} else if(key[0] == 'C') {
-			MilskoHandler h = va_arg(va, MilskoHandler);
-			MilskoSetHandler(handle, key, h);
+			MilskoUserHandler h = va_arg(va, MilskoUserHandler);
+			int		  ind;
+
+			shput(handle->handler, key, h);
+			ind			       = shgeti(handle->handler, key);
+			handle->handler[ind].user_data = NULL;
 		}
 	}
 }
@@ -220,7 +217,17 @@ void MilskoSetDefault(MilskoWidget handle) {
 	MilskoSetText(handle, MilskoNbackground, MilskoDefaultBackground);
 }
 
-void MilskoDispatchHandler(MilskoWidget handle, const char* key) {
-	MilskoHandler handler = MilskoGetHandler(handle, key);
-	if(handler != NULL) handler(handle);
+void MilskoDispatchUserHandler(MilskoWidget handle, const char* key, void* handler_data) {
+	int ind = shgeti(handle->handler, key);
+	if(ind == -1) return;
+
+	handle->handler[ind].value(handle, handle->handler[ind].user_data, handler_data);
+}
+
+void MilskoAddUserHandler(MilskoWidget handle, const char* key, MilskoUserHandler handler, void* user_data) {
+	int ind;
+
+	shput(handle->handler, key, handler);
+	ind			       = shgeti(handle->handler, key);
+	handle->handler[ind].user_data = user_data;
 }

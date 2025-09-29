@@ -19,7 +19,7 @@ static void draw(MilskoWidget handle) {
 }
 
 static void click(MilskoWidget handle) {
-	MilskoDispatchHandler(handle, MilskoNactivateHandler);
+	MilskoDispatchUserHandler(handle, MilskoNactivateHandler, NULL);
 }
 
 MilskoClassRec MilskoButtonClassRec = {

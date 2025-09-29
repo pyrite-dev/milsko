@@ -4,18 +4,19 @@
 
 #include <Milsko/MachDep.h>
 
-typedef struct _MilskoClass *	      MilskoClass, MilskoClassRec;
-typedef struct _MilskoPoint	      MilskoPoint;
-typedef struct _MilskoRect	      MilskoRect;
-typedef struct _MilskoIntegerKeyValue MilskoIntegerKeyValue;
-typedef struct _MilskoTextKeyValue    MilskoTextKeyValue;
-typedef struct _MilskoHandlerKeyValue MilskoHandlerKeyValue;
+typedef struct _MilskoClass *		  MilskoClass, MilskoClassRec;
+typedef struct _MilskoPoint		  MilskoPoint;
+typedef struct _MilskoRect		  MilskoRect;
+typedef struct _MilskoIntegerKeyValue	  MilskoIntegerKeyValue;
+typedef struct _MilskoTextKeyValue	  MilskoTextKeyValue;
+typedef struct _MilskoUserHandlerKeyValue MilskoUserHandlerKeyValue;
 #ifdef _MILSKO
 typedef struct _MilskoWidget *MilskoWidget, MilskoWidgetRec;
 #else
 typedef void* MilskoWidget;
 #endif
 typedef void (*MilskoHandler)(MilskoWidget handle);
+typedef void (*MilskoUserHandler)(MilskoWidget handle, void* user_data, void* call_data);
 
 #ifdef _MILSKO
 #include <Milsko/LowLevel.h>
@@ -43,9 +44,10 @@ struct _MilskoIntegerKeyValue {
 	int   value;
 };
 
-struct _MilskoHandlerKeyValue {
-	char*	      key;
-	MilskoHandler value;
+struct _MilskoUserHandlerKeyValue {
+	char*		  key;
+	void*		  user_data;
+	MilskoUserHandler value;
 };
 
 #ifdef _MILSKO
@@ -59,9 +61,9 @@ struct _MilskoWidget {
 
 	int pressed;
 
-	MilskoIntegerKeyValue* integer;
-	MilskoTextKeyValue*    text;
-	MilskoHandlerKeyValue* handler;
+	MilskoIntegerKeyValue*	   integer;
+	MilskoTextKeyValue*	   text;
+	MilskoUserHandlerKeyValue* handler;
 };
 #endif
 
