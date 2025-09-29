@@ -13,14 +13,14 @@ L_LIBS = $(LIBS)
 
 E_CFLAGS = $(CFLAGS)
 E_LDFLAGS = $(LDFLAGS) -Lsrc
-E_LIBS = $(LIBS) -lMw
+E_LIBS = $(LIBS) -lMw $(GL)
 
 L_OBJS = src/ds.o src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o
-L_OBJS += src/window.o src/button.o
+L_OBJS += src/window.o src/button.o src/opengl.o
 
 ifeq ($(TARGET),NetBSD)
-L_CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
-L_LDFLAGS += -L/usr/X11R7/lib -L/usr/pkg/lib -Wl,-R/usr/X11R7/lib -Wl,-R/usr/pkg/lib
+CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
+LDFLAGS += -L/usr/X11R7/lib -L/usr/pkg/lib -Wl,-R/usr/X11R7/lib -Wl,-R/usr/pkg/lib
 UNIX = 1
 else ifeq ($(TARGET),Linux)
 UNIX = 1
@@ -33,7 +33,9 @@ endif
 ifeq ($(UNIX),1)
 L_CFLAGS += -DUSE_X11
 L_OBJS += src/x11.o
-L_LIBS += -lX11
+L_LIBS += -lX11 -lGL
+
+GL = -lGL
 
 E_LIBS += -lm
 
@@ -43,13 +45,15 @@ else ifeq ($(WINDOWS),1)
 L_CFLAGS += -DUSE_GDI
 L_LDFLAGS += -Wl,--out-implib,src/libMw.lib
 L_OBJS += src/gdi.o
-L_LIBS += -lgdi32
+L_LIBS += -lgdi32 -lopengl32
+
+GL = -lopengl32
 
 SO = .dll
 EXEC = .exe
 endif
 
-EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC)
+EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/opengl$(EXEC)
 
 .PHONY: all format clean lib examples
 

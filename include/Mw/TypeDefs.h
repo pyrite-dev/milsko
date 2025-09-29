@@ -63,6 +63,8 @@ struct _MwWidget {
 	int pressed;
 	int close;
 
+	void* internal;
+
 	MwIntegerKeyValue*     integer;
 	MwTextKeyValue*	       text;
 	MwUserHandlerKeyValue* handler;
@@ -70,7 +72,6 @@ struct _MwWidget {
 #endif
 
 struct _MwClass {
-	void*	  opaque;
 	MwHandler create;
 	MwHandler destroy;
 	MwHandler draw;
