@@ -14,6 +14,7 @@ MWDECL MwLLColor MwParseColor(MwWidget handle, const char* text);
 
 MWDECL void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color);
 MWDECL void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
+MWDECL void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border);
 MWDECL void MwDrawText(MwWidget handle, MwPoint* point, const char* text, MwLLColor color);
 
 #ifdef __cplusplus
