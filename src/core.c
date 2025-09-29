@@ -41,6 +41,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 
 	sh_new_strdup(h->text);
 	sh_new_strdup(h->integer);
+	sh_new_strdup(h->handler);
 
 	shdefault(h->integer, -1);
 	shdefault(h->text, NULL);
