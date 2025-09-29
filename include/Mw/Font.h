@@ -1,6 +1,6 @@
 /* $Id$ */
-#ifndef __MW_DEFAULT_H__
-#define __MW_DEFAULT_H__
+#ifndef __MW_FONT_H__
+#define __MW_FONT_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-MWDECL const char* MwDefaultBackground;
+MWDECL MwFont MwFontData[];
 
 #ifdef __cplusplus
 }

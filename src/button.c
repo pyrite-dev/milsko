@@ -15,7 +15,7 @@ static void draw(MwWidget handle) {
 
 	MwDrawFrame(handle, &r, MwParseColor(handle, MwGetText(handle, MwNbackground)), handle->pressed);
 
-	MwDrawRect(handle, &r, MwParseColor(handle, MwGetText(handle, MwNbackground)));
+//	MwDrawRect(handle, &r, MwParseColor(handle, MwGetText(handle, MwNbackground)));
 }
 
 static void click(MwWidget handle) {

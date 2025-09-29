@@ -10,6 +10,7 @@ typedef struct _MwRect		      MwRect;
 typedef struct _MwIntegerKeyValue     MwIntegerKeyValue;
 typedef struct _MwTextKeyValue	      MwTextKeyValue;
 typedef struct _MwUserHandlerKeyValue MwUserHandlerKeyValue;
+typedef struct _MwFont MwFont;
 #ifdef _MILSKO
 typedef struct _MwWidget *MwWidget, MwWidgetRec;
 #else
@@ -73,6 +74,12 @@ struct _MwClass {
 	MwHandler destroy;
 	MwHandler draw;
 	MwHandler click;
+};
+
+struct _MwFont {
+	int left;
+	int top;
+	unsigned char data[14];
 };
 
 #endif
