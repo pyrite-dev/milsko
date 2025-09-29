@@ -116,22 +116,22 @@ void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	rect->height -= border * 2;
 }
 
-void MwDrawText(MwWidget handle, MwPoint* point, const char* text, MwLLColor color){
-	int i, x, y, sx, sy;
+void MwDrawText(MwWidget handle, MwPoint* point, const char* text, MwLLColor color) {
+	int    i, x, y, sx, sy;
 	MwRect r;
 
 	sx = point->x;
 	sy = point->y;
 
-	for(i = 0; text[i] != 0; i++){
-		for(y = 0; y < 14; y++){
-			for(x = 0; x < 7; x++){
-				r.x = sx + x;
-				r.y = sy + y;
-				r.width = 1;
+	for(i = 0; text[i] != 0; i++) {
+		for(y = 0; y < 14; y++) {
+			for(x = 0; x < 7; x++) {
+				r.x	 = sx + x;
+				r.y	 = sy + y;
+				r.width	 = 1;
 				r.height = 1;
 
-				if(MwFontData[(unsigned char)text[i]].data[y] & (1 << (7 - x))){
+				if(MwFontData[(unsigned char)text[i]].data[y] & (1 << (7 - x))) {
 					MwDrawRect(handle, &r, color);
 				}
 			}
