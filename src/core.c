@@ -20,17 +20,17 @@ static void lldownhandler(MwLL handle) {
 	h->pressed = 1;
 }
 
-MwWidget MwCreateWidget(MwClass class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
+MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	MwWidget h = malloc(sizeof(*h));
 
 	h->name = malloc(strlen(name) + 1);
 	strcpy(h->name, name);
 
-	h->parent   = parent;
-	h->children = NULL;
-	h->lowlevel = MwLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height);
-	h->class    = class;
-	h->pressed  = 0;
+	h->parent	= parent;
+	h->children	= NULL;
+	h->lowlevel	= MwLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height);
+	h->widget_class = widget_class;
+	h->pressed	= 0;
 
 	h->lowlevel->user	   = h;
 	h->lowlevel->handler->draw = lldrawhandler;
@@ -51,21 +51,21 @@ MwWidget MwCreateWidget(MwClass class, const char* name, MwWidget parent, int x,
 	return h;
 }
 
-MwWidget MwVaCreateWidget(MwClass class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, ...) {
+MwWidget MwVaCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, ...) {
 	MwWidget h;
 	va_list	 va;
 
 	va_start(va, height);
-	h = MwVaListCreateWidget(class, name, parent, x, y, width, height, va);
+	h = MwVaListCreateWidget(widget_class, name, parent, x, y, width, height, va);
 	va_end(va);
 
 	return h;
 }
 
-MwWidget MwVaListCreateWidget(MwClass class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va) {
+MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va) {
 	MwWidget h;
 
-	h = MwCreateWidget(class, name, parent, x, y, width, height);
+	h = MwCreateWidget(widget_class, name, parent, x, y, width, height);
 	MwVaListApply(h, va);
 
 	return h;

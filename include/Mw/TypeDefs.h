@@ -57,7 +57,7 @@ struct _MwWidget {
 	MwLL	  lowlevel;
 	MwWidget  parent;
 	MwWidget* children;
-	MwClass class;
+	MwClass	  widget_class;
 
 	int pressed;
 

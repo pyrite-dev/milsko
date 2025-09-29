@@ -32,6 +32,10 @@ struct _MwLLHandler {
 	void (*down)(MwLL handle);
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* lowlevel.c, common part */
 MWDECL void MwLLCreateCommon(MwLL handle);
 MWDECL void MwLLDestroyCommon(MwLL handle);
@@ -54,5 +58,9 @@ MWDECL void MwLLSetTitle(MwLL handle, const char* title);
 MWDECL int  MwLLPending(MwLL handle);
 MWDECL void MwLLNextEvent(MwLL handle);
 MWDECL void MwLLSleep(int ms);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
