@@ -1,32 +1,32 @@
 /* $Id$ */
-#include <Milsko/Milsko.h>
+#include <Mw/Mw.h>
 
-static void create(MilskoWidget handle) {
-	MilskoSetDefault(handle);
+static void create(MwWidget handle) {
+	MwSetDefault(handle);
 }
 
-static void draw(MilskoWidget handle) {
-	MilskoRect r;
+static void draw(MwWidget handle) {
+	MwRect r;
 
 	r.x	 = 0;
 	r.y	 = 0;
-	r.width	 = MilskoGetInteger(handle, MilskoNwidth);
-	r.height = MilskoGetInteger(handle, MilskoNheight);
+	r.width	 = MwGetInteger(handle, MwNwidth);
+	r.height = MwGetInteger(handle, MwNheight);
 
-	MilskoDrawFrame(handle, &r, MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground)), handle->pressed);
+	MwDrawFrame(handle, &r, MwParseColor(handle, MwGetText(handle, MwNbackground)), handle->pressed);
 
-	MilskoDrawRect(handle, &r, MilskoParseColor(handle, MilskoGetText(handle, MilskoNbackground)));
+	MwDrawRect(handle, &r, MwParseColor(handle, MwGetText(handle, MwNbackground)));
 }
 
-static void click(MilskoWidget handle) {
-	MilskoDispatchUserHandler(handle, MilskoNactivateHandler, NULL);
+static void click(MwWidget handle) {
+	MwDispatchUserHandler(handle, MwNactivateHandler, NULL);
 }
 
-MilskoClassRec MilskoButtonClassRec = {
+MwClassRec MwButtonClassRec = {
     NULL,   /* opaque */
     create, /* create */
     NULL,   /* destroy */
     draw,   /* draw */
     click   /* click */
 };
-MilskoClass MilskoButtonClass = &MilskoButtonClassRec;
+MwClass MwButtonClass = &MwButtonClassRec;

@@ -1,4 +1,4 @@
 /* $Id$ */
-#include <Milsko/Milsko.h>
+#include <Mw/Mw.h>
 
-const char* MilskoDefaultBackground = "#ddd";
+const char* MwDefaultBackground = "#ddd";

@@ -2,77 +2,77 @@
 #ifndef __MILSKO_TYPEDEFS_H__
 #define __MILSKO_TYPEDEFS_H__
 
-#include <Milsko/MachDep.h>
+#include <Mw/MachDep.h>
 
-typedef struct _MilskoClass *		  MilskoClass, MilskoClassRec;
-typedef struct _MilskoPoint		  MilskoPoint;
-typedef struct _MilskoRect		  MilskoRect;
-typedef struct _MilskoIntegerKeyValue	  MilskoIntegerKeyValue;
-typedef struct _MilskoTextKeyValue	  MilskoTextKeyValue;
-typedef struct _MilskoUserHandlerKeyValue MilskoUserHandlerKeyValue;
+typedef struct _MwClass *		  MwClass, MwClassRec;
+typedef struct _MwPoint		  MwPoint;
+typedef struct _MwRect		  MwRect;
+typedef struct _MwIntegerKeyValue	  MwIntegerKeyValue;
+typedef struct _MwTextKeyValue	  MwTextKeyValue;
+typedef struct _MwUserHandlerKeyValue MwUserHandlerKeyValue;
 #ifdef _MILSKO
-typedef struct _MilskoWidget *MilskoWidget, MilskoWidgetRec;
+typedef struct _MwWidget *MwWidget, MwWidgetRec;
 #else
-typedef void* MilskoWidget;
+typedef void* MwWidget;
 #endif
-typedef void (*MilskoHandler)(MilskoWidget handle);
-typedef void (*MilskoUserHandler)(MilskoWidget handle, void* user_data, void* call_data);
+typedef void (*MwHandler)(MwWidget handle);
+typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 
 #ifdef _MILSKO
-#include <Milsko/LowLevel.h>
+#include <Mw/LowLevel.h>
 #endif
 
-struct _MilskoPoint {
+struct _MwPoint {
 	int x;
 	int y;
 };
 
-struct _MilskoRect {
+struct _MwRect {
 	int	     x;
 	int	     y;
 	unsigned int width;
 	unsigned int height;
 };
 
-struct _MilskoTextKeyValue {
+struct _MwTextKeyValue {
 	char* key;
 	char* value;
 };
 
-struct _MilskoIntegerKeyValue {
+struct _MwIntegerKeyValue {
 	char* key;
 	int   value;
 };
 
-struct _MilskoUserHandlerKeyValue {
+struct _MwUserHandlerKeyValue {
 	char*		  key;
 	void*		  user_data;
-	MilskoUserHandler value;
+	MwUserHandler value;
 };
 
 #ifdef _MILSKO
-struct _MilskoWidget {
+struct _MwWidget {
 	char* name;
 
-	MilskoLL      lowlevel;
-	MilskoWidget  parent;
-	MilskoWidget* children;
-	MilskoClass class;
+	MwLL      lowlevel;
+	MwWidget  parent;
+	MwWidget* children;
+	MwClass class;
 
 	int pressed;
 
-	MilskoIntegerKeyValue*	   integer;
-	MilskoTextKeyValue*	   text;
-	MilskoUserHandlerKeyValue* handler;
+	MwIntegerKeyValue*	   integer;
+	MwTextKeyValue*	   text;
+	MwUserHandlerKeyValue* handler;
 };
 #endif
 
-struct _MilskoClass {
+struct _MwClass {
 	void*	      opaque;
-	MilskoHandler create;
-	MilskoHandler destroy;
-	MilskoHandler draw;
-	MilskoHandler click;
+	MwHandler create;
+	MwHandler destroy;
+	MwHandler draw;
+	MwHandler click;
 };
 
 #endif

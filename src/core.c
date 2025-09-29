@@ -1,34 +1,34 @@
 /* $Id$ */
-#include <Milsko/Milsko.h>
+#include <Mw/Mw.h>
 
 #include "stb_ds.h"
 
-static void lldrawhandler(MilskoLL handle) {
-	MilskoWidget h = (MilskoWidget)handle->user;
-	MilskoDispatch(h, draw);
+static void lldrawhandler(MwLL handle) {
+	MwWidget h = (MwWidget)handle->user;
+	MwDispatch(h, draw);
 }
 
-static void lluphandler(MilskoLL handle) {
-	MilskoWidget h = (MilskoWidget)handle->user;
+static void lluphandler(MwLL handle) {
+	MwWidget h = (MwWidget)handle->user;
 	h->pressed     = 0;
 
-	MilskoDispatch(h, click);
+	MwDispatch(h, click);
 }
 
-static void lldownhandler(MilskoLL handle) {
-	MilskoWidget h = (MilskoWidget)handle->user;
+static void lldownhandler(MwLL handle) {
+	MwWidget h = (MwWidget)handle->user;
 	h->pressed     = 1;
 }
 
-MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height) {
-	MilskoWidget h = malloc(sizeof(*h));
+MwWidget MwCreateWidget(MwClass class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
+	MwWidget h = malloc(sizeof(*h));
 
 	h->name = malloc(strlen(name) + 1);
 	strcpy(h->name, name);
 
 	h->parent   = parent;
 	h->children = NULL;
-	h->lowlevel = MilskoLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height);
+	h->lowlevel = MwLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height);
 	h->class    = class;
 	h->pressed  = 0;
 
@@ -46,42 +46,42 @@ MilskoWidget MilskoCreateWidget(MilskoClass class, const char* name, MilskoWidge
 	shdefault(h->text, NULL);
 	shdefault(h->handler, NULL);
 
-	MilskoDispatch(h, create);
+	MwDispatch(h, create);
 
 	return h;
 }
 
-MilskoWidget MilskoVaCreateWidget(MilskoClass class, const char* name, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height, ...) {
-	MilskoWidget h;
+MwWidget MwVaCreateWidget(MwClass class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, ...) {
+	MwWidget h;
 	va_list	     va;
 
 	va_start(va, height);
-	h = MilskoVaListCreateWidget(class, name, parent, x, y, width, height, va);
+	h = MwVaListCreateWidget(class, name, parent, x, y, width, height, va);
 	va_end(va);
 
 	return h;
 }
 
-MilskoWidget MilskoVaListCreateWidget(MilskoClass class, const char* name, MilskoWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va) {
-	MilskoWidget h;
+MwWidget MwVaListCreateWidget(MwClass class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va) {
+	MwWidget h;
 
-	h = MilskoCreateWidget(class, name, parent, x, y, width, height);
-	MilskoVaListApply(h, va);
+	h = MwCreateWidget(class, name, parent, x, y, width, height);
+	MwVaListApply(h, va);
 
 	return h;
 }
 
-void MilskoDestroyWidget(MilskoWidget handle) {
+void MwDestroyWidget(MwWidget handle) {
 	int i;
 
-	MilskoDispatch(handle, destroy);
+	MwDispatch(handle, destroy);
 
 	free(handle->name);
 
 	if(handle->children != NULL) {
 		for(i = 0; i < arrlen(handle->children); i++) {
 			if(handle->children[i] == handle) {
-				MilskoDestroyWidget(handle->children[i]);
+				MwDestroyWidget(handle->children[i]);
 				break;
 			}
 		}
@@ -96,7 +96,7 @@ void MilskoDestroyWidget(MilskoWidget handle) {
 			}
 		}
 	}
-	MilskoLLDestroy(handle->lowlevel);
+	MwLLDestroy(handle->lowlevel);
 
 	shfree(handle->integer);
 
@@ -110,49 +110,49 @@ void MilskoDestroyWidget(MilskoWidget handle) {
 	free(handle);
 }
 
-void MilskoStep(MilskoWidget handle) {
+void MwStep(MwWidget handle) {
 	int i;
-	for(i = 0; i < arrlen(handle->children); i++) MilskoStep(handle->children[i]);
-	MilskoLLNextEvent(handle->lowlevel);
+	for(i = 0; i < arrlen(handle->children); i++) MwStep(handle->children[i]);
+	MwLLNextEvent(handle->lowlevel);
 }
 
-int MilskoPending(MilskoWidget handle) {
+int MwPending(MwWidget handle) {
 	int i;
 	for(i = 0; i < arrlen(handle->children); i++) {
-		if(MilskoPending(handle->children[i])) return 1;
+		if(MwPending(handle->children[i])) return 1;
 	}
-	return MilskoLLPending(handle->lowlevel);
+	return MwLLPending(handle->lowlevel);
 }
 
-void MilskoLoop(MilskoWidget handle) {
+void MwLoop(MwWidget handle) {
 	while(1) {
-		MilskoStep(handle);
-		MilskoLLSleep(5);
+		MwStep(handle);
+		MwLLSleep(5);
 	}
 }
 
-void MilskoSetInteger(MilskoWidget handle, const char* key, int n) {
+void MwSetInteger(MwWidget handle, const char* key, int n) {
 	int xy = 0;
 	int wh = 0;
-	if((xy = (strcmp(key, MilskoNx) == 0 || strcmp(key, MilskoNy) == 0)) || (wh = (strcmp(key, MilskoNwidth) == 0 || strcmp(key, MilskoNheight) == 0))) {
+	if((xy = (strcmp(key, MwNx) == 0 || strcmp(key, MwNy) == 0)) || (wh = (strcmp(key, MwNwidth) == 0 || strcmp(key, MwNheight) == 0))) {
 		int	     x, y;
 		unsigned int w, h;
 
-		MilskoLLGetXYWH(handle->lowlevel, &x, &y, &w, &h);
-		if(strcmp(key, MilskoNx) == 0) x = n;
-		if(strcmp(key, MilskoNy) == 0) y = n;
-		if(strcmp(key, MilskoNwidth) == 0) w = n;
-		if(strcmp(key, MilskoNheight) == 0) h = n;
-		if(xy) MilskoLLSetXY(handle->lowlevel, x, y);
-		if(wh) MilskoLLSetWH(handle->lowlevel, w, h);
+		MwLLGetXYWH(handle->lowlevel, &x, &y, &w, &h);
+		if(strcmp(key, MwNx) == 0) x = n;
+		if(strcmp(key, MwNy) == 0) y = n;
+		if(strcmp(key, MwNwidth) == 0) w = n;
+		if(strcmp(key, MwNheight) == 0) h = n;
+		if(xy) MwLLSetXY(handle->lowlevel, x, y);
+		if(wh) MwLLSetWH(handle->lowlevel, w, h);
 	} else {
 		shput(handle->integer, key, n);
 	}
 }
 
-void MilskoSetText(MilskoWidget handle, const char* key, const char* value) {
-	if(strcmp(key, MilskoNtitle) == 0) {
-		MilskoLLSetTitle(handle->lowlevel, value);
+void MwSetText(MwWidget handle, const char* key, const char* value) {
+	if(strcmp(key, MwNtitle) == 0) {
+		MwLLSetTitle(handle->lowlevel, value);
 	} else {
 		char* v = malloc(strlen(value) + 1);
 		strcpy(v, value);
@@ -163,47 +163,47 @@ void MilskoSetText(MilskoWidget handle, const char* key, const char* value) {
 	}
 }
 
-int MilskoGetInteger(MilskoWidget handle, const char* key) {
-	if(strcmp(key, MilskoNx) == 0 || strcmp(key, MilskoNy) == 0 || strcmp(key, MilskoNwidth) == 0 || strcmp(key, MilskoNheight) == 0) {
+int MwGetInteger(MwWidget handle, const char* key) {
+	if(strcmp(key, MwNx) == 0 || strcmp(key, MwNy) == 0 || strcmp(key, MwNwidth) == 0 || strcmp(key, MwNheight) == 0) {
 		int	     x, y;
 		unsigned int w, h;
 
-		MilskoLLGetXYWH(handle->lowlevel, &x, &y, &w, &h);
+		MwLLGetXYWH(handle->lowlevel, &x, &y, &w, &h);
 
-		if(strcmp(key, MilskoNx) == 0) return x;
-		if(strcmp(key, MilskoNy) == 0) return y;
-		if(strcmp(key, MilskoNwidth) == 0) return w;
-		if(strcmp(key, MilskoNheight) == 0) return h;
+		if(strcmp(key, MwNx) == 0) return x;
+		if(strcmp(key, MwNy) == 0) return y;
+		if(strcmp(key, MwNwidth) == 0) return w;
+		if(strcmp(key, MwNheight) == 0) return h;
 		return -1;
 	} else {
 		return shget(handle->integer, key);
 	}
 }
 
-const char* MilskoGetText(MilskoWidget handle, const char* key) {
+const char* MwGetText(MwWidget handle, const char* key) {
 	return shget(handle->text, key);
 }
 
-void MilskoVaApply(MilskoWidget handle, ...) {
+void MwVaApply(MwWidget handle, ...) {
 	va_list va;
 
 	va_start(va, handle);
-	MilskoVaListApply(handle, va);
+	MwVaListApply(handle, va);
 	va_end(va);
 }
 
-void MilskoVaListApply(MilskoWidget handle, va_list va) {
+void MwVaListApply(MwWidget handle, va_list va) {
 	char* key;
 
 	while((key = va_arg(va, char*)) != NULL) {
 		if(key[0] == 'I') {
 			int n = va_arg(va, int);
-			MilskoSetInteger(handle, key, n);
+			MwSetInteger(handle, key, n);
 		} else if(key[0] == 'S') {
 			char* t = va_arg(va, char*);
-			MilskoSetText(handle, key, t);
+			MwSetText(handle, key, t);
 		} else if(key[0] == 'C') {
-			MilskoUserHandler h = va_arg(va, MilskoUserHandler);
+			MwUserHandler h = va_arg(va, MwUserHandler);
 			int		  ind;
 
 			shput(handle->handler, key, h);
@@ -213,18 +213,18 @@ void MilskoVaListApply(MilskoWidget handle, va_list va) {
 	}
 }
 
-void MilskoSetDefault(MilskoWidget handle) {
-	MilskoSetText(handle, MilskoNbackground, MilskoDefaultBackground);
+void MwSetDefault(MwWidget handle) {
+	MwSetText(handle, MwNbackground, MwDefaultBackground);
 }
 
-void MilskoDispatchUserHandler(MilskoWidget handle, const char* key, void* handler_data) {
+void MwDispatchUserHandler(MwWidget handle, const char* key, void* handler_data) {
 	int ind = shgeti(handle->handler, key);
 	if(ind == -1) return;
 
 	handle->handler[ind].value(handle, handle->handler[ind].user_data, handler_data);
 }
 
-void MilskoAddUserHandler(MilskoWidget handle, const char* key, MilskoUserHandler handler, void* user_data) {
+void MwAddUserHandler(MwWidget handle, const char* key, MwUserHandler handler, void* user_data) {
 	int ind;
 
 	shput(handle->handler, key, handler);
