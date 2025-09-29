@@ -14,5 +14,6 @@
 
 #define MwNactivateHandler "Cactivate"
 #define MwNresizeHandler "Cresize"
+#define MwNtickHandler "Ctick"
 
 #endif

@@ -13,9 +13,27 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 	if(msg == WM_PAINT) {
 		PAINTSTRUCT ps;
-		u->ll->hDC = BeginPaint(hWnd, &ps);
+		RECT	    rc;
+		HBITMAP	    hbmp;
+		HDC	    dc, hbdc;
+
+		GetClientRect(hWnd, &rc);
+
+		dc   = GetDC(hWnd);
+		hbmp = CreateCompatibleBitmap(dc, rc.right - rc.left, rc.bottom - rc.top);
+		hbdc = CreateCompatibleDC(dc);
+		SelectObject(hbdc, hbmp);
+		ReleaseDC(hWnd, dc);
+
+		u->ll->hDC = hbdc;
 		MwLLDispatch(u->ll, draw);
+
+		dc = BeginPaint(hWnd, &ps);
+		StretchBlt(dc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, hbdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SRCCOPY);
 		EndPaint(hWnd, &ps);
+
+		DeleteDC(hbdc);
+		DeleteObject(hbmp);
 	} else if(msg == WM_LBUTTONDOWN) {
 		SetCapture(hWnd);
 		MwLLDispatch(u->ll, down);
@@ -127,7 +145,7 @@ MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b) {
 	c->green = g;
 	c->blue	 = b;
 
-	DeleteDC(dc);
+	ReleaseDC(handle->hWnd, dc);
 
 	return c;
 }

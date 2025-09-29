@@ -135,7 +135,9 @@ int MwPending(MwWidget handle) {
 void MwLoop(MwWidget handle) {
 	while(1) {
 		MwStep(handle);
-		MwLLSleep(5);
+
+		MwDispatchUserHandler(handle, MwNtickHandler, NULL);
+		MwLLSleep(MwWaitMS);
 	}
 }
 

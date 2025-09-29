@@ -35,6 +35,8 @@ L_CFLAGS += -DUSE_X11
 L_OBJS += src/x11.o
 L_LIBS += -lX11
 
+E_LIBS += -lm
+
 SO = .so
 EXEC =
 else ifeq ($(WINDOWS),1)
@@ -47,7 +49,7 @@ SO = .dll
 EXEC = .exe
 endif
 
-EXAMPLES = examples/example$(EXEC)
+EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC)
 
 .PHONY: all format clean lib examples
 
