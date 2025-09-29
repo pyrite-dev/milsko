@@ -4,6 +4,14 @@
 
 #include <Mw/MachDep.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 MWDECL MwClass MwButtonClass;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
