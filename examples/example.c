@@ -1,5 +1,4 @@
 /* $Id$ */
-
 #include <Mw/Milsko.h>
 
 MwWidget window, button, button2, button3, button4;

@@ -61,49 +61,54 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
+	const int border = 2;
+
+	MwDrawFrameEx(handle, rect, color, invert, border);
+}
+
+void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
 	MwPoint	  p[6];
 	const int diff	  = 128;
-	const int border  = 2;
 	MwLLColor darker  = MwLLAllocColor(handle->lowlevel, color->red - diff, color->green - diff, color->blue - diff);
 	MwLLColor lighter = MwLLAllocColor(handle->lowlevel, color->red + diff, color->green + diff, color->blue + diff);
 
-	p[0].x = 0;
-	p[0].y = 0;
+	p[0].x = rect->x;
+	p[0].y = rect->y;
 
-	p[1].x = 0 + rect->width;
-	p[1].y = 0;
+	p[1].x = rect->x + rect->width;
+	p[1].y = rect->y;
 
-	p[2].x = 0 + rect->width - border;
-	p[2].y = 0 + border;
+	p[2].x = rect->x + rect->width - border;
+	p[2].y = rect->y + border;
 
-	p[3].x = 0 + border;
-	p[3].y = 0 + border;
+	p[3].x = rect->x + border;
+	p[3].y = rect->y + border;
 
-	p[4].x = 0 + border;
-	p[4].y = 0 + rect->height - border;
+	p[4].x = rect->x + border;
+	p[4].y = rect->y + rect->height - border;
 
-	p[5].x = 0;
-	p[5].y = 0 + rect->height;
+	p[5].x = rect->x;
+	p[5].y = rect->y + rect->height;
 
 	MwLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
 
-	p[0].x = 0 + rect->width;
-	p[0].y = 0;
+	p[0].x = rect->x + rect->width;
+	p[0].y = rect->y;
 
-	p[1].x = 0 + rect->width - border;
-	p[1].y = 0 + border;
+	p[1].x = rect->x + rect->width - border;
+	p[1].y = rect->y + border;
 
-	p[2].x = 0 + rect->width - border;
-	p[2].y = 0 + rect->height - border;
+	p[2].x = rect->x + rect->width - border;
+	p[2].y = rect->y + rect->height - border;
 
-	p[3].x = 0 + border;
-	p[3].y = 0 + rect->height - border;
+	p[3].x = rect->x + border;
+	p[3].y = rect->y + rect->height - border;
 
-	p[4].x = 0;
-	p[4].y = 0 + rect->height;
+	p[4].x = rect->x;
+	p[4].y = rect->y + rect->height;
 
-	p[5].x = 0 + rect->width;
-	p[5].y = 0 + rect->height;
+	p[5].x = rect->x + rect->width;
+	p[5].y = rect->y + rect->height;
 
 	MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
 
@@ -137,6 +142,6 @@ void MwDrawText(MwWidget handle, MwPoint* point, const char* text, MwLLColor col
 				}
 			}
 		}
-		sx += 8 * sc;
+		sx += fw * sc;
 	}
 }
