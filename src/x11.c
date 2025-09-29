@@ -105,7 +105,7 @@ int MwLLPending(MwLL handle) {
 
 void MwLLNextEvent(MwLL handle) {
 	XEvent ev;
-	if(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
+	while(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 		if(ev.type == Expose) {
 			MwLLDispatch(handle, draw);
 		} else if(ev.type == ButtonPress) {
@@ -118,6 +118,8 @@ void MwLLNextEvent(MwLL handle) {
 				MwLLDispatch(handle, up);
 				MwLLDispatch(handle, draw);
 			}
+		} else if(ev.type == ConfigureNotify) {
+			MwLLDispatch(handle, resize);
 		}
 	}
 }
