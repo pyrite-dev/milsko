@@ -18,8 +18,10 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 		r->display = parent->display;
 		p	   = parent->window;
 	}
-	r->window   = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, XDefaultScreen(r->display)));
-	r->colormap = DefaultColormap(r->display, XDefaultScreen(r->display));
+	r->window    = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, XDefaultScreen(r->display)));
+	r->colormap  = DefaultColormap(r->display, XDefaultScreen(r->display));
+	r->wm_delete = XInternAtom(r->display, "WM_DELETE_WINDOW", False);
+	XSetWMProtocols(r->display, r->window, &r->wm_delete, 1);
 
 	r->gc = XCreateGC(r->display, r->window, 0, 0);
 
@@ -96,7 +98,7 @@ void MwLLFreeColor(MwLLColor color) {
 
 int MwLLPending(MwLL handle) {
 	XEvent ev;
-	if(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
+	if(XCheckTypedWindowEvent(handle->display, handle->window, ClientMessage, &ev) || XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 		XPutBackEvent(handle->display, &ev);
 		return 1;
 	}
@@ -105,7 +107,7 @@ int MwLLPending(MwLL handle) {
 
 void MwLLNextEvent(MwLL handle) {
 	XEvent ev;
-	while(XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
+	while(XCheckTypedWindowEvent(handle->display, handle->window, ClientMessage, &ev) || XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 		if(ev.type == Expose) {
 			MwLLDispatch(handle, draw);
 		} else if(ev.type == ButtonPress) {
@@ -120,6 +122,10 @@ void MwLLNextEvent(MwLL handle) {
 			}
 		} else if(ev.type == ConfigureNotify) {
 			MwLLDispatch(handle, resize);
+		} else if(ev.type == ClientMessage) {
+			if(ev.xclient.data.l[0] == (long)handle->wm_delete) {
+				MwLLDispatch(handle, close);
+			}
 		}
 	}
 }
