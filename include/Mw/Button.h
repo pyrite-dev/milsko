@@ -1,4 +1,8 @@
 /* $Id$ */
+/*!
+ * %file Mw/Button.h
+ * %brief Button widget
+ */
 #ifndef __MW_BUTTON_H__
 #define __MW_BUTTON_H__
 
@@ -9,6 +13,9 @@
 extern "C" {
 #endif
 
+/*!
+ * %brief Button class
+ */
 MWDECL MwClass MwButtonClass;
 
 #ifdef __cplusplus
