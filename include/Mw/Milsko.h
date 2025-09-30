@@ -10,6 +10,7 @@
 #include <Mw/Default.h>
 #include <Mw/Draw.h>
 #include <Mw/Font.h>
+#include <Mw/Error.h>
 
 #include <Mw/Window.h>
 #include <Mw/Button.h>
