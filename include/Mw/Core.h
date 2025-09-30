@@ -9,6 +9,12 @@
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
 
+/*!
+ * %warning Used internally
+ * %brief Dispatches a handler of widget class
+ * %param x Widget
+ * %param y Handler name
+ */
 #define MwDispatch(x, y) \
 	if(x->widget_class != NULL && x->widget_class->y != NULL) x->widget_class->y(x)
 
@@ -18,6 +24,16 @@
 extern "C" {
 #endif
 
+/*!
+ * %brief Creates a widget
+ * %param widget_class Widget class
+ * %param name Widget name
+ * %param parent Parent widget or `NULL`
+ * %param x X
+ * %param y Y
+ * %param width Width
+ * %param height Height
+ */
 MWDECL MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height);
 MWDECL MwWidget MwVaCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, ...);
 MWDECL MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va);

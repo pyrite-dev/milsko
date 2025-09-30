@@ -5,22 +5,99 @@
 	</head>
 	<body>
 		<h1 align="center">Milsko GUI Toolkit Documentation</h1>
-<hr>
-<h2>Mw/Button.h</h2>
+		<hr>
+<h2 align="center">Mw/Button.h</h2>
 <p>
 	Button widget.
 </p>
-<dt>
-	<code>MWDECL MwClass MwButtonClass;</code>
-</dt>
+<hr>
+<pre><code>MWDECL MwClass MwButtonClass;</code></pre>
 <dd>
 	Button class.
 </dd>
-<br>
 <hr>
-<h2>Mw/Core.h</h2>
+<h2 align="center">Mw/Core.h</h2>
 <p>
 	Core.
 </p>
+<hr>
+<pre><code>#define MwDispatch(x, y)</code></pre>
+<dd>
+	Dispatches a handler of widget class.
+</dd>
+<dt>
+	<img src="warning.gif" alt="warning">
+</dt>
+<dd>
+	Used internally.
+</dd>
+<dt>
+	Parameter <code>x</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>y</code>
+</dt>
+<dd>
+	Handler name.
+</dd>
+<hr>
+<pre><code>MWDECL MwWidget MwCreateWidget (
+	MwClass widget_class,
+	const char* name,
+	MwWidget parent,
+	int x,
+	int y,
+	unsigned int width,
+	unsigned int height
+);</code></pre>
+<dd>
+	Creates a widget.
+</dd>
+<dt>
+	Parameter <code>widget_class</code>
+</dt>
+<dd>
+	Widget class.
+</dd>
+<dt>
+	Parameter <code>name</code>
+</dt>
+<dd>
+	Widget name.
+</dd>
+<dt>
+	Parameter <code>parent</code>
+</dt>
+<dd>
+	Parent widget or <code>NULL</code>.
+</dd>
+<dt>
+	Parameter <code>x</code>
+</dt>
+<dd>
+	X.
+</dd>
+<dt>
+	Parameter <code>y</code>
+</dt>
+<dd>
+	Y.
+</dd>
+<dt>
+	Parameter <code>width</code>
+</dt>
+<dd>
+	Width.
+</dd>
+<dt>
+	Parameter <code>height</code>
+</dt>
+<dd>
+	Height.
+</dd>
+<hr>
 	</body>
 </html>
