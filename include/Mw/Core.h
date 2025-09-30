@@ -1,4 +1,8 @@
 /* $Id$ */
+/*!
+ * %file Mw/Core.h
+ * %brief Core
+ */
 #ifndef __MW_CORE_H__
 #define __MW_CORE_H__
 
