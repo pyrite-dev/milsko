@@ -6,22 +6,66 @@
 	<body>
 		<h1 align="center">Milsko GUI Toolkit Documentation</h1>
 		<hr>
-<h2 align="center">Mw/Button.h</h2>
-<p>
-	Button widget.
-</p>
+		<h2 align="center">Table of Contents</h2>
+<dl>
+<dt>
+	<a href="#Mw_Button_h">Mw/Button.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Button_h__MwButtonClass">MwButtonClass</a>
+</dd>
+<dt>
+	<a href="#Mw_Core_h">Mw/Core.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Core_h__MwDispatch">MwDispatch</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwCreateWidget">MwCreateWidget</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwVaCreateWidget">MwVaCreateWidget</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwVaListCreateWidget">MwVaListCreateWidget</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwDestroyWidget">MwDestroyWidget</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwLoop">MwLoop</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwStep">MwStep</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwPending">MwPending</a>
+</dd>
+</dl>
 <hr>
-<pre><code>MWDECL MwClass MwButtonClass;</code></pre>
+<h2 align="center" id="Mw_Button_h">Mw/Button.h</h2>
+<dl>
+<dt>
+	Button widget.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Button_h__MwButtonClass"><code>MWDECL MwClass MwButtonClass;</code></pre>
+<dl>
 <dd>
 	Button class.
 </dd>
+</dl>
 <hr>
-<h2 align="center">Mw/Core.h</h2>
-<p>
+<h2 align="center" id="Mw_Core_h">Mw/Core.h</h2>
+<dl>
+<dt>
 	Core.
-</p>
+</dt>
+</dl>
 <hr>
-<pre><code>#define MwDispatch(x, y)</code></pre>
+<pre id="Mw_Core_h__MwDispatch"><code>#define MwDispatch(x, y)</code></pre>
+<dl>
 <dd>
 	Dispatches a handler of widget class.
 </dd>
@@ -43,8 +87,9 @@
 <dd>
 	Handler name.
 </dd>
+</dl>
 <hr>
-<pre><code>MWDECL MwWidget MwCreateWidget (
+<pre id="Mw_Core_h__MwCreateWidget"><code>MWDECL MwWidget MwCreateWidget (
 	MwClass widget_class,
 	const char* name,
 	MwWidget parent,
@@ -53,6 +98,7 @@
 	unsigned int width,
 	unsigned int height
 );</code></pre>
+<dl>
 <dd>
 	Creates a widget.
 </dd>
@@ -98,6 +144,219 @@
 <dd>
 	Height.
 </dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwVaCreateWidget"><code>MWDECL MwWidget MwVaCreateWidget (
+	MwClass widget_class,
+	const char* name,
+	MwWidget parent,
+	int x,
+	int y,
+	unsigned int width,
+	unsigned int height,
+	...
+);</code></pre>
+<dl>
+<dd>
+	Creates a widget.
+</dd>
+<dt>
+	Parameter <code>widget_class</code>
+</dt>
+<dd>
+	Widget class.
+</dd>
+<dt>
+	Parameter <code>name</code>
+</dt>
+<dd>
+	Widget name.
+</dd>
+<dt>
+	Parameter <code>parent</code>
+</dt>
+<dd>
+	Parent widget or <code>NULL</code>.
+</dd>
+<dt>
+	Parameter <code>x</code>
+</dt>
+<dd>
+	X.
+</dd>
+<dt>
+	Parameter <code>y</code>
+</dt>
+<dd>
+	Y.
+</dd>
+<dt>
+	Parameter <code>width</code>
+</dt>
+<dd>
+	Width.
+</dd>
+<dt>
+	Parameter <code>height</code>
+</dt>
+<dd>
+	Height.
+</dd>
+<dt>
+	Parameter <code>...</code>
+</dt>
+<dd>
+	Same with MwVaApply.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwVaListCreateWidget"><code>MWDECL MwWidget MwVaListCreateWidget (
+	MwClass widget_class,
+	const char* name,
+	MwWidget parent,
+	int x,
+	int y,
+	unsigned int width,
+	unsigned int height,
+	va_list va
+);</code></pre>
+<dl>
+<dd>
+	Creates a widget.
+</dd>
+<dt>
+	Parameter <code>widget_class</code>
+</dt>
+<dd>
+	Widget class.
+</dd>
+<dt>
+	Parameter <code>name</code>
+</dt>
+<dd>
+	Widget name.
+</dd>
+<dt>
+	Parameter <code>parent</code>
+</dt>
+<dd>
+	Parent widget or <code>NULL</code>.
+</dd>
+<dt>
+	Parameter <code>x</code>
+</dt>
+<dd>
+	X.
+</dd>
+<dt>
+	Parameter <code>y</code>
+</dt>
+<dd>
+	Y.
+</dd>
+<dt>
+	Parameter <code>width</code>
+</dt>
+<dd>
+	Width.
+</dd>
+<dt>
+	Parameter <code>height</code>
+</dt>
+<dd>
+	Height.
+</dd>
+<dt>
+	Parameter <code>va</code>
+</dt>
+<dd>
+	Same with MwVaListApply.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwDestroyWidget"><code>MWDECL void MwDestroyWidget (
+	MwWidget handle
+);</code></pre>
+<dl>
+<dd>
+	Destroys the widget and its child widgets.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwLoop"><code>MWDECL void MwLoop (
+	MwWidget handle
+);</code></pre>
+<dl>
+<dd>
+	Runs the main loop.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwStep"><code>MWDECL void MwStep (
+	MwWidget handle
+);</code></pre>
+<dl>
+<dd>
+	Runs the single step.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwPending"><code>MWDECL int MwPending (
+	MwWidget handle
+);</code></pre>
+<dl>
+<dd>
+	Check if any event is pending.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	<code>1</code> if any event is pending.
+</dd>
+</dl>
 <hr>
 	</body>
 </html>

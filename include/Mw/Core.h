@@ -33,15 +33,62 @@ extern "C" {
  * %param y Y
  * %param width Width
  * %param height Height
+ * %return Widget
  */
 MWDECL MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height);
-MWDECL MwWidget MwVaCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, ...);
-MWDECL MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va);
-MWDECL void	MwDestroyWidget(MwWidget handle);
 
+/*!
+ * %brief Creates a widget
+ * %param widget_class Widget class
+ * %param name Widget name
+ * %param parent Parent widget or `NULL`
+ * %param x X
+ * %param y Y
+ * %param width Width
+ * %param height Height
+ * %param ... Same with MwVaApply
+ * %return Widget
+ */
+MWDECL MwWidget MwVaCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, ...);
+
+/*!
+ * %brief Creates a widget
+ * %param widget_class Widget class
+ * %param name Widget name
+ * %param parent Parent widget or `NULL`
+ * %param x X
+ * %param y Y
+ * %param width Width
+ * %param height Height
+ * %param va Same with MwVaListApply
+ * %return Widget
+ */
+MWDECL MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va);
+
+/*!
+ * %brief Destroys the widget and its child widgets
+ * %param handle Widget
+ */
+MWDECL void MwDestroyWidget(MwWidget handle);
+
+/*!
+ * %brief Runs the main loop
+ * %param handle Widget
+ */
 MWDECL void MwLoop(MwWidget handle);
+
+/*!
+ * %brief Runs the single step
+ * %param handle Widget
+ */
 MWDECL void MwStep(MwWidget handle);
-MWDECL int  MwPending(MwWidget handle);
+
+/*!
+ * %brief Check if any event is pending
+ * %param handle Widget
+ * %return `1` if any event is pending
+ */
+MWDECL int MwPending(MwWidget handle);
 
 MWDECL void	   MwSetInteger(MwWidget handle, const char* key, int n);
 MWDECL void	   MwSetText(MwWidget handle, const char* key, const char* value);
