@@ -18,6 +18,7 @@ typedef void* MwWidget;
 #endif
 typedef void (*MwHandler)(MwWidget handle);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
+typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
 
 #ifdef _MILSKO
 #include <Mw/LowLevel.h>
