@@ -3,10 +3,6 @@
 #define __MW_GDI_H__
 
 #include <Mw/MachDep.h>
-
-typedef struct _MwLL *	   MwLL, MwLLRec;
-typedef struct _MwLLColor *MwLLColor, MwLLColorRec;
-
 #include <Mw/TypeDefs.h>
 #include <Mw/LowLevel.h>
 
@@ -26,6 +22,13 @@ struct _MwLLColor {
 	int red;
 	int green;
 	int blue;
+};
+
+struct _MwLLPixmap {
+	int width;
+	int height;
+
+	HBITMAP hBitmap;
 };
 
 #endif

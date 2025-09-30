@@ -64,6 +64,8 @@ int main() {
 				   MwNbackground, "#66f",
 				   NULL);
 
+	MwVaCreateWidget(MwFrameClass, "frame", window, 50, 50, 300, 300, NULL);
+
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
 	MwAddUserHandler(button, MwNactivateHandler, handler, NULL);
 	MwAddUserHandler(button2, MwNactivateHandler, handler, NULL);

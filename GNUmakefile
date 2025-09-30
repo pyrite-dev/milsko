@@ -33,7 +33,7 @@ endif
 ifeq ($(UNIX),1)
 L_CFLAGS += -DUSE_X11
 L_OBJS += src/x11.o
-L_LIBS += -lX11 -lGL
+L_LIBS += -lX11 -lXrender -lXext -lGL
 
 GL = -lGL
 

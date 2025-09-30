@@ -6,11 +6,13 @@
 
 typedef struct _MwLLHandler *MwLLHandler, MwLLHandlerRec;
 #ifdef _MILSKO
-typedef struct _MwLL *	   MwLL, MwLLRec;
-typedef struct _MwLLColor *MwLLColor, MwLLColorRec;
+typedef struct _MwLL *	    MwLL, MwLLRec;
+typedef struct _MwLLColor * MwLLColor, MwLLColorRec;
+typedef struct _MwLLPixmap *MwLLPixmap, MwLLPixmapRec;
 #else
 typedef void* MwLL;
 typedef void* MwLLColor;
+typedef void* MwLLPixmap;
 #endif
 
 #ifdef _MILSKO
@@ -60,6 +62,10 @@ MWDECL void MwLLSetTitle(MwLL handle, const char* title);
 MWDECL int  MwLLPending(MwLL handle);
 MWDECL void MwLLNextEvent(MwLL handle);
 MWDECL void MwLLSleep(int ms);
+
+MWDECL MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int height);
+MWDECL void	  MwLLDestroyPixmap(MwLLPixmap pixmap);
+MWDECL void	  MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap);
 
 #ifdef __cplusplus
 }

@@ -25,6 +25,8 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 
 	r->gc = XCreateGC(r->display, r->window, 0, 0);
 
+	XSetGraphicsExposures(r->display, r->gc, False);
+
 	XSelectInput(r->display, r->window, mask);
 	XMapWindow(r->display, r->window);
 
@@ -136,4 +138,66 @@ void MwLLSleep(int ms) {
 
 void MwLLSetTitle(MwLL handle, const char* title) {
 	XSetStandardProperties(handle->display, handle->window, title, "Mw Widget Toolkit", None, (char**)NULL, 0, NULL);
+}
+
+MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int height) {
+	MwLLPixmap r = malloc(sizeof(*r));
+	char*	   d = malloc(4 * width * height);
+	int	   y, x;
+
+	r->width   = width;
+	r->height  = height;
+	r->display = handle->display;
+	r->use_shm = XShmQueryExtension(handle->display) ? 1 : 0;
+
+	if(r->use_shm) {
+		r->image = XShmCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 24, ZPixmap, NULL, &r->shm, width, height);
+		free(d);
+
+		r->shm.shmid   = shmget(IPC_PRIVATE, r->image->bytes_per_line * height, IPC_CREAT | 0777);
+		r->shm.shmaddr = d = r->image->data = shmat(r->shm.shmid, 0, 0);
+		r->shm.readOnly			    = False;
+		XShmAttach(handle->display, &r->shm);
+	} else {
+		r->image = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 24, ZPixmap, 0, d, width, height, 32, width * 4);
+	}
+
+	for(y = 0; y < height; y++) {
+		for(x = 0; x < height; x++) {
+			unsigned char* px = &data[(y * width + x) * 3];
+			unsigned long  p  = 0;
+			p <<= 8;
+			p |= px[0];
+			p <<= 8;
+			p |= px[1];
+			p <<= 8;
+			p |= px[2];
+			XPutPixel(r->image, x, y, p);
+		}
+	}
+
+	return r;
+}
+
+void MwLLDestroyPixmap(MwLLPixmap pixmap) {
+	if(pixmap->use_shm) {
+		XShmDetach(pixmap->display, &pixmap->shm);
+	}
+	XDestroyImage(pixmap->image);
+	if(pixmap->use_shm) {
+		shmdt(pixmap->shm.shmaddr);
+		shmctl(pixmap->shm.shmid, IPC_RMID, 0);
+	}
+
+	free(pixmap);
+}
+
+void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
+	if(pixmap->image != NULL) {
+		if(pixmap->use_shm) {
+			XShmPutImage(handle->display, handle->window, handle->gc, pixmap->image, 0, 0, rect->x, rect->y, rect->width, rect->height, False);
+		} else {
+			XPutImage(handle->display, handle->window, handle->gc, pixmap->image, 0, 0, rect->x, rect->y, rect->width, rect->height);
+		}
+	}
 }
