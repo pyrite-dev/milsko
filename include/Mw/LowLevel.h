@@ -71,6 +71,7 @@ MWDECL void MwLLSleep(int ms);
 MWDECL MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int height);
 MWDECL void	  MwLLDestroyPixmap(MwLLPixmap pixmap);
 MWDECL void	  MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap);
+MWDECL void	  MwLLSetIcon(MwLL handle, MwLLPixmap pixmap);
 
 #ifdef __cplusplus
 }

@@ -75,7 +75,7 @@ int main() {
 	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 450,
 				  MwNtitle, "hello world",
 				  NULL);
-	opengl = MwCreateWidget(MwOpenGLClass, "opengl", window, 50, 50, (ow = 300), (oh = 250));
+	opengl = MwCreateWidget(MwOpenGLClass, "opengl", window, 50, 50, (ow = 300), (oh = 300));
 	button = MwVaCreateWidget(MwButtonClass, "button", window, 50, 350, 300, 50,
 				  MwNtext, "Reverse",
 				  NULL);

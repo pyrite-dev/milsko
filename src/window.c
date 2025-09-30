@@ -26,3 +26,7 @@ MwClassRec MwWindowClassRec = {
     NULL    /* click */
 };
 MwClass MwWindowClass = &MwWindowClassRec;
+
+void MwWindowSetIcon(MwWidget handle, MwLLPixmap pixmap) {
+	MwLLSetIcon(handle->lowlevel, pixmap);
+}
