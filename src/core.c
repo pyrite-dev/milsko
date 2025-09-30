@@ -128,6 +128,7 @@ void MwDestroyWidget(MwWidget handle) {
 
 void MwStep(MwWidget handle) {
 	int i;
+	if(setjmp(handle->before_step)) return;
 	for(i = 0; i < arrlen(handle->children); i++) MwStep(handle->children[i]);
 	MwLLNextEvent(handle->lowlevel);
 }
@@ -142,8 +143,6 @@ int MwPending(MwWidget handle) {
 
 void MwLoop(MwWidget handle) {
 	while(!handle->close) {
-		setjmp(handle->before_step);
-
 		MwStep(handle);
 
 		MwDispatchUserHandler(handle, MwNtickHandler, NULL);
