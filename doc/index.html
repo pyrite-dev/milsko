@@ -41,6 +41,129 @@
 <dd>
 	<a href="#Mw_Core_h__MwPending">MwPending</a>
 </dd>
+<dd>
+	<a href="#Mw_Core_h__MwSetInteger">MwSetInteger</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwSetText">MwSetText</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwGetInteger">MwGetInteger</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwGetText">MwGetText</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwSetDefault">MwSetDefault</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwVaApply">MwVaApply</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwVaListApply">MwVaListApply</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwAddUserHandler">MwAddUserHandler</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwDispatchUserHandler">MwDispatchUserHandler</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwSetErrorHandler">MwSetErrorHandler</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwDispatchError">MwDispatchError</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwGetBeforeStep">MwGetBeforeStep</a>
+</dd>
+<dt>
+	<a href="#Mw_Default_h">Mw/Default.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Default_h__MwDefaultBackground">MwDefaultBackground</a>
+</dd>
+<dd>
+	<a href="#Mw_Default_h__MwDefaultForeground">MwDefaultForeground</a>
+</dd>
+<dt>
+	<a href="#Mw_Draw_h">Mw/Draw.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Draw_h__MwParseColor">MwParseColor</a>
+</dd>
+<dd>
+	<a href="#Mw_Draw_h__MwDrawRect">MwDrawRect</a>
+</dd>
+<dd>
+	<a href="#Mw_Draw_h__MwDrawFrame">MwDrawFrame</a>
+</dd>
+<dd>
+	<a href="#Mw_Draw_h__MwDrawFrameEx">MwDrawFrameEx</a>
+</dd>
+<dd>
+	<a href="#Mw_Draw_h__MwDrawText">MwDrawText</a>
+</dd>
+<dt>
+	<a href="#Mw_Error_h">Mw/Error.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Error_h__MwErrorEnum">MwErrorEnum</a>
+</dd>
+<dd>
+	<a href="#Mw_Error_h___MwEsuccess_"> MwEsuccess </a>
+</dd>
+<dt>
+	<a href="#Mw_Font_h">Mw/Font.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Font_h__MwFontData__">MwFontData[]</a>
+</dd>
+<dt>
+	<a href="#Mw_Frame_h">Mw/Frame.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Frame_h__MwFrameClass">MwFrameClass</a>
+</dd>
+<dt>
+	<a href="#Mw_GDI_h">Mw/GDI.h</a>
+</dt>
+<dt>
+	<a href="#Mw_LowLevel_h">Mw/LowLevel.h</a>
+</dt>
+<dt>
+	<a href="#Mw_MachDep_h">Mw/MachDep.h</a>
+</dt>
+<dt>
+	<a href="#Mw_Milsko_h">Mw/Milsko.h</a>
+</dt>
+<dt>
+	<a href="#Mw_OpenGL_h">Mw/OpenGL.h</a>
+</dt>
+<dd>
+	<a href="#Mw_OpenGL_h__MwOpenGLClass">MwOpenGLClass</a>
+</dd>
+<dd>
+	<a href="#Mw_OpenGL_h__MwOpenGLMakeCurrent">MwOpenGLMakeCurrent</a>
+</dd>
+<dd>
+	<a href="#Mw_OpenGL_h__MwOpenGLSwapBuffer">MwOpenGLSwapBuffer</a>
+</dd>
+<dt>
+	<a href="#Mw_StringDefs_h">Mw/StringDefs.h</a>
+</dt>
+<dt>
+	<a href="#Mw_TypeDefs_h">Mw/TypeDefs.h</a>
+</dt>
+<dt>
+	<a href="#Mw_Window_h">Mw/Window.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Window_h__MwWindowClass">MwWindowClass</a>
+</dd>
+<dt>
+	<a href="#Mw_X11_h">Mw/X11.h</a>
+</dt>
 </dl>
 <hr>
 <h2 align="center" id="Mw_Button_h">Mw/Button.h</h2>
@@ -53,7 +176,7 @@
 <pre id="Mw_Button_h__MwButtonClass"><code>MWDECL MwClass MwButtonClass;</code></pre>
 <dl>
 <dd>
-	Button class.
+	Button widget class.
 </dd>
 </dl>
 <hr>
@@ -67,7 +190,7 @@
 <pre id="Mw_Core_h__MwDispatch"><code>#define MwDispatch(x, y)</code></pre>
 <dl>
 <dd>
-	Dispatches a handler of widget class.
+	Dispatches the handler of widget class.
 </dd>
 <dt>
 	<img src="warning.gif" alt="warning">
@@ -355,6 +478,701 @@
 </dt>
 <dd>
 	<code>1</code> if any event is pending.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwSetInteger"><code>MWDECL void MwSetInteger (
+	MwWidget handle,
+	const char* key,
+	int n
+);</code></pre>
+<dl>
+<dd>
+	Sets an integer property.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>key</code>
+</dt>
+<dd>
+	Key.
+</dd>
+<dt>
+	Parameter <code>n</code>
+</dt>
+<dd>
+	Value.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwSetText"><code>MWDECL void MwSetText (
+	MwWidget handle,
+	const char* key,
+	const char* value
+);</code></pre>
+<dl>
+<dd>
+	Sets a text property.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>key</code>
+</dt>
+<dd>
+	Key.
+</dd>
+<dt>
+	Parameter <code>value</code>
+</dt>
+<dd>
+	Value.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwGetInteger"><code>MWDECL int MwGetInteger (
+	MwWidget handle,
+	const char* key
+);</code></pre>
+<dl>
+<dd>
+	Gets the integer property.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>key</code>
+</dt>
+<dd>
+	Key.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Value.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwGetText"><code>MWDECL const char* MwGetText (
+	MwWidget handle,
+	const char* key
+);</code></pre>
+<dl>
+<dd>
+	Gets the text property.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>key</code>
+</dt>
+<dd>
+	Key.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Value.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwSetDefault"><code>MWDECL void MwSetDefault (
+	MwWidget handle
+);</code></pre>
+<dl>
+<dd>
+	Sets the default property.
+</dd>
+<dt>
+	<img src="warning.gif" alt="warning">
+</dt>
+<dd>
+	This is called when widget is created.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwVaApply"><code>MWDECL void MwVaApply (
+	MwWidget handle,
+	...
+);</code></pre>
+<dl>
+<dd>
+	Sets the properties.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>...</code>
+</dt>
+<dd>
+	Properties.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwVaListApply"><code>MWDECL void MwVaListApply (
+	MwWidget handle,
+	va_list va
+);</code></pre>
+<dl>
+<dd>
+	Sets properties.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>va</code>
+</dt>
+<dd>
+	Properties.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwAddUserHandler"><code>MWDECL void MwAddUserHandler (
+	MwWidget handle,
+	const char* key,
+	MwUserHandler handler,
+	void* user_data
+);</code></pre>
+<dl>
+<dd>
+	Sets a user handler.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>key</code>
+</dt>
+<dd>
+	Key.
+</dd>
+<dt>
+	Parameter <code>handler</code>
+</dt>
+<dd>
+	Handler.
+</dd>
+<dt>
+	Parameter <code>user_data</code>
+</dt>
+<dd>
+	User data passed to handler.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwDispatchUserHandler"><code>MWDECL void MwDispatchUserHandler (
+	MwWidget handle,
+	const char* key,
+	void* handler_data
+);</code></pre>
+<dl>
+<dd>
+	Dispatches the user handler.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>key</code>
+</dt>
+<dd>
+	Key.
+</dd>
+<dt>
+	Parameter <code>handler_data</code>
+</dt>
+<dd>
+	Handler data passed to handler.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwSetErrorHandler"><code>MWDECL void MwSetErrorHandler (
+	MwErrorHandler handler,
+	void* user_data
+);</code></pre>
+<dl>
+<dd>
+	Sets an error handler.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>handler</code>
+</dt>
+<dd>
+	Handler.
+</dd>
+<dt>
+	Parameter <code>user_data</code>
+</dt>
+<dd>
+	User data passed to handler.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwDispatchError"><code>MWDECL void MwDispatchError (
+	int code,
+	const char* message
+);</code></pre>
+<dl>
+<dd>
+	Dispatches the error handler.
+</dd>
+<dt>
+	Parameter <code>code</code>
+</dt>
+<dd>
+	Error code.
+</dd>
+<dt>
+	Parameter <code>message</code>
+</dt>
+<dd>
+	Error message.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwGetBeforeStep"><code>MWDECL jmp_buf MwGetBeforeStep (
+	MwWidget handle
+);</code></pre>
+<dl>
+<dd>
+	Gets the before_step of widget.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	jmp_buf.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Default_h">Mw/Default.h</h2>
+<dl>
+<dt>
+	Default properties.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Default_h__MwDefaultBackground"><code>MWDECL const char* MwDefaultBackground;</code></pre>
+<dl>
+<dd>
+	Default background color.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Default_h__MwDefaultForeground"><code>MWDECL const char* MwDefaultForeground;</code></pre>
+<dl>
+<dd>
+	Default foreground color.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Draw_h">Mw/Draw.h</h2>
+<dl>
+<dt>
+	Common drawing API.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwParseColor"><code>MWDECL MwLLColor MwParseColor (
+	MwWidget handle,
+	const char* text
+);</code></pre>
+<dl>
+<dd>
+	Parses a color text.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>text</code>
+</dt>
+<dd>
+	Color text.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Color.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwDrawRect"><code>MWDECL void MwDrawRect (
+	MwWidget handle,
+	MwRect* rect,
+	MwLLColor color
+);</code></pre>
+<dl>
+<dd>
+	Draws a filled rectangle.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>rect</code>
+</dt>
+<dd>
+	Rectangle area.
+</dd>
+<dt>
+	Parameter <code>color</code>
+</dt>
+<dd>
+	Color.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwDrawFrame"><code>MWDECL void MwDrawFrame (
+	MwWidget handle,
+	MwRect* rect,
+	MwLLColor color,
+	int invert
+);</code></pre>
+<dl>
+<dd>
+	Draws a frame.
+</dd>
+<dt>
+	<img src="warning.gif" alt="warning">
+</dt>
+<dd>
+	<code>rect</code> gets changed to the area of rectangle inside.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>rect</code>
+</dt>
+<dd>
+	Rectangle area.
+</dd>
+<dt>
+	Parameter <code>color</code>
+</dt>
+<dd>
+	Color.
+</dd>
+<dt>
+	Parameter <code>invert</code>
+</dt>
+<dd>
+	Invert the 3D border color or not.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwDrawFrameEx"><code>MWDECL void MwDrawFrameEx (
+	MwWidget handle,
+	MwRect* rect,
+	MwLLColor color,
+	int invert,
+	int border
+);</code></pre>
+<dl>
+<dd>
+	Draws a frame with specified border width.
+</dd>
+<dt>
+	<img src="warning.gif" alt="warning">
+</dt>
+<dd>
+	<code>rect</code> gets changed to the area of rectangle inside.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>rect</code>
+</dt>
+<dd>
+	Rectangle area.
+</dd>
+<dt>
+	Parameter <code>color</code>
+</dt>
+<dd>
+	Color.
+</dd>
+<dt>
+	Parameter <code>invert</code>
+</dt>
+<dd>
+	Invert the 3D border color or not.
+</dd>
+<dt>
+	Parameter <code>border</code>
+</dt>
+<dd>
+	Border width.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwDrawText"><code>MWDECL void MwDrawText (
+	MwWidget handle,
+	MwPoint* point,
+	const char* text,
+	MwLLColor color
+);</code></pre>
+<dl>
+<dd>
+	Draws a text.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>point</code>
+</dt>
+<dd>
+	Center point of the text.
+</dd>
+<dt>
+	Parameter <code>text</code>
+</dt>
+<dd>
+	Text.
+</dd>
+<dt>
+	Parameter <code>color</code>
+</dt>
+<dd>
+	Color.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Error_h">Mw/Error.h</h2>
+<dl>
+<dt>
+	Error codes.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Error_h__MwErrorEnum"><code>enum MwErrorEnum;</code></pre>
+<dl>
+<dd>
+	Error code enumeration.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Error_h___MwEsuccess_"><code> MwEsuccess = 0</code></pre>
+<dl>
+<dd>
+	No error.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Font_h">Mw/Font.h</h2>
+<dl>
+<dt>
+	Default font.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Font_h__MwFontData__"><code>MWDECL MwFont MwFontData[];</code></pre>
+<dl>
+<dd>
+	Default font data.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Frame_h">Mw/Frame.h</h2>
+<dl>
+<dt>
+	Frame widget.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Frame_h__MwFrameClass"><code>MWDECL MwClass MwFrameClass;</code></pre>
+<dl>
+<dd>
+	Frame widget class.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_GDI_h">Mw/GDI.h</h2>
+<dl>
+<dt>
+	GDI backend.
+</dt>
+<dt>
+	<img src="warning.gif" alt="warning">
+</dt>
+<dd>
+	This is used internally.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_LowLevel_h">Mw/LowLevel.h</h2>
+<dl>
+<dt>
+	Low-level drawing API.
+</dt>
+<dt>
+	<img src="warning.gif" alt="warning">
+</dt>
+<dd>
+	This is used internally.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_MachDep_h">Mw/MachDep.h</h2>
+<h2 align="center" id="Mw_Milsko_h">Mw/Milsko.h</h2>
+<dl>
+<dt>
+	Includes all headers.
+</dt>
+</dl>
+<hr>
+<h2 align="center" id="Mw_OpenGL_h">Mw/OpenGL.h</h2>
+<dl>
+<dt>
+	OpenGL widget.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_OpenGL_h__MwOpenGLClass"><code>MWDECL MwClass MwOpenGLClass;</code></pre>
+<dl>
+<dd>
+	OpenGL widget class.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_OpenGL_h__MwOpenGLMakeCurrent"><code>MWDECL void MwOpenGLMakeCurrent (
+	MwWidget handle
+);</code></pre>
+<dl>
+<dd>
+	Make a widget current OpenGL context.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_OpenGL_h__MwOpenGLSwapBuffer"><code>MWDECL void MwOpenGLSwapBuffer (
+	MwWidget handle
+);</code></pre>
+<dl>
+<dd>
+	Swaps the buffer of OpenGL context.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_StringDefs_h">Mw/StringDefs.h</h2>
+<dl>
+<dt>
+	String definitions for property.
+</dt>
+</dl>
+<hr>
+<h2 align="center" id="Mw_TypeDefs_h">Mw/TypeDefs.h</h2>
+<dl>
+<dt>
+	Type definitions.
+</dt>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Window_h">Mw/Window.h</h2>
+<dl>
+<dt>
+	Window widget.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Window_h__MwWindowClass"><code>MWDECL MwClass MwWindowClass;</code></pre>
+<dl>
+<dd>
+	Window widget class.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_X11_h">Mw/X11.h</h2>
+<dl>
+<dt>
+	X11 backend.
+</dt>
+<dt>
+	<img src="warning.gif" alt="warning">
+</dt>
+<dd>
+	This is used internally.
 </dd>
 </dl>
 <hr>

@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 /*!
- * %brief Button class
+ * %brief Button widget class
  */
 MWDECL MwClass MwButtonClass;
 

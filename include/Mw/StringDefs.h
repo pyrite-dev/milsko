@@ -1,4 +1,8 @@
 /* $Id$ */
+/*!
+ * %file Mw/StringDefs.h
+ * %brief String definitions for property
+ */
 #ifndef __MW_STRINGDEFS_H__
 #define __MW_STRINGDEFS_H__
 

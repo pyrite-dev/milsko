@@ -11,7 +11,7 @@
 
 /*!
  * %warning Used internally
- * %brief Dispatches a handler of widget class
+ * %brief Dispatches the handler of widget class
  * %param x Widget
  * %param y Handler name
  */
@@ -90,20 +90,96 @@ MWDECL void MwStep(MwWidget handle);
  */
 MWDECL int MwPending(MwWidget handle);
 
-MWDECL void	   MwSetInteger(MwWidget handle, const char* key, int n);
-MWDECL void	   MwSetText(MwWidget handle, const char* key, const char* value);
-MWDECL int	   MwGetInteger(MwWidget handle, const char* key);
-MWDECL const char* MwGetText(MwWidget handle, const char* key);
-MWDECL void	   MwSetDefault(MwWidget handle);
-MWDECL void	   MwVaApply(MwWidget handle, ...);
-MWDECL void	   MwVaListApply(MwWidget handle, va_list va);
+/*!
+ * %brief Sets an integer property
+ * %param handle Widget
+ * %param key Key
+ * %param n Value
+ */
+MWDECL void MwSetInteger(MwWidget handle, const char* key, int n);
 
+/*!
+ * %brief Sets a text property
+ * %param handle Widget
+ * %param key Key
+ * %param value Value
+ */
+MWDECL void MwSetText(MwWidget handle, const char* key, const char* value);
+
+/*!
+ * %brief Gets the integer property
+ * %param handle Widget
+ * %param key Key
+ * %return Value
+ */
+MWDECL int MwGetInteger(MwWidget handle, const char* key);
+
+/*!
+ * %brief Gets the text property
+ * %param handle Widget
+ * %param key Key
+ * %return Value
+ */
+MWDECL const char* MwGetText(MwWidget handle, const char* key);
+
+/*!
+ * %brief Sets the default property
+ * %param handle Widget
+ * %warning This is called when widget is created
+ */
+MWDECL void MwSetDefault(MwWidget handle);
+
+/*!
+ * %brief Sets the properties
+ * %param handle Widget
+ * %param ... Properties
+ */
+MWDECL void MwVaApply(MwWidget handle, ...);
+
+/*!
+ * %brief Sets properties
+ * %param handle Widget
+ * %param va Properties
+ */
+MWDECL void MwVaListApply(MwWidget handle, va_list va);
+
+/*!
+ * %brief Sets a user handler
+ * %param handle Widget
+ * %param key Key
+ * %param handler Handler
+ * %param user_data User data passed to handler
+ */
 MWDECL void MwAddUserHandler(MwWidget handle, const char* key, MwUserHandler handler, void* user_data);
+
+/*!
+ * %brief Dispatches the user handler
+ * %param handle Widget
+ * %param key Key
+ * %param handler_data Handler data passed to handler
+ */
 MWDECL void MwDispatchUserHandler(MwWidget handle, const char* key, void* handler_data);
 
+/*!
+ * %brief Sets an error handler
+ * %param handle Widget
+ * %param handler Handler
+ * %param user_data User data passed to handler
+ */
 MWDECL void MwSetErrorHandler(MwErrorHandler handler, void* user_data);
+
+/*!
+ * %brief Dispatches the error handler
+ * %param code Error code
+ * %param message Error message
+ */
 MWDECL void MwDispatchError(int code, const char* message);
 
+/*!
+ * %brief Gets the before_step of widget
+ * %param handle Widget
+ * %return jmp_buf
+ */
 MWDECL jmp_buf MwGetBeforeStep(MwWidget handle);
 
 #ifdef __cplusplus

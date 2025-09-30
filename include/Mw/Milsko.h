@@ -1,4 +1,8 @@
 /* $Id$ */
+/*!
+ * %file Mw/Milsko.h
+ * %brief Includes all headers
+ */
 #ifndef __MW_MILSKO_H__
 #define __MW_MILSKO_H__
 
