@@ -6,6 +6,9 @@ our $title    = "Milsko GUI Toolkit Documentation";
 our @pathlist = ("include");
 our @notes    = ("warning", "unsure", "note");
 
+our @files          = ();
+our %files_sections = ();
+
 sub sentence {
     my $str = $_[0];
     $str =~ s/([^\.])$/\1./g;
@@ -40,6 +43,15 @@ sub arguments {
     return $out;
 }
 
+sub replace_special {
+    my $ret = $_[0];
+
+    $ret =~ s/[\r\n]+//g;
+    $ret =~ s/[^A-Za-z0-9_]/_/g;
+
+    return $ret;
+}
+
 sub scan_dir {
     my ($first, $path) = @_;
     $path =~ s/\/+$//g;
@@ -64,6 +76,7 @@ sub scan_dir {
         my %kv        = ();
         my %param     = ();
         my @paramlist = ();
+        my $current   = "";
 
         print(STDERR "$path is a file\n");
         open(IN, "<", "$path");
@@ -77,7 +90,7 @@ sub scan_dir {
             }
 
             if ($out) {
-                my $para  = "p";
+                my $para  = "dt";
                 my $brief = $kv{brief} or "";
 
                 $brief = sentence($brief);
@@ -93,16 +106,37 @@ sub scan_dir {
                     next;
                 }
                 if (!$file && defined($kv{brief})) {
+                    my $id   = "";
+                    my $sl   = "";
+                    my $attr = "";
+
                     $para = "dd";
 
-                    $l =~ s/[ \t]*\\$//g;
-                    $l =~ s/[ \t]*(?:;|\{.+)[ \t]*$/;/g;
+                    $l =~ s/[ \t]+/ /g;
+                    $l =~ s/[ ]*\\$//g;
+                    $l =~ s/[ ]*(?:;|\{.+)[ ]*$/;/g;
                     if (!($l =~ /^#/)) {
                         $l =~ s/\(([^\)]+)\)/arguments($1)/ge;
                     }
 
-                    out("<pre><code>$l</code></pre>");
+                    $sl = $l;
+                    $sl =~ s/\n//g;
+                    $sl =~ s/^.+[ \t]+([^ ]+)[ \t]*\(.+\);?$/\1/g;
+                    $sl =~ s/^.+[ \t]+([^ ]+);$/\1/g;
+
+                    $id   = replace_special($current . "__" . $sl);
+                    $attr = " id=\"$id\"";
+
+                    if (!defined($files_sections{ replace_special($current) }))
+                    {
+                        @{ $files_sections{ replace_special($current) } } = ();
+                    }
+                    push(@{ $files_sections{ replace_special($current) } },
+                        $sl);
+
+                    out("<pre$attr><code>$l</code></pre>");
                 }
+                out("<dl>");
                 out("<$para>");
                 out("	$brief");
                 out("</$para>");
@@ -135,6 +169,7 @@ sub scan_dir {
                     out("	" . sentence($kv{return}));
                     out("</dd>");
                 }
+                out("</dl>");
                 out("<hr>");
             }
             elsif ($l =~ /^([ \t]*)\/\*\!/) {
@@ -155,11 +190,15 @@ sub scan_dir {
                 $kv{$1} = $2;
                 if ($1 eq "file") {
                     if (!$has_file) {
-                        out("<h2 align=\"center\">$2</h2>");
+                        out(    "<h2 align=\"center\" id=\""
+                              . replace_special($2)
+                              . "\">$2</h2>");
+                        push(@files, $2);
                     }
 
                     $file     = 1;
                     $has_file = 1;
+                    $current  = $2;
                 }
                 elsif ($1 eq "param") {
                     my $p = $2;
@@ -182,10 +221,34 @@ out("	</head>");
 out("	<body>");
 out("		<h1 align=\"center\">$title</h1>");
 out("		<hr>");
+out("		<h2 align=\"center\">Table of Contents</h2>");
 
+my $old = $html;
+$html = "";
 foreach my $f (@pathlist) {
     scan_dir($f, $f);
 }
+my $stuff = $html;
+$html = $old;
+
+out("<dl>");
+foreach my $f (@files) {
+    out("<dt>");
+    out("	<a href=\"#" . replace_special($f) . "\">$f</a>");
+    out("</dt>");
+    foreach my $sect (@{ $files_sections{ replace_special($f) } }) {
+        out("<dd>");
+        out(    "	<a href=\"#"
+              . replace_special($f . "__" . $sect)
+              . "\">$sect</a>");
+        out("</dd>");
+    }
+}
+out("</dl>");
+
+out("<hr>");
+
+$html = $html . $stuff;
 
 out("	</body>");
 out("</html>");
