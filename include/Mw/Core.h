@@ -178,9 +178,9 @@ MWDECL void MwDispatchError(int code, const char* message);
 /*!
  * %brief Gets the before_step of widget
  * %param handle Widget
- * %return jmp_buf
+ * %param jmpbuf jmp_buf
  */
-MWDECL jmp_buf MwGetBeforeStep(MwWidget handle);
+MWDECL void MwGetBeforeStep(MwWidget handle, jmp_buf* jmpbuf);
 
 #ifdef __cplusplus
 }
