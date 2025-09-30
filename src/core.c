@@ -186,7 +186,11 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 }
 
 void MwSetVoid(MwWidget handle, const char* key, void* value) {
-	shput(handle->data, key, value);
+	if(strcmp(key, MwNiconPixmap) == 0) {
+		MwLLSetIcon(handle->lowlevel, value);
+	} else {
+		shput(handle->data, key, value);
+	}
 }
 
 int MwGetInteger(MwWidget handle, const char* key) {
