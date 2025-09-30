@@ -290,7 +290,7 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 	unsigned long* icon = malloc((2 + pixmap->width * pixmap->height) * sizeof(*icon));
 	int	       i;
-	Atom	       atom = XInternAtom(lowlevel->display, "_NET_WM_ICON", False);
+	Atom	       atom = XInternAtom(handle->display, "_NET_WM_ICON", False);
 
 	icon[0] = pixmap->width;
 	icon[1] = pixmap->height;
@@ -299,7 +299,7 @@ void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 		icon[2 + i] = *(unsigned long*)(&pixmap->image->data[i * 4]);
 	}
 
-	XChangeProperty(lowlevel->display, lowlevel->window, atom, 6, 32, PropModeReplace, (unsigned char*)icon, 2 + pixmap->width * pixmap->height);
+	XChangeProperty(handle->display, handle->window, atom, 6, 32, PropModeReplace, (unsigned char*)icon, 2 + pixmap->width * pixmap->height);
 
 	free(icon);
 }
