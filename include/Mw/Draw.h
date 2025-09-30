@@ -60,6 +60,14 @@ MWDECL void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int in
  */
 MWDECL void MwDrawText(MwWidget handle, MwPoint* point, const char* text, MwLLColor color);
 
+/*!
+ * %brief Creates a pixmap from image
+ * %param handle Widget
+ * %param path Path
+ * %return Pixmap
+ */
+MWDECL MwLLPixmap MwLoadImage(MwWidget handle, const char* path);
+
 #ifdef __cplusplus
 }
 #endif

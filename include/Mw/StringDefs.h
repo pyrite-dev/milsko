@@ -16,6 +16,8 @@
 #define MwNbackground "Sbackground"
 #define MwNforeground "Sforeground"
 
+#define MwNpixmap "Vpixmap"
+
 #define MwNactivateHandler "Cactivate"
 #define MwNresizeHandler "Cresize"
 #define MwNtickHandler "Ctick"

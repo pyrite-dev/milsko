@@ -7,7 +7,7 @@ CFLAGS = -Wall -Wextra -Iinclude
 LDFLAGS =
 LIBS =
 
-L_CFLAGS = $(CFLAGS) -fPIC -D_MILSKO
+L_CFLAGS = $(CFLAGS) -fPIC -D_MILSKO -DHAVE_CONFIG_H
 L_LDFLAGS = $(LDFLAGS)
 L_LIBS = $(LIBS)
 
@@ -15,7 +15,7 @@ E_CFLAGS = $(CFLAGS)
 E_LDFLAGS = $(LDFLAGS) -Lsrc
 E_LIBS = $(LIBS) -lMw
 
-L_OBJS = src/ds.o src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o
+L_OBJS = src/ds.o src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/image.o
 L_OBJS += src/window.o src/button.o src/opengl.o src/frame.o
 
 ifeq ($(TARGET),NetBSD)
@@ -53,7 +53,7 @@ SO = .dll
 EXEC = .exe
 endif
 
-EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/opengl$(EXEC)
+EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/opengl$(EXEC) examples/image$(EXEC)
 
 .PHONY: all format clean lib examples
 
@@ -62,8 +62,8 @@ lib: src/libMw$(SO)
 examples: $(EXAMPLES)
 
 format:
-	clang-format --verbose -i $(shell find src include examples tools -name "*.c" -or -name "*.h")
-	perltidy -b -bext='/' --paren-tightness=2 $(shell find tools -name "*.pl")
+	clang-format --verbose -i `find src include examples tools "(" -name "*.c" -or -name "*.h" ")" -and -not -name "stb_*.h"`
+	perltidy -b -bext='/' --paren-tightness=2 `find tools -name "*.pl"`
 
 src/libMw$(SO): $(L_OBJS)
 	$(CC) $(L_LDFLAGS) -shared -o $@ $^ $(L_LIBS)
@@ -81,4 +81,4 @@ examples/%.o: examples/%.c
 	$(CC) $(E_CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f src/*.dll src/*.so src/*.a src/*.lib */*.o examples/*.exe $(EXAMPLES)
+	rm -f src/*.dll src/*.so src/*.a src/*.lib */*.o */*/*.o examples/*.exe $(EXAMPLES)

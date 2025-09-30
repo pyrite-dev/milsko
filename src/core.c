@@ -57,10 +57,12 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	sh_new_strdup(h->text);
 	sh_new_strdup(h->integer);
 	sh_new_strdup(h->handler);
+	sh_new_strdup(h->data);
 
 	shdefault(h->integer, -1);
 	shdefault(h->text, NULL);
 	shdefault(h->handler, NULL);
+	shdefault(h->data, NULL);
 
 	MwDispatch(h, create);
 
@@ -122,6 +124,7 @@ void MwDestroyWidget(MwWidget handle) {
 	}
 	shfree(handle->text);
 	shfree(handle->handler);
+	shfree(handle->data);
 
 	free(handle);
 }
@@ -182,6 +185,10 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 	}
 }
 
+void MwSetVoid(MwWidget handle, const char* key, void* value) {
+	shput(handle->data, key, value);
+}
+
 int MwGetInteger(MwWidget handle, const char* key) {
 	if(strcmp(key, MwNx) == 0 || strcmp(key, MwNy) == 0 || strcmp(key, MwNwidth) == 0 || strcmp(key, MwNheight) == 0) {
 		int	     x, y;
@@ -201,6 +208,10 @@ int MwGetInteger(MwWidget handle, const char* key) {
 
 const char* MwGetText(MwWidget handle, const char* key) {
 	return shget(handle->text, key);
+}
+
+void* MwGetVoid(MwWidget handle, const char* key) {
+	return shget(handle->data, key);
 }
 
 void MwVaApply(MwWidget handle, ...) {
@@ -228,6 +239,9 @@ void MwVaListApply(MwWidget handle, va_list va) {
 			shput(handle->handler, key, h);
 			ind			       = shgeti(handle->handler, key);
 			handle->handler[ind].user_data = NULL;
+		} else if(key[0] == 'V') {
+			void* v = va_arg(va, void*);
+			MwSetVoid(handle, key, v);
 		}
 	}
 }
