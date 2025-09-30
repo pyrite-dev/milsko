@@ -275,6 +275,6 @@ void MwDispatchError(int code, const char* message) {
 	}
 }
 
-jmp_buf MwGetBeforeStep(MwWidget handle) {
-	return handle->before_step;
+void MwGetBeforeStep(MwWidget handle, jmp_buf* jmpbuf) {
+	memcpy(jmpbuf, &handle->before_step, sizeof(*jmpbuf));
 }
