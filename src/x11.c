@@ -144,11 +144,18 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	MwLLPixmap r = malloc(sizeof(*r));
 	char*	   d = malloc(4 * width * height);
 	int	   y, x;
+	int	   evbase, erbase;
 
 	r->width   = width;
 	r->height  = height;
 	r->display = handle->display;
 	r->use_shm = XShmQueryExtension(handle->display) ? 1 : 0;
+
+	if(!XRenderQueryExtension(handle->display, &evbase, &erbase)) {
+		fprintf(stderr, "XRender missing - cannot proceed pixmap creation\n");
+		r->image = NULL;
+		return r;
+	}
 
 	if(r->use_shm) {
 		r->image = XShmCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 24, ZPixmap, NULL, &r->shm, width, height);
@@ -163,7 +170,7 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	}
 
 	for(y = 0; y < height; y++) {
-		for(x = 0; x < height; x++) {
+		for(x = 0; x < width; x++) {
 			unsigned char* px = &data[(y * width + x) * 3];
 			unsigned long  p  = 0;
 			p <<= 8;
@@ -180,13 +187,15 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 }
 
 void MwLLDestroyPixmap(MwLLPixmap pixmap) {
-	if(pixmap->use_shm) {
-		XShmDetach(pixmap->display, &pixmap->shm);
-	}
-	XDestroyImage(pixmap->image);
-	if(pixmap->use_shm) {
-		shmdt(pixmap->shm.shmaddr);
-		shmctl(pixmap->shm.shmid, IPC_RMID, 0);
+	if(pixmap->image != NULL) {
+		if(pixmap->use_shm) {
+			XShmDetach(pixmap->display, &pixmap->shm);
+		}
+		XDestroyImage(pixmap->image);
+		if(pixmap->use_shm) {
+			shmdt(pixmap->shm.shmaddr);
+			shmctl(pixmap->shm.shmid, IPC_RMID, 0);
+		}
 	}
 
 	free(pixmap);
@@ -194,10 +203,40 @@ void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 
 void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	if(pixmap->image != NULL) {
+		Pixmap			 px	= XCreatePixmap(handle->display, handle->window, pixmap->width, pixmap->height, 24);
+		XRenderPictFormat*	 format = XRenderFindStandardFormat(handle->display, PictStandardRGB24);
+		XRenderPictureAttributes attr;
+		Picture			 src, dest;
+		XTransform		 m;
+		double			 xsc = (double)pixmap->width / rect->width;
+		double			 ysc = (double)pixmap->height / rect->height;
+
+		m.matrix[0][0] = XDoubleToFixed(xsc);
+		m.matrix[0][1] = XDoubleToFixed(0);
+		m.matrix[0][2] = XDoubleToFixed(0);
+
+		m.matrix[1][0] = XDoubleToFixed(0);
+		m.matrix[1][1] = XDoubleToFixed(ysc);
+		m.matrix[1][2] = XDoubleToFixed(0);
+
+		m.matrix[2][0] = XDoubleToFixed(0);
+		m.matrix[2][1] = XDoubleToFixed(0);
+		m.matrix[2][2] = XDoubleToFixed(1.0);
+
+		memset(&attr, 0, sizeof(attr));
+
 		if(pixmap->use_shm) {
-			XShmPutImage(handle->display, handle->window, handle->gc, pixmap->image, 0, 0, rect->x, rect->y, rect->width, rect->height, False);
+			XShmPutImage(handle->display, px, handle->gc, pixmap->image, 0, 0, 0, 0, pixmap->width, pixmap->height, False);
 		} else {
-			XPutImage(handle->display, handle->window, handle->gc, pixmap->image, 0, 0, rect->x, rect->y, rect->width, rect->height);
+			XPutImage(handle->display, px, handle->gc, pixmap->image, 0, 0, 0, 0, pixmap->width, pixmap->height);
 		}
+
+		src  = XRenderCreatePicture(handle->display, px, format, 0, &attr);
+		dest = XRenderCreatePicture(handle->display, handle->window, format, 0, &attr);
+
+		XRenderSetPictureTransform(handle->display, src, &m);
+		XRenderComposite(handle->display, PictOpSrc, src, 0, dest, 0, 0, 0, 0, rect->x, rect->y, rect->width, rect->height);
+
+		XFreePixmap(handle->display, px);
 	}
 }
