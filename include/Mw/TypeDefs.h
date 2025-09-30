@@ -1,4 +1,8 @@
 /* $Id$ */
+/*!
+ * %file Mw/TypeDefs.h
+ * %brief Type definitions
+ */
 #ifndef __MW_TYPEDEFS_H__
 #define __MW_TYPEDEFS_H__
 

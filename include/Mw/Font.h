@@ -1,4 +1,8 @@
 /* $Id$ */
+/*!
+ * %file Mw/Font.h
+ * %brief Default font
+ */
 #ifndef __MW_FONT_H__
 #define __MW_FONT_H__
 
@@ -9,6 +13,9 @@
 extern "C" {
 #endif
 
+/*!
+ * %brief Default font data
+ */
 MWDECL MwFont MwFontData[];
 
 #ifdef __cplusplus

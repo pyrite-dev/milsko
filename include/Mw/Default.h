@@ -1,4 +1,8 @@
 /* $Id$ */
+/*!
+ * %file Mw/Default.h
+ * %brief Default properties
+ */
 #ifndef __MW_DEFAULT_H__
 #define __MW_DEFAULT_H__
 
@@ -9,7 +13,14 @@
 extern "C" {
 #endif
 
+/*!
+ * %brief Default background color
+ */
 MWDECL const char* MwDefaultBackground;
+
+/*!
+ * %brief Default foreground color
+ */
 MWDECL const char* MwDefaultForeground;
 
 #ifdef __cplusplus

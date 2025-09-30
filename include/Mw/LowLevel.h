@@ -1,4 +1,9 @@
 /* $Id$ */
+/*!
+ * %file Mw/LowLevel.h
+ * %brief Low-level drawing API
+ * %warning This is used internally
+ */
 #ifndef __MW_LOWLEVEL_H__
 #define __MW_LOWLEVEL_H__
 
