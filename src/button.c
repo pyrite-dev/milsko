@@ -11,6 +11,7 @@ static void draw(MwWidget handle) {
 	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwLLColor   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	const char* str	 = MwGetText(handle, MwNtext);
+	MwLLPixmap  px	 = MwGetVoid(handle, MwNpixmap);
 
 	if(str == NULL) str = "";
 
@@ -22,10 +23,33 @@ static void draw(MwWidget handle) {
 	MwDrawFrame(handle, &r, base, handle->pressed);
 	MwDrawRect(handle, &r, base);
 
-	point.x = r.x + r.width / 2;
-	point.y = r.x + r.height / 2;
+	if(px != NULL) {
+		int ow = r.width;
+		int oh = r.height;
 
-	MwDrawText(handle, &point, str, text);
+		double sw = (double)ow / px->width;
+		double sh = (double)oh / px->height;
+
+		if(sw < sh) {
+			r.width	 = px->width * sw;
+			r.height = px->height * sw;
+		} else {
+			r.width	 = px->width * sh;
+			r.height = px->height * sh;
+		}
+		r.width -= 10;
+		r.height -= 10;
+
+		r.x += (double)(ow - r.width) / 2;
+		r.y += (double)(oh - r.height) / 2;
+
+		MwLLDrawPixmap(handle->lowlevel, &r, px);
+	} else {
+		point.x = r.x + r.width / 2;
+		point.y = r.x + r.height / 2;
+
+		MwDrawText(handle, &point, str, text);
+	}
 
 	MwLLFreeColor(text);
 	MwLLFreeColor(base);

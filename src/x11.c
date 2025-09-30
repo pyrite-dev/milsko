@@ -3,6 +3,22 @@
 
 static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask;
 
+static void create_pixmap(MwLL handle) {
+	XWindowAttributes attr;
+	int		  x, y;
+	unsigned int	  w, h;
+
+	MwLLGetXYWH(handle, &x, &y, &w, &h);
+
+	XGetWindowAttributes(handle->display, handle->window, &attr);
+
+	handle->pixmap = XCreatePixmap(handle->display, handle->window, w, h, attr.depth);
+}
+
+static void destroy_pixmap(MwLL handle) {
+	XFreePixmap(handle->display, handle->pixmap);
+}
+
 MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	MwLL   r;
 	Window p;
@@ -18,12 +34,18 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 		r->display = parent->display;
 		p	   = parent->window;
 	}
-	r->window    = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, XDefaultScreen(r->display)));
+	r->window = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, XDefaultScreen(r->display)));
+
+	r->width  = width;
+	r->height = height;
+
 	r->colormap  = DefaultColormap(r->display, XDefaultScreen(r->display));
 	r->wm_delete = XInternAtom(r->display, "WM_DELETE_WINDOW", False);
 	XSetWMProtocols(r->display, r->window, &r->wm_delete, 1);
 
 	r->gc = XCreateGC(r->display, r->window, 0, 0);
+
+	create_pixmap(r);
 
 	XSetGraphicsExposures(r->display, r->gc, False);
 
@@ -36,6 +58,7 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 void MwLLDestroy(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
+	destroy_pixmap(handle);
 	XFreeGC(handle->display, handle->gc);
 	XDestroyWindow(handle->display, handle->window);
 	free(handle);
@@ -51,7 +74,7 @@ void MwLLPolygon(MwLL handle, MwPoint* points, int points_count, MwLLColor color
 		p[i].x = points[i].x;
 		p[i].y = points[i].y;
 	}
-	XFillPolygon(handle->display, handle->window, handle->gc, p, points_count, Convex, CoordModeOrigin);
+	XFillPolygon(handle->display, handle->pixmap, handle->gc, p, points_count, Convex, CoordModeOrigin);
 
 	free(p);
 }
@@ -110,24 +133,42 @@ int MwLLPending(MwLL handle) {
 void MwLLNextEvent(MwLL handle) {
 	XEvent ev;
 	while(XCheckTypedWindowEvent(handle->display, handle->window, ClientMessage, &ev) || XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
+		int render = 0;
 		if(ev.type == Expose) {
-			MwLLDispatch(handle, draw);
+			render = 1;
 		} else if(ev.type == ButtonPress) {
 			if(ev.xbutton.button == Button1) {
 				MwLLDispatch(handle, down);
-				MwLLDispatch(handle, draw);
+				render = 1;
 			}
 		} else if(ev.type == ButtonRelease) {
 			if(ev.xbutton.button == Button1) {
 				MwLLDispatch(handle, up);
-				MwLLDispatch(handle, draw);
+				render = 1;
 			}
 		} else if(ev.type == ConfigureNotify) {
 			MwLLDispatch(handle, resize);
+
+			if(handle->width != (unsigned int)ev.xconfigure.width || handle->height != (unsigned int)ev.xconfigure.height) {
+				destroy_pixmap(handle);
+				create_pixmap(handle);
+				render = 1;
+			}
+			handle->width  = ev.xconfigure.width;
+			handle->height = ev.xconfigure.height;
 		} else if(ev.type == ClientMessage) {
 			if(ev.xclient.data.l[0] == (long)handle->wm_delete) {
 				MwLLDispatch(handle, close);
 			}
+		}
+		if(render) {
+			int	     x, y;
+			unsigned int w, h;
+
+			MwLLGetXYWH(handle, &x, &y, &w, &h);
+
+			MwLLDispatch(handle, draw);
+			XCopyArea(handle->display, handle->pixmap, handle->window, handle->gc, 0, 0, w, h, 0, 0);
 		}
 	}
 }
@@ -232,10 +273,13 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 		}
 
 		src  = XRenderCreatePicture(handle->display, px, format, 0, &attr);
-		dest = XRenderCreatePicture(handle->display, handle->window, format, 0, &attr);
+		dest = XRenderCreatePicture(handle->display, handle->pixmap, format, 0, &attr);
 
 		XRenderSetPictureTransform(handle->display, src, &m);
 		XRenderComposite(handle->display, PictOpSrc, src, 0, dest, 0, 0, 0, 0, rect->x, rect->y, rect->width, rect->height);
+
+		XRenderFreePicture(handle->display, src);
+		XRenderFreePicture(handle->display, dest);
 
 		XFreePixmap(handle->display, px);
 	}

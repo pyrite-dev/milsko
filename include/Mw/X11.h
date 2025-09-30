@@ -19,10 +19,14 @@
 struct _MwLL {
 	Display* display;
 	Window	 window;
+	Pixmap	 pixmap;
 	GC	 gc;
 	Colormap colormap;
 	void*	 user;
 	Atom	 wm_delete;
+
+	unsigned int width;
+	unsigned int height;
 
 	MwLLHandler handler;
 };
