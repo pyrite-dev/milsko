@@ -63,6 +63,7 @@ examples: $(EXAMPLES)
 
 format:
 	clang-format --verbose -i $(shell find src include examples tools -name "*.c" -or -name "*.h")
+	perltidy -b -bext='/' --paren-tightness=2 $(shell find tools -name "*.pl")
 
 src/libMw$(SO): $(L_OBJS)
 	$(CC) $(L_LDFLAGS) -shared -o $@ $^ $(L_LIBS)
