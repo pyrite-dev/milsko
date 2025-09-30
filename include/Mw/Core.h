@@ -34,6 +34,9 @@ MWDECL void	   MwVaListApply(MwWidget handle, va_list va);
 MWDECL void MwAddUserHandler(MwWidget handle, const char* key, MwUserHandler handler, void* user_data);
 MWDECL void MwDispatchUserHandler(MwWidget handle, const char* key, void* handler_data);
 
+MWDECL void MwSetErrorHandler(MwErrorHandler handler, void* user_data);
+MWDECL void MwDispatchError(int code, const char* message);
+
 #ifdef __cplusplus
 }
 #endif

@@ -250,3 +250,26 @@ void MwAddUserHandler(MwWidget handle, const char* key, MwUserHandler handler, v
 	ind			       = shgeti(handle->handler, key);
 	handle->handler[ind].user_data = user_data;
 }
+
+static MwErrorHandler error_handler   = NULL;
+static void*	      error_user_data = NULL;
+
+void MwSetErrorHandler(MwErrorHandler handler, void* user_data) {
+	error_handler	= handler;
+	error_user_data = user_data;
+}
+
+void MwDispatchError(int code, const char* message) {
+	if(error_handler != NULL) {
+		error_handler(code, message, error_user_data);
+	} else {
+#ifdef _WIN32
+		char buffer[1024];
+		sprintf(buffer, "Error: %s\r\nCode : %d\r\n\r\nMilsko is exiting.", message, code);
+		MessageBox(NULL, buffer, "Error", MB_ICONERROR | MB_OK);
+#else
+		fprintf(stderr, "Error: %s\nCode : %d\n\nMilsko is exiting.", message, code);
+#endif
+		exit(1);
+	}
+}
