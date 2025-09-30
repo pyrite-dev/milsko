@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <setjmp.h>
 #ifdef _WIN32
 #include <windows.h>
 #else

@@ -142,6 +142,8 @@ int MwPending(MwWidget handle) {
 
 void MwLoop(MwWidget handle) {
 	while(!handle->close) {
+		setjmp(handle->before_step);
+
 		MwStep(handle);
 
 		MwDispatchUserHandler(handle, MwNtickHandler, NULL);
@@ -272,4 +274,8 @@ void MwDispatchError(int code, const char* message) {
 #endif
 		exit(1);
 	}
+}
+
+jmp_buf MwGetBeforeStep(MwWidget handle) {
+	return handle->before_step;
 }

@@ -37,6 +37,8 @@ MWDECL void MwDispatchUserHandler(MwWidget handle, const char* key, void* handle
 MWDECL void MwSetErrorHandler(MwErrorHandler handler, void* user_data);
 MWDECL void MwDispatchError(int code, const char* message);
 
+MWDECL jmp_buf MwGetBeforeStep(MwWidget handle);
+
 #ifdef __cplusplus
 }
 #endif

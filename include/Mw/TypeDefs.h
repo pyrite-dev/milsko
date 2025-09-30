@@ -61,8 +61,9 @@ struct _MwWidget {
 	MwWidget* children;
 	MwClass	  widget_class;
 
-	int pressed;
-	int close;
+	int	pressed;
+	int	close;
+	jmp_buf before_step;
 
 	void* internal;
 
