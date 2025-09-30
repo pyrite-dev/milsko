@@ -18,6 +18,13 @@ extern "C" {
  */
 MWDECL MwClass MwWindowClass;
 
+/*!
+ * %brief Sets a window icon
+ * %param handle Widget
+ * %param pixmap Pixmap
+ */
+MWDECL void MwWindowSetIcon(MwWidget handle, MwLLPixmap pixmap);
+
 #ifdef __cplusplus
 }
 #endif

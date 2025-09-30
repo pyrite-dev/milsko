@@ -6,11 +6,13 @@ int main() {
 					     MwNtitle, "image button",
 					     NULL);
 	MwWidget   button = MwCreateWidget(MwButtonClass, "button", window, 50, 50, 400, 400);
-	MwLLPixmap px	  = MwLoadImage(button, "examples/picture.png");
+	MwLLPixmap px	  = MwLoadImage(window, "examples/picture.png");
 
 	MwVaApply(button,
 		  MwNpixmap, px,
 		  NULL);
+
+	MwWindowSetIcon(window, px);
 
 	MwLoop(window);
 }

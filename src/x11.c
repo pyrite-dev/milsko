@@ -178,7 +178,7 @@ void MwLLSleep(int ms) {
 }
 
 void MwLLSetTitle(MwLL handle, const char* title) {
-	XSetStandardProperties(handle->display, handle->window, title, "Mw Widget Toolkit", None, (char**)NULL, 0, NULL);
+	XSetStandardProperties(handle->display, handle->window, title, title, None, (char**)NULL, 0, NULL);
 }
 
 MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int height) {
@@ -212,8 +212,10 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 
 	for(y = 0; y < height; y++) {
 		for(x = 0; x < width; x++) {
-			unsigned char* px = &data[(y * width + x) * 3];
+			unsigned char* px = &data[(y * width + x) * 4];
 			unsigned long  p  = 0;
+			p <<= 8;
+			p |= px[3];
 			p <<= 8;
 			p |= px[0];
 			p <<= 8;
@@ -283,4 +285,21 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 		XFreePixmap(handle->display, px);
 	}
+}
+
+void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
+	unsigned long* icon = malloc((2 + pixmap->width * pixmap->height) * sizeof(*icon));
+	int	       i;
+	Atom	       atom = XInternAtom(lowlevel->display, "_NET_WM_ICON", False);
+
+	icon[0] = pixmap->width;
+	icon[1] = pixmap->height;
+
+	for(i = 0; i < pixmap->width * pixmap->height; i++) {
+		icon[2 + i] = *(unsigned long*)(&pixmap->image->data[i * 4]);
+	}
+
+	XChangeProperty(lowlevel->display, lowlevel->window, atom, 6, 32, PropModeReplace, (unsigned char*)icon, 2 + pixmap->width * pixmap->height);
+
+	free(icon);
 }

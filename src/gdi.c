@@ -76,7 +76,7 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	wc.hCursor	 = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = GetSysColorBrush(COLOR_MENU);
 	wc.hIcon	 = LoadIcon(NULL, IDI_WINLOGO);
-	wc.hIconSm	 = LoadIcon(NULL, IDI_WINLOGO);
+	wc.hIconSm	 = NULL;
 
 	MwLLCreateCommon(r);
 
@@ -94,8 +94,6 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 
 	if(parent == NULL) {
 		RECT rc;
-		ShowWindow(r->hWnd, SW_NORMAL);
-		UpdateWindow(r->hWnd);
 
 		rc.left	  = 0;
 		rc.top	  = 0;
@@ -103,6 +101,11 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 		rc.bottom = height;
 		AdjustWindowRect(&rc, GetWindowLongPtr(r->hWnd, GWL_STYLE), FALSE);
 		SetWindowPos(r->hWnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE);
+
+		ShowWindow(r->hWnd, SW_NORMAL);
+		UpdateWindow(r->hWnd);
+
+		InvalidateRect(r->hWnd, NULL, FALSE);
 	}
 
 	return r;
@@ -239,7 +242,7 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	for(y = 0; y < height; y++) {
 		for(x = 0; x < width; x++) {
 			RGBQUAD*       q  = &quad[y * width + x];
-			unsigned char* px = &data[(y * width + x) * 3];
+			unsigned char* px = &data[(y * width + x) * 4];
 			q->rgbRed	  = px[0];
 			q->rgbGreen	  = px[1];
 			q->rgbBlue	  = px[2];
@@ -266,4 +269,27 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	StretchBlt(handle->hDC, rect->x, rect->y, rect->width, rect->height, hmdc, 0, 0, pixmap->width, pixmap->height, SRCCOPY);
 
 	DeleteDC(hmdc);
+}
+
+void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
+	ICONINFO ii;
+	HICON	 ico;
+	HBITMAP	 mask;
+
+	mask = CreateBitmap(pixmap->width, pixmap->height, 1, 1, NULL);
+
+	memset(&ii, 0, sizeof(ii));
+	ii.fIcon    = TRUE;
+	ii.xHotspot = 0;
+	ii.yHotspot = 0;
+	ii.hbmMask  = mask;
+	ii.hbmColor = pixmap->hBitmap;
+
+	ico = CreateIconIndirect(&ii);
+
+	DeleteObject(mask);
+
+	SetClassLongPtr(handle->hWnd, GCLP_HICON, (LPARAM)ico);
+
+	DestroyIcon(ico);
 }

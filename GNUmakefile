@@ -43,7 +43,7 @@ SO = .so
 EXEC =
 else ifeq ($(WINDOWS),1)
 L_CFLAGS += -DUSE_GDI
-L_LDFLAGS += -Wl,--out-implib,src/libMw.lib
+L_LDFLAGS += -Wl,--out-implib,src/libMw.lib -static-libgcc
 L_OBJS += src/gdi.o
 L_LIBS += -lgdi32 -lopengl32
 

@@ -1,7 +1,7 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-#include <stb_image.h>
+#include "stb_image.h"
 
 static int hex(const char* txt, int len) {
 	int i;
@@ -150,7 +150,7 @@ void MwDrawText(MwWidget handle, MwPoint* point, const char* text, MwLLColor col
 
 MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 	int	       width, height, ch;
-	unsigned char* rgb = stbi_load(path, &width, &height, &ch, 3);
+	unsigned char* rgb = stbi_load(path, &width, &height, &ch, 4);
 	MwLLPixmap     px;
 
 	if(rgb == NULL) return NULL;

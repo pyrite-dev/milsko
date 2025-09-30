@@ -2,9 +2,8 @@
 #include <Mw/Milsko.h>
 
 #ifdef _WIN32
-#include <windows.h>
+/* nothing */
 #else
-#include <X11/X.h>
 #include <GL/glx.h>
 #endif
 #include <GL/gl.h>
