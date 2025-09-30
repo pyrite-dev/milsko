@@ -45,6 +45,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	} else if(msg == WM_SIZE) {
 		MwLLDispatch(u->ll, resize);
 	} else if(msg == WM_ERASEBKGND) {
+		return 1;
 	} else if(msg == WM_NCHITTEST) {
 		return HTCLIENT;
 	} else if(msg == WM_DESTROY) {
@@ -209,4 +210,60 @@ void MwLLNextEvent(MwLL handle) {
 
 void MwLLSleep(int ms) {
 	Sleep(ms);
+}
+
+MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int height) {
+	MwLLPixmap	 r  = malloc(sizeof(*r));
+	HDC		 dc = GetDC(handle->hWnd);
+	BITMAPINFOHEADER bmih;
+	RGBQUAD*	 quad = NULL;
+	int		 y, x;
+
+	r->width  = width;
+	r->height = height;
+
+	bmih.biSize	     = sizeof(bmih);
+	bmih.biWidth	     = width;
+	bmih.biHeight	     = -(LONG)height;
+	bmih.biPlanes	     = 1;
+	bmih.biBitCount	     = 32;
+	bmih.biCompression   = BI_RGB;
+	bmih.biSizeImage     = 0;
+	bmih.biXPelsPerMeter = 0;
+	bmih.biYPelsPerMeter = 0;
+	bmih.biClrUsed	     = 0;
+	bmih.biClrImportant  = 0;
+
+	r->hBitmap = CreateDIBSection(dc, (BITMAPINFO*)&bmih, DIB_RGB_COLORS, (void**)&quad, NULL, (DWORD)0);
+
+	for(y = 0; y < height; y++) {
+		for(x = 0; x < width; x++) {
+			RGBQUAD*       q  = &quad[y * width + x];
+			unsigned char* px = &data[(y * width + x) * 3];
+			q->rgbRed	  = px[0];
+			q->rgbGreen	  = px[1];
+			q->rgbBlue	  = px[2];
+		}
+	}
+
+	ReleaseDC(handle->hWnd, dc);
+
+	return r;
+}
+
+void MwLLDestroyPixmap(MwLLPixmap pixmap) {
+	DeleteObject(pixmap->hBitmap);
+
+	free(pixmap);
+}
+
+void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
+	HDC hmdc = CreateCompatibleDC(handle->hDC);
+
+	SelectObject(hmdc, pixmap->hBitmap);
+
+	SetStretchBltMode(handle->hDC, HALFTONE);
+	StretchBlt(handle->hDC, rect->x, rect->y, rect->width, rect->height, hmdc, 0, 0, pixmap->width, pixmap->height, SRCCOPY);
+
+	DeleteDC(hmdc);
 }

@@ -10,6 +10,8 @@
 #include <windows.h>
 #else
 #include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 #endif
 
 #if defined(_MILSKO) && defined(_WIN32)
