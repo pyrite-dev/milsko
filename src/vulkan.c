@@ -91,6 +91,9 @@ static void vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	uint32_t      layer_count     = 0;
 	unsigned long i, n = 0;
 
+	(void)handle;
+	(void)o;
+
 	PFN_vkEnumerateInstanceExtensionProperties
 					       _vkEnumerateInstanceExtensionProperties;
 	PFN_vkEnumerateInstanceLayerProperties _vkEnumerateInstanceLayerProperties;
@@ -132,7 +135,7 @@ static void vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	o->vkInstanceExtensions = malloc(sizeof(const char*) * (arrlen(enabledExtensions) + 1));
 
 	for(i = 0; i < extension_count; i++) {
-		for(n = 0; n < arrlen(enabledExtensions); n++) {
+		for(n = 0; n < (unsigned long)arrlen(enabledExtensions); n++) {
 			if(strcmp(ext_props[i].extensionName, enabledExtensions[n]) == 0) {
 				o->vkInstanceExtensions[o->vkInstanceExtensionCount] = ext_props[i].extensionName;
 				o->vkInstanceExtensionCount++;
@@ -231,6 +234,8 @@ static void vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	VkBool32		 has_present	  = false;
 	int			 queueCreateCount = 0;
 
+	(void)handle;
+
 	LOAD_VK_FUNCTION(vkEnumeratePhysicalDevices);
 	LOAD_VK_FUNCTION(vkGetPhysicalDeviceQueueFamilyProperties);
 	LOAD_VK_FUNCTION(vkCreateDevice);
@@ -302,7 +307,7 @@ static void vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	o->vkDeviceExtensions = malloc(sizeof(const char*) * (arrlen(enabledExtensions) + 1));
 
 	for(i = 0; i < extension_count; i++) {
-		for(n = 0; n < arrlen(enabledExtensions); n++) {
+		for(n = 0; n < (unsigned long)arrlen(enabledExtensions); n++) {
 			if(strcmp(ext_props[i].extensionName, enabledExtensions[n]) == 0) {
 				o->vkDeviceExtensions[o->vkDeviceExtensionCount] = ext_props[i].extensionName;
 				o->vkDeviceExtensionCount++;
