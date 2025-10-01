@@ -11,11 +11,20 @@
 /*!
  * %brief Error code enumeration
  */
-enum MwErrorEnum {
+typedef enum MwErrorEnum_T {
 	/*!
 	 * %brief No error
 	 */
-	MwEsuccess = 0
-};
+	MwEsuccess = 0,
+	/*!
+	 * %brief There was an error
+	 */
+	MwEerror,
+} MwErrorEnum;
+
+/*!
+ * %brief Get the last error
+ */
+MWDECL const char* MwGetLastError();
 
 #endif

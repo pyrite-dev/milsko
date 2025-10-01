@@ -6,6 +6,7 @@
  * ioixd maintains this file. nishi doesn't know vulkan at all
  */
 
+#include "Mw/Error.h"
 #include <Mw/Milsko.h>
 #include <Mw/Vulkan.h>
 
@@ -24,6 +25,8 @@ VkPhysicalDevice	  physicalDevice;
 VkSurfaceKHR		  surface;
 VkQueue			  graphicsQueue;
 VkQueue			  presentQueue;
+uint32_t*		  graphicsQueueIndex;
+uint32_t*		  presentQueueIndex;
 
 VkSwapchainKHR swapchain;
 VkImage*       swapchainImages;
@@ -217,13 +220,43 @@ void vulkan_setup(MwWidget handle) {
 	VkSemaphoreCreateInfo		       semaphoreInfo	    = {};
 	VkFenceCreateInfo		       fenceInfo	    = {};
 
-	_vkGetInstanceProcAddr = MwVulkanGetInstanceProcAddr(handle);
-	instance	       = MwVulkanGetInstance(handle);
-	device		       = MwVulkanGetLogicalDevice(handle);
-	physicalDevice	       = MwVulkanGetPhysicalDevice(handle);
-	graphicsQueue	       = MwVulkanGetGraphicsQueue(handle);
-	presentQueue	       = MwVulkanGetPresentQueue(handle);
-	surface		       = MwVulkanGetSurface(handle);
+	MwErrorEnum err;
+	_vkGetInstanceProcAddr = MwVulkanGetField(handle, MwVulkanField_GetInstanceProcAddr, &err);
+	if(err != MwEsuccess) {
+		printf("Error getting vkGetInstanceProcAddr!\n%s\n", MwGetLastError());
+	}
+	instance = MwVulkanGetField(handle, MwVulkanField_Instance, &err);
+	if(err != MwEsuccess) {
+		printf("Error getting vulkan instance!\n%s\n", MwGetLastError());
+	}
+	device = MwVulkanGetField(handle, MwVulkanField_LogicalDevice, &err);
+	if(err != MwEsuccess) {
+		printf("Error getting VkDevice!\n%s\n", MwGetLastError());
+	}
+	physicalDevice = MwVulkanGetField(handle, MwVulkanField_PhysicalDevice, &err);
+	if(err != MwEsuccess) {
+		printf("Error getting physical device!\n%s\n", MwGetLastError());
+	}
+	graphicsQueue = MwVulkanGetField(handle, MwVulkanField_GraphicsQueue, &err);
+	if(err != MwEsuccess) {
+		printf("Error getting graphics queue!\n%s\n", MwGetLastError());
+	}
+	presentQueue = MwVulkanGetField(handle, MwVulkanField_PresentQueue, &err);
+	if(err != MwEsuccess) {
+		printf("Error getting present queue!\n%s\n", MwGetLastError());
+	}
+	surface = MwVulkanGetField(handle, MwVulkanField_Surface, &err);
+	if(err != MwEsuccess) {
+		printf("Error getting surface!\n%s\n", MwGetLastError());
+	}
+	presentQueueIndex = MwVulkanGetField(handle, MwVulkanField_PresentQueueIndex, &err);
+	if(err != MwEsuccess) {
+		printf("Error getting present queue index!\n%s\n", MwGetLastError());
+	}
+	graphicsQueueIndex = MwVulkanGetField(handle, MwVulkanField_GraphicsQueueIndex, &err);
+	if(err != MwEsuccess) {
+		printf("Error getting graphics queue index!\n%s\n", MwGetLastError());
+	}
 
 	LOAD_VK_FUNCTION(vkCreateShaderModule);
 	LOAD_VK_FUNCTION(vkCreatePipelineLayout);
@@ -257,13 +290,13 @@ void vulkan_setup(MwWidget handle) {
 	swapchainCreateInfo.clipped	 = VK_TRUE;
 	swapchainCreateInfo.oldSwapchain = NULL;
 
-	if(MwVulkanGetGraphicsQueueIndex(handle) != MwVulkanGetPresentQueueIndex(handle)) {
+	if(*graphicsQueueIndex != *presentQueueIndex) {
 		swapchainCreateInfo.imageSharingMode	  = VK_SHARING_MODE_CONCURRENT;
 		swapchainCreateInfo.queueFamilyIndexCount = 2;
 
 		uint32_t indices[] = {
-		    MwVulkanGetGraphicsQueueIndex(handle),
-		    MwVulkanGetPresentQueueIndex(handle),
+		    *graphicsQueueIndex,
+		    *presentQueueIndex,
 		};
 		swapchainCreateInfo.pQueueFamilyIndices = indices;
 	} else {
@@ -542,7 +575,7 @@ void vulkan_setup(MwWidget handle) {
 	poolInfo.sType		  = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	poolInfo.pNext		  = NULL;
 	poolInfo.flags		  = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-	poolInfo.queueFamilyIndex = MwVulkanGetGraphicsQueueIndex(handle);
+	poolInfo.queueFamilyIndex = *graphicsQueueIndex;
 
 	if((res = _vkCreateCommandPool(device, &poolInfo, NULL, &cmdPool)) != VK_SUCCESS) {
 		printf("error creating the command pool: %s\n", string_VkResult(res));
