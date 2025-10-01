@@ -16,7 +16,7 @@ E_LDFLAGS = $(LDFLAGS) -Lsrc
 E_LIBS = $(LIBS) -lMw
 
 L_OBJS = src/ds.o src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/image.o
-L_OBJS += src/window.o src/button.o src/opengl.o src/frame.o
+L_OBJS += src/window.o src/button.o src/opengl.o src/frame.o src/vulkan.o
 
 ifeq ($(TARGET),NetBSD)
 CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
@@ -53,11 +53,11 @@ SO = .dll
 EXEC = .exe
 endif
 
-EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/opengl$(EXEC) examples/image$(EXEC)
+EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/opengl$(EXEC) examples/image$(EXEC) examples/vulkan$(EXEC)
 
 .PHONY: all format clean lib examples
 
-all: lib examples	
+all: lib examples
 lib: src/libMw$(SO)
 examples: $(EXAMPLES)
 
