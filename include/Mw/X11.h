@@ -40,8 +40,9 @@ struct _MwLLColor {
 };
 
 struct _MwLLPixmap {
-	int width;
-	int height;
+	int	       width;
+	int	       height;
+	unsigned char* data;
 
 	int		use_shm;
 	XShmSegmentInfo shm;

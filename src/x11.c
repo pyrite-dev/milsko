@@ -192,6 +192,7 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->height  = height;
 	r->display = handle->display;
 	r->use_shm = XShmQueryExtension(handle->display) ? 1 : 0;
+	r->data	   = malloc(width * height * 4);
 
 	if(!XRenderQueryExtension(handle->display, &evbase, &erbase)) {
 		fprintf(stderr, "XRender missing - cannot proceed pixmap creation\n");
@@ -224,6 +225,7 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 			p <<= 8;
 			p |= px[2];
 			XPutPixel(r->image, x, y, p);
+			*(unsigned long*)(&r->data[(x + y * width) * 4]) = p;
 		}
 	}
 
@@ -240,6 +242,7 @@ void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 			shmdt(pixmap->shm.shmaddr);
 			shmctl(pixmap->shm.shmid, IPC_RMID, 0);
 		}
+		free(pixmap->data);
 	}
 
 	free(pixmap);
@@ -297,7 +300,7 @@ void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 	icon[1] = pixmap->height;
 
 	for(i = 0; i < pixmap->width * pixmap->height; i++) {
-		icon[2 + i] = *(unsigned long*)(&pixmap->image->data[i * 4]);
+		icon[2 + i] = *(unsigned long*)(&pixmap->data[i * 4]);
 	}
 
 	XChangeProperty(handle->display, handle->window, atom, 6, 32, PropModeReplace, (unsigned char*)icon, 2 + pixmap->width * pixmap->height);
