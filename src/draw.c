@@ -127,7 +127,7 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 	rect->height -= border * 2;
 }
 
-void MwDrawText(MwWidget handle, MwPoint* point, const char* text, MwLLColor color) {
+void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, MwLLColor color) {
 	int    i, x, y, sx, sy;
 	MwRect r;
 
@@ -142,7 +142,7 @@ void MwDrawText(MwWidget handle, MwPoint* point, const char* text, MwLLColor col
 				r.width	 = FontScale;
 				r.height = FontScale;
 
-				if(MwFontData[(unsigned char)text[i]].data[y] & (1 << ((FontWidth - 1) - x))) {
+				if((bold ? MwBoldFontData : MwFontData)[(unsigned char)text[i]].data[y] & (1 << ((FontWidth - 1) - x))) {
 					MwDrawRect(handle, &r, color);
 				}
 			}

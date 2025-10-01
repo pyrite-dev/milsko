@@ -85,7 +85,7 @@ static void draw(MwWidget handle) {
 
 		p.x += tw / 2;
 
-		MwDrawText(handle, &p, m->sub[i]->name, text);
+		MwDrawText(handle, &p, m->sub[i]->name, 1, text);
 
 		p.x += tw / 2 + 20;
 	}
