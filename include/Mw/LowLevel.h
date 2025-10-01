@@ -30,15 +30,15 @@ typedef void* MwLLPixmap;
 #endif
 #include <Mw/TypeDefs.h>
 
-#define MwLLDispatch(x, y) \
-	if(x->handler != NULL && x->handler->y != NULL) x->handler->y(x)
+#define MwLLDispatch(x, y, z) \
+	if(x->handler != NULL && x->handler->y != NULL) x->handler->y(x, z)
 
 struct _MwLLHandler {
-	void (*draw)(MwLL handle);
-	void (*up)(MwLL handle);
-	void (*down)(MwLL handle);
-	void (*resize)(MwLL handle);
-	void (*close)(MwLL handle);
+	void (*draw)(MwLL handle, void* data);
+	void (*up)(MwLL handle, void* data);
+	void (*down)(MwLL handle, void* data);
+	void (*resize)(MwLL handle, void* data);
+	void (*close)(MwLL handle, void* data);
 };
 
 #ifdef __cplusplus

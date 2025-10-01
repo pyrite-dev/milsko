@@ -145,16 +145,24 @@ void MwLLNextEvent(MwLL handle) {
 			render = 1;
 		} else if(ev.type == ButtonPress) {
 			if(ev.xbutton.button == Button1) {
-				MwLLDispatch(handle, down);
+				MwPoint p;
+				p.x = ev.xbutton.x;
+				p.y = ev.xbutton.y;
+
+				MwLLDispatch(handle, down, &p);
 				render = 1;
 			}
 		} else if(ev.type == ButtonRelease) {
 			if(ev.xbutton.button == Button1) {
-				MwLLDispatch(handle, up);
+				MwPoint p;
+				p.x = ev.xbutton.x;
+				p.y = ev.xbutton.y;
+
+				MwLLDispatch(handle, up, &p);
 				render = 1;
 			}
 		} else if(ev.type == ConfigureNotify) {
-			MwLLDispatch(handle, resize);
+			MwLLDispatch(handle, resize, NULL);
 
 			if(handle->width != (unsigned int)ev.xconfigure.width || handle->height != (unsigned int)ev.xconfigure.height) {
 				destroy_pixmap(handle);
@@ -165,7 +173,7 @@ void MwLLNextEvent(MwLL handle) {
 			handle->height = ev.xconfigure.height;
 		} else if(ev.type == ClientMessage) {
 			if(ev.xclient.data.l[0] == (long)handle->wm_delete) {
-				MwLLDispatch(handle, close);
+				MwLLDispatch(handle, close, NULL);
 			}
 		}
 		if(render) {
@@ -174,7 +182,7 @@ void MwLLNextEvent(MwLL handle) {
 
 			MwLLGetXYWH(handle, &x, &y, &w, &h);
 
-			MwLLDispatch(handle, draw);
+			MwLLDispatch(handle, draw, NULL);
 			if(handle->copy_buffer) XCopyArea(handle->display, handle->pixmap, handle->window, handle->gc, 0, 0, w, h, 0, 0);
 		}
 	}

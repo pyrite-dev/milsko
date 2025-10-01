@@ -82,8 +82,18 @@ static void draw(MwWidget handle) {
 	MwDrawRect(handle, &r, base);
 	for(i = 0; i < arrlen(m->sub); i++) {
 		int tw = MwTextWidth(handle, m->sub[i]->name);
+		int th = MwTextHeight(handle, m->sub[i]->name);
 
 		p.x += tw / 2;
+
+		r.x	 = p.x - tw / 2 - 5;
+		r.y	 = p.y - th / 2 - 5;
+		r.width	 = tw + 10;
+		r.height = th + 10;
+
+		if(handle->pressed && r.x <= handle->pressed_point.x && r.y <= handle->pressed_point.y && handle->pressed_point.x <= (int)(r.x + r.width) && handle->pressed_point.y <= (int)(r.y + r.height)) {
+			MwDrawFrame(handle, &r, base, 0);
+		}
 
 		MwDrawText(handle, &p, m->sub[i]->name, 1, text);
 

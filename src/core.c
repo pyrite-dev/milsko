@@ -3,26 +3,37 @@
 
 #include "stb_ds.h"
 
-static void lldrawhandler(MwLL handle) {
+static void lldrawhandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->user;
+
+	(void)data;
+
 	MwDispatch(h, draw);
 }
 
-static void lluphandler(MwLL handle) {
+static void lluphandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->user;
+
+	(void)data;
+
 	h->pressed = 0;
 
 	MwDispatch(h, click);
 }
 
-static void lldownhandler(MwLL handle) {
-	MwWidget h = (MwWidget)handle->user;
-	h->pressed = 1;
+static void lldownhandler(MwLL handle, void* data) {
+	MwWidget h	   = (MwWidget)handle->user;
+	MwPoint* p	   = data;
+	h->pressed	   = 1;
+	h->pressed_point.x = p->x;
+	h->pressed_point.y = p->y;
 }
 
-static void llresizehandler(MwLL handle) {
+static void llresizehandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->user;
 	int	 i;
+
+	(void)data;
 
 	MwDispatchUserHandler(h, MwNresizeHandler, NULL);
 	for(i = 0; i < arrlen(h->children); i++) {
@@ -30,8 +41,10 @@ static void llresizehandler(MwLL handle) {
 	}
 }
 
-static void llclosehandler(MwLL handle) {
+static void llclosehandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->user;
+
+	(void)data;
 
 	h->close = 1;
 }

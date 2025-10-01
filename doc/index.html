@@ -134,6 +134,9 @@
 <dd>
 	<a href="#Mw_Font_h__MwFontData__">MwFontData[]</a>
 </dd>
+<dd>
+	<a href="#Mw_Font_h__MwBoldFontData__">MwBoldFontData[]</a>
+</dd>
 <dt>
 	<a href="#Mw_Frame_h">Mw/Frame.h</a>
 </dt>
@@ -154,6 +157,9 @@
 </dt>
 <dd>
 	<a href="#Mw_Menu_h__MwMenuClass">MwMenuClass</a>
+</dd>
+<dd>
+	<a href="#Mw_Menu_h__MwMenuAdd">MwMenuAdd</a>
 </dd>
 <dt>
 	<a href="#Mw_Milsko_h">Mw/Milsko.h</a>
@@ -1064,6 +1070,7 @@
 	MwWidget handle,
 	MwPoint* point,
 	const char* text,
+	int bold,
 	MwLLColor color
 );</code></pre>
 <dl>
@@ -1087,6 +1094,12 @@
 </dt>
 <dd>
 	Text.
+</dd>
+<dt>
+	Parameter <code>bold</code>
+</dt>
+<dd>
+	Bold.
 </dd>
 <dt>
 	Parameter <code>color</code>
@@ -1215,6 +1228,13 @@
 </dd>
 </dl>
 <hr>
+<pre id="Mw_Font_h__MwBoldFontData__"><code>MWDECL MwFont MwBoldFontData[];</code></pre>
+<dl>
+<dd>
+	Default bold font data.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_Frame_h">Mw/Frame.h</h2>
 <dl>
 <dt>
@@ -1273,6 +1293,41 @@
 <dl>
 <dd>
 	Menu widget class.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Menu_h__MwMenuAdd"><code>MWDECL void* MwMenuAdd (
+	MwWidget handle,
+	void* menu,
+	const char* name
+);</code></pre>
+<dl>
+<dd>
+	Adds a menu.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>menu</code>
+</dt>
+<dd>
+	Menu.
+</dd>
+<dt>
+	Parameter <code>name</code>
+</dt>
+<dd>
+	Menu name.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Menu.
 </dd>
 </dl>
 <hr>
