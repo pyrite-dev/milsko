@@ -1,4 +1,9 @@
 /* $Id$ */
+/*!
+ * %file KMw/Vulkan.h
+ * %brief Vulkan widget
+ * %warning This header is not documented yet
+ */
 #ifndef __MW_VULKAN_H__
 #define __MW_VULKAN_H__
 
@@ -16,6 +21,9 @@
 extern "C" {
 #endif
 
+/*!
+ * %brief Vulkan widget class
+ */
 MWDECL MwClass MwVulkanClass;
 
 // Add an extension to the list of extensions to enable prior to initialization.
