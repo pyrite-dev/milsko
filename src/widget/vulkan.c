@@ -32,7 +32,7 @@
 MwVulkanConfig vulkan_config = {
     .api_version       = VK_API_VERSION_1_0,
     .vk_version	       = VK_VERSION_1_0,
-    .validation_layers = VK_TRUE,
+    .validation_layers = VK_FALSE,
 };
 
 // convienence macro for handling vulkan errors
@@ -351,8 +351,8 @@ static MwErrorEnum vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	    .pEnabledFeatures	     = NULL,
 	    .enabledExtensionCount   = o->vkDeviceExtensionCount,
 	    .ppEnabledExtensionNames = o->vkDeviceExtensions,
-	    .enabledLayerCount	     = 0,
-	    .ppEnabledLayerNames     = NULL,
+	    .enabledLayerCount	     = o->vkLayerCount,
+	    .ppEnabledLayerNames     = o->vkLayers,
 	};
 
 	VK_CMD(_vkCreateDevice(o->vkPhysicalDevice, &createInfo, NULL, &o->vkLogicalDevice) != VK_SUCCESS);
