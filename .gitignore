@@ -1,0 +1,7 @@
+*.o
+*.so
+examples/example
+examples/image
+examples/opengl
+examples/rotate
+examples/vulkan

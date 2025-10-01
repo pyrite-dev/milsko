@@ -1,0 +1,3 @@
+-D_MILSKO
+-DUSE_X11
+-Iinclude
