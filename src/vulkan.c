@@ -20,7 +20,6 @@
 #endif
 
 #include <dlfcn.h>
-#include <assert.h>
 #include <stdbool.h>
 
 #include "stb_ds.h"

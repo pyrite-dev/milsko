@@ -1,15 +1,14 @@
 /* $Id$ */
+
+/**
+ * this example is quite minimal, you may need to modify it if your graphics card is more esoteric
+ *
+ * ioixd maintains this file. nishi doesn't know vulkan at all
+ */
+
 #include <Mw/Milsko.h>
 #include <Mw/Vulkan.h>
 
-#include <X11/Xlib.h>
-#include <assert.h>
-
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vk_enum_string_helper.h>
