@@ -23,6 +23,7 @@ CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
 LDFLAGS += -L/usr/X11R7/lib -L/usr/pkg/lib -Wl,-R/usr/X11R7/lib -Wl,-R/usr/pkg/lib
 UNIX = 1
 else ifeq ($(TARGET),Linux)
+L_LIBS += -ldl
 UNIX = 1
 VULKAN = 1
 else ifeq ($(TARGET),Windows)
