@@ -1,7 +1,7 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-#include "stb_ds.h"
+#include "external/stb_ds.h"
 
 static void lldrawhandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->user;

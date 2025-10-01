@@ -15,8 +15,9 @@ E_CFLAGS = $(CFLAGS)
 E_LDFLAGS = $(LDFLAGS) -Lsrc
 E_LIBS = $(LIBS) -lMw
 
-L_OBJS = src/ds.o src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o src/image.o
-L_OBJS += src/window.o src/button.o src/frame.o src/menu.o
+L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o
+L_OBJS += src/external/ds.o src/external/image.o
+L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o
 
 ifeq ($(TARGET),NetBSD)
 CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
@@ -34,7 +35,7 @@ endif
 
 ifeq ($(UNIX),1)
 L_CFLAGS += -DUSE_X11
-L_OBJS += src/x11.o
+L_OBJS += src/backend/x11.o
 L_LIBS += -lX11 -lXrender -lXext
 
 GL = -lGL
@@ -48,7 +49,7 @@ OPENGL = 1
 else ifeq ($(WINDOWS),1)
 L_CFLAGS += -DUSE_GDI
 L_LDFLAGS += -Wl,--out-implib,src/libMw.lib -static-libgcc
-L_OBJS += src/gdi.o
+L_OBJS += src/backend/gdi.o
 L_LIBS += -lgdi32
 
 GL = -lopengl32
@@ -62,12 +63,12 @@ endif
 EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC)
 
 ifeq ($(OPENGL),1)
-L_OBJS += src/opengl.o
+L_OBJS += src/widget/opengl.o
 EXAMPLES += examples/opengl$(EXEC)
 endif
 
 ifeq ($(VULKAN),1)
-L_OBJS += src/vulkan.o
+L_OBJS += src/widget/vulkan.o
 EXAMPLES += examples/vulkan$(EXEC)
 endif
 

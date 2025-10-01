@@ -1,7 +1,7 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-#include "stb_ds.h"
+#include "../external/stb_ds.h"
 
 typedef struct menu menu_t;
 
