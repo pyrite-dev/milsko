@@ -14,10 +14,11 @@
 #include <windows.h>
 
 struct _MwLL {
-	HWND  hWnd;
-	HDC   hDC;
-	void* user;
-	int   copy_buffer;
+	HINSTANCE hInstance;
+	HWND	  hWnd;
+	HDC	  hDC;
+	void*	  user;
+	int	  copy_buffer;
 
 	MwLLHandler handler;
 };

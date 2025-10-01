@@ -20,9 +20,20 @@
 #endif
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
-#include <vulkan/vk_enum_string_helper.h>
+
 #ifdef __linux__
+#include <dlfcn.h>
 #include <vulkan/vulkan_xlib.h>
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
+#include <vulkan/vulkan_win32.h>
+#endif
+
+// MinGW's copy of vulkan string helpers is just straight up busted.
+#ifndef __MINGW32__
+#include <vulkan/vk_enum_string_helper.h>
 #endif
 
 #include <stdbool.h>
@@ -36,12 +47,21 @@ MwVulkanConfig vulkan_config = {
 };
 
 // convienence macro for handling vulkan errors
+#ifndef __MINGW32__
 #define VK_CMD(func) \
 	vk_res = func; \
 	if(vk_res != VK_SUCCESS) { \
 		setLastError("Vulkan error (%s:%d): %s\n", __FILE__, __LINE__, string_VkResult(vk_res)); \
 		return MwEerror; \
 	}
+#else
+#define VK_CMD(func) \
+	vk_res = func; \
+	if(vk_res != VK_SUCCESS) { \
+		setLastError("Vulkan error (%s:%d): (error %d)\n", __FILE__, __LINE__, vk_res); \
+		return MwEerror; \
+	}
+#endif
 
 // convienence macro for loading a vulkan function pointer into memory
 #define LOAD_VK_FUNCTION(name) \
@@ -59,7 +79,11 @@ const char** enabledExtensions;
 const char** enabledLayers;
 
 typedef struct vulkan {
-	void*			  vulkanLibrary;
+#ifdef _WIN32
+	HMODULE vulkanLibrary;
+#else
+	void* vulkanLibrary;
+#endif
 	PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
 	VkInstance		  vkInstance;
 	VkSurfaceKHR		  vkSurface;
@@ -135,18 +159,28 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 
 	VkResult vk_res;
 
-	// TODO: support for whatever win32's equivalants to dlopen/dlsym are
+// Load Vulkan and any other function pointers we need.
+#ifndef _WIN32
 	o->vulkanLibrary	 = dlopen("libvulkan.so", RTLD_LAZY | RTLD_GLOBAL);
 	o->vkGetInstanceProcAddr = dlsym(o->vulkanLibrary, "vkGetInstanceProcAddr");
 	VK_ASSERT(o->vkGetInstanceProcAddr);
-
-	// Load in any other function pointers we need.
 	_vkEnumerateInstanceExtensionProperties = dlsym(o->vulkanLibrary, "vkEnumerateInstanceExtensionProperties");
 	VK_ASSERT(_vkEnumerateInstanceExtensionProperties);
 	_vkEnumerateInstanceLayerProperties = dlsym(o->vulkanLibrary, "vkEnumerateInstanceLayerProperties");
 	VK_ASSERT(_vkEnumerateInstanceLayerProperties);
 	_vkCreateInstance = dlsym(o->vulkanLibrary, "vkCreateInstance");
 	VK_ASSERT(_vkCreateInstance);
+#else
+	o->vulkanLibrary	 = LoadLibrary("vulkan-1.dll");
+	o->vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)(void*)GetProcAddress(o->vulkanLibrary, "vkGetInstanceProcAddr");
+	VK_ASSERT(o->vkGetInstanceProcAddr);
+	_vkEnumerateInstanceExtensionProperties = (PFN_vkEnumerateInstanceExtensionProperties)(void*)GetProcAddress(o->vulkanLibrary, "vkEnumerateInstanceExtensionProperties");
+	VK_ASSERT(_vkEnumerateInstanceExtensionProperties);
+	_vkEnumerateInstanceLayerProperties = (PFN_vkEnumerateInstanceLayerProperties)(void*)GetProcAddress(o->vulkanLibrary, "vkEnumerateInstanceLayerProperties");
+	VK_ASSERT(_vkEnumerateInstanceLayerProperties);
+	_vkCreateInstance = (PFN_vkCreateInstance)(void*)GetProcAddress(o->vulkanLibrary, "vkCreateInstance");
+	VK_ASSERT(_vkCreateInstance);
+#endif
 
 	// setup enabled extensions
 	arrput(enabledExtensions, VK_KHR_SURFACE_EXTENSION_NAME);

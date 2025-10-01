@@ -98,6 +98,7 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 
 	r->copy_buffer = 1;
 	r->hWnd	       = CreateWindow(parent == NULL ? "milsko" : "STATIC", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x, y, width, height, parent == NULL ? NULL : parent->hWnd, 0, wc.hInstance, NULL);
+	r->hInstance   = wc.hInstance;
 
 	u->ll = r;
 	if(parent == NULL) {

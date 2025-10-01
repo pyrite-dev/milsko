@@ -1,12 +1,18 @@
 # $Id$
 
+ifeq ($(TARGET),)
 TARGET = $(shell uname -s)
+endif
 
+ifeq ($(CC),)
 CC = gcc
+endif
+
 CFLAGS = -Wall -Wextra -Iinclude
 LDFLAGS =
 LIBS =
-ifeq (${DEBUG},1)
+
+ifeq ($(DEBUG),1)
 CFLAGS += -g
 endif
 
@@ -32,6 +38,7 @@ UNIX = 1
 VULKAN = 1
 else ifeq ($(TARGET),Windows)
 WINDOWS = 1
+VULKAN = 1
 else
 $(error Add your platform definition)
 endif
