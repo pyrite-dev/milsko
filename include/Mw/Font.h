@@ -18,6 +18,11 @@ extern "C" {
  */
 MWDECL MwFont MwFontData[];
 
+/*!
+ * %brief Default bold font data
+ */
+MWDECL MwFont MwBoldFontData[];
+
 #ifdef __cplusplus
 }
 #endif

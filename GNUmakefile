@@ -15,7 +15,7 @@ E_CFLAGS = $(CFLAGS)
 E_LDFLAGS = $(LDFLAGS) -Lsrc
 E_LIBS = $(LIBS) -lMw
 
-L_OBJS = src/ds.o src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/image.o
+L_OBJS = src/ds.o src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o src/image.o
 L_OBJS += src/window.o src/button.o src/frame.o src/menu.o
 
 ifeq ($(TARGET),NetBSD)
