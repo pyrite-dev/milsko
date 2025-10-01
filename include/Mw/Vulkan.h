@@ -34,9 +34,40 @@ MWDECL MwClass MwVulkanClass;
 
 /*!
  * %brief Add an extension to the list of extensions to enable prior to initialization.
- * This must be called before MwCreateWidget.
+ * %warning This must be called before MwCreateWidget.
  */
 MWDECL void MwVulkanEnableExtension(const char* ext_name);
+
+/*!
+ * %brief Add an layer to the list of layers to enable prior to initialization.
+ * %warning This must be called before MwCreateWidget.
+ */
+MWDECL void MwVulkanEnableLayer(const char* ext_name);
+
+/*!
+ * %brief Configuration options that can be passed to setup Vulkan before a widget is created.
+ */
+typedef struct MwVulkanConfig_T {
+	/*!
+	 * %brief Vulkan API version (default: VK_API_VERSION_1_0)
+	 */
+	uint32_t api_version;
+	/*!
+	 * %brief Vulkan version (default: VK_VERSION_1_0)
+	 */
+	uint32_t vk_version;
+	/*!
+	 * %brief Whether or not to enable validation layers (default: false)
+	 */
+	VkBool32 validation_layers;
+} MwVulkanConfig;
+
+/*!
+ * %brief Configure Vulkan prior to initializing the widget.
+ * %warning This must be called before MwCreateWidget.
+ * %warning The configuration provided will be used for future initializations of the Vulkan widget (unless it's changed)
+ */
+MWDECL void MwVulkanConfigure(MwVulkanConfig cfg);
 
 /*!
  * %brief Field that can be gotten from Vulkan.

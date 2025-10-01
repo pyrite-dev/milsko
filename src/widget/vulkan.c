@@ -29,6 +29,12 @@
 
 #include "../external/stb_ds.h"
 
+MwVulkanConfig vulkan_config = {
+    .api_version       = VK_API_VERSION_1_0,
+    .vk_version	       = VK_VERSION_1_0,
+    .validation_layers = VK_TRUE,
+};
+
 // convienence macro for handling vulkan errors
 #define VK_CMD(func) \
 	vk_res = func; \
@@ -49,10 +55,8 @@
 		return MwEerror; \
 	}
 
-bool enableValidationLayers = true;
-
 const char** enabledExtensions;
-unsigned int enabledExtensionCount = 0;
+const char** enabledLayers;
 
 typedef struct vulkan {
 	void*			  vulkanLibrary;
@@ -85,17 +89,17 @@ static void create(MwWidget handle) {
 
 	err = vulkan_instance_setup(handle, o);
 	if(err != MwEsuccess) {
-		printf("VULKAN ERROR\n%s", MwGetLastError());
+		printf("%s", MwGetLastError());
 		return;
 	}
 	err = vulkan_surface_setup(handle, o);
 	if(err != MwEsuccess) {
-		printf("VULKAN ERROR\n%s", MwGetLastError());
+		printf("%s", MwGetLastError());
 		return;
 	}
 	err = vulkan_devices_setup(handle, o);
 	if(err != MwEsuccess) {
-		printf("VULKAN ERROR\n%s", MwGetLastError());
+		printf("%s", MwGetLastError());
 		return;
 	}
 
@@ -111,15 +115,12 @@ static void destroy(MwWidget handle) {
 }
 
 static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
-	// todo: Some sort of function for being able to set the vulkan version?
-	uint32_t      vulkan_version  = VK_VERSION_1_0;
-	uint32_t      api_version     = VK_API_VERSION_1_0;
+	uint32_t      vulkan_version  = vulkan_config.vk_version;
+	uint32_t      api_version     = vulkan_config.api_version;
 	uint32_t      extension_count = 0;
 	uint32_t      layer_count     = 0;
-	unsigned long i, n = 0;
-
-	(void)handle;
-	(void)o;
+	unsigned long i		      = 0;
+	unsigned long n		      = 0;
 
 	PFN_vkEnumerateInstanceExtensionProperties
 					       _vkEnumerateInstanceExtensionProperties;
@@ -164,13 +165,13 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	for(i = 0; i < extension_count; i++) {
 		for(n = 0; n < (unsigned long)arrlen(enabledExtensions); n++) {
 			if(strcmp(ext_props[i].extensionName, enabledExtensions[n]) == 0) {
+				printf("[Vulkan Widget] Enabling extension %s\n", ext_props[i].extensionName);
 				o->vkInstanceExtensions[o->vkInstanceExtensionCount] = ext_props[i].extensionName;
 				o->vkInstanceExtensionCount++;
 				break;
 			}
 		}
 	}
-	printf("enabled %d instance extensions\n", o->vkInstanceExtensionCount);
 
 	app_info = (VkApplicationInfo){
 	    .sType		= VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -185,17 +186,18 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	VK_CMD(_vkEnumerateInstanceLayerProperties(&layer_count, NULL));
 	layer_props = malloc(sizeof(VkLayerProperties) * layer_count);
 	VK_CMD(_vkEnumerateInstanceLayerProperties(&layer_count, layer_props));
-	o->vkLayers = malloc(256 * (layer_count + 2));
+	o->vkLayers = malloc(256 * (arrlen(enabledLayers) + 1));
+
+	if(vulkan_config.validation_layers) {
+		arrput(enabledLayers, "VK_LAYER_KHRONOS_validation");
+	}
 	for(i = 0; i < layer_count; i++) {
-		if(enableValidationLayers) {
-			if(strcmp(layer_props[i].layerName, "VK_LAYER_KHRONOS_validation") == 0) {
-				printf("layer: %s\n", layer_props[i].layerName);
-				memset(&o->vkLayers[i], 0, 255);
-				memcpy(&o->vkLayers[i], layer_props[i].layerName, 254);
+		for(n = 0; n < (unsigned long)arrlen(enabledLayers); n++) {
+			if(strcmp(layer_props[i].layerName, enabledLayers[n]) == 0) {
+				printf("[Vulkan Widget] Enabling layer %s\n", layer_props[i].layerName);
+				o->vkLayers[o->vkLayerCount] = layer_props[i].layerName;
 				o->vkLayerCount++;
 				break;
-			} else {
-				continue;
 			}
 		}
 	}
@@ -206,7 +208,7 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	    .flags		     = 0,
 	    .pApplicationInfo	     = &app_info,
 	    .enabledExtensionCount   = o->vkInstanceExtensionCount,
-	    .enabledLayerCount	     = 0,
+	    .enabledLayerCount	     = o->vkLayerCount,
 	    .ppEnabledExtensionNames = o->vkInstanceExtensions,
 	    .ppEnabledLayerNames     = o->vkLayers,
 	};
@@ -365,11 +367,18 @@ static MwErrorEnum vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	return MwEsuccess;
 }
 
+void MwVulkanConfigure(MwVulkanConfig cfg) {
+	vulkan_config = cfg;
+}
+
 void MwVulkanEnableExtension(const char* name) {
 	arrput(enabledExtensions, name);
 }
 
-MWDECL void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
+void MwVulkanEnableLayer(const char* name) {
+	arrput(enabledLayers, name);
+}
+void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
 	vulkan_t* o = handle->internal;
 
 	switch(field) {
