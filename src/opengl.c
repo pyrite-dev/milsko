@@ -52,7 +52,8 @@ static void create(MwWidget handle) {
 	o->visual = glXChooseVisual(handle->lowlevel->display, DefaultScreen(handle->lowlevel->display), attribs);
 	o->gl	  = glXCreateContext(handle->lowlevel->display, o->visual, NULL, GL_TRUE);
 #endif
-	handle->internal = o;
+	handle->internal	      = o;
+	handle->lowlevel->copy_buffer = 0;
 
 	MwSetDefault(handle);
 }

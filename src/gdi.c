@@ -28,9 +28,11 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		u->ll->hDC = hbdc;
 		MwLLDispatch(u->ll, draw);
 
-		dc = BeginPaint(hWnd, &ps);
-		StretchBlt(dc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, hbdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SRCCOPY);
-		EndPaint(hWnd, &ps);
+		if(u->ll->copy_buffer) {
+			dc = BeginPaint(hWnd, &ps);
+			StretchBlt(dc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, hbdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SRCCOPY);
+			EndPaint(hWnd, &ps);
+		}
 
 		DeleteDC(hbdc);
 		DeleteObject(hbmp);
@@ -82,7 +84,8 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 
 	RegisterClassEx(&wc);
 
-	r->hWnd = CreateWindow(parent == NULL ? "milsko" : "STATIC", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x, y, width, height, parent == NULL ? NULL : parent->hWnd, 0, wc.hInstance, NULL);
+	r->copy_buffer = 1;
+	r->hWnd	       = CreateWindow(parent == NULL ? "milsko" : "STATIC", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x, y, width, height, parent == NULL ? NULL : parent->hWnd, 0, wc.hInstance, NULL);
 
 	u->ll = r;
 	if(parent == NULL) {

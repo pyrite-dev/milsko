@@ -24,6 +24,7 @@ struct _MwLL {
 	Colormap colormap;
 	void*	 user;
 	Atom	 wm_delete;
+	int	 copy_buffer;
 
 	unsigned int width;
 	unsigned int height;
