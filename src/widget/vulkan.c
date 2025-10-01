@@ -46,6 +46,12 @@ MwVulkanConfig vulkan_config = {
     .validation_layers = VK_FALSE,
 };
 
+#ifndef _WIN32
+#define LIB_TYPE void*
+#else
+#define LIB_TYPE HINSTANCE
+#endif
+
 // convienence macro for handling vulkan errors
 #ifndef __MINGW32__
 #define VK_CMD(func) \
@@ -78,12 +84,16 @@ MwVulkanConfig vulkan_config = {
 const char** enabledExtensions;
 const char** enabledLayers;
 
+typedef enum vulkan_supported_state_t {
+	VULKAN_SUPPORTED_UNKNOWN,
+	VULKAN_SUPPORTED_YES,
+	VULKAN_SUPPORTED_NO,
+} vulkan_supported_state;
+
+vulkan_supported_state vulkan_supported = VULKAN_SUPPORTED_UNKNOWN;
+
 typedef struct vulkan {
-#ifdef _WIN32
-	HMODULE vulkanLibrary;
-#else
-	void* vulkanLibrary;
-#endif
+	LIB_TYPE		  vulkanLibrary;
 	PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
 	VkInstance		  vkInstance;
 	VkSurfaceKHR		  vkSurface;
@@ -138,6 +148,14 @@ static void destroy(MwWidget handle) {
 	free(o);
 }
 
+static LIB_TYPE vulkan_lib_load() {
+#ifndef _WIN32
+	return dlopen("libvulkan.so", RTLD_LAZY | RTLD_GLOBAL);
+#else
+	return LoadLibrary("vulkan-1.dll");
+#endif
+}
+
 static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	uint32_t      vulkan_version  = vulkan_config.vk_version;
 	uint32_t      api_version     = vulkan_config.api_version;
@@ -159,9 +177,16 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 
 	VkResult vk_res;
 
-// Load Vulkan and any other function pointers we need.
+	// Load Vulkan and any other function pointers we need.
+	o->vulkanLibrary = vulkan_lib_load();
+	if(!o->vulkanLibrary) {
+		vulkan_supported = VULKAN_SUPPORTED_NO;
+		setLastError("Vulkan not found.");
+	} else {
+		vulkan_supported = VULKAN_SUPPORTED_YES;
+	}
+
 #ifndef _WIN32
-	o->vulkanLibrary	 = dlopen("libvulkan.so", RTLD_LAZY | RTLD_GLOBAL);
 	o->vkGetInstanceProcAddr = dlsym(o->vulkanLibrary, "vkGetInstanceProcAddr");
 	VK_ASSERT(o->vkGetInstanceProcAddr);
 	_vkEnumerateInstanceExtensionProperties = dlsym(o->vulkanLibrary, "vkEnumerateInstanceExtensionProperties");
@@ -171,7 +196,6 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	_vkCreateInstance = dlsym(o->vulkanLibrary, "vkCreateInstance");
 	VK_ASSERT(_vkCreateInstance);
 #else
-	o->vulkanLibrary	 = LoadLibrary("vulkan-1.dll");
 	o->vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)(void*)GetProcAddress(o->vulkanLibrary, "vkGetInstanceProcAddr");
 	VK_ASSERT(o->vkGetInstanceProcAddr);
 	_vkEnumerateInstanceExtensionProperties = (PFN_vkEnumerateInstanceExtensionProperties)(void*)GetProcAddress(o->vulkanLibrary, "vkEnumerateInstanceExtensionProperties");
@@ -437,6 +461,23 @@ void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
 	default:
 		setLastError("Unknown vulkan field request (%d given)", field);
 		return NULL;
+	}
+};
+
+VkBool32 MwVulkanSupported() {
+	if(vulkan_supported == VULKAN_SUPPORTED_UNKNOWN) {
+		LIB_TYPE lib = vulkan_lib_load();
+		if(lib == NULL) {
+			vulkan_supported = VULKAN_SUPPORTED_NO;
+		} else {
+			vulkan_supported = VULKAN_SUPPORTED_YES;
+			dlclose(lib);
+		}
+	}
+	if(vulkan_supported == VULKAN_SUPPORTED_YES) {
+		return VK_TRUE;
+	} else {
+		return VK_FALSE;
 	}
 };
 

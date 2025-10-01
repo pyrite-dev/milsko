@@ -627,6 +627,11 @@ void vulkan_setup(MwWidget handle) {
 }
 
 int main() {
+	if(!MwVulkanSupported()) {
+		printf("Vulkan not found or unsupported on target platform.\n");
+		return 1;
+	}
+
 	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 450,
 				  MwNtitle, "hello world",
 				  NULL);
