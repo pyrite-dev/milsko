@@ -8,7 +8,7 @@
 // something the user shouldn't want to do and thus we don't want them to.
 // (hence also, its placement in the src directory)
 
-#include "Mw/Error.h"
+#include <Mw/Error.h>
 
 void setLastError(const char* fmt, ...);
 
