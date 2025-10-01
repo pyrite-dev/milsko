@@ -76,7 +76,8 @@ int main() {
 	MwMenuAdd(menu, NULL, "test 2");
 	MwMenuAdd(menu, NULL, "test 3");
 	MwMenuAdd(menu, NULL, "test 4");
-	MwMenuAdd(menu, NULL, "test 5");
+	MwMenuAdd(menu, NULL, "?test 5");
+	MwMenuAdd(menu, NULL, "test 6");
 
 	MwLoop(window);
 }

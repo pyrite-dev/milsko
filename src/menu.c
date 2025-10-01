@@ -81,9 +81,14 @@ static void draw(MwWidget handle) {
 	MwDrawFrame(handle, &r, base, 0);
 	MwDrawRect(handle, &r, base);
 	for(i = 0; i < arrlen(m->sub); i++) {
-		int tw = MwTextWidth(handle, m->sub[i]->name);
-		int th = MwTextHeight(handle, m->sub[i]->name);
+		int incr = m->sub[i]->name[0] == '?' ? 1 : 0;
+		int tw	 = MwTextWidth(handle, m->sub[i]->name + incr);
+		int th	 = MwTextHeight(handle, m->sub[i]->name + incr);
+		int oldx = p.x;
 
+		if(incr) {
+			p.x = MwGetInteger(handle, MwNwidth) - tw - 10;
+		}
 		p.x += tw / 2;
 
 		r.x	 = p.x - tw / 2 - 5;
@@ -95,9 +100,10 @@ static void draw(MwWidget handle) {
 			MwDrawFrame(handle, &r, base, 0);
 		}
 
-		MwDrawText(handle, &p, m->sub[i]->name, 1, text);
+		MwDrawText(handle, &p, m->sub[i]->name + incr, 1, text);
 
 		p.x += tw / 2 + 20;
+		if(incr) p.x = oldx;
 	}
 
 	MwLLFreeColor(text);
