@@ -632,6 +632,8 @@ int main() {
 				  NULL);
 
 	MwVulkanEnableExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+	MwVulkanEnableLayer("VK_LAYER_KHRONOS_validation");
+
 	vulkan = MwCreateWidget(MwVulkanClass, "vulkan", window, 50, 50, ow, oh);
 
 	MwAddUserHandler(window, MwNtickHandler, tick, NULL);
