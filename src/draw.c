@@ -1,7 +1,7 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-#include "stb_image.h"
+#include "external/stb_image.h"
 
 #define FontWidth 7
 #define FontHeight 14
