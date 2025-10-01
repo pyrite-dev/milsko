@@ -2,6 +2,10 @@
 #include <Mw/Milsko.h>
 #include <Mw/Vulkan.h>
 
+/**
+ * ioixd maintains this file. nishi doesn't know vulkan at all
+ */
+
 #ifdef _WIN32
 #define VK_USE_PLATFORM_WIN32_KHR 1
 #endif

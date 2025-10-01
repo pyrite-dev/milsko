@@ -4,6 +4,11 @@
  * %brief Vulkan widget
  * %warning This header is not documented yet
  */
+
+/**
+ * ioixd maintains this file. nishi doesn't know vulkan at all
+ */
+
 #ifndef __MW_VULKAN_H__
 #define __MW_VULKAN_H__
 
