@@ -21,6 +21,7 @@
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
+#include <Mw/Error.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,19 +32,59 @@ extern "C" {
  */
 MWDECL MwClass MwVulkanClass;
 
-// Add an extension to the list of extensions to enable prior to initialization.
-// This must be called before MwCreateWidget.
+/*!
+ * %brief Add an extension to the list of extensions to enable prior to initialization.
+ * This must be called before MwCreateWidget.
+ */
 MWDECL void MwVulkanEnableExtension(const char* ext_name);
 
-MWDECL PFN_vkGetInstanceProcAddr MwVulkanGetInstanceProcAddr(MwWidget handle);
-MWDECL VkInstance		 MwVulkanGetInstance(MwWidget handle);
-MWDECL VkSurfaceKHR		 MwVulkanGetSurface(MwWidget handle);
-MWDECL VkPhysicalDevice		 MwVulkanGetPhysicalDevice(MwWidget handle);
-MWDECL VkDevice			 MwVulkanGetLogicalDevice(MwWidget handle);
-MWDECL int			 MwVulkanGetGraphicsQueueIndex(MwWidget handle);
-MWDECL int			 MwVulkanGetPresentQueueIndex(MwWidget handle);
-MWDECL VkQueue			 MwVulkanGetGraphicsQueue(MwWidget handle);
-MWDECL VkQueue			 MwVulkanGetPresentQueue(MwWidget handle);
+/*!
+ * %brief Field that can be gotten from Vulkan.
+ */
+typedef enum MwVulkanField_T {
+	/*!
+	 * %brief The address of the vulkan widget's vkGetInstanceProcAddr function (PFN_vkGetInstanceProcAddr)
+	 */
+	MwVulkanField_GetInstanceProcAddr = 0,
+	/*!
+	 * %brief The address of the vulkan widget's instance (VkInstance)
+	 */
+	MwVulkanField_Instance,
+	/*!
+	 * %brief The address of the vulkan widget's surface (VkSurfaceKHR)
+	 */
+	MwVulkanField_Surface,
+	/*!
+	 * %brief The address of the vulkan widget's physical device (VkPhysicalDevice)
+	 */
+	MwVulkanField_PhysicalDevice,
+	/*!
+	 * %brief The address of the vulkan widget's logical device (VkDevice)
+	 */
+	MwVulkanField_LogicalDevice,
+	/*!
+	 * %brief The address of the index that the vulkan widget uses for the graphics queue (uint32_t *)
+	 */
+	MwVulkanField_GraphicsQueueIndex,
+	/*!
+	 * %brief The address of the index that the vulkan widget uses for the present queue (uint32_t *)
+	 */
+	MwVulkanField_PresentQueueIndex,
+	MwVulkanField_GraphicsQueue,
+	/*!
+	 * %brief The address of the vulkan widget's graphics queue (VkQueue)
+	 */
+	MwVulkanField_PresentQueue,
+	/*!
+	 * %brief The address of the vulkan widget's present queue (VkQueue)
+	 */
+} MwVulkanField;
+
+/*!
+ * %brief Function for getting a field from within Vulkan.
+ * %warning Consult the documentation for MwVulkanField to know what type is expected for out.
+ */
+MWDECL void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out);
 
 #ifdef __cplusplus
 }

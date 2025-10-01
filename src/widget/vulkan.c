@@ -1,6 +1,12 @@
 /* $Id$ */
+#include "Mw/Error.h"
 #include <Mw/Milsko.h>
 #include <Mw/Vulkan.h>
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "../error_internal.h"
 
 /**
  * ioixd maintains this file. nishi doesn't know vulkan at all
@@ -21,20 +27,27 @@
 
 #include <stdbool.h>
 
-#include "stb_ds.h"
+#include "../external/stb_ds.h"
 
 // convienence macro for handling vulkan errors
 #define VK_CMD(func) \
 	vk_res = func; \
 	if(vk_res != VK_SUCCESS) { \
-		printf("VULKAN ERROR AT %s:%d: %s\n", __FILE__, __LINE__, string_VkResult(vk_res)); \
-		exit(0); \
+		setLastError("Vulkan error (%s:%d): %s\n", __FILE__, __LINE__, string_VkResult(vk_res)); \
+		return MwEerror; \
 	}
 
 // convienence macro for loading a vulkan function pointer into memory
 #define LOAD_VK_FUNCTION(name) \
 	PFN_##name _##name = (PFN_##name)o->vkGetInstanceProcAddr(o->vkInstance, #name); \
-	assert(_##name);
+	VK_ASSERT(_##name);
+
+// convienence macro to return an error if an assert goes wrong
+#define VK_ASSERT(val) \
+	if(!val) { \
+		setLastError("Vulkan error (%s:%d): Assertion Failed (%s != NULL)\n", __FILE__, __LINE__, #val); \
+		return MwEerror; \
+	}
 
 bool enableValidationLayers = true;
 
@@ -62,17 +75,29 @@ typedef struct vulkan {
 	int	     vkLayerCount;
 } vulkan_t;
 
-static void vulkan_instance_setup(MwWidget handle, vulkan_t* o);
-static void vulkan_surface_setup(MwWidget handle, vulkan_t* o);
-static void vulkan_devices_setup(MwWidget handle, vulkan_t* o);
+static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o);
+static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o);
+static MwErrorEnum vulkan_devices_setup(MwWidget handle, vulkan_t* o);
 
 static void create(MwWidget handle) {
-	vulkan_t* o = malloc(sizeof(*o));
+	vulkan_t*   o = malloc(sizeof(*o));
+	MwErrorEnum err;
 
-	// !! important to call it in this order
-	vulkan_instance_setup(handle, o);
-	vulkan_surface_setup(handle, o);
-	vulkan_devices_setup(handle, o);
+	err = vulkan_instance_setup(handle, o);
+	if(err != MwEsuccess) {
+		printf("VULKAN ERROR\n%s", MwGetLastError());
+		return;
+	}
+	err = vulkan_surface_setup(handle, o);
+	if(err != MwEsuccess) {
+		printf("VULKAN ERROR\n%s", MwGetLastError());
+		return;
+	}
+	err = vulkan_devices_setup(handle, o);
+	if(err != MwEsuccess) {
+		printf("VULKAN ERROR\n%s", MwGetLastError());
+		return;
+	}
 
 	handle->internal = o;
 	MwSetDefault(handle);
@@ -83,7 +108,7 @@ static void destroy(MwWidget handle) {
 	free(o);
 }
 
-static void vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
+static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	// todo: Some sort of function for being able to set the vulkan version?
 	uint32_t      vulkan_version  = VK_VERSION_1_0;
 	uint32_t      api_version     = VK_API_VERSION_1_0;
@@ -110,15 +135,15 @@ static void vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	// TODO: support for whatever win32's equivalants to dlopen/dlsym are
 	o->vulkanLibrary	 = dlopen("libvulkan.so", RTLD_LAZY | RTLD_GLOBAL);
 	o->vkGetInstanceProcAddr = dlsym(o->vulkanLibrary, "vkGetInstanceProcAddr");
-	assert(o->vkGetInstanceProcAddr);
+	VK_ASSERT(o->vkGetInstanceProcAddr);
 
 	// Load in any other function pointers we need.
 	_vkEnumerateInstanceExtensionProperties = dlsym(o->vulkanLibrary, "vkEnumerateInstanceExtensionProperties");
-	assert(_vkEnumerateInstanceExtensionProperties);
+	VK_ASSERT(_vkEnumerateInstanceExtensionProperties);
 	_vkEnumerateInstanceLayerProperties = dlsym(o->vulkanLibrary, "vkEnumerateInstanceLayerProperties");
-	assert(_vkEnumerateInstanceLayerProperties);
+	VK_ASSERT(_vkEnumerateInstanceLayerProperties);
 	_vkCreateInstance = dlsym(o->vulkanLibrary, "vkCreateInstance");
-	assert(_vkCreateInstance);
+	VK_ASSERT(_vkCreateInstance);
 
 	// setup enabled extensions
 	arrput(enabledExtensions, VK_KHR_SURFACE_EXTENSION_NAME);
@@ -186,9 +211,10 @@ static void vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	instance_create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 
 	VK_CMD(_vkCreateInstance(&instance_create_info, NULL, &o->vkInstance));
+	return MwEsuccess;
 }
 
-static void vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
+static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
 	int vk_res;
 #ifdef _WIN32
 	LOAD_VK_FUNCTION(vkCreateWin32SurfaceKHR);
@@ -216,9 +242,10 @@ static void vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
 	};
 	VK_CMD(_vkCreateXlibSurfaceKHR(o->vkInstance, &createInfo, NULL, &o->vkSurface));
 #endif
+	return MwEsuccess;
 }
 
-static void vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
+static MwErrorEnum vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	int			 vk_res;
 	unsigned long		 i, n;
 	uint32_t		 deviceCount;
@@ -234,17 +261,12 @@ static void vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	VkBool32		 has_present	  = false;
 	int			 queueCreateCount = 0;
 
-	(void)handle;
-
 	LOAD_VK_FUNCTION(vkEnumeratePhysicalDevices);
 	LOAD_VK_FUNCTION(vkGetPhysicalDeviceQueueFamilyProperties);
 	LOAD_VK_FUNCTION(vkCreateDevice);
 	LOAD_VK_FUNCTION(vkGetDeviceQueue);
 	LOAD_VK_FUNCTION(vkGetPhysicalDeviceSurfaceSupportKHR);
-
-	PFN_vkEnumerateDeviceExtensionProperties _vkEnumerateDeviceExtensionProperties = (PFN_vkEnumerateDeviceExtensionProperties)
-											     o->vkGetInstanceProcAddr(o->vkInstance, "vkEnumerateDeviceExtensionProperties");
-	assert(_vkEnumerateDeviceExtensionProperties);
+	LOAD_VK_FUNCTION(vkEnumerateDeviceExtensionProperties);
 
 	// create the physical device
 	VK_CMD(_vkEnumeratePhysicalDevices(o->vkInstance, &deviceCount, NULL));
@@ -277,8 +299,8 @@ static void vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	}
 	if(!has_graphics && !has_present) {
 		// rare, yes, but idk maybe some shitty drivers will present this dillema idk.
-		printf("There were no devices with either a graphics or presentation queue. Exiting!\n");
-		exit(1);
+		setLastError("There were no devices with either a graphics or presentation queue.\n");
+		return MwEerror;
 	}
 
 	// create the logical device
@@ -315,7 +337,6 @@ static void vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 			}
 		}
 	}
-	printf("enabled %d device extensions\n", o->vkDeviceExtensionCount);
 
 	createInfo = (VkDeviceCreateInfo){
 	    .sType		     = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -338,42 +359,41 @@ static void vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	} else {
 		_vkGetDeviceQueue(o->vkLogicalDevice, o->vkPresentFamilyIDX, 0, &o->vkPresentQueue);
 	}
-	// free(devices);
+	free(devices);
+	return MwEsuccess;
 }
 
 void MwVulkanEnableExtension(const char* name) {
 	arrput(enabledExtensions, name);
 }
 
-PFN_vkGetInstanceProcAddr MwVulkanGetInstanceProcAddr(MwWidget handle) {
-	return ((vulkan_t*)handle->internal)->vkGetInstanceProcAddr;
-};
-VkInstance MwVulkanGetInstance(MwWidget handle) {
-	return ((vulkan_t*)handle->internal)->vkInstance;
-};
-VkSurfaceKHR MwVulkanGetSurface(MwWidget handle) {
-	return ((vulkan_t*)handle->internal)->vkSurface;
-};
-VkPhysicalDevice MwVulkanGetPhysicalDevice(MwWidget handle) {
-	return ((vulkan_t*)handle->internal)->vkPhysicalDevice;
-};
-VkDevice MwVulkanGetLogicalDevice(MwWidget handle) {
-	return ((vulkan_t*)handle->internal)->vkLogicalDevice;
-};
-VkQueue MwVulkanGetGraphicsQueue(MwWidget handle) {
-	return ((vulkan_t*)handle->internal)->vkGraphicsQueue;
-};
-VkQueue MwVulkanGetPresentQueue(MwWidget handle) {
-	return ((vulkan_t*)handle->internal)->vkPresentQueue;
-};
+MWDECL void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
+	vulkan_t* o = handle->internal;
 
-int MwVulkanGetGraphicsQueueIndex(MwWidget handle) {
-	return ((vulkan_t*)handle->internal)->vkGraphicsFamilyIDX;
-}
-
-int MwVulkanGetPresentQueueIndex(MwWidget handle) {
-	return ((vulkan_t*)handle->internal)->vkPresentFamilyIDX;
-}
+	switch(field) {
+	case MwVulkanField_GetInstanceProcAddr:
+		return o->vkGetInstanceProcAddr;
+	case MwVulkanField_Instance:
+		return o->vkInstance;
+	case MwVulkanField_Surface:
+		return o->vkSurface;
+	case MwVulkanField_PhysicalDevice:
+		return o->vkPhysicalDevice;
+	case MwVulkanField_LogicalDevice:
+		return o->vkLogicalDevice;
+	case MwVulkanField_GraphicsQueueIndex:
+		return &o->vkGraphicsFamilyIDX;
+	case MwVulkanField_PresentQueueIndex:
+		return &o->vkPresentFamilyIDX;
+	case MwVulkanField_GraphicsQueue:
+		return o->vkGraphicsQueue;
+	case MwVulkanField_PresentQueue:
+		return o->vkPresentQueue;
+	default:
+		setLastError("Unknown vulkan field request (%d given)", field);
+		return NULL;
+	}
+};
 
 MwClassRec MwVulkanClassRec = {
     create,  /* create */

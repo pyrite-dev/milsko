@@ -3,7 +3,7 @@
 TARGET = $(shell uname -s)
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude
+CFLAGS = -Wall -Wextra -Iinclude -g
 LDFLAGS =
 LIBS =
 
@@ -15,7 +15,7 @@ E_CFLAGS = $(CFLAGS)
 E_LDFLAGS = $(LDFLAGS) -Lsrc
 E_LIBS = $(LIBS) -lMw
 
-L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o
+L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o src/error.o
 L_OBJS += src/external/ds.o src/external/image.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o
 
