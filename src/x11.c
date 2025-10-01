@@ -27,6 +27,9 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 
 	MwLLCreateCommon(r);
 
+	if(width < 1) width = 1;
+	if(height < 1) height = 1;
+
 	if(parent == NULL) {
 		r->display = XOpenDisplay(NULL);
 		p	   = XRootWindow(r->display, XDefaultScreen(r->display));
@@ -115,6 +118,9 @@ void MwLLSetXY(MwLL handle, int x, int y) {
 }
 
 void MwLLSetWH(MwLL handle, int w, int h) {
+	if(w < 1) w = 1;
+	if(h < 1) h = 1;
+
 	XResizeWindow(handle->display, handle->window, w, h);
 }
 

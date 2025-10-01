@@ -1,7 +1,7 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-MwWidget window, button, button2, button3, button4;
+MwWidget window, menu, button, button2, button3, button4;
 
 void handler(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
@@ -12,34 +12,35 @@ void handler(MwWidget handle, void* user_data, void* call_data) {
 }
 
 void resize(MwWidget handle, void* user_data, void* call_data) {
-	unsigned int w, h;
+	unsigned int w, h, mh;
 
 	(void)user_data;
 	(void)call_data;
 
 	w = MwGetInteger(handle, MwNwidth);
-	h = MwGetInteger(handle, MwNheight);
+	h = MwGetInteger(handle, MwNheight) - (mh = MwGetInteger(menu, MwNheight));
 
 	MwVaApply(button,
+		  MwNy, 50 + mh,
 		  MwNwidth, w - 50 * 2,
 		  MwNheight, h - 125 - 50 * 3,
 		  NULL);
 
 	MwVaApply(button2,
 		  MwNx, 50 + (w - 50 * 2) / 3 * 0,
-		  MwNy, h - 50 - 125,
+		  MwNy, h - 50 - 125 + mh,
 		  MwNwidth, (w - 50 * 2) / 3,
 		  NULL);
 
 	MwVaApply(button3,
 		  MwNx, 50 + (w - 50 * 2) / 3 * 1,
-		  MwNy, h - 50 - 125,
+		  MwNy, h - 50 - 125 + mh,
 		  MwNwidth, (w - 50 * 2) / 3,
 		  NULL);
 
 	MwVaApply(button4,
 		  MwNx, 50 + (w - 50 * 2) / 3 * 2,
-		  MwNy, h - 50 - 125,
+		  MwNy, h - 50 - 125 + mh,
 		  MwNwidth, (w - 50 * 2) / 3,
 		  NULL);
 }
@@ -48,6 +49,7 @@ int main() {
 	window	= MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 400,
 				   MwNtitle, "hello world",
 				   NULL);
+	menu	= MwCreateWidget(MwMenuClass, "menu", window, 0, 0, 0, 0);
 	button	= MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 300, 125,
 				   MwNtext, "lorem ipsum",
 				   NULL);

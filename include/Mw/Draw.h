@@ -68,6 +68,22 @@ MWDECL void MwDrawText(MwWidget handle, MwPoint* point, const char* text, MwLLCo
  */
 MWDECL MwLLPixmap MwLoadImage(MwWidget handle, const char* path);
 
+/*!
+ * %brief Calculates a text width
+ * %param handle Widget
+ * %param text Text
+ * %return Text width
+ */
+MWDECL int MwTextWidth(MwWidget handle, const char* text);
+
+/*!
+ * %brief Calculates a text height
+ * %param handle Widget
+ * %param text Text
+ * %return Text height
+ */
+MWDECL int MwTextHeight(MwWidget handle, const char* text);
+
 #ifdef __cplusplus
 }
 #endif

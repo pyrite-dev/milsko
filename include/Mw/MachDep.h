@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
  * %file Mw/MachDep.h
- * %param Machine dependent headers and macros
+ * %brief Machine dependent headers and macros
  */
 #ifndef __MW_MACHDEP_H__
 #define __MW_MACHDEP_H__
