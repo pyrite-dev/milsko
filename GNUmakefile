@@ -64,12 +64,6 @@ EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC)
 ifeq ($(OPENGL),1)
 L_OBJS += src/opengl.o
 EXAMPLES += examples/opengl$(EXEC)
-
-ifeq ($(UNIX),1)
-L_LIBS += -lGL
-else ifeq ($(WINDOWS),1)
-L_LIBS += -lopengl32
-endif
 endif
 
 ifeq ($(VULKAN),1)

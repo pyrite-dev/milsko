@@ -10,14 +10,42 @@
 #include <GL/gl.h>
 
 #ifdef _WIN32
+typedef HGLRC(WINAPI* MWwglCreateContext)(HDC);
+typedef BOOL(WINAPI* MWwglMakeCurrent)(HDC, HGLRC);
+typedef PROC(WINAPI* MWwglGetProcAddress)(LPCSTR);
+typedef BOOL(WINAPI* MWwglDeleteContext)(HGLRC);
+
 typedef struct opengl {
 	HDC   dc;
 	HGLRC gl;
+
+	void* lib;
+
+	MWwglCreateContext  wglCreateContext;
+	MWwglMakeCurrent    wglMakeCurrent;
+	MWwglDeleteContext  wglDeleteContext;
+	MWwglGetProcAddress wglGetProcAddress;
 } opengl_t;
 #else
+typedef XVisualInfo* (*MWglXChooseVisual)(Display* dpy, int screen, int* attribList);
+typedef GLXContext (*MWglXCreateContext)(Display* dpy, XVisualInfo* vis, GLXContext shareList, Bool direct);
+typedef void (*MWglXDestroyContext)(Display* dpy, GLXContext ctx);
+typedef Bool (*MWglXMakeCurrent)(Display* dpy, GLXDrawable drawable, GLXContext ctx);
+typedef void (*MWglXSwapBuffers)(Display* dpy, GLXDrawable drawable);
+typedef void* (*MWglXGetProcAddress)(const GLubyte* procname);
+
 typedef struct opengl {
 	XVisualInfo* visual;
 	GLXContext   gl;
+
+	void* lib;
+
+	MWglXChooseVisual   glXChooseVisual;
+	MWglXCreateContext  glXCreateContext;
+	MWglXDestroyContext glXDestroyContext;
+	MWglXMakeCurrent    glXMakeCurrent;
+	MWglXSwapBuffers    glXSwapBuffers;
+	MWglXGetProcAddress glXGetProcAddress;
 } opengl_t;
 #endif
 
@@ -39,9 +67,22 @@ static void create(MwWidget handle) {
 	pf = ChoosePixelFormat(o->dc, &pfd);
 	SetPixelFormat(o->dc, pf, &pfd);
 
-	o->gl = wglCreateContext(o->dc);
+	o->lib = LoadLibrary("opengl32.dll");
+
+	o->wglCreateContext  = (MWwglCreateContext)(void*)GetProcAddress(o->lib, "wglCreateContext");
+	o->wglMakeCurrent    = (MWwglMakeCurrent)(void*)GetProcAddress(o->lib, "wglMakeCurrent");
+	o->wglDeleteContext  = (MWwglDeleteContext)(void*)GetProcAddress(o->lib, "wglDeleteContext");
+	o->wglGetProcAddress = (MWwglGetProcAddress)(void*)GetProcAddress(o->lib, "wglGetProcAddress");
+
+	o->gl = o->wglCreateContext(o->dc);
 #else
-	int attribs[5];
+	int	    attribs[5];
+	const char* glpath[] = {
+	    "libGL.so",
+	    "/usr/local/lib/libGL.so",
+	    "/usr/X11R7/lib/libGL.so",
+	    "/usr/pkg/lib/libGL.so"};
+	int glincr = 0;
 
 	attribs[0] = GLX_RGBA;
 	attribs[1] = GLX_DOUBLEBUFFER;
@@ -49,9 +90,18 @@ static void create(MwWidget handle) {
 	attribs[3] = 24;
 	attribs[4] = None;
 
+	while(glpath[glincr] != NULL && (o->lib = dlopen(glpath[glincr++], RTLD_LAZY)) == NULL);
+
+	o->glXChooseVisual   = (MWglXChooseVisual)dlsym(o->lib, "glXChooseVisual");
+	o->glXCreateContext  = (MWglXCreateContext)dlsym(o->lib, "glXCreateContext");
+	o->glXDestroyContext = (MWglXDestroyContext)dlsym(o->lib, "glXDestroyContext");
+	o->glXMakeCurrent    = (MWglXMakeCurrent)dlsym(o->lib, "glXMakeCurrent");
+	o->glXSwapBuffers    = (MWglXSwapBuffers)dlsym(o->lib, "glXSwapBuffers");
+	o->glXGetProcAddress = (MWglXGetProcAddress)dlsym(o->lib, "glXGetProcAddress");
+
 	/* XXX: fix this */
-	o->visual = glXChooseVisual(handle->lowlevel->display, DefaultScreen(handle->lowlevel->display), attribs);
-	o->gl	  = glXCreateContext(handle->lowlevel->display, o->visual, NULL, GL_TRUE);
+	o->visual = o->glXChooseVisual(handle->lowlevel->display, DefaultScreen(handle->lowlevel->display), attribs);
+	o->gl	  = o->glXCreateContext(handle->lowlevel->display, o->visual, NULL, GL_TRUE);
 #endif
 	handle->internal	      = o;
 	handle->lowlevel->copy_buffer = 0;
@@ -62,12 +112,16 @@ static void create(MwWidget handle) {
 static void destroy(MwWidget handle) {
 	opengl_t* o = (opengl_t*)handle->internal;
 #ifdef _WIN32
-	wglMakeCurrent(NULL, NULL);
+	o->wglMakeCurrent(NULL, NULL);
 	DeleteDC(o->dc);
-	wglDeleteContext(o->gl);
+	o->wglDeleteContext(o->gl);
+
+	FreeLibrary(o->lib);
 #else
-	glXMakeCurrent(handle->lowlevel->display, None, NULL);
-	glXDestroyContext(handle->lowlevel->display, o->gl);
+	o->glXMakeCurrent(handle->lowlevel->display, None, NULL);
+	o->glXDestroyContext(handle->lowlevel->display, o->gl);
+
+	dlclose(o->lib);
 #endif
 	free(o);
 }
@@ -83,9 +137,9 @@ MwClass MwOpenGLClass = &MwOpenGLClassRec;
 void MwOpenGLMakeCurrent(MwWidget handle) {
 	opengl_t* o = (opengl_t*)handle->internal;
 #ifdef _WIN32
-	wglMakeCurrent(o->dc, o->gl);
+	o->wglMakeCurrent(o->dc, o->gl);
 #else
-	glXMakeCurrent(handle->lowlevel->display, handle->lowlevel->window, o->gl);
+	o->glXMakeCurrent(handle->lowlevel->display, handle->lowlevel->window, o->gl);
 #endif
 }
 
@@ -96,18 +150,19 @@ void MwOpenGLSwapBuffer(MwWidget handle) {
 #else
 	(void)o;
 
-	glXSwapBuffers(handle->lowlevel->display, handle->lowlevel->window);
+	o->glXSwapBuffers(handle->lowlevel->display, handle->lowlevel->window);
 #endif
 }
 
 void* MwOpenGLGetProcAddress(MwWidget handle, const char* name) {
+	opengl_t* o = (opengl_t*)handle->internal;
 #ifdef _WIN32
 	(void)handle;
 
-	return wglGetProcAddress(name);
+	return o->wglGetProcAddress(name);
 #else
 	(void)handle;
 
-	return glXGetProcAddress((const GLubyte*)name);
+	return o->glXGetProcAddress((const GLubyte*)name);
 #endif
 }
