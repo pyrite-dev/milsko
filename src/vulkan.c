@@ -1,14 +1,6 @@
 /* $Id$ */
-#include "Mw/Vulkan.h"
-#include "Mw/TypeDefs.h"
 #include <Mw/Milsko.h>
-#include <Mw/TypeDefs.h>
-
-#include <X11/Xlib.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <string.h>
+#include <Mw/Vulkan.h>
 
 #ifdef _WIN32
 #define VK_USE_PLATFORM_WIN32_KHR 1

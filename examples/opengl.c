@@ -1,5 +1,6 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
+#include <Mw/OpenGL.h>
 
 #include <GL/gl.h>
 
