@@ -201,6 +201,24 @@
 	<a href="#Mw_Vulkan_h__MwVulkanEnableExtension">MwVulkanEnableExtension</a>
 </dd>
 <dd>
+	<a href="#Mw_Vulkan_h__MwVulkanEnableLayer">MwVulkanEnableLayer</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h__MwVulkanConfig_T">MwVulkanConfig_T</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h__api_version">api_version</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h__vk_version">vk_version</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h__validation_layers">validation_layers</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h__MwVulkanConfigure">MwVulkanConfigure</a>
+</dd>
+<dd>
 	<a href="#Mw_Vulkan_h__MwVulkanField_T">MwVulkanField_T</a>
 </dd>
 <dd>
@@ -232,6 +250,9 @@
 </dd>
 <dd>
 	<a href="#Mw_Vulkan_h__MwVulkanGetField">MwVulkanGetField</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h__MwVulkanSupported__">MwVulkanSupported()</a>
 </dd>
 <dt>
 	<a href="#Mw_Window_h">Mw/Window.h</a>
@@ -1507,6 +1528,70 @@
 <dd>
 	Add an extension to the list of extensions to enable prior to initialization.
 </dd>
+<dt>
+	<img src="warning.gif" alt="warning">
+</dt>
+<dd>
+	This must be called before MwCreateWidget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h__MwVulkanEnableLayer"><code>MWDECL void MwVulkanEnableLayer (
+	const char* ext_name
+);</code></pre>
+<dl>
+<dd>
+	Add an layer to the list of layers to enable prior to initialization.
+</dd>
+<dt>
+	<img src="warning.gif" alt="warning">
+</dt>
+<dd>
+	This must be called before MwCreateWidget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h__MwVulkanConfig_T"><code>typedef struct MwVulkanConfig_T;</code></pre>
+<dl>
+<dd>
+	Configuration options that can be passed to setup Vulkan before a widget is created.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h__api_version"><code> uint32_t api_version;</code></pre>
+<dl>
+<dd>
+	Vulkan API version (default: VK_API_VERSION_1_0).
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h__vk_version"><code> uint32_t vk_version;</code></pre>
+<dl>
+<dd>
+	Vulkan version (default: VK_VERSION_1_0).
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h__validation_layers"><code> VkBool32 validation_layers;</code></pre>
+<dl>
+<dd>
+	Whether or not to enable validation layers (default: false).
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h__MwVulkanConfigure"><code>MWDECL void MwVulkanConfigure (
+	MwVulkanConfig cfg
+);</code></pre>
+<dl>
+<dd>
+	Configure Vulkan prior to initializing the widget.
+</dd>
+<dt>
+	<img src="warning.gif" alt="warning">
+</dt>
+<dd>
+	The configuration provided will be used for future initializations of the Vulkan widget (unless it's changed).
+</dd>
 </dl>
 <hr>
 <pre id="Mw_Vulkan_h__MwVulkanField_T"><code>typedef enum MwVulkanField_T;</code></pre>
@@ -1593,6 +1678,13 @@
 </dt>
 <dd>
 	Consult the documentation for MwVulkanField to know what type is expected for out.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h__MwVulkanSupported__"><code>MWDECL VkBool32 MwVulkanSupported();</code></pre>
+<dl>
+<dd>
+	Return whether Vulkan is installed on the target platform.
 </dd>
 </dl>
 <hr>
