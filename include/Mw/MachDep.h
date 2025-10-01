@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <setjmp.h>
+#include <sys/types.h>
+#include <assert.h>
 #ifdef _WIN32
 #include <windows.h>
 #else
