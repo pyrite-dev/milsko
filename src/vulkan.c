@@ -379,6 +379,7 @@ MwClassRec MwVulkanClassRec = {
     create,  /* create */
     destroy, /* destroy */
     NULL,    /* draw */
-    NULL     /* click */
+    NULL,    /* click */
+    NULL     /* parent_resize */
 };
 MwClass MwVulkanClass = &MwVulkanClassRec;

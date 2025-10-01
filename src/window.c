@@ -23,7 +23,8 @@ MwClassRec MwWindowClassRec = {
     create, /* create */
     NULL,   /* destroy */
     draw,   /* draw */
-    NULL    /* click */
+    NULL,   /* click */
+    NULL    /* parent_resize */
 };
 MwClass MwWindowClass = &MwWindowClassRec;
 

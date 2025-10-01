@@ -22,8 +22,12 @@ static void lldownhandler(MwLL handle) {
 
 static void llresizehandler(MwLL handle) {
 	MwWidget h = (MwWidget)handle->user;
+	int	 i;
 
 	MwDispatchUserHandler(h, MwNresizeHandler, NULL);
+	for(i = 0; i < arrlen(h->children); i++) {
+		MwDispatch(h->children[i], parent_resize);
+	}
 }
 
 static void llclosehandler(MwLL handle) {
