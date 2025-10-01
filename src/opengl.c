@@ -99,3 +99,15 @@ void MwOpenGLSwapBuffer(MwWidget handle) {
 	glXSwapBuffers(handle->lowlevel->display, handle->lowlevel->window);
 #endif
 }
+
+void* MwOpenGLGetProcAddress(MwWidget handle, const char* name) {
+#ifdef _WIN32
+	(void)handle;
+
+	return wglGetProcAddress(name);
+#else
+	(void)handle;
+
+	return glXGetProcAddress((const GLubyte*)name);
+#endif
+}

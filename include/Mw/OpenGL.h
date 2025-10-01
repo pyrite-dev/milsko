@@ -25,6 +25,14 @@ MWDECL MwClass MwOpenGLClass;
 MWDECL void MwOpenGLMakeCurrent(MwWidget handle);
 
 /*!
+ * %brief Get a procedure from OpenGL
+ * %param handle Widget
+ * %param name Name
+ * %return Procedure
+ */
+MWDECL void* MwOpenGLGetProcAddress(MwWidget handle, const char* name);
+
+/*!
  * %brief Swaps the buffer of OpenGL context
  * %param handle Widget
  */
