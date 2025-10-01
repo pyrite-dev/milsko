@@ -1,7 +1,6 @@
-#include "Mw/Error.h"
+/* $Id$ */
+#include <Mw/Milsko.h>
 #include "error_internal.h"
-#include <stdio.h>
-#include <string.h>
 
 #define MAX_ERROR_LEN 512
 
@@ -10,7 +9,7 @@ char error[MAX_ERROR_LEN + 1] = {0};
 
 const char* MwGetLastError() {
 	return error;
-};
+}
 
 void setLastError(const char* fmt, ...) {
 	va_list va;
