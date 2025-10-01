@@ -3,9 +3,12 @@
 TARGET = $(shell uname -s)
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude -g
+CFLAGS = -Wall -Wextra -Iinclude
 LDFLAGS =
 LIBS =
+ifeq (${DEBUG},1)
+CFLAGS += -g
+endif
 
 L_CFLAGS = $(CFLAGS) -fPIC -D_MILSKO
 L_LDFLAGS = $(LDFLAGS)
