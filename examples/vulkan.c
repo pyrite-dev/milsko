@@ -220,7 +220,7 @@ void vulkan_setup(MwWidget handle) {
 	VkSemaphoreCreateInfo		       semaphoreInfo	    = {};
 	VkFenceCreateInfo		       fenceInfo	    = {};
 
-	MwErrorEnum err;
+	MwErrorEnum err	       = MwEsuccess;
 	_vkGetInstanceProcAddr = MwVulkanGetField(handle, MwVulkanField_GetInstanceProcAddr, &err);
 	if(err != MwEsuccess) {
 		printf("Error getting vkGetInstanceProcAddr!\n%s\n", MwGetLastError());
@@ -632,7 +632,6 @@ int main() {
 				  NULL);
 
 	MwVulkanEnableExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-	MwVulkanEnableLayer("VK_LAYER_KHRONOS_validation");
 
 	vulkan = MwCreateWidget(MwVulkanClass, "vulkan", window, 50, 50, ow, oh);
 
