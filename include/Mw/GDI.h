@@ -17,7 +17,7 @@ struct _MwLL {
 	HWND  hWnd;
 	HDC   hDC;
 	void* user;
-	int copy_buffer;
+	int   copy_buffer;
 
 	MwLLHandler handler;
 };
