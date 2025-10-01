@@ -123,10 +123,16 @@
 	<a href="#Mw_Error_h">Mw/Error.h</a>
 </dt>
 <dd>
-	<a href="#Mw_Error_h__MwErrorEnum">MwErrorEnum</a>
+	<a href="#Mw_Error_h__MwErrorEnum_T">MwErrorEnum_T</a>
 </dd>
 <dd>
 	<a href="#Mw_Error_h___MwEsuccess_"> MwEsuccess </a>
+</dd>
+<dd>
+	<a href="#Mw_Error_h___MwEerror_"> MwEerror,</a>
+</dd>
+<dd>
+	<a href="#Mw_Error_h__MwGetLastError__">MwGetLastError()</a>
 </dd>
 <dt>
 	<a href="#Mw_Font_h">Mw/Font.h</a>
@@ -190,6 +196,42 @@
 </dt>
 <dd>
 	<a href="#Mw_Vulkan_h__MwVulkanClass">MwVulkanClass</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h__MwVulkanEnableExtension">MwVulkanEnableExtension</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h__MwVulkanField_T">MwVulkanField_T</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h___MwVulkanField_GetInstanceProcAddr_"> MwVulkanField_GetInstanceProcAddr </a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h___MwVulkanField_Instance_"> MwVulkanField_Instance,</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h___MwVulkanField_Surface_"> MwVulkanField_Surface,</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h___MwVulkanField_PhysicalDevice_"> MwVulkanField_PhysicalDevice,</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h___MwVulkanField_LogicalDevice_"> MwVulkanField_LogicalDevice,</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h___MwVulkanField_GraphicsQueueIndex_"> MwVulkanField_GraphicsQueueIndex,</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h___MwVulkanField_PresentQueueIndex_"> MwVulkanField_PresentQueueIndex,</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h___MwVulkanField_PresentQueue_"> MwVulkanField_PresentQueue,</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h__MwVulkanField">MwVulkanField</a>
+</dd>
+<dd>
+	<a href="#Mw_Vulkan_h__MwVulkanGetField">MwVulkanGetField</a>
 </dd>
 <dt>
 	<a href="#Mw_Window_h">Mw/Window.h</a>
@@ -1200,17 +1242,31 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Error_h__MwErrorEnum"><code>enum MwErrorEnum;</code></pre>
+<pre id="Mw_Error_h__MwErrorEnum_T"><code>typedef enum MwErrorEnum_T;</code></pre>
 <dl>
 <dd>
 	Error code enumeration.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Error_h___MwEsuccess_"><code> MwEsuccess = 0</code></pre>
+<pre id="Mw_Error_h___MwEsuccess_"><code> MwEsuccess = 0,</code></pre>
 <dl>
 <dd>
 	No error.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Error_h___MwEerror_"><code> MwEerror,</code></pre>
+<dl>
+<dd>
+	There was an error.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Error_h__MwGetLastError__"><code>MWDECL const char* MwGetLastError();</code></pre>
+<dl>
+<dd>
+	Get the last error.
 </dd>
 </dl>
 <hr>
@@ -1441,6 +1497,102 @@
 <dl>
 <dd>
 	Vulkan widget class.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h__MwVulkanEnableExtension"><code>MWDECL void MwVulkanEnableExtension (
+	const char* ext_name
+);</code></pre>
+<dl>
+<dd>
+	Add an extension to the list of extensions to enable prior to initialization.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h__MwVulkanField_T"><code>typedef enum MwVulkanField_T;</code></pre>
+<dl>
+<dd>
+	Field that can be gotten from Vulkan.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h___MwVulkanField_GetInstanceProcAddr_"><code> MwVulkanField_GetInstanceProcAddr = 0,</code></pre>
+<dl>
+<dd>
+	The address of the vulkan widget's vkGetInstanceProcAddr function (PFN_vkGetInstanceProcAddr).
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h___MwVulkanField_Instance_"><code> MwVulkanField_Instance,</code></pre>
+<dl>
+<dd>
+	The address of the vulkan widget's instance (VkInstance).
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h___MwVulkanField_Surface_"><code> MwVulkanField_Surface,</code></pre>
+<dl>
+<dd>
+	The address of the vulkan widget's surface (VkSurfaceKHR).
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h___MwVulkanField_PhysicalDevice_"><code> MwVulkanField_PhysicalDevice,</code></pre>
+<dl>
+<dd>
+	The address of the vulkan widget's physical device (VkPhysicalDevice).
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h___MwVulkanField_LogicalDevice_"><code> MwVulkanField_LogicalDevice,</code></pre>
+<dl>
+<dd>
+	The address of the vulkan widget's logical device (VkDevice).
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h___MwVulkanField_GraphicsQueueIndex_"><code> MwVulkanField_GraphicsQueueIndex,</code></pre>
+<dl>
+<dd>
+	The address of the index that the vulkan widget uses for the graphics queue (uint32_t *).
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h___MwVulkanField_PresentQueueIndex_"><code> MwVulkanField_PresentQueueIndex,</code></pre>
+<dl>
+<dd>
+	The address of the index that the vulkan widget uses for the present queue (uint32_t *).
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h___MwVulkanField_PresentQueue_"><code> MwVulkanField_PresentQueue,</code></pre>
+<dl>
+<dd>
+	The address of the vulkan widget's graphics queue (VkQueue).
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h__MwVulkanField"><code>} MwVulkanField;</code></pre>
+<dl>
+<dd>
+	The address of the vulkan widget's present queue (VkQueue).
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Vulkan_h__MwVulkanGetField"><code>MWDECL void* MwVulkanGetField (
+	MwWidget handle,
+	MwVulkanField field,
+	MwErrorEnum* out
+);</code></pre>
+<dl>
+<dd>
+	Function for getting a field from within Vulkan.
+</dd>
+<dt>
+	<img src="warning.gif" alt="warning">
+</dt>
+<dd>
+	Consult the documentation for MwVulkanField to know what type is expected for out.
 </dd>
 </dl>
 <hr>
