@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <dlfcn.h>
 #endif
 
 #if defined(_MILSKO) && defined(_WIN32)

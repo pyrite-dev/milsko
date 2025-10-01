@@ -28,11 +28,9 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		u->ll->hDC = hbdc;
 		MwLLDispatch(u->ll, draw);
 
-		if(u->ll->copy_buffer) {
-			dc = BeginPaint(hWnd, &ps);
-			StretchBlt(dc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, hbdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SRCCOPY);
-			EndPaint(hWnd, &ps);
-		}
+		dc = BeginPaint(hWnd, &ps);
+		StretchBlt(dc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, hbdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SRCCOPY);
+		EndPaint(hWnd, &ps);
 
 		DeleteDC(hbdc);
 		DeleteObject(hbmp);
