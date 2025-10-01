@@ -117,6 +117,11 @@ typedef enum MwVulkanField_T {
  */
 MWDECL void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out);
 
+/*!
+ * %brief Return whether Vulkan is installed on the target platform.
+ */
+MWDECL VkBool32 MwVulkanSupported();
+
 #ifdef __cplusplus
 }
 #endif
