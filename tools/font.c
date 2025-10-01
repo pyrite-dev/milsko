@@ -50,6 +50,9 @@ int main(int argc, char** argv) {
 		FT_Bitmap_Convert(lib, &face->glyph->bitmap, &bitmap, 1);
 
 		printf("\t{%d, %d, {", face->glyph->bitmap_left, face->glyph->bitmap_top);
+		for(y = 0; y < atoi(argv[2]) - bitmap.rows; y++){
+			printf("0%s", y == atoi(argv[2]) - 1 ? "" : ", ");
+		}
 		for(y = 0; y < bitmap.rows; y++) {
 			n = 0;
 			for(x = 0; x < bitmap.width; x++) {
