@@ -120,7 +120,7 @@ MWDECL void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum*
 /*!
  * %brief Return whether Vulkan is installed on the target platform.
  */
-MWDECL VkBool32 MwVulkanSupported();
+MWDECL VkBool32 MwVulkanSupported(void);
 
 #ifdef __cplusplus
 }

@@ -485,7 +485,7 @@ void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
 	}
 };
 
-VkBool32 MwVulkanSupported() {
+VkBool32 MwVulkanSupported(void) {
 	if(vulkan_supported == VULKAN_SUPPORTED_UNKNOWN) {
 		LIB_TYPE lib = vulkan_lib_load();
 		if(lib == NULL) {
