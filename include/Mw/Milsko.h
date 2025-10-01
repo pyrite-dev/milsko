@@ -17,6 +17,7 @@
 #include <Mw/Error.h>
 
 #include <Mw/Window.h>
+#include <Mw/Menu.h>
 #include <Mw/Button.h>
 #include <Mw/Frame.h>
 

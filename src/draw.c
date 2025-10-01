@@ -3,6 +3,10 @@
 
 #include "stb_image.h"
 
+#define FontWidth 7
+#define FontHeight 14
+#define FontScale 1
+
 static int hex(const char* txt, int len) {
 	int i;
 	int r = 0;
@@ -124,28 +128,40 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 }
 
 void MwDrawText(MwWidget handle, MwPoint* point, const char* text, MwLLColor color) {
-	int    i, x, y, sx, sy, sc = 1;
-	int    fw = 7, fh = 14;
+	int    i, x, y, sx, sy;
 	MwRect r;
 
-	sx = point->x - strlen(text) * fw * sc / 2;
-	sy = point->y - fh * sc / 2;
+	sx = point->x - strlen(text) * FontWidth * FontScale / 2;
+	sy = point->y - FontHeight * FontScale / 2;
 
 	for(i = 0; text[i] != 0; i++) {
-		for(y = 0; y < fh; y++) {
-			for(x = 0; x < fw; x++) {
-				r.x	 = sx + x * sc;
-				r.y	 = sy + y * sc;
-				r.width	 = sc;
-				r.height = sc;
+		for(y = 0; y < FontHeight; y++) {
+			for(x = 0; x < FontWidth; x++) {
+				r.x	 = sx + x * FontScale;
+				r.y	 = sy + y * FontScale;
+				r.width	 = FontScale;
+				r.height = FontScale;
 
-				if(MwFontData[(unsigned char)text[i]].data[y] & (1 << ((fw - 1) - x))) {
+				if(MwFontData[(unsigned char)text[i]].data[y] & (1 << ((FontWidth - 1) - x))) {
 					MwDrawRect(handle, &r, color);
 				}
 			}
 		}
-		sx += fw * sc;
+		sx += FontWidth * FontScale;
 	}
+}
+
+int MwTextWidth(MwWidget handle, const char* text) {
+	(void)handle;
+
+	return strlen(text) * FontWidth * FontScale;
+}
+
+int MwTextHeight(MwWidget handle, const char* text) {
+	(void)handle;
+	(void)text;
+
+	return FontHeight * FontScale;
 }
 
 MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {

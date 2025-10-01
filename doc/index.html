@@ -113,6 +113,12 @@
 <dd>
 	<a href="#Mw_Draw_h__MwLoadImage">MwLoadImage</a>
 </dd>
+<dd>
+	<a href="#Mw_Draw_h__MwTextWidth">MwTextWidth</a>
+</dd>
+<dd>
+	<a href="#Mw_Draw_h__MwTextHeight">MwTextHeight</a>
+</dd>
 <dt>
 	<a href="#Mw_Error_h">Mw/Error.h</a>
 </dt>
@@ -144,6 +150,12 @@
 	<a href="#Mw_MachDep_h">Mw/MachDep.h</a>
 </dt>
 <dt>
+	<a href="#Mw_Menu_h">Mw/Menu.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Menu_h__MwMenuClass">MwMenuClass</a>
+</dd>
+<dt>
 	<a href="#Mw_Milsko_h">Mw/Milsko.h</a>
 </dt>
 <dt>
@@ -154,6 +166,9 @@
 </dd>
 <dd>
 	<a href="#Mw_OpenGL_h__MwOpenGLMakeCurrent">MwOpenGLMakeCurrent</a>
+</dd>
+<dd>
+	<a href="#Mw_OpenGL_h__MwOpenGLGetProcAddress">MwOpenGLGetProcAddress</a>
 </dd>
 <dd>
 	<a href="#Mw_OpenGL_h__MwOpenGLSwapBuffer">MwOpenGLSwapBuffer</a>
@@ -1109,6 +1124,62 @@
 </dd>
 </dl>
 <hr>
+<pre id="Mw_Draw_h__MwTextWidth"><code>MWDECL int MwTextWidth (
+	MwWidget handle,
+	const char* text
+);</code></pre>
+<dl>
+<dd>
+	Calculates a text width.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>text</code>
+</dt>
+<dd>
+	Text.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Text width.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwTextHeight"><code>MWDECL int MwTextHeight (
+	MwWidget handle,
+	const char* text
+);</code></pre>
+<dl>
+<dd>
+	Calculates a text height.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>text</code>
+</dt>
+<dd>
+	Text.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Text height.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_Error_h">Mw/Error.h</h2>
 <dl>
 <dt>
@@ -1185,6 +1256,26 @@
 </dl>
 <hr>
 <h2 align="center" id="Mw_MachDep_h">Mw/MachDep.h</h2>
+<dl>
+<dt>
+	Machine dependent headers and macros.
+</dt>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Menu_h">Mw/Menu.h</h2>
+<dl>
+<dt>
+	Menu widget.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Menu_h__MwMenuClass"><code>MWDECL MwClass MwMenuClass;</code></pre>
+<dl>
+<dd>
+	Menu widget class.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_Milsko_h">Mw/Milsko.h</h2>
 <dl>
 <dt>
@@ -1218,6 +1309,34 @@
 </dt>
 <dd>
 	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_OpenGL_h__MwOpenGLGetProcAddress"><code>MWDECL void* MwOpenGLGetProcAddress (
+	MwWidget handle,
+	const char* name
+);</code></pre>
+<dl>
+<dd>
+	Get a procedure from OpenGL.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>name</code>
+</dt>
+<dd>
+	Name.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Procedure.
 </dd>
 </dl>
 <hr>
