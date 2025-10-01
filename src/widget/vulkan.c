@@ -99,6 +99,8 @@ static void create(MwWidget handle) {
 		return;
 	}
 
+	handle->lowlevel->copy_buffer = 0;
+
 	handle->internal = o;
 	MwSetDefault(handle);
 }
