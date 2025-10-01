@@ -19,7 +19,9 @@
 #include <vulkan/vulkan_xlib.h>
 #endif
 
+#ifndef _WIN32
 #include <dlfcn.h>
+#endif
 #include <stdbool.h>
 
 #include "stb_ds.h"
