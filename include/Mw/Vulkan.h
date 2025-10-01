@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * %file KMw/Vulkan.h
+ * %file Mw/Vulkan.h
  * %brief Vulkan widget
  * %warning This header is not documented yet
  */
