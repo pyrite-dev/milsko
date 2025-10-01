@@ -34,7 +34,8 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 		r->display = parent->display;
 		p	   = parent->window;
 	}
-	r->window = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, XDefaultScreen(r->display)));
+	r->window      = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, XDefaultScreen(r->display)));
+	r->copy_buffer = 1;
 
 	r->width  = width;
 	r->height = height;
@@ -168,7 +169,7 @@ void MwLLNextEvent(MwLL handle) {
 			MwLLGetXYWH(handle, &x, &y, &w, &h);
 
 			MwLLDispatch(handle, draw);
-			XCopyArea(handle->display, handle->pixmap, handle->window, handle->gc, 0, 0, w, h, 0, 0);
+			if(handle->copy_buffer) XCopyArea(handle->display, handle->pixmap, handle->window, handle->gc, 0, 0, w, h, 0, 0);
 		}
 	}
 }
