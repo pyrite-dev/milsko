@@ -1,13 +1,8 @@
 /* $Id$ */
-#include "Mw/Error.h"
 #include <Mw/Milsko.h>
 #include <Mw/Vulkan.h>
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "../error_internal.h"
-#include "Mw/TypeDefs.h"
 
 /**
  * ioixd maintains this file. nishi doesn't know vulkan at all
@@ -23,7 +18,6 @@
 #include <vulkan/vulkan_core.h>
 
 #ifdef __linux__
-#include <dlfcn.h>
 #include <vulkan/vulkan_xlib.h>
 #endif
 
