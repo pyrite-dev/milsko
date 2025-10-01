@@ -27,7 +27,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 			ReleaseDC(hWnd, dc);
 
 			u->ll->hDC = hbdc;
-			MwLLDispatch(u->ll, draw);
+			MwLLDispatch(u->ll, draw, NULL);
 
 			dc = BeginPaint(hWnd, &ps);
 			StretchBlt(dc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, hbdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SRCCOPY);
@@ -37,25 +37,33 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 			DeleteObject(hbmp);
 		} else {
 			u->ll->hDC = BeginPaint(hWnd, &ps);
-			MwLLDispatch(u->ll, draw);
+			MwLLDispatch(u->ll, draw, NULL);
 			EndPaint(hWnd, &ps);
 		}
 	} else if(msg == WM_LBUTTONDOWN) {
+		MwPoint p;
+		p.x = LOWORD(lp);
+		p.y = HIWORD(lp);
+
 		SetCapture(hWnd);
-		MwLLDispatch(u->ll, down);
+		MwLLDispatch(u->ll, down, &p);
 		InvalidateRect(hWnd, NULL, FALSE);
 	} else if(msg == WM_LBUTTONUP) {
+		MwPoint p;
+		p.x = LOWORD(lp);
+		p.y = HIWORD(lp);
+
 		SetCapture(NULL);
-		MwLLDispatch(u->ll, up);
+		MwLLDispatch(u->ll, up, &p);
 		InvalidateRect(hWnd, NULL, FALSE);
 	} else if(msg == WM_SIZE) {
-		MwLLDispatch(u->ll, resize);
+		MwLLDispatch(u->ll, resize, NULL);
 	} else if(msg == WM_ERASEBKGND) {
 		return 1;
 	} else if(msg == WM_NCHITTEST) {
 		return HTCLIENT;
 	} else if(msg == WM_DESTROY) {
-		MwLLDispatch(u->ll, close);
+		MwLLDispatch(u->ll, close, NULL);
 		PostQuitMessage(0);
 	} else if(msg == WM_CLOSE) {
 		DestroyWindow(hWnd);

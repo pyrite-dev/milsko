@@ -72,6 +72,7 @@ struct _MwWidget {
 	MwClass	  widget_class;
 
 	int	pressed;
+	MwPoint pressed_point;
 	int	close;
 	jmp_buf before_step;
 
