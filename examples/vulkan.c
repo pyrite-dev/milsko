@@ -387,7 +387,7 @@ void vulkan_setup(MwWidget handle) {
 	vertBuf = malloc(vertFileSize);
 	memset(vertBuf, 0, vertFileSize);
 	amountRead = fread(vertBuf, 1, vertFileSize, vertFile);
-	printf("triangle.vert.spv: read %ld bytes\n", amountRead);
+	printf("triangle.vert.spv: read %zu bytes\n", amountRead);
 
 	vertInfo.sType	  = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	vertInfo.pNext	  = NULL;
@@ -407,7 +407,7 @@ void vulkan_setup(MwWidget handle) {
 	fragBuf = malloc(fragFileSize);
 	memset(fragBuf, 0, fragFileSize);
 	amountRead = fread(fragBuf, 1, fragFileSize, fragFile);
-	printf("triangle.frag.spv: read %ld bytes\n", amountRead);
+	printf("triangle.frag.spv: read %zu bytes\n", amountRead);
 
 	fragInfo.sType	  = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	fragInfo.pNext	  = NULL;
