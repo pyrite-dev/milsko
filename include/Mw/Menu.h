@@ -18,6 +18,15 @@ extern "C" {
  */
 MWDECL MwClass MwMenuClass;
 
+/*!
+ * %brief Adds a menu
+ * %param handle Widget
+ * %param menu Menu
+ * %param name Menu name
+ * %return Menu
+ */
+MWDECL void* MwMenuAdd(MwWidget handle, void* menu, const char* name);
+
 #ifdef __cplusplus
 }
 #endif

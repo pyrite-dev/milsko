@@ -63,6 +63,7 @@ MwClassRec MwButtonClassRec = {
     create, /* create */
     NULL,   /* destroy */
     draw,   /* draw */
-    click   /* click */
+    click,  /* click */
+    NULL    /* parent_resize */
 };
 MwClass MwButtonClass = &MwButtonClassRec;

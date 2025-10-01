@@ -89,6 +89,7 @@ struct _MwClass {
 	MwHandler destroy;
 	MwHandler draw;
 	MwHandler click;
+	MwHandler parent_resize;
 };
 
 struct _MwFont {
