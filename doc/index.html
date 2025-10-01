@@ -48,10 +48,16 @@
 	<a href="#Mw_Core_h__MwSetText">MwSetText</a>
 </dd>
 <dd>
+	<a href="#Mw_Core_h__MwSetVoid">MwSetVoid</a>
+</dd>
+<dd>
 	<a href="#Mw_Core_h__MwGetInteger">MwGetInteger</a>
 </dd>
 <dd>
 	<a href="#Mw_Core_h__MwGetText">MwGetText</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwGetVoid">MwGetVoid</a>
 </dd>
 <dd>
 	<a href="#Mw_Core_h__MwSetDefault">MwSetDefault</a>
@@ -103,6 +109,9 @@
 </dd>
 <dd>
 	<a href="#Mw_Draw_h__MwDrawText">MwDrawText</a>
+</dd>
+<dd>
+	<a href="#Mw_Draw_h__MwLoadImage">MwLoadImage</a>
 </dd>
 <dt>
 	<a href="#Mw_Error_h">Mw/Error.h</a>
@@ -539,6 +548,35 @@
 </dd>
 </dl>
 <hr>
+<pre id="Mw_Core_h__MwSetVoid"><code>MWDECL void MwSetVoid (
+	MwWidget handle,
+	const char* key,
+	void* value
+);</code></pre>
+<dl>
+<dd>
+	Sets a void pointer property.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>key</code>
+</dt>
+<dd>
+	Key.
+</dd>
+<dt>
+	Parameter <code>value</code>
+</dt>
+<dd>
+	Value.
+</dd>
+</dl>
+<hr>
 <pre id="Mw_Core_h__MwGetInteger"><code>MWDECL int MwGetInteger (
 	MwWidget handle,
 	const char* key
@@ -574,6 +612,34 @@
 <dl>
 <dd>
 	Gets the text property.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>key</code>
+</dt>
+<dd>
+	Key.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Value.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwGetVoid"><code>MWDECL void* MwGetVoid (
+	MwWidget handle,
+	const char* key
+);</code></pre>
+<dl>
+<dd>
+	Gets the void pointer property.
 </dd>
 <dt>
 	Parameter <code>handle</code>
@@ -775,8 +841,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwGetBeforeStep"><code>MWDECL jmp_buf MwGetBeforeStep (
-	MwWidget handle
+<pre id="Mw_Core_h__MwGetBeforeStep"><code>MWDECL void MwGetBeforeStep (
+	MwWidget handle,
+	jmp_buf* jmpbuf
 );</code></pre>
 <dl>
 <dd>
@@ -789,7 +856,7 @@
 	Widget.
 </dd>
 <dt>
-	Returns
+	Parameter <code>jmpbuf</code>
 </dt>
 <dd>
 	jmp_buf.
@@ -1005,6 +1072,34 @@
 </dt>
 <dd>
 	Color.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwLoadImage"><code>MWDECL MwLLPixmap MwLoadImage (
+	MwWidget handle,
+	const char* path
+);</code></pre>
+<dl>
+<dd>
+	Creates a pixmap from image.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>path</code>
+</dt>
+<dd>
+	Path.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Pixmap.
 </dd>
 </dl>
 <hr>
