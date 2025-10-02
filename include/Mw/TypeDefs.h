@@ -91,6 +91,7 @@ struct _MwMenu {
 	int	 keep;
 	MwWidget wsub;
 	MwMenu*	 sub;
+	int	 wait;
 };
 #endif
 
