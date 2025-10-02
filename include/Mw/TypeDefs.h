@@ -74,7 +74,7 @@ struct _MwWidget {
 	MwClass	  widget_class;
 
 	int	pressed;
-	MwPoint pressed_point;
+	MwPoint mouse_point;
 	int	close;
 	jmp_buf before_step;
 
@@ -88,6 +88,7 @@ struct _MwWidget {
 
 struct _MwMenu {
 	char*	 name;
+	int	 keep;
 	MwWidget wsub;
 	MwMenu*	 sub;
 };

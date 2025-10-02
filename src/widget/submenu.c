@@ -101,6 +101,7 @@ void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 	XChangeProperty(handle->lowlevel->display, handle->lowlevel->window, wndtype, 4, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
 
 	XMapWindow(handle->lowlevel->display, handle->lowlevel->window);
+	XSetInputFocus(handle->lowlevel->display, handle->lowlevel->window, RevertToNone, CurrentTime);
 #endif
 
 	handle->internal = menu;
