@@ -32,7 +32,7 @@ E_LIBS = $(LIBS) -lMw
 
 L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o src/error.o
 L_OBJS += src/external/ds.o src/external/image.o
-L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o
+L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o
 
 ifeq ($(TARGET),NetBSD)
 CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include

@@ -18,6 +18,7 @@
 
 #include <Mw/Window.h>
 #include <Mw/Menu.h>
+#include <Mw/SubMenu.h>
 #include <Mw/Button.h>
 #include <Mw/Frame.h>
 
