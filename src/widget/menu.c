@@ -79,6 +79,7 @@ static void draw(MwWidget handle) {
 		int tw	 = MwTextWidth(handle, m->sub[i]->name + incr);
 		int th	 = MwTextHeight(handle, m->sub[i]->name + incr);
 		int oldx = p.x;
+		int in_area;
 
 		if(incr) {
 			p.x = MwGetInteger(handle, MwNwidth) - tw - 10;
@@ -90,7 +91,8 @@ static void draw(MwWidget handle) {
 		r.width	 = tw + 10;
 		r.height = th + 10;
 
-		if(handle->pressed && r.x <= handle->pressed_point.x && r.y <= handle->pressed_point.y && handle->pressed_point.x <= (int)(r.x + r.width) && handle->pressed_point.y <= (int)(r.y + r.height)) {
+		in_area = (r.x <= handle->mouse_point.x && r.y <= handle->mouse_point.y && handle->mouse_point.x <= (int)(r.x + r.width) && handle->mouse_point.y <= (int)(r.y + r.height)) ? 1 : 0;
+		if(handle->pressed && in_area) {
 			MwDrawFrame(handle, &r, base, 0);
 			if(m->sub[i]->wsub == NULL && arrlen(m->sub[i]->sub) > 0) {
 				MwPoint p2;
@@ -100,10 +102,24 @@ static void draw(MwWidget handle) {
 
 				m->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
 				MwSubMenuAppear(m->sub[i]->wsub, m->sub[i], &p2);
+			} else if(m->sub[i]->keep) {
+				MwDestroyWidget(m->sub[i]->wsub);
+				m->sub[i]->wsub = NULL;
+				m->sub[i]->keep = 0;
 			}
 		} else if(!handle->pressed && m->sub[i]->wsub != NULL) {
+			if(in_area) {
+				MwDrawFrame(handle, &r, base, 0);
+				m->sub[i]->keep = 1;
+			} else {
+				MwDestroyWidget(m->sub[i]->wsub);
+				m->sub[i]->wsub = NULL;
+				m->sub[i]->keep = 0;
+			}
+		} else if(m->sub[i]->keep && m->sub[i]->wsub != NULL) {
 			MwDestroyWidget(m->sub[i]->wsub);
 			m->sub[i]->wsub = NULL;
+			m->sub[i]->keep = 0;
 		}
 
 		MwDrawText(handle, &p, m->sub[i]->name + incr, 1, text);
@@ -135,6 +151,7 @@ MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
 	new->name  = malloc(strlen(name) + 1);
 	new->sub   = NULL;
 	new->wsub  = NULL;
+	new->keep  = 0;
 
 	strcpy(new->name, name);
 

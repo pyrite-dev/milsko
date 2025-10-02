@@ -22,11 +22,11 @@ static void lluphandler(MwLL handle, void* data) {
 }
 
 static void lldownhandler(MwLL handle, void* data) {
-	MwWidget h	   = (MwWidget)handle->user;
-	MwPoint* p	   = data;
-	h->pressed	   = 1;
-	h->pressed_point.x = p->x;
-	h->pressed_point.y = p->y;
+	MwWidget h	 = (MwWidget)handle->user;
+	MwPoint* p	 = data;
+	h->pressed	 = 1;
+	h->mouse_point.x = p->x;
+	h->mouse_point.y = p->y;
 }
 
 static void llresizehandler(MwLL handle, void* data) {
@@ -47,6 +47,13 @@ static void llclosehandler(MwLL handle, void* data) {
 	(void)data;
 
 	h->close = 1;
+}
+
+static void llmovehandler(MwLL handle, void* data) {
+	MwWidget h	 = (MwWidget)handle->user;
+	MwPoint* p	 = data;
+	h->mouse_point.x = p->x;
+	h->mouse_point.y = p->y;
 }
 
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
@@ -72,6 +79,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->lowlevel->handler->down   = lldownhandler;
 	h->lowlevel->handler->resize = llresizehandler;
 	h->lowlevel->handler->close  = llclosehandler;
+	h->lowlevel->handler->move   = llmovehandler;
 
 	if(parent != NULL) arrput(parent->children, h);
 

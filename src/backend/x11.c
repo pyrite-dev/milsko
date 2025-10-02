@@ -1,7 +1,7 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask;
+static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask;
 
 static void create_pixmap(MwLL handle) {
 	XWindowAttributes attr;
@@ -175,6 +175,12 @@ void MwLLNextEvent(MwLL handle) {
 			if(ev.xclient.data.l[0] == (long)handle->wm_delete) {
 				MwLLDispatch(handle, close, NULL);
 			}
+		} else if(ev.type == MotionNotify) {
+			MwPoint p;
+			p.x = ev.xmotion.x;
+			p.y = ev.xmotion.y;
+
+			MwLLDispatch(handle, move, &p);
 		}
 		if(render) {
 			int	     x, y;

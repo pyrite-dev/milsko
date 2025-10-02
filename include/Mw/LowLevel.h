@@ -39,6 +39,7 @@ struct _MwLLHandler {
 	void (*down)(MwLL handle, void* data);
 	void (*resize)(MwLL handle, void* data);
 	void (*close)(MwLL handle, void* data);
+	void (*move)(MwLL handle, void* data);
 };
 
 #ifdef __cplusplus
