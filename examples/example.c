@@ -46,6 +46,8 @@ void resize(MwWidget handle, void* user_data, void* call_data) {
 }
 
 int main() {
+	MwMenu m;
+
 	window	= MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 400,
 				   MwNtitle, "hello world",
 				   NULL);
@@ -72,12 +74,12 @@ int main() {
 	MwAddUserHandler(button3, MwNactivateHandler, handler, NULL);
 	MwAddUserHandler(button4, MwNactivateHandler, handler, NULL);
 
-	MwMenuAdd(menu, NULL, "test 1");
-	MwMenuAdd(menu, NULL, "test 2");
-	MwMenuAdd(menu, NULL, "test 3");
-	MwMenuAdd(menu, NULL, "test 4");
+	m = MwMenuAdd(menu, NULL, "test 1");
+	MwMenuAdd(menu, m, "test 2");
+	m = MwMenuAdd(menu, m, "test 3");
+	MwMenuAdd(menu, m, "test 4");
+	MwMenuAdd(menu, m, "test 6");
 	MwMenuAdd(menu, NULL, "?test 5");
-	MwMenuAdd(menu, NULL, "test 6");
 
 	MwLoop(window);
 }

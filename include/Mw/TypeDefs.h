@@ -18,8 +18,10 @@ typedef struct _MwVoidKeyValue	      MwVoidKeyValue;
 typedef struct _MwFont		      MwFont;
 #ifdef _MILSKO
 typedef struct _MwWidget *MwWidget, MwWidgetRec;
+typedef struct _MwMenu *  MwMenu, MwMenuRec;
 #else
 typedef void* MwWidget;
+typedef void* MwMenu;
 #endif
 typedef void (*MwHandler)(MwWidget handle);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
@@ -82,6 +84,12 @@ struct _MwWidget {
 	MwTextKeyValue*	       text;
 	MwUserHandlerKeyValue* handler;
 	MwVoidKeyValue*	       data;
+};
+
+struct _MwMenu {
+	char*	 name;
+	MwWidget wsub;
+	MwMenu*	 sub;
 };
 #endif
 

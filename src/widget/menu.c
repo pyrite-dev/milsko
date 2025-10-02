@@ -3,17 +3,10 @@
 
 #include "../external/stb_ds.h"
 
-typedef struct menu menu_t;
-
-struct menu {
-	char*	 name;
-	menu_t** sub;
-};
-
 static void set_xywh(MwWidget handle) {
-	int	height = 0;
-	int	i;
-	menu_t* m = handle->internal;
+	int    height = 0;
+	int    i;
+	MwMenu m = handle->internal;
 
 	for(i = 0; i < arrlen(m->sub); i++) {
 		int h = MwTextHeight(handle, m->sub[i]->name);
@@ -33,9 +26,10 @@ static void set_xywh(MwWidget handle) {
 }
 
 static void create(MwWidget handle) {
-	menu_t* m = malloc(sizeof(*m));
+	MwMenu m = malloc(sizeof(*m));
 
 	m->name		 = NULL;
+	m->wsub		 = NULL;
 	m->sub		 = NULL;
 	handle->internal = m;
 
@@ -44,7 +38,7 @@ static void create(MwWidget handle) {
 	set_xywh(handle);
 }
 
-static void recursive_free(menu_t* m) {
+static void recursive_free(MwMenu m) {
 	int i;
 
 	for(i = 0; i < arrlen(m->sub); i++) {
@@ -57,7 +51,7 @@ static void recursive_free(menu_t* m) {
 }
 
 static void destroy(MwWidget handle) {
-	menu_t* m = handle->internal;
+	MwMenu m = handle->internal;
 
 	recursive_free(m);
 }
@@ -67,7 +61,7 @@ static void draw(MwWidget handle) {
 	MwPoint	  p;
 	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwLLColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	menu_t*	  m    = handle->internal;
+	MwMenu	  m    = handle->internal;
 	int	  i;
 
 	p.x = 10;
@@ -98,6 +92,18 @@ static void draw(MwWidget handle) {
 
 		if(handle->pressed && r.x <= handle->pressed_point.x && r.y <= handle->pressed_point.y && handle->pressed_point.x <= (int)(r.x + r.width) && handle->pressed_point.y <= (int)(r.y + r.height)) {
 			MwDrawFrame(handle, &r, base, 0);
+			if(m->sub[i]->wsub == NULL && arrlen(m->sub[i]->sub) > 0) {
+				MwPoint p2;
+
+				p2.x = p.x - tw / 2 - 5;
+				p2.y = p.y + th / 2 + 5;
+
+				m->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
+				MwSubMenuAppear(m->sub[i]->wsub, m->sub[i], &p2);
+			}
+		} else if(!handle->pressed && m->sub[i]->wsub != NULL) {
+			MwDestroyWidget(m->sub[i]->wsub);
+			m->sub[i]->wsub = NULL;
 		}
 
 		MwDrawText(handle, &p, m->sub[i]->name + incr, 1, text);
@@ -123,11 +129,12 @@ MwClassRec MwMenuClassRec = {
 };
 MwClass MwMenuClass = &MwMenuClassRec;
 
-void* MwMenuAdd(MwWidget handle, void* menu, const char* name) {
-	menu_t* m   = menu == NULL ? handle->internal : menu;
-	menu_t* new = malloc(sizeof(*new));
-	new->name   = malloc(strlen(name) + 1);
-	new->sub    = NULL;
+MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
+	MwMenu m   = menu == NULL ? handle->internal : menu;
+	MwMenu new = malloc(sizeof(*new));
+	new->name  = malloc(strlen(name) + 1);
+	new->sub   = NULL;
+	new->wsub  = NULL;
 
 	strcpy(new->name, name);
 

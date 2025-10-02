@@ -25,7 +25,7 @@ MWDECL MwClass MwMenuClass;
  * %param name Menu name
  * %return Menu
  */
-MWDECL void* MwMenuAdd(MwWidget handle, void* menu, const char* name);
+MWDECL MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name);
 
 #ifdef __cplusplus
 }

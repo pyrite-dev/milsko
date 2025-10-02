@@ -55,9 +55,13 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->name = malloc(strlen(name) + 1);
 	strcpy(h->name, name);
 
-	h->parent	= parent;
-	h->children	= NULL;
-	h->lowlevel	= MwLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height);
+	h->parent   = parent;
+	h->children = NULL;
+	if((h->lowlevel = MwLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height)) == NULL) {
+		free(h->name);
+		free(h);
+		return NULL;
+	}
 	h->widget_class = widget_class;
 	h->pressed	= 0;
 	h->close	= 0;
@@ -115,10 +119,8 @@ void MwDestroyWidget(MwWidget handle) {
 
 	if(handle->children != NULL) {
 		for(i = 0; i < arrlen(handle->children); i++) {
-			if(handle->children[i] == handle) {
-				MwDestroyWidget(handle->children[i]);
-				break;
-			}
+			MwDestroyWidget(handle->children[i]);
+			break;
 		}
 		arrfree(handle->children);
 	}
