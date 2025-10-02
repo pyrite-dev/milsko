@@ -72,11 +72,22 @@ static void draw(MwWidget handle) {
 	MwLLFreeColor(base);
 }
 
+static void click(MwWidget handle) {
+	MwWidget w = handle;
+	jmp_buf	 jmp;
+	while(w->parent->widget_class != MwMenuClass) w = w->parent;
+	MwGetBeforeStep(w, &jmp);
+
+	MwDestroyWidget(w);
+
+	longjmp(jmp, 1);
+}
+
 MwClassRec MwSubMenuClassRec = {
     create,  /* create */
     destroy, /* destroy */
     draw,    /* draw */
-    NULL,    /* click */
+    click,   /* click */
     NULL     /* parent_resize */
 };
 MwClass MwSubMenuClass = &MwSubMenuClassRec;
