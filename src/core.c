@@ -13,10 +13,13 @@ static void lldrawhandler(MwLL handle, void* data) {
 
 static void lluphandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->user;
+	MwPoint* p = data;
 
 	(void)data;
 
-	h->pressed = 0;
+	h->pressed	 = 0;
+	h->mouse_point.x = p->x;
+	h->mouse_point.y = p->y;
 
 	MwDispatch(h, click);
 }
