@@ -53,15 +53,6 @@ static void draw(MwWidget handle) {
 
 			p.x = 5 + tw / 2;
 
-			if(menu->sub[i]->wsub == NULL && arrlen(menu->sub[i]->sub) > 0) {
-				MwPoint p2 = p;
-				p2.x += tw / 2 + 5;
-				p2.y -= 5;
-
-				menu->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
-				MwSubMenuAppear(menu->sub[i]->wsub, menu->sub[i], &p2);
-			}
-
 			p.y += th / 2;
 			MwDrawText(handle, &p, menu->sub[i]->name, 1, text);
 			p.y += th / 2;
@@ -75,12 +66,46 @@ static void draw(MwWidget handle) {
 static void click(MwWidget handle) {
 	MwWidget w = handle;
 	jmp_buf	 jmp;
-	while(w->parent->widget_class != MwMenuClass) w = w->parent;
-	MwGetBeforeStep(w, &jmp);
+	MwMenu	 menu = handle->internal;
 
-	MwDestroyWidget(w);
+	if(arrlen(menu->sub) > 0) {
+		int    w = 0, i;
+		MwRect rc;
 
-	longjmp(jmp, 1);
+		rc.x = 5;
+		rc.y = 5;
+		for(i = 0; i < arrlen(menu->sub); i++) {
+			int tw = MwTextWidth(handle, menu->sub[i]->name);
+			if(tw > w) w = tw;
+		}
+
+		rc.width = w;
+		for(i = 0; i < arrlen(menu->sub); i++) {
+			int th	  = MwTextHeight(handle, menu->sub[i]->name);
+			rc.height = th;
+
+			if(handle->mouse_point.x <= rc.x && handle->mouse_point.y <= rc.y && handle->mouse_point.x <= (int)(rc.x + rc.width) && handle->mouse_point.y <= (int)(rc.y + rc.height)) {
+				if(menu->sub[i]->wsub == NULL) {
+					MwPoint p;
+
+					p.x = rc.x + rc.width + 5;
+					p.y = rc.y;
+
+					menu->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
+					MwSubMenuAppear(menu->sub[i]->wsub, menu->sub[i], &p);
+				}
+			}
+
+			rc.y += rc.height;
+		}
+	} else {
+		while(w->parent->widget_class != MwMenuClass) w = w->parent;
+		MwGetBeforeStep(w, &jmp);
+
+		MwDestroyWidget(w);
+
+		longjmp(jmp, 1);
+	}
 }
 
 MwClassRec MwSubMenuClassRec = {
