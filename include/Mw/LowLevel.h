@@ -74,6 +74,8 @@ MWDECL void	  MwLLDestroyPixmap(MwLLPixmap pixmap);
 MWDECL void	  MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap);
 MWDECL void	  MwLLSetIcon(MwLL handle, MwLLPixmap pixmap);
 
+MWDECL void MwLLForceRender(MwLL handle);
+
 #ifdef __cplusplus
 }
 #endif

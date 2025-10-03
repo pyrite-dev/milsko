@@ -109,6 +109,8 @@ static void draw(MwWidget handle) {
 				m->sub[i]->wsub = NULL;
 				m->sub[i]->keep = 0;
 				m->wait		= 1;
+			}else if(arrlen(m->sub[i]->sub) == 0){
+				MwDispatchUserHandler(handle, MwNmenuHandler, m->sub[i]);
 			}
 		} else if(!handle->pressed && m->sub[i]->wsub != NULL) {
 			if(in_area) {
