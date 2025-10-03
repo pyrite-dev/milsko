@@ -1,8 +1,8 @@
 #!/bin/sh
 # $Id$
 
-rm -rf ../milsko-linux
-rm -rf ../milsko-win32
-rm -rf ../milsko-win64
-
-mkdir -p ../milsko-linux ../milsko-win32 ../milsko-win64
+for i in linux win32 win64; do
+	rm -rf ../milsko-$i
+	cp -rf . ../milsko-$i
+	rm -rf ../milsko-$i/.svn
+done
