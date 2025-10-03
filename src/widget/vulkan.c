@@ -26,7 +26,7 @@
 #include <vulkan/vulkan_win32.h>
 #endif
 
-#ifndef HAS_VK_ENUM_STRING_HELPER
+#ifdef HAS_VK_ENUM_STRING_HELPER
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
@@ -53,7 +53,7 @@ MwVulkanConfig vulkan_config = {
 #endif
 
 // convienence macro for handling vulkan errors
-#ifndef HAS_VK_ENUM_STRING_HELPER
+#ifdef HAS_VK_ENUM_STRING_HELPER
 #define VK_CMD(func) \
 	vk_res = func; \
 	if(vk_res != VK_SUCCESS) { \
