@@ -12,7 +12,17 @@
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
+#ifdef HAS_VK_ENUM_STRING_HELPER
 #include <vulkan/vk_enum_string_helper.h>
+#else
+char buffer[512];
+
+char* string_VkResult(VkResult res) {
+	sprintf(buffer, "%d", res);
+
+	return &buffer[0];
+}
+#endif
 
 MwWidget window, vulkan;
 int	 ow = 300;

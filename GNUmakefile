@@ -22,6 +22,8 @@ else
 VK_STRING_HELPER_DEFINE = -DHAS_VK_ENUM_STRING_HELPER
 endif
 
+CFLAGS += $(VK_STRING_HELPER_DEFINE)
+
 L_CFLAGS = $(CFLAGS) -fPIC -D_MILSKO
 L_LDFLAGS = $(LDFLAGS)
 L_LIBS = $(LIBS)
@@ -50,7 +52,7 @@ $(error Add your platform definition)
 endif
 
 ifeq ($(UNIX),1)
-L_CFLAGS += -DUSE_X11 $(VK_STRING_HELPER_DEFINE)
+L_CFLAGS += -DUSE_X11
 L_OBJS += src/backend/x11.o
 L_LIBS += -lX11 -lXrender -lXext
 
@@ -63,7 +65,7 @@ EXEC =
 
 OPENGL = 1
 else ifeq ($(WINDOWS),1)
-L_CFLAGS += -DUSE_GDI $(VK_STRING_HELPER_DEFINE)
+L_CFLAGS += -DUSE_GDI
 L_LDFLAGS += -Wl,--out-implib,src/libMw.lib -static-libgcc
 L_OBJS += src/backend/gdi.o
 L_LIBS += -lgdi32
