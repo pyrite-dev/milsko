@@ -199,11 +199,11 @@ void vulkan_setup(MwWidget handle) {
 	uint32_t		i;
 	VkViewport		viewport = {};
 	VkRect2D		scissor	 = {};
-	VkCommandPool		cmdPool	 = {};
+	VkCommandPool		cmdPool	 = VK_NULL_HANDLE;
 	VkResult		res	 = 0;
 	VkShaderModule		fragShaderModule;
 	VkShaderModule		vertShaderModule;
-	VkPipelineLayout	pipelineLayout	   = {};
+	VkPipelineLayout	pipelineLayout	   = VK_NULL_HANDLE;
 	VkAttachmentDescription colorAttachment	   = {};
 	VkAttachmentReference	colorAttachmentRef = {};
 	VkSubpassDescription	subpass		   = {};
