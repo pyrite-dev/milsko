@@ -309,3 +309,7 @@ void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 
 	DestroyIcon(ico);
 }
+
+void MwLLForceRender(MwLL handle){
+	InvalidateRect(handle->hWnd, NULL, FALSE);
+}

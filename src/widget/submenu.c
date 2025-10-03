@@ -51,11 +51,37 @@ static void draw(MwWidget handle) {
 			int tw = MwTextWidth(handle, menu->sub[i]->name);
 			int th = MwTextHeight(handle, menu->sub[i]->name);
 
+			if(menu->sub[i]->wsub != NULL){
+				r.x = 0;
+				r.y = p.y - 3;
+				r.width = tw + 15 + 5 * 2;
+				r.height = th + 3 * 2;
+				MwDrawFrame(handle, &r, base, 0);
+			}
+
 			p.x = 5 + tw / 2;
 
 			p.y += th / 2;
 			MwDrawText(handle, &p, menu->sub[i]->name, 1, text);
-			p.y += th / 2;
+
+			if(arrlen(menu->sub[i]->sub) > 0){
+				MwPoint pl[3];
+
+				p.x = 5 + tw + 10;
+
+				pl[0].x = p.x - 5;
+				pl[0].y = p.y - th / 2;
+
+				pl[1].x = p.x - 5;
+				pl[1].y = p.y + th / 2;
+
+				pl[2].x = p.x + 5;
+				pl[2].y = p.y;
+
+				MwLLPolygon(handle->lowlevel, pl, 3, text);
+			}
+
+			p.y += th / 2 + 5;
 		}
 	}
 
@@ -69,42 +95,55 @@ static void click(MwWidget handle) {
 	MwMenu	 menu = handle->internal;
 
 	if(arrlen(menu->sub) > 0) {
-		int    w = 0, i;
+		int    ww = 0, i;
 		MwRect rc;
 
 		rc.x = 5;
 		rc.y = 5;
 		for(i = 0; i < arrlen(menu->sub); i++) {
 			int tw = MwTextWidth(handle, menu->sub[i]->name);
-			if(tw > w) w = tw;
+			if(tw > ww) ww = tw;
 		}
 
-		rc.width = w;
+		rc.width = ww + 15;
 		for(i = 0; i < arrlen(menu->sub); i++) {
 			int th	  = MwTextHeight(handle, menu->sub[i]->name);
 			rc.height = th;
 
-			if(handle->mouse_point.x <= rc.x && handle->mouse_point.y <= rc.y && handle->mouse_point.x <= (int)(rc.x + rc.width) && handle->mouse_point.y <= (int)(rc.y + rc.height)) {
-				if(menu->sub[i]->wsub == NULL) {
+			if(rc.x <= handle->mouse_point.x && rc.y <= handle->mouse_point.y && handle->mouse_point.x <= (int)(rc.x + rc.width) && handle->mouse_point.y <= (int)(rc.y + rc.height)) {
+				if(menu->sub[i]->wsub == NULL && arrlen(menu->sub[i]->sub) > 0) {
 					MwPoint p;
+					int j;
+
+					for(j = 0; j < arrlen(menu->sub); j++){
+						if(menu->sub[j]->wsub != NULL) MwDestroyWidget(menu->sub[j]->wsub);
+						menu->sub[j]->wsub = NULL;
+					}
 
 					p.x = rc.x + rc.width + 5;
-					p.y = rc.y;
+					p.y = rc.y - 5;
 
 					menu->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
 					MwSubMenuAppear(menu->sub[i]->wsub, menu->sub[i], &p);
+					i = -1;
+				}else if(arrlen(menu->sub[i]->sub) == 0){
+					while(w->parent->widget_class != MwMenuClass) w = w->parent;
+					MwGetBeforeStep(w, &jmp);
+			
+					MwDestroyWidget(w);
+
+					MwLLForceRender(w->parent->lowlevel);
+
+					MwDispatchUserHandler(w->parent, MwNmenuHandler, menu->sub[i]);
+			
+					longjmp(jmp, 1);
+
+					break;
 				}
 			}
 
-			rc.y += rc.height;
+			rc.y += rc.height + 5;
 		}
-	} else {
-		while(w->parent->widget_class != MwMenuClass) w = w->parent;
-		MwGetBeforeStep(w, &jmp);
-
-		MwDestroyWidget(w);
-
-		longjmp(jmp, 1);
 	}
 }
 
@@ -144,14 +183,14 @@ void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 
 	for(i = 0; i < arrlen(menu->sub); i++) {
 		int tw = MwTextWidth(handle, menu->sub[i]->name);
-		h += MwTextHeight(handle, menu->sub[i]->name);
+		h += MwTextHeight(handle, menu->sub[i]->name) + 5;
 		if(tw > w) {
 			w = tw;
 		}
 	}
 
-	w += 10;
-	h += 10;
+	w += 10 + 15;
+	h += 5;
 
 	MwVaApply(handle,
 		  MwNwidth, w,
