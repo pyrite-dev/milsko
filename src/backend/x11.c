@@ -328,11 +328,11 @@ void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 	free(icon);
 }
 
-void MwLLForceRender(MwLL handle){
+void MwLLForceRender(MwLL handle) {
 	XEvent ev;
 	memset(&ev, 0, sizeof(ev));
 
-	ev.type = Expose;
+	ev.type		  = Expose;
 	ev.xexpose.window = handle->window;
 	XSendEvent(handle->display, handle->window, False, ExposureMask, &ev);
 }

@@ -56,6 +56,12 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		SetCapture(NULL);
 		MwLLDispatch(u->ll, up, &p);
 		InvalidateRect(hWnd, NULL, FALSE);
+	} else if(msg == WM_MOUSEMOVE) {
+		MwPoint p;
+		p.x = LOWORD(lp);
+		p.y = HIWORD(lp);
+
+		MwLLDispatch(u->ll, move, &p);
 	} else if(msg == WM_SIZE) {
 		MwLLDispatch(u->ll, resize, NULL);
 	} else if(msg == WM_ERASEBKGND) {
@@ -310,6 +316,6 @@ void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 	DestroyIcon(ico);
 }
 
-void MwLLForceRender(MwLL handle){
+void MwLLForceRender(MwLL handle) {
 	InvalidateRect(handle->hWnd, NULL, FALSE);
 }
