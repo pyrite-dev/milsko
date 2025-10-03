@@ -74,7 +74,7 @@ int main() {
 	MwAddUserHandler(button3, MwNactivateHandler, handler, NULL);
 	MwAddUserHandler(button4, MwNactivateHandler, handler, NULL);
 
-	m = MwMenuAdd(menu, NULL, "test 1");
+	m  = MwMenuAdd(menu, NULL, "test 1");
 	m2 = MwMenuAdd(menu, m, "test 2");
 	MwMenuAdd(menu, m2, "test 3");
 	MwMenuAdd(menu, m2, "test 4");
@@ -82,7 +82,12 @@ int main() {
 	m2 = MwMenuAdd(menu, m, "test 6");
 	MwMenuAdd(menu, m2, "test 7");
 	MwMenuAdd(menu, m2, "test 8");
-	MwMenuAdd(menu, NULL, "?test 9");
+	m2 = MwMenuAdd(menu, m, "test 9");
+	MwMenuAdd(menu, m2, "test 10");
+	m2 = MwMenuAdd(menu, m2, "test 11");
+	MwMenuAdd(menu, m2, "test 12");
+	MwMenuAdd(menu, m2, "test 13");
+	MwMenuAdd(menu, NULL, "?test 14");
 
 	MwLoop(window);
 }
