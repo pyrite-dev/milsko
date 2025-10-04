@@ -8,7 +8,7 @@
 
 #include "Mw/Error.h"
 #include <Mw/Milsko.h>
-#include <Mw/Vulkan.h>
+#include <Mw/Widget/Vulkan.h>
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
