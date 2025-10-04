@@ -133,7 +133,10 @@ MwClassRec MwOpenGLClassRec = {
     destroy, /* destroy */
     NULL,    /* draw */
     NULL,    /* click */
-    NULL     /* parent_resize */
+    NULL,    /* parent_resize */
+    NULL,    /* mouse_move */
+    NULL,    /* mouse_up */
+    NULL     /* mouse_down */
 };
 MwClass MwOpenGLClass = &MwOpenGLClassRec;
 

@@ -144,11 +144,14 @@ static void parent_resize(MwWidget handle) {
 }
 
 MwClassRec MwMenuClassRec = {
-    create,	  /* create */
-    destroy,	  /* destroy */
-    draw,	  /* draw */
-    NULL,	  /* click */
-    parent_resize /* parent_resize */
+    create,	   /* create */
+    destroy,	   /* destroy */
+    draw,	   /* draw */
+    NULL,	   /* click */
+    parent_resize, /* parent_resize */
+    NULL,	   /* mouse_move */
+    NULL,	   /* mouse_up */
+    NULL	   /* mouse_down */
 };
 MwClass MwMenuClass = &MwMenuClassRec;
 

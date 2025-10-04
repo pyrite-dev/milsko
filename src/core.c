@@ -22,6 +22,7 @@ static void lluphandler(MwLL handle, void* data) {
 	h->mouse_point.y = p->y;
 
 	MwDispatch(h, click);
+	MwDispatch(h, mouse_up);
 }
 
 static void lldownhandler(MwLL handle, void* data) {
@@ -30,6 +31,8 @@ static void lldownhandler(MwLL handle, void* data) {
 	h->pressed	 = 1;
 	h->mouse_point.x = p->x;
 	h->mouse_point.y = p->y;
+
+	MwDispatch(h, mouse_down);
 }
 
 static void llresizehandler(MwLL handle, void* data) {
@@ -57,6 +60,8 @@ static void llmovehandler(MwLL handle, void* data) {
 	MwPoint* p	 = data;
 	h->mouse_point.x = p->x;
 	h->mouse_point.y = p->y;
+
+	MwDispatch(h, mouse_move);
 }
 
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {

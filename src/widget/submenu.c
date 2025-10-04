@@ -156,7 +156,10 @@ MwClassRec MwSubMenuClassRec = {
     destroy, /* destroy */
     draw,    /* draw */
     click,   /* click */
-    NULL     /* parent_resize */
+    NULL,    /* parent_resize */
+    NULL,    /* mouse_move */
+    NULL,    /* mouse_up */
+    NULL     /* mouse_down */
 };
 MwClass MwSubMenuClass = &MwSubMenuClassRec;
 
