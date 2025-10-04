@@ -31,7 +31,6 @@ static int create(MwWidget handle) {
 	m->name		 = NULL;
 	m->wsub		 = NULL;
 	m->sub		 = NULL;
-	m->wait		 = 0;
 	handle->internal = m;
 
 	MwSetDefault(handle);
@@ -66,6 +65,7 @@ static void draw(MwWidget handle) {
 	MwLLColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	MwMenu	  m    = handle->internal;
 	int	  i;
+	int	  first = 1;
 
 	p.x = 10;
 	p.y = MwGetInteger(handle, MwNheight) / 2;
@@ -77,7 +77,6 @@ static void draw(MwWidget handle) {
 
 	MwDrawFrame(handle, &r, base, 0);
 	MwDrawRect(handle, &r, base);
-	if(!handle->pressed) m->wait = 0;
 	for(i = 0; i < arrlen(m->sub); i++) {
 		int incr = m->sub[i]->name[0] == '?' ? 1 : 0;
 		int tw	 = MwTextWidth(handle, m->sub[i]->name + incr);
@@ -96,7 +95,8 @@ static void draw(MwWidget handle) {
 		r.height = th + 10;
 
 		in_area = (r.x <= handle->mouse_point.x && r.y <= handle->mouse_point.y && handle->mouse_point.x <= (int)(r.x + r.width) && handle->mouse_point.y <= (int)(r.y + r.height)) ? 1 : 0;
-		if(!m->wait && handle->pressed && in_area) {
+		if(first && handle->pressed && in_area) {
+			first = 0;
 			MwDrawFrame(handle, &r, base, 0);
 			if(m->sub[i]->wsub == NULL && arrlen(m->sub[i]->sub) > 0) {
 				MwPoint p2;
@@ -110,7 +110,6 @@ static void draw(MwWidget handle) {
 				MwDestroyWidget(m->sub[i]->wsub);
 				m->sub[i]->wsub = NULL;
 				m->sub[i]->keep = 0;
-				m->wait		= 1;
 			} else if(arrlen(m->sub[i]->sub) == 0) {
 				MwDispatchUserHandler(handle, MwNmenuHandler, m->sub[i]);
 			}
@@ -123,10 +122,11 @@ static void draw(MwWidget handle) {
 				m->sub[i]->wsub = NULL;
 				m->sub[i]->keep = 0;
 			}
-		} else if(handle->pressed && m->sub[i]->keep && m->sub[i]->wsub != NULL) {
+		} else if(first && handle->pressed && m->sub[i]->keep && m->sub[i]->wsub != NULL) {
 			MwDestroyWidget(m->sub[i]->wsub);
 			m->sub[i]->wsub = NULL;
 			m->sub[i]->keep = 0;
+			first		= 0;
 		}
 
 		MwDrawText(handle, &p, m->sub[i]->name + incr, 1, text);
@@ -162,7 +162,6 @@ MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
 	new->sub   = NULL;
 	new->wsub  = NULL;
 	new->keep  = 0;
-	new->wait  = 0;
 
 	strcpy(new->name, name);
 
