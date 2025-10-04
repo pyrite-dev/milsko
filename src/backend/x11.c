@@ -273,7 +273,7 @@ void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 }
 
 void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-#ifdef NO_XRENDERn
+#ifdef NO_XRENDER
 	(void)handle;
 	(void)rect;
 	(void)pixmap;
