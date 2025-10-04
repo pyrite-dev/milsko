@@ -72,16 +72,18 @@ GL = -lGL -lGLU
 
 E_LIBS += -lm
 
+LIB = lib
 SO = .so
 EXEC =
 else ifeq ($(WINDOWS),1)
 L_CFLAGS += -DUSE_GDI
-L_LDFLAGS += -Wl,--out-implib,src/libMw.lib -static-libgcc
+L_LDFLAGS += -Wl,--out-implib,src/libMw.a -static-libgcc
 L_OBJS += src/backend/gdi.o
 L_LIBS += -lgdi32
 
 GL = -lopengl32 -lglu32
 
+LIB =
 SO = .dll
 EXEC = .exe
 endif
@@ -101,20 +103,20 @@ endif
 .PHONY: all format clean lib examples
 
 all: lib examples
-lib: src/libMw$(SO)
+lib: src/$(LIB)Mw$(SO)
 examples: $(EXAMPLES)
 
 format:
 	clang-format --verbose -i `find src include examples tools "(" -name "*.c" -or -name "*.h" ")" -and -not -name "stb_*.h"`
 	perltidy -b -bext='/' --paren-tightness=2 `find tools -name "*.pl"`
 
-src/libMw$(SO): $(L_OBJS)
+src/$(LIB)Mw$(SO): $(L_OBJS)
 	$(CC) $(L_LDFLAGS) -shared -o $@ $^ $(L_LIBS)
 
-examples/gl%$(EXEC): examples/gl%.o src/libMw$(SO)
+examples/gl%$(EXEC): examples/gl%.o src/$(LIB)Mw$(SO)
 	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS) $(GL)
 
-examples/%$(EXEC): examples/%.o src/libMw$(SO)
+examples/%$(EXEC): examples/%.o src/$(LIB)Mw$(SO)
 	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS)
 
 src/%.o: src/%.c
@@ -124,4 +126,4 @@ examples/%.o: examples/%.c
 	$(CC) $(E_CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f src/*.dll src/*.so src/*.a src/*.lib */*.o */*/*.o examples/*.exe $(EXAMPLES) examples/opengl examples/vulkan
+	rm -f src/*.dll src/*.so src/*.a */*.o */*/*.o examples/*.exe $(EXAMPLES) examples/opengl examples/vulkan
