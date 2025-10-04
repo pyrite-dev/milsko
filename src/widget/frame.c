@@ -1,8 +1,10 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-static void create(MwWidget handle) {
+static int create(MwWidget handle) {
 	MwSetDefault(handle);
+
+	return 0;
 }
 
 static void draw(MwWidget handle) {

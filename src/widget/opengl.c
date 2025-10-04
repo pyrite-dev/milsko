@@ -49,7 +49,7 @@ typedef struct opengl {
 } opengl_t;
 #endif
 
-static void create(MwWidget handle) {
+static int create(MwWidget handle) {
 	opengl_t* o = malloc(sizeof(*o));
 #ifdef _WIN32
 	PIXELFORMATDESCRIPTOR pfd;
@@ -107,6 +107,8 @@ static void create(MwWidget handle) {
 	handle->lowlevel->copy_buffer = 0;
 
 	MwSetDefault(handle);
+
+	return 0;
 }
 
 static void destroy(MwWidget handle) {
