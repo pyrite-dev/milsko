@@ -45,9 +45,9 @@ static void idle(void) {
 static void reshape(int width, int height) {
 	GLfloat lpos[4];
 
-	lpos[0] = 2;
-	lpos[1] = 2;
-	lpos[2] = 2;
+	lpos[0] = 1;
+	lpos[1] = 1;
+	lpos[2] = 1;
 	lpos[3] = 0;
 
 	glViewport(0, 0, width, height);
@@ -69,6 +69,7 @@ static void init(void) {
 	glEnable(GL_LIGHT0);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_NORMALIZE);
 
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 }
