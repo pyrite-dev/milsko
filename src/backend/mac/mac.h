@@ -1,8 +1,10 @@
-/* $Id $ */
+/* $Id$ */
 
 #ifndef __MAC_H__
 #define __MAC_H__
 
+#include <Mw/MachDep.h>
+#include <Mw/TypeDefs.h>
 #include <Mw/LowLevel.h>
 
 typedef enum {

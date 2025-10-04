@@ -1,4 +1,4 @@
-/* $Id $ */
+/* $Id$ */
 
 // This is a copy of a bunch of headers from Apple's old SDK with irrelvant things removed.
 // The reason this exists is for compiling under modern XCode (which doesn't have these headers).

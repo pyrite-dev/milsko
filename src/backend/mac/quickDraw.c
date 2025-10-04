@@ -1,4 +1,4 @@
-/* $Id $ */
+/* $Id$ */
 
 #include "mac.h"
 #include "quickDraw.h"
