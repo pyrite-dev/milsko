@@ -1,6 +1,6 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
-#include <Mw/Vulkan.h>
+#include <Mw/Widget/Vulkan.h>
 
 #include "../error_internal.h"
 

@@ -48,6 +48,21 @@ MwLLColor MwParseColor(MwWidget handle, const char* text) {
 	return MwLLAllocColor(handle->lowlevel, r, g, b);
 }
 
+MwLLColor MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, int b) {
+	int cr = color->red + r;
+	int cg = color->green + g;
+	int cb = color->blue + b;
+
+	if(cr < 0) cr = 0;
+	if(cg < 0) cg = 0;
+	if(cb < 0) cb = 0;
+	if(cr > 255) cr = 255;
+	if(cg > 255) cg = 255;
+	if(cb > 255) cb = 255;
+
+	return MwLLAllocColor(handle->lowlevel, cr, cg, cb);
+}
+
 void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 	MwPoint p[4];
 
@@ -176,4 +191,7 @@ MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 	free(rgb);
 
 	return px;
+}
+
+void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction) {
 }

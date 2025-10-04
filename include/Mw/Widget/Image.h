@@ -1,10 +1,10 @@
 /* $Id$ */
 /*!
- * %file Mw/Image.h
+ * %file Mw/Widget/Image.h
  * %brief Image widget
  */
-#ifndef __MW_IMAGE_H__
-#define __MW_IMAGE_H__
+#ifndef __MW_WIDGET_IMAGE_H__
+#define __MW_WIDGET_IMAGE_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>

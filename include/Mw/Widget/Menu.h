@@ -1,10 +1,10 @@
 /* $Id$ */
 /*!
- * %file Mw/Menu.h
+ * %file Mw/Widget/Menu.h
  * %brief Menu widget
  */
-#ifndef __MW_MENU_H__
-#define __MW_MENU_H__
+#ifndef __MW_WIDGET_MENU_H__
+#define __MW_WIDGET_MENU_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>

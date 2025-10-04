@@ -1,10 +1,10 @@
 /* $Id$ */
 /*!
- * %file Mw/Window.h
+ * %file Mw/Widget/Window.h
  * %brief Window widget
  */
-#ifndef __MW_WINDOW_H__
-#define __MW_WINDOW_H__
+#ifndef __MW_WIDGET_WINDOW_H__
+#define __MW_WIDGET_WINDOW_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>

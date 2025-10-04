@@ -23,6 +23,17 @@ extern "C" {
 MWDECL MwLLColor MwParseColor(MwWidget handle, const char* text);
 
 /*!
+ * %brief Lighten a color
+ * %param handle Widget
+ * %param color Color
+ * %param r Red
+ * %param g Green
+ * %param b Blue
+ * %return Color
+ */
+MWDECL MwLLColor MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, int b);
+
+/*!
  * %brief Draws a filled rectangle
  * %param handle Widget
  * %param rect Rectangle area
@@ -39,6 +50,16 @@ MWDECL void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color);
  * %warning `rect` gets changed to the area of rectangle inside
  */
 MWDECL void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
+
+/*!
+ * %brief Draws a triangle
+ * %param handle Widget
+ * %param rect Rectangle area
+ * %param color Color
+ * %param invert Invert the 3D border color or not
+ * %warning `rect` gets changed to the area of rectangle inside
+ */
+MWDECL void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction);
 
 /*!
  * %brief Draws a frame with specified border width

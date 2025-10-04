@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * %file Mw/Vulkan.h
+ * %file Mw/Widget/Vulkan.h
  * %brief Vulkan widget
  * %warning This header is not documented yet
  */
@@ -9,8 +9,8 @@
  * ioixd maintains this file. nishi doesn't know vulkan at all
  */
 
-#ifndef __MW_VULKAN_H__
-#define __MW_VULKAN_H__
+#ifndef __MW_WIDGET_VULKAN_H__
+#define __MW_WIDGET_VULKAN_H__
 
 #if !defined(_WIN32) && !defined(__linux__) && !defined(__FreeBSD__)
 #error Vulkan is unsupported on the requested platform.

@@ -1,10 +1,10 @@
 /* $Id$ */
 /*!
- * %file Mw/Button.h
+ * %file Mw/Widget/Button.h
  * %brief Button widget
  */
-#ifndef __MW_BUTTON_H__
-#define __MW_BUTTON_H__
+#ifndef __MW_WIDGET_BUTTON_H__
+#define __MW_WIDGET_BUTTON_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>

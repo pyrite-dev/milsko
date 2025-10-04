@@ -1,6 +1,6 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
-#include <Mw/OpenGL.h>
+#include <Mw/Widget/OpenGL.h>
 
 #ifdef _WIN32
 /* nothing */
