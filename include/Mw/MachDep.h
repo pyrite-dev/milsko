@@ -18,6 +18,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <dlfcn.h>
+#include <signal.h>
 #endif
 
 #if defined(_MILSKO) && defined(_WIN32)

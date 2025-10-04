@@ -1,8 +1,8 @@
-#include "Mw/LowLevel.h"
+/* $Id$ */
+#include <Mw/Milsko.h>
 
 #include "mac.h"
 #include "quickDraw.h"
-#include <signal.h>
 
 MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	void* library;
