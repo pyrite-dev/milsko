@@ -40,13 +40,25 @@ ifeq ($(TARGET),NetBSD)
 CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
 LDFLAGS += -L/usr/X11R7/lib -L/usr/pkg/lib -Wl,-R/usr/X11R7/lib -Wl,-R/usr/pkg/lib
 UNIX = 1
+
+OPENGL = 1
 else ifeq ($(TARGET),Linux)
 L_LIBS += -ldl
 UNIX = 1
+
+OPENGL = 1
 VULKAN = 1
 else ifeq ($(TARGET),Windows)
 WINDOWS = 1
+
+OPENGL = 1
 VULKAN = 1
+else ifeq ($(TARGET),UnixWare)
+CC = gcc
+UNIX = 1
+L_LIBS += -lsocket -lnsl
+
+NO_XRENDER = 1
 else
 $(error Add your platform definition)
 endif
@@ -54,7 +66,13 @@ endif
 ifeq ($(UNIX),1)
 L_CFLAGS += -DUSE_X11
 L_OBJS += src/backend/x11.o
-L_LIBS += -lX11 -lXrender -lXext
+L_LIBS += -lX11
+ifeq ($(NO_XRENDER),1)
+L_CFLAGS += -DNO_XRENDER
+else
+L_LIBS += -lXrender
+endif
+L_LIBS += -lXext
 
 GL = -lGL
 
@@ -62,8 +80,6 @@ E_LIBS += -lm
 
 SO = .so
 EXEC =
-
-OPENGL = 1
 else ifeq ($(WINDOWS),1)
 L_CFLAGS += -DUSE_GDI
 L_LDFLAGS += -Wl,--out-implib,src/libMw.lib -static-libgcc
@@ -74,8 +90,6 @@ GL = -lopengl32
 
 SO = .dll
 EXEC = .exe
-
-OPENGL = 1
 endif
 
 EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC)

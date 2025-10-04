@@ -206,7 +206,9 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	MwLLPixmap r = malloc(sizeof(*r));
 	char*	   d = malloc(4 * width * height);
 	int	   y, x;
-	int	   evbase, erbase;
+#ifndef NO_XRENDER
+	int evbase, erbase;
+#endif
 
 	r->width   = width;
 	r->height  = height;
@@ -214,11 +216,13 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->use_shm = XShmQueryExtension(handle->display) ? 1 : 0;
 	r->data	   = malloc(width * height * 4);
 
+#ifndef NO_XRENDER
 	if(!XRenderQueryExtension(handle->display, &evbase, &erbase)) {
 		fprintf(stderr, "XRender missing - cannot proceed pixmap creation\n");
 		r->image = NULL;
 		return r;
 	}
+#endif
 
 	if(r->use_shm) {
 		r->image = XShmCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 24, ZPixmap, NULL, &r->shm, width, height);
@@ -269,6 +273,7 @@ void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 }
 
 void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
+#ifndef NO_XRENDER
 	if(pixmap->image != NULL) {
 		Pixmap			 px	= XCreatePixmap(handle->display, handle->window, pixmap->width, pixmap->height, 24);
 		XRenderPictFormat*	 format = XRenderFindStandardFormat(handle->display, PictStandardRGB24);
@@ -309,6 +314,7 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 		XFreePixmap(handle->display, px);
 	}
+#endif
 }
 
 void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {

@@ -11,10 +11,12 @@
 #include <Mw/TypeDefs.h>
 #include <Mw/LowLevel.h>
 
-#include <X11/X.h>
+#include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/extensions/XShm.h>
+#ifndef NO_XRENDER
 #include <X11/extensions/Xrender.h>
+#endif
 
 struct _MwLL {
 	Display* display;
