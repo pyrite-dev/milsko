@@ -1,11 +1,6 @@
 /* $Id$ */
-/*!
- * %file Mw/X11.h
- * %brief X11 backend
- * %warning This is used internally
- */
-#ifndef __MW_X11_H__
-#define __MW_X11_H__
+#ifndef __X11_H__
+#define __X11_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
