@@ -68,7 +68,7 @@ L_CFLAGS += -DUSE_X11
 L_OBJS += src/backend/x11.o
 L_LIBS += -lX11 -lXrender -lXext
 
-GL = -lGL
+GL = -lGL -lGLU
 
 E_LIBS += -lm
 
@@ -80,7 +80,7 @@ L_LDFLAGS += -Wl,--out-implib,src/libMw.lib -static-libgcc
 L_OBJS += src/backend/gdi.o
 L_LIBS += -lgdi32
 
-GL = -lopengl32
+GL = -lopengl32 -lglu32
 
 SO = .dll
 EXEC = .exe
@@ -90,7 +90,7 @@ EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC)
 
 ifeq ($(OPENGL),1)
 L_OBJS += src/widget/opengl.o
-EXAMPLES += examples/gltriangle$(EXEC) examples/glgears$(EXEC) examples/glboing$(EXEC)
+EXAMPLES += examples/gltriangle$(EXEC) examples/glgears$(EXEC) examples/glboing$(EXEC) examples/glcube$(EXEC)
 endif
 
 ifeq ($(VULKAN),1)
