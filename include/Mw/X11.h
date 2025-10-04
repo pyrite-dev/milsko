@@ -14,9 +14,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/extensions/XShm.h>
-#ifndef NO_XRENDER
 #include <X11/extensions/Xrender.h>
-#endif
 
 struct _MwLL {
 	Display* display;
