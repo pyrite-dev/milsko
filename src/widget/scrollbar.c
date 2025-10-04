@@ -22,7 +22,9 @@ static void draw(MwWidget handle) {
 
 	rt	  = r;
 	rt.height = rt.width;
-	MwDrawTriangle(handle, &r, base, 0, MwNORTH);
+	MwDrawTriangle(handle, &rt, base, 0, MwNORTH);
+	rt.y = r.y + r.height - rt.height;
+	MwDrawTriangle(handle, &rt, base, 0, MwSOUTH);
 
 	MwLLFreeColor(dark);
 	MwLLFreeColor(base);

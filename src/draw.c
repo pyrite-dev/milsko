@@ -6,6 +6,8 @@
 #define FontWidth 7
 #define FontHeight 14
 #define FontScale 1
+#define ColorDiff 128
+#define BorderWidth 2
 
 static int hex(const char* txt, int len) {
 	int i;
@@ -82,16 +84,13 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
-	const int border = 2;
-
-	MwDrawFrameEx(handle, rect, color, invert, border);
+	MwDrawFrameEx(handle, rect, color, invert, BorderWidth);
 }
 
 void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
 	MwPoint	  p[6];
-	const int diff	  = 128;
-	MwLLColor darker  = MwLLAllocColor(handle->lowlevel, color->red - diff, color->green - diff, color->blue - diff);
-	MwLLColor lighter = MwLLAllocColor(handle->lowlevel, color->red + diff, color->green + diff, color->blue + diff);
+	MwLLColor darker  = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
+	MwLLColor lighter = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 
 	p[0].x = rect->x;
 	p[0].y = rect->y;
@@ -140,6 +139,219 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 	rect->y += border;
 	rect->width -= border * 2;
 	rect->height -= border * 2;
+}
+
+void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction) {
+	MwPoint	  p1[4], p2[4], p3[4], p4[3];
+	const int border  = BorderWidth * 2;
+	MwLLColor darker  = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
+	MwLLColor lighter = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
+
+	double deg = 30 + ((direction == MwEAST || direction == MwWEST) ? 30 : 0);
+	double c   = cos(deg / 180 * M_PI);
+	double s   = sin(deg / 180 * M_PI);
+
+	if(direction == MwNORTH) {
+		p1[0].x = rect->x + rect->width / 2;
+		p1[0].y = rect->y;
+
+		p1[1].x = rect->x;
+		p1[1].y = rect->y + rect->height;
+
+		p1[2].x = rect->x + c * border;
+		p1[2].y = rect->y + rect->height - s * border;
+
+		p1[3].x = rect->x + rect->width / 2;
+		p1[3].y = rect->y + border;
+
+		p2[0].x = rect->x + rect->width / 2;
+		p2[0].y = rect->y;
+
+		p2[1].x = rect->x + rect->width;
+		p2[1].y = rect->y + rect->height;
+
+		p2[2].x = rect->x + rect->width - c * border;
+		p2[2].y = rect->y + rect->height - s * border;
+
+		p2[3].x = rect->x + rect->width / 2;
+		p2[3].y = rect->y + border;
+
+		p3[0].x = rect->x + c * border;
+		p3[0].y = rect->y + rect->height - s * border;
+
+		p3[1].x = rect->x;
+		p3[1].y = rect->y + rect->height;
+
+		p3[2].x = rect->x + rect->width;
+		p3[2].y = rect->y + rect->height;
+
+		p3[3].x = rect->x + rect->width - c * border;
+		p3[3].y = rect->y + rect->height - s * border;
+
+		MwLLPolygon(handle->lowlevel, p1, 4, invert ? darker : lighter);
+		MwLLPolygon(handle->lowlevel, p2, 4, invert ? lighter : darker);
+		MwLLPolygon(handle->lowlevel, p3, 4, invert ? lighter : darker);
+
+		p4[0].x = rect->x + c * border;
+		p4[0].y = rect->y + rect->height - s * border;
+
+		p4[1].x = rect->x + rect->width - c * border;
+		p4[1].y = rect->y + rect->height - s * border;
+
+		p4[2].x = rect->x + rect->width / 2;
+		p4[2].y = rect->y + border;
+	} else if(direction == MwSOUTH) {
+		p1[0].x = rect->x;
+		p1[0].y = rect->y;
+
+		p1[1].x = rect->x + c * border;
+		p1[1].y = rect->y + s * border;
+
+		p1[2].x = rect->x + rect->width - c * border;
+		p1[2].y = rect->y + s * border;
+
+		p1[3].x = rect->x + rect->width;
+		p1[3].y = rect->y;
+
+		p2[0].x = rect->x;
+		p2[0].y = rect->y;
+
+		p2[1].x = rect->x + c * border;
+		p2[1].y = rect->y + s * border;
+
+		p2[2].x = rect->x + rect->width / 2;
+		p2[2].y = rect->y + rect->height - border;
+
+		p2[3].x = rect->x + rect->width / 2;
+		p2[3].y = rect->y + rect->height;
+
+		p3[0].x = rect->x + rect->width;
+		p3[0].y = rect->y;
+
+		p3[1].x = rect->x + rect->width / 2;
+		p3[1].y = rect->y + rect->height;
+
+		p3[2].x = rect->x + rect->width / 2;
+		p3[2].y = rect->y + rect->height - border;
+
+		p3[3].x = rect->x + rect->width - c * border;
+		p3[3].y = rect->y + s * border;
+
+		MwLLPolygon(handle->lowlevel, p1, 4, invert ? darker : lighter);
+		MwLLPolygon(handle->lowlevel, p2, 4, invert ? darker : lighter);
+		MwLLPolygon(handle->lowlevel, p3, 4, invert ? lighter : darker);
+
+		p4[0].x = rect->x + c * border;
+		p4[0].y = rect->y + s * border;
+
+		p4[1].x = rect->x + rect->width - c * border;
+		p4[1].y = rect->y + s * border;
+
+		p4[2].x = rect->x + rect->width / 2;
+		p4[2].y = rect->y + rect->height - border;
+	} else if(direction == MwEAST) {
+		p1[0].x = rect->x;
+		p1[0].y = rect->y;
+
+		p1[1].x = rect->x + c * border;
+		p1[1].y = rect->y + s * border;
+
+		p1[2].x = rect->x + c * border;
+		p1[2].y = rect->y + rect->height - s * border;
+
+		p1[3].x = rect->x;
+		p1[3].y = rect->y + rect->height;
+
+		p2[0].x = rect->x;
+		p2[0].y = rect->y;
+
+		p2[1].x = rect->x + rect->width;
+		p2[1].y = rect->y + rect->height / 2;
+
+		p2[2].x = rect->x + rect->width - border;
+		p2[2].y = rect->y + rect->height / 2;
+
+		p2[3].x = rect->x + c * border;
+		p2[3].y = rect->y + s * border;
+
+		p3[0].x = rect->x + c * border;
+		p3[0].y = rect->y + rect->height - s * border;
+
+		p3[1].x = rect->x;
+		p3[1].y = rect->y + rect->height;
+
+		p3[2].x = rect->x + rect->width;
+		p3[2].y = rect->y + rect->height / 2;
+
+		p3[3].x = rect->x + rect->width - border;
+		p3[3].y = rect->y + rect->height / 2;
+
+		MwLLPolygon(handle->lowlevel, p1, 4, invert ? darker : lighter);
+		MwLLPolygon(handle->lowlevel, p2, 4, invert ? darker : lighter);
+		MwLLPolygon(handle->lowlevel, p3, 4, invert ? lighter : darker);
+
+		p4[0].x = rect->x + rect->width - border;
+		p4[0].y = rect->y + rect->height / 2;
+
+		p4[1].x = rect->x + c * border;
+		p4[1].y = rect->y + rect->height - s * border;
+
+		p4[2].x = rect->x + c * border;
+		p4[2].y = rect->y + s * border;
+	} else if(direction == MwWEST) {
+		p1[0].x = rect->x;
+		p1[0].y = rect->y + rect->height / 2;
+
+		p1[1].x = rect->x + border;
+		p1[1].y = rect->y + rect->height / 2;
+
+		p1[2].x = rect->x + rect->width - c * border;
+		p1[2].y = rect->y + s * border;
+
+		p1[3].x = rect->x + rect->width;
+		p1[3].y = rect->y;
+
+		p2[0].x = rect->x;
+		p2[0].y = rect->y + rect->height / 2;
+
+		p2[1].x = rect->x + border;
+		p2[1].y = rect->y + rect->height / 2;
+
+		p2[2].x = rect->x + rect->width - c * border;
+		p2[2].y = rect->y + rect->height - s * border;
+
+		p2[3].x = rect->x + rect->width;
+		p2[3].y = rect->y + rect->height;
+
+		p3[0].x = rect->x + rect->width;
+		p3[0].y = rect->y;
+
+		p3[1].x = rect->x + rect->width - c * border;
+		p3[1].y = rect->y + s * border;
+
+		p3[2].x = rect->x + rect->width - c * border;
+		p3[2].y = rect->y + rect->height - s * border;
+
+		p3[3].x = rect->x + rect->width;
+		p3[3].y = rect->y + rect->height;
+
+		MwLLPolygon(handle->lowlevel, p1, 4, invert ? darker : lighter);
+		MwLLPolygon(handle->lowlevel, p2, 4, invert ? lighter : darker);
+		MwLLPolygon(handle->lowlevel, p3, 4, invert ? lighter : darker);
+
+		p4[0].x = rect->x + border;
+		p4[0].y = rect->y + rect->height / 2;
+
+		p4[1].x = rect->x + rect->width - c * border;
+		p4[1].y = rect->y + rect->height - s * border;
+
+		p4[2].x = rect->x + rect->width - c * border;
+		p4[2].y = rect->y + s * border;
+	}
+	MwLLPolygon(handle->lowlevel, p4, 3, color);
+
+	MwLLFreeColor(lighter);
+	MwLLFreeColor(darker);
 }
 
 void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, MwLLColor color) {
@@ -191,7 +403,4 @@ MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 	free(rgb);
 
 	return px;
-}
-
-void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction) {
 }

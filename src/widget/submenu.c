@@ -67,20 +67,13 @@ static void draw(MwWidget handle) {
 			MwDrawText(handle, &p, menu->sub[i]->name, 1, text);
 
 			if(arrlen(menu->sub[i]->sub) > 0) {
-				MwPoint pl[3];
+				MwRect tr;
 
-				p.x = 5 + tw + 10;
+				tr.x	 = p.x + tw / 2 + 5;
+				tr.y	 = p.y - th / 2 + 2;
+				tr.width = tr.height = 11;
 
-				pl[0].x = p.x - 5;
-				pl[0].y = p.y - th / 2;
-
-				pl[1].x = p.x - 5;
-				pl[1].y = p.y + th / 2;
-
-				pl[2].x = p.x + 5;
-				pl[2].y = p.y;
-
-				MwLLPolygon(handle->lowlevel, pl, 3, text);
+				MwDrawTriangle(handle, &tr, base, menu->sub[i]->wsub != NULL ? 1 : 0, MwEAST);
 			}
 
 			p.y += th / 2 + 3;
