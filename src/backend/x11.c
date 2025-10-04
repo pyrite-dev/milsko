@@ -273,7 +273,11 @@ void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 }
 
 void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-#ifndef NO_XRENDER
+#ifdef NO_XRENDERn
+	(void)handle;
+	(void)rect;
+	(void)pixmap;
+#else
 	if(pixmap->image != NULL) {
 		Pixmap			 px	= XCreatePixmap(handle->display, handle->window, pixmap->width, pixmap->height, 24);
 		XRenderPictFormat*	 format = XRenderFindStandardFormat(handle->display, PictStandardRGB24);
