@@ -102,6 +102,9 @@ struct _MwClass {
 	MwHandler  draw;
 	MwHandler  click;
 	MwHandler  parent_resize;
+	MwHandler  mouse_move;
+	MwHandler  mouse_up;
+	MwHandler  mouse_down;
 };
 
 struct _MwFont {
