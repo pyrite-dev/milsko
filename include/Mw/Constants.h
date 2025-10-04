@@ -16,4 +16,12 @@ enum MwDIRECTION {
 	MwWEST
 };
 
+/*!
+ * %brief Orientation
+ */
+enum MwORIENTATION {
+	MwVERTICAL = 0,
+	MwHORIZONTAL
+};
+
 #endif

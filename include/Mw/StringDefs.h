@@ -10,6 +10,7 @@
 #define MwNy "Iy"
 #define MwNwidth "Iwidth"
 #define MwNheight "Iheight"
+#define MwNorientation "Iorientation"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
