@@ -59,6 +59,12 @@ UNIX = 1
 L_LIBS += -lsocket -lnsl
 
 NO_XRENDER = 1
+else ifeq ($(TARGET),SunOS)
+CC = gcc
+UNIX = 1
+L_LIBS += -lsocket -lnsl
+
+OPENGL = 1
 else
 $(error Add your platform definition)
 endif
