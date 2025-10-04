@@ -1,10 +1,10 @@
 /* $Id$ */
 /*!
- * %file Mw/OpenGL.h
+ * %file Mw/Widget/OpenGL.h
  * %brief OpenGL widget
  */
-#ifndef __MW_OPENGL_H__
-#define __MW_OPENGL_H__
+#ifndef __MW_WIDGET_OPENGL_H__
+#define __MW_WIDGET_OPENGL_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>

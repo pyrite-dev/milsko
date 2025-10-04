@@ -1,10 +1,10 @@
 /* $Id$ */
 /*!
- * %file Mw/SubMenu.h
+ * %file Mw/Widget/SubMenu.h
  * %brief SubMenu widget
  */
-#ifndef __MW_SUBMENU_H__
-#define __MW_SUBMENU_H__
+#ifndef __MW_WIDGET_SUBMENU_H__
+#define __MW_WIDGET_SUBMENU_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>

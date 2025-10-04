@@ -15,12 +15,14 @@
 #include <Mw/Draw.h>
 #include <Mw/Font.h>
 #include <Mw/Error.h>
+#include <Mw/Constants.h>
 
-#include <Mw/Window.h>
-#include <Mw/Menu.h>
-#include <Mw/SubMenu.h>
-#include <Mw/Button.h>
-#include <Mw/Frame.h>
-#include <Mw/Image.h>
+#include <Mw/Widget/Window.h>
+#include <Mw/Widget/Menu.h>
+#include <Mw/Widget/SubMenu.h>
+#include <Mw/Widget/Button.h>
+#include <Mw/Widget/Frame.h>
+#include <Mw/Widget/Image.h>
+#include <Mw/Widget/ScrollBar.h>
 
 #endif
