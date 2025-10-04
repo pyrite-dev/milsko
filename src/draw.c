@@ -7,7 +7,6 @@
 #define FontHeight 14
 #define FontScale 1
 #define ColorDiff 128
-#define BorderWidth 2
 
 static int hex(const char* txt, int len) {
 	int i;
@@ -84,7 +83,7 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
-	MwDrawFrameEx(handle, rect, color, invert, BorderWidth);
+	MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth);
 }
 
 void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
@@ -143,7 +142,7 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 
 void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction) {
 	MwPoint	  p1[4], p2[4], p3[4], p4[3];
-	const int border  = BorderWidth;
+	const int border  = MwDefaultBorderWidth;
 	MwLLColor darker  = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 

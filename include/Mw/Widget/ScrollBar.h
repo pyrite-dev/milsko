@@ -18,6 +18,13 @@ extern "C" {
  */
 MWDECL MwClass MwScrollBarClass;
 
+/*!
+ * %brief Calculates a visible length of scrollbar
+ * %param handle Widget
+ * %return Visible length
+ */
+MWDECL int MwScrollBarGetVisibleLength(MwWidget handle);
+
 #ifdef __cplusplus
 }
 #endif
