@@ -1,10 +1,6 @@
 /* $Id$ */
-#include <Mw/Milsko.h>
-#include <Mw/OpenGL.h>
-
-#include <GL/gl.h>
-
-MwWidget opengl;
+#define TITLE "boing"
+#include "oldglut.c"
 
 /*
  * Bouncing ball demo.
@@ -156,52 +152,4 @@ static void init(void) {
 	glEnable(GL_CULL_FACE);
 	glDisable(GL_DITHER);
 	glShadeModel(GL_FLAT);
-}
-
-static void tick(MwWidget handle, void* user, void* client) {
-	(void)handle;
-	(void)user;
-	(void)client;
-
-	draw();
-	idle();
-
-	MwOpenGLSwapBuffer(opengl);
-}
-
-static void resize(MwWidget handle, void* user, void* client) {
-	int ww, wh;
-
-	(void)handle;
-	(void)user;
-	(void)client;
-
-	ww = MwGetInteger(handle, MwNwidth) - 100;
-	wh = MwGetInteger(handle, MwNheight) - 100;
-
-	MwVaApply(opengl,
-		  MwNwidth, ww,
-		  MwNheight, wh,
-		  NULL);
-
-	reshape(ww, wh);
-}
-
-int main() {
-	MwWidget window;
-
-	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 500, 500,
-				  MwNtitle, "boing",
-				  NULL);
-	opengl = MwCreateWidget(MwOpenGLClass, "opengl", window, 50, 50, 400, 400);
-
-	MwOpenGLMakeCurrent(opengl);
-
-	init();
-	reshape(400, 400);
-
-	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
-	MwAddUserHandler(window, MwNtickHandler, tick, NULL);
-
-	MwLoop(window);
 }
