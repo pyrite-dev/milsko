@@ -53,12 +53,6 @@ WINDOWS = 1
 
 OPENGL = 1
 VULKAN = 1
-else ifeq ($(TARGET),UnixWare)
-CC = gcc
-UNIX = 1
-L_LIBS += -lsocket -lnsl
-
-NO_XRENDER = 1
 else ifeq ($(TARGET),SunOS)
 CC = gcc
 UNIX = 1
@@ -72,13 +66,7 @@ endif
 ifeq ($(UNIX),1)
 L_CFLAGS += -DUSE_X11
 L_OBJS += src/backend/x11.o
-L_LIBS += -lX11
-ifeq ($(NO_XRENDER),1)
-L_CFLAGS += -DNO_XRENDER
-else
-L_LIBS += -lXrender
-endif
-L_LIBS += -lXext
+L_LIBS += -lX11 -lXrender -lXext
 
 GL = -lGL
 
