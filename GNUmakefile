@@ -90,7 +90,7 @@ EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC)
 
 ifeq ($(OPENGL),1)
 L_OBJS += src/widget/opengl.o
-EXAMPLES += examples/opengl$(EXEC) examples/gears$(EXEC)
+EXAMPLES += examples/gltriangle$(EXEC) examples/glgears$(EXEC) examples/glboing$(EXEC)
 endif
 
 ifeq ($(VULKAN),1)
@@ -111,10 +111,7 @@ format:
 src/libMw$(SO): $(L_OBJS)
 	$(CC) $(L_LDFLAGS) -shared -o $@ $^ $(L_LIBS)
 
-examples/opengl$(EXEC): examples/opengl.o src/libMw$(SO)
-	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS) $(GL)
-
-examples/gears$(EXEC): examples/gears.o src/libMw$(SO)
+examples/gl%$(EXEC): examples/gl%.o src/libMw$(SO)
 	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS) $(GL)
 
 examples/%$(EXEC): examples/%.o src/libMw$(SO)
