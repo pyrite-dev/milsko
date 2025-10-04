@@ -22,7 +22,8 @@ typedef void* MwLLPixmap;
 
 #ifdef _MILSKO
 #ifdef USE_X11
-#include <Mw/X11.h>
+#undef USE_X11
+// #include <Mw/X11.h>
 #endif
 #ifdef USE_GDI
 #include <Mw/GDI.h>
