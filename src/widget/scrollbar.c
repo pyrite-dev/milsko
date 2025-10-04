@@ -17,7 +17,7 @@ static int create(MwWidget handle) {
 		  MwNminValue, 0,
 		  MwNmaxValue, 100,
 		  MwNvalue, 0,
-		  MwNareaShown, 25,
+		  MwNareaShown, 50,
 		  MwNorientation, MwVERTICAL,
 		  NULL);
 
@@ -42,6 +42,19 @@ static int calc_positition(MwWidget handle) {
 	int val = MwGetInteger(handle, MwNvalue);
 
 	return (max - calc_length(handle)) * (double)val / len;
+}
+
+static void add_value(MwWidget handle, int mul) {
+	int val = MwGetInteger(handle, MwNvalue);
+	int min = MwGetInteger(handle, MwNminValue);
+	int max = MwGetInteger(handle, MwNmaxValue);
+
+	val += mul * MwGetInteger(handle, MwNareaShown);
+
+	if(val < min) val = min;
+	if(val > max) val = max;
+
+	MwSetInteger(handle, MwNvalue, val);
 }
 
 static void draw(MwWidget handle) {
@@ -74,6 +87,9 @@ static void draw(MwWidget handle) {
 
 		rt.y = r.y;
 		MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.y <= uy) ? 1 : 0, MwNORTH);
+		if(handle->pressed && scr->point.y <= uy) {
+			add_value(handle, -1);
+		}
 
 		rbar.width  = r.width;
 		rbar.height = calc_length(handle);
@@ -82,11 +98,17 @@ static void draw(MwWidget handle) {
 
 		rt.y = r.y + r.height - rt.height;
 		MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.y >= dy) ? 1 : 0, MwSOUTH);
+		if(handle->pressed && scr->point.y >= dy) {
+			add_value(handle, 1);
+		}
 	} else if(or == MwHORIZONTAL) {
 		rt.width = rt.height;
 
 		rt.x = r.x;
 		MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.x <= ux) ? 1 : 0, MwWEST);
+		if(handle->pressed && scr->point.x <= ux) {
+			add_value(handle, -1);
+		}
 
 		rbar.width  = calc_length(handle);
 		rbar.height = r.height;
@@ -95,6 +117,9 @@ static void draw(MwWidget handle) {
 
 		rt.x = r.x + r.width - rt.width;
 		MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.x >= dx) ? 1 : 0, MwEAST);
+		if(handle->pressed && scr->point.x >= dx) {
+			add_value(handle, 1);
+		}
 	}
 
 	MwDrawFrame(handle, &rbar, base, 0);
