@@ -58,82 +58,61 @@ static void destroy(MwWidget handle) {
 	recursive_free(m);
 }
 
+#define MENU_LOOP_DECL \
+	int	i; \
+	MwMenu	m = handle->internal; \
+	MwPoint p; \
+	MwRect	r; \
+\
+	p.x = 10; \
+	p.y = MwGetInteger(handle, MwNheight) / 2; \
+\
+	r.x	 = 0; \
+	r.y	 = 0; \
+	r.width	 = MwGetInteger(handle, MwNwidth); \
+	r.height = MwGetInteger(handle, MwNheight);
+
+#define BEGIN_MENU_LOOP \
+	for(i = 0; i < arrlen(m->sub); i++) { \
+		int incr = m->sub[i]->name[0] == '?' ? 1 : 0; \
+		int tw	 = MwTextWidth(handle, m->sub[i]->name + incr); \
+		int th	 = MwTextHeight(handle, m->sub[i]->name + incr); \
+		int oldx = p.x; \
+		int in_area; \
+\
+		if(incr) { \
+			p.x = MwGetInteger(handle, MwNwidth) - tw - 10; \
+		} \
+		p.x += tw / 2; \
+\
+		r.x	 = p.x - tw / 2 - 5; \
+		r.y	 = p.y - th / 2 - 5; \
+		r.width	 = tw + 10; \
+		r.height = th + 10; \
+\
+		in_area = (r.x <= handle->mouse_point.x && r.y <= handle->mouse_point.y && handle->mouse_point.x <= (int)(r.x + r.width) && handle->mouse_point.y <= (int)(r.y + r.height)) ? 1 : 0;
+
+#define END_MENU_LOOP \
+	p.x += tw / 2 + 20; \
+	if(incr) p.x = oldx; \
+	}
+
 static void draw(MwWidget handle) {
-	MwRect	  r;
-	MwPoint	  p;
 	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwLLColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	MwMenu	  m    = handle->internal;
-	int	  i;
-	int	  first = 1;
-
-	p.x = 10;
-	p.y = MwGetInteger(handle, MwNheight) / 2;
-
-	r.x	 = 0;
-	r.y	 = 0;
-	r.width	 = MwGetInteger(handle, MwNwidth);
-	r.height = MwGetInteger(handle, MwNheight);
+	MENU_LOOP_DECL;
 
 	MwDrawFrame(handle, &r, base, 0);
 	MwDrawRect(handle, &r, base);
-	for(i = 0; i < arrlen(m->sub); i++) {
-		int incr = m->sub[i]->name[0] == '?' ? 1 : 0;
-		int tw	 = MwTextWidth(handle, m->sub[i]->name + incr);
-		int th	 = MwTextHeight(handle, m->sub[i]->name + incr);
-		int oldx = p.x;
-		int in_area;
 
-		if(incr) {
-			p.x = MwGetInteger(handle, MwNwidth) - tw - 10;
-		}
-		p.x += tw / 2;
-
-		r.x	 = p.x - tw / 2 - 5;
-		r.y	 = p.y - th / 2 - 5;
-		r.width	 = tw + 10;
-		r.height = th + 10;
-
-		in_area = (r.x <= handle->mouse_point.x && r.y <= handle->mouse_point.y && handle->mouse_point.x <= (int)(r.x + r.width) && handle->mouse_point.y <= (int)(r.y + r.height)) ? 1 : 0;
-		if(first && handle->pressed && in_area) {
-			first = 0;
-			MwDrawFrame(handle, &r, base, 0);
-			if(m->sub[i]->wsub == NULL && arrlen(m->sub[i]->sub) > 0) {
-				MwPoint p2;
-
-				p2.x = p.x - tw / 2 - 5;
-				p2.y = p.y + th / 2 + 5;
-
-				m->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
-				MwSubMenuAppear(m->sub[i]->wsub, m->sub[i], &p2);
-			} else if(m->sub[i]->wsub != NULL && m->sub[i]->keep) {
-				MwDestroyWidget(m->sub[i]->wsub);
-				m->sub[i]->wsub = NULL;
-				m->sub[i]->keep = 0;
-			} else if(arrlen(m->sub[i]->sub) == 0) {
-				MwDispatchUserHandler(handle, MwNmenuHandler, m->sub[i]);
-			}
-		} else if(!handle->pressed && m->sub[i]->wsub != NULL) {
-			if(in_area) {
-				MwDrawFrame(handle, &r, base, 0);
-				m->sub[i]->keep = 1;
-			} else {
-				MwDestroyWidget(m->sub[i]->wsub);
-				m->sub[i]->wsub = NULL;
-				m->sub[i]->keep = 0;
-			}
-		} else if(first && handle->pressed && m->sub[i]->keep && m->sub[i]->wsub != NULL) {
-			MwDestroyWidget(m->sub[i]->wsub);
-			m->sub[i]->wsub = NULL;
-			m->sub[i]->keep = 0;
-			first		= 0;
-		}
-
-		MwDrawText(handle, &p, m->sub[i]->name + incr, 1, text);
-
-		p.x += tw / 2 + 20;
-		if(incr) p.x = oldx;
+	BEGIN_MENU_LOOP;
+	(void)in_area;
+	if(m->sub[i]->wsub != NULL) {
+		MwDrawFrame(handle, &r, base, 0);
 	}
+
+	MwDrawText(handle, &p, m->sub[i]->name + incr, 1, text);
+	END_MENU_LOOP;
 
 	MwLLFreeColor(text);
 	MwLLFreeColor(base);
@@ -143,6 +122,50 @@ static void parent_resize(MwWidget handle) {
 	set_xywh(handle);
 }
 
+static void mouse_down(MwWidget handle) {
+	MENU_LOOP_DECL;
+	BEGIN_MENU_LOOP;
+	if(in_area) {
+		if(m->sub[i]->wsub == NULL && arrlen(m->sub[i]->sub) > 0) {
+			MwPoint p2;
+
+			p2.x = p.x - tw / 2 - 5;
+			p2.y = p.y + th / 2 + 5;
+
+			m->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
+			MwSubMenuAppear(m->sub[i]->wsub, m->sub[i], &p2);
+		} else if(m->sub[i]->wsub != NULL && m->sub[i]->keep) {
+			MwDestroyWidget(m->sub[i]->wsub);
+			m->sub[i]->wsub = NULL;
+			m->sub[i]->keep = 0;
+		} else if(arrlen(m->sub[i]->sub) == 0) {
+			MwDispatchUserHandler(handle, MwNmenuHandler, m->sub[i]);
+		}
+	} else if(m->sub[i]->keep && m->sub[i]->wsub != NULL) {
+		MwDestroyWidget(m->sub[i]->wsub);
+		m->sub[i]->wsub = NULL;
+		m->sub[i]->keep = 0;
+	}
+	END_MENU_LOOP;
+
+	MwForceRender(handle);
+}
+
+static void mouse_up(MwWidget handle) {
+	MENU_LOOP_DECL;
+	BEGIN_MENU_LOOP;
+	if(in_area && m->sub[i]->wsub != NULL) {
+		m->sub[i]->keep = 1;
+	} else if(m->sub[i]->wsub != NULL) {
+		MwDestroyWidget(m->sub[i]->wsub);
+		m->sub[i]->wsub = NULL;
+		m->sub[i]->keep = 0;
+	}
+	END_MENU_LOOP;
+
+	MwForceRender(handle);
+}
+
 MwClassRec MwMenuClassRec = {
     create,	   /* create */
     destroy,	   /* destroy */
@@ -150,8 +173,8 @@ MwClassRec MwMenuClassRec = {
     NULL,	   /* click */
     parent_resize, /* parent_resize */
     NULL,	   /* mouse_move */
-    MwForceRender, /* mouse_up */
-    MwForceRender  /* mouse_down */
+    mouse_up,	   /* mouse_up */
+    mouse_down	   /* mouse_down */
 };
 MwClass MwMenuClass = &MwMenuClassRec;
 
