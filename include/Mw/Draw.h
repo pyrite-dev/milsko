@@ -57,7 +57,6 @@ MWDECL void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int inve
  * %param rect Rectangle area
  * %param color Color
  * %param invert Invert the 3D border color or not
- * %warning `rect` gets changed to the area of rectangle inside
  */
 MWDECL void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction);
 
