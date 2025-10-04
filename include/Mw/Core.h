@@ -208,6 +208,12 @@ MWDECL void MwDispatchError(int code, const char* message);
  */
 MWDECL void MwGetBeforeStep(MwWidget handle, jmp_buf* jmpbuf);
 
+/*!
+ * %brief Forcefully makes widget render
+ * %param handle Widget
+ */
+MWDECL void MwForceRender(MwWidget handle);
+
 #ifdef __cplusplus
 }
 #endif

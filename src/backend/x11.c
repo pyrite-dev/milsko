@@ -150,7 +150,6 @@ void MwLLNextEvent(MwLL handle) {
 				p.y = ev.xbutton.y;
 
 				MwLLDispatch(handle, down, &p);
-				render = 1;
 			}
 		} else if(ev.type == ButtonRelease) {
 			if(ev.xbutton.button == Button1) {
@@ -159,7 +158,6 @@ void MwLLNextEvent(MwLL handle) {
 				p.y = ev.xbutton.y;
 
 				MwLLDispatch(handle, up, &p);
-				render = 1;
 			}
 		} else if(ev.type == ConfigureNotify) {
 			MwLLDispatch(handle, resize, NULL);
