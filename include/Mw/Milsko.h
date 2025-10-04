@@ -21,5 +21,6 @@
 #include <Mw/SubMenu.h>
 #include <Mw/Button.h>
 #include <Mw/Frame.h>
+#include <Mw/Image.h>
 
 #endif

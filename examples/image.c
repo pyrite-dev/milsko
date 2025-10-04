@@ -3,16 +3,16 @@
 
 int main() {
 	MwWidget   window = MwVaCreateWidget(MwWindowClass, "window", NULL, 0, 0, 500, 500,
-					     MwNtitle, "image button",
+					     MwNtitle, "image image",
 					     NULL);
-	MwWidget   button = MwCreateWidget(MwButtonClass, "button", window, 50, 50, 400, 400);
+	MwWidget   image  = MwCreateWidget(MwImageClass, "image", window, 50, 50, 400, 400);
 	MwLLPixmap px	  = MwLoadImage(window, "examples/picture.png");
 
 	MwVaApply(window,
 		  MwNiconPixmap, px,
 		  NULL);
 
-	MwVaApply(button,
+	MwVaApply(image,
 		  MwNpixmap, px,
 		  NULL);
 
