@@ -262,7 +262,7 @@ int main() {
 	MwWidget window;
 
 	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 500, 500,
-				  MwNtitle, "main",
+				  MwNtitle, "gears",
 				  NULL);
 	opengl = MwCreateWidget(MwOpenGLClass, "opengl", window, 50, 50, 400, 400);
 
