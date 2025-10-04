@@ -86,7 +86,7 @@ SO = .dll
 EXEC = .exe
 endif
 
-EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC)
+EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC) examples/scrollbar$(EXEC)
 
 ifeq ($(OPENGL),1)
 L_OBJS += src/widget/opengl.o
