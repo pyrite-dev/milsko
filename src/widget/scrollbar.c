@@ -76,13 +76,13 @@ static void draw(MwWidget handle) {
 }
 
 MwClassRec MwScrollBarClassRec = {
-    create,  /* create */
-    destroy, /* destroy */
-    draw,    /* draw */
-    NULL,    /* click */
-    NULL,    /* parent_resize */
-    NULL,    /* mouse_move */
-    NULL,    /* mouse_up */
-    NULL     /* mouse_down */
+    create,	   /* create */
+    destroy,	   /* destroy */
+    draw,	   /* draw */
+    NULL,	   /* click */
+    NULL,	   /* parent_resize */
+    NULL,	   /* mouse_move */
+    MwForceRender, /* mouse_up */
+    MwForceRender  /* mouse_down */
 };
 MwClass MwScrollBarClass = &MwScrollBarClassRec;

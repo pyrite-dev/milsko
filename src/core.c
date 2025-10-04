@@ -335,3 +335,7 @@ void MwDispatchError(int code, const char* message) {
 void MwGetBeforeStep(MwWidget handle, jmp_buf* jmpbuf) {
 	memcpy(jmpbuf, &handle->before_step, sizeof(*jmpbuf));
 }
+
+void MwForceRender(MwWidget handle) {
+	MwLLForceRender(handle->lowlevel);
+}

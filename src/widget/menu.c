@@ -150,8 +150,8 @@ MwClassRec MwMenuClassRec = {
     NULL,	   /* click */
     parent_resize, /* parent_resize */
     NULL,	   /* mouse_move */
-    NULL,	   /* mouse_up */
-    NULL	   /* mouse_down */
+    MwForceRender, /* mouse_up */
+    MwForceRender  /* mouse_down */
 };
 MwClass MwMenuClass = &MwMenuClassRec;
 

@@ -47,7 +47,6 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 		SetCapture(hWnd);
 		MwLLDispatch(u->ll, down, &p);
-		InvalidateRect(hWnd, NULL, FALSE);
 	} else if(msg == WM_LBUTTONUP) {
 		MwPoint p;
 		p.x = LOWORD(lp);
@@ -55,7 +54,6 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 		SetCapture(NULL);
 		MwLLDispatch(u->ll, up, &p);
-		InvalidateRect(hWnd, NULL, FALSE);
 	} else if(msg == WM_MOUSEMOVE) {
 		MwPoint p;
 		p.x = LOWORD(lp);
