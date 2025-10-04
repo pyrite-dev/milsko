@@ -143,7 +143,7 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 
 void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction) {
 	MwPoint	  p1[4], p2[4], p3[4], p4[3];
-	const int border  = BorderWidth * 2;
+	const int border  = BorderWidth;
 	MwLLColor darker  = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 
