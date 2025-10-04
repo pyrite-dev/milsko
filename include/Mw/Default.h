@@ -23,6 +23,11 @@ MWDECL const char* MwDefaultBackground;
  */
 MWDECL const char* MwDefaultForeground;
 
+/*!
+ * %brief Default border width
+ */
+MWDECL const int MwDefaultBorderWidth;
+
 #ifdef __cplusplus
 }
 #endif

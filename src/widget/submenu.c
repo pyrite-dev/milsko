@@ -125,7 +125,7 @@ static void click(MwWidget handle) {
 					MwDestroyWidget(menu->sub[i]->wsub);
 					menu->sub[i]->wsub = NULL;
 
-					MwLLForceRender(handle->lowlevel);
+					MwForceRender(handle);
 				} else if(arrlen(menu->sub[i]->sub) == 0) {
 					MwWidget p;
 
@@ -136,7 +136,7 @@ static void click(MwWidget handle) {
 
 					MwDestroyWidget(w);
 
-					MwLLForceRender(p->lowlevel);
+					MwForceRender(p);
 
 					MwDispatchUserHandler(p, MwNmenuHandler, menu->sub[i]);
 
