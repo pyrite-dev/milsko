@@ -96,7 +96,11 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	shdefault(h->handler, NULL);
 	shdefault(h->data, NULL);
 
-	MwDispatch(h, create);
+	if(MwDispatch2(h, create)) {
+		h->widget_class = NULL;
+		MwDestroyWidget(h);
+		return NULL;
+	}
 
 	return h;
 }

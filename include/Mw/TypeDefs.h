@@ -24,6 +24,7 @@ typedef void* MwWidget;
 typedef void* MwMenu;
 #endif
 typedef void (*MwHandler)(MwWidget handle);
+typedef int (*MwHandler2)(MwWidget handle);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
 
@@ -96,11 +97,11 @@ struct _MwMenu {
 #endif
 
 struct _MwClass {
-	MwHandler create;
-	MwHandler destroy;
-	MwHandler draw;
-	MwHandler click;
-	MwHandler parent_resize;
+	MwHandler2 create;
+	MwHandler  destroy;
+	MwHandler  draw;
+	MwHandler  click;
+	MwHandler  parent_resize;
 };
 
 struct _MwFont {

@@ -117,30 +117,32 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o);
 static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o);
 static MwErrorEnum vulkan_devices_setup(MwWidget handle, vulkan_t* o);
 
-static void create(MwWidget handle) {
+static int create(MwWidget handle) {
 	vulkan_t*   o = malloc(sizeof(*o));
 	MwErrorEnum err;
 
 	err = vulkan_instance_setup(handle, o);
 	if(err != MwEsuccess) {
 		printf("%s", MwGetLastError());
-		return;
+		return 1;
 	}
 	err = vulkan_surface_setup(handle, o);
 	if(err != MwEsuccess) {
 		printf("%s", MwGetLastError());
-		return;
+		return 1;
 	}
 	err = vulkan_devices_setup(handle, o);
 	if(err != MwEsuccess) {
 		printf("%s", MwGetLastError());
-		return;
+		return 1;
 	}
 
 	handle->lowlevel->copy_buffer = 0;
 
 	handle->internal = o;
 	MwSetDefault(handle);
+
+	return 0;
 }
 
 static MwErrorEnum _destroy(MwWidget handle) {

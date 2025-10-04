@@ -3,13 +3,15 @@
 
 #include "../external/stb_ds.h"
 
-static void create(MwWidget handle) {
+static int create(MwWidget handle) {
 #ifdef _WIN32
 #else
 	XUnmapWindow(handle->lowlevel->display, handle->lowlevel->window);
 #endif
 
 	MwSetDefault(handle);
+
+	return 0;
 }
 
 static void null_all(MwMenu menu) {

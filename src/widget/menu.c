@@ -25,7 +25,7 @@ static void set_xywh(MwWidget handle) {
 		  NULL);
 }
 
-static void create(MwWidget handle) {
+static int create(MwWidget handle) {
 	MwMenu m = malloc(sizeof(*m));
 
 	m->name		 = NULL;
@@ -37,6 +37,8 @@ static void create(MwWidget handle) {
 	MwSetDefault(handle);
 
 	set_xywh(handle);
+
+	return 0;
 }
 
 static void recursive_free(MwMenu m) {
