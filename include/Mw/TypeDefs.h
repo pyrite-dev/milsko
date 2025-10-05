@@ -85,6 +85,8 @@ struct _MwWidget {
 	MwTextKeyValue*	       text;
 	MwUserHandlerKeyValue* handler;
 	MwVoidKeyValue*	       data;
+
+	MwWidget* destroy_queue;
 };
 
 struct _MwMenu {

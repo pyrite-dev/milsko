@@ -25,6 +25,7 @@ static void null_all(MwMenu menu) {
 static void destroy(MwWidget handle) {
 	MwMenu menu = handle->internal;
 
+	menu->wsub = NULL;
 	null_all(menu);
 }
 
@@ -122,27 +123,24 @@ static void click(MwWidget handle) {
 					MwSubMenuAppear(menu->sub[i]->wsub, menu->sub[i], &p);
 					i = -1;
 				} else if(menu->sub[i]->wsub != NULL && arrlen(menu->sub[i]->sub) > 0) {
+					while(w->parent->widget_class != MwMenuClass) w = w->parent;
+
 					MwDestroyWidget(menu->sub[i]->wsub);
 					menu->sub[i]->wsub = NULL;
 
+					MwForceRender(w->parent);
+
 					MwForceRender(handle);
 				} else if(arrlen(menu->sub[i]->sub) == 0) {
-					MwWidget p;
-
 					while(w->parent->widget_class != MwMenuClass) w = w->parent;
 					MwGetBeforeStep(w, &jmp);
 
-					p = w->parent;
-
 					MwDestroyWidget(w);
+					((MwMenu)w->internal)->wsub = NULL;
 
-					MwForceRender(p);
+					MwForceRender(w->parent);
 
-					MwDispatchUserHandler(p, MwNmenuHandler, menu->sub[i]);
-
-					longjmp(jmp, 1);
-
-					break;
+					MwDispatchUserHandler(w->parent, MwNmenuHandler, menu->sub[i]);
 				}
 			}
 
@@ -166,9 +164,23 @@ MwClass MwSubMenuClass = &MwSubMenuClassRec;
 void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 	int i, w = 0, h = 0;
 #ifdef _WIN32
-	RECT rc;
+	RECT	 rc;
+	LONG_PTR ex = GetWindowLongPtr(handle->lowlevel->hWnd, GWL_EXSTYLE);
+#else
+	Atom		     wndtype = XInternAtom(handle->lowlevel->display, "_NET_WM_WINDOW_TYPE", False);
+	Atom		     wndmenu = XInternAtom(handle->lowlevel->display, "_NET_WM_WINDOW_TYPE_MENU", False);
+	int		     x = 0, y = 0;
+	Window		     child;
+	XSetWindowAttributes xswa;
+#endif
 
-	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_STYLE, (LONG_PTR)WS_POPUP);
+	handle->internal = menu;
+
+#ifdef _WIN32
+	ex |= WS_EX_TOOLWINDOW;
+
+	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_STYLE, (LONG_PTR)0);
+	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_EXSTYLE, ex);
 
 	GetWindowRect(handle->parent->lowlevel->hWnd, &rc);
 
@@ -177,18 +189,12 @@ void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 	rc.left += point->x;
 	rc.top += point->y;
 
-	SetWindowPos(handle->lowlevel->hWnd, NULL, rc.left, rc.top, 1, 1, SWP_NOREDRAW);
+	SetWindowPos(handle->lowlevel->hWnd, HWND_TOPMOST, rc.left, rc.top, 1, 1, SWP_NOREDRAW);
 
 	ShowWindow(handle->lowlevel->hWnd, SW_NORMAL);
-	UpdateWindow(handle->lowlevel->hWnd);
 
 	SetFocus(handle->lowlevel->hWnd);
 #else
-	Atom		     wndtype = XInternAtom(handle->lowlevel->display, "_NET_WM_WINDOW_TYPE", False);
-	Atom		     wndmenu = XInternAtom(handle->lowlevel->display, "_NET_WM_WINDOW_TYPE_MENU", False);
-	int		     x = 0, y = 0;
-	Window		     child;
-	XSetWindowAttributes xswa;
 
 	xswa.override_redirect = True;
 
@@ -202,8 +208,6 @@ void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 	XMapWindow(handle->lowlevel->display, handle->lowlevel->window);
 	XSetInputFocus(handle->lowlevel->display, handle->lowlevel->window, RevertToNone, CurrentTime);
 #endif
-
-	handle->internal = menu;
 
 	for(i = 0; i < arrlen(menu->sub); i++) {
 		int tw = MwTextWidth(handle, menu->sub[i]->name);

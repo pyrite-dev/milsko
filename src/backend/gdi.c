@@ -134,6 +134,8 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 void MwLLDestroy(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
+	/* for safety */
+	SetWindowLongPtr(handle->hWnd, GWLP_USERDATA, (LONG_PTR)NULL);
 	DestroyWindow(handle->hWnd);
 
 	free(handle);
