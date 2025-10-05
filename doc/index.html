@@ -9,10 +9,13 @@
 		<h2 align="center">Table of Contents</h2>
 <dl>
 <dt>
-	<a href="#Mw_Button_h">Mw/Button.h</a>
+	<a href="#Mw_Constants_h">Mw/Constants.h</a>
 </dt>
 <dd>
-	<a href="#Mw_Button_h__MwButtonClass">MwButtonClass</a>
+	<a href="#Mw_Constants_h__MwDIRECTION">MwDIRECTION</a>
+</dd>
+<dd>
+	<a href="#Mw_Constants_h__MwORIENTATION">MwORIENTATION</a>
 </dd>
 <dt>
 	<a href="#Mw_Core_h">Mw/Core.h</a>
@@ -86,6 +89,9 @@
 <dd>
 	<a href="#Mw_Core_h__MwGetBeforeStep">MwGetBeforeStep</a>
 </dd>
+<dd>
+	<a href="#Mw_Core_h__MwForceRender">MwForceRender</a>
+</dd>
 <dt>
 	<a href="#Mw_Default_h">Mw/Default.h</a>
 </dt>
@@ -95,6 +101,9 @@
 <dd>
 	<a href="#Mw_Default_h__MwDefaultForeground">MwDefaultForeground</a>
 </dd>
+<dd>
+	<a href="#Mw_Default_h__MwDefaultBorderWidth">MwDefaultBorderWidth</a>
+</dd>
 <dt>
 	<a href="#Mw_Draw_h">Mw/Draw.h</a>
 </dt>
@@ -102,10 +111,16 @@
 	<a href="#Mw_Draw_h__MwParseColor">MwParseColor</a>
 </dd>
 <dd>
+	<a href="#Mw_Draw_h__MwLightenColor">MwLightenColor</a>
+</dd>
+<dd>
 	<a href="#Mw_Draw_h__MwDrawRect">MwDrawRect</a>
 </dd>
 <dd>
 	<a href="#Mw_Draw_h__MwDrawFrame">MwDrawFrame</a>
+</dd>
+<dd>
+	<a href="#Mw_Draw_h__MwDrawTriangle">MwDrawTriangle</a>
 </dd>
 <dd>
 	<a href="#Mw_Draw_h__MwDrawFrameEx">MwDrawFrameEx</a>
@@ -147,144 +162,166 @@
 	<a href="#Mw_Font_h__MwBoldFontData__">MwBoldFontData[]</a>
 </dd>
 <dt>
-	<a href="#Mw_Frame_h">Mw/Frame.h</a>
-</dt>
-<dd>
-	<a href="#Mw_Frame_h__MwFrameClass">MwFrameClass</a>
-</dd>
-<dt>
-	<a href="#Mw_Image_h">Mw/Image.h</a>
-</dt>
-<dd>
-	<a href="#Mw_Image_h__MwImageClass">MwImageClass</a>
-</dd>
-<dt>
 	<a href="#Mw_LowLevel_h">Mw/LowLevel.h</a>
 </dt>
 <dt>
 	<a href="#Mw_MachDep_h">Mw/MachDep.h</a>
 </dt>
 <dt>
-	<a href="#Mw_Menu_h">Mw/Menu.h</a>
-</dt>
-<dd>
-	<a href="#Mw_Menu_h__MwMenuClass">MwMenuClass</a>
-</dd>
-<dd>
-	<a href="#Mw_Menu_h__MwMenuAdd">MwMenuAdd</a>
-</dd>
-<dt>
 	<a href="#Mw_Milsko_h">Mw/Milsko.h</a>
 </dt>
-<dt>
-	<a href="#Mw_OpenGL_h">Mw/OpenGL.h</a>
-</dt>
-<dd>
-	<a href="#Mw_OpenGL_h__MwOpenGLClass">MwOpenGLClass</a>
-</dd>
-<dd>
-	<a href="#Mw_OpenGL_h__MwOpenGLMakeCurrent">MwOpenGLMakeCurrent</a>
-</dd>
-<dd>
-	<a href="#Mw_OpenGL_h__MwOpenGLGetProcAddress">MwOpenGLGetProcAddress</a>
-</dd>
-<dd>
-	<a href="#Mw_OpenGL_h__MwOpenGLSwapBuffer">MwOpenGLSwapBuffer</a>
-</dd>
 <dt>
 	<a href="#Mw_StringDefs_h">Mw/StringDefs.h</a>
 </dt>
 <dt>
-	<a href="#Mw_SubMenu_h">Mw/SubMenu.h</a>
-</dt>
-<dd>
-	<a href="#Mw_SubMenu_h__MwSubMenuClass">MwSubMenuClass</a>
-</dd>
-<dt>
 	<a href="#Mw_TypeDefs_h">Mw/TypeDefs.h</a>
 </dt>
 <dt>
-	<a href="#Mw_Vulkan_h">Mw/Vulkan.h</a>
+	<a href="#Mw_Widget_Button_h">Mw/Widget/Button.h</a>
 </dt>
 <dd>
-	<a href="#Mw_Vulkan_h__MwVulkanClass">MwVulkanClass</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h__MwVulkanEnableExtension">MwVulkanEnableExtension</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h__MwVulkanEnableLayer">MwVulkanEnableLayer</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h__MwVulkanConfig_T">MwVulkanConfig_T</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h__api_version">api_version</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h__vk_version">vk_version</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h__validation_layers">validation_layers</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h__MwVulkanConfigure">MwVulkanConfigure</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h__MwVulkanField_T">MwVulkanField_T</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h___MwVulkanField_GetInstanceProcAddr_"> MwVulkanField_GetInstanceProcAddr </a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h___MwVulkanField_Instance"> MwVulkanField_Instance</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h___MwVulkanField_Surface"> MwVulkanField_Surface</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h___MwVulkanField_PhysicalDevice"> MwVulkanField_PhysicalDevice</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h___MwVulkanField_LogicalDevice"> MwVulkanField_LogicalDevice</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h___MwVulkanField_GraphicsQueueIndex"> MwVulkanField_GraphicsQueueIndex</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h___MwVulkanField_PresentQueueIndex"> MwVulkanField_PresentQueueIndex</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h___MwVulkanField_PresentQueue"> MwVulkanField_PresentQueue</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h__MwVulkanField">MwVulkanField</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h__MwVulkanGetField">MwVulkanGetField</a>
-</dd>
-<dd>
-	<a href="#Mw_Vulkan_h__MwVulkanSupported">MwVulkanSupported</a>
+	<a href="#Mw_Widget_Button_h__MwButtonClass">MwButtonClass</a>
 </dd>
 <dt>
-	<a href="#Mw_Window_h">Mw/Window.h</a>
+	<a href="#Mw_Widget_Frame_h">Mw/Widget/Frame.h</a>
 </dt>
 <dd>
-	<a href="#Mw_Window_h__MwWindowClass">MwWindowClass</a>
+	<a href="#Mw_Widget_Frame_h__MwFrameClass">MwFrameClass</a>
+</dd>
+<dt>
+	<a href="#Mw_Widget_Image_h">Mw/Widget/Image.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Widget_Image_h__MwImageClass">MwImageClass</a>
+</dd>
+<dt>
+	<a href="#Mw_Widget_Menu_h">Mw/Widget/Menu.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Widget_Menu_h__MwMenuClass">MwMenuClass</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Menu_h__MwMenuAdd">MwMenuAdd</a>
+</dd>
+<dt>
+	<a href="#Mw_Widget_OpenGL_h">Mw/Widget/OpenGL.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Widget_OpenGL_h__MwOpenGLClass">MwOpenGLClass</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_OpenGL_h__MwOpenGLMakeCurrent">MwOpenGLMakeCurrent</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_OpenGL_h__MwOpenGLGetProcAddress">MwOpenGLGetProcAddress</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_OpenGL_h__MwOpenGLSwapBuffer">MwOpenGLSwapBuffer</a>
+</dd>
+<dt>
+	<a href="#Mw_Widget_ScrollBar_h">Mw/Widget/ScrollBar.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Widget_ScrollBar_h__MwScrollBarClass">MwScrollBarClass</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_ScrollBar_h__MwScrollBarGetVisibleLength">MwScrollBarGetVisibleLength</a>
+</dd>
+<dt>
+	<a href="#Mw_Widget_SubMenu_h">Mw/Widget/SubMenu.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Widget_SubMenu_h__MwSubMenuClass">MwSubMenuClass</a>
+</dd>
+<dt>
+	<a href="#Mw_Widget_Vulkan_h">Mw/Widget/Vulkan.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h__MwVulkanClass">MwVulkanClass</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h__MwVulkanEnableExtension">MwVulkanEnableExtension</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h__MwVulkanEnableLayer">MwVulkanEnableLayer</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h__MwVulkanConfig_T">MwVulkanConfig_T</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h__api_version">api_version</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h__vk_version">vk_version</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h__validation_layers">validation_layers</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h__MwVulkanConfigure">MwVulkanConfigure</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h__MwVulkanField_T">MwVulkanField_T</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h___MwVulkanField_GetInstanceProcAddr_"> MwVulkanField_GetInstanceProcAddr </a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h___MwVulkanField_Instance"> MwVulkanField_Instance</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h___MwVulkanField_Surface"> MwVulkanField_Surface</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h___MwVulkanField_PhysicalDevice"> MwVulkanField_PhysicalDevice</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h___MwVulkanField_LogicalDevice"> MwVulkanField_LogicalDevice</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h___MwVulkanField_GraphicsQueueIndex"> MwVulkanField_GraphicsQueueIndex</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h___MwVulkanField_PresentQueueIndex"> MwVulkanField_PresentQueueIndex</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h___MwVulkanField_PresentQueue"> MwVulkanField_PresentQueue</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h__MwVulkanField">MwVulkanField</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h__MwVulkanGetField">MwVulkanGetField</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Vulkan_h__MwVulkanSupported">MwVulkanSupported</a>
+</dd>
+<dt>
+	<a href="#Mw_Widget_Window_h">Mw/Widget/Window.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Widget_Window_h__MwWindowClass">MwWindowClass</a>
 </dd>
 </dl>
 <hr>
-<h2 align="center" id="Mw_Button_h">Mw/Button.h</h2>
+<h2 align="center" id="Mw_Constants_h">Mw/Constants.h</h2>
 <dl>
 <dt>
-	Button widget.
+	Constants.
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Button_h__MwButtonClass"><code>MWDECL MwClass MwButtonClass;</code></pre>
+<pre id="Mw_Constants_h__MwDIRECTION"><code>enum MwDIRECTION;</code></pre>
 <dl>
 <dd>
-	Button widget class.
+	Direction enumeration.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h__MwORIENTATION"><code>enum MwORIENTATION;</code></pre>
+<dl>
+<dd>
+	Orientation.
 </dd>
 </dl>
 <hr>
@@ -301,11 +338,8 @@
 	Dispatches the handler of widget class.
 </dd>
 <dt>
-	<img src="warning.gif" alt="warning">
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td>Used internally.</td></table>
 </dt>
-<dd>
-	Used internally.
-</dd>
 <dt>
 	Parameter <code>x</code>
 </dt>
@@ -326,11 +360,8 @@
 	Dispatches the handler of widget class.
 </dd>
 <dt>
-	<img src="warning.gif" alt="warning">
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td>Used internally.</td></table>
 </dt>
-<dd>
-	Used internally.
-</dd>
 <dt>
 	Parameter <code>x</code>
 </dt>
@@ -799,11 +830,8 @@
 	Sets the default property.
 </dd>
 <dt>
-	<img src="warning.gif" alt="warning">
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td>This is called when widget is created.</td></table>
 </dt>
-<dd>
-	This is called when widget is created.
-</dd>
 <dt>
 	Parameter <code>handle</code>
 </dt>
@@ -993,6 +1021,21 @@
 </dd>
 </dl>
 <hr>
+<pre id="Mw_Core_h__MwForceRender"><code>MWDECL void MwForceRender (
+	MwWidget handle
+);</code></pre>
+<dl>
+<dd>
+	Forcefully makes widget render.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_Default_h">Mw/Default.h</h2>
 <dl>
 <dt>
@@ -1011,6 +1054,13 @@
 <dl>
 <dd>
 	Default foreground color.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Default_h__MwDefaultBorderWidth"><code>MWDECL const int MwDefaultBorderWidth;</code></pre>
+<dl>
+<dd>
+	Default border width.
 </dd>
 </dl>
 <hr>
@@ -1040,6 +1090,55 @@
 </dt>
 <dd>
 	Color text.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Color.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwLightenColor"><code>MWDECL MwLLColor MwLightenColor (
+	MwWidget handle,
+	MwLLColor color,
+	int r,
+	int g,
+	int b
+);</code></pre>
+<dl>
+<dd>
+	Lighten a color.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>color</code>
+</dt>
+<dd>
+	Color.
+</dd>
+<dt>
+	Parameter <code>r</code>
+</dt>
+<dd>
+	Red.
+</dd>
+<dt>
+	Parameter <code>g</code>
+</dt>
+<dd>
+	Green.
+</dd>
+<dt>
+	Parameter <code>b</code>
+</dt>
+<dd>
+	Blue.
 </dd>
 <dt>
 	Returns
@@ -1089,10 +1188,44 @@
 	Draws a frame.
 </dd>
 <dt>
-	<img src="warning.gif" alt="warning">
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td><code>rect</code> gets changed to the area of rectangle inside.</td></table>
+</dt>
+<dt>
+	Parameter <code>handle</code>
 </dt>
 <dd>
-	<code>rect</code> gets changed to the area of rectangle inside.
+	Widget.
+</dd>
+<dt>
+	Parameter <code>rect</code>
+</dt>
+<dd>
+	Rectangle area.
+</dd>
+<dt>
+	Parameter <code>color</code>
+</dt>
+<dd>
+	Color.
+</dd>
+<dt>
+	Parameter <code>invert</code>
+</dt>
+<dd>
+	Invert the 3D border color or not.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwDrawTriangle"><code>MWDECL void MwDrawTriangle (
+	MwWidget handle,
+	MwRect* rect,
+	MwLLColor color,
+	int invert,
+	int direction
+);</code></pre>
+<dl>
+<dd>
+	Draws a triangle.
 </dd>
 <dt>
 	Parameter <code>handle</code>
@@ -1132,11 +1265,8 @@
 	Draws a frame with specified border width.
 </dd>
 <dt>
-	<img src="warning.gif" alt="warning">
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td><code>rect</code> gets changed to the area of rectangle inside.</td></table>
 </dt>
-<dd>
-	<code>rect</code> gets changed to the area of rectangle inside.
-</dd>
 <dt>
 	Parameter <code>handle</code>
 </dt>
@@ -1352,45 +1482,14 @@
 </dd>
 </dl>
 <hr>
-<h2 align="center" id="Mw_Frame_h">Mw/Frame.h</h2>
-<dl>
-<dt>
-	Frame widget.
-</dt>
-</dl>
-<hr>
-<pre id="Mw_Frame_h__MwFrameClass"><code>MWDECL MwClass MwFrameClass;</code></pre>
-<dl>
-<dd>
-	Frame widget class.
-</dd>
-</dl>
-<hr>
-<h2 align="center" id="Mw_Image_h">Mw/Image.h</h2>
-<dl>
-<dt>
-	Image widget.
-</dt>
-</dl>
-<hr>
-<pre id="Mw_Image_h__MwImageClass"><code>MWDECL MwClass MwImageClass;</code></pre>
-<dl>
-<dd>
-	Image widget class.
-</dd>
-</dl>
-<hr>
 <h2 align="center" id="Mw_LowLevel_h">Mw/LowLevel.h</h2>
 <dl>
 <dt>
 	Low-level drawing API.
 </dt>
 <dt>
-	<img src="warning.gif" alt="warning">
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td>This is used internally.</td></table>
 </dt>
-<dd>
-	This is used internally.
-</dd>
 </dl>
 <hr>
 <h2 align="center" id="Mw_MachDep_h">Mw/MachDep.h</h2>
@@ -1400,21 +1499,84 @@
 </dt>
 </dl>
 <hr>
-<h2 align="center" id="Mw_Menu_h">Mw/Menu.h</h2>
+<h2 align="center" id="Mw_Milsko_h">Mw/Milsko.h</h2>
+<dl>
+<dt>
+	Includes all headers.
+</dt>
+</dl>
+<hr>
+<h2 align="center" id="Mw_StringDefs_h">Mw/StringDefs.h</h2>
+<dl>
+<dt>
+	String definitions for property.
+</dt>
+</dl>
+<hr>
+<h2 align="center" id="Mw_TypeDefs_h">Mw/TypeDefs.h</h2>
+<dl>
+<dt>
+	Type definitions.
+</dt>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Widget_Button_h">Mw/Widget/Button.h</h2>
+<dl>
+<dt>
+	Button widget.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Widget_Button_h__MwButtonClass"><code>MWDECL MwClass MwButtonClass;</code></pre>
+<dl>
+<dd>
+	Button widget class.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Widget_Frame_h">Mw/Widget/Frame.h</h2>
+<dl>
+<dt>
+	Frame widget.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Widget_Frame_h__MwFrameClass"><code>MWDECL MwClass MwFrameClass;</code></pre>
+<dl>
+<dd>
+	Frame widget class.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Widget_Image_h">Mw/Widget/Image.h</h2>
+<dl>
+<dt>
+	Image widget.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Widget_Image_h__MwImageClass"><code>MWDECL MwClass MwImageClass;</code></pre>
+<dl>
+<dd>
+	Image widget class.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Widget_Menu_h">Mw/Widget/Menu.h</h2>
 <dl>
 <dt>
 	Menu widget.
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Menu_h__MwMenuClass"><code>MWDECL MwClass MwMenuClass;</code></pre>
+<pre id="Mw_Widget_Menu_h__MwMenuClass"><code>MWDECL MwClass MwMenuClass;</code></pre>
 <dl>
 <dd>
 	Menu widget class.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Menu_h__MwMenuAdd"><code>MWDECL MwMenu MwMenuAdd (
+<pre id="Mw_Widget_Menu_h__MwMenuAdd"><code>MWDECL MwMenu MwMenuAdd (
 	MwWidget handle,
 	MwMenu menu,
 	const char* name
@@ -1449,28 +1611,21 @@
 </dd>
 </dl>
 <hr>
-<h2 align="center" id="Mw_Milsko_h">Mw/Milsko.h</h2>
-<dl>
-<dt>
-	Includes all headers.
-</dt>
-</dl>
-<hr>
-<h2 align="center" id="Mw_OpenGL_h">Mw/OpenGL.h</h2>
+<h2 align="center" id="Mw_Widget_OpenGL_h">Mw/Widget/OpenGL.h</h2>
 <dl>
 <dt>
 	OpenGL widget.
 </dt>
 </dl>
 <hr>
-<pre id="Mw_OpenGL_h__MwOpenGLClass"><code>MWDECL MwClass MwOpenGLClass;</code></pre>
+<pre id="Mw_Widget_OpenGL_h__MwOpenGLClass"><code>MWDECL MwClass MwOpenGLClass;</code></pre>
 <dl>
 <dd>
 	OpenGL widget class.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_OpenGL_h__MwOpenGLMakeCurrent"><code>MWDECL void MwOpenGLMakeCurrent (
+<pre id="Mw_Widget_OpenGL_h__MwOpenGLMakeCurrent"><code>MWDECL void MwOpenGLMakeCurrent (
 	MwWidget handle
 );</code></pre>
 <dl>
@@ -1485,7 +1640,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_OpenGL_h__MwOpenGLGetProcAddress"><code>MWDECL void* MwOpenGLGetProcAddress (
+<pre id="Mw_Widget_OpenGL_h__MwOpenGLGetProcAddress"><code>MWDECL void* MwOpenGLGetProcAddress (
 	MwWidget handle,
 	const char* name
 );</code></pre>
@@ -1513,7 +1668,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_OpenGL_h__MwOpenGLSwapBuffer"><code>MWDECL void MwOpenGLSwapBuffer (
+<pre id="Mw_Widget_OpenGL_h__MwOpenGLSwapBuffer"><code>MWDECL void MwOpenGLSwapBuffer (
 	MwWidget handle
 );</code></pre>
 <dl>
@@ -1528,55 +1683,73 @@
 </dd>
 </dl>
 <hr>
-<h2 align="center" id="Mw_StringDefs_h">Mw/StringDefs.h</h2>
+<h2 align="center" id="Mw_Widget_ScrollBar_h">Mw/Widget/ScrollBar.h</h2>
 <dl>
 <dt>
-	String definitions for property.
+	ScrollBar widget.
 </dt>
 </dl>
 <hr>
-<h2 align="center" id="Mw_SubMenu_h">Mw/SubMenu.h</h2>
+<pre id="Mw_Widget_ScrollBar_h__MwScrollBarClass"><code>MWDECL MwClass MwScrollBarClass;</code></pre>
+<dl>
+<dd>
+	ScrollBar widget class.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_ScrollBar_h__MwScrollBarGetVisibleLength"><code>MWDECL int MwScrollBarGetVisibleLength (
+	MwWidget handle
+);</code></pre>
+<dl>
+<dd>
+	Calculates a visible length of scrollbar.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Visible length.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Widget_SubMenu_h">Mw/Widget/SubMenu.h</h2>
 <dl>
 <dt>
 	SubMenu widget.
 </dt>
 </dl>
 <hr>
-<pre id="Mw_SubMenu_h__MwSubMenuClass"><code>MWDECL MwClass MwSubMenuClass;</code></pre>
+<pre id="Mw_Widget_SubMenu_h__MwSubMenuClass"><code>MWDECL MwClass MwSubMenuClass;</code></pre>
 <dl>
 <dd>
 	SubMenu widget class.
 </dd>
 </dl>
 <hr>
-<h2 align="center" id="Mw_TypeDefs_h">Mw/TypeDefs.h</h2>
-<dl>
-<dt>
-	Type definitions.
-</dt>
-</dl>
-<hr>
-<h2 align="center" id="Mw_Vulkan_h">Mw/Vulkan.h</h2>
+<h2 align="center" id="Mw_Widget_Vulkan_h">Mw/Widget/Vulkan.h</h2>
 <dl>
 <dt>
 	Vulkan widget.
 </dt>
 <dt>
-	<img src="warning.gif" alt="warning">
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td>This header is not documented yet.</td></table>
 </dt>
-<dd>
-	This header is not documented yet.
-</dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h__MwVulkanClass"><code>MWDECL MwClass MwVulkanClass;</code></pre>
+<pre id="Mw_Widget_Vulkan_h__MwVulkanClass"><code>MWDECL MwClass MwVulkanClass;</code></pre>
 <dl>
 <dd>
 	Vulkan widget class.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h__MwVulkanEnableExtension"><code>MWDECL void MwVulkanEnableExtension (
+<pre id="Mw_Widget_Vulkan_h__MwVulkanEnableExtension"><code>MWDECL void MwVulkanEnableExtension (
 	const char* ext_name
 );</code></pre>
 <dl>
@@ -1584,14 +1757,11 @@
 	Add an extension to the list of extensions to enable prior to initialization.
 </dd>
 <dt>
-	<img src="warning.gif" alt="warning">
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td>This must be called before MwCreateWidget.</td></table>
 </dt>
-<dd>
-	This must be called before MwCreateWidget.
-</dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h__MwVulkanEnableLayer"><code>MWDECL void MwVulkanEnableLayer (
+<pre id="Mw_Widget_Vulkan_h__MwVulkanEnableLayer"><code>MWDECL void MwVulkanEnableLayer (
 	const char* ext_name
 );</code></pre>
 <dl>
@@ -1599,42 +1769,39 @@
 	Add an layer to the list of layers to enable prior to initialization.
 </dd>
 <dt>
-	<img src="warning.gif" alt="warning">
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td>This must be called before MwCreateWidget.</td></table>
 </dt>
-<dd>
-	This must be called before MwCreateWidget.
-</dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h__MwVulkanConfig_T"><code>typedef struct MwVulkanConfig_T;</code></pre>
+<pre id="Mw_Widget_Vulkan_h__MwVulkanConfig_T"><code>typedef struct MwVulkanConfig_T;</code></pre>
 <dl>
 <dd>
 	Configuration options that can be passed to setup Vulkan before a widget is created.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h__api_version"><code> uint32_t api_version;</code></pre>
+<pre id="Mw_Widget_Vulkan_h__api_version"><code> uint32_t api_version;</code></pre>
 <dl>
 <dd>
 	Vulkan API version (default: VK_API_VERSION_1_0).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h__vk_version"><code> uint32_t vk_version;</code></pre>
+<pre id="Mw_Widget_Vulkan_h__vk_version"><code> uint32_t vk_version;</code></pre>
 <dl>
 <dd>
 	Vulkan version (default: VK_VERSION_1_0).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h__validation_layers"><code> VkBool32 validation_layers;</code></pre>
+<pre id="Mw_Widget_Vulkan_h__validation_layers"><code> VkBool32 validation_layers;</code></pre>
 <dl>
 <dd>
 	Whether or not to enable validation layers (default: false).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h__MwVulkanConfigure"><code>MWDECL void MwVulkanConfigure (
+<pre id="Mw_Widget_Vulkan_h__MwVulkanConfigure"><code>MWDECL void MwVulkanConfigure (
 	MwVulkanConfig cfg
 );</code></pre>
 <dl>
@@ -1642,84 +1809,81 @@
 	Configure Vulkan prior to initializing the widget.
 </dd>
 <dt>
-	<img src="warning.gif" alt="warning">
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td>The configuration provided will be used for future initializations of the Vulkan widget (unless it's changed).</td></table>
 </dt>
-<dd>
-	The configuration provided will be used for future initializations of the Vulkan widget (unless it's changed).
-</dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h__MwVulkanField_T"><code>typedef enum MwVulkanField_T;</code></pre>
+<pre id="Mw_Widget_Vulkan_h__MwVulkanField_T"><code>typedef enum MwVulkanField_T;</code></pre>
 <dl>
 <dd>
 	Field that can be gotten from Vulkan.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h___MwVulkanField_GetInstanceProcAddr_"><code> MwVulkanField_GetInstanceProcAddr = 0</code></pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_GetInstanceProcAddr_"><code> MwVulkanField_GetInstanceProcAddr = 0</code></pre>
 <dl>
 <dd>
 	The address of the vulkan widget's vkGetInstanceProcAddr function (PFN_vkGetInstanceProcAddr).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h___MwVulkanField_Instance"><code> MwVulkanField_Instance</code></pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_Instance"><code> MwVulkanField_Instance</code></pre>
 <dl>
 <dd>
 	The address of the vulkan widget's instance (VkInstance).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h___MwVulkanField_Surface"><code> MwVulkanField_Surface</code></pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_Surface"><code> MwVulkanField_Surface</code></pre>
 <dl>
 <dd>
 	The address of the vulkan widget's surface (VkSurfaceKHR).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h___MwVulkanField_PhysicalDevice"><code> MwVulkanField_PhysicalDevice</code></pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_PhysicalDevice"><code> MwVulkanField_PhysicalDevice</code></pre>
 <dl>
 <dd>
 	The address of the vulkan widget's physical device (VkPhysicalDevice).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h___MwVulkanField_LogicalDevice"><code> MwVulkanField_LogicalDevice</code></pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_LogicalDevice"><code> MwVulkanField_LogicalDevice</code></pre>
 <dl>
 <dd>
 	The address of the vulkan widget's logical device (VkDevice).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h___MwVulkanField_GraphicsQueueIndex"><code> MwVulkanField_GraphicsQueueIndex</code></pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_GraphicsQueueIndex"><code> MwVulkanField_GraphicsQueueIndex</code></pre>
 <dl>
 <dd>
 	The address of the index that the vulkan widget uses for the graphics queue (uint32_t *).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h___MwVulkanField_PresentQueueIndex"><code> MwVulkanField_PresentQueueIndex</code></pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_PresentQueueIndex"><code> MwVulkanField_PresentQueueIndex</code></pre>
 <dl>
 <dd>
 	The address of the index that the vulkan widget uses for the present queue (uint32_t *).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h___MwVulkanField_PresentQueue"><code> MwVulkanField_PresentQueue</code></pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_PresentQueue"><code> MwVulkanField_PresentQueue</code></pre>
 <dl>
 <dd>
 	The address of the vulkan widget's graphics queue (VkQueue).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h__MwVulkanField"><code>} MwVulkanField;</code></pre>
+<pre id="Mw_Widget_Vulkan_h__MwVulkanField"><code>} MwVulkanField;</code></pre>
 <dl>
 <dd>
 	The address of the vulkan widget's present queue (VkQueue).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h__MwVulkanGetField"><code>MWDECL void* MwVulkanGetField (
+<pre id="Mw_Widget_Vulkan_h__MwVulkanGetField"><code>MWDECL void* MwVulkanGetField (
 	MwWidget handle,
 	MwVulkanField field,
 	MwErrorEnum* out
@@ -1729,14 +1893,11 @@
 	Function for getting a field from within Vulkan.
 </dd>
 <dt>
-	<img src="warning.gif" alt="warning">
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td>Consult the documentation for MwVulkanField to know what type is expected for out.</td></table>
 </dt>
-<dd>
-	Consult the documentation for MwVulkanField to know what type is expected for out.
-</dd>
 </dl>
 <hr>
-<pre id="Mw_Vulkan_h__MwVulkanSupported"><code>MWDECL VkBool32 MwVulkanSupported (
+<pre id="Mw_Widget_Vulkan_h__MwVulkanSupported"><code>MWDECL VkBool32 MwVulkanSupported (
 	void
 );</code></pre>
 <dl>
@@ -1745,14 +1906,14 @@
 </dd>
 </dl>
 <hr>
-<h2 align="center" id="Mw_Window_h">Mw/Window.h</h2>
+<h2 align="center" id="Mw_Widget_Window_h">Mw/Widget/Window.h</h2>
 <dl>
 <dt>
 	Window widget.
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Window_h__MwWindowClass"><code>MWDECL MwClass MwWindowClass;</code></pre>
+<pre id="Mw_Widget_Window_h__MwWindowClass"><code>MWDECL MwClass MwWindowClass;</code></pre>
 <dl>
 <dd>
 	Window widget class.
