@@ -145,11 +145,8 @@ sub scan_dir {
                 foreach my $note (@notes) {
                     if (defined($kv{$note})) {
                         out("<dt>");
-                        out("	<img src=\"$note.gif\" alt=\"$note\">");
+                        out("	<table border=\"0\"><tr><td><img src=\"$note.gif\" alt=\"$note\"></td><td>" . sentence($kv{$note}) . "</td></table>");
                         out("</dt>");
-                        out("<dd>");
-                        out("	" . sentence($kv{$note}));
-                        out("</dd>");
                     }
                 }
 
