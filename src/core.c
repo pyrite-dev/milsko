@@ -77,9 +77,10 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 		free(h);
 		return NULL;
 	}
-	h->widget_class = widget_class;
-	h->pressed	= 0;
-	h->close	= 0;
+	h->widget_class	 = widget_class;
+	h->pressed	 = 0;
+	h->close	 = 0;
+	h->destroy_queue = NULL;
 
 	h->lowlevel->user	     = h;
 	h->lowlevel->handler->draw   = lldrawhandler;
@@ -130,29 +131,17 @@ MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget p
 	return h;
 }
 
-void MwDestroyWidget(MwWidget handle) {
+static void MwFreeWidget(MwWidget handle) {
 	int i;
 
 	MwDispatch(handle, destroy);
 
+	for(i = 0; i < arrlen(handle->children); i++) {
+		MwFreeWidget(handle->children[i]);
+	}
+
 	free(handle->name);
 
-	if(handle->children != NULL) {
-		for(i = 0; i < arrlen(handle->children); i++) {
-			MwDestroyWidget(handle->children[i]);
-			break;
-		}
-		arrfree(handle->children);
-	}
-
-	if(handle->parent != NULL) {
-		for(i = 0; i < arrlen(handle->parent->children); i++) {
-			if(handle->parent->children[i] == handle) {
-				arrdel(handle->parent->children, i);
-				break;
-			}
-		}
-	}
 	MwLLDestroy(handle->lowlevel);
 
 	shfree(handle->integer);
@@ -165,14 +154,34 @@ void MwDestroyWidget(MwWidget handle) {
 	shfree(handle->handler);
 	shfree(handle->data);
 
+	arrfree(handle->destroy_queue);
+
 	free(handle);
 }
 
+void MwDestroyWidget(MwWidget handle) {
+	arrput(handle->parent->destroy_queue, handle);
+}
+
 void MwStep(MwWidget handle) {
-	int i;
+	int i, j;
 	if(setjmp(handle->before_step)) return;
 	for(i = 0; i < arrlen(handle->children); i++) MwStep(handle->children[i]);
 	MwLLNextEvent(handle->lowlevel);
+	for(i = 0; i < arrlen(handle->destroy_queue); i++) {
+		MwWidget w = handle->destroy_queue[i];
+
+		MwFreeWidget(w);
+	}
+	for(i = 0; i < arrlen(handle->destroy_queue); i++) {
+		for(j = 0; j < arrlen(handle->children); j++) {
+			if(handle->children[j] == handle->destroy_queue[i]) {
+				arrdel(handle->children, j);
+				break;
+			}
+		}
+	}
+	arrfree(handle->destroy_queue);
 }
 
 int MwPending(MwWidget handle) {
