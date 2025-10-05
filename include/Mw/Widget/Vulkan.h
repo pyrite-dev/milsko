@@ -106,9 +106,6 @@ typedef enum MwVulkanField_T {
 	 * %brief The address of the vulkan widget's graphics queue (VkQueue)
 	 */
 	MwVulkanField_PresentQueue,
-	/*!
-	 * %brief The address of the vulkan widget's present queue (VkQueue)
-	 */
 } MwVulkanField;
 
 /*!

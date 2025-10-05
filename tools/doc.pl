@@ -52,6 +52,35 @@ sub replace_special {
     return $ret;
 }
 
+sub highlight {
+    my $txt = "";
+    my $app = 0;
+
+    open(DOCPL, ">", "/tmp/docpl");
+    print(DOCPL $_[0] . "\n");
+    close(DOCPL);
+
+    open(DOCIN, "cat /tmp/docpl | enscript -q -whtml --color -Ec -o - |");
+    while (my $l = <DOCIN>) {
+        $l =~ s/\r?\n$//g;
+        if ($l =~ /\<pre\>/i) {
+            $app = 1;
+        }
+        elsif ($l =~ /\<\/pre\>/i) {
+            $app = 0;
+        }
+        elsif ($app) {
+            $txt = $txt . "\n" . $l;
+        }
+    }
+    close(DOCIN);
+
+    $txt =~ s/[\r\n]+$//g;
+    $txt =~ s/^[\r\n]+//g;
+
+    return $txt;
+}
+
 sub scan_dir {
     my ($first, $path) = @_;
     $path =~ s/\/+$//g;
@@ -135,7 +164,7 @@ sub scan_dir {
                     push(@{ $files_sections{ replace_special($current) } },
                         $sl);
 
-                    out("<pre$attr><code>$l</code></pre>");
+                    out("<pre$attr>" . highlight($l) . "</pre>");
                 }
                 out("<dl>");
                 out("<$para>");
@@ -145,7 +174,10 @@ sub scan_dir {
                 foreach my $note (@notes) {
                     if (defined($kv{$note})) {
                         out("<dt>");
-                        out("	<table border=\"0\"><tr><td><img src=\"$note.gif\" alt=\"$note\"></td><td>" . sentence($kv{$note}) . "</td></table>");
+                        out(
+"	<table border=\"0\"><tr><td><img src=\"$note.gif\" alt=\"$note\"></td><td>"
+                              . sentence($kv{$note})
+                              . "</td></table>");
                         out("</dt>");
                     }
                 }
