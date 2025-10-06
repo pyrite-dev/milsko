@@ -16,12 +16,12 @@ typedef struct _MwTextKeyValue	      MwTextKeyValue;
 typedef struct _MwUserHandlerKeyValue MwUserHandlerKeyValue;
 typedef struct _MwVoidKeyValue	      MwVoidKeyValue;
 typedef struct _MwFont		      MwFont;
+typedef struct _MwMenu*		      MwMenu;
+typedef struct _MwCursor	      MwCursor;
 #ifdef _MILSKO
-typedef struct _MwWidget *MwWidget, MwWidgetRec;
-typedef struct _MwMenu *  MwMenu, MwMenuRec;
+typedef struct _MwWidget* MwWidget;
 #else
 typedef void* MwWidget;
-typedef void* MwMenu;
 #endif
 typedef void (*MwHandler)(MwWidget handle);
 typedef int (*MwHandler2)(MwWidget handle);
@@ -88,6 +88,7 @@ struct _MwWidget {
 
 	MwWidget* destroy_queue;
 };
+#endif
 
 struct _MwMenu {
 	char*	 name;
@@ -95,7 +96,15 @@ struct _MwMenu {
 	MwWidget wsub;
 	MwMenu*	 sub;
 };
-#endif
+
+#define MwCursorDataHeight 16
+struct _MwCursor {
+	int	     width;
+	int	     height;
+	int	     x;
+	int	     y;
+	unsigned int data[MwCursorDataHeight];
+};
 
 struct _MwClass {
 	MwHandler2 create;
