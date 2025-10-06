@@ -37,32 +37,52 @@ L_OBJS += src/external/ds.o src/external/image.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o
 L_OBJS += src/cursor/default.o src/cursor/cross.o
 
+FOUND_PLATFORM = 0
+
 ifeq ($(TARGET),NetBSD)
 CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
 LDFLAGS += -L/usr/X11R7/lib -L/usr/pkg/lib -Wl,-R/usr/X11R7/lib -Wl,-R/usr/pkg/lib
 UNIX = 1
-
 OPENGL = 1
-else ifeq ($(TARGET),Linux)
+FOUND_PLATFORM = 1
+endif
+
+ifeq ($(TARGET),Linux)
 L_LIBS += -ldl
 UNIX = 1
-
 OPENGL = 1
 VULKAN = 1
-else ifeq ($(TARGET),Windows)
+FOUND_PLATFORM = 1
+endif
+
+ifeq ($(TARGET),Windows)
 WINDOWS = 1
-
 OPENGL = 1
 VULKAN = 1
-else ifeq ($(TARGET),SunOS)
+FOUND_PLATFORM = 1
+endif
+
+ifeq ($(TARGET),SunOS)
 CC = gcc
 UNIX = 1
 L_LIBS += -lsocket -lnsl
-
 OPENGL = 1
-else
+FOUND_PLATFORM = 1
+endif
+
+ifeq ($(TARGET),Darwin)
+CC = gcc
+DARWIN = 1
+L_LIBS += -framework Carbon
+FOUND_PLATFORM = 1
+endif
+
+ifeq ($(FOUND_PLATFORM),0)
 $(error Add your platform definition)
 endif
+
+# Standard gcc accepts this but we have to override this for Apple's gcc.
+SHARED = -shared
 
 ifeq ($(UNIX),1)
 L_CFLAGS += -DUSE_X11
@@ -76,7 +96,9 @@ E_LIBS += -lm
 LIB = lib
 SO = .so
 EXEC =
-else ifeq ($(WINDOWS),1)
+endif
+
+ifeq ($(WINDOWS),1)
 L_CFLAGS += -DUSE_GDI
 L_LDFLAGS += -Wl,--out-implib,src/libMw.a -static-libgcc
 L_OBJS += src/backend/gdi.o
@@ -87,6 +109,17 @@ GL = -lopengl32 -lglu32
 LIB =
 SO = .dll
 EXEC = .exe
+endif
+
+ifeq ($(DARWIN),1)
+L_CFLAGS += -DSTBI_NO_THREAD_LOCALS -DUSE_DARWIN
+L_OBJS += src/backend/mac/mac.o src/backend/mac/carbon.o
+
+LIB = lib
+SO = .dylib
+EXEC = 
+
+SHARED = -dynamiclib
 endif
 
 EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC) examples/scrollbar$(EXEC)
@@ -112,7 +145,7 @@ format:
 	perltidy -b -bext='/' --paren-tightness=2 `find tools -name "*.pl"`
 
 src/$(LIB)Mw$(SO): $(L_OBJS)
-	$(CC) $(L_LDFLAGS) -shared -o $@ $^ $(L_LIBS)
+	$(CC) $(L_LDFLAGS) $(SHARED) -o $@ $^ $(L_LIBS)
 
 examples/gl%$(EXEC): examples/gl%.o src/$(LIB)Mw$(SO)
 	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS) $(GL)

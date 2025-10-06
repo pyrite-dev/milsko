@@ -28,6 +28,8 @@ typedef struct mac_backend_t {
 	void (*drawPixmap)(MwLL handle, MwRect* rect, MwLLPixmap pixmap);
 	void (*setIcon)(MwLL handle, MwLLPixmap pixmap);
 	void (*forceRender)(MwLL handle);
+	void (*setCursor)(MwLL handle, MwCursor* image, MwCursor* mask);
+	void (*detach)(MwLL handle, MwPoint* point);
 } mac_backend;
 
 typedef struct mac_backend_userdata_t* mac_backend_userdata;
@@ -42,6 +44,11 @@ struct _MwLL {
 	unsigned int height;
 
 	MwLLHandler handler;
+};
+
+struct _MwLLPixmap {
+	unsigned int width;
+	unsigned int height;
 };
 
 #endif
