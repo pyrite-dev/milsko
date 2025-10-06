@@ -338,10 +338,14 @@ void MwLLForceRender(MwLL handle) {
 void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 	XcursorImage* img = XcursorImageCreate(MwCursorDataHeight, MwCursorDataHeight);
 	Cursor	      cur;
-	int	      y, x;
+	int	      y, x, ys, xs;
 
-	img->xhot = -mask->x;
-	img->yhot = MwCursorDataHeight + mask->y;
+	xs = -mask->x + image->x;
+	ys = MwCursorDataHeight + mask->y;
+	ys = MwCursorDataHeight + image->y - ys;
+
+	img->xhot = xs;
+	img->yhot = ys;
 
 	memset(img->pixels, 0, MwCursorDataHeight * MwCursorDataHeight * sizeof(XcursorPixel));
 	for(y = 0; y < mask->height; y++) {
@@ -358,7 +362,7 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 		for(x = image->width - 1; x >= 0; x--) {
 			int px = 0;
 			if(l & 1) px = 255;
-			img->pixels[(img->yhot + y) * MwCursorDataHeight + (img->xhot + x)] |= (px << 16) | (px << 8) | (px);
+			img->pixels[(ys + y) * MwCursorDataHeight + (xs + x)] |= (px << 16) | (px << 8) | (px);
 
 			l = l >> 1;
 		}
