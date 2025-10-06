@@ -324,7 +324,11 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 	HCURSOR cursor;
 	BYTE*	dmask  = malloc((MwCursorDataHeight / 8) * MwCursorDataHeight);
 	BYTE*	dimage = malloc((MwCursorDataHeight / 8) * MwCursorDataHeight);
-	int	y, x;
+	int	y, x, ys, xs;
+
+	xs = -mask->x + image->x;
+	ys = MwCursorDataHeight + mask->y;
+	ys = MwCursorDataHeight + image->y - ys;
 
 	memset(dmask, 0xff, (MwCursorDataHeight / 8) * MwCursorDataHeight);
 	memset(dimage, 0, (MwCursorDataHeight / 8) * MwCursorDataHeight);
@@ -343,19 +347,19 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 	}
 
 	for(y = 0; y < image->height; y++) {
-		BYTE*	     l = &dimage[(y + (MwCursorDataHeight + mask->y)) * (MwCursorDataHeight / 8)];
+		BYTE*	     l = &dimage[(y + ys) * (MwCursorDataHeight / 8)];
 		unsigned int n = image->data[y];
 
 		for(x = image->width - 1; x >= 0; x--) {
 			if(n & 1) {
-				l[(x - mask->x) / 8] |= (1 << (7 - ((x - mask->x) % 8)));
+				l[(x + xs) / 8] |= (1 << (7 - ((x + xs) % 8)));
 			}
 
 			n = n >> 1;
 		}
 	}
 
-	cursor = CreateCursor(GetModuleHandle(NULL), -mask->x, MwCursorDataHeight + mask->y, MwCursorDataHeight, MwCursorDataHeight, dmask, dimage);
+	cursor = CreateCursor(GetModuleHandle(NULL), xs, ys, MwCursorDataHeight, MwCursorDataHeight, dmask, dimage);
 
 	SetClassLongPtr(handle->hWnd, GCLP_HCURSOR, (LONG_PTR)cursor);
 	SetCursor(cursor);
