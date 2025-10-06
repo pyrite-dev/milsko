@@ -4,9 +4,12 @@
 #include "../external/stb_ds.h"
 
 static int create(MwWidget handle) {
+/* todo: we should have a public "show" function here that is implemented per 
+	platform, as opposed to just shoving it here. perchance. */
 #ifdef _WIN32
 	ShowWindow(handle->lowlevel->hWnd, SW_HIDE);
-#else
+#endif
+#ifdef UNIX
 	XUnmapWindow(handle->lowlevel->display, handle->lowlevel->window);
 #endif
 
@@ -164,7 +167,7 @@ MwClass MwSubMenuClass = &MwSubMenuClassRec;
 
 void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 	int i, w = 0, h = 0;
-#ifndef _WIN32
+#ifdef UNIX
 	XSetWindowAttributes xswa;
 	Atom		     wndtype = XInternAtom(handle->lowlevel->display, "_NET_WM_WINDOW_TYPE", False);
 	Atom		     wndmenu = XInternAtom(handle->lowlevel->display, "_NET_WM_WINDOW_TYPE_MENU", False);

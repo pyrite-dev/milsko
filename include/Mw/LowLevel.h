@@ -27,6 +27,9 @@ typedef void* MwLLPixmap;
 #ifdef USE_GDI
 #include "../src/backend/gdi.h"
 #endif
+#ifdef USE_DARWIN
+#include "../src/backend/mac/mac.h"
+#endif
 #endif
 #include <Mw/TypeDefs.h>
 

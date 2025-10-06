@@ -2,25 +2,25 @@
 #include <Mw/Milsko.h>
 
 #include "mac.h"
-#include "quickDraw.h"
+#include "carbon.h"
 
 MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
-	void* library;
-	MwLL  r = malloc(sizeof(*r));
-	MwLLCreateCommon(r);
-
-	library = dlopen("CarbonLib", RTLD_NOW);
-	if(library != NULL) {
-		dlclose(library);
-		r->backend = getQuickDrawBackend();
-		quickDrawBackendUserDataInit(r->userdata);
-		return r;
-	}
-
-	printf("ERROR: No supported UI library found. (Searched for: CarbonLib)\n");
-	getchar();
-	raise(SIGTRAP);
-
+//	void* library;
+//	MwLL  r = malloc(sizeof(*r));
+//	MwLLCreateCommon(r);
+//
+//	library = dlopen("CarbonLib", RTLD_NOW);
+//	if(library != NULL) {
+//		dlclose(library);
+//		r->backend = getQuickDrawBackend();
+//		quickDrawBackendUserDataInit(r->userdata);
+//		return r;
+//	}
+//
+//	printf("ERROR: No supported UI library found. (Searched for: CarbonLib)\n");
+//	getchar();
+//	raise(SIGTRAP);
+	
 	return NULL;
 };
 
@@ -74,4 +74,10 @@ void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 };
 void MwLLForceRender(MwLL handle) {
 	return handle->backend.forceRender(handle);
+};
+void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
+	return handle->backend.setCursor(handle, image, mask);
+};
+void MwLLDetach(MwLL handle, MwPoint* point) {
+	return handle->backend.detach(handle, point);
 };
