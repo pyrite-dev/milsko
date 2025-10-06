@@ -35,6 +35,7 @@ E_LIBS = $(LIBS) -lMw
 L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o src/error.o
 L_OBJS += src/external/ds.o src/external/image.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o
+L_OBJS += src/cursor/default.o
 
 ifeq ($(TARGET),NetBSD)
 CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
@@ -66,7 +67,7 @@ endif
 ifeq ($(UNIX),1)
 L_CFLAGS += -DUSE_X11
 L_OBJS += src/backend/x11.o
-L_LIBS += -lm -lX11 -lXrender -lXext
+L_LIBS += -lm -lX11 -lXrender -lXext -lXcursor
 
 GL = -lGL -lGLU
 

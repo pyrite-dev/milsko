@@ -15,6 +15,7 @@
 #include <Mw/Draw.h>
 #include <Mw/Font.h>
 #include <Mw/Error.h>
+#include <Mw/Cursor.h>
 #include <Mw/Constants.h>
 
 #include <Mw/Widget/Window.h>

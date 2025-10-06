@@ -334,3 +334,39 @@ void MwLLForceRender(MwLL handle) {
 	ev.xexpose.window = handle->window;
 	XSendEvent(handle->display, handle->window, False, ExposureMask, &ev);
 }
+
+void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
+	XcursorImage* img = XcursorImageCreate(MwCursorDataHeight, MwCursorDataHeight);
+	Cursor	      cur;
+	int	      y, x;
+
+	img->xhot = -mask->x;
+	img->yhot = MwCursorDataHeight + mask->y;
+
+	memset(img->pixels, 0, MwCursorDataHeight * MwCursorDataHeight * sizeof(XcursorPixel));
+	for(y = 0; y < mask->height; y++) {
+		unsigned int l = mask->data[y];
+		for(x = mask->width - 1; x >= 0; x--) {
+			if(l & 1) {
+				img->pixels[y * MwCursorDataHeight + x] = 0xff000000;
+			}
+			l = l >> 1;
+		}
+	}
+	for(y = 0; y < image->height; y++) {
+		unsigned int l = image->data[y];
+		for(x = image->width - 1; x >= 0; x--) {
+			int px = 0;
+			if(l & 1) px = 255;
+			img->pixels[(img->yhot + y) * MwCursorDataHeight + (img->xhot + x)] |= (px << 16) | (px << 8) | (px);
+
+			l = l >> 1;
+		}
+	}
+
+	cur = XcursorImageLoadCursor(handle->display, img);
+	XDefineCursor(handle->display, handle->window, cur);
+	XFreeCursor(handle->display, cur);
+
+	XcursorImageDestroy(img);
+}

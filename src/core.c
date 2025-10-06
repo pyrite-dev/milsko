@@ -299,6 +299,8 @@ void MwVaListApply(MwWidget handle, va_list va) {
 }
 
 void MwSetDefault(MwWidget handle) {
+	MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
+
 	MwSetText(handle, MwNbackground, MwDefaultBackground);
 	MwSetText(handle, MwNforeground, MwDefaultForeground);
 }

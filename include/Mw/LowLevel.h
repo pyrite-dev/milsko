@@ -9,11 +9,11 @@
 
 #include <Mw/MachDep.h>
 
-typedef struct _MwLLHandler *MwLLHandler, MwLLHandlerRec;
+typedef struct _MwLLHandler* MwLLHandler;
 #ifdef _MILSKO
-typedef struct _MwLL *	    MwLL, MwLLRec;
-typedef struct _MwLLColor * MwLLColor, MwLLColorRec;
-typedef struct _MwLLPixmap *MwLLPixmap, MwLLPixmapRec;
+typedef struct _MwLL*	    MwLL;
+typedef struct _MwLLColor*  MwLLColor;
+typedef struct _MwLLPixmap* MwLLPixmap;
 #else
 typedef void* MwLL;
 typedef void* MwLLColor;
@@ -75,6 +75,8 @@ MWDECL void	  MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap);
 MWDECL void	  MwLLSetIcon(MwLL handle, MwLLPixmap pixmap);
 
 MWDECL void MwLLForceRender(MwLL handle);
+
+MWDECL void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask);
 
 #ifdef __cplusplus
 }
