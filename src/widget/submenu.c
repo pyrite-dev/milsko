@@ -5,6 +5,7 @@
 
 static int create(MwWidget handle) {
 #ifdef _WIN32
+	ShowWindow(handle->lowlevel->hWnd, SW_HIDE);
 #else
 	XUnmapWindow(handle->lowlevel->display, handle->lowlevel->window);
 #endif
@@ -163,50 +164,28 @@ MwClass MwSubMenuClass = &MwSubMenuClassRec;
 
 void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 	int i, w = 0, h = 0;
-#ifdef _WIN32
-	RECT	 rc;
-	LONG_PTR ex = GetWindowLongPtr(handle->lowlevel->hWnd, GWL_EXSTYLE);
-#else
+#ifndef _WIN32
+	XSetWindowAttributes xswa;
 	Atom		     wndtype = XInternAtom(handle->lowlevel->display, "_NET_WM_WINDOW_TYPE", False);
 	Atom		     wndmenu = XInternAtom(handle->lowlevel->display, "_NET_WM_WINDOW_TYPE_MENU", False);
-	int		     x = 0, y = 0;
-	Window		     child;
-	XSetWindowAttributes xswa;
+
+	xswa.override_redirect = True;
+
+	XChangeWindowAttributes(handle->lowlevel->display, handle->lowlevel->window, CWOverrideRedirect, &xswa);
+	XChangeProperty(handle->lowlevel->display, handle->lowlevel->window, wndtype, 4, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
 #endif
 
 	handle->internal = menu;
 
+	MwLLDetach(handle->lowlevel, point);
 #ifdef _WIN32
-	ex |= WS_EX_TOOLWINDOW;
-
 	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_STYLE, (LONG_PTR)0);
-	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_EXSTYLE, ex);
-
-	GetWindowRect(handle->parent->lowlevel->hWnd, &rc);
-
-	SetParent(handle->lowlevel->hWnd, NULL);
-
-	rc.left += point->x;
-	rc.top += point->y;
-
-	SetWindowPos(handle->lowlevel->hWnd, HWND_TOPMOST, rc.left, rc.top, 1, 1, SWP_NOREDRAW);
+	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_EXSTYLE, (LONG_PTR)WS_EX_TOOLWINDOW);
 
 	ShowWindow(handle->lowlevel->hWnd, SW_NORMAL);
 
 	SetFocus(handle->lowlevel->hWnd);
 #else
-
-	xswa.override_redirect = True;
-
-	XTranslateCoordinates(handle->parent->lowlevel->display, handle->parent->lowlevel->window, RootWindow(handle->parent->lowlevel->display, DefaultScreen(handle->parent->lowlevel->display)), 0, 0, &x, &y, &child);
-
-	XReparentWindow(handle->lowlevel->display, handle->lowlevel->window, RootWindow(handle->lowlevel->display, DefaultScreen(handle->lowlevel->display)), x + point->x, y + point->y);
-
-	XChangeWindowAttributes(handle->lowlevel->display, handle->lowlevel->window, CWOverrideRedirect, &xswa);
-	XChangeProperty(handle->lowlevel->display, handle->lowlevel->window, wndtype, 4, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
-
-	XMapWindow(handle->lowlevel->display, handle->lowlevel->window);
-	XSetInputFocus(handle->lowlevel->display, handle->lowlevel->window, RevertToNone, CurrentTime);
 #endif
 
 	for(i = 0; i < arrlen(menu->sub); i++) {

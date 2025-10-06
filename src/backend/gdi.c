@@ -369,3 +369,23 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 	free(dimage);
 	free(dmask);
 }
+
+void MwLLDetach(MwLL handle, MwPoint* point) {
+	RECT	 rc, rc2;
+	LONG_PTR style = GetWindowLongPtr(handle->hWnd, GWL_STYLE);
+
+	style |= WS_OVERLAPPEDWINDOW;
+
+	GetWindowRect(GetParent(handle->hWnd), &rc);
+
+	GetClientRect(handle->hWnd, &rc2);
+
+	SetParent(handle->hWnd, NULL);
+
+	rc.left += point->x;
+	rc.top += point->y;
+
+	SetWindowPos(handle->hWnd, HWND_TOPMOST, rc.left, rc.top, rc2.right == 0 ? 1 : rc2.right, rc2.bottom == 0 ? 1 : rc2.bottom, SWP_NOREDRAW);
+
+	SetWindowLongPtr(handle->hWnd, GWL_STYLE, style);
+}

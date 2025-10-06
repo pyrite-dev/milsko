@@ -374,3 +374,20 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 
 	XcursorImageDestroy(img);
 }
+
+void MwLLDetach(MwLL handle, MwPoint* point) {
+	int	     x = 0, y = 0;
+	Window	     child, root, parent;
+	Window*	     children;
+	unsigned int nchild;
+
+	XQueryTree(handle->display, handle->window, &root, &parent, &children, &nchild);
+	if(children != NULL) XFree(children);
+
+	XTranslateCoordinates(handle->display, parent, RootWindow(handle->display, DefaultScreen(handle->display)), 0, 0, &x, &y, &child);
+
+	XReparentWindow(handle->display, handle->window, RootWindow(handle->display, DefaultScreen(handle->display)), x + point->x, y + point->y);
+
+	XMapWindow(handle->display, handle->window);
+	XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
+}
