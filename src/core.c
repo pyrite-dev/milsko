@@ -160,7 +160,9 @@ static void MwFreeWidget(MwWidget handle) {
 }
 
 void MwDestroyWidget(MwWidget handle) {
-	arrput(handle->parent->destroy_queue, handle);
+	if(handle->parent != NULL) {
+		arrput(handle->parent->destroy_queue, handle);
+	}
 }
 
 void MwStep(MwWidget handle) {
