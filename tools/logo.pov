@@ -14,7 +14,7 @@ object {
 	Cube
 	translate <1, 0, 1>
 	pigment {
-		color Green
+		color Cyan
 	}
 }
 
@@ -30,7 +30,7 @@ object {
 	Cube
 	translate <1, 0, -1>
 	pigment {
-		color Cyan
+		color Green
 	}
 }
 
