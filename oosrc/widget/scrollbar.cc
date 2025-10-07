@@ -5,6 +5,9 @@
 MwOO::ScrollBar::ScrollBar(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h) : MwOO::Base(MwScrollBarClass, widget_name, parent, x, y, w, h){
 }
 
+int MwOO::ScrollBar::GetVisibleLength(void){
+	return MwScrollBarGetVisibleLength(this->widget);
+}
 void MwOO::ScrollBar::SetAreaShown(int value){
 	MwSetInteger(this->widget, MwNareaShown, value);
 }
