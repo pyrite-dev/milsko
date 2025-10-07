@@ -389,5 +389,5 @@ void MwLLDetach(MwLL handle, MwPoint* point) {
 	XReparentWindow(handle->display, handle->window, RootWindow(handle->display, DefaultScreen(handle->display)), x + point->x, y + point->y);
 
 	XMapWindow(handle->display, handle->window);
-	XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
+	//	XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
 }

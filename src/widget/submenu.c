@@ -4,7 +4,7 @@
 #include "../external/stb_ds.h"
 
 static int create(MwWidget handle) {
-/* todo: we should have a public "show" function here that is implemented per 
+/* todo: we should have a public "show" function here that is implemented per
 	platform, as opposed to just shoving it here. perchance. */
 #ifdef _WIN32
 	ShowWindow(handle->lowlevel->hWnd, SW_HIDE);
@@ -188,7 +188,6 @@ void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 	ShowWindow(handle->lowlevel->hWnd, SW_NORMAL);
 
 	SetFocus(handle->lowlevel->hWnd);
-#else
 #endif
 
 	for(i = 0; i < arrlen(menu->sub); i++) {
