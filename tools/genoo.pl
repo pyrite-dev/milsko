@@ -44,8 +44,12 @@ foreach my $f (@files) {
 
     $f =~ /^(.+)\.h$/;
 
-    my $name  = $1;
-    my @props = ();
+    my $name     = $1;
+    my @props    = ();
+    my @methods  = ();
+    my @omethods = ();
+    my @names    = ();
+    my @args     = ();
 
     open(IN, "include/Mw/Widget/$f");
     while (my $l = <IN>) {
@@ -53,6 +57,34 @@ foreach my $f (@files) {
 
         if ($l =~ /%prop[ \t]+(.+)$/) {
             @props = split(/[ \t]+/, $1);
+        }
+        elsif ($l =~
+/^MWDECL[ \t]+(.+)[ \t]+Mw${name}([^ \t]+)[ \t]*\([^,\)]+(?:,(.*))?\);$/
+          )
+        {
+            my $arg = $3;
+            my $ret = $1;
+            my $nam = $2;
+
+            $arg =~ s/^[ \t]+//;
+            $arg =~ s/[ \t]+$//;
+
+            if (!$arg) {
+                $arg = "void";
+            }
+
+            push(@methods,  "$ret $nam($arg)");
+            push(@omethods, "$ret MwOO::${name}::$nam($arg)");
+            push(@names,    $nam);
+
+            my @al = split(/[ \t]*,[ \t]*/, $arg);
+            my $i  = 0;
+            foreach my $dummy (@al) {
+                $al[$i] =~ s/^.+[ \t]+([^ \t]+)$/\1/g;
+                $i++;
+            }
+
+            push(@args, join(", ", @al));
         }
     }
     close(IN);
@@ -70,6 +102,10 @@ foreach my $f (@files) {
     print(OUT
 "		${name}(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);\n"
     );
+
+    foreach my $m (@methods) {
+        print(OUT "		$m;\n");
+    }
 
     foreach my $prop (@props) {
         my $type = "";
@@ -108,6 +144,24 @@ foreach my $f (@files) {
     print(OUT "}\n");
     print(OUT "\n");
 
+    my $i = 0;
+    foreach my $m (@omethods) {
+        print(OUT "$m\{\n");
+        if ($m =~ /^void[ \t]+/) {
+            print(OUT "	Mw${name}" . $names[$i]);
+        }
+        else {
+            print(OUT "	return Mw${name}" . $names[$i]);
+        }
+        if ($args[$i] eq "void") {
+            print(OUT "(this->widget);\n");
+        }
+        else {
+            print(OUT "(this->widget, " . $args[$i] . ");\n");
+        }
+        print(OUT "}\n");
+        $i++;
+    }
     foreach my $prop (@props) {
         my $type     = "";
         my $typename = "";
