@@ -4,9 +4,11 @@
 
 #include <MwOO/Base.h>
 
-class MwOOSubMenuWidget : public MwOOWidget {
+namespace MwOO {
+class SubMenu : public MwOO::Base {
       public:
-	MwOOSubMenuWidget(const char* name, MwOOWidget* parent, int x, int y, int w, int h);
+	SubMenu(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
 };
+} // namespace MwOO
 
 #endif

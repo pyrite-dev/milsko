@@ -4,9 +4,11 @@
 
 #include <MwOO/Base.h>
 
-class MwOOOpenGLWidget : public MwOOWidget {
+namespace MwOO {
+class OpenGL : public MwOO::Base {
       public:
-	MwOOOpenGLWidget(const char* name, MwOOWidget* parent, int x, int y, int w, int h);
+	OpenGL(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
 };
+} // namespace MwOO
 
 #endif
