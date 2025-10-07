@@ -81,6 +81,7 @@ MWDECL void MwLLForceRender(MwLL handle);
 
 MWDECL void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask);
 MWDECL void MwLLDetach(MwLL handle, MwPoint* point);
+MWDECL void MwLLShow(MwLL handle, int show);
 
 #ifdef __cplusplus
 }

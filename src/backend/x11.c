@@ -387,7 +387,13 @@ void MwLLDetach(MwLL handle, MwPoint* point) {
 	XTranslateCoordinates(handle->display, parent, RootWindow(handle->display, DefaultScreen(handle->display)), 0, 0, &x, &y, &child);
 
 	XReparentWindow(handle->display, handle->window, RootWindow(handle->display, DefaultScreen(handle->display)), x + point->x, y + point->y);
+}
 
-	XMapWindow(handle->display, handle->window);
-	//	XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
+void MwLLShow(MwLL handle, int show) {
+	if(show) {
+		XMapWindow(handle->display, handle->window);
+		XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
+	} else {
+		XUnmapWindow(handle->display, handle->window);
+	}
 }
