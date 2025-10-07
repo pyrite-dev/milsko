@@ -59,6 +59,10 @@ light_source {
 	parallel point_at <0, 0, 0>
 }
 
+background {
+	color rgbt <0, 0, 0, 0>
+}
+
 camera {
 	location <1.5, 2.5, -10>
 	look_at <0, 0.75, 0>

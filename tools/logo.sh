@@ -1,3 +1,3 @@
 #!/bin/sh
 # $Id$
-povray +W256 +H256 +Ologo.png tools/logo.pov
+povray +UA +W256 +H256 +Ologo.png tools/logo.pov
