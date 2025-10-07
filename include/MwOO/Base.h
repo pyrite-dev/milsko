@@ -4,13 +4,31 @@
 
 #include <Mw/Milsko.h>
 
-class MwOOWidget {
+#define MwOODeclare(name, parent_class) \
+      public: \
+	name(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h) : parent_class(widget_name, parent, x, y, w, h) {}
+
+namespace MwOO {
+class Base {
       protected:
 	MwWidget widget;
 
+      private:
+	void SetHandler(void);
+
       public:
-	MwOOWidget(MwClass widget_class, const char* name, MwOOWidget* parent, int x, int y, int w, int h);
-	~MwOOWidget(void);
+	void Loop(void);
+	/* BEGIN AUTOGENERATE */
+	virtual void OnActivate(void*) {};
+	virtual void OnResize(void*) {};
+	virtual void OnTick(void*) {};
+	virtual void OnMenu(void*) {};
+
+	/* END AUTOGENERATE */
+
+	Base(MwClass widget_class, const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
+	~Base(void);
 };
+} // namespace MwOO
 
 #endif

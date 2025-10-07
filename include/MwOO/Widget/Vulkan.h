@@ -4,9 +4,11 @@
 
 #include <MwOO/Base.h>
 
-class MwOOVulkanWidget : public MwOOWidget {
+namespace MwOO {
+class Vulkan : public MwOO::Base {
       public:
-	MwOOVulkanWidget(const char* name, MwOOWidget* parent, int x, int y, int w, int h);
+	Vulkan(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
 };
+} // namespace MwOO
 
 #endif

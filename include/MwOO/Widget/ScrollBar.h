@@ -4,9 +4,11 @@
 
 #include <MwOO/Base.h>
 
-class MwOOScrollBarWidget : public MwOOWidget {
+namespace MwOO {
+class ScrollBar : public MwOO::Base {
       public:
-	MwOOScrollBarWidget(const char* name, MwOOWidget* parent, int x, int y, int w, int h);
+	ScrollBar(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
 };
+} // namespace MwOO
 
 #endif

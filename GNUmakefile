@@ -161,7 +161,7 @@ format:
 src/$(LIB)Mw$(SO): $(L_OBJS)
 	$(CC) $(L_LDFLAGS) $(SHARED) -o $@ $^ $(L_LIBS)
 
-src/$(LIB)MwOO$(SO): $(OOL_OBJS) lib
+src/$(LIB)MwOO$(SO): $(OOL_OBJS) src/$(LIB)Mw$(SO)
 	$(CC) $(OOL_LDFLAGS) $(SHARED) -o $@ $(OOL_OBJS) $(OOL_LIBS)
 
 examples/gl%$(EXEC): examples/gl%.o src/$(LIB)Mw$(SO)
