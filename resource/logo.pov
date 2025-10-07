@@ -59,6 +59,7 @@ light_source {
 	parallel point_at <0, 0, 0>
 }
 
+#ifndef(BASE)
 camera {
 	location <1.5, 2.5, -10>
 	look_at <0, 0.75, 0>
@@ -66,3 +67,4 @@ camera {
 	up <0, 1, 0>
 	right <1, 0, 0>
 }
+#end
