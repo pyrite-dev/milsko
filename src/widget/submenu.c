@@ -4,14 +4,7 @@
 #include "../external/stb_ds.h"
 
 static int create(MwWidget handle) {
-/* todo: we should have a public "show" function here that is implemented per
-	platform, as opposed to just shoving it here. perchance. */
-#ifdef _WIN32
-	ShowWindow(handle->lowlevel->hWnd, SW_HIDE);
-#endif
-#ifdef UNIX
-	XUnmapWindow(handle->lowlevel->display, handle->lowlevel->window);
-#endif
+	MwLLShow(handle->lowlevel, 0);
 
 	MwSetDefault(handle);
 
@@ -181,14 +174,13 @@ void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 	handle->internal = menu;
 
 	MwLLDetach(handle->lowlevel, point);
+
 #ifdef _WIN32
 	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_STYLE, (LONG_PTR)0);
 	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_EXSTYLE, (LONG_PTR)WS_EX_TOOLWINDOW);
-
-	ShowWindow(handle->lowlevel->hWnd, SW_NORMAL);
-
-	SetFocus(handle->lowlevel->hWnd);
 #endif
+
+	MwLLShow(handle->lowlevel, 1);
 
 	for(i = 0; i < arrlen(menu->sub); i++) {
 		int tw = MwTextWidth(handle, menu->sub[i]->name);
