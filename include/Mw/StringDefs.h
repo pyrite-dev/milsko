@@ -28,5 +28,7 @@
 #define MwNresizeHandler "Cresize"
 #define MwNtickHandler "Ctick"
 #define MwNmenuHandler "Cmenu"
+#define MwNmouseDownHandler "CmouseDownHandler"
+#define MwNmouseUpHandler "CmouseUpHandler"
 
 #endif

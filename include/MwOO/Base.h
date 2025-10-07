@@ -31,6 +31,8 @@ class Base {
 	virtual void OnResize(void*) {};
 	virtual void OnTick(void*) {};
 	virtual void OnMenu(void*) {};
+	virtual void OnMouseDownHandler(void*) {};
+	virtual void OnMouseUpHandler(void*) {};
 
 	/* END AUTOGENERATE */
 
