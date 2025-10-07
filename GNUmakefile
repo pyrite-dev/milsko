@@ -36,12 +36,6 @@ L_OBJS += src/external/ds.o src/external/image.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o
 L_OBJS += src/cursor/default.o src/cursor/cross.o
 
-ifeq ($(NO_STB_IMAGE),1)
-include deps.mk
-else
-L_CFLAGS += -DUSE_STB_IMAGE
-endif
-
 FOUND_PLATFORM = 0
 
 ifeq ($(TARGET),NetBSD)
@@ -125,6 +119,12 @@ SO = .dylib
 EXEC = 
 
 SHARED = -dynamiclib
+endif
+
+ifeq ($(NO_STB_IMAGE),1)
+include deps.mk
+else
+L_CFLAGS += -DUSE_STB_IMAGE
 endif
 
 EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC) examples/scrollbar$(EXEC)
