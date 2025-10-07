@@ -4,9 +4,8 @@ ifeq ($(TARGET),)
 TARGET = $(shell uname -s)
 endif
 
-ifeq ($(CC),)
 CC = gcc
-endif
+CXX = g++
 
 CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Iinclude
 LDFLAGS =
@@ -27,14 +26,20 @@ L_CFLAGS = $(DEPINC) $(CFLAGS) -fPIC -D_MILSKO
 L_LDFLAGS = $(LDFLAGS)
 L_LIBS = $(LIBS)
 
-E_CFLAGS = $(CFLAGS)
-E_LDFLAGS = $(LDFLAGS) -Lsrc
-E_LIBS = $(LIBS) -lMw
-
 L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o src/error.o
 L_OBJS += src/external/ds.o src/external/image.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o
 L_OBJS += src/cursor/default.o src/cursor/cross.o
+
+OOL_CFLAGS = $(CFLAGS) -fPIC
+OOL_LDFLAGS = $(LDFLAGS)
+OOL_LIBS = $(LIBS)
+
+OOL_OBJS = src/core.o
+
+E_CFLAGS = $(CFLAGS)
+E_LDFLAGS = $(LDFLAGS) -Lsrc
+E_LIBS = $(LIBS) -lMw
 
 FOUND_PLATFORM = 0
 
@@ -122,7 +127,7 @@ SHARED = -dynamiclib
 endif
 
 ifeq ($(NO_STB_IMAGE),1)
-include deps.mk
+include external/deps.mk
 else
 L_CFLAGS += -DUSE_STB_IMAGE
 endif
@@ -139,10 +144,11 @@ L_OBJS += src/widget/vulkan.o
 EXAMPLES += examples/vulkan$(EXEC)
 endif
 
-.PHONY: all format clean lib examples
+.PHONY: all format clean lib oolib examples
 
 all: lib examples
 lib: src/$(LIB)Mw$(SO)
+oolib: src/$(LIB)MwOO$(SO)
 examples: $(EXAMPLES)
 
 format:
@@ -152,6 +158,9 @@ format:
 src/$(LIB)Mw$(SO): $(L_OBJS)
 	$(CC) $(L_LDFLAGS) $(SHARED) -o $@ $^ $(L_LIBS)
 
+src/$(LIB)MwOO$(SO): $(OOL_OBJS) src/$(LIB)Mw$(SO)
+	$(CC) $(OOL_LDFLAGS) $(SHARED) -o $@ $^ $(OOL_LIBS)
+
 examples/gl%$(EXEC): examples/gl%.o src/$(LIB)Mw$(SO)
 	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS) $(GL)
 
@@ -160,6 +169,9 @@ examples/%$(EXEC): examples/%.o src/$(LIB)Mw$(SO)
 
 src/%.o: src/%.c
 	$(CC) $(L_CFLAGS) -c -o $@ $<
+
+oosrc/%.o: oosrc/%.cc
+	$(CXX) $(OOL_CFLAGS) -c -o $@ $<
 
 external/%.o: external/%.c
 	$(CC) $(L_CFLAGS) -c -o $@ $<
