@@ -130,8 +130,6 @@ static void draw(MwWidget handle) {
 }
 
 static void mouse_move(MwWidget handle) {
-	int	     ww	 = MwGetInteger(handle, MwNwidth);
-	int	     wh	 = MwGetInteger(handle, MwNheight);
 	int	     or	 = MwGetInteger(handle, MwNorientation);
 	scrollbar_t* scr = handle->internal;
 
@@ -144,13 +142,9 @@ static void mouse_move(MwWidget handle) {
 		int    max = MwGetInteger(handle, MwNmaxValue);
 
 		if(or == MwVERTICAL) {
-			int tri = (ww - MwDefaultBorderWidth * 2) + MwDefaultBorderWidth;
-			l	= handle->mouse_point.y - tri + scr->pos;
-			len -= tri * 2;
+			l	= handle->mouse_point.y + scr->pos;
 		} else if(or == MwHORIZONTAL) {
-			int tri = (wh - MwDefaultBorderWidth * 2) + MwDefaultBorderWidth;
-			l	= handle->mouse_point.x - tri + scr->pos;
-			len -= tri * 2;
+			l	= handle->mouse_point.x + scr->pos;
 		}
 
 		len = l / len;
