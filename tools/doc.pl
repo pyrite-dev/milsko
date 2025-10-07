@@ -89,7 +89,7 @@ sub scan_dir {
         print(STDERR "Scanning $path\n");
         my @paths = sort(readdir($dh));
         foreach my $p (@paths) {
-            if ($p eq '.' || $p eq '..') {
+            if ($p eq '.' || $p eq '..' || $p eq 'MwOO') {
                 next;
             }
             scan_dir($first, $path . "/" . $p);
