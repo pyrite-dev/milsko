@@ -2,6 +2,7 @@
 /*!
  * %file Mw/Widget/ScrollBar.h
  * %brief ScrollBar widget
+ * %prop MwNareaShown MwNvalue MwNminValue MwNmaxValue MwNorientation
  */
 #ifndef __MW_WIDGET_SCROLLBAR_H__
 #define __MW_WIDGET_SCROLLBAR_H__

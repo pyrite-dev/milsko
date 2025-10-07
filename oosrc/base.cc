@@ -16,6 +16,38 @@ void MwOO::Base::Loop(void){
 	MwLoop(this->widget);
 }
 
+void MwOO::Base::SetX(int value){
+	MwSetInteger(this->widget, MwNx, value);
+}
+
+void MwOO::Base::SetY(int value){
+	MwSetInteger(this->widget, MwNy, value);
+}
+
+void MwOO::Base::SetWidth(int value){
+	MwSetInteger(this->widget, MwNwidth, value);
+}
+
+void MwOO::Base::SetHeight(int value){
+	MwSetInteger(this->widget, MwNheight, value);
+}
+
+int MwOO::Base::GetX(void){
+	return MwGetInteger(this->widget, MwNx);
+}
+
+int MwOO::Base::GetY(void){
+	return MwGetInteger(this->widget, MwNy);
+}
+
+int MwOO::Base::GetWidth(void){
+	return MwGetInteger(this->widget, MwNwidth);
+}
+
+int MwOO::Base::GetHeight(void){
+	return MwGetInteger(this->widget, MwNheight);
+}
+
 /* BEGIN AUTOGENERATE */
 static void __OnActivate(MwWidget widget, void* user, void* call){
 	MwOO::Base* c = (MwOO::Base*)user;

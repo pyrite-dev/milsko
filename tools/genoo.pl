@@ -9,6 +9,9 @@ my $objs = "";
 
 my $decl  = "";
 my @calls = ();
+my %ints  = ();
+my %texts = ();
+my %voids = ();
 open(IN, "<", "include/Mw/StringDefs.h");
 while (my $hl = <IN>) {
     $hl =~ s/\r?\n$//;
@@ -20,8 +23,17 @@ while (my $hl = <IN>) {
 
         push(@calls, [@c]);
     }
+    elsif ($hl =~ /^#define[ \t]+([^ ]+)[ \t]+"I(.+)"$/) {
+        $ints{$1} = uc(substr($2, 0, 1)) . substr($2, 1);
+    }
+    elsif ($hl =~ /^#define[ \t]+([^ ]+)[ \t]+"S(.+)"$/) {
+        $texts{$1} = uc(substr($2, 0, 1)) . substr($2, 1);
+    }
+    elsif ($hl =~ /^#define[ \t]+([^ ]+)[ \t]+"V(.+)"$/) {
+        $voids{$1} = uc(substr($2, 0, 1)) . substr($2, 1);
+    }
 }
-close(HIN);
+close(IN);
 
 opendir(DIR, "include/Mw/Widget");
 my @files = readdir(DIR);
@@ -32,7 +44,18 @@ foreach my $f (@files) {
 
     $f =~ /^(.+)\.h$/;
 
-    my $name = $1;
+    my $name  = $1;
+    my @props = ();
+
+    open(IN, "include/Mw/Widget/$f");
+    while (my $l = <IN>) {
+        $l =~ s/\r?\n$//g;
+
+        if ($l =~ /%prop[ \t]+(.+)$/) {
+            @props = split(/[ \t]+/, $1);
+        }
+    }
+    close(IN);
 
     open(OUT, ">", "include/MwOO/Widget/$f");
     print(OUT "/* \$Id\$ */\n");
@@ -47,6 +70,27 @@ foreach my $f (@files) {
     print(OUT
 "		${name}(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);\n"
     );
+
+    foreach my $prop (@props) {
+        my $type = "";
+        my %hash = ();
+        if (defined($ints{$prop})) {
+            $type = "int";
+            %hash = %ints;
+        }
+        elsif (defined($texts{$prop})) {
+            $type = "const char*";
+            %hash = %texts;
+        }
+        elsif (defined($voids{$prop})) {
+            $type = "void*";
+            %hash = %voids;
+        }
+        if (length($type) > 0) {
+            print(OUT "		void Set" . $hash{$prop} . "($type value);\n");
+            print(OUT "		$type Get" . $hash{$prop} . "(void);\n");
+        }
+    }
     print(OUT "	};\n");
     print(OUT "}\n");
     print(OUT "\n");
@@ -62,6 +106,40 @@ foreach my $f (@files) {
 "MwOO::${name}::${name}(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h) : MwOO::Base(Mw${name}Class, widget_name, parent, x, y, w, h){\n"
     );
     print(OUT "}\n");
+    print(OUT "\n");
+
+    foreach my $prop (@props) {
+        my $type     = "";
+        my $typename = "";
+        my %hash     = ();
+        if (defined($ints{$prop})) {
+            $type     = "int";
+            $typename = "Integer";
+            %hash     = %ints;
+        }
+        elsif (defined($texts{$prop})) {
+            $type     = "const char*";
+            $typename = "Text";
+            %hash     = %texts;
+        }
+        elsif (defined($voids{$prop})) {
+            $type     = "void*";
+            $typename = "Void";
+            %hash     = %voids;
+        }
+        if (length($type) > 0) {
+            print(  OUT "void MwOO::${name}::Set"
+                  . $hash{$prop}
+                  . "($type value){\n");
+            print(OUT "	MwSet$typename(this->widget, $prop, value);\n");
+            print(OUT "}\n");
+            print(OUT "\n");
+            print(OUT "$type MwOO::${name}::Get" . $hash{$prop} . "(void){\n");
+            print(OUT "	return MwGet$typename(this->widget, $prop);\n");
+            print(OUT "}\n");
+            print(OUT "\n");
+        }
+    }
     close(OUT);
 
     if (!($name eq 'Vulkan' || $name eq 'OpenGL')) {
