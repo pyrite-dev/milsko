@@ -25,6 +25,6 @@ typedef enum MwErrorEnum_T {
 /*!
  * %brief Get the last error
  */
-MWDECL const char* MwGetLastError();
+MWDECL const char* MwGetLastError(void);
 
 #endif
