@@ -1,7 +1,13 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
+#ifdef USE_STB_IMAGE
 #include "external/stb_image.h"
+#else
+#include <png.h>
+#include <jpeglib.h>
+#include <jerror.h>
+#endif
 
 #define FontWidth 7
 #define FontHeight 14
@@ -390,9 +396,145 @@ int MwTextHeight(MwWidget handle, const char* text) {
 	return FontHeight * FontScale;
 }
 
+#ifndef USE_STB_IMAGE
+static void PNGCAPI user_error(png_structp png, const char* str) {
+	(void)str;
+
+	longjmp(png_jmpbuf(png), 1);
+}
+
+static void PNGCAPI user_warning(png_structp png, const char* str) {
+	(void)png;
+	(void)str;
+}
+
+static unsigned char* load_png(FILE* f, int* w, int* h) {
+	png_structp    png  = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_infop      info = png_create_info_struct(png);
+	int	       depth, type, i;
+	unsigned char* data;
+	unsigned char* row;
+
+	if(setjmp(png_jmpbuf(png))) {
+		png_destroy_read_struct(&png, &info, NULL);
+		return NULL;
+	}
+
+	png_set_error_fn(png, NULL, user_error, user_warning);
+
+	png_init_io(png, f);
+	png_read_info(png, info);
+
+	*w    = png_get_image_width(png, info);
+	*h    = png_get_image_height(png, info);
+	depth = png_get_bit_depth(png, info);
+	type  = png_get_color_type(png, info);
+
+	if(depth == 16) png_set_strip_16(png);
+	if(type == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
+	if(type == PNG_COLOR_TYPE_GRAY && depth < 8) png_set_expand_gray_1_2_4_to_8(png);
+	if(png_get_valid(png, info, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png);
+	if(type == PNG_COLOR_TYPE_RGB || type == PNG_COLOR_TYPE_GRAY || type == PNG_COLOR_TYPE_PALETTE) png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+	if(type == PNG_COLOR_TYPE_GRAY || type == PNG_COLOR_TYPE_GRAY_ALPHA) png_set_gray_to_rgb(png);
+	png_read_update_info(png, info);
+
+	data = malloc((*w) * (*h) * 4);
+
+	row = malloc(png_get_rowbytes(png, info));
+	for(i = 0; i < (*h); i++) {
+		png_read_row(png, row, NULL);
+		memcpy(&data[i * (*w) * 4], row, png_get_rowbytes(png, info));
+	}
+	free(row);
+
+	png_destroy_read_struct(&png, &info, NULL);
+
+	return data;
+}
+
+static void jpeg_err(j_common_ptr cinfo) {
+	jmp_buf* j = cinfo->client_data;
+
+	longjmp(*j, 1);
+}
+
+static unsigned char* load_jpeg(FILE* f, int* w, int* h) {
+	struct jpeg_decompress_struct cinfo;
+	struct jpeg_error_mgr	      jerr;
+	jmp_buf*		      j = malloc(sizeof(*j));
+	unsigned char*		      data;
+	unsigned char*		      row;
+	int			      i;
+
+	if(setjmp(*j)) {
+		jpeg_destroy_decompress(&cinfo);
+		free(j);
+		return NULL;
+	}
+
+	cinfo.client_data = j;
+	cinfo.err	  = jpeg_std_error(&jerr);
+	jerr.error_exit	  = jpeg_err;
+
+	jpeg_create_decompress(&cinfo);
+	jpeg_stdio_src(&cinfo, f);
+	jpeg_read_header(&cinfo, TRUE);
+
+	jpeg_start_decompress(&cinfo);
+
+	*w = cinfo.output_width;
+	*h = cinfo.output_height;
+
+	data = malloc((*w) * (*h) * 4);
+	row  = malloc((*h) * cinfo.num_components);
+	for(i = 0; i < (*h); i++) {
+		int j;
+		jpeg_read_scanlines(&cinfo, &row, 1);
+
+		for(j = 0; j < (*w); j++) {
+			unsigned char* from = &row[j * cinfo.num_components];
+			unsigned char* to   = &data[(i * (*w) + j) * 4];
+
+			memcpy(to, from, 3);
+			to[3] = 255;
+		}
+	}
+	free(row);
+
+	jpeg_finish_decompress(&cinfo);
+	jpeg_destroy_decompress(&cinfo);
+
+	free(j);
+
+	return data;
+}
+#endif
+
+static unsigned char* load_image(const char* path, int* w, int* h) {
+#ifdef USE_STB_IMAGE
+	int ch;
+
+	return stbi_load(path, w, h, &ch, 4);
+#else
+	FILE*	       f = fopen(path, "rb");
+	unsigned char* d;
+	if(f == NULL) return NULL;
+
+	if((d = load_png(f, w, h)) != NULL) return d;
+	fseek(f, 0, SEEK_SET);
+
+	if((d = load_jpeg(f, w, h)) != NULL) return d;
+	fseek(f, 0, SEEK_SET);
+
+	fclose(f);
+
+	return NULL;
+#endif
+}
+
 MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
-	int	       width, height, ch;
-	unsigned char* rgb = stbi_load(path, &width, &height, &ch, 4);
+	int	       width, height;
+	unsigned char* rgb = load_image(path, &width, &height);
 	MwLLPixmap     px;
 
 	if(rgb == NULL) return NULL;

@@ -8,7 +8,7 @@ ifeq ($(CC),)
 CC = gcc
 endif
 
-CFLAGS = -Wall -Wextra -Iinclude
+CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Iinclude
 LDFLAGS =
 LIBS =
 
@@ -21,10 +21,9 @@ VK_STRING_HELPER_DEFINE =
 else
 VK_STRING_HELPER_DEFINE = -DHAS_VK_ENUM_STRING_HELPER
 endif
-
 CFLAGS += $(VK_STRING_HELPER_DEFINE)
 
-L_CFLAGS = $(CFLAGS) -fPIC -D_MILSKO
+L_CFLAGS = $(DEPINC) $(CFLAGS) -fPIC -D_MILSKO
 L_LDFLAGS = $(LDFLAGS)
 L_LIBS = $(LIBS)
 
@@ -36,6 +35,12 @@ L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldf
 L_OBJS += src/external/ds.o src/external/image.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o
 L_OBJS += src/cursor/default.o src/cursor/cross.o
+
+ifeq ($(NO_STB_IMAGE),1)
+include deps.mk
+else
+L_CFLAGS += -DUSE_STB_IMAGE
+endif
 
 FOUND_PLATFORM = 0
 
@@ -156,8 +161,11 @@ examples/%$(EXEC): examples/%.o src/$(LIB)Mw$(SO)
 src/%.o: src/%.c
 	$(CC) $(L_CFLAGS) -c -o $@ $<
 
+external/%.o: external/%.c
+	$(CC) $(L_CFLAGS) -c -o $@ $<
+
 examples/%.o: examples/%.c
 	$(CC) $(E_CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f src/*.dll src/*.so src/*.a */*.o */*/*.o examples/*.exe $(EXAMPLES) examples/opengl examples/vulkan
+	rm -f src/*.dll src/*.so src/*.a */*.o */*/*.o external/*/src/*.o examples/*.exe $(EXAMPLES) examples/opengl examples/vulkan
