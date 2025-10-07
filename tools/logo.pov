@@ -55,7 +55,7 @@ plane {
 
 light_source {
 	<-250, 250, -500>
-	color White
+	color White*2
 	parallel point_at <0, 0, 0>
 }
 
