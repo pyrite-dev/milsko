@@ -6,11 +6,10 @@
 
 class MwOOWidget {
       protected:
-	MwClass	 widget_class = NULL;
 	MwWidget widget;
 
       public:
-	MwOOWidget(const char* name, MwOOWidget* parent, int x, int y, int w, int h);
+	MwOOWidget(MwClass widget_class, const char* name, MwOOWidget* parent, int x, int y, int w, int h);
 	~MwOOWidget(void);
 };
 

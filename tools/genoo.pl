@@ -37,9 +37,8 @@ foreach my $f (@files) {
     print(OUT "#include <Mw/Widget/$name.h>\n");
     print(OUT "\n");
     print(OUT
-"MwOO${name}Widget::MwOO${name}Widget(const char* name, MwOOWidget* parent, int x, int y, int w, int h) : MwOOWidget(name, parent, x, y, w, h){\n"
+"MwOO${name}Widget::MwOO${name}Widget(const char* name, MwOOWidget* parent, int x, int y, int w, int h) : MwOOWidget(Mw${name}Class, name, parent, x, y, w, h){\n"
     );
-    print(OUT "	this->widget_class = Mw${name}Class;\n");
     print(OUT "}\n");
     close(OUT);
 
