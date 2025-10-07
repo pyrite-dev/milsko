@@ -23,6 +23,7 @@ static void lluphandler(MwLL handle, void* data) {
 
 	MwDispatch(h, click);
 	MwDispatch(h, mouse_up);
+	MwDispatchUserHandler(h, MwNmouseUpHandler, data);
 }
 
 static void lldownhandler(MwLL handle, void* data) {
@@ -33,6 +34,7 @@ static void lldownhandler(MwLL handle, void* data) {
 	h->mouse_point.y = p->y;
 
 	MwDispatch(h, mouse_down);
+	MwDispatchUserHandler(h, MwNmouseDownHandler, data);
 }
 
 static void llresizehandler(MwLL handle, void* data) {

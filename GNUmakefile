@@ -4,8 +4,8 @@ ifeq ($(TARGET),)
 TARGET = $(shell uname -s)
 endif
 
-CC = gcc
-CXX = g++
+CC = $(GCC)gcc
+CXX = $(GCC)g++
 
 CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Iinclude
 LDFLAGS =

@@ -65,11 +65,21 @@ static void __OnMenu(MwWidget widget, void* user, void* call){
 	MwOO::Base* c = (MwOO::Base*)user;
 	c->OnMenu(call);
 }
+static void __OnMouseDownHandler(MwWidget widget, void* user, void* call){
+	MwOO::Base* c = (MwOO::Base*)user;
+	c->OnMouseDownHandler(call);
+}
+static void __OnMouseUpHandler(MwWidget widget, void* user, void* call){
+	MwOO::Base* c = (MwOO::Base*)user;
+	c->OnMouseUpHandler(call);
+}
 
 void MwOO::Base::SetHandler(void){
 	MwAddUserHandler(this->widget, MwNactivateHandler, __OnActivate, this);
 	MwAddUserHandler(this->widget, MwNresizeHandler, __OnResize, this);
 	MwAddUserHandler(this->widget, MwNtickHandler, __OnTick, this);
 	MwAddUserHandler(this->widget, MwNmenuHandler, __OnMenu, this);
+	MwAddUserHandler(this->widget, MwNmouseDownHandler, __OnMouseDownHandler, this);
+	MwAddUserHandler(this->widget, MwNmouseUpHandler, __OnMouseUpHandler, this);
 }
 /* END AUTOGENERATE */
