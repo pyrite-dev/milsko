@@ -18,6 +18,14 @@ class Base {
 
       public:
 	void Loop(void);
+	void SetX(int value);
+	void SetY(int value);
+	void SetWidth(int value);
+	void SetHeight(int value);
+	int  GetX(void);
+	int  GetY(void);
+	int  GetWidth(void);
+	int  GetHeight(void);
 	/* BEGIN AUTOGENERATE */
 	virtual void OnActivate(void*) {};
 	virtual void OnResize(void*) {};
