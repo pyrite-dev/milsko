@@ -142,9 +142,9 @@ static void mouse_move(MwWidget handle) {
 		int    max = MwGetInteger(handle, MwNmaxValue);
 
 		if(or == MwVERTICAL) {
-			l	= handle->mouse_point.y + scr->pos;
+			l = handle->mouse_point.y + scr->pos;
 		} else if(or == MwHORIZONTAL) {
-			l	= handle->mouse_point.x + scr->pos;
+			l = handle->mouse_point.x + scr->pos;
 		}
 
 		len = l / len;

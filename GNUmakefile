@@ -31,11 +31,12 @@ L_OBJS += src/external/ds.o src/external/image.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o
 L_OBJS += src/cursor/default.o src/cursor/cross.o
 
-OOL_CFLAGS = $(CFLAGS) -fPIC
-OOL_LDFLAGS = $(LDFLAGS)
-OOL_LIBS = $(LIBS)
+OOL_CFLAGS = $(DEPINC) $(CFLAGS) -std=c++98 -fPIC -D_MILSKO
+OOL_LDFLAGS = $(LDFLAGS) -L src
+OOL_LIBS = $(LIBS) -lMw
 
-OOL_OBJS = src/core.o
+OOL_OBJS = oosrc/base.o
+include oosrc/deps.mk
 
 E_CFLAGS = $(CFLAGS)
 E_LDFLAGS = $(LDFLAGS) -Lsrc
@@ -136,11 +137,13 @@ EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC) 
 
 ifeq ($(OPENGL),1)
 L_OBJS += src/widget/opengl.o
+OOL_OBJS += oosrc/widget/opengl.o
 EXAMPLES += examples/gltriangle$(EXEC) examples/glgears$(EXEC) examples/glboing$(EXEC) examples/glcube$(EXEC)
 endif
 
 ifeq ($(VULKAN),1)
 L_OBJS += src/widget/vulkan.o
+OOL_OBJS += oosrc/widget/vulkan.o
 EXAMPLES += examples/vulkan$(EXEC)
 endif
 
@@ -152,14 +155,14 @@ oolib: src/$(LIB)MwOO$(SO)
 examples: $(EXAMPLES)
 
 format:
-	clang-format --verbose -i `find src include examples tools "(" -name "*.c" -or -name "*.h" ")" -and -not -name "stb_*.h"`
+	clang-format --verbose -i `find oosrc src include examples tools "(" -name "*.c" -or -name "*.h" ")" -and -not -name "stb_*.h"`
 	perltidy -b -bext='/' --paren-tightness=2 `find tools -name "*.pl"`
 
 src/$(LIB)Mw$(SO): $(L_OBJS)
 	$(CC) $(L_LDFLAGS) $(SHARED) -o $@ $^ $(L_LIBS)
 
-src/$(LIB)MwOO$(SO): $(OOL_OBJS) src/$(LIB)Mw$(SO)
-	$(CC) $(OOL_LDFLAGS) $(SHARED) -o $@ $^ $(OOL_LIBS)
+src/$(LIB)MwOO$(SO): $(OOL_OBJS) lib
+	$(CC) $(OOL_LDFLAGS) $(SHARED) -o $@ $(OOL_OBJS) $(OOL_LIBS)
 
 examples/gl%$(EXEC): examples/gl%.o src/$(LIB)Mw$(SO)
 	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS) $(GL)
