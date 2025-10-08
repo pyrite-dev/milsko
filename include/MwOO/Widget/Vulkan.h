@@ -5,15 +5,15 @@
 #include <MwOO/Base.h>
 
 namespace MwOO {
-class Vulkan : public MwOO::Base {
-      public:
-	Vulkan(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
-	void	 EnableExtension(void);
-	void	 EnableLayer(void);
-	void	 Configure(void);
-	void*	 GetField(MwVulkanField field, MwErrorEnum* out);
-	VkBool32 Supported(void);
-};
-} // namespace MwOO
+	class Vulkan : public MwOO::Base {
+	public:
+		Vulkan(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
+		void EnableExtension(void);
+		void EnableLayer(void);
+		void Configure(void);
+		void* GetField(MwVulkanField field, MwErrorEnum* out);
+		VkBool32 Supported(void);
+	};
+}
 
 #endif
