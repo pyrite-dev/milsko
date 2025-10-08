@@ -24,4 +24,13 @@ enum MwORIENTATION {
 	MwHORIZONTAL
 };
 
+/*!
+ * %brief Alignment
+ */
+enum MwALIGNMENT {
+	MwALIGNMENT_CENTER = 0,
+	MwALIGNMENT_BEGINNING,
+	MwALIGNMENT_END,
+};
+
 #endif

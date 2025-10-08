@@ -13,3 +13,11 @@ void* MwOO::Button::GetPixmap(void){
 	return MwGetVoid(this->widget, MwNpixmap);
 }
 
+void MwOO::Button::SetText(const char* value){
+	MwSetText(this->widget, MwNtext, value);
+}
+
+const char* MwOO::Button::GetText(void){
+	return MwGetText(this->widget, MwNtext);
+}
+

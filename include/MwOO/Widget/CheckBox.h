@@ -8,8 +8,8 @@ namespace MwOO {
 class CheckBox : public MwOO::Base {
       public:
 	CheckBox(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
-	void  SetPixmap(void* value);
-	void* GetPixmap(void);
+	void SetChecked(int value);
+	int  GetChecked(void);
 };
 } // namespace MwOO
 

@@ -2,7 +2,7 @@
 /*!
  * %file Mw/Widget/CheckBox.h
  * %brief CheckBox widget
- * %prop MwNpixmap
+ * %prop MwNchecked
  */
 #ifndef __MW_WIDGET_CHECKBOX_H__
 #define __MW_WIDGET_CHECKBOX_H__
