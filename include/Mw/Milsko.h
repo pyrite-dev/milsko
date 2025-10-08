@@ -26,6 +26,7 @@
 #include <Mw/Widget/CheckBox.h>
 #include <Mw/Widget/Frame.h>
 #include <Mw/Widget/Image.h>
+#include <Mw/Widget/Text.h>
 #include <Mw/Widget/ScrollBar.h>
 
 #endif
