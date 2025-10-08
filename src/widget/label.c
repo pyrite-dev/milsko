@@ -34,7 +34,7 @@ static void draw(MwWidget handle) {
 		p.x = r.width - MwTextWidth(handle, str) / 2;
 	}
 	p.y = r.height / 2;
-	MwDrawText(handle, &p, str, 0, text);
+	MwDrawText(handle, &p, str, 0, MwALIGNMENT_CENTER, text);
 
 	MwLLFreeColor(text);
 	MwLLFreeColor(base);

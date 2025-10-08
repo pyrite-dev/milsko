@@ -50,7 +50,7 @@ static void draw(MwWidget handle) {
 		point.x = r.x + r.width / 2;
 		point.y = r.x + r.height / 2;
 
-		MwDrawText(handle, &point, str, 0, text);
+		MwDrawText(handle, &point, str, 0, MwALIGNMENT_CENTER, text);
 	}
 
 	MwLLFreeColor(text);

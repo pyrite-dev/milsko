@@ -359,12 +359,18 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 	MwLLFreeColor(darker);
 }
 
-void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, MwLLColor color) {
+void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
 	int    i, x, y, sx, sy;
 	MwRect r;
 
-	sx = point->x - strlen(text) * FontWidth * FontScale / 2;
+	sx = point->x;
 	sy = point->y - FontHeight * FontScale / 2;
+
+	if(align == MwALIGNMENT_CENTER) {
+		sx -= strlen(text) * FontWidth * FontScale / 2;
+	} else if(align == MwALIGNMENT_END) {
+		sx -= strlen(text) * FontWidth * FontScale;
+	}
 
 	for(i = 0; text[i] != 0; i++) {
 		for(y = 0; y < FontHeight; y++) {

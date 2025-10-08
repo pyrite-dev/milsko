@@ -77,9 +77,10 @@ MWDECL void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int in
  * %param point Center point of the text
  * %param text Text
  * %param bold Bold
+ * %param align Align
  * %param color Color
  */
-MWDECL void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, MwLLColor color);
+MWDECL void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color);
 
 /*!
  * %brief Creates a pixmap from image
