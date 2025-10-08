@@ -181,13 +181,17 @@ static void mouse_down(MwWidget handle) {
 	MwForceRender(handle);
 }
 
+static void prop_change(MwWidget handle, const char* key) {
+	if(strcmp(key, MwNminValue) == 0 || strcmp(key, MwNvalue) == 0 || strcmp(key, MwNmaxValue) == 0 || strcmp(key, MwNareaShown) == 0) MwForceRender(handle);
+}
+
 MwClassRec MwScrollBarClassRec = {
     create,	   /* create */
     destroy,	   /* destroy */
     draw,	   /* draw */
     NULL,	   /* click */
     NULL,	   /* parent_resize */
-    NULL,	   /* prop_change */
+    prop_change,   /* prop_change */
     mouse_move,	   /* mouse_move */
     MwForceRender, /* mouse_up */
     mouse_down	   /* mouse_down */

@@ -28,6 +28,16 @@
 #define MwDispatch2(x, y) \
 	((x->widget_class != NULL && x->widget_class->y != NULL) ? x->widget_class->y(x) : 0)
 
+/*!
+ * %warning Used internally
+ * %brief Dispatches the handler of widget class
+ * %param x Widget
+ * %param y Handler name
+ * %param name Property name
+ */
+#define MwDispatch3(x, y, name) \
+	((x->widget_class != NULL && x->widget_class->y != NULL) ? x->widget_class->y(x, name) : 0)
+
 #define MwWaitMS 5
 
 #ifdef __cplusplus
