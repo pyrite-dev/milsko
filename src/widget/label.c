@@ -53,6 +53,11 @@ MwClassRec MwLabelClassRec = {
     prop_change, /* prop_change */
     NULL,	 /* mouse_move */
     NULL,	 /* mouse_up */
-    NULL	 /* mouse_down */
-};
+    NULL,	 /* mouse_down */
+    NULL,	 /* key */
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL};
 MwClass MwLabelClass = &MwLabelClassRec;

@@ -14,6 +14,7 @@
 #include <sys/types.h>
 #include <assert.h>
 #include <math.h>
+#include <ctype.h>
 #ifndef _WIN32
 #include <unistd.h>
 #include <sys/ipc.h>

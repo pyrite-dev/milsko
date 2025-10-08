@@ -155,8 +155,13 @@ MwClassRec MwSubMenuClassRec = {
     NULL,	   /* prop_change */
     NULL,	   /* mouse_move */
     MwForceRender, /* mouse_up */
-    MwForceRender  /* mouse_down */
-};
+    MwForceRender, /* mouse_down */
+    NULL,	   /* key */
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL};
 MwClass MwSubMenuClass = &MwSubMenuClassRec;
 
 void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {

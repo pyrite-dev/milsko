@@ -74,6 +74,11 @@ MwClassRec MwButtonClassRec = {
     prop_change,   /* prop_change */
     NULL,	   /* mouse_move */
     MwForceRender, /* mouse_up */
-    MwForceRender  /* mouse_down */
-};
+    MwForceRender, /* mouse_down */
+    NULL,	   /* key */
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL};
 MwClass MwButtonClass = &MwButtonClassRec;

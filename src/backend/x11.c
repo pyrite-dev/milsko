@@ -1,7 +1,7 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask;
+static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | KeymapNotify;
 
 static void create_pixmap(MwLL handle) {
 	XWindowAttributes attr;
@@ -150,6 +150,8 @@ void MwLLNextEvent(MwLL handle) {
 				p.y = ev.xbutton.y;
 
 				MwLLDispatch(handle, down, &p);
+
+				XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
 			}
 		} else if(ev.type == ButtonRelease) {
 			if(ev.xbutton.button == Button1) {
@@ -179,6 +181,19 @@ void MwLLNextEvent(MwLL handle) {
 			p.y = ev.xmotion.y;
 
 			MwLLDispatch(handle, move, &p);
+		} else if(ev.type == KeyPress) {
+			int    n;
+			KeySym sym = XLookupKeysym(&ev.xkey, 0);
+			char*  str = XKeysymToString(sym);
+			char   s   = str == NULL ? 0 : str[0];
+
+			if(ev.xkey.state & (ShiftMask | LockMask)) {
+				n = toupper((int)s);
+			} else {
+				n = s;
+			}
+
+			MwLLDispatch(handle, key, &n);
 		}
 		if(render) {
 			int	     x, y;
