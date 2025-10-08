@@ -150,7 +150,7 @@ static void mouse_move(MwWidget handle) {
 		len = l / len;
 		if(len < 0) len = 0;
 		if(len > 1) len = 1;
-		MwSetInteger(handle, MwNvalue, (max - min) * len - min);
+		MwSetInteger(handle, MwNvalue, (int)((max - min) * len - min));
 
 		MwForceRender(handle);
 	}
