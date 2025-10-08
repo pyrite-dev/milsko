@@ -22,6 +22,10 @@
 #include <signal.h>
 #endif
 
+#ifndef M_PI
+#define M_PI 3.14159265
+#endif
+
 #if defined(_MILSKO) && defined(_WIN32)
 #define MWDECL extern __declspec(dllexport)
 #elif defined(_WIN32)

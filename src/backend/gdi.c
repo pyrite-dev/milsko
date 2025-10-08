@@ -108,9 +108,9 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	if(parent == NULL) {
 		u->old = NULL;
 	} else {
-		u->old = (WNDPROC)SetWindowLongPtr(r->hWnd, GWLP_WNDPROC, (LONG_PTR)wndproc);
+		u->old = (WNDPROC)SetWindowLongPtr(r->hWnd, GWLP_WNDPROC, (LPARAM)wndproc);
 	}
-	SetWindowLongPtr(r->hWnd, GWLP_USERDATA, (LONG_PTR)u);
+	SetWindowLongPtr(r->hWnd, GWLP_USERDATA, (LPARAM)u);
 
 	if(parent == NULL) {
 		RECT rc;
@@ -135,7 +135,7 @@ void MwLLDestroy(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
 	/* for safety */
-	SetWindowLongPtr(handle->hWnd, GWLP_USERDATA, (LONG_PTR)NULL);
+	SetWindowLongPtr(handle->hWnd, GWLP_USERDATA, (LPARAM)NULL);
 	DestroyWindow(handle->hWnd);
 
 	free(handle);
@@ -361,7 +361,7 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 
 	cursor = CreateCursor(GetModuleHandle(NULL), xs, ys, MwCursorDataHeight, MwCursorDataHeight, dmask, dimage);
 
-	SetClassLongPtr(handle->hWnd, GCLP_HCURSOR, (LONG_PTR)cursor);
+	SetClassLongPtr(handle->hWnd, GCLP_HCURSOR, (LPARAM)cursor);
 	SetCursor(cursor);
 
 	DestroyCursor(cursor);
@@ -372,7 +372,7 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 
 void MwLLDetach(MwLL handle, MwPoint* point) {
 	RECT	 rc, rc2;
-	LONG_PTR style = GetWindowLongPtr(handle->hWnd, GWL_STYLE);
+	LPARAM style = GetWindowLongPtr(handle->hWnd, GWL_STYLE);
 
 	style |= WS_OVERLAPPEDWINDOW;
 

@@ -7,7 +7,17 @@
 #include <Mw/LowLevel.h>
 
 #include <windows.h>
-
+#ifndef GWLP_USERDATA
+#define GWLP_USERDATA GWL_USERDATA
+#define GWLP_WNDPROC GWL_WNDPROC
+#define GCLP_HICON GCL_HICON
+#define GCLP_HCURSOR GCL_HCURSOR
+#define SetWindowLongPtr SetWindowLong
+#define GetWindowLongPtr GetWindowLong
+#define SetClassLongPtr SetClassLong
+#define GetClassLongPtr GetClassLong
+#endif
+	
 struct _MwLL {
 	HINSTANCE hInstance;
 	HWND	  hWnd;

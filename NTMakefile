@@ -1,0 +1,27 @@
+# $Id$
+CC = cl
+LD = link
+
+OBJS = src\boldfont.obj src\core.obj src\default.obj src\draw.obj src\error.obj src\font.obj src\lowlevel.obj src\widget\button.obj src\widget\checkbox.obj src\widget\frame.obj src\widget\image.obj src\widget\label.obj src\widget\menu.obj src\widget\opengl.obj src\widget\scrollbar.obj src\widget\submenu.obj src\widget\window.obj src\external\ds.obj src\external\image.obj src\cursor\cross.obj src\cursor\default.obj src\backend\gdi.obj
+OOOBJS = oosrc\base.obj oosrc\widget\button.obj oosrc\widget\checkbox.obj oosrc\widget\frame.obj oosrc\widget\image.obj oosrc\widget\label.obj oosrc\widget\menu.obj oosrc\widget\opengl.obj oosrc\widget\scrollbar.obj oosrc\widget\submenu.obj oosrc\widget\window.obj
+CFLAGS = /nologo /DSTBI_NO_SIMD /D_MILSKO /DUSE_GDI /DUSE_STB_IMAGE /Iinclude
+CXXFLAGS = /nologo /Iinclude
+LDFLAGS = /nologo /DLL /LIBPATH:src /LIBPATH:oosrc
+
+all: src\Mw.dll oosrc\MwOO.dll
+
+.SUFFIXES: .cc .c .obj
+
+.c.obj:
+	$(CC) $(CFLAGS) /TC /c /Fo$@ $<
+
+.cc.obj:
+	$(CC) $(CXXFLAGS) /TP /c /Fo$@ $<
+
+src\Mw.dll: $(OBJS)
+	$(LD) $(LDFLAGS) /OUT:src\Mw.dll $(OBJS) gdi32.lib user32.lib
+oosrc\MwOO.dll: $(OOOBJS)
+	$(LD) $(LDFLAGS) /OUT:oosrc\MwOO.dll $(OOOBJS) Mw.lib
+
+clean:
+	del /q $(OBJS) $(OOOBJS) src\Mw.dll src\Mw.lib src\Mw.exp oosrc\MwOO.dll oosrc\MwOO.lib oosrc\MwOO.exp

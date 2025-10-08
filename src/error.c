@@ -17,7 +17,7 @@ void setLastError(const char* fmt, ...) {
 	memset(out, 0, MAX_ERROR_LEN);
 
 	va_start(va, fmt);
-	vsnprintf(out, MAX_ERROR_LEN, fmt, va);
+	vsprintf(out, fmt, va);
 	va_end(va);
 
 	memcpy(error, out, MAX_ERROR_LEN);
