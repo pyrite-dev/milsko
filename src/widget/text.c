@@ -25,14 +25,19 @@ static void draw(MwWidget handle) {
 }
 
 MwClassRec MwTextClassRec = {
-    create, /* create */
-    NULL,   /* destroy */
-    draw,   /* draw */
-    NULL,   /* click */
-    NULL,   /* parent_resize */
-    NULL,   /* prop_change */
-    NULL,   /* mouse_move */
-    NULL,   /* mouse_up */
-    NULL    /* mouse_down */
-};
+    create,	   /* create */
+    NULL,	   /* destroy */
+    draw,	   /* draw */
+    NULL,	   /* click */
+    NULL,	   /* parent_resize */
+    NULL,	   /* prop_change */
+    NULL,	   /* mouse_move */
+    MwForceRender, /* mouse_up */
+    MwForceRender, /* mouse_down */
+    NULL,	   /* key */
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL};
 MwClass MwTextClass = &MwTextClassRec;

@@ -30,8 +30,13 @@ MwClassRec MwWindowClassRec = {
     NULL,   /* prop_change */
     NULL,   /* mouse_move */
     NULL,   /* mouse_up */
-    NULL    /* mouse_down */
-};
+    NULL,   /* mouse_down */
+    NULL,   /* key */
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL};
 MwClass MwWindowClass = &MwWindowClassRec;
 
 void MwWindowSetIcon(MwWidget handle, MwLLPixmap pixmap) {

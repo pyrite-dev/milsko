@@ -389,8 +389,3 @@ void MwLLDetach(MwLL handle, MwPoint* point) {
 
 	SetWindowLongPtr(handle->hWnd, GWL_STYLE, style);
 }
-
-void MwLLShow(MwLL handle, int show) {
-	ShowWindow(handle->hWnd, show ? SW_NORMAL : SW_HIDE);
-	if(show) SetFocus(handle->hWnd);
-}

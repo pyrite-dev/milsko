@@ -194,8 +194,13 @@ MwClassRec MwScrollBarClassRec = {
     prop_change,   /* prop_change */
     mouse_move,	   /* mouse_move */
     MwForceRender, /* mouse_up */
-    mouse_down	   /* mouse_down */
-};
+    mouse_down,	   /* mouse_down */
+    NULL,	   /* key */
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL};
 MwClass MwScrollBarClass = &MwScrollBarClassRec;
 
 int MwScrollBarGetVisibleLength(MwWidget handle) {

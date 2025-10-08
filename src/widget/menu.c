@@ -175,8 +175,13 @@ MwClassRec MwMenuClassRec = {
     NULL,	   /* prop_change */
     NULL,	   /* mouse_move */
     mouse_up,	   /* mouse_up */
-    mouse_down	   /* mouse_down */
-};
+    mouse_down,	   /* mouse_down */
+    NULL,	   /* key */
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL};
 MwClass MwMenuClass = &MwMenuClassRec;
 
 MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {

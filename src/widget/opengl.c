@@ -137,8 +137,13 @@ MwClassRec MwOpenGLClassRec = {
     NULL,    /* prop_change */
     NULL,    /* mouse_move */
     NULL,    /* mouse_up */
-    NULL     /* mouse_down */
-};
+    NULL,    /* mouse_down */
+    NULL,    /* key */
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL};
 MwClass MwOpenGLClass = &MwOpenGLClassRec;
 
 void MwOpenGLMakeCurrent(MwWidget handle) {

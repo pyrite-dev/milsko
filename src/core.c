@@ -66,6 +66,13 @@ static void llmovehandler(MwLL handle, void* data) {
 	MwDispatch(h, mouse_move);
 }
 
+static void llkeyhandler(MwLL handle, void* data) {
+	MwWidget h   = (MwWidget)handle->user;
+	int	 key = *(int*)data;
+
+	MwDispatch3(h, key, key);
+}
+
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	MwWidget h = malloc(sizeof(*h));
 
@@ -92,6 +99,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->lowlevel->handler->resize = llresizehandler;
 	h->lowlevel->handler->close  = llclosehandler;
 	h->lowlevel->handler->move   = llmovehandler;
+	h->lowlevel->handler->key    = llkeyhandler;
 
 	if(parent != NULL) arrput(parent->children, h);
 
