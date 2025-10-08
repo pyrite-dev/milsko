@@ -1,0 +1,36 @@
+/* $Id$ */
+#include <Mw/Milsko.h>
+
+static int create(MwWidget handle) {
+	MwSetDefault(handle);
+
+	return 0;
+}
+
+static void draw(MwWidget handle) {
+	MwRect	  r;
+	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+
+	r.x	 = 0;
+	r.y	 = 0;
+	r.width	 = MwGetInteger(handle, MwNwidth);
+	r.height = MwGetInteger(handle, MwNheight);
+
+	MwDrawFrame(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0);
+	MwDrawRect(handle, &r, base);
+
+	MwLLFreeColor(base);
+}
+
+MwClassRec MwTextClassRec = {
+    create, /* create */
+    NULL,   /* destroy */
+    draw,   /* draw */
+    NULL,   /* click */
+    NULL,   /* parent_resize */
+    NULL,   /* prop_change */
+    NULL,   /* mouse_move */
+    NULL,   /* mouse_up */
+    NULL    /* mouse_down */
+};
+MwClass MwTextClass = &MwTextClassRec;
