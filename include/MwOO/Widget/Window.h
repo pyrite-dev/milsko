@@ -5,10 +5,10 @@
 #include <MwOO/Base.h>
 
 namespace MwOO {
-	class Window : public MwOO::Base {
-	public:
-		Window(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
-	};
-}
+class Window : public MwOO::Base {
+      public:
+	Window(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
+};
+} // namespace MwOO
 
 #endif

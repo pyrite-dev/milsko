@@ -5,12 +5,12 @@
 #include <MwOO/Base.h>
 
 namespace MwOO {
-	class CheckBox : public MwOO::Base {
-	public:
-		CheckBox(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
-		void SetPixmap(void* value);
-		void* GetPixmap(void);
-	};
-}
+class CheckBox : public MwOO::Base {
+      public:
+	CheckBox(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
+	void  SetPixmap(void* value);
+	void* GetPixmap(void);
+};
+} // namespace MwOO
 
 #endif

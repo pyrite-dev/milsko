@@ -26,16 +26,16 @@ class Base {
 	int  GetY(void);
 	int  GetWidth(void);
 	int  GetHeight(void);
-/* BEGIN AUTOGENERATE */
-	virtual void OnActivate(void*){};
-	virtual void OnResize(void*){};
-	virtual void OnTick(void*){};
-	virtual void OnMenu(void*){};
-	virtual void OnMouseDownHandler(void*){};
-	virtual void OnMouseUpHandler(void*){};
-	virtual void OnChangedHandler(void*){};
+	/* BEGIN AUTOGENERATE */
+	virtual void OnActivate(void*) {};
+	virtual void OnResize(void*) {};
+	virtual void OnTick(void*) {};
+	virtual void OnMenu(void*) {};
+	virtual void OnMouseDownHandler(void*) {};
+	virtual void OnMouseUpHandler(void*) {};
+	virtual void OnChangedHandler(void*) {};
 
-/* END AUTOGENERATE */
+	/* END AUTOGENERATE */
 
 	Base(MwClass widget_class, const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
 	~Base(void);

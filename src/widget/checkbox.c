@@ -10,8 +10,8 @@ static int create(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	    r;
-	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwRect	  r;
+	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -20,7 +20,7 @@ static void draw(MwWidget handle) {
 
 	MwDrawFrame(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0);
 	MwDrawRect(handle, &r, base);
-	if(handle->pressed || MwGetInteger(handle, MwNchecked)){
+	if(handle->pressed || MwGetInteger(handle, MwNchecked)) {
 		/* TODO: write check mark */
 	}
 
