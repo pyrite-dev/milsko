@@ -371,7 +371,7 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 }
 
 void MwLLDetach(MwLL handle, MwPoint* point) {
-	RECT	 rc, rc2;
+	RECT   rc, rc2;
 	LPARAM style = GetWindowLongPtr(handle->hWnd, GWL_STYLE);
 
 	style |= WS_OVERLAPPEDWINDOW;

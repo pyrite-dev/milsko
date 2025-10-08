@@ -17,7 +17,7 @@
 #define SetClassLongPtr SetClassLong
 #define GetClassLongPtr GetClassLong
 #endif
-	
+
 struct _MwLL {
 	HINSTANCE hInstance;
 	HWND	  hWnd;
