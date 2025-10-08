@@ -83,10 +83,9 @@ static void destroy(MwWidget handle) {
 		if(incr) { \
 			p.x = MwGetInteger(handle, MwNwidth) - tw - 10; \
 		} \
-		p.x += tw / 2; \
 \
-		r.x	 = p.x - tw / 2 - 5; \
-		r.y	 = p.y - th / 2 - 5; \
+		r.x	 = p.x - 5; \
+		r.y	 = p.y - 5; \
 		r.width	 = tw + 10; \
 		r.height = th + 10; \
 \
@@ -112,7 +111,7 @@ static void draw(MwWidget handle) {
 		MwDrawFrame(handle, &r, base, 0);
 	}
 
-	MwDrawText(handle, &p, m->sub[i]->name + incr, 1, text);
+	MwDrawText(handle, &p, m->sub[i]->name + incr, 1, MwALIGNMENT_BEGINNING, text);
 	END_MENU_LOOP;
 
 	MwLLFreeColor(text);

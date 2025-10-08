@@ -62,7 +62,7 @@ static void draw(MwWidget handle) {
 			p.x = 5 + tw / 2;
 
 			p.y += th / 2;
-			MwDrawText(handle, &p, menu->sub[i]->name, 1, text);
+			MwDrawText(handle, &p, menu->sub[i]->name, 1, MwALIGNMENT_CENTER, text);
 
 			if(arrlen(menu->sub[i]->sub) > 0) {
 				MwRect tr;
