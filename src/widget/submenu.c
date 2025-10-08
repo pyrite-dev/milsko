@@ -176,8 +176,8 @@ void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 	MwLLDetach(handle->lowlevel, point);
 
 #ifdef _WIN32
-	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_STYLE, (LONG_PTR)0);
-	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_EXSTYLE, (LONG_PTR)WS_EX_TOOLWINDOW);
+	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_STYLE, (LPARAM)0);
+	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_EXSTYLE, (LPARAM)WS_EX_TOOLWINDOW);
 #endif
 
 	MwLLShow(handle->lowlevel, 1);
