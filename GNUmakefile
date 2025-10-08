@@ -31,7 +31,7 @@ L_OBJS += src/external/ds.o src/external/image.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o src/widget/checkbox.o src/widget/label.o
 L_OBJS += src/cursor/default.o src/cursor/cross.o
 
-OOL_CFLAGS = $(DEPINC) $(CFLAGS) -std=c++98 -fPIC -D_MILSKO
+OOL_CFLAGS = $(DEPINC) $(CFLAGS) -std=c++98 -fPIC
 OOL_LDFLAGS = $(LDFLAGS) -L src
 OOL_LIBS = $(LIBS) -lMw
 
