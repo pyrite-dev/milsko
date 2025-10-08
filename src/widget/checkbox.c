@@ -39,6 +39,7 @@ MwClassRec MwCheckBoxClassRec = {
     draw,	   /* draw */
     click,	   /* click */
     NULL,	   /* parent_resize */
+    NULL,	   /* prop_change */
     NULL,	   /* mouse_move */
     MwForceRender, /* mouse_up */
     MwForceRender  /* mouse_down */

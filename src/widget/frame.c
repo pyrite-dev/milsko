@@ -29,6 +29,7 @@ MwClassRec MwFrameClassRec = {
     draw,   /* draw */
     NULL,   /* click */
     NULL,   /* parent_resize */
+    NULL,   /* prop_change */
     NULL,   /* mouse_move */
     NULL,   /* mouse_up */
     NULL    /* mouse_down */

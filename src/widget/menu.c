@@ -173,6 +173,7 @@ MwClassRec MwMenuClassRec = {
     draw,	   /* draw */
     NULL,	   /* click */
     parent_resize, /* parent_resize */
+    NULL,	   /* prop_change */
     NULL,	   /* mouse_move */
     mouse_up,	   /* mouse_up */
     mouse_down	   /* mouse_down */

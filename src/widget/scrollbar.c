@@ -187,6 +187,7 @@ MwClassRec MwScrollBarClassRec = {
     draw,	   /* draw */
     NULL,	   /* click */
     NULL,	   /* parent_resize */
+    NULL,	   /* prop_change */
     mouse_move,	   /* mouse_move */
     MwForceRender, /* mouse_up */
     mouse_down	   /* mouse_down */

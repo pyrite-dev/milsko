@@ -509,6 +509,7 @@ MwClassRec MwVulkanClassRec = {
     NULL,    /* draw */
     NULL,    /* click */
     NULL,    /* parent_resize */
+    NULL,    /* prop_change */
     NULL,    /* mouse_move */
     NULL,    /* mouse_up */
     NULL     /* mouse_down */

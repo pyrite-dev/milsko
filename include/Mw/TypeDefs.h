@@ -25,6 +25,7 @@ typedef void* MwWidget;
 #endif
 typedef void (*MwHandler)(MwWidget handle);
 typedef int (*MwHandler2)(MwWidget handle);
+typedef int (*MwHandler3)(MwWidget handle, const char* key);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
 
@@ -112,6 +113,7 @@ struct _MwClass {
 	MwHandler  draw;
 	MwHandler  click;
 	MwHandler  parent_resize;
+	MwHandler3 prop_change;
 	MwHandler  mouse_move;
 	MwHandler  mouse_up;
 	MwHandler  mouse_down;
