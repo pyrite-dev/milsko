@@ -85,7 +85,7 @@ static void destroy(MwWidget handle) {
 		} \
 \
 		r.x	 = p.x - 5; \
-		r.y	 = p.y - 5; \
+		r.y	 = p.y - th / 2 - 5; \
 		r.width	 = tw + 10; \
 		r.height = th + 10; \
 \
