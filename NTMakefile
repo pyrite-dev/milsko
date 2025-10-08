@@ -20,6 +20,7 @@ all: src\Mw.dll oosrc\MwOO.dll
 
 src\Mw.dll: $(OBJS)
 	$(LD) $(LDFLAGS) /OUT:src\Mw.dll $(OBJS) gdi32.lib user32.lib
+
 oosrc\MwOO.dll: $(OOOBJS)
 	$(LD) $(LDFLAGS) /OUT:oosrc\MwOO.dll $(OOOBJS) Mw.lib
 

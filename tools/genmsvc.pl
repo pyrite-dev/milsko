@@ -49,6 +49,7 @@ print(OUT "\n");
 print(OUT "src\\Mw.dll: \$(OBJS)\n");
 print(OUT
       "\t\$(LD) \$(LDFLAGS) /OUT:src\\Mw.dll \$(OBJS) gdi32.lib user32.lib\n");
+print(OUT "\n");
 print(OUT "oosrc\\MwOO.dll: \$(OOOBJS)\n");
 print(OUT "\t\$(LD) \$(LDFLAGS) /OUT:oosrc\\MwOO.dll \$(OOOBJS) Mw.lib\n");
 print(OUT "\n");
