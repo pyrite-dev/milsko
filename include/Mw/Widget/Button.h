@@ -2,7 +2,7 @@
 /*!
  * %file Mw/Widget/Button.h
  * %brief Button widget
- * %prop MwNpixmap
+ * %prop MwNpixmap MwNtext
  */
 #ifndef __MW_WIDGET_BUTTON_H__
 #define __MW_WIDGET_BUTTON_H__

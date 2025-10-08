@@ -2,6 +2,7 @@
 /*!
  * %file Mw/Widget/Window.h
  * %brief Window widget
+ * %prop MwNtitle
  */
 #ifndef __MW_WIDGET_WINDOW_H__
 #define __MW_WIDGET_WINDOW_H__

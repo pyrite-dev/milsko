@@ -28,7 +28,7 @@ L_LIBS = $(LIBS)
 
 L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o src/error.o
 L_OBJS += src/external/ds.o src/external/image.o
-L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o src/widget/checkbox.o
+L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o src/widget/checkbox.o src/widget/label.o
 L_OBJS += src/cursor/default.o src/cursor/cross.o
 
 OOL_CFLAGS = $(DEPINC) $(CFLAGS) -std=c++98 -fPIC -D_MILSKO
@@ -151,7 +151,7 @@ endif
 
 all: lib examples
 lib: src/$(LIB)Mw$(SO)
-oolib: src/$(LIB)MwOO$(SO)
+oolib: oosrc/$(LIB)MwOO$(SO)
 examples: $(EXAMPLES)
 
 format:
@@ -161,7 +161,7 @@ format:
 src/$(LIB)Mw$(SO): $(L_OBJS)
 	$(CC) $(L_LDFLAGS) $(SHARED) -o $@ $^ $(L_LIBS)
 
-src/$(LIB)MwOO$(SO): $(OOL_OBJS) src/$(LIB)Mw$(SO)
+oosrc/$(LIB)MwOO$(SO): $(OOL_OBJS) src/$(LIB)Mw$(SO)
 	$(CC) $(OOL_LDFLAGS) $(SHARED) -o $@ $(OOL_OBJS) $(OOL_LIBS)
 
 examples/gl%$(EXEC): examples/gl%.o src/$(LIB)Mw$(SO)
@@ -183,4 +183,4 @@ examples/%.o: examples/%.c
 	$(CC) $(E_CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f src/*.dll src/*.so src/*.a */*.o */*/*.o external/*/src/*.o examples/*.exe $(EXAMPLES) examples/opengl examples/vulkan
+	rm -f */*.dll */*.so */*.a */*.o */*/*.o external/*/src/*.o examples/*.exe $(EXAMPLES) examples/opengl examples/vulkan

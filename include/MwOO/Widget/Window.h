@@ -8,6 +8,8 @@ namespace MwOO {
 class Window : public MwOO::Base {
       public:
 	Window(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
+	void	    SetTitle(const char* value);
+	const char* GetTitle(void);
 };
 } // namespace MwOO
 
