@@ -182,9 +182,12 @@ void MwLLNextEvent(MwLL handle) {
 
 			MwLLDispatch(handle, move, &p);
 		} else if(ev.type == KeyPress) {
-			int    n;
+			int    n   = -1;
 			KeySym sym = XLookupKeysym(&ev.xkey, 0);
 			char*  str = XKeysymToString(sym);
+
+			if(strcmp(str, "space") == 0) str = " ";
+
 			/* HACK: this is bad, you can guess why */
 			if(strlen(str) == 1) {
 				char s = str == NULL ? 0 : str[0];
@@ -194,9 +197,11 @@ void MwLLNextEvent(MwLL handle) {
 				} else {
 					n = s;
 				}
-
-				MwLLDispatch(handle, key, &n);
+			} else if(strcmp(str, "BackSpace") == 0) {
+				n = MwLLKeyBackSpace;
 			}
+
+			if(n != -1) MwLLDispatch(handle, key, &n);
 		}
 		if(render) {
 			int	     x, y;

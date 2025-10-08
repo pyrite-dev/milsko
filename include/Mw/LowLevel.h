@@ -36,6 +36,10 @@ typedef void* MwLLPixmap;
 #define MwLLDispatch(x, y, z) \
 	if(x->handler != NULL && x->handler->y != NULL) x->handler->y(x, z)
 
+enum MwLLKey {
+	MwLLKeyBackSpace = (1 << 31) | 1
+};
+
 struct _MwLLHandler {
 	void (*draw)(MwLL handle, void* data);
 	void (*up)(MwLL handle, void* data);

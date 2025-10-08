@@ -2,7 +2,7 @@
 /*!
  * %file Mw/Widget/Text.h
  * %brief Text widget
- * %prop MwNchecked
+ * %prop MwNtext
  */
 #ifndef __MW_WIDGET_TEXT_H__
 #define __MW_WIDGET_TEXT_H__
