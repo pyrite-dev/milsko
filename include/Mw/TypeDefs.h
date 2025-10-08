@@ -25,7 +25,7 @@ typedef void* MwWidget;
 #endif
 typedef void (*MwHandler)(MwWidget handle);
 typedef int (*MwHandler2)(MwWidget handle);
-typedef int (*MwHandler3)(MwWidget handle, const char* key);
+typedef void (*MwHandler3)(MwWidget handle, const char* key);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
 
@@ -79,6 +79,7 @@ struct _MwWidget {
 	MwPoint mouse_point;
 	int	close;
 	jmp_buf before_step;
+	int	prop_event;
 
 	void* internal;
 

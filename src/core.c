@@ -83,6 +83,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->pressed	 = 0;
 	h->close	 = 0;
 	h->destroy_queue = NULL;
+	h->prop_event	 = 1;
 
 	h->lowlevel->user	     = h;
 	h->lowlevel->handler->draw   = lldrawhandler;
@@ -171,7 +172,11 @@ void MwStep(MwWidget handle) {
 	int i, j;
 	if(setjmp(handle->before_step)) return;
 	for(i = 0; i < arrlen(handle->children); i++) MwStep(handle->children[i]);
+
+	handle->prop_event = 0;
 	MwLLNextEvent(handle->lowlevel);
+	handle->prop_event = 1;
+
 	for(i = 0; i < arrlen(handle->destroy_queue); i++) {
 		MwWidget w = handle->destroy_queue[i];
 
@@ -222,6 +227,7 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 	} else {
 		shput(handle->integer, key, n);
 	}
+	if(handle->prop_event) MwDispatch3(handle, prop_change, key);
 }
 
 void MwSetText(MwWidget handle, const char* key, const char* value) {
@@ -235,6 +241,10 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 
 		shput(handle->text, key, v);
 	}
+	if(handle->prop_event) MwDispatch3(handle, prop_change, key);
+	if(strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0) {
+		MwForceRender(handle);
+	}
 }
 
 void MwSetVoid(MwWidget handle, const char* key, void* value) {
@@ -243,6 +253,7 @@ void MwSetVoid(MwWidget handle, const char* key, void* value) {
 	} else {
 		shput(handle->data, key, value);
 	}
+	if(handle->prop_event) MwDispatch3(handle, prop_change, key);
 }
 
 int MwGetInteger(MwWidget handle, const char* key) {

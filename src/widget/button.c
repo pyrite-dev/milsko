@@ -61,13 +61,17 @@ static void click(MwWidget handle) {
 	MwDispatchUserHandler(handle, MwNactivateHandler, NULL);
 }
 
+static void prop_change(MwWidget handle, const char* key) {
+	if(strcmp(key, MwNtext) == 0 || strcmp(key, MwNpixmap) == 0) MwForceRender(handle);
+}
+
 MwClassRec MwButtonClassRec = {
     create,	   /* create */
     NULL,	   /* destroy */
     draw,	   /* draw */
     click,	   /* click */
     NULL,	   /* parent_resize */
-    NULL,	   /* prop_change */
+    prop_change,   /* prop_change */
     NULL,	   /* mouse_move */
     MwForceRender, /* mouse_up */
     MwForceRender  /* mouse_down */

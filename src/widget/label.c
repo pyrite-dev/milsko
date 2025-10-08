@@ -40,15 +40,19 @@ static void draw(MwWidget handle) {
 	MwLLFreeColor(base);
 }
 
+static void prop_change(MwWidget handle, const char* key) {
+	if(strcmp(key, MwNtext) == 0 || strcmp(key, MwNalignment) == 0) MwForceRender(handle);
+}
+
 MwClassRec MwLabelClassRec = {
-    create, /* create */
-    NULL,   /* destroy */
-    draw,   /* draw */
-    NULL,   /* click */
-    NULL,   /* parent_resize */
-    NULL,   /* prop_change */
-    NULL,   /* mouse_move */
-    NULL,   /* mouse_up */
-    NULL    /* mouse_down */
+    create,	 /* create */
+    NULL,	 /* destroy */
+    draw,	 /* draw */
+    NULL,	 /* click */
+    NULL,	 /* parent_resize */
+    prop_change, /* prop_change */
+    NULL,	 /* mouse_move */
+    NULL,	 /* mouse_up */
+    NULL	 /* mouse_down */
 };
 MwClass MwLabelClass = &MwLabelClassRec;
