@@ -4,6 +4,8 @@
 static int create(MwWidget handle) {
 	MwSetDefault(handle);
 
+	MwLLSetCursor(handle->lowlevel, &MwCursorText, &MwCursorTextMask);
+
 	return 0;
 }
 

@@ -12,6 +12,10 @@ class Button : public MwOO::Base {
 	void*	    GetPixmap(void);
 	void	    SetText(const char* value);
 	const char* GetText(void);
+	void	    SetBackground(const char* value);
+	const char* GetBackground(void);
+	void	    SetForeground(const char* value);
+	const char* GetForeground(void);
 };
 } // namespace MwOO
 

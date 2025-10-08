@@ -21,3 +21,19 @@ int MwOO::Label::GetAlignment(void){
 	return MwGetInteger(this->widget, MwNalignment);
 }
 
+void MwOO::Label::SetBackground(const char* value){
+	MwSetText(this->widget, MwNbackground, value);
+}
+
+const char* MwOO::Label::GetBackground(void){
+	return MwGetText(this->widget, MwNbackground);
+}
+
+void MwOO::Label::SetForeground(const char* value){
+	MwSetText(this->widget, MwNforeground, value);
+}
+
+const char* MwOO::Label::GetForeground(void){
+	return MwGetText(this->widget, MwNforeground);
+}
+

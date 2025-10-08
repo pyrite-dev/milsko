@@ -48,3 +48,19 @@ int MwOO::ScrollBar::GetOrientation(void){
 	return MwGetInteger(this->widget, MwNorientation);
 }
 
+void MwOO::ScrollBar::SetBackground(const char* value){
+	MwSetText(this->widget, MwNbackground, value);
+}
+
+const char* MwOO::ScrollBar::GetBackground(void){
+	return MwGetText(this->widget, MwNbackground);
+}
+
+void MwOO::ScrollBar::SetForeground(const char* value){
+	MwSetText(this->widget, MwNforeground, value);
+}
+
+const char* MwOO::ScrollBar::GetForeground(void){
+	return MwGetText(this->widget, MwNforeground);
+}
+

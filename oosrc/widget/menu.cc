@@ -8,3 +8,19 @@ MwOO::Menu::Menu(const char* widget_name, MwOO::Base* parent, int x, int y, int 
 MwMenu MwOO::Menu::Add(MwMenu menu, const char* name){
 	return MwMenuAdd(this->widget, menu, name);
 }
+void MwOO::Menu::SetBackground(const char* value){
+	MwSetText(this->widget, MwNbackground, value);
+}
+
+const char* MwOO::Menu::GetBackground(void){
+	return MwGetText(this->widget, MwNbackground);
+}
+
+void MwOO::Menu::SetForeground(const char* value){
+	MwSetText(this->widget, MwNforeground, value);
+}
+
+const char* MwOO::Menu::GetForeground(void){
+	return MwGetText(this->widget, MwNforeground);
+}
+

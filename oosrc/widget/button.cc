@@ -21,3 +21,19 @@ const char* MwOO::Button::GetText(void){
 	return MwGetText(this->widget, MwNtext);
 }
 
+void MwOO::Button::SetBackground(const char* value){
+	MwSetText(this->widget, MwNbackground, value);
+}
+
+const char* MwOO::Button::GetBackground(void){
+	return MwGetText(this->widget, MwNbackground);
+}
+
+void MwOO::Button::SetForeground(const char* value){
+	MwSetText(this->widget, MwNforeground, value);
+}
+
+const char* MwOO::Button::GetForeground(void){
+	return MwGetText(this->widget, MwNforeground);
+}
+

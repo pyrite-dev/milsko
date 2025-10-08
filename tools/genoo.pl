@@ -1,10 +1,6 @@
 #!/usr/bin/env perl
 # $Id$
 
-use Config::Tiny;
-
-my $conf = Config::Tiny->read("resource/widget.ini");
-
 my $objs = "";
 
 my $decl  = "";
@@ -88,6 +84,9 @@ foreach my $f (@files) {
         }
     }
     close(IN);
+
+    push(@props, "MwNbackground");
+    push(@props, "MwNforeground");
 
     open(OUT, ">", "include/MwOO/Widget/$f");
     print(OUT "/* \$Id\$ */\n");

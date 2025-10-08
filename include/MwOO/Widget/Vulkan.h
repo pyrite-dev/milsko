@@ -8,11 +8,15 @@ namespace MwOO {
 class Vulkan : public MwOO::Base {
       public:
 	Vulkan(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
-	void	 EnableExtension(void);
-	void	 EnableLayer(void);
-	void	 Configure(void);
-	void*	 GetField(MwVulkanField field, MwErrorEnum* out);
-	VkBool32 Supported(void);
+	void	    EnableExtension(void);
+	void	    EnableLayer(void);
+	void	    Configure(void);
+	void*	    GetField(MwVulkanField field, MwErrorEnum* out);
+	VkBool32    Supported(void);
+	void	    SetBackground(const char* value);
+	const char* GetBackground(void);
+	void	    SetForeground(const char* value);
+	const char* GetForeground(void);
 };
 } // namespace MwOO
 
