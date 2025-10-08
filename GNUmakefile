@@ -28,7 +28,7 @@ L_LIBS = $(LIBS)
 
 L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o src/error.o
 L_OBJS += src/external/ds.o src/external/image.o
-L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o
+L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o src/widget/checkbox.o
 L_OBJS += src/cursor/default.o src/cursor/cross.o
 
 OOL_CFLAGS = $(DEPINC) $(CFLAGS) -std=c++98 -fPIC -D_MILSKO

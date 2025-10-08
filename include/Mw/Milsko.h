@@ -22,6 +22,7 @@
 #include <Mw/Widget/Menu.h>
 #include <Mw/Widget/SubMenu.h>
 #include <Mw/Widget/Button.h>
+#include <Mw/Widget/CheckBox.h>
 #include <Mw/Widget/Frame.h>
 #include <Mw/Widget/Image.h>
 #include <Mw/Widget/ScrollBar.h>

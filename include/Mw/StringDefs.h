@@ -15,6 +15,7 @@
 #define MwNmaxValue "ImaxValue"
 #define MwNvalue "Ivalue"
 #define MwNareaShown "IareaShown"
+#define MwNchecked "Ichecked"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
@@ -30,5 +31,6 @@
 #define MwNmenuHandler "Cmenu"
 #define MwNmouseDownHandler "CmouseDownHandler"
 #define MwNmouseUpHandler "CmouseUpHandler"
+#define MwNchangedHandler "CchangedHandler"
 
 #endif
