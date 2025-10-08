@@ -24,6 +24,10 @@ static void draw(MwWidget handle) {
 	MwLLFreeColor(base);
 }
 
+static void key(MwWidget handle, int code) {
+	printf("%c\n", code);
+}
+
 MwClassRec MwTextClassRec = {
     create,	   /* create */
     NULL,	   /* destroy */
@@ -34,7 +38,7 @@ MwClassRec MwTextClassRec = {
     NULL,	   /* mouse_move */
     MwForceRender, /* mouse_up */
     MwForceRender, /* mouse_down */
-    NULL,	   /* key */
+    key,	   /* key */
     NULL,
     NULL,
     NULL,

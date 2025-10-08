@@ -46,6 +46,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		p.y = HIWORD(lp);
 
 		SetCapture(hWnd);
+		SetFocus(hWnd);
 		MwLLDispatch(u->ll, down, &p);
 	} else if(msg == WM_LBUTTONUP) {
 		MwPoint p;
@@ -71,6 +72,10 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		PostQuitMessage(0);
 	} else if(msg == WM_CLOSE) {
 		DestroyWindow(hWnd);
+	} else if(msg == WM_CHAR) {
+		int n = wp;
+
+		MwLLDispatch(u->ll, key, &n);
 	} else {
 		return (u->old == NULL) ? DefWindowProc(hWnd, msg, wp, lp) : CallWindowProc(u->old, hWnd, msg, wp, lp);
 	}
@@ -388,4 +393,9 @@ void MwLLDetach(MwLL handle, MwPoint* point) {
 	SetWindowPos(handle->hWnd, HWND_TOPMOST, rc.left, rc.top, rc2.right == 0 ? 1 : rc2.right, rc2.bottom == 0 ? 1 : rc2.bottom, SWP_NOREDRAW);
 
 	SetWindowLongPtr(handle->hWnd, GWL_STYLE, style);
+}
+
+void MwLLShow(MwLL handle, int show) {
+	ShowWindow(handle->hWnd, show ? SW_NORMAL : SW_HIDE);
+	if(show) SetFocus(handle->hWnd);
 }

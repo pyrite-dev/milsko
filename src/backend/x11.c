@@ -185,15 +185,18 @@ void MwLLNextEvent(MwLL handle) {
 			int    n;
 			KeySym sym = XLookupKeysym(&ev.xkey, 0);
 			char*  str = XKeysymToString(sym);
-			char   s   = str == NULL ? 0 : str[0];
+			/* HACK: this is bad, you can guess why */
+			if(strlen(str) == 1) {
+				char s = str == NULL ? 0 : str[0];
 
-			if(ev.xkey.state & (ShiftMask | LockMask)) {
-				n = toupper((int)s);
-			} else {
-				n = s;
+				if(ev.xkey.state & (ShiftMask | LockMask)) {
+					n = toupper((int)s);
+				} else {
+					n = s;
+				}
+
+				MwLLDispatch(handle, key, &n);
 			}
-
-			MwLLDispatch(handle, key, &n);
 		}
 		if(render) {
 			int	     x, y;
