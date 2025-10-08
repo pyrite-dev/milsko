@@ -31,7 +31,7 @@ L_OBJS += src/external/ds.o src/external/image.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o src/widget/checkbox.o src/widget/label.o
 L_OBJS += src/cursor/default.o src/cursor/cross.o
 
-OOL_CFLAGS = $(DEPINC) $(CFLAGS) -std=c++98 -fPIC
+OOL_CXXFLAGS = $(DEPINC) $(CFLAGS) -std=c++98 -fPIC
 OOL_LDFLAGS = $(LDFLAGS) -L src
 OOL_LIBS = $(LIBS) -lMw
 
@@ -174,7 +174,7 @@ src/%.o: src/%.c
 	$(CC) $(L_CFLAGS) -c -o $@ $<
 
 oosrc/%.o: oosrc/%.cc
-	$(CXX) $(OOL_CFLAGS) -c -o $@ $<
+	$(CXX) $(OOL_CXXFLAGS) -fno-exceptions -fno-rtti -c -o $@ $<
 
 external/%.o: external/%.c
 	$(CC) $(L_CFLAGS) -c -o $@ $<
