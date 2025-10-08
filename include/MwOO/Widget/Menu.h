@@ -8,7 +8,11 @@ namespace MwOO {
 class Menu : public MwOO::Base {
       public:
 	Menu(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
-	MwMenu Add(MwMenu menu, const char* name);
+	MwMenu	    Add(MwMenu menu, const char* name);
+	void	    SetBackground(const char* value);
+	const char* GetBackground(void);
+	void	    SetForeground(const char* value);
+	const char* GetForeground(void);
 };
 } // namespace MwOO
 

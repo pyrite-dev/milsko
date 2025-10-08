@@ -13,3 +13,19 @@ int MwOO::Text::GetChecked(void){
 	return MwGetInteger(this->widget, MwNchecked);
 }
 
+void MwOO::Text::SetBackground(const char* value){
+	MwSetText(this->widget, MwNbackground, value);
+}
+
+const char* MwOO::Text::GetBackground(void){
+	return MwGetText(this->widget, MwNbackground);
+}
+
+void MwOO::Text::SetForeground(const char* value){
+	MwSetText(this->widget, MwNforeground, value);
+}
+
+const char* MwOO::Text::GetForeground(void){
+	return MwGetText(this->widget, MwNforeground);
+}
+

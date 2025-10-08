@@ -10,6 +10,10 @@ class Window : public MwOO::Base {
 	Window(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
 	void	    SetTitle(const char* value);
 	const char* GetTitle(void);
+	void	    SetBackground(const char* value);
+	const char* GetBackground(void);
+	void	    SetForeground(const char* value);
+	const char* GetForeground(void);
 };
 } // namespace MwOO
 

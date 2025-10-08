@@ -13,3 +13,19 @@ void* MwOO::Image::GetPixmap(void){
 	return MwGetVoid(this->widget, MwNpixmap);
 }
 
+void MwOO::Image::SetBackground(const char* value){
+	MwSetText(this->widget, MwNbackground, value);
+}
+
+const char* MwOO::Image::GetBackground(void){
+	return MwGetText(this->widget, MwNbackground);
+}
+
+void MwOO::Image::SetForeground(const char* value){
+	MwSetText(this->widget, MwNforeground, value);
+}
+
+const char* MwOO::Image::GetForeground(void){
+	return MwGetText(this->widget, MwNforeground);
+}
+

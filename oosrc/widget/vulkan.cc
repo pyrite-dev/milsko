@@ -20,3 +20,19 @@ void* MwOO::Vulkan::GetField(MwVulkanField field, MwErrorEnum* out){
 VkBool32 MwOO::Vulkan::Supported(void){
 	return MwVulkanSupported(this->widget);
 }
+void MwOO::Vulkan::SetBackground(const char* value){
+	MwSetText(this->widget, MwNbackground, value);
+}
+
+const char* MwOO::Vulkan::GetBackground(void){
+	return MwGetText(this->widget, MwNbackground);
+}
+
+void MwOO::Vulkan::SetForeground(const char* value){
+	MwSetText(this->widget, MwNforeground, value);
+}
+
+const char* MwOO::Vulkan::GetForeground(void){
+	return MwGetText(this->widget, MwNforeground);
+}
+

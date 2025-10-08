@@ -34,6 +34,16 @@ MWDECL MwCursor MwCursorCross;
  */
 MWDECL MwCursor MwCursorCrossMask;
 
+/*!
+ * %brief Text cursor
+ */
+MWDECL MwCursor MwCursorText;
+
+/*!
+ * %brief Text cursor mask
+ */
+MWDECL MwCursor MwCursorTextMask;
+
 #ifdef __cplusplus
 }
 #endif
