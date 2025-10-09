@@ -17,6 +17,7 @@
 #include <Mw/Error.h>
 #include <Mw/Cursor.h>
 #include <Mw/Constants.h>
+#include <Mw/Unicode.h>
 
 #include <Mw/Widget/Window.h>
 #include <Mw/Widget/Menu.h>
