@@ -1,17 +1,30 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
+typedef struct text {
+	int cursor;
+} text_t;
+
 static int create(MwWidget handle) {
+	text_t* t = malloc(sizeof(*t));
+
+	t->cursor	 = 0;
+	handle->internal = t;
+
 	MwSetDefault(handle);
 
-	MwSetText(handle, MwNtext, "dkdqdnqwjkneqwewkeqkenkqwenneqweknqwenqwjkenqwkenqwkenkqwenkqwnejkqwenkwqnekqwneknqwkw");
 	MwLLSetCursor(handle->lowlevel, &MwCursorText, &MwCursorTextMask);
 
 	return 0;
 }
 
+static void destroy(MwWidget handle) {
+	free(handle->internal);
+}
+
 static void draw(MwWidget handle) {
 	MwRect	    r;
+	text_t*	    t	 = handle->internal;
 	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwLLColor   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	const char* str	 = MwGetText(handle, MwNtext);
@@ -30,22 +43,35 @@ static void draw(MwWidget handle) {
 		char*	show;
 		int	len;
 		int	i;
+		int	start;
+		int	textlen;
+		MwRect	currc;
 
-		p.x = (r.height - h) / 2;
+		p.x = (r.width - (r.width / w * w)) / 2;
 		p.y = r.height / 2;
 
-		/* limit so there isn't a crazy padding */
-		if(p.x > 4) p.x = 4;
+		len = (r.width - p.x * 2) / w;
 
-		len  = (r.width - p.x * 2) / w;
 		show = malloc(len + 1);
 		memset(show, 0, len + 1);
 
-		for(i = 0; i < len; i++) {
-			show[i] = str[i];
+		start = (t->cursor - 1) / len;
+		start *= len;
+		for(i = start; i < (int)strlen(str) && i < start + len; i++) {
+			show[i - start] = str[i];
 		}
 
 		MwDrawText(handle, &p, show, 0, MwALIGNMENT_BEGINNING, text);
+
+		textlen = (t->cursor - 1) % len + 1;
+		for(i = 0; i < textlen; i++) show[i] = 'M';
+		show[i] = 0;
+
+		currc.x	     = p.x + MwTextWidth(handle, show);
+		currc.y	     = (r.height - h) / 2;
+		currc.width  = 1;
+		currc.height = h;
+		MwDrawRect(handle, &currc, text);
 
 		free(show);
 	}
@@ -55,28 +81,43 @@ static void draw(MwWidget handle) {
 }
 
 static void key(MwWidget handle, int code) {
+	text_t*	    t	= handle->internal;
 	const char* str = MwGetText(handle, MwNtext);
 	char*	    out;
-	char	    buf[2];
 	if(str == NULL) str = "";
 
 	if(code == MwLLKeyBackSpace) {
-		if(strlen(str) == 0) return;
+		int i, incr = 0;
+		if(t->cursor == 0) return;
 		out = malloc(strlen(str) + 1);
 
-		strcpy(out, str);
-		out[strlen(out) - 1] = 0;
+		t->cursor--;
+
+		for(i = 0; str[i] != 0; i++) {
+			if(i != t->cursor) {
+				out[incr++] = str[i];
+			}
+		}
+		out[incr++] = 0;
 
 		MwSetText(handle, MwNtext, out);
 
 		free(out);
+	} else if(code == MwLLKeyLeft) {
+		if(t->cursor == 0) return;
+		t->cursor--;
+	} else if(code == MwLLKeyRight) {
+		if(t->cursor == (int)strlen(str)) return;
+		t->cursor++;
 	} else {
-		buf[0] = code;
-		buf[1] = 0;
-
+		int i, incr = 0;
 		out = malloc(strlen(str) + 1 + 1);
-		strcpy(out, str);
-		strcat(out, buf);
+		for(i = 0; i < t->cursor; i++) out[incr++] = str[i];
+		out[incr++] = code;
+		for(i = t->cursor; i < (int)strlen(str); i++) out[incr++] = str[i];
+		out[incr++] = 0;
+
+		t->cursor++;
 
 		MwSetText(handle, MwNtext, out);
 
@@ -88,7 +129,7 @@ static void key(MwWidget handle, int code) {
 
 MwClassRec MwTextClassRec = {
     create,	   /* create */
-    NULL,	   /* destroy */
+    destroy,	   /* destroy */
     draw,	   /* draw */
     NULL,	   /* click */
     NULL,	   /* parent_resize */
