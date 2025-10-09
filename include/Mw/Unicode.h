@@ -21,6 +21,13 @@ extern "C" {
  */
 MWDECL int MwUTF8ToUTF32(const char* input, int* output);
 
+/*!
+ * %brief Calculates UTF-8 string length
+ * %brief input Input
+ * %return Length
+ */
+MWDECL int MwUTF8Length(const char* input);
+
 #ifdef __cplusplus
 }
 #endif
