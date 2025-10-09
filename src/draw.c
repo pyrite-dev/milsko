@@ -360,7 +360,7 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 }
 
 void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
-	int    i, x, y, sx, sy;
+	int    i = 0, x, y, sx, sy;
 	MwRect r;
 
 	sx = point->x;
@@ -374,7 +374,7 @@ void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int
 
 	while(text[i] != 0) {
 		int out;
-		i += MwUTF8ToUTF32(text, &out);
+		i += MwUTF8ToUTF32(text + i, &out);
 
 		if(out >= 0x80) out = 0;
 

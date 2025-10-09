@@ -13,7 +13,6 @@ static int create(MwWidget handle) {
 
 	MwSetDefault(handle);
 
-	MwSetText(handle, MwNtext, "こんにちは、世界 Hello, World");
 	MwLLSetCursor(handle->lowlevel, &MwCursorText, &MwCursorTextMask);
 
 	return 0;
@@ -53,14 +52,12 @@ static void draw(MwWidget handle) {
 
 		len = (r.width - p.x * 2) / w;
 
-		show = malloc(len + 1);
-		memset(show, 0, len + 1);
+		show = malloc(len * 4 + 1);
+		memset(show, 0, len * 4 + 1);
 
 		start = (t->cursor - 1) / len;
 		start *= len;
-		for(i = start; i < (int)strlen(str) && i < start + len; i++) {
-			show[i - start] = str[i];
-		}
+		MwUTF8Copy(str, start, show, 0, len);
 
 		MwDrawText(handle, &p, show, 0, MwALIGNMENT_BEGINNING, text);
 
@@ -88,18 +85,13 @@ static void key(MwWidget handle, int code) {
 	if(str == NULL) str = "";
 
 	if(code == MwLLKeyBackSpace) {
-		int i, incr = 0;
 		if(t->cursor == 0) return;
 		out = malloc(strlen(str) + 1);
 
 		t->cursor--;
 
-		for(i = 0; str[i] != 0; i++) {
-			if(i != t->cursor) {
-				out[incr++] = str[i];
-			}
-		}
-		out[incr++] = 0;
+		MwUTF8Copy(str, 0, out, 0, t->cursor);
+		MwUTF8Copy(str, t->cursor + 1, out, t->cursor, MwUTF8Length(str) - (t->cursor + 1));
 
 		MwSetText(handle, MwNtext, out);
 
@@ -108,11 +100,11 @@ static void key(MwWidget handle, int code) {
 		if(t->cursor == 0) return;
 		t->cursor--;
 	} else if(code == MwLLKeyRight) {
-		if(t->cursor == (int)strlen(str)) return;
+		if(t->cursor == MwUTF8Length(str)) return;
 		t->cursor++;
 	} else {
 		int incr = 0;
-		out = malloc(strlen(str) + 1 + 1);
+		out	 = malloc(strlen(str) + 1 + 1);
 		incr += MwUTF8Copy(str, 0, out, 0, t->cursor);
 		out[incr++] = code;
 		MwUTF8Copy(str, t->cursor, out, t->cursor + 1, MwUTF8Length(str) - t->cursor);

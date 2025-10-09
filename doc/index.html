@@ -204,6 +204,18 @@
 	<a href="#Mw_TypeDefs_h">Mw/TypeDefs.h</a>
 </dt>
 <dt>
+	<a href="#Mw_Unicode_h">Mw/Unicode.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Unicode_h__MwUTF8ToUTF32">MwUTF8ToUTF32</a>
+</dd>
+<dd>
+	<a href="#Mw_Unicode_h__MwUTF8Length">MwUTF8Length</a>
+</dd>
+<dd>
+	<a href="#Mw_Unicode_h__MwUTF8Copy">MwUTF8Copy</a>
+</dd>
+<dt>
 	<a href="#Mw_Widget_Button_h">Mw/Widget/Button.h</a>
 </dt>
 <dd>
@@ -1653,6 +1665,63 @@
 <dt>
 	Type definitions.
 </dt>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Unicode_h">Mw/Unicode.h</h2>
+<dl>
+<dt>
+	Handles UTF8 stuff.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Unicode_h__MwUTF8ToUTF32">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwUTF8ToUTF32</FONT></B> (
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* input,
+	<B><FONT COLOR="#228B22">int</FONT></B>* output
+);</pre>
+<dl>
+<dd>
+	output Output.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Bytes this multibyte takes.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Unicode_h__MwUTF8Length">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwUTF8Length</FONT></B> (
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* input
+);</pre>
+<dl>
+<dd>
+	input Input.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Length.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Unicode_h__MwUTF8Copy">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwUTF8Copy</FONT></B> (
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* src,
+	<B><FONT COLOR="#228B22">int</FONT></B> srcskip,
+	<B><FONT COLOR="#228B22">char</FONT></B>* dst,
+	<B><FONT COLOR="#228B22">int</FONT></B> dstskip,
+	<B><FONT COLOR="#228B22">int</FONT></B> len
+);</pre>
+<dl>
+<dd>
+	len Length.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Copied length in bytes.
+</dd>
 </dl>
 <hr>
 <h2 align="center" id="Mw_Widget_Button_h">Mw/Widget/Button.h</h2>
