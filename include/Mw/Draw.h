@@ -106,6 +106,15 @@ MWDECL int MwTextWidth(MwWidget handle, const char* text);
  */
 MWDECL int MwTextHeight(MwWidget handle, const char* text);
 
+/*!
+ * %brief Get color components
+ * %param color Color
+ * %param red Pointer to red color
+ * %param green Pointer to green color
+ * %param blue Pointer to blue color
+ */
+MWDECL void MwGetColor(MwLLColor color, int* red, int* green, int* blue);
+
 #ifdef __cplusplus
 }
 #endif

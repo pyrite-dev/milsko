@@ -4,6 +4,7 @@
 static int create(MwWidget handle) {
 	MwSetDefault(handle);
 	MwSetInteger(handle, MwNalignment, MwALIGNMENT_CENTER);
+	MwSetInteger(handle, MwNbold, 0);
 
 	return 0;
 }
@@ -34,7 +35,7 @@ static void draw(MwWidget handle) {
 		p.x = r.width - MwTextWidth(handle, str) / 2;
 	}
 	p.y = r.height / 2;
-	MwDrawText(handle, &p, str, 0, MwALIGNMENT_CENTER, text);
+	MwDrawText(handle, &p, str, MwGetInteger(handle, MwNbold), MwALIGNMENT_CENTER, text);
 
 	MwLLFreeColor(text);
 	MwLLFreeColor(base);
