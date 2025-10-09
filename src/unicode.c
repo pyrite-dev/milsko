@@ -74,3 +74,23 @@ int MwUTF8Length(const char* input) {
 
 	return len;
 }
+
+int MwUTF8Copy(const char* src, int srcskip, char* dst, int dstskip, int len){
+	int i;
+	int out;
+	int total = 0;
+	for(i = 0; i < srcskip; i++) src += MwUTF8ToUTF32(src, &out);
+	for(i = 0; i < dstskip; i++) dst += MwUTF8ToUTF32(dst, &out);
+	for(i = 0; i < len; i++){
+		int len = MwUTF8ToUTF32(src, &out);
+
+		memcpy(dst, src, len);
+
+		src += len;
+		dst += len;
+		total += len;
+	}
+	dst[total] = 0;
+
+	return total;
+}
