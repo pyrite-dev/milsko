@@ -25,7 +25,7 @@ static int utf8_later(unsigned char c) {
 	return 0x80 <= c && c < 0xc0;
 }
 
-int MwUTF8ToUTF32(const char* input, int32_t* output) {
+int MwUTF8ToUTF32(const char* input, int* output) {
 	const unsigned char* inbuf = (const unsigned char*)input;
 	int		     b	   = utf8_count(inbuf[0]);
 	if(b == 0) return 0;
