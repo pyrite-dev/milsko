@@ -8,8 +8,8 @@ namespace MwOO {
 class Text : public MwOO::Base {
       public:
 	Text(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
-	void	    SetChecked(int value);
-	int	    GetChecked(void);
+	void	    SetText(const char* value);
+	const char* GetText(void);
 	void	    SetBackground(const char* value);
 	const char* GetBackground(void);
 	void	    SetForeground(const char* value);

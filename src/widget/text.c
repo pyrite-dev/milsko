@@ -4,6 +4,7 @@
 static int create(MwWidget handle) {
 	MwSetDefault(handle);
 
+	MwSetText(handle, MwNtext, "dkdqdnqwjkneqwewkeqkenkqwenneqweknqwenqwjkenqwkenqwkenkqwenkqwnejkqwenkwqnekqwneknqwkw");
 	MwLLSetCursor(handle->lowlevel, &MwCursorText, &MwCursorTextMask);
 
 	return 0;
@@ -23,8 +24,12 @@ static void draw(MwWidget handle) {
 	MwDrawFrame(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0);
 	MwDrawRect(handle, &r, base);
 	if(str != NULL) {
+		int	w = MwTextWidth(handle, "M");
 		int	h = MwTextHeight(handle, "M");
 		MwPoint p;
+		char*	show;
+		int	len;
+		int	i;
 
 		p.x = (r.height - h) / 2;
 		p.y = r.height / 2;
@@ -32,7 +37,17 @@ static void draw(MwWidget handle) {
 		/* limit so there isn't a crazy padding */
 		if(p.x > 4) p.x = 4;
 
-		MwDrawText(handle, &p, str, 0, MwALIGNMENT_BEGINNING, text);
+		len  = (r.width - p.x * 2) / w;
+		show = malloc(len + 1);
+		memset(show, 0, len + 1);
+
+		for(i = 0; i < len; i++) {
+			show[i] = str[i];
+		}
+
+		MwDrawText(handle, &p, show, 0, MwALIGNMENT_BEGINNING, text);
+
+		free(show);
 	}
 
 	MwLLFreeColor(text);
