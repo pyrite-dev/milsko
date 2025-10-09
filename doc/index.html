@@ -30,6 +30,9 @@
 	<a href="#Mw_Core_h__MwDispatch2">MwDispatch2</a>
 </dd>
 <dd>
+	<a href="#Mw_Core_h__MwDispatch3">MwDispatch3</a>
+</dd>
+<dd>
 	<a href="#Mw_Core_h__MwCreateWidget">MwCreateWidget</a>
 </dd>
 <dd>
@@ -109,6 +112,12 @@
 </dd>
 <dd>
 	<a href="#Mw_Cursor_h__MwCursorCrossMask">MwCursorCrossMask</a>
+</dd>
+<dd>
+	<a href="#Mw_Cursor_h__MwCursorText">MwCursorText</a>
+</dd>
+<dd>
+	<a href="#Mw_Cursor_h__MwCursorTextMask">MwCursorTextMask</a>
 </dd>
 <dt>
 	<a href="#Mw_Default_h">Mw/Default.h</a>
@@ -205,6 +214,12 @@
 </dt>
 <dd>
 	<a href="#Mw_Widget_CheckBox_h__MwCheckBoxClass">MwCheckBoxClass</a>
+</dd>
+<dt>
+	<a href="#Mw_Widget_Entry_h">Mw/Widget/Entry.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Widget_Entry_h__MwEntryClass">MwEntryClass</a>
 </dd>
 <dt>
 	<a href="#Mw_Widget_Frame_h">Mw/Widget/Frame.h</a>
@@ -413,6 +428,34 @@
 </dt>
 <dd>
 	<code>0</code> for success, otherwise failed.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwDispatch3">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <B><FONT COLOR="#0000FF">MwDispatch3</FONT></B>(x, y, name)</pre>
+<dl>
+<dd>
+	Dispatches the handler of widget class.
+</dd>
+<dt>
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td>Used internally.</td></table>
+</dt>
+<dt>
+	Parameter <code>x</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>y</code>
+</dt>
+<dd>
+	Handler name.
+</dd>
+<dt>
+	Parameter <code>name</code>
+</dt>
+<dd>
+	Property name.
 </dd>
 </dl>
 <hr>
@@ -1105,6 +1148,20 @@
 </dd>
 </dl>
 <hr>
+<pre id="Mw_Cursor_h__MwCursorText">MWDECL MwCursor MwCursorText;</pre>
+<dl>
+<dd>
+	Text cursor.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Cursor_h__MwCursorTextMask">MWDECL MwCursor MwCursorTextMask;</pre>
+<dl>
+<dd>
+	Text cursor mask.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_Default_h">Mw/Default.h</h2>
 <dl>
 <dt>
@@ -1373,6 +1430,7 @@
 	MwPoint* point,
 	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text,
 	<B><FONT COLOR="#228B22">int</FONT></B> bold,
+	<B><FONT COLOR="#228B22">int</FONT></B> align,
 	MwLLColor color
 );</pre>
 <dl>
@@ -1402,6 +1460,12 @@
 </dt>
 <dd>
 	Bold.
+</dd>
+<dt>
+	Parameter <code>align</code>
+</dt>
+<dd>
+	Align.
 </dd>
 <dt>
 	Parameter <code>color</code>
@@ -1616,6 +1680,20 @@
 <dl>
 <dd>
 	CheckBox widget class.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Widget_Entry_h">Mw/Widget/Entry.h</h2>
+<dl>
+<dt>
+	Entry widget.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Widget_Entry_h__MwEntryClass">MWDECL MwClass MwEntryClass;</pre>
+<dl>
+<dd>
+	Entry widget class.
 </dd>
 </dl>
 <hr>
