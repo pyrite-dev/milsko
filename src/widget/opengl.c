@@ -9,6 +9,7 @@
 #endif
 #include <GL/gl.h>
 
+typedef void(GLAPIENTRY* MWglColor3f)(GLfloat red, GLfloat green, GLfloat blue);
 #ifdef _WIN32
 typedef HGLRC(WINAPI* MWwglCreateContext)(HDC);
 typedef BOOL(WINAPI* MWwglMakeCurrent)(HDC, HGLRC);
@@ -25,6 +26,7 @@ typedef struct opengl {
 	MWwglMakeCurrent    wglMakeCurrent;
 	MWwglDeleteContext  wglDeleteContext;
 	MWwglGetProcAddress wglGetProcAddress;
+	MWglColor3f	    glColor3f;
 } opengl_t;
 #else
 typedef XVisualInfo* (*MWglXChooseVisual)(Display* dpy, int screen, int* attribList);
@@ -46,6 +48,7 @@ typedef struct opengl {
 	MWglXMakeCurrent    glXMakeCurrent;
 	MWglXSwapBuffers    glXSwapBuffers;
 	MWglXGetProcAddress glXGetProcAddress;
+	MWglColor3f	    glColor3f;
 } opengl_t;
 #endif
 
@@ -73,6 +76,7 @@ static int create(MwWidget handle) {
 	o->wglMakeCurrent    = (MWwglMakeCurrent)(void*)GetProcAddress(o->lib, "wglMakeCurrent");
 	o->wglDeleteContext  = (MWwglDeleteContext)(void*)GetProcAddress(o->lib, "wglDeleteContext");
 	o->wglGetProcAddress = (MWwglGetProcAddress)(void*)GetProcAddress(o->lib, "wglGetProcAddress");
+	o->glColor3f	     = (MWglColor3f)(void*)GetProcAddress(o->lib, "glColor3f");
 
 	o->gl = o->wglCreateContext(o->dc);
 #else
@@ -98,6 +102,7 @@ static int create(MwWidget handle) {
 	o->glXMakeCurrent    = (MWglXMakeCurrent)dlsym(o->lib, "glXMakeCurrent");
 	o->glXSwapBuffers    = (MWglXSwapBuffers)dlsym(o->lib, "glXSwapBuffers");
 	o->glXGetProcAddress = (MWglXGetProcAddress)dlsym(o->lib, "glXGetProcAddress");
+	o->glColor3f	     = (MWglColor3f)dlsym(o->lib, "glColor3f");
 
 	/* XXX: fix this */
 	o->visual = o->glXChooseVisual(handle->lowlevel->display, DefaultScreen(handle->lowlevel->display), attribs);
@@ -169,12 +174,8 @@ void MwOpenGLSwapBuffer(MwWidget handle) {
 void* MwOpenGLGetProcAddress(MwWidget handle, const char* name) {
 	opengl_t* o = (opengl_t*)handle->internal;
 #ifdef _WIN32
-	(void)handle;
-
 	return o->wglGetProcAddress(name);
 #else
-	(void)handle;
-
 	return o->glXGetProcAddress((const GLubyte*)name);
 #endif
 }

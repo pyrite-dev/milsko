@@ -14,6 +14,9 @@ void* MwOO::OpenGL::GetProcAddress(const char* name){
 void MwOO::OpenGL::SwapBuffer(void){
 	MwOpenGLSwapBuffer(this->widget);
 }
+void MwOO::OpenGL::SetColor(MwLLColor color){
+	MwOpenGLSetColor(this->widget, color);
+}
 void MwOO::OpenGL::SetBackground(const char* value){
 	MwSetText(this->widget, MwNbackground, value);
 }

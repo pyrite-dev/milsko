@@ -17,6 +17,7 @@
 #define MwNareaShown "IareaShown"
 #define MwNchecked "Ichecked"
 #define MwNalignment "Ialignment"
+#define MwNbold "Ibold"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

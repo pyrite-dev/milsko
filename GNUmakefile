@@ -7,7 +7,7 @@ endif
 CC = $(GCC)gcc
 CXX = $(GCC)g++
 
-CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Iinclude
+CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Wno-unused-value -Iinclude
 LDFLAGS =
 LIBS =
 
@@ -138,7 +138,7 @@ EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC) 
 ifeq ($(OPENGL),1)
 L_OBJS += src/widget/opengl.o
 OOL_OBJS += oosrc/widget/opengl.o
-EXAMPLES += examples/gltriangle$(EXEC) examples/glgears$(EXEC) examples/glboing$(EXEC) examples/glcube$(EXEC)
+EXAMPLES += examples/glclock$(EXEC) examples/gltriangle$(EXEC) examples/glgears$(EXEC) examples/glboing$(EXEC) examples/glcube$(EXEC)
 endif
 
 ifeq ($(VULKAN),1)

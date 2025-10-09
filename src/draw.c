@@ -556,3 +556,9 @@ MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 
 	return px;
 }
+
+void MwGetColor(MwLLColor color, int* red, int* green, int* blue) {
+	*red   = color->red;
+	*green = color->green;
+	*blue  = color->blue;
+}
