@@ -127,7 +127,7 @@ static void key(MwWidget handle, int code) {
 	MwForceRender(handle);
 }
 
-MwClassRec MwTextClassRec = {
+MwClassRec MwEntryClassRec = {
     create,	   /* create */
     destroy,	   /* destroy */
     draw,	   /* draw */
@@ -143,4 +143,4 @@ MwClassRec MwTextClassRec = {
     NULL,
     NULL,
     NULL};
-MwClass MwTextClass = &MwTextClassRec;
+MwClass MwEntryClass = &MwEntryClassRec;

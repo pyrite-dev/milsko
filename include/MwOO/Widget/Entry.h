@@ -1,13 +1,13 @@
 /* $Id$ */
-#ifndef __MWOO_WIDGET_TEXT_H__
-#define __MWOO_WIDGET_TEXT_H__
+#ifndef __MWOO_WIDGET_ENTRY_H__
+#define __MWOO_WIDGET_ENTRY_H__
 
 #include <MwOO/Base.h>
 
 namespace MwOO {
-class Text : public MwOO::Base {
+class Entry : public MwOO::Base {
       public:
-	Text(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
+	Entry(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
 	void	    SetText(const char* value);
 	const char* GetText(void);
 	void	    SetBackground(const char* value);
