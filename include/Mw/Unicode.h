@@ -19,7 +19,7 @@ extern "C" {
  * %brief output Output
  * %return Bytes this multibyte takes
  */
-MWDECL int MwUTF8ToUTF32(const char* input, int32_t* output);
+MWDECL int MwUTF8ToUTF32(const char* input, int* output);
 
 #ifdef __cplusplus
 }
