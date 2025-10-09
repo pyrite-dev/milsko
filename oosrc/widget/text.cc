@@ -5,12 +5,12 @@
 MwOO::Text::Text(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h) : MwOO::Base(MwTextClass, widget_name, parent, x, y, w, h){
 }
 
-void MwOO::Text::SetChecked(int value){
-	MwSetInteger(this->widget, MwNchecked, value);
+void MwOO::Text::SetText(const char* value){
+	MwSetText(this->widget, MwNtext, value);
 }
 
-int MwOO::Text::GetChecked(void){
-	return MwGetInteger(this->widget, MwNchecked);
+const char* MwOO::Text::GetText(void){
+	return MwGetText(this->widget, MwNtext);
 }
 
 void MwOO::Text::SetBackground(const char* value){
