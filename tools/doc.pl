@@ -283,6 +283,6 @@ $html = $html . $stuff;
 out("	</body>");
 out("</html>");
 
-open(OUT, "<", "doc/index.html");
+open(OUT, ">", "doc/index.html");
 print(OUT $html);
 close(OUT);
