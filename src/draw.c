@@ -372,7 +372,12 @@ void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int
 		sx -= strlen(text) * FontWidth * FontScale;
 	}
 
-	for(i = 0; text[i] != 0; i++) {
+	while(text[i] != 0) {
+		int out;
+		i += MwUTF8ToUTF32(text, &out);
+
+		if(out >= 0x80) out = 0;
+
 		for(y = 0; y < FontHeight; y++) {
 			for(x = 0; x < FontWidth; x++) {
 				r.x	 = sx + x * FontScale;
@@ -380,7 +385,7 @@ void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int
 				r.width	 = FontScale;
 				r.height = FontScale;
 
-				if((bold ? MwBoldFontData : MwFontData)[(unsigned char)text[i]].data[y] & (1 << ((FontWidth - 1) - x))) {
+				if((bold ? MwBoldFontData : MwFontData)[out].data[y] & (1 << ((FontWidth - 1) - x))) {
 					MwDrawRect(handle, &r, color);
 				}
 			}

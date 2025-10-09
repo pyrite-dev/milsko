@@ -13,7 +13,7 @@ static int create(MwWidget handle) {
 
 	MwSetDefault(handle);
 
-	MwSetText(handle, MwNtext, "こんにちは、世界");
+	MwSetText(handle, MwNtext, "こんにちは、世界 Hello, World");
 	MwLLSetCursor(handle->lowlevel, &MwCursorText, &MwCursorTextMask);
 
 	return 0;
@@ -111,12 +111,11 @@ static void key(MwWidget handle, int code) {
 		if(t->cursor == (int)strlen(str)) return;
 		t->cursor++;
 	} else {
-		int i, incr = 0;
+		int incr = 0;
 		out = malloc(strlen(str) + 1 + 1);
-		for(i = 0; i < t->cursor; i++) out[incr++] = str[i];
+		incr += MwUTF8Copy(str, 0, out, 0, t->cursor);
 		out[incr++] = code;
-		for(i = t->cursor; i < (int)strlen(str); i++) out[incr++] = str[i];
-		out[incr++] = 0;
+		MwUTF8Copy(str, t->cursor, out, t->cursor + 1, MwUTF8Length(str) - t->cursor);
 
 		t->cursor++;
 

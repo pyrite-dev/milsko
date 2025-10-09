@@ -28,6 +28,17 @@ MWDECL int MwUTF8ToUTF32(const char* input, int* output);
  */
 MWDECL int MwUTF8Length(const char* input);
 
+/*!
+ * %brief Copies UTF-8 string to other string
+ * %brief src Source
+ * %brief srcskip Length to be skipped
+ * %brief dst Destination
+ * %brief dstskip Length to be skipped
+ * %brief len Length
+ * %return Copied length in bytes
+ */
+MWDECL int MwUTF8Copy(const char* src, int srcskip, char* dst, int dstskip, int len);
+
 #ifdef __cplusplus
 }
 #endif
