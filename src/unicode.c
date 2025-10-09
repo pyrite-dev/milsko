@@ -58,3 +58,19 @@ int MwUTF8ToUTF32(const char* input, int* output) {
 
 	return b;
 }
+
+int MwUTF8Length(const char* input) {
+	int out;
+	int len = 0;
+
+	while(input[0] != 0) {
+		int new;
+
+		input += (new = MwUTF8ToUTF32(input, &out));
+		len++;
+
+		if(new == 0) return -1;
+	}
+
+	return len;
+}

@@ -13,6 +13,7 @@ static int create(MwWidget handle) {
 
 	MwSetDefault(handle);
 
+	MwSetText(handle, MwNtext, "こんにちは、世界");
 	MwLLSetCursor(handle->lowlevel, &MwCursorText, &MwCursorTextMask);
 
 	return 0;
