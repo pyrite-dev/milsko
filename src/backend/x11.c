@@ -199,6 +199,10 @@ void MwLLNextEvent(MwLL handle) {
 				}
 			} else if(strcmp(str, "BackSpace") == 0) {
 				n = MwLLKeyBackSpace;
+			} else if(strcmp(str, "Left") == 0) {
+				n = MwLLKeyLeft;
+			} else if(strcmp(str, "Right") == 0) {
+				n = MwLLKeyRight;
 			}
 
 			if(n != -1) MwLLDispatch(handle, key, &n);
