@@ -76,6 +76,11 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		int n = wp;
 
 		MwLLDispatch(u->ll, key, &n);
+	} else if(msg == WM_KEYDOWN) {
+		int n = -1;
+		if(wp == VK_LEFT) n = MwLLKeyLeft;
+		if(wp == VK_RIGHT) n = MwLLKeyRight;
+		if(n != -1) MwLLDispatch(u->ll, key, &n);
 	} else {
 		return (u->old == NULL) ? DefWindowProc(hWnd, msg, wp, lp) : CallWindowProc(u->old, hWnd, msg, wp, lp);
 	}

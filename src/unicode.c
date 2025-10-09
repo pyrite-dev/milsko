@@ -97,3 +97,27 @@ int MwUTF8Copy(const char* src, int srcskip, char* dst, int dstskip, int len) {
 
 	return total;
 }
+
+int MwUTF32ToUTF8(int input, char* output) {
+	if(input < 128) {
+		output[0] = input;
+		return 1;
+	} else if(input < 2048) {
+		output[0] = 0xc0 | (input >> 6);
+		output[1] = 0x80 | (input & 0x3f);
+		return 2;
+	} else if(input < 65536) {
+		output[0] = 0xe0 | (input >> 12);
+		output[1] = 0x80 | ((input >> 6) & 0x3f);
+		output[2] = 0x80 | (input & 0x3f);
+		return 3;
+	} else {
+		output[0] = 0xf0 | (input >> 18);
+		output[1] = 0x80 | ((input >> 12) & 0x3f);
+		output[2] = 0x80 | ((input >> 6) & 0x3f);
+		output[3] = 0x80 | (input & 0x3f);
+		return 4;
+	}
+
+	return 0;
+}
