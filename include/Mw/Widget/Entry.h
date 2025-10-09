@@ -1,11 +1,11 @@
 /* $Id$ */
 /*!
- * %file Mw/Widget/Text.h
- * %brief Text widget
+ * %file Mw/Widget/Entry.h
+ * %brief Entry widget
  * %prop MwNtext
  */
-#ifndef __MW_WIDGET_TEXT_H__
-#define __MW_WIDGET_TEXT_H__
+#ifndef __MW_WIDGET_ENTRY_H__
+#define __MW_WIDGET_ENTRY_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
@@ -15,9 +15,9 @@ extern "C" {
 #endif
 
 /*!
- * %brief Text widget class
+ * %brief Entry widget class
  */
-MWDECL MwClass MwTextClass;
+MWDECL MwClass MwEntryClass;
 
 #ifdef __cplusplus
 }
