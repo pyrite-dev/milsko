@@ -2,13 +2,6 @@
 #include <Mw/Milsko.h>
 #include <Mw/Widget/OpenGL.h>
 
-#ifdef _WIN32
-/* nothing */
-#else
-#include <GL/glx.h>
-#endif
-#include <GL/gl.h>
-
 typedef void(GLAPIENTRY* MWglColor3f)(GLfloat red, GLfloat green, GLfloat blue);
 #ifdef _WIN32
 typedef HGLRC(WINAPI* MWwglCreateContext)(HDC);

@@ -106,6 +106,7 @@ endif
 ifeq ($(WINDOWS),1)
 L_CFLAGS += -DUSE_GDI
 L_LDFLAGS += -Wl,--out-implib,src/libMw.a -static-libgcc
+OOL_LDFLAGS += -Wl,--out-implib,oosrc/libMwOO.a -static-libgcc
 L_OBJS += src/backend/gdi.o
 L_LIBS += -lgdi32
 
@@ -183,4 +184,4 @@ examples/%.o: examples/%.c
 	$(CC) $(E_CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f */*.dll */*.so */*.a */*.o */*/*.o external/*/src/*.o examples/*.exe $(EXAMPLES) examples/opengl examples/vulkan
+	rm -f */*.dll */*.so */*.lib */*.a */*.o */*/*.o external/*/src/*.o examples/*.exe $(EXAMPLES) examples/opengl examples/vulkan

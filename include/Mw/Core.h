@@ -36,7 +36,7 @@
  * %param name Property name
  */
 #define MwDispatch3(x, y, name) \
-	((x->widget_class != NULL && x->widget_class->y != NULL) ? x->widget_class->y(x, name) : 0)
+	if(x->widget_class != NULL && x->widget_class->y != NULL) x->widget_class->y(x, name)
 
 #define MwWaitMS 5
 
