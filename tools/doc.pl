@@ -4,7 +4,7 @@
 our $html     = "";
 our $title    = "Milsko GUI Toolkit Documentation";
 our @pathlist = ("include");
-our @notes    = ("warning", "unsure", "note");
+our @notes    = ("warning", "unsure", "note", "info");
 
 our @files          = ();
 our %files_sections = ();
