@@ -9,6 +9,8 @@
 #include <jerror.h>
 #endif
 
+#include "external/stb_ds.h"
+
 #define FontWidth 7
 #define FontHeight 14
 #define FontScale 1
@@ -550,9 +552,17 @@ MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 
 	if(rgb == NULL) return NULL;
 
-	px = MwLLCreatePixmap(handle->lowlevel, rgb, width, height);
+	px = MwLoadRaw(handle, rgb, width, height);
 
 	free(rgb);
+
+	return px;
+}
+
+MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height) {
+	MwLLPixmap px;
+
+	px = MwLLCreatePixmap(handle->lowlevel, rgb, width, height);
 
 	return px;
 }
@@ -561,4 +571,38 @@ void MwGetColor(MwLLColor color, int* red, int* green, int* blue) {
 	*red   = color->red;
 	*green = color->green;
 	*blue  = color->blue;
+}
+
+typedef struct color {
+	char* key;
+	char* value;
+} color_t;
+
+MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
+	int	       col, row, colors, cpp;
+	unsigned char* rgb;
+	MwLLPixmap     px;
+	char	       k[512];
+	color_t*       c = NULL;
+	int	       i;
+
+	sh_new_strdup(c);
+
+	sscanf(data[0], "%d %d %d %d", &col, &row, &colors, &cpp);
+
+	for(i = 0; i < colors; i++) {
+		memcpy(k, data[i + 1], cpp);
+		k[cpp] = 0;
+		printf("%s\n", k);
+	}
+
+	rgb = malloc(row * col * 4);
+
+	px = MwLoadRaw(handle, rgb, col, row);
+
+	free(rgb);
+
+	shfree(c);
+
+	return px;
 }
