@@ -48,7 +48,7 @@ void resize(MwWidget handle, void* user_data, void* call_data) {
 int main() {
 	MwMenu m, m2;
 
-	window	= MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 400,
+	window	= MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 400, 400,
 				   MwNtitle, "hello world",
 				   NULL);
 	menu	= MwCreateWidget(MwMenuClass, "menu", window, 0, 0, 0, 0);

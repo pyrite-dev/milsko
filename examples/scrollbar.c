@@ -3,7 +3,7 @@
 #include <Mw/Milsko.h>
 
 int main() {
-	MwWidget window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 500, 500,
+	MwWidget window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 500, 500,
 					   MwNtitle, "main",
 					   NULL);
 	int	 i;

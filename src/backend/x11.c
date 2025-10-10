@@ -27,6 +27,8 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 
 	MwLLCreateCommon(r);
 
+	if(x == MwDEFAULT) x = 0;
+	if(y == MwDEFAULT) y = 0;
 	if(width < 1) width = 1;
 	if(height < 1) height = 1;
 
@@ -37,19 +39,19 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 		r->display = parent->display;
 		p	   = parent->window;
 	}
-	r->window      = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, XDefaultScreen(r->display)));
+	r->window = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, XDefaultScreen(r->display)));
 
 	XSetLocaleModifiers("");
-	if((r->xim = XOpenIM(r->display, 0, 0, 0)) == NULL){
+	if((r->xim = XOpenIM(r->display, 0, 0, 0)) == NULL) {
 		XSetLocaleModifiers("@im=none");
 		r->xim = XOpenIM(r->display, 0, 0, 0);
 	}
 
 	r->xic = XCreateIC(r->xim,
-			XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
-			XNClientWindow, r->window,
-			XNFocusWindow, r->window,
-	NULL);
+			   XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
+			   XNClientWindow, r->window,
+			   XNFocusWindow, r->window,
+			   NULL);
 	XSetICFocus(r->xic);
 
 	r->copy_buffer = 1;

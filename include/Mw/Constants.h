@@ -33,4 +33,9 @@ enum MwALIGNMENT {
 	MwALIGNMENT_END,
 };
 
+/*!
+ * %brief Default
+ */
+#define MwDEFAULT 0x0fffffff
+
 #endif

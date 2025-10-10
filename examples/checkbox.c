@@ -2,7 +2,7 @@
 #include <Mw/Milsko.h>
 
 int main() {
-	MwWidget window = MwVaCreateWidget(MwWindowClass, "test", NULL, 0, 0, 8 + 16 + 8 + 16 * 10 + 8, 8 + 16 + 8 + 16 + 8,
+	MwWidget window = MwVaCreateWidget(MwWindowClass, "test", NULL, MwDEFAULT, MwDEFAULT, 8 + 16 + 8 + 16 * 10 + 8, 8 + 16 + 8 + 16 + 8,
 					   MwNtitle, "checkbox",
 					   NULL);
 

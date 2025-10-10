@@ -21,8 +21,8 @@ struct _MwLL {
 	void*	 user;
 	Atom	 wm_delete;
 	int	 copy_buffer;
-	XIM xim;
-	XIC xic;
+	XIM	 xim;
+	XIC	 xic;
 
 	unsigned int width;
 	unsigned int height;
