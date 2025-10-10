@@ -5,6 +5,7 @@ static int create(MwWidget handle) {
 	MwEntry t = malloc(sizeof(*t));
 
 	t->cursor	 = 0;
+	t->right	 = 0;
 	handle->internal = t;
 
 	MwSetDefault(handle);
