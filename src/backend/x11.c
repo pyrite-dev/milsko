@@ -185,11 +185,14 @@ void MwLLNextEvent(MwLL handle) {
 			int    n = -1;
 			char   str[512];
 			KeySym sym;
+
+			str[0] = 0;
+
 			XLookupString(&ev.xkey, str, 512, &sym, NULL);
 
 			/* HACK: this is bad, you can guess why */
 			if(strlen(str) == 1) {
-				char s = str == NULL ? 0 : str[0];
+				char s = str[0];
 
 				if(ev.xkey.state & (ShiftMask | LockMask)) {
 					n = toupper((int)s);
