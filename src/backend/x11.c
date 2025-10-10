@@ -182,11 +182,10 @@ void MwLLNextEvent(MwLL handle) {
 
 			MwLLDispatch(handle, move, &p);
 		} else if(ev.type == KeyPress) {
-			int    n   = -1;
-			KeySym sym = XLookupKeysym(&ev.xkey, 0);
-			char*  str = XKeysymToString(sym);
-
-			if(strcmp(str, "space") == 0) str = " ";
+			int    n = -1;
+			char   str[512];
+			KeySym sym;
+			XLookupString(&ev.xkey, str, 512, &sym, NULL);
 
 			/* HACK: this is bad, you can guess why */
 			if(strlen(str) == 1) {
