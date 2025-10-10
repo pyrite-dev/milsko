@@ -66,7 +66,9 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	} else if(msg == WM_ERASEBKGND) {
 		return 1;
 	} else if(msg == WM_NCHITTEST) {
-		return HTCLIENT;
+		LPARAM style = GetWindowLongPtr(hWnd, GWL_STYLE);
+		if(style & WS_CHILD) return HTCLIENT;
+		return DefWindowProc(hWnd, msg, wp, lp);
 	} else if(msg == WM_DESTROY) {
 		MwLLDispatch(u->ll, close, NULL);
 		PostQuitMessage(0);

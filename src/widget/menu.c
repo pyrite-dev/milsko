@@ -129,7 +129,7 @@ static void mouse_down(MwWidget handle) {
 		if(m->sub[i]->wsub == NULL && arrlen(m->sub[i]->sub) > 0) {
 			MwPoint p2;
 
-			p2.x = p.x - tw / 2 - 5;
+			p2.x = p.x - 5;
 			p2.y = p.y + th / 2 + 5;
 
 			m->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
