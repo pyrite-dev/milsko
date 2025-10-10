@@ -18,7 +18,20 @@ static void draw(MwWidget handle) {
 }
 
 static void key(MwWidget handle, int code) {
-	MwEntryClass->key(handle, code);
+	MwEntry	    e	= handle->internal;
+	const char* str = MwGetText(handle, MwNtext);
+	int	    ok	= 0;
+	if(str == NULL) str = "";
+
+	if(code == '-' && e->cursor == 0 && strchr(str, (int)'-') == NULL) {
+		ok = 1;
+	} else if('0' <= code && code <= '9') {
+		ok = 1;
+	} else if(code == '.' && strchr(str, (int)'.') == NULL) {
+		ok = 1;
+	}
+
+	if(ok) MwEntryClass->key(handle, code);
 }
 
 MwClassRec MwNumberEntryClassRec = {

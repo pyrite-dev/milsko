@@ -24,6 +24,7 @@ static void draw(MwWidget handle) {
 	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwLLColor   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	const char* str	 = MwGetText(handle, MwNtext);
+	if(str == NULL) str = "";
 
 	r.x	 = 0;
 	r.y	 = 0;
