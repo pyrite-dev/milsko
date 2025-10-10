@@ -4,8 +4,6 @@
 
 #include <time.h>
 
-#include <GL/gl.h>
-
 MwWidget   window, opengl, ldate, ltime;
 time_t	   last = 0;
 struct tm* tm;

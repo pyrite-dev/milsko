@@ -9,6 +9,17 @@
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <GL/glx.h>
+#endif
+#include <GL/gl.h>
+
+#ifndef GLAPIENTRY
+#define GLAPIENTRY APIENTRY
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
