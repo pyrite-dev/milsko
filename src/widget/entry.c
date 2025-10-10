@@ -1,12 +1,8 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-typedef struct text {
-	int cursor;
-} text_t;
-
 static int create(MwWidget handle) {
-	text_t* t = malloc(sizeof(*t));
+	MwEntry t = malloc(sizeof(*t));
 
 	t->cursor	 = 0;
 	handle->internal = t;
@@ -24,7 +20,7 @@ static void destroy(MwWidget handle) {
 
 static void draw(MwWidget handle) {
 	MwRect	    r;
-	text_t*	    t	 = handle->internal;
+	MwEntry	    t	 = handle->internal;
 	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwLLColor   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	const char* str	 = MwGetText(handle, MwNtext);
@@ -79,7 +75,7 @@ static void draw(MwWidget handle) {
 }
 
 static void key(MwWidget handle, int code) {
-	text_t*	    t	= handle->internal;
+	MwEntry	    t	= handle->internal;
 	const char* str = MwGetText(handle, MwNtext);
 	char*	    out;
 	if(str == NULL) str = "";

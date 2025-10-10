@@ -11,7 +11,6 @@ class OpenGL : public MwOO::Base {
 	void	    MakeCurrent(void);
 	void*	    GetProcAddress(const char* name);
 	void	    SwapBuffer(void);
-	void	    SetColor(MwLLColor color);
 	void	    SetBackground(const char* value);
 	const char* GetBackground(void);
 	void	    SetForeground(const char* value);
