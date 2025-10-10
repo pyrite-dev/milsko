@@ -170,6 +170,12 @@
 <dd>
 	<a href="#Mw_Draw_h__MwGetColor">MwGetColor</a>
 </dd>
+<dd>
+	<a href="#Mw_Draw_h__MwLoadRaw">MwLoadRaw</a>
+</dd>
+<dd>
+	<a href="#Mw_Draw_h__MwLoadXPM">MwLoadXPM</a>
+</dd>
 <dt>
 	<a href="#Mw_Error_h">Mw/Error.h</a>
 </dt>
@@ -1626,6 +1632,76 @@
 </dt>
 <dd>
 	Pointer to blue color.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwLoadRaw">MWDECL MwLLPixmap <B><FONT COLOR="#0000FF">MwLoadRaw</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">unsigned</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* rgb,
+	<B><FONT COLOR="#228B22">int</FONT></B> width,
+	<B><FONT COLOR="#228B22">int</FONT></B> height
+);</pre>
+<dl>
+<dd>
+	Creates a pixmap from raw data.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>rgb</code>
+</dt>
+<dd>
+	RGBA data.
+</dd>
+<dt>
+	Parameter <code>width</code>
+</dt>
+<dd>
+	Width.
+</dd>
+<dt>
+	Parameter <code>height</code>
+</dt>
+<dd>
+	Height.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Pixmap.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwLoadXPM">MWDECL MwLLPixmap <B><FONT COLOR="#0000FF">MwLoadXPM</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">char</FONT></B>** data
+);</pre>
+<dl>
+<dd>
+	Creates a pixmap from XPM data.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>data</code>
+</dt>
+<dd>
+	Data.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Pixmap.
 </dd>
 </dl>
 <hr>
