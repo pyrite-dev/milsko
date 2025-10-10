@@ -3,8 +3,12 @@
 
 static int create(MwWidget handle) {
 	int st;
+	MwEntry	    e;
 
 	if((st = MwEntryClass->create(handle)) != 0) return st;
+
+	e	= handle->internal;
+	e->right = 32;
 
 	return 0;
 }
@@ -28,6 +32,8 @@ static void key(MwWidget handle, int code) {
 	} else if('0' <= code && code <= '9') {
 		ok = 1;
 	} else if(code == '.' && strchr(str, (int)'.') == NULL) {
+		ok = 1;
+	}else if(code == MwLLKeyBackSpace || code == MwLLKeyLeft || code == MwLLKeyRight){
 		ok = 1;
 	}
 

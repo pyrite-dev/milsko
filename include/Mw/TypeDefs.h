@@ -103,6 +103,7 @@ struct _MwMenu {
 
 struct _MwEntry {
 	int cursor;
+	int right;
 };
 
 #define MwCursorDataHeight 16
