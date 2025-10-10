@@ -42,7 +42,7 @@ static void resize(MwWidget handle, void* user, void* client) {
 int main() {
 	MwWidget window;
 
-	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 500, 500,
+	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 500, 500,
 				  MwNtitle, TITLE,
 				  NULL);
 	opengl = MwCreateWidget(MwOpenGLClass, "opengl", window, 50, 50, 400, 400);

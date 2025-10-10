@@ -55,7 +55,7 @@ void resize(MwWidget w, void* user, void* client) {
 }
 
 int main() {
-	MwWidget window = MwVaCreateWidget(MwWindowClass, "window", NULL, 0, 0, (ww = 500), (wh = 500),
+	MwWidget window = MwVaCreateWidget(MwWindowClass, "window", NULL, MwDEFAULT, MwDEFAULT, (ww = 500), (wh = 500),
 					   MwNtitle, "rotate",
 					   NULL);
 	int	 i;
