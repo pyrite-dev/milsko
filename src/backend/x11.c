@@ -38,6 +38,20 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 		p	   = parent->window;
 	}
 	r->window      = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, XDefaultScreen(r->display)));
+
+	XSetLocaleModifiers("");
+	if((r->xim = XOpenIM(r->display, 0, 0, 0)) == NULL){
+		XSetLocaleModifiers("@im=none");
+		r->xim = XOpenIM(r->display, 0, 0, 0);
+	}
+
+	r->xic = XCreateIC(r->xim,
+			XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
+			XNClientWindow, r->window,
+			XNFocusWindow, r->window,
+	NULL);
+	XSetICFocus(r->xic);
+
 	r->copy_buffer = 1;
 
 	r->width  = width;
@@ -61,6 +75,9 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 
 void MwLLDestroy(MwLL handle) {
 	MwLLDestroyCommon(handle);
+
+	XDestroyIC(handle->xic);
+	XCloseIM(handle->xim);
 
 	destroy_pixmap(handle);
 	XFreeGC(handle->display, handle->gc);
