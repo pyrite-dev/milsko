@@ -29,5 +29,6 @@
 #include <Mw/Widget/Image.h>
 #include <Mw/Widget/Entry.h>
 #include <Mw/Widget/ScrollBar.h>
+#include <Mw/Widget/NumberEntry.h>
 
 #endif

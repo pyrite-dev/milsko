@@ -164,6 +164,9 @@
 <dd>
 	<a href="#Mw_Draw_h__MwTextHeight">MwTextHeight</a>
 </dd>
+<dd>
+	<a href="#Mw_Draw_h__MwGetColor">MwGetColor</a>
+</dd>
 <dt>
 	<a href="#Mw_Error_h">Mw/Error.h</a>
 </dt>
@@ -264,6 +267,12 @@
 	<a href="#Mw_Widget_Menu_h__MwMenuAdd">MwMenuAdd</a>
 </dd>
 <dt>
+	<a href="#Mw_Widget_NumberEntry_h">Mw/Widget/NumberEntry.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Widget_NumberEntry_h__MwNumberEntryClass">MwNumberEntryClass</a>
+</dd>
+<dt>
 	<a href="#Mw_Widget_OpenGL_h">Mw/Widget/OpenGL.h</a>
 </dt>
 <dd>
@@ -277,9 +286,6 @@
 </dd>
 <dd>
 	<a href="#Mw_Widget_OpenGL_h__MwOpenGLSwapBuffer">MwOpenGLSwapBuffer</a>
-</dd>
-<dd>
-	<a href="#Mw_Widget_OpenGL_h__MwOpenGLSetColor">MwOpenGLSetColor</a>
 </dd>
 <dt>
 	<a href="#Mw_Widget_ScrollBar_h">Mw/Widget/ScrollBar.h</a>
@@ -1577,6 +1583,42 @@
 </dd>
 </dl>
 <hr>
+<pre id="Mw_Draw_h__MwGetColor">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwGetColor</FONT></B> (
+	MwLLColor color,
+	<B><FONT COLOR="#228B22">int</FONT></B>* red,
+	<B><FONT COLOR="#228B22">int</FONT></B>* green,
+	<B><FONT COLOR="#228B22">int</FONT></B>* blue
+);</pre>
+<dl>
+<dd>
+	Get color components.
+</dd>
+<dt>
+	Parameter <code>color</code>
+</dt>
+<dd>
+	Color.
+</dd>
+<dt>
+	Parameter <code>red</code>
+</dt>
+<dd>
+	Pointer to red color.
+</dd>
+<dt>
+	Parameter <code>green</code>
+</dt>
+<dd>
+	Pointer to green color.
+</dd>
+<dt>
+	Parameter <code>blue</code>
+</dt>
+<dd>
+	Pointer to blue color.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_Error_h">Mw/Error.h</h2>
 <dl>
 <dt>
@@ -1879,6 +1921,20 @@
 </dd>
 </dl>
 <hr>
+<h2 align="center" id="Mw_Widget_NumberEntry_h">Mw/Widget/NumberEntry.h</h2>
+<dl>
+<dt>
+	NumberEntry widget.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Widget_NumberEntry_h__MwNumberEntryClass">MWDECL MwClass MwNumberEntryClass;</pre>
+<dl>
+<dd>
+	NumberEntry widget class.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_Widget_OpenGL_h">Mw/Widget/OpenGL.h</h2>
 <dl>
 <dt>
@@ -1948,28 +2004,6 @@
 </dt>
 <dd>
 	Widget.
-</dd>
-</dl>
-<hr>
-<pre id="Mw_Widget_OpenGL_h__MwOpenGLSetColor">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwOpenGLSetColor</FONT></B> (
-	MwWidget handle,
-	MwLLColor color
-);</pre>
-<dl>
-<dd>
-	Set color using glColor3f.
-</dd>
-<dt>
-	Parameter <code>handle</code>
-</dt>
-<dd>
-	Widget.
-</dd>
-<dt>
-	Parameter <code>color</code>
-</dt>
-<dd>
-	Color.
 </dd>
 </dl>
 <hr>

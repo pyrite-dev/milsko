@@ -18,6 +18,7 @@ typedef struct _MwVoidKeyValue	      MwVoidKeyValue;
 typedef struct _MwFont		      MwFont;
 typedef struct _MwMenu*		      MwMenu;
 typedef struct _MwCursor	      MwCursor;
+typedef struct _MwEntry*	      MwEntry;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
 #else
@@ -98,6 +99,10 @@ struct _MwMenu {
 	int	 keep;
 	MwWidget wsub;
 	MwMenu*	 sub;
+};
+
+struct _MwEntry {
+	int cursor;
 };
 
 #define MwCursorDataHeight 16
