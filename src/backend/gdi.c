@@ -81,13 +81,19 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		int n = wp;
 
 		MwLLDispatch(u->ll, key, &n);
-	} else if(msg == WM_KEYDOWN) {
+	} else if(msg == WM_KEYDOWN || msg == WM_KEYUP) {
 		int n = -1;
 		if(wp == VK_LEFT) n = MwLLKeyLeft;
 		if(wp == VK_RIGHT) n = MwLLKeyRight;
 		if(wp == VK_UP) n = MwLLKeyUp;
 		if(wp == VK_DOWN) n = MwLLKeyDown;
-		if(n != -1) MwLLDispatch(u->ll, key, &n);
+		if(n != -1) {
+			if(msg == WM_KEYDOWN) {
+				MwLLDispatch(u->ll, key, &n);
+			} else {
+				MwLLDispatch(u->ll, key_released, &n);
+			}
+		}
 	} else if(msg == WM_GETMINMAXINFO) {
 		if(u->min_set || u->max_set) {
 			LPARAM	    style = GetWindowLongPtr(hWnd, GWL_STYLE);

@@ -52,6 +52,7 @@ struct _MwLLHandler {
 	void (*close)(MwLL handle, void* data);
 	void (*move)(MwLL handle, void* data);
 	void (*key)(MwLL handle, void* data);
+	void (*key_released)(MwLL handle, void* data);
 };
 
 #ifdef __cplusplus
