@@ -71,6 +71,7 @@ static void llkeyhandler(MwLL handle, void* data) {
 	int	 key = *(int*)data;
 
 	MwDispatch3(h, key, key);
+	MwDispatchUserHandler(h, MwNkeyHandler, data);
 }
 
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
