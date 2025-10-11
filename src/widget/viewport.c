@@ -36,8 +36,8 @@ static void resize(MwWidget handle) {
 	viewport_t* vp = handle->internal;
 	int	    w  = MwGetInteger(handle, MwNwidth);
 	int	    h  = MwGetInteger(handle, MwNheight);
-	int	    iw, ix;
-	int	    ih, iy;
+	int	    iw;
+	int	    ih;
 	if(vp->vscroll == NULL) {
 		vp->vscroll = MwVaCreateWidget(MwScrollBarClass, "vscroll", handle, w - 16, 0, 16, h - 16, NULL);
 		MwAddUserHandler(vp->vscroll, MwNchangedHandler, vscroll_changed, vp);
@@ -77,24 +77,15 @@ static void resize(MwWidget handle) {
 	iw = MwGetInteger(vp->inframe, MwNwidth);
 	ih = MwGetInteger(vp->inframe, MwNheight);
 
-	iy = MwGetInteger(vp->vscroll, MwNvalue);
-	if(iy > ih) iy = ih;
 	MwVaApply(vp->vscroll,
 		  MwNareaShown, h - 16,
 		  MwNmaxValue, ih,
-		  MwNvalue, iy,
 		  NULL);
 
-	ix = MwGetInteger(vp->hscroll, MwNvalue);
-	if(ix > iw) ix = iw;
 	MwVaApply(vp->hscroll,
 		  MwNareaShown, w - 16,
 		  MwNmaxValue, iw,
-		  MwNvalue, ix,
 		  NULL);
-
-	vscroll_changed(vp->vscroll, vp, NULL);
-	hscroll_changed(vp->hscroll, vp, NULL);
 }
 
 static int create(MwWidget handle) {
