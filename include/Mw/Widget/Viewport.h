@@ -18,7 +18,20 @@ extern "C" {
  */
 MWDECL MwClass MwViewportClass;
 
-MWDECL MwWidget MwViewportGetViewport(MwWidget widget);
+/*!
+ * %brief Get parent widget where widgets should be placed
+ * %param handle Widget
+ * %return Widget
+ */
+MWDECL MwWidget MwViewportGetViewport(MwWidget handle);
+
+/*!
+ * %brief Set viewport size
+ * %param handle Widget
+ * %param w Width
+ * %param h Height
+ */
+MWDECL void MwViewportSetSize(MwWidget handle, int w, int h);
 
 #ifdef __cplusplus
 }

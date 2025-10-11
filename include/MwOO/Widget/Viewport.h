@@ -9,6 +9,7 @@ class Viewport : public MwOO::Base {
       public:
 	Viewport(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
 	MwOO::Base  GetViewport(void);
+	void	    SetSize(int w, int h);
 	void	    SetBackground(const char* value);
 	const char* GetBackground(void);
 	void	    SetForeground(const char* value);

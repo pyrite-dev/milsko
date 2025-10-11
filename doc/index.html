@@ -398,6 +398,12 @@
 <dd>
 	<a href="#Mw_Widget_Viewport_h__MwViewportClass">MwViewportClass</a>
 </dd>
+<dd>
+	<a href="#Mw_Widget_Viewport_h__MwViewportGetViewport">MwViewportGetViewport</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_Viewport_h__MwViewportSetSize">MwViewportSetSize</a>
+</dd>
 <dt>
 	<a href="#Mw_Widget_Vulkan_h">Mw/Widget/Vulkan.h</a>
 </dt>
@@ -2515,6 +2521,56 @@
 <dl>
 <dd>
 	Viewport widget class.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_Viewport_h__MwViewportGetViewport">MWDECL MwWidget <B><FONT COLOR="#0000FF">MwViewportGetViewport</FONT></B> (
+	MwWidget handle
+);</pre>
+<dl>
+<dd>
+	Get parent widget where widgets should be placed.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_Viewport_h__MwViewportSetSize">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwViewportSetSize</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> w,
+	<B><FONT COLOR="#228B22">int</FONT></B> h
+);</pre>
+<dl>
+<dd>
+	Set viewport size.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>w</code>
+</dt>
+<dd>
+	Width.
+</dd>
+<dt>
+	Parameter <code>h</code>
+</dt>
+<dd>
+	Height.
 </dd>
 </dl>
 <hr>
