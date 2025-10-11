@@ -368,7 +368,7 @@ void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int
 	MwRect r;
 
 	sx = point->x;
-	sy = point->y - FontHeight * FontScale / 2;
+	sy = point->y - MwTextHeight(handle, text) / 2;
 
 	if(align == MwALIGNMENT_CENTER) {
 		sx -= strlen(text) * FontWidth * FontScale / 2;
@@ -382,19 +382,24 @@ void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int
 
 		if(out >= 0x80) out = 0;
 
-		for(y = 0; y < FontHeight; y++) {
-			for(x = 0; x < FontWidth; x++) {
-				r.x	 = sx + x * FontScale;
-				r.y	 = sy + y * FontScale;
-				r.width	 = FontScale;
-				r.height = FontScale;
+		if(out == '\n') {
+			sx = 0;
+			sy += FontHeight * FontScale;
+		} else {
+			for(y = 0; y < FontHeight; y++) {
+				for(x = 0; x < FontWidth; x++) {
+					r.x	 = sx + x * FontScale;
+					r.y	 = sy + y * FontScale;
+					r.width	 = FontScale;
+					r.height = FontScale;
 
-				if((bold ? MwBoldFontData : MwFontData)[out].data[y] & (1 << ((FontWidth - 1) - x))) {
-					MwDrawRect(handle, &r, color);
+					if((bold ? MwBoldFontData : MwFontData)[out].data[y] & (1 << ((FontWidth - 1) - x))) {
+						MwDrawRect(handle, &r, color);
+					}
 				}
 			}
+			sx += FontWidth * FontScale;
 		}
-		sx += FontWidth * FontScale;
 	}
 }
 
@@ -405,10 +410,20 @@ int MwTextWidth(MwWidget handle, const char* text) {
 }
 
 int MwTextHeight(MwWidget handle, const char* text) {
+	int c = 1;
+	int i = 0;
+
 	(void)handle;
 	(void)text;
 
-	return FontHeight * FontScale;
+	while(text[i] != 0) {
+		int out;
+		i += MwUTF8ToUTF32(text + i, &out);
+
+		if(out == '\n') c++;
+	}
+
+	return FontHeight * FontScale * c;
 }
 
 #ifndef USE_STB_IMAGE
