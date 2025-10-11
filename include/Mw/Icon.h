@@ -18,6 +18,11 @@ extern "C" {
 MWDECL char* MwIconInfo[];
 
 /*!
+ * %brief News icon
+ */
+MWDECL char* MwIconNews[];
+
+/*!
  * %brief Note icon
  */
 MWDECL char* MwIconNote[];

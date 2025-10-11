@@ -4,12 +4,13 @@
 /* XPM */
 char* MwIconWarning[] = {
     /* columns rows colors chars-per-pixel */
-    "32 32 5 1 ",
+    "32 32 6 1 ",
     "  c None",
     ". c red",
     "X c yellow",
     "o c DarkSlateGray",
     "O c black",
+    "+ c #6632F7",
     /* pixels */
     "                                ",
     "                                ",
