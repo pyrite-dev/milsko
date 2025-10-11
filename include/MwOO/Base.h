@@ -16,7 +16,6 @@ class Base {
       private:
 	int  can_be_gc;
 	void SetHandler(void);
-	Base(MwWidget widget, int gc = 0);
 
       public:
 	MwOO::Base MessageBox(const char* title, const char* text, unsigned int flags);
@@ -44,6 +43,7 @@ class Base {
 	/* END AUTOGENERATE */
 
 	Base(MwClass widget_class, const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
+	Base(MwWidget widget, int gc = 0);
 	~Base(void);
 };
 } // namespace MwOO
