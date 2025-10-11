@@ -172,6 +172,10 @@ void MwLLNextEvent(MwLL handle) {
 				p.button = MwLLMouseMiddle;
 			} else if(ev.xbutton.button == Button3) {
 				p.button = MwLLMouseRight;
+			} else if(ev.xbutton.button == Button4) {
+				p.button = MwLLMouseWheelUp;
+			} else if(ev.xbutton.button == Button5) {
+				p.button = MwLLMouseWheelDown;
 			}
 
 			MwLLDispatch(handle, down, &p);
@@ -187,6 +191,10 @@ void MwLLNextEvent(MwLL handle) {
 				p.button = MwLLMouseMiddle;
 			} else if(ev.xbutton.button == Button3) {
 				p.button = MwLLMouseRight;
+			} else if(ev.xbutton.button == Button4) {
+				p.button = MwLLMouseWheelUp;
+			} else if(ev.xbutton.button == Button5) {
+				p.button = MwLLMouseWheelDown;
 			}
 
 			MwLLDispatch(handle, up, &p);
