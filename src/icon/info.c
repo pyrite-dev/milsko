@@ -8,7 +8,7 @@ char* MwIconInfo[] = {
     "  c None",
     ". c blue",
     "X c DarkSlateGray",
-    "o c lavender",
+    "o c #6632F7",
     /* pixels */
     "                                ",
     "                                ",

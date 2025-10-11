@@ -1,5 +1,12 @@
 #!/bin/sh
 # $Id$
+
+cd resource/icon
+for i in *.gif; do
+	convert $i -shave 4x4 -alpha on -channel rgba -fill 'transparent' -opaque '#80ff80' `echo $i | cut -d. -f1`.png
+done
+cd ../..
+
 echo '/* $Id$ */' > include/Mw/Icon.h
 echo '/*!' >> include/Mw/Icon.h
 echo ' * %file Mw/Icon.h' >> include/Mw/Icon.h

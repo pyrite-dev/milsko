@@ -63,4 +63,9 @@ enum MwALIGNMENT {
  */
 #define MwMB_ICONQUESTION 0x4
 
+/*!
+ * %brief News icon
+ */
+#define MwMB_ICONNEWS 0x5
+
 #endif

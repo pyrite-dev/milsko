@@ -50,6 +50,10 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 			data = MwIconQuestion;
 			break;
 		}
+		case MwMB_ICONNEWS: {
+			data = MwIconNews;
+			break;
+		}
 		}
 
 		px = MwLoadXPM(icon, data);
