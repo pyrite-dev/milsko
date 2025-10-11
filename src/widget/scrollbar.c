@@ -187,7 +187,10 @@ static void mouse_down(MwWidget handle, void* ptr) {
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNminValue) == 0 || strcmp(key, MwNvalue) == 0 || strcmp(key, MwNmaxValue) == 0 || strcmp(key, MwNareaShown) == 0) MwForceRender(handle);
+	if(strcmp(key, MwNminValue) == 0 || strcmp(key, MwNvalue) == 0 || strcmp(key, MwNmaxValue) == 0 || strcmp(key, MwNareaShown) == 0) {
+		if(handle->prop_event) MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
+		MwForceRender(handle);
+	}
 }
 
 MwClassRec MwScrollBarClassRec = {
