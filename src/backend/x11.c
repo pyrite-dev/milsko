@@ -275,13 +275,19 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 
 	if(r->use_shm) {
 		r->image = XShmCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 24, ZPixmap, NULL, &r->shm, width, height);
-		free(d);
 
-		r->shm.shmid   = shmget(IPC_PRIVATE, r->image->bytes_per_line * height, IPC_CREAT | 0777);
-		r->shm.shmaddr = d = r->image->data = shmat(r->shm.shmid, 0, 0);
-		r->shm.readOnly			    = False;
-		XShmAttach(handle->display, &r->shm);
-	} else {
+		r->shm.shmid = shmget(IPC_PRIVATE, r->image->bytes_per_line * height, IPC_CREAT | 0777);
+		if(r->shm.shmid == -1) {
+			XDestroyImage(r->image);
+			r->use_shm = 0;
+		} else {
+			free(d);
+			r->shm.shmaddr = d = r->image->data = shmat(r->shm.shmid, 0, 0);
+			r->shm.readOnly			    = False;
+			XShmAttach(handle->display, &r->shm);
+		}
+	}
+	if(!r->use_shm) {
 		r->image = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 24, ZPixmap, 0, d, width, height, 32, width * 4);
 	}
 

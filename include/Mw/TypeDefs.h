@@ -84,6 +84,7 @@ struct _MwWidget {
 	int	prop_event;
 
 	void* internal;
+	void* opaque;
 
 	MwIntegerKeyValue*     integer;
 	MwTextKeyValue*	       text;

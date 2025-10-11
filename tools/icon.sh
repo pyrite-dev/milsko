@@ -14,7 +14,7 @@ echo '#ifdef __cplusplus' >> include/Mw/Icon.h
 echo 'extern "C" {' >> include/Mw/Icon.h
 echo '#endif' >> include/Mw/Icon.h
 echo '' >> include/Mw/Icon.h
-for i in doc/*.gif; do
+for i in resource/icon/*.png; do
 	LOWER=`echo $i | rev | cut -d"/" -f1 | rev | cut -d"." -f1`
 	if [ "$LOWER" = "unsure" ]; then
 		LOWER=question
