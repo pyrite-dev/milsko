@@ -38,7 +38,7 @@ scan("src/icon");
 push(@sources, "src/backend/gdi.c");
 @c_sources = @sources;
 @sources   = ();
-print(OUT "\n");
+print(OUT " src/backend/gdi.obj\n");
 print(OUT "OOOBJS =");
 scan("oosrc");
 scan("oosrc/widget");
