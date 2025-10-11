@@ -231,6 +231,10 @@ void MwLLNextEvent(MwLL handle) {
 				n = MwLLKeyLeft;
 			} else if(strcmp(str, "Right") == 0) {
 				n = MwLLKeyRight;
+			} else if(strcmp(str, "Up") == 0) {
+				n = MwLLKeyUp;
+			} else if(strcmp(str, "Down") == 0) {
+				n = MwLLKeyDown;
 			}
 
 			if(n != -1) MwLLDispatch(handle, key, &n);

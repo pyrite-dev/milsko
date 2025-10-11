@@ -73,3 +73,7 @@ static void init(void) {
 
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 }
+
+static void key(int k) {
+	(void)k;
+}

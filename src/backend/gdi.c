@@ -85,6 +85,8 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		int n = -1;
 		if(wp == VK_LEFT) n = MwLLKeyLeft;
 		if(wp == VK_RIGHT) n = MwLLKeyRight;
+		if(wp == VK_UP) n = MwLLKeyUp;
+		if(wp == VK_DOWN) n = MwLLKeyDown;
 		if(n != -1) MwLLDispatch(u->ll, key, &n);
 	} else if(msg == WM_GETMINMAXINFO) {
 		if(u->min_set || u->max_set) {

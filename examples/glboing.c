@@ -153,3 +153,7 @@ static void init(void) {
 	glDisable(GL_DITHER);
 	glShadeModel(GL_FLAT);
 }
+
+static void key(int k) {
+	(void)k;
+}

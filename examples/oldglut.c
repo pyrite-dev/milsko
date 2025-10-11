@@ -9,6 +9,7 @@ static void draw(void);
 static void idle(void);
 static void reshape(int width, int height);
 static void init(void);
+static void key(int k);
 
 static void tick(MwWidget handle, void* user, void* client) {
 	(void)handle;
@@ -39,6 +40,10 @@ static void resize(MwWidget handle, void* user, void* client) {
 	reshape(ww, wh);
 }
 
+static void key_pressed(MwWidget handle, void* user, void* client) {
+	key(*(int*)client);
+}
+
 int main() {
 	MwWidget window;
 
@@ -54,6 +59,8 @@ int main() {
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
 	MwAddUserHandler(window, MwNtickHandler, tick, NULL);
+
+	MwAddUserHandler(opengl, MwNkeyHandler, key_pressed, NULL);
 
 	MwLoop(window);
 }

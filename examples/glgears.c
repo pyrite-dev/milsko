@@ -228,3 +228,17 @@ static void init(void) {
 
 	glEnable(GL_NORMALIZE);
 }
+
+static void key(int k) {
+	(void)k;
+
+	if(k == MwLLKeyLeft) {
+		view_roty += 5.0;
+	} else if(k == MwLLKeyRight) {
+		view_roty -= 5.0;
+	} else if(k == MwLLKeyUp) {
+		view_rotx += 5.0;
+	} else if(k == MwLLKeyDown) {
+		view_rotx -= 5.0;
+	}
+}
