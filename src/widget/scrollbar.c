@@ -32,7 +32,7 @@ static int calc_length(MwWidget handle) {
 	int max	 = MwScrollBarGetVisibleLength(handle);
 	int len	 = MwGetInteger(handle, MwNmaxValue) - MwGetInteger(handle, MwNminValue);
 	int area = MwGetInteger(handle, MwNareaShown);
-	if(area > MwGetInteger(handle, MwNmaxValue)) area = MwGetInteger(handle, MwNmaxValue);
+	if(area > len) area = len;
 
 	return max * (double)area / len;
 }
