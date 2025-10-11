@@ -13,6 +13,11 @@ extern "C" {
 #endif
 
 /*!
+ * %brief Error icon
+ */
+MWDECL char* MwIconError[];
+
+/*!
  * %brief Info icon
  */
 MWDECL char* MwIconInfo[];

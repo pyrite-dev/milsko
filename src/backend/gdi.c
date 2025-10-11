@@ -2,8 +2,11 @@
 #include <Mw/Milsko.h>
 
 typedef struct userdata {
-	MwLL	ll;
-	WNDPROC old;
+	MwLL  ll;
+	POINT min;
+	POINT max;
+	int   min_set;
+	int   max_set;
 } userdata_t;
 
 static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
@@ -83,8 +86,39 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		if(wp == VK_LEFT) n = MwLLKeyLeft;
 		if(wp == VK_RIGHT) n = MwLLKeyRight;
 		if(n != -1) MwLLDispatch(u->ll, key, &n);
+	} else if(msg == WM_GETMINMAXINFO) {
+		if(u->min_set || u->max_set) {
+			LPARAM	    style = GetWindowLongPtr(hWnd, GWL_STYLE);
+			MINMAXINFO* mmi	  = (MINMAXINFO*)lp;
+			if(u->min_set) {
+				RECT rc;
+
+				rc.left	  = 0;
+				rc.top	  = 0;
+				rc.right  = u->min.x;
+				rc.bottom = u->min.y;
+				AdjustWindowRect(&rc, style, FALSE);
+
+				mmi->ptMinTrackSize.x = rc.right - rc.left;
+				mmi->ptMinTrackSize.y = rc.bottom - rc.top;
+			}
+			if(u->max_set) {
+				RECT rc;
+
+				rc.left	  = 0;
+				rc.top	  = 0;
+				rc.right  = u->min.x;
+				rc.bottom = u->min.y;
+				AdjustWindowRect(&rc, style, FALSE);
+
+				mmi->ptMaxTrackSize.x = rc.right - rc.left;
+				mmi->ptMaxTrackSize.y = rc.bottom - rc.top;
+			}
+		} else {
+			return DefWindowProc(hWnd, msg, wp, lp);
+		}
 	} else {
-		return (u->old == NULL) ? DefWindowProc(hWnd, msg, wp, lp) : CallWindowProc(u->old, hWnd, msg, wp, lp);
+		return DefWindowProc(hWnd, msg, wp, lp);
 	}
 	return 0;
 }
@@ -113,15 +147,12 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	RegisterClassEx(&wc);
 
 	r->copy_buffer = 1;
-	r->hWnd	       = CreateWindow(parent == NULL ? "milsko" : "STATIC", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->hWnd, 0, wc.hInstance, NULL);
+	r->hWnd	       = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->hWnd, 0, wc.hInstance, NULL);
 	r->hInstance   = wc.hInstance;
 
-	u->ll = r;
-	if(parent == NULL) {
-		u->old = NULL;
-	} else {
-		u->old = (WNDPROC)SetWindowLongPtr(r->hWnd, GWLP_WNDPROC, (LPARAM)wndproc);
-	}
+	u->ll	   = r;
+	u->min_set = 0;
+	u->max_set = 0;
 	SetWindowLongPtr(r->hWnd, GWLP_USERDATA, (LPARAM)u);
 
 	if(parent == NULL) {
@@ -383,23 +414,22 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 }
 
 void MwLLDetach(MwLL handle, MwPoint* point) {
-	RECT   rc, rc2;
-	LPARAM style = GetWindowLongPtr(handle->hWnd, GWL_STYLE);
-
-	style |= WS_OVERLAPPEDWINDOW;
-
+	RECT rc, rc2;
 	GetWindowRect(GetParent(handle->hWnd), &rc);
 
 	GetClientRect(handle->hWnd, &rc2);
 
+	SetWindowLongPtr(handle->hWnd, GWL_STYLE, (LPARAM)WS_OVERLAPPEDWINDOW | WS_VISIBLE);
 	SetParent(handle->hWnd, NULL);
 
 	rc.left += point->x;
 	rc.top += point->y;
 
-	SetWindowPos(handle->hWnd, HWND_TOPMOST, rc.left, rc.top, rc2.right == 0 ? 1 : rc2.right, rc2.bottom == 0 ? 1 : rc2.bottom, SWP_NOREDRAW);
+	AdjustWindowRect(&rc2, WS_OVERLAPPEDWINDOW | WS_VISIBLE, FALSE);
+	rc2.right -= rc2.left;
+	rc2.bottom -= rc2.top;
 
-	SetWindowLongPtr(handle->hWnd, GWL_STYLE, style);
+	SetWindowPos(handle->hWnd, HWND_TOPMOST, rc.left, rc.top, rc2.right == 0 ? 1 : rc2.right, rc2.bottom == 0 ? 1 : rc2.bottom, SWP_FRAMECHANGED | SWP_NOACTIVATE);
 }
 
 void MwLLShow(MwLL handle, int show) {
@@ -414,4 +444,11 @@ void MwLLMakePopup(MwLL handle, MwLL parent) {
 }
 
 void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
+	userdata_t* u = (userdata_t*)GetWindowLongPtr(handle->hWnd, GWLP_USERDATA);
+
+	u->min_set = u->max_set = 1;
+	u->min.x		= minx;
+	u->min.y		= miny;
+	u->max.x		= maxx;
+	u->max.y		= maxy;
 }

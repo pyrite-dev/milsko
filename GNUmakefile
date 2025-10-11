@@ -30,7 +30,7 @@ L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldf
 L_OBJS += src/external/ds.o src/external/image.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o src/widget/checkbox.o src/widget/label.o src/widget/entry.o src/widget/numberentry.o
 L_OBJS += src/cursor/default.o src/cursor/cross.o src/cursor/text.o
-L_OBJS += src/icon/question.o src/icon/warning.o src/icon/note.o src/icon/info.o src/icon/news.o
+L_OBJS += src/icon/question.o src/icon/warning.o src/icon/note.o src/icon/info.o src/icon/news.o src/icon/error.o
 
 OOL_CXXFLAGS = $(DEPINC) $(CFLAGS) -std=c++98 -fPIC
 OOL_LDFLAGS = $(LDFLAGS) -L src
