@@ -164,8 +164,30 @@ static void mouse_down(MwWidget handle, void* ptr) {
 	int	     wh	 = MwGetInteger(handle, MwNheight);
 	int	     or	 = MwGetInteger(handle, MwNorientation);
 	scrollbar_t* scr = handle->internal;
+	MwLLMouse*   m	 = ptr;
 
-	if(((MwLLMouse*)ptr)->button != MwLLMouseLeft) return;
+	if(m->button == MwLLMouseWheelUp) {
+		int min = MwGetInteger(handle, MwNminValue);
+		int val = MwGetInteger(handle, MwNvalue);
+
+		val -= MwGetInteger(handle, MwNareaShown);
+
+		if(val < min) val = min;
+
+		MwSetInteger(handle, MwNvalue, val);
+		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
+	} else if(m->button == MwLLMouseWheelDown) {
+		int max = MwGetInteger(handle, MwNmaxValue);
+		int val = MwGetInteger(handle, MwNvalue);
+
+		val += MwGetInteger(handle, MwNareaShown);
+
+		if(val > max) val = max;
+
+		MwSetInteger(handle, MwNvalue, val);
+		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
+	}
+	if(m->button != MwLLMouseLeft) return;
 
 	scr->point = handle->mouse_point;
 	scr->drag  = 0;

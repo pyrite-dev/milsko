@@ -72,6 +72,20 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 		SetCapture(NULL);
 		MwLLDispatch(u->ll, up, &p);
+	} else if(msg == WM_MOUSEWHEEL) {
+		int	  d = GET_WHEEL_DELTA_WPARAM(wp);
+		MwLLMouse p;
+		p.point.x = LOWORD(lp);
+		p.point.y = HIWORD(lp);
+
+		if(d > 0) {
+			p.button = MwLLMouseWheelUp;
+		} else if(d < 0) {
+			p.button = MwLLMouseWheelDown;
+		}
+
+		MwLLDispatch(u->ll, down, &p);
+		MwLLDispatch(u->ll, up, &p);
 	} else if(msg == WM_MOUSEMOVE) {
 		MwPoint p;
 		p.x = LOWORD(lp);

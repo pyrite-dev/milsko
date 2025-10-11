@@ -46,9 +46,11 @@ enum MwLLKeyEnum {
 };
 
 enum MwLLMouseEnum {
-	MwLLMouseLeft	= 1,
-	MwLLMouseMiddle = 2,
-	MwLLMouseRight	= 3
+	MwLLMouseLeft = 1,
+	MwLLMouseMiddle,
+	MwLLMouseRight,
+	MwLLMouseWheelUp,
+	MwLLMouseWheelDown
 };
 
 struct _MwLLMouse {
