@@ -30,7 +30,7 @@ enum MwORIENTATION {
 enum MwALIGNMENT {
 	MwALIGNMENT_CENTER = 0,
 	MwALIGNMENT_BEGINNING,
-	MwALIGNMENT_END,
+	MwALIGNMENT_END
 };
 
 /*!
@@ -43,35 +43,14 @@ enum MwALIGNMENT {
  */
 #define MwMB_ICONMASK 0xf
 
-/*!
- * %brief Warning icon
- */
-#define MwMB_ICONWARNING 0x1
-
-/*!
- * %brief Information icon
- */
-#define MwMB_ICONINFO 0x2
-
-/*!
- * %brief Note icon
- */
-#define MwMB_ICONNOTE 0x3
-
-/*!
- * %brief Question icon
- */
-#define MwMB_ICONQUESTION 0x4
-
-/*!
- * %brief News icon
- */
-#define MwMB_ICONNEWS 0x5
-
-/*!
- * %brief Error icon
- */
-#define MwMB_ICONERROR 0x6
+enum MwMB_ICON {
+	MwMB_ICONWARNING = 0x1,
+	MwMB_ICONINFO,
+	MwMB_ICONNOTE,
+	MwMB_ICONQUESTION,
+	MwMB_ICONNEWS,
+	MwMB_ICONERROR
+};
 
 /*!
  * %brief Button mask
