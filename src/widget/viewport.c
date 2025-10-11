@@ -21,7 +21,10 @@ static void draw(MwWidget handle) {
 	MwLLFreeColor(base);
 }
 
-MwClassRec MwFrameClassRec = {
+MwWidget MwViewportGetViewport(MwWidget widget) {
+}
+
+MwClassRec MwViewportClassRec = {
     create, /* create */
     NULL,   /* destroy */
     draw,   /* draw */
@@ -37,4 +40,4 @@ MwClassRec MwFrameClassRec = {
     NULL,
     NULL,
     NULL};
-MwClass MwFrameClass = &MwFrameClassRec;
+MwClass MwViewportClass = &MwViewportClassRec;

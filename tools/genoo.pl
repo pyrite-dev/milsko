@@ -103,7 +103,14 @@ foreach my $f (@files) {
     );
 
     foreach my $m (@methods) {
-        print(OUT "		$m;\n");
+        if ($m =~ /^MwWidget[ \t]+/) {
+            my $l = $m;
+            $l =~ s/^MwWidget([ \t]+)/MwOO::Base\1/g;
+            print(OUT "		$l;\n");
+        }
+        else {
+            print(OUT "		$m;\n");
+        }
     }
 
     foreach my $prop (@props) {
@@ -145,18 +152,30 @@ foreach my $f (@files) {
 
     my $i = 0;
     foreach my $m (@omethods) {
-        print(OUT "$m\{\n");
+        my $end = "";
+        if ($m =~ /^MwWidget[ \t]+/) {
+            my $l = $m;
+            $l =~ s/^MwWidget([ \t]+)/MwOO::Base\1/;
+            print(OUT "$l\{\n");
+        }
+        else {
+            print(OUT "$m\{\n");
+        }
         if ($m =~ /^void[ \t]+/) {
             print(OUT "	Mw${name}" . $names[$i]);
+        }
+        elsif ($m =~ /^MwWidget[ \t]+/) {
+            print(OUT "	return MwOO::Base(Mw${name}" . $names[$i]);
+            $end = ")";
         }
         else {
             print(OUT "	return Mw${name}" . $names[$i]);
         }
         if ($args[$i] eq "void") {
-            print(OUT "(this->widget);\n");
+            print(OUT "(this->widget)$end;\n");
         }
         else {
-            print(OUT "(this->widget, " . $args[$i] . ");\n");
+            print(OUT "(this->widget, " . $args[$i] . ")$end;\n");
         }
         print(OUT "}\n");
         $i++;
