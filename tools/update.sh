@@ -8,4 +8,5 @@ fi
 ./tools/icon.sh
 ./tools/genoo.pl
 ./tools/genmsvc.pl
+./tools/genwat.pl
 $MAKE format
