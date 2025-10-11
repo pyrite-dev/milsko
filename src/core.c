@@ -258,6 +258,9 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 void MwSetVoid(MwWidget handle, const char* key, void* value) {
 	if(strcmp(key, MwNiconPixmap) == 0) {
 		MwLLSetIcon(handle->lowlevel, value);
+	} else if(strcmp(key, MwNsizeHints) == 0) {
+		MwSizeHints* sz = value;
+		MwLLSetSizeHints(handle->lowlevel, sz->min_width, sz->min_height, sz->max_width, sz->max_height);
 	} else {
 		shput(handle->data, key, value);
 	}

@@ -26,6 +26,7 @@
 
 #define MwNpixmap "Vpixmap"
 #define MwNiconPixmap "ViconPixmap"
+#define MwNsizeHints "VsizeHints"
 
 #define MwNactivateHandler "Cactivate"
 #define MwNresizeHandler "Cresize"
