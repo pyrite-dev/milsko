@@ -25,6 +25,7 @@ scan("src");
 scan("src/widget");
 scan("src/external");
 scan("src/cursor");
+scan("src/icon");
 print(OUT " src\\backend\\gdi.obj\n");
 print(OUT "OOOBJS =");
 scan("oosrc");
