@@ -8,6 +8,9 @@ MwOO::Viewport::Viewport(const char* widget_name, MwOO::Base* parent, int x, int
 MwOO::Base MwOO::Viewport::GetViewport(void){
 	return MwOO::Base(MwViewportGetViewport(this->widget));
 }
+void MwOO::Viewport::SetSize(int w, int h){
+	MwViewportSetSize(this->widget, w, h);
+}
 void MwOO::Viewport::SetBackground(const char* value){
 	MwSetText(this->widget, MwNbackground, value);
 }

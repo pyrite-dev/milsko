@@ -32,6 +32,7 @@ static int calc_length(MwWidget handle) {
 	int max	 = MwScrollBarGetVisibleLength(handle);
 	int len	 = MwGetInteger(handle, MwNmaxValue) - MwGetInteger(handle, MwNminValue);
 	int area = MwGetInteger(handle, MwNareaShown);
+	if(area > MwGetInteger(handle, MwNmaxValue)) area = MwGetInteger(handle, MwNmaxValue);
 
 	return max * (double)area / len;
 }
@@ -55,6 +56,7 @@ static void add_value(MwWidget handle, int mul) {
 	if(val > max) val = max;
 
 	MwSetInteger(handle, MwNvalue, val);
+	MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
 }
 
 static void draw(MwWidget handle) {
@@ -151,6 +153,7 @@ static void mouse_move(MwWidget handle) {
 		if(len < 0) len = 0;
 		if(len > 1) len = 1;
 		MwSetInteger(handle, MwNvalue, (int)((max - min) * len - min));
+		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
 
 		MwForceRender(handle);
 	}
