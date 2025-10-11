@@ -163,23 +163,33 @@ void MwLLNextEvent(MwLL handle) {
 		if(ev.type == Expose) {
 			render = 1;
 		} else if(ev.type == ButtonPress) {
+			MwLLMouse p;
+			p.point.x = ev.xbutton.x;
+			p.point.y = ev.xbutton.y;
 			if(ev.xbutton.button == Button1) {
-				MwPoint p;
-				p.x = ev.xbutton.x;
-				p.y = ev.xbutton.y;
-
-				MwLLDispatch(handle, down, &p);
-
-				XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
+				p.button = MwLLMouseLeft;
+			} else if(ev.xbutton.button == Button2) {
+				p.button = MwLLMouseMiddle;
+			} else if(ev.xbutton.button == Button3) {
+				p.button = MwLLMouseRight;
 			}
+
+			MwLLDispatch(handle, down, &p);
+
+			XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
 		} else if(ev.type == ButtonRelease) {
+			MwLLMouse p;
+			p.point.x = ev.xbutton.x;
+			p.point.y = ev.xbutton.y;
 			if(ev.xbutton.button == Button1) {
-				MwPoint p;
-				p.x = ev.xbutton.x;
-				p.y = ev.xbutton.y;
-
-				MwLLDispatch(handle, up, &p);
+				p.button = MwLLMouseLeft;
+			} else if(ev.xbutton.button == Button2) {
+				p.button = MwLLMouseMiddle;
+			} else if(ev.xbutton.button == Button3) {
+				p.button = MwLLMouseRight;
 			}
+
+			MwLLDispatch(handle, up, &p);
 		} else if(ev.type == ConfigureNotify) {
 			MwLLDispatch(handle, resize, NULL);
 

@@ -95,11 +95,13 @@ static void mouse_move(MwWidget handle) {
 	}
 }
 
-static void mouse_up(MwWidget handle) {
+static void mouse_up(MwWidget handle, void* ptr) {
 	MwEntry	    e	= handle->internal;
 	int	    w	= MwGetInteger(handle, MwNwidth);
 	int	    h	= MwGetInteger(handle, MwNheight);
 	const char* str = MwGetText(handle, MwNtext);
+
+	if(((MwLLMouse*)ptr)->button != MwLLMouseLeft) return;
 
 	if(e->mouse.x >= (w - e->right)) {
 		char s[512];
@@ -114,8 +116,10 @@ static void mouse_up(MwWidget handle) {
 	MwForceRender(handle);
 }
 
-static void mouse_down(MwWidget handle) {
+static void mouse_down(MwWidget handle, void* ptr) {
 	MwEntry e = handle->internal;
+
+	if(((MwLLMouse*)ptr)->button != MwLLMouseLeft) return;
 
 	e->mouse = handle->mouse_point;
 

@@ -12,28 +12,26 @@ static void lldrawhandler(MwLL handle, void* data) {
 }
 
 static void lluphandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->user;
-	MwPoint* p = data;
+	MwWidget   h = (MwWidget)handle->user;
+	MwLLMouse* p = data;
 
-	(void)data;
+	if(p->button == MwLLMouseLeft) h->pressed = 0;
+	h->mouse_point.x = p->point.x;
+	h->mouse_point.y = p->point.y;
 
-	h->pressed	 = 0;
-	h->mouse_point.x = p->x;
-	h->mouse_point.y = p->y;
-
-	MwDispatch(h, click);
-	MwDispatch(h, mouse_up);
+	if(p->button == MwLLMouseLeft) MwDispatch(h, click);
+	MwDispatch3(h, mouse_up, data);
 	MwDispatchUserHandler(h, MwNmouseUpHandler, data);
 }
 
 static void lldownhandler(MwLL handle, void* data) {
-	MwWidget h	 = (MwWidget)handle->user;
-	MwPoint* p	 = data;
-	h->pressed	 = 1;
-	h->mouse_point.x = p->x;
-	h->mouse_point.y = p->y;
+	MwWidget   h = (MwWidget)handle->user;
+	MwLLMouse* p = data;
+	if(p->button == MwLLMouseLeft) h->pressed = 1;
+	h->mouse_point.x = p->point.x;
+	h->mouse_point.y = p->point.y;
 
-	MwDispatch(h, mouse_down);
+	MwDispatch3(h, mouse_down, data);
 	MwDispatchUserHandler(h, MwNmouseDownHandler, data);
 }
 
@@ -383,4 +381,10 @@ void MwGetBeforeStep(MwWidget handle, jmp_buf* jmpbuf) {
 
 void MwForceRender(MwWidget handle) {
 	MwLLForceRender(handle->lowlevel);
+}
+
+void MwForceRender2(MwWidget handle, void* ptr) {
+	(void)ptr;
+
+	MwForceRender(handle);
 }

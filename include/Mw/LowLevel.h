@@ -10,6 +10,7 @@
 #include <Mw/MachDep.h>
 
 typedef struct _MwLLHandler* MwLLHandler;
+typedef struct _MwLLMouse    MwLLMouse;
 #ifdef _MILSKO
 typedef struct _MwLL*	    MwLL;
 typedef struct _MwLLColor*  MwLLColor;
@@ -42,6 +43,17 @@ enum MwLLKey {
 	MwLLKeyRight,
 	MwLLKeyUp,
 	MwLLKeyDown
+};
+
+enum MwLLMouse {
+	MwLLMouseLeft	= 1,
+	MwLLMouseMiddle = 2,
+	MwLLMouseRight	= 3,
+};
+
+struct _MwLLMouse {
+	MwPoint point;
+	int	button;
 };
 
 struct _MwLLHandler {

@@ -38,16 +38,16 @@ static void prop_change(MwWidget handle, const char* key) {
 }
 
 MwClassRec MwCheckBoxClassRec = {
-    create,	   /* create */
-    NULL,	   /* destroy */
-    draw,	   /* draw */
-    click,	   /* click */
-    NULL,	   /* parent_resize */
-    prop_change,   /* prop_change */
-    NULL,	   /* mouse_move */
-    MwForceRender, /* mouse_up */
-    MwForceRender, /* mouse_down */
-    NULL,	   /* key */
+    create,	    /* create */
+    NULL,	    /* destroy */
+    draw,	    /* draw */
+    click,	    /* click */
+    NULL,	    /* parent_resize */
+    prop_change,    /* prop_change */
+    NULL,	    /* mouse_move */
+    MwForceRender2, /* mouse_up */
+    MwForceRender2, /* mouse_down */
+    NULL,	    /* key */
     NULL,
     NULL,
     NULL,
