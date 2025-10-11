@@ -38,4 +38,29 @@ enum MwALIGNMENT {
  */
 #define MwDEFAULT 0x0fffffff
 
+/*!
+ * %brief Icon mask
+ */
+#define MwMB_ICONMASK 0xf
+
+/*!
+ * %brief Warning icon
+ */
+#define MwMB_ICONWARNING 0x1
+
+/*!
+ * %brief Information icon
+ */
+#define MwMB_ICONINFO 0x2
+
+/*!
+ * %brief Note icon
+ */
+#define MwMB_ICONNOTE 0x3
+
+/*!
+ * %brief Question icon
+ */
+#define MwMB_ICONQUESTION 0x4
+
 #endif

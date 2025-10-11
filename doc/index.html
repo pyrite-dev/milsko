@@ -23,6 +23,21 @@
 <dd>
 	<a href="#Mw_Constants_h___define_MwDEFAULT_0x0fffffff">#define MwDEFAULT 0x0fffffff</a>
 </dd>
+<dd>
+	<a href="#Mw_Constants_h___define_MwMB_ICONMASK_0xf">#define MwMB_ICONMASK 0xf</a>
+</dd>
+<dd>
+	<a href="#Mw_Constants_h___define_MwMB_ICONWARNING_0x1">#define MwMB_ICONWARNING 0x1</a>
+</dd>
+<dd>
+	<a href="#Mw_Constants_h___define_MwMB_ICONINFO_0x2">#define MwMB_ICONINFO 0x2</a>
+</dd>
+<dd>
+	<a href="#Mw_Constants_h___define_MwMB_ICONNOTE_0x3">#define MwMB_ICONNOTE 0x3</a>
+</dd>
+<dd>
+	<a href="#Mw_Constants_h___define_MwMB_ICONQUESTION_0x4">#define MwMB_ICONQUESTION 0x4</a>
+</dd>
 <dt>
 	<a href="#Mw_Core_h">Mw/Core.h</a>
 </dt>
@@ -176,6 +191,9 @@
 <dd>
 	<a href="#Mw_Draw_h__MwLoadXPM">MwLoadXPM</a>
 </dd>
+<dd>
+	<a href="#Mw_Draw_h__MwParseColorName">MwParseColorName</a>
+</dd>
 <dt>
 	<a href="#Mw_Error_h">Mw/Error.h</a>
 </dt>
@@ -201,10 +219,28 @@
 	<a href="#Mw_Font_h__MwBoldFontData__">MwBoldFontData[]</a>
 </dd>
 <dt>
+	<a href="#Mw_Icon_h">Mw/Icon.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Icon_h__MwIconInfo__">MwIconInfo[]</a>
+</dd>
+<dd>
+	<a href="#Mw_Icon_h__MwIconNote__">MwIconNote[]</a>
+</dd>
+<dd>
+	<a href="#Mw_Icon_h__MwIconQuestion__">MwIconQuestion[]</a>
+</dd>
+<dd>
+	<a href="#Mw_Icon_h__MwIconWarning__">MwIconWarning[]</a>
+</dd>
+<dt>
 	<a href="#Mw_LowLevel_h">Mw/LowLevel.h</a>
 </dt>
 <dt>
 	<a href="#Mw_MachDep_h">Mw/MachDep.h</a>
+</dt>
+<dt>
+	<a href="#Mw_MessageBox_h">Mw/MessageBox.h</a>
 </dt>
 <dt>
 	<a href="#Mw_Milsko_h">Mw/Milsko.h</a>
@@ -411,6 +447,41 @@
 <dl>
 <dd>
 	Default.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h___define_MwMB_ICONMASK_0xf">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_ICONMASK</FONT> 0xf</pre>
+<dl>
+<dd>
+	Icon mask.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h___define_MwMB_ICONWARNING_0x1">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_ICONWARNING</FONT> 0x1</pre>
+<dl>
+<dd>
+	Warning icon.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h___define_MwMB_ICONINFO_0x2">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_ICONINFO</FONT> 0x2</pre>
+<dl>
+<dd>
+	Information icon.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h___define_MwMB_ICONNOTE_0x3">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_ICONNOTE</FONT> 0x3</pre>
+<dl>
+<dd>
+	Note icon.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h___define_MwMB_ICONQUESTION_0x4">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_ICONQUESTION</FONT> 0x4</pre>
+<dl>
+<dd>
+	Question icon.
 </dd>
 </dl>
 <hr>
@@ -1705,6 +1776,34 @@
 </dd>
 </dl>
 <hr>
+<pre id="Mw_Draw_h__MwParseColorName">MWDECL MwLLColor <B><FONT COLOR="#0000FF">MwParseColorName</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* color
+);</pre>
+<dl>
+<dd>
+	Parses a color name.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>color</code>
+</dt>
+<dd>
+	Color name.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Color.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_Error_h">Mw/Error.h</h2>
 <dl>
 <dt>
@@ -1763,6 +1862,41 @@
 </dd>
 </dl>
 <hr>
+<h2 align="center" id="Mw_Icon_h">Mw/Icon.h</h2>
+<dl>
+<dt>
+	Icon.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Icon_h__MwIconInfo__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconInfo[];</pre>
+<dl>
+<dd>
+	Info icon.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Icon_h__MwIconNote__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconNote[];</pre>
+<dl>
+<dd>
+	Note icon.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Icon_h__MwIconQuestion__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconQuestion[];</pre>
+<dl>
+<dd>
+	Question icon.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Icon_h__MwIconWarning__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconWarning[];</pre>
+<dl>
+<dd>
+	Warning icon.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_LowLevel_h">Mw/LowLevel.h</h2>
 <dl>
 <dt>
@@ -1777,6 +1911,13 @@
 <dl>
 <dt>
 	Machine dependent headers and macros.
+</dt>
+</dl>
+<hr>
+<h2 align="center" id="Mw_MessageBox_h">Mw/MessageBox.h</h2>
+<dl>
+<dt>
+	Message box.
 </dt>
 </dl>
 <hr>
