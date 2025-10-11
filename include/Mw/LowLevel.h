@@ -39,7 +39,9 @@ typedef void* MwLLPixmap;
 enum MwLLKey {
 	MwLLKeyBackSpace = (1 << 31) | 1,
 	MwLLKeyLeft,
-	MwLLKeyRight
+	MwLLKeyRight,
+	MwLLKeyUp,
+	MwLLKeyDown
 };
 
 struct _MwLLHandler {
