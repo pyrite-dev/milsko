@@ -14,6 +14,7 @@ extern "C" {
 #endif
 
 /*!
+ * %brief Creates a message box
  * %param handle Widget
  * %param text Text
  * %param title Title text
@@ -21,6 +22,13 @@ extern "C" {
  * %return Widget
  */
 MWDECL MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsigned int flag);
+
+/*!
+ * %brief Gets a child of the message box
+ * %param handle Widget
+ * %param child Child
+ */
+MWDECL MwWidget MwMessageBoxGetChild(MwWidget handle, int child);
 
 #ifdef __cplusplus
 }

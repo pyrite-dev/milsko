@@ -68,4 +68,44 @@ enum MwALIGNMENT {
  */
 #define MwMB_ICONNEWS 0x5
 
+/*!
+ * %brief Button mask
+ */
+#define MwMB_BUTTONMASK 0xf0
+
+/*!
+ * %brief OK button
+ */
+#define MwMB_BUTTONOK 0x10
+
+/*!
+ * %brief Cancel button
+ */
+#define MwMB_BUTTONCANCEL 0x20
+
+/*!
+ * %brief Yes button
+ */
+#define MwMB_BUTTONYES 0x40
+
+/*!
+ * %brief No button
+ */
+#define MwMB_BUTTONNO 0x80
+
+/*!
+ * %brief Ok and Cancel button
+ */
+#define MwMB_BUTTONOKCANCEL (MwMB_BUTTONCANCEL | MwMB_BUTTONOK)
+
+/*!
+ * %brief Yes and No button
+ */
+#define MwMB_BUTTONYESNO (MwMB_BUTTONYES | MwMB_BUTTONNO)
+
+/*!
+ * %brief Yes, No and Cancel button
+ */
+#define MwMB_BUTTONYESNOCANCEL (MwMB_BUTTONYES | MwMB_BUTTONNO | MwMB_BUTTONCANCEL)
+
 #endif
