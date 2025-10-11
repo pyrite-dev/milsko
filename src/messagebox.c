@@ -1,18 +1,31 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-void msgbox_ok_handler(MwWidget handle, void* user, void* call) {
-	MwWidget win = user;
+#include "external/stb_ds.h"
 
-	MwDestroyWidget(win);
+typedef struct msgbox {
+	int	 key;
+	MwWidget value;
+} msgbox_t;
+
+static void spawn_button(MwWidget handle, int x, int y, int id, const char* text) {
+	msgbox_t* mb	 = handle->opaque;
+	MwWidget  widget = MwVaCreateWidget(MwButtonClass, text, handle, x, y, 80, 24,
+					    MwNtext, text,
+					    NULL);
+
+	hmput(mb, id, widget);
+
+	handle->opaque = mb;
 }
 
 MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsigned int flag) {
-	MwWidget window, ok;
+	MwWidget window;
 	MwPoint	 p;
 	int	 w, h;
 	int	 left = 8;
 	int	 th;
+	int	 x = 0;
 
 	p.x = 0;
 	p.y = 0;
@@ -20,11 +33,14 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	window = MwVaCreateWidget(MwWindowClass, "messagebox", handle, 0, 0, (w = 512), (h = 32 * 4),
 				  MwNtitle, title,
 				  NULL);
-	ok     = MwVaCreateWidget(MwButtonClass, "ok", window, w - 8 - 80, h - 8 - 24, 80, 24,
-				  MwNtext, "OK",
-				  NULL);
 
-	MwAddUserHandler(ok, MwNactivateHandler, msgbox_ok_handler, window);
+	window->opaque = NULL;
+
+	if(flag & MwMB_BUTTONOK) spawn_button(window, w - (x += 8 + 80), h - 8 - 24, MwMB_BUTTONOK, "OK");
+	if(flag & MwMB_BUTTONCANCEL) spawn_button(window, w - (x += 8 + 80), h - 8 - 24, MwMB_BUTTONCANCEL, "Cancel");
+
+	if(flag & MwMB_BUTTONNO) spawn_button(window, w - (x += 8 + 80), h - 8 - 24, MwMB_BUTTONNO, "No");
+	if(flag & MwMB_BUTTONYES) spawn_button(window, w - (x += 8 + 80), h - 8 - 24, MwMB_BUTTONYES, "Yes");
 
 	if((flag & MwMB_ICONMASK) != 0) {
 		MwWidget   icon;
@@ -74,4 +90,10 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
 
 	return window;
+}
+
+MwWidget MwMessageBoxGetChild(MwWidget handle, int child) {
+	msgbox_t* mb = handle->opaque;
+
+	return hmget(mb, child);
 }

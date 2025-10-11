@@ -41,6 +41,30 @@
 <dd>
 	<a href="#Mw_Constants_h___define_MwMB_ICONNEWS_0x5">#define MwMB_ICONNEWS 0x5</a>
 </dd>
+<dd>
+	<a href="#Mw_Constants_h___define_MwMB_BUTTONMASK_0xf0">#define MwMB_BUTTONMASK 0xf0</a>
+</dd>
+<dd>
+	<a href="#Mw_Constants_h___define_MwMB_BUTTONOK_0x10">#define MwMB_BUTTONOK 0x10</a>
+</dd>
+<dd>
+	<a href="#Mw_Constants_h___define_MwMB_BUTTONCANCEL_0x20">#define MwMB_BUTTONCANCEL 0x20</a>
+</dd>
+<dd>
+	<a href="#Mw_Constants_h___define_MwMB_BUTTONYES_0x40">#define MwMB_BUTTONYES 0x40</a>
+</dd>
+<dd>
+	<a href="#Mw_Constants_h___define_MwMB_BUTTONNO_0x80">#define MwMB_BUTTONNO 0x80</a>
+</dd>
+<dd>
+	<a href="#Mw_Constants_h__MwMB_BUTTONOKCANCEL">MwMB_BUTTONOKCANCEL</a>
+</dd>
+<dd>
+	<a href="#Mw_Constants_h__MwMB_BUTTONYESNO">MwMB_BUTTONYESNO</a>
+</dd>
+<dd>
+	<a href="#Mw_Constants_h__MwMB_BUTTONYESNOCANCEL">MwMB_BUTTONYESNOCANCEL</a>
+</dd>
 <dt>
 	<a href="#Mw_Core_h">Mw/Core.h</a>
 </dt>
@@ -248,6 +272,12 @@
 <dt>
 	<a href="#Mw_MessageBox_h">Mw/MessageBox.h</a>
 </dt>
+<dd>
+	<a href="#Mw_MessageBox_h__MwMessageBox">MwMessageBox</a>
+</dd>
+<dd>
+	<a href="#Mw_MessageBox_h__MwMessageBoxGetChild">MwMessageBoxGetChild</a>
+</dd>
 <dt>
 	<a href="#Mw_Milsko_h">Mw/Milsko.h</a>
 </dt>
@@ -495,6 +525,62 @@
 <dl>
 <dd>
 	News icon.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h___define_MwMB_BUTTONMASK_0xf0">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONMASK</FONT> 0xf0</pre>
+<dl>
+<dd>
+	Button mask.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h___define_MwMB_BUTTONOK_0x10">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONOK</FONT> 0x10</pre>
+<dl>
+<dd>
+	OK button.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h___define_MwMB_BUTTONCANCEL_0x20">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONCANCEL</FONT> 0x20</pre>
+<dl>
+<dd>
+	Cancel button.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h___define_MwMB_BUTTONYES_0x40">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONYES</FONT> 0x40</pre>
+<dl>
+<dd>
+	Yes button.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h___define_MwMB_BUTTONNO_0x80">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONNO</FONT> 0x80</pre>
+<dl>
+<dd>
+	No button.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h__MwMB_BUTTONOKCANCEL">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONOKCANCEL</FONT> (MwMB_BUTTONCANCEL | MwMB_BUTTONOK)</pre>
+<dl>
+<dd>
+	Ok and Cancel button.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h__MwMB_BUTTONYESNO">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONYESNO</FONT> (MwMB_BUTTONYES | MwMB_BUTTONNO)</pre>
+<dl>
+<dd>
+	Yes and No button.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Constants_h__MwMB_BUTTONYESNOCANCEL">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONYESNOCANCEL</FONT> (MwMB_BUTTONYES | MwMB_BUTTONNO | MwMB_BUTTONCANCEL)</pre>
+<dl>
+<dd>
+	Yes, No and Cancel button.
 </dd>
 </dl>
 <hr>
@@ -1939,6 +2025,70 @@
 <dt>
 	Message box.
 </dt>
+</dl>
+<hr>
+<pre id="Mw_MessageBox_h__MwMessageBox">MWDECL MwWidget <B><FONT COLOR="#0000FF">MwMessageBox</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text,
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* title,
+	<B><FONT COLOR="#228B22">unsigned</FONT></B> <B><FONT COLOR="#228B22">int</FONT></B> flag
+);</pre>
+<dl>
+<dd>
+	Creates a message box.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>text</code>
+</dt>
+<dd>
+	Text.
+</dd>
+<dt>
+	Parameter <code>title</code>
+</dt>
+<dd>
+	Title text.
+</dd>
+<dt>
+	Parameter <code>flag</code>
+</dt>
+<dd>
+	Flag.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_MessageBox_h__MwMessageBoxGetChild">MWDECL MwWidget <B><FONT COLOR="#0000FF">MwMessageBoxGetChild</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> child
+);</pre>
+<dl>
+<dd>
+	Gets a child of the message box.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>child</code>
+</dt>
+<dd>
+	Child.
+</dd>
 </dl>
 <hr>
 <h2 align="center" id="Mw_Milsko_h">Mw/Milsko.h</h2>
