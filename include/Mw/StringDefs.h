@@ -36,5 +36,6 @@
 #define MwNmouseUpHandler "CmouseUpHandler"
 #define MwNchangedHandler "CchangedHandler"
 #define MwNkeyHandler "CkeyHandler"
+#define MwNkeyReleasedHandler "CkeyReleasedHandler"
 
 #endif

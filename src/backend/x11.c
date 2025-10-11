@@ -200,7 +200,7 @@ void MwLLNextEvent(MwLL handle) {
 			p.y = ev.xmotion.y;
 
 			MwLLDispatch(handle, move, &p);
-		} else if(ev.type == KeyPress) {
+		} else if(ev.type == KeyPress || ev.type == KeyRelease) {
 			int    n = -1;
 			char   str[512];
 			KeySym sym;
@@ -237,7 +237,13 @@ void MwLLNextEvent(MwLL handle) {
 				n = MwLLKeyDown;
 			}
 
-			if(n != -1) MwLLDispatch(handle, key, &n);
+			if(n != -1) {
+				if(ev.type == KeyPress) {
+					MwLLDispatch(handle, key, &n);
+				} else {
+					MwLLDispatch(handle, key_released, &n);
+				}
+			}
 		}
 		if(render) {
 			int	     x, y;

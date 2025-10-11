@@ -74,6 +74,12 @@ static void llkeyhandler(MwLL handle, void* data) {
 	MwDispatchUserHandler(h, MwNkeyHandler, data);
 }
 
+static void llkeyrelhandler(MwLL handle, void* data) {
+	MwWidget h = (MwWidget)handle->user;
+
+	MwDispatchUserHandler(h, MwNkeyReleasedHandler, data);
+}
+
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	MwWidget h = malloc(sizeof(*h));
 
@@ -93,14 +99,15 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->destroy_queue = NULL;
 	h->prop_event	 = 1;
 
-	h->lowlevel->user	     = h;
-	h->lowlevel->handler->draw   = lldrawhandler;
-	h->lowlevel->handler->up     = lluphandler;
-	h->lowlevel->handler->down   = lldownhandler;
-	h->lowlevel->handler->resize = llresizehandler;
-	h->lowlevel->handler->close  = llclosehandler;
-	h->lowlevel->handler->move   = llmovehandler;
-	h->lowlevel->handler->key    = llkeyhandler;
+	h->lowlevel->user		   = h;
+	h->lowlevel->handler->draw	   = lldrawhandler;
+	h->lowlevel->handler->up	   = lluphandler;
+	h->lowlevel->handler->down	   = lldownhandler;
+	h->lowlevel->handler->resize	   = llresizehandler;
+	h->lowlevel->handler->close	   = llclosehandler;
+	h->lowlevel->handler->move	   = llmovehandler;
+	h->lowlevel->handler->key	   = llkeyhandler;
+	h->lowlevel->handler->key_released = llkeyrelhandler;
 
 	if(parent != NULL) arrput(parent->children, h);
 
