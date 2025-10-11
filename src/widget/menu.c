@@ -122,8 +122,11 @@ static void parent_resize(MwWidget handle) {
 	set_xywh(handle);
 }
 
-static void mouse_down(MwWidget handle) {
+static void mouse_down(MwWidget handle, void* ptr) {
 	MENU_LOOP_DECL;
+
+	if(((MwLLMouse*)ptr)->button != MwLLMouseLeft) return;
+
 	BEGIN_MENU_LOOP;
 	if(in_area) {
 		if(m->sub[i]->wsub == NULL && arrlen(m->sub[i]->sub) > 0) {
@@ -151,8 +154,11 @@ static void mouse_down(MwWidget handle) {
 	MwForceRender(handle);
 }
 
-static void mouse_up(MwWidget handle) {
+static void mouse_up(MwWidget handle, void* ptr) {
 	MENU_LOOP_DECL;
+
+	if(((MwLLMouse*)ptr)->button != MwLLMouseLeft) return;
+
 	BEGIN_MENU_LOOP;
 	if(in_area && m->sub[i]->wsub != NULL) {
 		m->sub[i]->keep = 1;

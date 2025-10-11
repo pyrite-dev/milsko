@@ -118,16 +118,16 @@ static void key(MwWidget handle, int code) {
 }
 
 MwClassRec MwEntryClassRec = {
-    create,	   /* create */
-    destroy,	   /* destroy */
-    draw,	   /* draw */
-    NULL,	   /* click */
-    NULL,	   /* parent_resize */
-    NULL,	   /* prop_change */
-    NULL,	   /* mouse_move */
-    MwForceRender, /* mouse_up */
-    MwForceRender, /* mouse_down */
-    key,	   /* key */
+    create,	    /* create */
+    destroy,	    /* destroy */
+    draw,	    /* draw */
+    NULL,	    /* click */
+    NULL,	    /* parent_resize */
+    NULL,	    /* prop_change */
+    NULL,	    /* mouse_move */
+    MwForceRender2, /* mouse_up */
+    MwForceRender2, /* mouse_down */
+    key,	    /* key */
     NULL,
     NULL,
     NULL,

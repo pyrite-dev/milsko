@@ -33,10 +33,10 @@
  * %brief Dispatches the handler of widget class
  * %param x Widget
  * %param y Handler name
- * %param name Property name
+ * %param z Argument
  */
-#define MwDispatch3(x, y, name) \
-	if(x->widget_class != NULL && x->widget_class->y != NULL) x->widget_class->y(x, name)
+#define MwDispatch3(x, y, z) \
+	if(x->widget_class != NULL && x->widget_class->y != NULL) x->widget_class->y(x, z)
 
 #define MwWaitMS 5
 
@@ -223,6 +223,13 @@ MWDECL void MwGetBeforeStep(MwWidget handle, jmp_buf* jmpbuf);
  * %param handle Widget
  */
 MWDECL void MwForceRender(MwWidget handle);
+
+/*!
+ * %brief Forcefully makes widget render
+ * %param handle Widget
+ * %param ptr Ignored
+ */
+MWDECL void MwForceRender2(MwWidget handle, void* ptr);
 
 #ifdef __cplusplus
 }

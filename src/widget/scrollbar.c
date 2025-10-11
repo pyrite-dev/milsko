@@ -156,11 +156,13 @@ static void mouse_move(MwWidget handle) {
 	}
 }
 
-static void mouse_down(MwWidget handle) {
+static void mouse_down(MwWidget handle, void* ptr) {
 	int	     ww	 = MwGetInteger(handle, MwNwidth);
 	int	     wh	 = MwGetInteger(handle, MwNheight);
 	int	     or	 = MwGetInteger(handle, MwNorientation);
 	scrollbar_t* scr = handle->internal;
+
+	if(((MwLLMouse*)ptr)->button != MwLLMouseLeft) return;
 
 	scr->point = handle->mouse_point;
 	scr->drag  = 0;
@@ -186,16 +188,16 @@ static void prop_change(MwWidget handle, const char* key) {
 }
 
 MwClassRec MwScrollBarClassRec = {
-    create,	   /* create */
-    destroy,	   /* destroy */
-    draw,	   /* draw */
-    NULL,	   /* click */
-    NULL,	   /* parent_resize */
-    prop_change,   /* prop_change */
-    mouse_move,	   /* mouse_move */
-    MwForceRender, /* mouse_up */
-    mouse_down,	   /* mouse_down */
-    NULL,	   /* key */
+    create,	    /* create */
+    destroy,	    /* destroy */
+    draw,	    /* draw */
+    NULL,	    /* click */
+    NULL,	    /* parent_resize */
+    prop_change,    /* prop_change */
+    mouse_move,	    /* mouse_move */
+    MwForceRender2, /* mouse_up */
+    mouse_down,	    /* mouse_down */
+    NULL,	    /* key */
     NULL,
     NULL,
     NULL,
