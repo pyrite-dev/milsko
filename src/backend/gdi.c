@@ -43,18 +43,32 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 			MwLLDispatch(u->ll, draw, NULL);
 			EndPaint(hWnd, &ps);
 		}
-	} else if(msg == WM_LBUTTONDOWN) {
-		MwPoint p;
-		p.x = LOWORD(lp);
-		p.y = HIWORD(lp);
+	} else if(msg == WM_LBUTTONDOWN || msg == WM_MBUTTONDOWN || msg == WM_RBUTTONDOWN) {
+		MwLLMouse p;
+		p.point.x = LOWORD(lp);
+		p.point.y = HIWORD(lp);
+		if(msg == WM_LBUTTONDOWN) {
+			p.button = MwLLMouseLeft;
+		} else if(msg == WM_MBUTTONDOWN) {
+			p.button = MwLLMouseMiddle;
+		} else if(msg == WM_RBUTTONDOWN) {
+			p.button = MwLLMouseRight;
+		}
 
 		SetCapture(hWnd);
 		SetFocus(hWnd);
 		MwLLDispatch(u->ll, down, &p);
-	} else if(msg == WM_LBUTTONUP) {
-		MwPoint p;
-		p.x = LOWORD(lp);
-		p.y = HIWORD(lp);
+	} else if(msg == WM_LBUTTONUP || msg == WM_MBUTTONUP || msg == WM_RBUTTONUP) {
+		MwLLMouse p;
+		p.point.x = LOWORD(lp);
+		p.point.y = HIWORD(lp);
+		if(msg == WM_LBUTTONUP) {
+			p.button = MwLLMouseLeft;
+		} else if(msg == WM_MBUTTONUP) {
+			p.button = MwLLMouseMiddle;
+		} else if(msg == WM_RBUTTONUP) {
+			p.button = MwLLMouseRight;
+		}
 
 		SetCapture(NULL);
 		MwLLDispatch(u->ll, up, &p);
