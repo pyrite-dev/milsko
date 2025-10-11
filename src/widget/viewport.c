@@ -11,6 +11,10 @@ typedef struct viewport {
 static void vscroll_changed(MwWidget handle, void* user, void* call) {
 	viewport_t* vp = user;
 	int	    v  = MwGetInteger(handle, MwNvalue);
+	int	    mv = MwGetInteger(handle, MwNmaxValue);
+	int	    l  = MwGetInteger(vp->frame, MwNheight);
+	v	       = (mv - l) * (double)v / mv;
+	if(v < 0) v = 0;
 	MwVaApply(vp->inframe,
 		  MwNy, -v,
 		  NULL);
@@ -19,6 +23,10 @@ static void vscroll_changed(MwWidget handle, void* user, void* call) {
 static void hscroll_changed(MwWidget handle, void* user, void* call) {
 	viewport_t* vp = user;
 	int	    v  = MwGetInteger(handle, MwNvalue);
+	int	    mv = MwGetInteger(handle, MwNmaxValue);
+	int	    l  = MwGetInteger(vp->frame, MwNwidth);
+	v	       = (mv - l) * (double)v / mv;
+	if(v < 0) v = 0;
 	MwVaApply(vp->inframe,
 		  MwNx, -v,
 		  NULL);
@@ -28,6 +36,8 @@ static void resize(MwWidget handle) {
 	viewport_t* vp = handle->internal;
 	int	    w  = MwGetInteger(handle, MwNwidth);
 	int	    h  = MwGetInteger(handle, MwNheight);
+	int	    iw, ix;
+	int	    ih, iy;
 	if(vp->vscroll == NULL) {
 		vp->vscroll = MwVaCreateWidget(MwScrollBarClass, "vscroll", handle, w - 16, 0, 16, h - 16, NULL);
 		MwAddUserHandler(vp->vscroll, MwNchangedHandler, vscroll_changed, vp);
@@ -64,13 +74,27 @@ static void resize(MwWidget handle) {
 		vp->inframe = MwCreateWidget(MwFrameClass, "inframe", vp->frame, 0, 0, w - 16, h - 16);
 	}
 
+	iw = MwGetInteger(vp->inframe, MwNwidth);
+	ih = MwGetInteger(vp->inframe, MwNheight);
+
+	iy = MwGetInteger(vp->vscroll, MwNvalue);
+	if(iy > ih) iy = ih;
 	MwVaApply(vp->vscroll,
 		  MwNareaShown, h - 16,
+		  MwNmaxValue, ih,
+		  MwNvalue, iy,
 		  NULL);
 
+	ix = MwGetInteger(vp->hscroll, MwNvalue);
+	if(ix > iw) ix = iw;
 	MwVaApply(vp->hscroll,
 		  MwNareaShown, w - 16,
+		  MwNmaxValue, iw,
+		  MwNvalue, ix,
 		  NULL);
+
+	vscroll_changed(vp->vscroll, vp, NULL);
+	hscroll_changed(vp->hscroll, vp, NULL);
 }
 
 static int create(MwWidget handle) {
@@ -131,16 +155,10 @@ MwWidget MwViewportGetViewport(MwWidget handle) {
 void MwViewportSetSize(MwWidget handle, int w, int h) {
 	viewport_t* vp = handle->internal;
 
-	MwVaApply(vp->vscroll,
-		  MwNmaxValue, h,
-		  NULL);
-
-	MwVaApply(vp->hscroll,
-		  MwNmaxValue, w,
-		  NULL);
-
 	MwVaApply(vp->inframe,
 		  MwNwidth, w,
 		  MwNheight, h,
 		  NULL);
+
+	resize(handle);
 }
