@@ -69,6 +69,11 @@ enum MwALIGNMENT {
 #define MwMB_ICONNEWS 0x5
 
 /*!
+ * %brief Error icon
+ */
+#define MwMB_ICONERROR 0x6
+
+/*!
  * %brief Button mask
  */
 #define MwMB_BUTTONMASK 0xf0

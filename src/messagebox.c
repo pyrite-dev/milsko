@@ -25,12 +25,14 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	int	 w, h;
 	int	 left = 8;
 	int	 th;
-	int	 x = 0;
+	int	 x  = 0;
+	int	 ww = MwGetInteger(handle, MwNwidth);
+	int	 wh = MwGetInteger(handle, MwNheight);
 
 	p.x = 0;
 	p.y = 0;
 
-	window = MwVaCreateWidget(MwWindowClass, "messagebox", handle, 0, 0, (w = 512), (h = 32 * 4),
+	window = MwVaCreateWidget(MwWindowClass, "messagebox", handle, ww, wh, (w = 512), (h = 32 * 4),
 				  MwNtitle, title,
 				  NULL);
 
@@ -68,6 +70,10 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 		}
 		case MwMB_ICONNEWS: {
 			data = MwIconNews;
+			break;
+		}
+		case MwMB_ICONERROR: {
+			data = MwIconError;
 			break;
 		}
 		}
