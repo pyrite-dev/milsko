@@ -19,6 +19,7 @@ typedef struct _MwFont		      MwFont;
 typedef struct _MwMenu*		      MwMenu;
 typedef struct _MwCursor	      MwCursor;
 typedef struct _MwEntry*	      MwEntry;
+typedef struct _MwSizeHints	      MwSizeHints;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
 #else
@@ -106,6 +107,13 @@ struct _MwEntry {
 	int	cursor;
 	int	right;
 	MwPoint mouse;
+};
+
+struct _MwSizeHints {
+	int min_width;
+	int min_height;
+	int max_width;
+	int max_height;
 };
 
 #define MwCursorDataHeight 16
