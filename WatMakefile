@@ -2,15 +2,13 @@
 WATCOM = /usr/watcom
 CC = wcc386
 CXX = wpp386
-CFLAGS = -q -d_MILSKO -dUSE_GDI -dUSE_STB_IMAGE -dSTBI_NO_SIMD -i=$(WATCOM)/h/nt
-CXXFLAGS =
+CFLAGS = -q -d_MILSKO -dUSE_GDI -dUSE_STB_IMAGE -dSTBI_NO_SIMD -i=$(WATCOM)/h/nt -i=include
+CXXFLAGS = -q -i=include -i=$(WATCOM)/h/nt
 
-OBJS = src/core.obj src/draw.obj src/default.obj src/lowlevel.obj src/error.obj src/unicode.obj src/font.obj src/color.obj src/messagebox.obj src/boldfont.obj src/widget/button.obj src/widget/frame.obj src/widget/opengl.obj src/widget/window.obj src/widget/menu.obj src/widget/entry.obj src/widget/submenu.obj src/widget/image.obj src/widget/scrollbar.obj src/widget/checkbox.obj src/widget/label.obj src/widget/numberentry.obj src/external/ds.obj src/external/image.obj src/cursor/default.obj src/cursor/cross.obj src/cursor/text.obj src/icon/info.obj src/icon/note.obj src/icon/warning.obj src/icon/error.obj src/icon/news.obj src/icon/question.obj src/backend/gdi.obj
+OBJS = src/core.obj src/draw.obj src/default.obj src/lowlevel.obj src/error.obj src/unicode.obj src/font.obj src/color.obj src/messagebox.obj src/boldfont.obj src/widget/button.obj src/widget/frame.obj src/widget/opengl.obj src/widget/window.obj src/widget/menu.obj src/widget/entry.obj src/widget/submenu.obj src/widget/image.obj src/widget/scrollbar.obj src/widget/checkbox.obj src/widget/label.obj src/widget/numberentry.obj src/external/ds.obj src/external/image.obj src/cursor/default.obj src/cursor/cross.obj src/cursor/text.obj src/icon/info.obj src/icon/note.obj src/icon/warning.obj src/icon/error.obj src/icon/news.obj src/icon/question.obj
+OOOBJS = oosrc/base.obj oosrc/widget/button.obj oosrc/widget/frame.obj oosrc/widget/image.obj oosrc/widget/menu.obj oosrc/widget/opengl.obj oosrc/widget/scrollbar.obj oosrc/widget/submenu.obj oosrc/widget/window.obj oosrc/widget/checkbox.obj oosrc/widget/label.obj oosrc/widget/entry.obj oosrc/widget/numberentry.obj
 
-.EXTENSIONS:
-.EXTENSIONS: .obj .c
-
-all: src/Mw.dll
+all: src/Mw.dll oosrc/MwOO.dll
 
 clean: .SYMBOLIC
 	%erase src/core.obj
@@ -47,10 +45,44 @@ clean: .SYMBOLIC
 	%erase src/icon/news.obj
 	%erase src/icon/question.obj
 	%erase src/backend/gdi.obj
+	%erase oosrc/base.obj
+	%erase oosrc/widget/button.obj
+	%erase oosrc/widget/frame.obj
+	%erase oosrc/widget/image.obj
+	%erase oosrc/widget/menu.obj
+	%erase oosrc/widget/opengl.obj
+	%erase oosrc/widget/scrollbar.obj
+	%erase oosrc/widget/submenu.obj
+	%erase oosrc/widget/window.obj
+	%erase oosrc/widget/checkbox.obj
+	%erase oosrc/widget/label.obj
+	%erase oosrc/widget/entry.obj
+	%erase oosrc/widget/numberentry.obj
 	%erase src/Mw.dll
 	%erase src/Mw.lib
+	%erase oosrc/MwOO.dll
+	%erase oosrc/MwOO.lib
 
-
+oosrc/MwOO.dll: $(OOOBJS) src/Mw.dll
+	%write MwOO.lnk system nt_dll initinstance terminstance name oosrc/MwOO.dll
+	%write MwOO.lnk option implib=oosrc/MwOO.lib
+	%write MwOO.lnk library src/Mw.lib
+	%write MwOO.lnk library clib3r.lib
+	%write MwOO.lnk file oosrc/base.obj
+	%write MwOO.lnk file oosrc/widget/button.obj
+	%write MwOO.lnk file oosrc/widget/frame.obj
+	%write MwOO.lnk file oosrc/widget/image.obj
+	%write MwOO.lnk file oosrc/widget/menu.obj
+	%write MwOO.lnk file oosrc/widget/opengl.obj
+	%write MwOO.lnk file oosrc/widget/scrollbar.obj
+	%write MwOO.lnk file oosrc/widget/submenu.obj
+	%write MwOO.lnk file oosrc/widget/window.obj
+	%write MwOO.lnk file oosrc/widget/checkbox.obj
+	%write MwOO.lnk file oosrc/widget/label.obj
+	%write MwOO.lnk file oosrc/widget/entry.obj
+	%write MwOO.lnk file oosrc/widget/numberentry.obj
+	wlink @MwOO.lnk
+	%erase MwOO.lnk
 src/Mw.dll: $(OBJS)
 	%write Mw.lnk system nt_dll initinstance terminstance name src/Mw.dll
 	%write Mw.lnk option implib=src/Mw.lib
@@ -92,70 +124,96 @@ src/Mw.dll: $(OBJS)
 	wlink @Mw.lnk
 	%erase Mw.lnk
 src/core.obj: src/core.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/core.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/core.c
 src/draw.obj: src/draw.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/draw.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/draw.c
 src/default.obj: src/default.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/default.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/default.c
 src/lowlevel.obj: src/lowlevel.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/lowlevel.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/lowlevel.c
 src/error.obj: src/error.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/error.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/error.c
 src/unicode.obj: src/unicode.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/unicode.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/unicode.c
 src/font.obj: src/font.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/font.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/font.c
 src/color.obj: src/color.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/color.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/color.c
 src/messagebox.obj: src/messagebox.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/messagebox.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/messagebox.c
 src/boldfont.obj: src/boldfont.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/boldfont.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/boldfont.c
 src/widget/button.obj: src/widget/button.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/widget/button.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/button.c
 src/widget/frame.obj: src/widget/frame.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/widget/frame.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/frame.c
 src/widget/opengl.obj: src/widget/opengl.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/widget/opengl.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/opengl.c
 src/widget/window.obj: src/widget/window.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/widget/window.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/window.c
 src/widget/menu.obj: src/widget/menu.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/widget/menu.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/menu.c
 src/widget/entry.obj: src/widget/entry.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/widget/entry.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/entry.c
 src/widget/submenu.obj: src/widget/submenu.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/widget/submenu.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/submenu.c
 src/widget/image.obj: src/widget/image.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/widget/image.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/image.c
 src/widget/scrollbar.obj: src/widget/scrollbar.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/widget/scrollbar.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/scrollbar.c
 src/widget/checkbox.obj: src/widget/checkbox.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/widget/checkbox.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/checkbox.c
 src/widget/label.obj: src/widget/label.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/widget/label.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/label.c
 src/widget/numberentry.obj: src/widget/numberentry.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/widget/numberentry.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/numberentry.c
 src/external/ds.obj: src/external/ds.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/external/ds.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/external/ds.c
 src/external/image.obj: src/external/image.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/external/image.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/external/image.c
 src/cursor/default.obj: src/cursor/default.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/cursor/default.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/cursor/default.c
 src/cursor/cross.obj: src/cursor/cross.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/cursor/cross.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/cursor/cross.c
 src/cursor/text.obj: src/cursor/text.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/cursor/text.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/cursor/text.c
 src/icon/info.obj: src/icon/info.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/icon/info.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/icon/info.c
 src/icon/note.obj: src/icon/note.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/icon/note.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/icon/note.c
 src/icon/warning.obj: src/icon/warning.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/icon/warning.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/icon/warning.c
 src/icon/error.obj: src/icon/error.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/icon/error.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/icon/error.c
 src/icon/news.obj: src/icon/news.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/icon/news.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/icon/news.c
 src/icon/question.obj: src/icon/question.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/icon/question.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/icon/question.c
 src/backend/gdi.obj: src/backend/gdi.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ -i=include src/backend/gdi.c
+	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/backend/gdi.c
+oosrc/base.obj: oosrc/base.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/base.cc
+oosrc/widget/button.obj: oosrc/widget/button.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/button.cc
+oosrc/widget/frame.obj: oosrc/widget/frame.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/frame.cc
+oosrc/widget/image.obj: oosrc/widget/image.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/image.cc
+oosrc/widget/menu.obj: oosrc/widget/menu.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/menu.cc
+oosrc/widget/opengl.obj: oosrc/widget/opengl.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/opengl.cc
+oosrc/widget/scrollbar.obj: oosrc/widget/scrollbar.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/scrollbar.cc
+oosrc/widget/submenu.obj: oosrc/widget/submenu.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/submenu.cc
+oosrc/widget/window.obj: oosrc/widget/window.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/window.cc
+oosrc/widget/checkbox.obj: oosrc/widget/checkbox.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/checkbox.cc
+oosrc/widget/label.obj: oosrc/widget/label.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/label.cc
+oosrc/widget/entry.obj: oosrc/widget/entry.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/entry.cc
+oosrc/widget/numberentry.obj: oosrc/widget/numberentry.cc
+	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/numberentry.cc

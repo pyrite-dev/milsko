@@ -37,7 +37,7 @@ typedef void* MwLLPixmap;
 #define MwLLDispatch(x, y, z) \
 	if(x->handler != NULL && x->handler->y != NULL) x->handler->y(x, z)
 
-enum MwLLKey {
+enum MwLLKeyEnum {
 	MwLLKeyBackSpace = (1 << 31) | 1,
 	MwLLKeyLeft,
 	MwLLKeyRight,
@@ -45,10 +45,10 @@ enum MwLLKey {
 	MwLLKeyDown
 };
 
-enum MwLLMouse {
+enum MwLLMouseEnum {
 	MwLLMouseLeft	= 1,
 	MwLLMouseMiddle = 2,
-	MwLLMouseRight	= 3,
+	MwLLMouseRight	= 3
 };
 
 struct _MwLLMouse {

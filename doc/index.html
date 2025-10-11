@@ -42,6 +42,9 @@
 	<a href="#Mw_Constants_h___define_MwMB_ICONNEWS_0x5">#define MwMB_ICONNEWS 0x5</a>
 </dd>
 <dd>
+	<a href="#Mw_Constants_h___define_MwMB_ICONERROR_0x6">#define MwMB_ICONERROR 0x6</a>
+</dd>
+<dd>
 	<a href="#Mw_Constants_h___define_MwMB_BUTTONMASK_0xf0">#define MwMB_BUTTONMASK 0xf0</a>
 </dd>
 <dd>
@@ -142,6 +145,9 @@
 </dd>
 <dd>
 	<a href="#Mw_Core_h__MwForceRender">MwForceRender</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwForceRender2">MwForceRender2</a>
 </dd>
 <dt>
 	<a href="#Mw_Cursor_h">Mw/Cursor.h</a>
@@ -248,6 +254,9 @@
 <dt>
 	<a href="#Mw_Icon_h">Mw/Icon.h</a>
 </dt>
+<dd>
+	<a href="#Mw_Icon_h__MwIconError__">MwIconError[]</a>
+</dd>
 <dd>
 	<a href="#Mw_Icon_h__MwIconInfo__">MwIconInfo[]</a>
 </dd>
@@ -528,6 +537,13 @@
 </dd>
 </dl>
 <hr>
+<pre id="Mw_Constants_h___define_MwMB_ICONERROR_0x6">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_ICONERROR</FONT> 0x6</pre>
+<dl>
+<dd>
+	Error icon.
+</dd>
+</dl>
+<hr>
 <pre id="Mw_Constants_h___define_MwMB_BUTTONMASK_0xf0">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONMASK</FONT> 0xf0</pre>
 <dl>
 <dd>
@@ -641,7 +657,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwDispatch3">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <B><FONT COLOR="#0000FF">MwDispatch3</FONT></B>(x, y, name)</pre>
+<pre id="Mw_Core_h__MwDispatch3">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <B><FONT COLOR="#0000FF">MwDispatch3</FONT></B>(x, y, z)</pre>
 <dl>
 <dd>
 	Dispatches the handler of widget class.
@@ -662,10 +678,10 @@
 	Handler name.
 </dd>
 <dt>
-	Parameter <code>name</code>
+	Parameter <code>z</code>
 </dt>
 <dd>
-	Property name.
+	Argument.
 </dd>
 </dl>
 <hr>
@@ -1323,6 +1339,28 @@
 </dd>
 </dl>
 <hr>
+<pre id="Mw_Core_h__MwForceRender2">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwForceRender2</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">void</FONT></B>* ptr
+);</pre>
+<dl>
+<dd>
+	Forcefully makes widget render.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>ptr</code>
+</dt>
+<dd>
+	Ignored.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_Cursor_h">Mw/Cursor.h</h2>
 <dl>
 <dt>
@@ -1966,6 +2004,13 @@
 <dt>
 	Icon.
 </dt>
+</dl>
+<hr>
+<pre id="Mw_Icon_h__MwIconError__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconError[];</pre>
+<dl>
+<dd>
+	Error icon.
+</dd>
 </dl>
 <hr>
 <pre id="Mw_Icon_h__MwIconInfo__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconInfo[];</pre>
