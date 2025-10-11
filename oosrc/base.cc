@@ -3,13 +3,32 @@
 
 MwOO::Base::Base(MwClass widget_class, const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h){
 	this->widget = MwCreateWidget(widget_class, widget_name, parent == NULL ? NULL : parent->widget, x, y, w, h);
+	this->can_be_gc = 1;
 	if(this->widget != NULL){
 		this->SetHandler();
 	}
 }
 
+MwOO::Base::Base(MwWidget widget, int gc){
+	this->widget = widget;
+	this->can_be_gc = gc;
+	this->SetHandler();
+}
+
 MwOO::Base::~Base(void){
-	MwDestroyWidget(this->widget);
+	if(this->can_be_gc) MwDestroyWidget(this->widget);
+}
+
+MwOO::Base MwOO::Base::MessageBox(const char* title, const char* text, unsigned int flags){
+	MwWidget widget = MwMessageBox(this->widget, title, text, flags);
+
+	return MwOO::Base(widget, 1);
+}
+
+MwOO::Base MwOO::Base::MessageBoxGetChild(int num){
+	MwWidget widget = MwMessageBoxGetChild(this->widget, num);
+
+	return MwOO::Base(widget);
 }
 
 void MwOO::Base::Loop(void){

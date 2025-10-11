@@ -14,18 +14,22 @@ class Base {
 	MwWidget widget;
 
       private:
+	int  can_be_gc;
 	void SetHandler(void);
+	Base(MwWidget widget, int gc = 0);
 
       public:
-	void Loop(void);
-	void SetX(int value);
-	void SetY(int value);
-	void SetWidth(int value);
-	void SetHeight(int value);
-	int  GetX(void);
-	int  GetY(void);
-	int  GetWidth(void);
-	int  GetHeight(void);
+	MwOO::Base MessageBox(const char* title, const char* text, unsigned int flags);
+	MwOO::Base MessageBoxGetChild(int num);
+	void	   Loop(void);
+	void	   SetX(int value);
+	void	   SetY(int value);
+	void	   SetWidth(int value);
+	void	   SetHeight(int value);
+	int	   GetX(void);
+	int	   GetY(void);
+	int	   GetWidth(void);
+	int	   GetHeight(void);
 	/* BEGIN AUTOGENERATE */
 	virtual void OnActivate(void*) {};
 	virtual void OnResize(void*) {};
