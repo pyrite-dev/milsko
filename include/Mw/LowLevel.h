@@ -90,6 +90,10 @@ MWDECL void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask);
 MWDECL void MwLLDetach(MwLL handle, MwPoint* point);
 MWDECL void MwLLShow(MwLL handle, int show);
 
+MWDECL void MwLLMakePopup(MwLL handle, MwLL parent);
+
+MWDECL void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy);
+
 #ifdef __cplusplus
 }
 #endif

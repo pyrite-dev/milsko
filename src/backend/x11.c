@@ -452,3 +452,25 @@ void MwLLShow(MwLL handle, int show) {
 		XUnmapWindow(handle->display, handle->window);
 	}
 }
+
+void MwLLMakePopup(MwLL handle, MwLL parent) {
+	Atom wndtype  = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE", False);
+	Atom wnddlg   = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
+	Atom wndstate = XInternAtom(handle->display, "_NET_WM_STATE", False);
+	Atom wndmodal = XInternAtom(handle->display, "_NET_WM_STATE_MODAL", False);
+
+	XSetTransientForHint(handle->display, handle->window, parent->window);
+	XChangeProperty(handle->display, handle->window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wnddlg, 1);
+	XChangeProperty(handle->display, handle->window, wndstate, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmodal, 1);
+}
+
+void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
+	XSizeHints* hints = XAllocSizeHints();
+	hints->flags	  = PMinSize | PMaxSize;
+	hints->min_width  = minx;
+	hints->min_height = miny;
+	hints->max_width  = maxx;
+	hints->max_height = maxy;
+	XSetWMSizeHints(handle->display, handle->window, hints, XA_WM_NORMAL_HINTS);
+	XFree(hints);
+}

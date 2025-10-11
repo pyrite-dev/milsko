@@ -174,7 +174,7 @@ void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 	xswa.override_redirect = True;
 
 	XChangeWindowAttributes(handle->lowlevel->display, handle->lowlevel->window, CWOverrideRedirect, &xswa);
-	XChangeProperty(handle->lowlevel->display, handle->lowlevel->window, wndtype, 4, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
+	XChangeProperty(handle->lowlevel->display, handle->lowlevel->window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
 #endif
 
 	handle->internal = menu;

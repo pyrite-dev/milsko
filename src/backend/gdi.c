@@ -406,3 +406,12 @@ void MwLLShow(MwLL handle, int show) {
 	ShowWindow(handle->hWnd, show ? SW_NORMAL : SW_HIDE);
 	if(show) SetFocus(handle->hWnd);
 }
+
+void MwLLMakePopup(MwLL handle, MwLL parent) {
+	(void)handle;
+	(void)parent;
+	/* TODO */
+}
+
+void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
+}

@@ -133,6 +133,16 @@ MWDECL MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int 
  */
 MWDECL MwLLPixmap MwLoadXPM(MwWidget handle, char** data);
 
+/* color.c */
+
+/*!
+ * %brief Parses a color name
+ * %param handle Widget
+ * %param color Color name
+ * %return Color
+ */
+MWDECL MwLLColor MwParseColorName(MwWidget handle, const char* color);
+
 #ifdef __cplusplus
 }
 #endif
