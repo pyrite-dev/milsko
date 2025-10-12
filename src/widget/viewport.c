@@ -14,6 +14,7 @@ static void vscroll_changed(MwWidget handle, void* user, void* call) {
 	int	    mv = MwGetInteger(handle, MwNmaxValue);
 	int	    l  = MwGetInteger(vp->frame, MwNheight);
 	v	       = (mv - l) * (double)v / mv;
+	(void)call;
 	if(v < 0) v = 0;
 	MwVaApply(vp->inframe,
 		  MwNy, -v,
@@ -26,6 +27,7 @@ static void hscroll_changed(MwWidget handle, void* user, void* call) {
 	int	    mv = MwGetInteger(handle, MwNmaxValue);
 	int	    l  = MwGetInteger(vp->frame, MwNwidth);
 	v	       = (mv - l) * (double)v / mv;
+	(void)call;
 	if(v < 0) v = 0;
 	MwVaApply(vp->inframe,
 		  MwNx, -v,

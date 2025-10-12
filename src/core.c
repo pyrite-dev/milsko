@@ -238,9 +238,9 @@ void MwLoop(MwWidget handle) {
 }
 
 void MwSetInteger(MwWidget handle, const char* key, int n) {
-	int xy = 0;
+	int xy;
 	int wh = 0;
-	if((xy = (strcmp(key, MwNx) == 0 || strcmp(key, MwNy) == 0)) || (wh = (strcmp(key, MwNwidth) == 0 || strcmp(key, MwNheight) == 0))) {
+	if((xy = ((strcmp(key, MwNx) == 0 || strcmp(key, MwNy) == 0) ? 1 : 0)) || (wh = ((strcmp(key, MwNwidth) == 0 || strcmp(key, MwNheight) == 0)) ? 1 : 0)) {
 		int	     x, y;
 		unsigned int w, h;
 

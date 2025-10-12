@@ -118,6 +118,4 @@ int MwUTF32ToUTF8(int input, char* output) {
 		output[3] = 0x80 | (input & 0x3f);
 		return 4;
 	}
-
-	return 0;
 }
