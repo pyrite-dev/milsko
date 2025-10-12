@@ -150,7 +150,7 @@ sub generate {
 	print(OUT "\n");
 	if($suffix){
 		print(OUT ".c.obj:\n");
-		print(OUT "	\$(CC) \$(CFLAGS) ${out}\$@ \$<");
+		print(OUT "	\$(CC) \$(CFLAGS) ${out}\$@ \$<\n");
 		print(OUT ".cxx.obj:\n");
 		print(OUT "	\$(CXX) \$(CXXFLAGS) ${out}\$@ \$<\n");
 	}else{
