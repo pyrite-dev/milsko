@@ -77,6 +77,7 @@ sub generate {
 		$def = "-D";
 		$inc = "-I";
 		$dll = "-tWD";
+		$lib = "-l";
 
 		$c_dllafter = "implib src${dir}Mw.lib src${dir}Mw.dll";
 		$cxx_dllafter = "implib oosrc${dir}MwOO.lib oosrc${dir}MwOO.dll";
@@ -151,7 +152,7 @@ sub generate {
 	if($suffix){
 		print(OUT ".c.obj:\n");
 		print(OUT "	\$(CC) \$(CFLAGS) ${out}\$@ \$<\n");
-		print(OUT ".cxx.obj:\n");
+		print(OUT ".cc.obj:\n");
 		print(OUT "	\$(CXX) \$(CXXFLAGS) ${out}\$@ \$<\n");
 	}else{
 		print(OUT "\n");
