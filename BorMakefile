@@ -1,0 +1,78 @@
+# $Id$
+CC = bcc32
+CXX = bcc32
+CFLAGS = -D_MILSKO -DUSE_GDI -DUSE_STB_IMAGE -DSTBI_NO_SIMD -Iinclude
+CXXFLAGS = -Iinclude
+
+OBJS = src\boldfont.obj src\color.obj src\core.obj src\default.obj src\draw.obj src\error.obj src\font.obj src\lowlevel.obj src\messagebox.obj src\unicode.obj src\widget\button.obj src\widget\checkbox.obj src\widget\entry.obj src\widget\frame.obj src\widget\image.obj src\widget\label.obj src\widget\menu.obj src\widget\numberentry.obj src\widget\opengl.obj src\widget\scrollbar.obj src\widget\submenu.obj src\widget\viewport.obj src\widget\window.obj src\external\ds.obj src\external\image.obj src\cursor\cross.obj src\cursor\default.obj src\cursor\text.obj src\icon\error.obj src\icon\info.obj src\icon\news.obj src\icon\note.obj src\icon\question.obj src\icon\warning.obj src\backend\gdi.obj
+OOOBJS = oosrc\base.obj oosrc\widget\button.obj oosrc\widget\checkbox.obj oosrc\widget\entry.obj oosrc\widget\frame.obj oosrc\widget\image.obj oosrc\widget\label.obj oosrc\widget\menu.obj oosrc\widget\numberentry.obj oosrc\widget\opengl.obj oosrc\widget\scrollbar.obj oosrc\widget\submenu.obj oosrc\widget\viewport.obj oosrc\widget\window.obj
+
+all: src\Mw.dll oosrc\MwOO.dll
+
+.SUFFIXES: .c .cc .obj
+
+clean:
+	del /q /f src\boldfont.obj
+	del /q /f src\color.obj
+	del /q /f src\core.obj
+	del /q /f src\default.obj
+	del /q /f src\draw.obj
+	del /q /f src\error.obj
+	del /q /f src\font.obj
+	del /q /f src\lowlevel.obj
+	del /q /f src\messagebox.obj
+	del /q /f src\unicode.obj
+	del /q /f src\widget\button.obj
+	del /q /f src\widget\checkbox.obj
+	del /q /f src\widget\entry.obj
+	del /q /f src\widget\frame.obj
+	del /q /f src\widget\image.obj
+	del /q /f src\widget\label.obj
+	del /q /f src\widget\menu.obj
+	del /q /f src\widget\numberentry.obj
+	del /q /f src\widget\opengl.obj
+	del /q /f src\widget\scrollbar.obj
+	del /q /f src\widget\submenu.obj
+	del /q /f src\widget\viewport.obj
+	del /q /f src\widget\window.obj
+	del /q /f src\external\ds.obj
+	del /q /f src\external\image.obj
+	del /q /f src\cursor\cross.obj
+	del /q /f src\cursor\default.obj
+	del /q /f src\cursor\text.obj
+	del /q /f src\icon\error.obj
+	del /q /f src\icon\info.obj
+	del /q /f src\icon\news.obj
+	del /q /f src\icon\note.obj
+	del /q /f src\icon\question.obj
+	del /q /f src\icon\warning.obj
+	del /q /f src\backend\gdi.obj
+	del /q /f oosrc\base.obj
+	del /q /f oosrc\widget\button.obj
+	del /q /f oosrc\widget\checkbox.obj
+	del /q /f oosrc\widget\entry.obj
+	del /q /f oosrc\widget\frame.obj
+	del /q /f oosrc\widget\image.obj
+	del /q /f oosrc\widget\label.obj
+	del /q /f oosrc\widget\menu.obj
+	del /q /f oosrc\widget\numberentry.obj
+	del /q /f oosrc\widget\opengl.obj
+	del /q /f oosrc\widget\scrollbar.obj
+	del /q /f oosrc\widget\submenu.obj
+	del /q /f oosrc\widget\viewport.obj
+	del /q /f oosrc\widget\window.obj
+	del /q /f src\Mw.dll
+	del /q /f src\Mw.lib
+	del /q /f oosrc\MwOO.dll
+	del /q /f oosrc\MwOO.lib
+
+oosrc\MwOO.dll: $(OOOBJS) src\Mw.dll
+	$(CC) -tWD -eoosrc\MwOO.dll $(OOOBJS) src\Mw.lib
+	implib oosrc\MwOO.lib oosrc\MwOO.dll
+src\Mw.dll: $(OBJS)
+	$(CC) -tWD -esrc\Mw.dll $(OBJS)
+	implib src\Mw.lib src\Mw.dll
+.c.obj:
+ $(CC) $(CFLAGS) -c -o$@ $< 
+.cc.obj:
+ $(CXX) -P $(CXXFLAGS) -c -o$@ $< 
