@@ -1,15 +1,12 @@
 # $Id$
-WATCOM = /usr/watcom
-CC = wcc386
-CXX = wpp386
-CFLAGS = -q -d_MILSKO -dUSE_GDI -dUSE_STB_IMAGE -dSTBI_NO_SIMD -i=$(WATCOM)/h/nt -i=include
-CXXFLAGS = -q -i=include -i=$(WATCOM)/h/nt
+CC = wcc386 -bt=nt -q
+CXX = wpp386 -bt=nt -q
+LD = wlink
 
-OBJS = src/core.obj src/draw.obj src/default.obj src/lowlevel.obj src/error.obj src/unicode.obj src/font.obj src/color.obj src/messagebox.obj src/boldfont.obj src/widget/button.obj src/widget/frame.obj src/widget/opengl.obj src/widget/window.obj src/widget/menu.obj src/widget/entry.obj src/widget/submenu.obj src/widget/image.obj src/widget/scrollbar.obj src/widget/checkbox.obj src/widget/label.obj src/widget/numberentry.obj src/widget/viewport.obj src/external/ds.obj src/external/image.obj src/cursor/default.obj src/cursor/cross.obj src/cursor/text.obj src/icon/info.obj src/icon/note.obj src/icon/warning.obj src/icon/error.obj src/icon/news.obj src/icon/question.obj src/backend/gdi.obj
-OOOBJS = oosrc/base.obj oosrc/widget/button.obj oosrc/widget/frame.obj oosrc/widget/image.obj oosrc/widget/menu.obj oosrc/widget/opengl.obj oosrc/widget/scrollbar.obj oosrc/widget/submenu.obj oosrc/widget/window.obj oosrc/widget/checkbox.obj oosrc/widget/viewport.obj oosrc/widget/label.obj oosrc/widget/entry.obj oosrc/widget/numberentry.obj
-
+CFLAGS = -i=include -d_MILSKO -dUSE_GDI -dUSE_STB_IMAGE -dSTBI_NO_SIMD
+CXXFLAGS = -i=include
+LDFLAGS = system nt_dll
 all: src/Mw.dll oosrc/MwOO.dll
-
 clean: .SYMBOLIC
 	%erase src/core.obj
 	%erase src/draw.obj
@@ -21,6 +18,17 @@ clean: .SYMBOLIC
 	%erase src/color.obj
 	%erase src/messagebox.obj
 	%erase src/boldfont.obj
+	%erase src/external/ds.obj
+	%erase src/external/image.obj
+	%erase src/icon/info.obj
+	%erase src/icon/note.obj
+	%erase src/icon/warning.obj
+	%erase src/icon/error.obj
+	%erase src/icon/news.obj
+	%erase src/icon/question.obj
+	%erase src/cursor/default.obj
+	%erase src/cursor/cross.obj
+	%erase src/cursor/text.obj
 	%erase src/widget/button.obj
 	%erase src/widget/frame.obj
 	%erase src/widget/opengl.obj
@@ -34,17 +42,6 @@ clean: .SYMBOLIC
 	%erase src/widget/label.obj
 	%erase src/widget/numberentry.obj
 	%erase src/widget/viewport.obj
-	%erase src/external/ds.obj
-	%erase src/external/image.obj
-	%erase src/cursor/default.obj
-	%erase src/cursor/cross.obj
-	%erase src/cursor/text.obj
-	%erase src/icon/info.obj
-	%erase src/icon/note.obj
-	%erase src/icon/warning.obj
-	%erase src/icon/error.obj
-	%erase src/icon/news.obj
-	%erase src/icon/question.obj
 	%erase src/backend/gdi.obj
 	%erase oosrc/base.obj
 	%erase oosrc/widget/button.obj
@@ -61,167 +58,110 @@ clean: .SYMBOLIC
 	%erase oosrc/widget/entry.obj
 	%erase oosrc/widget/numberentry.obj
 	%erase src/Mw.dll
-	%erase src/Mw.lib
 	%erase oosrc/MwOO.dll
-	%erase oosrc/MwOO.lib
 
-oosrc/MwOO.dll: $(OOOBJS) src/Mw.dll
-	%write MwOO.lnk system nt_dll initinstance terminstance name oosrc/MwOO.dll
-	%write MwOO.lnk option implib=oosrc/MwOO.lib
-	%write MwOO.lnk library src/Mw.lib
-	%write MwOO.lnk library clib3r.lib
-	%write MwOO.lnk file oosrc/base.obj
-	%write MwOO.lnk file oosrc/widget/button.obj
-	%write MwOO.lnk file oosrc/widget/frame.obj
-	%write MwOO.lnk file oosrc/widget/image.obj
-	%write MwOO.lnk file oosrc/widget/menu.obj
-	%write MwOO.lnk file oosrc/widget/opengl.obj
-	%write MwOO.lnk file oosrc/widget/scrollbar.obj
-	%write MwOO.lnk file oosrc/widget/submenu.obj
-	%write MwOO.lnk file oosrc/widget/window.obj
-	%write MwOO.lnk file oosrc/widget/checkbox.obj
-	%write MwOO.lnk file oosrc/widget/viewport.obj
-	%write MwOO.lnk file oosrc/widget/label.obj
-	%write MwOO.lnk file oosrc/widget/entry.obj
-	%write MwOO.lnk file oosrc/widget/numberentry.obj
-	wlink @MwOO.lnk
-	%erase MwOO.lnk
-src/Mw.dll: $(OBJS)
-	%write Mw.lnk system nt_dll initinstance terminstance name src/Mw.dll
-	%write Mw.lnk option implib=src/Mw.lib
-	%write Mw.lnk library clib3r.lib
-	%write Mw.lnk file src/core.obj
-	%write Mw.lnk file src/draw.obj
-	%write Mw.lnk file src/default.obj
-	%write Mw.lnk file src/lowlevel.obj
-	%write Mw.lnk file src/error.obj
-	%write Mw.lnk file src/unicode.obj
-	%write Mw.lnk file src/font.obj
-	%write Mw.lnk file src/color.obj
-	%write Mw.lnk file src/messagebox.obj
-	%write Mw.lnk file src/boldfont.obj
-	%write Mw.lnk file src/widget/button.obj
-	%write Mw.lnk file src/widget/frame.obj
-	%write Mw.lnk file src/widget/opengl.obj
-	%write Mw.lnk file src/widget/window.obj
-	%write Mw.lnk file src/widget/menu.obj
-	%write Mw.lnk file src/widget/entry.obj
-	%write Mw.lnk file src/widget/submenu.obj
-	%write Mw.lnk file src/widget/image.obj
-	%write Mw.lnk file src/widget/scrollbar.obj
-	%write Mw.lnk file src/widget/checkbox.obj
-	%write Mw.lnk file src/widget/label.obj
-	%write Mw.lnk file src/widget/numberentry.obj
-	%write Mw.lnk file src/widget/viewport.obj
-	%write Mw.lnk file src/external/ds.obj
-	%write Mw.lnk file src/external/image.obj
-	%write Mw.lnk file src/cursor/default.obj
-	%write Mw.lnk file src/cursor/cross.obj
-	%write Mw.lnk file src/cursor/text.obj
-	%write Mw.lnk file src/icon/info.obj
-	%write Mw.lnk file src/icon/note.obj
-	%write Mw.lnk file src/icon/warning.obj
-	%write Mw.lnk file src/icon/error.obj
-	%write Mw.lnk file src/icon/news.obj
-	%write Mw.lnk file src/icon/question.obj
-	%write Mw.lnk file src/backend/gdi.obj
-	wlink @Mw.lnk
-	%erase Mw.lnk
+src/Mw.dll:  src/core.obj src/draw.obj src/default.obj src/lowlevel.obj src/error.obj src/unicode.obj src/font.obj src/color.obj src/messagebox.obj src/boldfont.obj src/external/ds.obj src/external/image.obj src/icon/info.obj src/icon/note.obj src/icon/warning.obj src/icon/error.obj src/icon/news.obj src/icon/question.obj src/cursor/default.obj src/cursor/cross.obj src/cursor/text.obj src/widget/button.obj src/widget/frame.obj src/widget/opengl.obj src/widget/window.obj src/widget/menu.obj src/widget/entry.obj src/widget/submenu.obj src/widget/image.obj src/widget/scrollbar.obj src/widget/checkbox.obj src/widget/label.obj src/widget/numberentry.obj src/widget/viewport.obj src/backend/gdi.obj
+	$(LD) $(LDFLAGS) option implib=src/Mw.lib name $@  file src/core.obj file src/draw.obj file src/default.obj file src/lowlevel.obj file src/error.obj file src/unicode.obj file src/font.obj file src/color.obj file src/messagebox.obj file src/boldfont.obj file src/external/ds.obj file src/external/image.obj file src/icon/info.obj file src/icon/note.obj file src/icon/warning.obj file src/icon/error.obj file src/icon/news.obj file src/icon/question.obj file src/cursor/default.obj file src/cursor/cross.obj file src/cursor/text.obj file src/widget/button.obj file src/widget/frame.obj file src/widget/opengl.obj file src/widget/window.obj file src/widget/menu.obj file src/widget/entry.obj file src/widget/submenu.obj file src/widget/image.obj file src/widget/scrollbar.obj file src/widget/checkbox.obj file src/widget/label.obj file src/widget/numberentry.obj file src/widget/viewport.obj file src/backend/gdi.obj library clib3r.lib library gdi32.lib library user32.lib
+
+oosrc/MwOO.dll:  oosrc/base.obj oosrc/widget/button.obj oosrc/widget/frame.obj oosrc/widget/image.obj oosrc/widget/menu.obj oosrc/widget/opengl.obj oosrc/widget/scrollbar.obj oosrc/widget/submenu.obj oosrc/widget/window.obj oosrc/widget/checkbox.obj oosrc/widget/viewport.obj oosrc/widget/label.obj oosrc/widget/entry.obj oosrc/widget/numberentry.obj
+	$(LD) $(LDFLAGS) option implib=oosrc/MwOO.lib name $@  file oosrc/base.obj file oosrc/widget/button.obj file oosrc/widget/frame.obj file oosrc/widget/image.obj file oosrc/widget/menu.obj file oosrc/widget/opengl.obj file oosrc/widget/scrollbar.obj file oosrc/widget/submenu.obj file oosrc/widget/window.obj file oosrc/widget/checkbox.obj file oosrc/widget/viewport.obj file oosrc/widget/label.obj file oosrc/widget/entry.obj file oosrc/widget/numberentry.obj library clib3r.lib library src/Mw.lib
+
+
 src/core.obj: src/core.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/core.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/draw.obj: src/draw.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/draw.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/default.obj: src/default.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/default.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/lowlevel.obj: src/lowlevel.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/lowlevel.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/error.obj: src/error.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/error.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/unicode.obj: src/unicode.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/unicode.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/font.obj: src/font.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/font.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/color.obj: src/color.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/color.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/messagebox.obj: src/messagebox.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/messagebox.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/boldfont.obj: src/boldfont.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/boldfont.c
-src/widget/button.obj: src/widget/button.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/button.c
-src/widget/frame.obj: src/widget/frame.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/frame.c
-src/widget/opengl.obj: src/widget/opengl.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/opengl.c
-src/widget/window.obj: src/widget/window.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/window.c
-src/widget/menu.obj: src/widget/menu.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/menu.c
-src/widget/entry.obj: src/widget/entry.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/entry.c
-src/widget/submenu.obj: src/widget/submenu.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/submenu.c
-src/widget/image.obj: src/widget/image.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/image.c
-src/widget/scrollbar.obj: src/widget/scrollbar.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/scrollbar.c
-src/widget/checkbox.obj: src/widget/checkbox.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/checkbox.c
-src/widget/label.obj: src/widget/label.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/label.c
-src/widget/numberentry.obj: src/widget/numberentry.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/numberentry.c
-src/widget/viewport.obj: src/widget/viewport.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/widget/viewport.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/external/ds.obj: src/external/ds.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/external/ds.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/external/image.obj: src/external/image.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/external/image.c
-src/cursor/default.obj: src/cursor/default.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/cursor/default.c
-src/cursor/cross.obj: src/cursor/cross.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/cursor/cross.c
-src/cursor/text.obj: src/cursor/text.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/cursor/text.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/icon/info.obj: src/icon/info.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/icon/info.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/icon/note.obj: src/icon/note.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/icon/note.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/icon/warning.obj: src/icon/warning.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/icon/warning.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/icon/error.obj: src/icon/error.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/icon/error.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/icon/news.obj: src/icon/news.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/icon/news.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/icon/question.obj: src/icon/question.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/icon/question.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/cursor/default.obj: src/cursor/default.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/cursor/cross.obj: src/cursor/cross.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/cursor/text.obj: src/cursor/text.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/button.obj: src/widget/button.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/frame.obj: src/widget/frame.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/opengl.obj: src/widget/opengl.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/window.obj: src/widget/window.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/menu.obj: src/widget/menu.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/entry.obj: src/widget/entry.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/submenu.obj: src/widget/submenu.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/image.obj: src/widget/image.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/scrollbar.obj: src/widget/scrollbar.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/checkbox.obj: src/widget/checkbox.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/label.obj: src/widget/label.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/numberentry.obj: src/widget/numberentry.c
+	$(CC) $(CFLAGS) -fo=$@ $<
+src/widget/viewport.obj: src/widget/viewport.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 src/backend/gdi.obj: src/backend/gdi.c
-	$(CC) $(CFLAGS) -bt=nt -fo=$@ src/backend/gdi.c
+	$(CC) $(CFLAGS) -fo=$@ $<
 oosrc/base.obj: oosrc/base.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/base.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/button.obj: oosrc/widget/button.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/button.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/frame.obj: oosrc/widget/frame.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/frame.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/image.obj: oosrc/widget/image.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/image.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/menu.obj: oosrc/widget/menu.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/menu.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/opengl.obj: oosrc/widget/opengl.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/opengl.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/scrollbar.obj: oosrc/widget/scrollbar.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/scrollbar.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/submenu.obj: oosrc/widget/submenu.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/submenu.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/window.obj: oosrc/widget/window.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/window.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/checkbox.obj: oosrc/widget/checkbox.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/checkbox.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/viewport.obj: oosrc/widget/viewport.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/viewport.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/label.obj: oosrc/widget/label.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/label.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/entry.obj: oosrc/widget/entry.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/entry.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
 oosrc/widget/numberentry.obj: oosrc/widget/numberentry.cc
-	$(CXX) $(CXXFLAGS) -bt=nt -fo=$@ oosrc/widget/numberentry.cc
+	$(CXX) $(CXXFLAGS) -fo=$@ $<
