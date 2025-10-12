@@ -6,7 +6,7 @@ LD = bcc32
 CFLAGS = -Iinclude -D_MILSKO -DUSE_GDI -DUSE_STB_IMAGE -DSTBI_NO_SIMD
 CXXFLAGS = -Iinclude
 LDFLAGS = -tWD
-.SUFFIXES: .c .cc .obj
+.SUFFIXES: .obj .c .cc
 all: src\Mw.dll oosrc\MwOO.dll
 clean: 
 	del /f /q src\core.obj

@@ -104,7 +104,7 @@ sub generate {
         $dll    = "system nt_dll";
         $lib    = "library ";
 
-        $suffix   = 0;                  # is watcom make broken with suffix rule
+        $suffix   = 0;                  # watcom suffix rule works kinda strange
         $symbolic = ".SYMBOLIC";
         $dir      = "/";
         $del      = "%erase";
@@ -128,7 +128,7 @@ sub generate {
     print(OUT "\n");
 
     if ($suffix) {
-        print(OUT ".SUFFIXES: .c .cc .obj\n");
+        print(OUT ".SUFFIXES: .obj .c .cc\n");
     }
     print(OUT "all: src${dir}Mw.dll oosrc${dir}MwOO.dll\n");
     print(OUT "clean: $symbolic\n");
