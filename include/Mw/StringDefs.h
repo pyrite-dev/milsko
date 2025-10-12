@@ -18,6 +18,7 @@
 #define MwNchecked "Ichecked"
 #define MwNalignment "Ialignment"
 #define MwNbold "Ibold"
+#define MwNmain "Imain"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
@@ -36,6 +37,7 @@
 #define MwNmouseUpHandler "CmouseUpHandler"
 #define MwNchangedHandler "CchangedHandler"
 #define MwNkeyHandler "CkeyHandler"
-#define MwNkeyReleasedHandler "CkeyReleasedHandler"
+#define MwNkeyReleaseHandler "CkeyReleaseHandler"
+#define MwNcloseHandler "CcloseHandler"
 
 #endif
