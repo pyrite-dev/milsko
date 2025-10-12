@@ -49,10 +49,18 @@ static void llresizehandler(MwLL handle, void* data) {
 
 static void llclosehandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->user;
+	int	 n;
 
 	(void)data;
 
-	h->close = 1;
+	if((n = MwGetInteger(h, MwNmain)) != -1 && n) {
+		while(h != NULL) {
+			h->close = 1;
+			MwDispatchUserHandler(h, MwNcloseHandler, NULL);
+			h = h->parent;
+		}
+	}
+	MwDestroyWidget(handle->user);
 }
 
 static void llmovehandler(MwLL handle, void* data) {
@@ -75,7 +83,7 @@ static void llkeyhandler(MwLL handle, void* data) {
 static void llkeyrelhandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->user;
 
-	MwDispatchUserHandler(h, MwNkeyReleasedHandler, data);
+	MwDispatchUserHandler(h, MwNkeyReleaseHandler, data);
 }
 
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {

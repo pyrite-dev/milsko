@@ -83,7 +83,9 @@ void MwLLDestroy(MwLL handle) {
 
 	destroy_pixmap(handle);
 	XFreeGC(handle->display, handle->gc);
+	XUnmapWindow(handle->display, handle->window);
 	XDestroyWindow(handle->display, handle->window);
+	XFlush(handle->display);
 	free(handle);
 }
 
