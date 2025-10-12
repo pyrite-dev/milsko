@@ -17,6 +17,10 @@
 #define SetClassLongPtr SetClassLong
 #define GetClassLongPtr GetClassLong
 #endif
+#ifndef WM_MOUSEWHEEL
+#define WM_MOUSEWHEEL 0x020a
+#define GET_WHEEL_DELTA_WPARAM(x) ((short)HIWORD(x))
+#endif
 
 struct _MwLL {
 	HINSTANCE hInstance;
