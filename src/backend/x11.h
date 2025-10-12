@@ -44,6 +44,7 @@ struct _MwLLPixmap {
 	unsigned char* data;
 
 	int		use_shm;
+	int		use_render;
 	XShmSegmentInfo shm;
 	Display*	display;
 	XImage*		image;

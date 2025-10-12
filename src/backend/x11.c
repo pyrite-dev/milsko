@@ -297,11 +297,8 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->use_shm = XShmQueryExtension(handle->display) ? 1 : 0;
 	r->data	   = malloc(width * height * 4);
 
-	if(!XRenderQueryExtension(handle->display, &evbase, &erbase)) {
-		fprintf(stderr, "XRender missing - cannot proceed pixmap creation\n");
-		r->image = NULL;
-		return r;
-	}
+	r->use_render = XRenderQueryExtension(handle->display, &evbase, &erbase) ? 1 : 0;
+	r->use_render = 0;
 
 	if(r->use_shm) {
 		r->image = XShmCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 24, ZPixmap, NULL, &r->shm, width, height);
@@ -358,7 +355,7 @@ void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 }
 
 void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	if(pixmap->image != NULL) {
+	if(pixmap->image != NULL && pixmap->use_render) {
 		Pixmap			 px	= XCreatePixmap(handle->display, handle->window, pixmap->width, pixmap->height, 24);
 		XRenderPictFormat*	 format = XRenderFindStandardFormat(handle->display, PictStandardRGB24);
 		XRenderPictureAttributes attr;
@@ -397,6 +394,62 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 		XRenderFreePicture(handle->display, dest);
 
 		XFreePixmap(handle->display, px);
+	} else if(pixmap->image != NULL) {
+		int		use_shm = XShmQueryExtension(handle->display) ? 1 : 0;
+		XImage*		dest;
+		XShmSegmentInfo shm;
+		char*		d = malloc(rect->width * rect->height * 4);
+		int		y, x;
+
+		/* FIXME */
+		use_shm = 0;
+
+		for(y = 0; y < (int)rect->height; y++) {
+			for(x = 0; x < (int)rect->width; x++) {
+				double sy = (double)y / rect->height * pixmap->height;
+				double sx = (double)x / rect->width * pixmap->width;
+				char*  ipx;
+				char*  opx;
+				sy = (int)sy;
+				sx = (int)sx;
+
+				ipx = &pixmap->image->data[(int)(pixmap->width * sy + sx) * 4];
+				opx = &d[(rect->width * y + x) * 4];
+				memcpy(opx, ipx, 4);
+			}
+		}
+
+		if(use_shm) {
+			dest	  = XShmCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 24, ZPixmap, NULL, &shm, rect->width, rect->height);
+			shm.shmid = shmget(IPC_PRIVATE, dest->bytes_per_line * rect->height, IPC_CREAT | 0777);
+			if(shm.shmid == -1) {
+				XDestroyImage(dest);
+				use_shm = 0;
+			} else {
+				free(d);
+				shm.shmaddr = d = dest->data = shmat(shm.shmid, 0, 0);
+				shm.readOnly		     = False;
+				XShmAttach(handle->display, &shm);
+			}
+		}
+		if(!use_shm) {
+			dest = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 24, ZPixmap, 0, d, rect->width, rect->height, 32, rect->width * 4);
+		}
+
+		if(use_shm) {
+			XShmPutImage(handle->display, handle->pixmap, handle->gc, dest, 0, 0, rect->x, rect->y, rect->width, rect->height, False);
+		} else {
+			XPutImage(handle->display, handle->pixmap, handle->gc, dest, 0, 0, rect->x, rect->y, rect->width, rect->height);
+		}
+
+		if(use_shm) {
+			XShmDetach(handle->display, &shm);
+		}
+		XDestroyImage(dest);
+		if(use_shm) {
+			shmdt(shm.shmaddr);
+			shmctl(shm.shmid, IPC_RMID, 0);
+		}
 	}
 }
 
