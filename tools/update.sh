@@ -7,6 +7,5 @@ fi
 ./tools/doc.pl
 ./tools/icon.sh
 ./tools/genoo.pl
-./tools/genmsvc.pl
-./tools/genwat.pl
+./tools/genmk.pl
 $MAKE format
