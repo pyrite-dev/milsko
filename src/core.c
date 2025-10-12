@@ -59,6 +59,8 @@ static void llclosehandler(MwLL handle, void* data) {
 			MwDispatchUserHandler(h, MwNcloseHandler, NULL);
 			h = h->parent;
 		}
+	}else{
+		h->close = 1;
 	}
 }
 
