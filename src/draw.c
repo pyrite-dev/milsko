@@ -36,9 +36,9 @@ static int hex(const char* txt, int len) {
 }
 
 MwLLColor MwParseColor(MwWidget handle, const char* text) {
-	int r = 0;
-	int g = 0;
-	int b = 0;
+	int r;
+	int g;
+	int b;
 
 	if(text[0] == '#' && strlen(text) == 4) {
 		r = hex(text + 1, 1);
