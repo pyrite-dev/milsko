@@ -38,7 +38,8 @@ class Base {
 	virtual void OnMouseUpHandler(void*) {};
 	virtual void OnChangedHandler(void*) {};
 	virtual void OnKeyHandler(void*) {};
-	virtual void OnKeyReleasedHandler(void*) {};
+	virtual void OnKeyReleaseHandler(void*) {};
+	virtual void OnCloseHandler(void*) {};
 
 	/* END AUTOGENERATE */
 
