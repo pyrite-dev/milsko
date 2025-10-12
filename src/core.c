@@ -86,10 +86,12 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 
 	h->parent   = parent;
 	h->children = NULL;
-	if((h->lowlevel = MwLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height)) == NULL) {
-		free(h->name);
-		free(h);
-		return NULL;
+	if(widget_class != NULL) {
+		if((h->lowlevel = MwLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height)) == NULL) {
+			free(h->name);
+			free(h);
+			return NULL;
+		}
 	}
 	h->widget_class	 = widget_class;
 	h->pressed	 = 0;
@@ -97,15 +99,17 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->destroy_queue = NULL;
 	h->prop_event	 = 1;
 
-	h->lowlevel->user		   = h;
-	h->lowlevel->handler->draw	   = lldrawhandler;
-	h->lowlevel->handler->up	   = lluphandler;
-	h->lowlevel->handler->down	   = lldownhandler;
-	h->lowlevel->handler->resize	   = llresizehandler;
-	h->lowlevel->handler->close	   = llclosehandler;
-	h->lowlevel->handler->move	   = llmovehandler;
-	h->lowlevel->handler->key	   = llkeyhandler;
-	h->lowlevel->handler->key_released = llkeyrelhandler;
+	if(h->lowlevel != NULL) {
+		h->lowlevel->user		   = h;
+		h->lowlevel->handler->draw	   = lldrawhandler;
+		h->lowlevel->handler->up	   = lluphandler;
+		h->lowlevel->handler->down	   = lldownhandler;
+		h->lowlevel->handler->resize	   = llresizehandler;
+		h->lowlevel->handler->close	   = llclosehandler;
+		h->lowlevel->handler->move	   = llmovehandler;
+		h->lowlevel->handler->key	   = llkeyhandler;
+		h->lowlevel->handler->key_released = llkeyrelhandler;
+	}
 
 	if(parent != NULL) arrput(parent->children, h);
 
@@ -188,7 +192,7 @@ void MwStep(MwWidget handle) {
 	for(i = 0; i < arrlen(handle->children); i++) MwStep(handle->children[i]);
 
 	handle->prop_event = 0;
-	MwLLNextEvent(handle->lowlevel);
+	if(handle->lowlevel != NULL) MwLLNextEvent(handle->lowlevel);
 	handle->prop_event = 1;
 
 	for(i = 0; i < arrlen(handle->destroy_queue); i++) {
