@@ -102,7 +102,7 @@ static void key(MwWidget handle, int code) {
 		t->cursor++;
 	} else {
 		int incr = 0;
-		out	 = malloc(strlen(str) + 1 + 1);
+		out	 = malloc(strlen(str) + 5 + 1);
 		incr += MwUTF8Copy(str, 0, out, 0, t->cursor);
 		MwUTF32ToUTF8(code, out + incr);
 		MwUTF8Copy(str, t->cursor, out, t->cursor + 1, MwUTF8Length(str) - t->cursor);
