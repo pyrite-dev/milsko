@@ -71,5 +71,5 @@ oosrc\MwOO.dll:  oosrc\base.obj oosrc\widget\button.obj oosrc\widget\frame.obj o
 
 .c.obj:
 	$(CC) $(CFLAGS) /Fo$@ $<
-.cxx.obj:
+.cc.obj:
 	$(CXX) $(CXXFLAGS) /Fo$@ $<
