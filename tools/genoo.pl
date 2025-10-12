@@ -268,6 +268,7 @@ while (my $l = <IN>) {
               . $c[1]
               . "(MwWidget widget, void* user, void* call){\n";
             $base_c = $base_c . "	MwOO::Base* c = (MwOO::Base*)user;\n";
+            $base_c = $base_c . "	(void)widget;";
             $base_c = $base_c . "	c->" . $c[1] . "(call);\n";
             $base_c = $base_c . "}\n";
         }

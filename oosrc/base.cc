@@ -70,43 +70,43 @@ int MwOO::Base::GetHeight(void){
 /* BEGIN AUTOGENERATE */
 static void __OnActivate(MwWidget widget, void* user, void* call){
 	MwOO::Base* c = (MwOO::Base*)user;
-	c->OnActivate(call);
+	(void)widget;	c->OnActivate(call);
 }
 static void __OnResize(MwWidget widget, void* user, void* call){
 	MwOO::Base* c = (MwOO::Base*)user;
-	c->OnResize(call);
+	(void)widget;	c->OnResize(call);
 }
 static void __OnTick(MwWidget widget, void* user, void* call){
 	MwOO::Base* c = (MwOO::Base*)user;
-	c->OnTick(call);
+	(void)widget;	c->OnTick(call);
 }
 static void __OnMenu(MwWidget widget, void* user, void* call){
 	MwOO::Base* c = (MwOO::Base*)user;
-	c->OnMenu(call);
+	(void)widget;	c->OnMenu(call);
 }
 static void __OnMouseDownHandler(MwWidget widget, void* user, void* call){
 	MwOO::Base* c = (MwOO::Base*)user;
-	c->OnMouseDownHandler(call);
+	(void)widget;	c->OnMouseDownHandler(call);
 }
 static void __OnMouseUpHandler(MwWidget widget, void* user, void* call){
 	MwOO::Base* c = (MwOO::Base*)user;
-	c->OnMouseUpHandler(call);
+	(void)widget;	c->OnMouseUpHandler(call);
 }
 static void __OnChangedHandler(MwWidget widget, void* user, void* call){
 	MwOO::Base* c = (MwOO::Base*)user;
-	c->OnChangedHandler(call);
+	(void)widget;	c->OnChangedHandler(call);
 }
 static void __OnKeyHandler(MwWidget widget, void* user, void* call){
 	MwOO::Base* c = (MwOO::Base*)user;
-	c->OnKeyHandler(call);
+	(void)widget;	c->OnKeyHandler(call);
 }
 static void __OnKeyReleaseHandler(MwWidget widget, void* user, void* call){
 	MwOO::Base* c = (MwOO::Base*)user;
-	c->OnKeyReleaseHandler(call);
+	(void)widget;	c->OnKeyReleaseHandler(call);
 }
 static void __OnCloseHandler(MwWidget widget, void* user, void* call){
 	MwOO::Base* c = (MwOO::Base*)user;
-	c->OnCloseHandler(call);
+	(void)widget;	c->OnCloseHandler(call);
 }
 
 void MwOO::Base::SetHandler(void){
