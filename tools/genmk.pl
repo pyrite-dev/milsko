@@ -96,7 +96,7 @@ sub generate {
     elsif ($type eq "Watcom") {
         $cc     = "wcc386 -bt=nt -q";
         $cxx    = "wpp386 -bt=nt -q";
-        $link   = "wlink";
+        $link   = "wlink option quiet";
         $out    = "-fo=";
         $dllout = "name ";
         $def    = "-d";
@@ -150,7 +150,7 @@ sub generate {
     print(OUT "src${dir}Mw.dll: " . cobjs($dir) . "\n");
     print(  OUT "	\$(LD) \$(LDFLAGS) $c_dllout $dllout\$@ "
           . cobjs($dir, $prefobj)
-          . " $needlibs ${lib}gdi32.lib ${lib}user32.lib\n");
+          . " $needlibs ${lib}opengl32.lib ${lib}gdi32.lib ${lib}user32.lib\n");
     print(OUT "	$c_dllafter\n");
     print(OUT "\n");
     print(OUT "oosrc${dir}MwOO.dll: " . cxxobjs($dir) . "\n");
