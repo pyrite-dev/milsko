@@ -60,7 +60,6 @@ static void llclosehandler(MwLL handle, void* data) {
 			h = h->parent;
 		}
 	}
-	MwDestroyWidget(handle->user);
 }
 
 static void llmovehandler(MwLL handle, void* data) {
