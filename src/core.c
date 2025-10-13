@@ -349,11 +349,24 @@ void MwVaListApply(MwWidget handle, va_list va) {
 	}
 }
 
+static void inherit_text(MwWidget handle, const char* key, const char* default_value) {
+	const char* text;
+	MwWidget    h = handle;
+	while(h != NULL) {
+		if((text = MwGetText(h, key)) != NULL) {
+			MwSetText(handle, key, text);
+			return;
+		}
+		h = h->parent;
+	}
+	MwSetText(handle, key, default_value);
+}
+
 void MwSetDefault(MwWidget handle) {
 	MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
 
-	MwSetText(handle, MwNbackground, MwDefaultBackground);
-	MwSetText(handle, MwNforeground, MwDefaultForeground);
+	inherit_text(handle, MwNbackground, MwDefaultBackground);
+	inherit_text(handle, MwNforeground, MwDefaultForeground);
 }
 
 void MwDispatchUserHandler(MwWidget handle, const char* key, void* handler_data) {
