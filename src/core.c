@@ -102,6 +102,8 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 			free(h);
 			return NULL;
 		}
+	} else {
+		h->lowlevel = NULL;
 	}
 	h->widget_class	 = widget_class;
 	h->pressed	 = 0;
