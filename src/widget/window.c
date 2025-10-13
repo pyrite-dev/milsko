@@ -42,3 +42,7 @@ MwClass MwWindowClass = &MwWindowClassRec;
 void MwWindowSetIcon(MwWidget handle, MwLLPixmap pixmap) {
 	MwLLSetIcon(handle->lowlevel, pixmap);
 }
+
+void MwWindowMakeBorderless(MwWidget handle, int toggle) {
+	MwLLMakeBorderless(handle->lowlevel, toggle);
+}

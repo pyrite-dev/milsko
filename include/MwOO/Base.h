@@ -36,6 +36,7 @@ class Base {
 	virtual void OnMenu(void*) {};
 	virtual void OnMouseDownHandler(void*) {};
 	virtual void OnMouseUpHandler(void*) {};
+	virtual void OnMouseMoveHandler(void*) {};
 	virtual void OnChangedHandler(void*) {};
 	virtual void OnKeyHandler(void*) {};
 	virtual void OnKeyReleaseHandler(void*) {};
