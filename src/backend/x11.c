@@ -298,7 +298,6 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->data	   = malloc(width * height * 4);
 
 	r->use_render = XRenderQueryExtension(handle->display, &evbase, &erbase) ? 1 : 0;
-	r->use_render = 0;
 
 	if(r->use_shm) {
 		r->image = XShmCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 24, ZPixmap, NULL, &r->shm, width, height);
