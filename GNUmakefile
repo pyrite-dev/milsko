@@ -140,7 +140,7 @@ EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC) 
 ifeq ($(OPENGL),1)
 L_OBJS += src/widget/opengl.o
 OOL_OBJS += oosrc/widget/opengl.o
-EXAMPLES += examples/glclock$(EXEC) examples/gltriangle$(EXEC) examples/glgears$(EXEC) examples/glboing$(EXEC) examples/glcube$(EXEC)
+EXAMPLES += examples/glclock$(EXEC) examples/gltriangle$(EXEC) examples/glgears$(EXEC) examples/glboing$(EXEC) examples/glcube$(EXEC) examples/gltripaint$(EXEC)
 endif
 
 ifeq ($(VULKAN),1)

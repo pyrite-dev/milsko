@@ -1,8 +1,6 @@
 #include <Mw/Milsko.h>
 #include <Mw/Widget/OpenGL.h>
 
-#include <GL/gl.h>
-
 MwWidget opengl;
 
 static void draw(void);

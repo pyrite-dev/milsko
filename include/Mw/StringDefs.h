@@ -35,6 +35,7 @@
 #define MwNmenuHandler "Cmenu"
 #define MwNmouseDownHandler "CmouseDownHandler"
 #define MwNmouseUpHandler "CmouseUpHandler"
+#define MwNmouseMoveHandler "CmouseMoveHandler"
 #define MwNchangedHandler "CchangedHandler"
 #define MwNkeyHandler "CkeyHandler"
 #define MwNkeyReleaseHandler "CkeyReleaseHandler"
