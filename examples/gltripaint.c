@@ -14,10 +14,10 @@ typedef struct triangle {
 } triangle_t;
 
 /* who needs more? :) */
-triangle_t t[128];
-int	   ct	 = 0;
-int	   click = 0;
-int	   mx, my;
+triangle_t* t	  = NULL;
+int	    ct	  = 0;
+int	    click = 0;
+int	    mx, my;
 
 static void tick(MwWidget handle, void* user, void* call) {
 	int i;
@@ -66,8 +66,15 @@ static void mouse(MwWidget handle, void* user, void* call) {
 			t[ct].points[2 * 2 + 0] = mx;
 			t[ct].points[2 * 2 + 1] = my;
 		} else if(click == 3) {
+			triangle_t* old = t;
+			int	    i;
+
 			click = 0;
 			ct++;
+
+			t = malloc(sizeof(*t) * (ct + 1));
+			for(i = 0; i < ct; i++) t[i] = old[i];
+			free(old);
 		}
 	} else if(mouse->button == MwLLMouseRight) {
 		if(click > 0) {
@@ -100,6 +107,8 @@ int main() {
 			 NULL);
 
 	MwViewportSetSize(viewport, 1024, 768);
+
+	t = malloc(sizeof(*t));
 
 	opengl = MwCreateWidget(MwOpenGLClass, "opengl", MwViewportGetViewport(viewport), 0, 0, 1024, 768);
 
