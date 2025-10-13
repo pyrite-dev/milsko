@@ -230,11 +230,14 @@ int MwPending(MwWidget handle) {
 }
 
 void MwLoop(MwWidget handle) {
+	long tick = MwLLGetTick();
 	while(!handle->close) {
-		MwStep(handle);
+		while(MwPending(handle)) MwStep(handle);
 
 		MwDispatchUserHandler(handle, MwNtickHandler, NULL);
-		MwLLSleep(MwWaitMS);
+		tick = MwWaitMS - (MwLLGetTick() - tick);
+		if(tick > 0) MwLLSleep(tick);
+		tick = MwLLGetTick();
 	}
 }
 

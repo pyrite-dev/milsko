@@ -38,7 +38,7 @@
 #define MwDispatch3(x, y, z) \
 	if(x->widget_class != NULL && x->widget_class->y != NULL) x->widget_class->y(x, z)
 
-#define MwWaitMS 5
+#define MwWaitMS 10
 
 #ifdef __cplusplus
 extern "C" {
