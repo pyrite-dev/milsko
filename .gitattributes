@@ -1,5 +1,5 @@
-/src/external/stb_ds.h linguist-generated
-/src/external/stb_image.h linguist-generated
+/external/stb_ds.h linguist-generated
+/external/stb_image.h linguist-generated
 /external/libjpeg/include/*.h linguist-generated
 /external/libjpeg/src/*.c linguist-generated
 /external/libjpeg/src/*.h linguist-generated

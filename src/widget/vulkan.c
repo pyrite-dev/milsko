@@ -31,7 +31,7 @@
 
 #include <stdbool.h>
 
-#include "../external/stb_ds.h"
+#include "../../external/stb_ds.h"
 
 MwVulkanConfig vulkan_config = {
     .api_version       = VK_API_VERSION_1_0,
