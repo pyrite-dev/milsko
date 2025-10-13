@@ -13,7 +13,6 @@ typedef struct triangle {
 	double b;
 } triangle_t;
 
-/* who needs more? :) */
 triangle_t* t	  = NULL;
 int	    ct	  = 0;
 int	    click = 0;
