@@ -13,6 +13,8 @@ LIBS =
 
 ifeq ($(DEBUG),1)
 CFLAGS += -g
+else
+CFLAGS += -O2
 endif
 
 ifeq ($(VULKAN_NO_STRING_HELPER),1)
