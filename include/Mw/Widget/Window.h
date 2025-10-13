@@ -19,6 +19,13 @@ extern "C" {
  */
 MWDECL MwClass MwWindowClass;
 
+/*!
+ * %brief Makes window borderless
+ * %param handle Widget
+ * %param toggle Toggle
+ */
+MWDECL void MwWindowMakeBorderless(MwWidget handle, int toggle);
+
 #ifdef __cplusplus
 }
 #endif

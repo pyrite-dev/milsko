@@ -110,6 +110,7 @@ MWDECL void MwLLShow(MwLL handle, int show);
 MWDECL void MwLLMakePopup(MwLL handle, MwLL parent);
 
 MWDECL void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy);
+MWDECL void MwLLMakeBorderless(MwLL handle, int toggle);
 
 #ifdef __cplusplus
 }

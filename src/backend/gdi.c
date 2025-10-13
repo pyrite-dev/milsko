@@ -488,3 +488,17 @@ void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
 	u->max.x		= maxx;
 	u->max.y		= maxy;
 }
+
+void MwLLMakeBorderless(MwLL handle, int toggle) {
+	LPARAM lp = GetWindowLongPtr(handle->hWnd, GWL_STYLE);
+
+	if(toggle) {
+		lp &= ~WS_CAPTION;
+	} else {
+		lp |= WS_CAPTION;
+	}
+
+	SetWindowLongPtr(handle->hWnd, GWL_STYLE, lp);
+
+	SetWindowPos(handle->hWnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
+}

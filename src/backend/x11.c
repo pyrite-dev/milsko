@@ -1,6 +1,25 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
+typedef struct mwm_hints {
+	unsigned long flags;
+	unsigned long functions;
+	unsigned long decorations;
+	long	      input_mode;
+	unsigned long status;
+} mwm_hints_t;
+enum mwm_hints_enum {
+	MWM_HINTS_FUNCTIONS   = (1L << 0),
+	MWM_HINTS_DECORATIONS = (1L << 1),
+
+	MWM_FUNC_ALL	  = (1L << 0),
+	MWM_FUNC_RESIZE	  = (1L << 1),
+	MWM_FUNC_MOVE	  = (1L << 2),
+	MWM_FUNC_MINIMIZE = (1L << 3),
+	MWM_FUNC_MAXIMIZE = (1L << 4),
+	MWM_FUNC_CLOSE	  = (1L << 5)
+};
+
 static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | KeymapNotify;
 
 static void create_pixmap(MwLL handle) {
@@ -180,9 +199,9 @@ void MwLLNextEvent(MwLL handle) {
 				p.button = MwLLMouseWheelDown;
 			}
 
-			MwLLDispatch(handle, down, &p);
-
 			XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
+
+			MwLLDispatch(handle, down, &p);
 		} else if(ev.type == ButtonRelease) {
 			MwLLMouse p;
 			p.point.x = ev.xbutton.x;
@@ -561,4 +580,26 @@ void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
 	hints->max_height = maxy;
 	XSetWMSizeHints(handle->display, handle->window, hints, XA_WM_NORMAL_HINTS);
 	XFree(hints);
+}
+
+void MwLLMakeBorderless(MwLL handle, int toggle) {
+	Atom	     atom = XInternAtom(handle->display, "_MOTIF_WM_HINTS", 0);
+	mwm_hints_t  hints;
+	int	     x = 0, y = 0;
+	Window	     child, root, parent;
+	Window*	     children;
+	unsigned int nchild;
+
+	XQueryTree(handle->display, handle->window, &root, &parent, &children, &nchild);
+	if(children != NULL) XFree(children);
+
+	XTranslateCoordinates(handle->display, parent, RootWindow(handle->display, DefaultScreen(handle->display)), 0, 0, &x, &y, &child);
+
+	hints.flags	  = MWM_HINTS_DECORATIONS;
+	hints.decorations = toggle ? 0 : 1;
+	XChangeProperty(handle->display, handle->window, atom, atom, 32, PropModeReplace, (unsigned char*)&hints, 5);
+
+	XUnmapWindow(handle->display, handle->window);
+	XMapWindow(handle->display, handle->window);
+	XMoveWindow(handle->display, handle->window, x, y);
 }
