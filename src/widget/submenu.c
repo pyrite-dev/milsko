@@ -1,7 +1,7 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-#include "../external/stb_ds.h"
+#include "../../external/stb_ds.h"
 
 static int create(MwWidget handle) {
 	MwLLShow(handle->lowlevel, 0);

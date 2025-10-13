@@ -2,14 +2,14 @@
 #include <Mw/Milsko.h>
 
 #ifdef USE_STB_IMAGE
-#include "external/stb_image.h"
+#include "../external/stb_image.h"
 #else
 #include <png.h>
 #include <jpeglib.h>
 #include <jerror.h>
 #endif
 
-#include "external/stb_ds.h"
+#include "../external/stb_ds.h"
 
 #define FontWidth 7
 #define FontHeight 14
