@@ -603,3 +603,15 @@ void MwLLMakeBorderless(MwLL handle, int toggle) {
 	XMapWindow(handle->display, handle->window);
 	XMoveWindow(handle->display, handle->window, x, y);
 }
+
+long MwLLGetTick(void) {
+	struct timespec ts;
+	long		n = 0;
+
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+
+	n += ts.tv_nsec / 1000 / 1000;
+	n += ts.tv_sec * 1000;
+
+	return n;
+}

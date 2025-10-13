@@ -502,3 +502,7 @@ void MwLLMakeBorderless(MwLL handle, int toggle) {
 
 	SetWindowPos(handle->hWnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
 }
+
+long MwLLGetTick(void) {
+	return GetTickCount();
+}
