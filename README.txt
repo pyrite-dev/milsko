@@ -22,7 +22,7 @@ the Unix-like environment with X11 for runtime.
 
                                     Contents
 
-            At the top level of this hierarchy there are directories:
+            At the top level of this hierarchy there are seven directories:
 
             src -      Contains the source for Milsko library
 
@@ -41,5 +41,64 @@ the Unix-like environment with X11 for runtime.
 
                                 Building Milsko
 
+  Building Milsko depends on the platform you use, and the compiler you use. 
+
+A. Visual C++
+-------------
+
+1) Run `nmake -f NTMakefile'. 
+
+B. Borland C++
+--------------
+
+1) Run `make -f BorMakefile'. 
+
+C. Open Watcom
+--------------
+
+1) Run `wmake -f WatMakefile'. 
+
+D. MinGW-w64/GCC/Clang
+----------------------
+
+1) Determine if you need Vulkan and/or OpenGL. 
+
+2) Run `make'. 
+
+
+                               Makefile settings
+
+          This section exists for people who chose D.
+
+          TARGET        - Target environment, chosen by Makefile in
+                          default settings.
+
+          GCC           - Prefix for GCC toolchains. This does not
+                          matter if you set CC/CXX manually.
+
+          CC            - C compiler.
+
+          CXX           - C++ compiler.
+
+          DEBUG         - Debug build or not, 0 in default settings.
+
+          VULKAN        - Build Vulkan widget or not.
+
+          OPENGL        - Build OpenGL widget or not.
+
+          USE_STB_IMAGE - Use stb_image or not.
+
+
+                                Makefile targets
+
+          This section exists for people who chose D.
+
+          lib      - Builds Milsko library
+
+          oolib    - Builds OO binding
+
+          examples - Builds examples
+
+          all      - Builds lib and examples
 
  -- Nishi  (nishi@nishi.boats) 

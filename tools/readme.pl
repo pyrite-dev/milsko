@@ -31,6 +31,14 @@ sub c {
 	print(OUT (" " x (($WIDTH - $len) / 2)) . "$msg\n");
 }
 
+sub h {
+	my ($msg) = @_;
+	print(OUT "\n");
+	print(OUT "$msg\n");
+	print(OUT ("-" x length($msg)) . "\n");
+	print(OUT "\n");
+}
+
 open(OUT, ">", "README.txt");
 
 l("");
@@ -77,7 +85,55 @@ l("");
 l("");
 c("Building Milsko");
 l("");
-l("TODO: Write here");
+l("  Building Milsko depends on the platform you use, and the compiler you use.");
+h("A. Visual C++");
+l("1) Run `nmake -f NTMakefile'.");
+h("B. Borland C++");
+l("1) Run `make -f BorMakefile'.");
+h("C. Open Watcom");
+l("1) Run `wmake -f WatMakefile'.");
+h("D. MinGW-w64/GCC/Clang");
+l("1) Determine if you need Vulkan and/or OpenGL.");
+l("");
+l("2) Run `make'.");
+l("");
+
+l("");
+c("Makefile settings");
+l("");
+c("This section exists for people who chose D.", 60);
+l("");
+c("TARGET        - Target environment, chosen by Makefile in", 60);
+c("                default settings.", 60);
+l("");
+c("GCC           - Prefix for GCC toolchains. This does not", 60);
+c("                matter if you set CC/CXX manually.", 60);
+l("");
+c("CC            - C compiler.", 60);
+l("");
+c("CXX           - C++ compiler.", 60);
+l("");
+c("DEBUG         - Debug build or not, 0 in default settings.", 60);
+l("");
+c("VULKAN        - Build Vulkan widget or not.", 60);
+l("");
+c("OPENGL        - Build OpenGL widget or not.", 60);
+l("");
+c("USE_STB_IMAGE - Use stb_image or not.", 60);
+l("");
+
+l("");
+c("Makefile targets");
+l("");
+c("This section exists for people who chose D.", 60);
+l("");
+c("lib      - Builds Milsko library", 60);
+l("");
+c("oolib    - Builds OO binding", 60);
+l("");
+c("examples - Builds examples", 60);
+l("");
+c("all      - Builds lib and examples", 60);
 
 l("");
 l(" -- Nishi  (nishi\@nishi.boats)");

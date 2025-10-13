@@ -4,6 +4,8 @@ ifeq ($(TARGET),)
 TARGET = $(shell uname -s)
 endif
 
+USE_STB_IMAGE = 1
+
 CC = $(GCC)gcc
 CXX = $(GCC)g++
 
@@ -131,10 +133,10 @@ EXEC =
 SHARED = -dynamiclib
 endif
 
-ifeq ($(NO_STB_IMAGE),1)
-include external/deps.mk
-else
+ifeq ($(USE_STB_IMAGE),1)
 L_CFLAGS += -DUSE_STB_IMAGE
+else
+include external/deps.mk
 endif
 
 EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC) examples/scrollbar$(EXEC) examples/checkbox$(EXEC) examples/messagebox$(EXEC) examples/viewport$(EXEC)
