@@ -2,8 +2,6 @@
 #include <Mw/Milsko.h>
 #include <Mw/Widget/OpenGL.h>
 
-#include <GL/gl.h>
-
 MwWidget window, opengl, button;
 int	 ow, oh;
 double	 deg = 0;

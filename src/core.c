@@ -71,6 +71,7 @@ static void llmovehandler(MwLL handle, void* data) {
 	h->mouse_point.y = p->y;
 
 	MwDispatch(h, mouse_move);
+	MwDispatchUserHandler(h, MwNmouseMoveHandler, data);
 }
 
 static void llkeyhandler(MwLL handle, void* data) {
