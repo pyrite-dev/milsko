@@ -403,7 +403,7 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 			MwLLFreeColor(c);
 
 			XPutPixel(r->image, x, y, p);
-			*(unsigned long*)(&r->data[(y * width + x) * sizeof(unsigned long)]) = p;
+			*(unsigned long*)(&r->data[(y * width + x) * sizeof(unsigned long)]) = (px[3] << 24) | p;
 		}
 	}
 
