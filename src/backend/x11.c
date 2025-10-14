@@ -367,7 +367,6 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->use_shm = XShmQueryExtension(handle->display) ? 1 : 0;
 	r->data	   = malloc(sizeof(unsigned long) * width * height);
 
-	r->use_render = 0;
 	XRenderQueryExtension(handle->display, &evbase, &erbase) ? 1 : 0;
 
 	/* FIXME */
