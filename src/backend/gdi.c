@@ -239,6 +239,16 @@ void MwLLPolygon(MwLL handle, MwPoint* points, int points_count, MwLLColor color
 	free(p);
 }
 
+void MwLLLine(MwLL handle, MwPoint* points, MwLLColor color) {
+	HPEN pen = CreatePen(PS_SOLID, 1, RGB(color->red, color->green, color->blue));
+
+	SelectObject(handle->hDC, pen);
+	MoveToEx(handle->hDC, points[0].x, points[0].y, NULL);
+	LineTo(handle->hDC, points[1].x, points[1].y);
+
+	DeleteObject(pen);
+}
+
 MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b) {
 	MwLLColor c  = malloc(sizeof(*c));
 	HDC	  dc = GetDC(handle->hWnd);
