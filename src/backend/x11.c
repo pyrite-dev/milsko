@@ -572,7 +572,17 @@ void MwLLMakePopup(MwLL handle, MwLL parent) {
 }
 
 void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
-	XSizeHints* hints = XAllocSizeHints();
+	XSizeHints*  hints = XAllocSizeHints();
+	int	     x = 0, y = 0;
+	Window	     child, root, parent;
+	Window*	     children;
+	unsigned int nchild;
+
+	XQueryTree(handle->display, handle->window, &root, &parent, &children, &nchild);
+	if(children != NULL) XFree(children);
+
+	XTranslateCoordinates(handle->display, parent, RootWindow(handle->display, DefaultScreen(handle->display)), 0, 0, &x, &y, &child);
+
 	hints->flags	  = PMinSize | PMaxSize;
 	hints->min_width  = minx;
 	hints->min_height = miny;
@@ -580,6 +590,10 @@ void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
 	hints->max_height = maxy;
 	XSetWMSizeHints(handle->display, handle->window, hints, XA_WM_NORMAL_HINTS);
 	XFree(hints);
+
+	XUnmapWindow(handle->display, handle->window);
+	XMapWindow(handle->display, handle->window);
+	XMoveWindow(handle->display, handle->window, x, y);
 }
 
 void MwLLMakeBorderless(MwLL handle, int toggle) {
