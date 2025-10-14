@@ -101,6 +101,10 @@ int main() {
 						NULL);
 	MwWidget    viewport = MwCreateWidget(MwViewportClass, "viewport", window, 5, 5, 630, 470 - 16 - 5);
 
+	hints.min_width = hints.max_width = 640;
+	hints.min_height = hints.max_height = 480;
+	MwVaApply(window, MwNsizeHints, &hints, NULL);
+
 	MwVaCreateWidget(MwLabelClass, "label", window, 5, 470 - 16 + 5, 630, 16,
 			 MwNtext, "Press left click to draw triangle, right click to undo",
 			 NULL);
@@ -110,10 +114,6 @@ int main() {
 	t = malloc(sizeof(*t));
 
 	opengl = MwCreateWidget(MwOpenGLClass, "opengl", MwViewportGetViewport(viewport), 0, 0, 1024, 768);
-
-	hints.min_width = hints.max_width = 640;
-	hints.min_height = hints.max_height = 480;
-	MwVaApply(window, MwNsizeHints, &hints, NULL);
 
 	MwAddUserHandler(window, MwNtickHandler, tick, NULL);
 	MwAddUserHandler(opengl, MwNmouseDownHandler, mouse, NULL);

@@ -4,39 +4,39 @@
 our $WIDTH = 80;
 
 sub l {
-	my $len = 0;
-	my $last = 0;
-	my @msg = split(/ /, $_[0]);
-	foreach my $m (@msg){
-		$len += 1 + length($m);
-		$last = 0;
-		if($len > $WIDTH){
-			print(OUT "\n");
-			$len = 0;
-			$last = 1;
-		}
-		print(OUT "$m ");
-	}
-	if(!$last){
-		print(OUT "\n");
-	}
+    my $len  = 0;
+    my $last = 0;
+    my @msg  = split(/ /, $_[0]);
+    foreach my $m (@msg) {
+        $len += 1 + length($m);
+        $last = 0;
+        if ($len > $WIDTH) {
+            print(OUT "\n");
+            $len  = 0;
+            $last = 1;
+        }
+        print(OUT "$m ");
+    }
+    if (!$last) {
+        print(OUT "\n");
+    }
 }
 
 sub c {
-	my ($msg) = @_;
-	my $len = length($msg);
-	if($_[1]){
-		$len = $_[1];
-	}
-	print(OUT (" " x (($WIDTH - $len) / 2)) . "$msg\n");
+    my ($msg) = @_;
+    my $len = length($msg);
+    if ($_[1]) {
+        $len = $_[1];
+    }
+    print(OUT (" " x (($WIDTH - $len) / 2)) . "$msg\n");
 }
 
 sub h {
-	my ($msg) = @_;
-	print(OUT "\n");
-	print(OUT "$msg\n");
-	print(OUT ("-" x length($msg)) . "\n");
-	print(OUT "\n");
+    my ($msg) = @_;
+    print(OUT "\n");
+    print(OUT "$msg\n");
+    print(OUT ("-" x length($msg)) . "\n");
+    print(OUT "\n");
 }
 
 open(OUT, ">", "README.txt");
@@ -44,12 +44,16 @@ open(OUT, ">", "README.txt");
 l("");
 l("Greetings - Welcome to the Milsko GUI Toolkit (Version 1.0)");
 l("");
-l("  This document contains a brief summary of the contents of this source distributions and building instructions for Milsko GUI Toolkit.");
+l(
+"  This document contains a brief summary of the contents of this source distributions and building instructions for Milsko GUI Toolkit."
+);
 
 l("");
 c("Requirements");
 l("");
-l("  Milsko requires the Windows environment with GDI (so anything NT or 9x) or the Unix-like environment with X11 for runtime.");
+l(
+"  Milsko requires the Windows environment with GDI (so anything NT or 9x) or the Unix-like environment with X11 for runtime."
+);
 l("");
 l("  To build Milsko for Windows, you must have one of following compilers:");
 l("  * Visual C++ 6.0 or newer");
@@ -85,7 +89,8 @@ l("");
 l("");
 c("Building Milsko");
 l("");
-l("  Building Milsko depends on the platform you use, and the compiler you use.");
+l("  Building Milsko depends on the platform you use, and the compiler you use."
+);
 h("A. Visual C++");
 l("1) Run `nmake -f NTMakefile'.");
 h("B. Borland C++");
@@ -104,10 +109,10 @@ l("");
 c("This section exists for people who chose D.", 60);
 l("");
 c("TARGET        - Target environment, chosen by Makefile in", 60);
-c("                default settings.", 60);
+c("                default settings.",                         60);
 l("");
 c("GCC           - Prefix for GCC toolchains. This does not", 60);
-c("                matter if you set CC/CXX manually.", 60);
+c("                matter if you set CC/CXX manually.",       60);
 l("");
 c("CC            - C compiler.", 60);
 l("");
