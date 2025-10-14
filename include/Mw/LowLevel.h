@@ -82,6 +82,7 @@ MWDECL MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height);
 MWDECL void MwLLDestroy(MwLL handle);
 
 MWDECL void MwLLPolygon(MwLL handle, MwPoint* points, int points_count, MwLLColor color);
+MWDECL void MwLLLine(MwLL handle, MwPoint* points, MwLLColor color);
 
 MWDECL MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b);
 MWDECL void	 MwLLFreeColor(MwLLColor color);

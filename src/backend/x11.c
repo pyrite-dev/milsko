@@ -123,6 +123,12 @@ void MwLLPolygon(MwLL handle, MwPoint* points, int points_count, MwLLColor color
 	free(p);
 }
 
+void MwLLLine(MwLL handle, MwPoint* points, MwLLColor color) {
+	XSetForeground(handle->display, handle->gc, color->pixel);
+
+	XDrawLine(handle->display, handle->pixmap, handle->gc, points[0].x, points[0].y, points[1].x, points[1].y);
+}
+
 MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b) {
 	MwLLColor c = malloc(sizeof(*c));
 	XColor	  xc;
