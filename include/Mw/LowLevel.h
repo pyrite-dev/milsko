@@ -115,6 +115,8 @@ MWDECL void MwLLMakeBorderless(MwLL handle, int toggle);
 
 MWDECL long MwLLGetTick(void);
 
+MWDECL void MwLLSetBackground(MwLL handle, MwLLColor color);
+
 #ifdef __cplusplus
 }
 #endif
