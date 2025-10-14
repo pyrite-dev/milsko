@@ -211,3 +211,12 @@ void MwListBoxDelete(MwWidget handle, int index) {
 		MwForceRender(lb->frame);
 	}
 }
+
+const char* MwListBoxGet(MwWidget handle, int index) {
+	MwListBox lb = handle->internal;
+
+	if(index < 0) return NULL;
+	if(index >= arrlen(lb->list)) return NULL;
+
+	return lb->list[index];
+}

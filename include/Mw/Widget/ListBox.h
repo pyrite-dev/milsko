@@ -33,6 +33,14 @@ MWDECL void MwListBoxInsert(MwWidget handle, int index, const char* text);
  */
 MWDECL void MwListBoxDelete(MwWidget handle, int index);
 
+/*!
+ * %brief Gets item from the listbox
+ * %param handle Widget
+ * %param index Index
+ * %return Item
+ */
+MWDECL const char* MwListBoxGet(MwWidget handle, int index);
+
 #ifdef __cplusplus
 }
 #endif

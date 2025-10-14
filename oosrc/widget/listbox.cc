@@ -11,6 +11,9 @@ void MwOO::ListBox::Insert(int index, const char* text){
 void MwOO::ListBox::Delete(int index){
 	MwListBoxDelete(this->widget, index);
 }
+const char* MwOO::ListBox::Get(int index){
+	return MwListBoxGet(this->widget, index);
+}
 void MwOO::ListBox::SetBackground(const char* value){
 	MwSetText(this->widget, MwNbackground, value);
 }
