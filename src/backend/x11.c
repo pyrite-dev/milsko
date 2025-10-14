@@ -123,6 +123,9 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	XSelectInput(r->display, r->window, mask);
 	XMapWindow(r->display, r->window);
 
+	XFlush(r->display);
+	XSync(r->display, False);
+
 	return r;
 }
 
@@ -599,6 +602,9 @@ void MwLLDetach(MwLL handle, MwPoint* point) {
 	XTranslateCoordinates(handle->display, parent, RootWindow(handle->display, DefaultScreen(handle->display)), 0, 0, &x, &y, &child);
 
 	XReparentWindow(handle->display, handle->window, RootWindow(handle->display, DefaultScreen(handle->display)), x + point->x, y + point->y);
+
+	XFlush(handle->display);
+	XSync(handle->display, False);
 }
 
 void MwLLShow(MwLL handle, int show) {
@@ -611,38 +617,18 @@ void MwLLShow(MwLL handle, int show) {
 }
 
 void MwLLMakePopup(MwLL handle, MwLL parent) {
-	Atom	     wndtype  = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE", False);
-	Atom	     wnddlg   = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
-	Atom	     wndstate = XInternAtom(handle->display, "_NET_WM_STATE", False);
-	Atom	     wndmodal = XInternAtom(handle->display, "_NET_WM_STATE_MODAL", False);
-	int	     x = 0, y = 0;
-	Window	     child, root, parentx;
-	Window*	     children;
-	unsigned int nchild;
-
-	XQueryTree(handle->display, handle->window, &root, &parentx, &children, &nchild);
-	if(children != NULL) XFree(children);
-
-	XTranslateCoordinates(handle->display, parentx, RootWindow(handle->display, DefaultScreen(handle->display)), 0, 0, &x, &y, &child);
+	Atom wndtype  = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE", False);
+	Atom wnddlg   = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
+	Atom wndstate = XInternAtom(handle->display, "_NET_WM_STATE", False);
+	Atom wndmodal = XInternAtom(handle->display, "_NET_WM_STATE_MODAL", False);
 
 	XSetTransientForHint(handle->display, handle->window, parent->window);
 	XChangeProperty(handle->display, handle->window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wnddlg, 1);
 	XChangeProperty(handle->display, handle->window, wndstate, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmodal, 1);
-
-	XMoveWindow(handle->display, handle->window, x, y);
 }
 
 void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
-	XSizeHints*  hints = XAllocSizeHints();
-	int	     x = 0, y = 0;
-	Window	     child, root, parent;
-	Window*	     children;
-	unsigned int nchild;
-
-	XQueryTree(handle->display, handle->window, &root, &parent, &children, &nchild);
-	if(children != NULL) XFree(children);
-
-	XTranslateCoordinates(handle->display, parent, RootWindow(handle->display, DefaultScreen(handle->display)), 0, 0, &x, &y, &child);
+	XSizeHints* hints = XAllocSizeHints();
 
 	hints->flags	  = PMinSize | PMaxSize;
 	hints->min_width  = minx;
@@ -654,21 +640,11 @@ void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
 
 	XUnmapWindow(handle->display, handle->window);
 	XMapWindow(handle->display, handle->window);
-	XMoveWindow(handle->display, handle->window, x, y);
 }
 
 void MwLLMakeBorderless(MwLL handle, int toggle) {
-	Atom	     atom = XInternAtom(handle->display, "_MOTIF_WM_HINTS", 0);
-	mwm_hints_t  hints;
-	int	     x = 0, y = 0;
-	Window	     child, root, parent;
-	Window*	     children;
-	unsigned int nchild;
-
-	XQueryTree(handle->display, handle->window, &root, &parent, &children, &nchild);
-	if(children != NULL) XFree(children);
-
-	XTranslateCoordinates(handle->display, parent, RootWindow(handle->display, DefaultScreen(handle->display)), 0, 0, &x, &y, &child);
+	Atom	    atom = XInternAtom(handle->display, "_MOTIF_WM_HINTS", 0);
+	mwm_hints_t hints;
 
 	hints.flags	  = MWM_HINTS_DECORATIONS;
 	hints.decorations = toggle ? 0 : 1;
@@ -676,7 +652,6 @@ void MwLLMakeBorderless(MwLL handle, int toggle) {
 
 	XUnmapWindow(handle->display, handle->window);
 	XMapWindow(handle->display, handle->window);
-	XMoveWindow(handle->display, handle->window, x, y);
 }
 
 long MwLLGetTick(void) {
