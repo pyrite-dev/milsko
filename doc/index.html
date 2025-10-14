@@ -189,6 +189,9 @@
 	<a href="#Mw_Draw_h__MwDrawText">MwDrawText</a>
 </dd>
 <dd>
+	<a href="#Mw_Draw_h__MwDrawTextEx">MwDrawTextEx</a>
+</dd>
+<dd>
 	<a href="#Mw_Draw_h__MwLoadImage">MwLoadImage</a>
 </dd>
 <dd>
@@ -334,6 +337,12 @@
 </dt>
 <dd>
 	<a href="#Mw_Widget_ListBox_h__MwListBoxClass">MwListBoxClass</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_ListBox_h__MwListBoxInsert">MwListBoxInsert</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_ListBox_h__MwListBoxDelete">MwListBoxDelete</a>
 </dd>
 <dt>
 	<a href="#Mw_Widget_Menu_h">Mw/Widget/Menu.h</a>
@@ -1684,6 +1693,63 @@
 </dd>
 </dl>
 <hr>
+<pre id="Mw_Draw_h__MwDrawTextEx">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDrawTextEx</FONT></B> (
+	MwWidget handle,
+	MwPoint* point,
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text,
+	<B><FONT COLOR="#228B22">int</FONT></B> bold,
+	<B><FONT COLOR="#228B22">int</FONT></B> align,
+	MwLLColor color,
+	MwLLColor bgcolor
+);</pre>
+<dl>
+<dd>
+	Draws a text.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>point</code>
+</dt>
+<dd>
+	Center point of the text.
+</dd>
+<dt>
+	Parameter <code>text</code>
+</dt>
+<dd>
+	Text.
+</dd>
+<dt>
+	Parameter <code>bold</code>
+</dt>
+<dd>
+	Bold.
+</dd>
+<dt>
+	Parameter <code>align</code>
+</dt>
+<dd>
+	Align.
+</dd>
+<dt>
+	Parameter <code>color</code>
+</dt>
+<dd>
+	Color.
+</dd>
+<dt>
+	Parameter <code>bgcolor</code>
+</dt>
+<dd>
+	Background color.
+</dd>
+</dl>
+<hr>
 <pre id="Mw_Draw_h__MwLoadImage">MWDECL MwLLPixmap <B><FONT COLOR="#0000FF">MwLoadImage</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* path
@@ -2286,6 +2352,57 @@
 <dl>
 <dd>
 	ListBox widget class.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_ListBox_h__MwListBoxInsert">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsert</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> index,
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text
+);</pre>
+<dl>
+<dd>
+	Inserts item on the listbox.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>index</code>
+</dt>
+<dd>
+	Index.
+</dd>
+<dt>
+	Parameter <code>text</code>
+</dt>
+<dd>
+	Text.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_ListBox_h__MwListBoxDelete">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxDelete</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> index
+);</pre>
+<dl>
+<dd>
+	Deletes item from the listbox.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>index</code>
+</dt>
+<dd>
+	Index.
 </dd>
 </dl>
 <hr>

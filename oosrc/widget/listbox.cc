@@ -5,6 +5,12 @@
 MwOO::ListBox::ListBox(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h) : MwOO::Base(MwListBoxClass, widget_name, parent, x, y, w, h){
 }
 
+void MwOO::ListBox::Insert(int index, const char* text){
+	MwListBoxInsert(this->widget, index, text);
+}
+void MwOO::ListBox::Delete(int index){
+	MwListBoxDelete(this->widget, index);
+}
 void MwOO::ListBox::SetBackground(const char* value){
 	MwSetText(this->widget, MwNbackground, value);
 }

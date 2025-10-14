@@ -8,6 +8,8 @@ namespace MwOO {
 class ListBox : public MwOO::Base {
       public:
 	ListBox(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
+	void	    Insert(int index, const char* text);
+	void	    Delete(int index);
 	void	    SetBackground(const char* value);
 	const char* GetBackground(void);
 	void	    SetForeground(const char* value);
