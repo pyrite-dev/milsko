@@ -1,19 +1,12 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-typedef struct viewport {
-	MwWidget vscroll;
-	MwWidget hscroll;
-	MwWidget frame;
-	MwWidget inframe;
-} viewport_t;
-
 static void vscroll_changed(MwWidget handle, void* user, void* call) {
-	viewport_t* vp = user;
-	int	    v  = MwGetInteger(handle, MwNvalue);
-	int	    mv = MwGetInteger(handle, MwNmaxValue);
-	int	    l  = MwGetInteger(vp->frame, MwNheight);
-	v	       = (mv - l) * (double)v / mv;
+	MwViewport vp = user;
+	int	   v  = MwGetInteger(handle, MwNvalue);
+	int	   mv = MwGetInteger(handle, MwNmaxValue);
+	int	   l  = MwGetInteger(vp->frame, MwNheight);
+	v	      = (mv - l) * (double)v / mv;
 	(void)call;
 	if(v < 0) v = 0;
 	MwVaApply(vp->inframe,
@@ -22,11 +15,11 @@ static void vscroll_changed(MwWidget handle, void* user, void* call) {
 }
 
 static void hscroll_changed(MwWidget handle, void* user, void* call) {
-	viewport_t* vp = user;
-	int	    v  = MwGetInteger(handle, MwNvalue);
-	int	    mv = MwGetInteger(handle, MwNmaxValue);
-	int	    l  = MwGetInteger(vp->frame, MwNwidth);
-	v	       = (mv - l) * (double)v / mv;
+	MwViewport vp = user;
+	int	   v  = MwGetInteger(handle, MwNvalue);
+	int	   mv = MwGetInteger(handle, MwNmaxValue);
+	int	   l  = MwGetInteger(vp->frame, MwNwidth);
+	v	      = (mv - l) * (double)v / mv;
 	(void)call;
 	if(v < 0) v = 0;
 	MwVaApply(vp->inframe,
@@ -35,11 +28,11 @@ static void hscroll_changed(MwWidget handle, void* user, void* call) {
 }
 
 static void resize(MwWidget handle) {
-	viewport_t* vp = handle->internal;
-	int	    w  = MwGetInteger(handle, MwNwidth);
-	int	    h  = MwGetInteger(handle, MwNheight);
-	int	    iw;
-	int	    ih;
+	MwViewport vp = handle->internal;
+	int	   w  = MwGetInteger(handle, MwNwidth);
+	int	   h  = MwGetInteger(handle, MwNheight);
+	int	   iw;
+	int	   ih;
 	if(vp->vscroll == NULL) {
 		vp->vscroll = MwVaCreateWidget(MwScrollBarClass, "vscroll", handle, w - 16, 0, 16, h - 16, NULL);
 		MwAddUserHandler(vp->vscroll, MwNchangedHandler, vscroll_changed, vp);
@@ -91,7 +84,7 @@ static void resize(MwWidget handle) {
 }
 
 static int create(MwWidget handle) {
-	viewport_t* vp = malloc(sizeof(*vp));
+	MwViewport vp = malloc(sizeof(*vp));
 	memset(vp, 0, sizeof(*vp));
 
 	handle->internal = vp;
@@ -101,6 +94,10 @@ static int create(MwWidget handle) {
 	resize(handle);
 
 	return 0;
+}
+
+static void destroy(MwWidget handle) {
+	free(handle->internal);
 }
 
 static void draw(MwWidget handle) {
@@ -123,7 +120,7 @@ static void prop_change(MwWidget handle, const char* prop) {
 
 MwClassRec MwViewportClassRec = {
     create,	 /* create */
-    NULL,	 /* destroy */
+    destroy,	 /* destroy */
     draw,	 /* draw */
     NULL,	 /* click */
     NULL,	 /* parent_resize */
@@ -140,13 +137,13 @@ MwClassRec MwViewportClassRec = {
 MwClass MwViewportClass = &MwViewportClassRec;
 
 MwWidget MwViewportGetViewport(MwWidget handle) {
-	viewport_t* vp = handle->internal;
+	MwViewport vp = handle->internal;
 
 	return vp->inframe;
 }
 
 void MwViewportSetSize(MwWidget handle, int w, int h) {
-	viewport_t* vp = handle->internal;
+	MwViewport vp = handle->internal;
 
 	MwVaApply(vp->inframe,
 		  MwNwidth, w,

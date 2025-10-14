@@ -68,62 +68,7 @@ int MwOO::Base::GetHeight(void){
 }
 
 /* BEGIN AUTOGENERATE */
-static void __OnActivate(MwWidget widget, void* user, void* call){
-	MwOO::Base* c = (MwOO::Base*)user;
-	(void)widget;	c->OnActivate(call);
-}
-static void __OnResize(MwWidget widget, void* user, void* call){
-	MwOO::Base* c = (MwOO::Base*)user;
-	(void)widget;	c->OnResize(call);
-}
-static void __OnTick(MwWidget widget, void* user, void* call){
-	MwOO::Base* c = (MwOO::Base*)user;
-	(void)widget;	c->OnTick(call);
-}
-static void __OnMenu(MwWidget widget, void* user, void* call){
-	MwOO::Base* c = (MwOO::Base*)user;
-	(void)widget;	c->OnMenu(call);
-}
-static void __OnMouseDownHandler(MwWidget widget, void* user, void* call){
-	MwOO::Base* c = (MwOO::Base*)user;
-	(void)widget;	c->OnMouseDownHandler(call);
-}
-static void __OnMouseUpHandler(MwWidget widget, void* user, void* call){
-	MwOO::Base* c = (MwOO::Base*)user;
-	(void)widget;	c->OnMouseUpHandler(call);
-}
-static void __OnMouseMoveHandler(MwWidget widget, void* user, void* call){
-	MwOO::Base* c = (MwOO::Base*)user;
-	(void)widget;	c->OnMouseMoveHandler(call);
-}
-static void __OnChangedHandler(MwWidget widget, void* user, void* call){
-	MwOO::Base* c = (MwOO::Base*)user;
-	(void)widget;	c->OnChangedHandler(call);
-}
-static void __OnKeyHandler(MwWidget widget, void* user, void* call){
-	MwOO::Base* c = (MwOO::Base*)user;
-	(void)widget;	c->OnKeyHandler(call);
-}
-static void __OnKeyReleaseHandler(MwWidget widget, void* user, void* call){
-	MwOO::Base* c = (MwOO::Base*)user;
-	(void)widget;	c->OnKeyReleaseHandler(call);
-}
-static void __OnCloseHandler(MwWidget widget, void* user, void* call){
-	MwOO::Base* c = (MwOO::Base*)user;
-	(void)widget;	c->OnCloseHandler(call);
-}
 
 void MwOO::Base::SetHandler(void){
-	MwAddUserHandler(this->widget, MwNactivateHandler, __OnActivate, this);
-	MwAddUserHandler(this->widget, MwNresizeHandler, __OnResize, this);
-	MwAddUserHandler(this->widget, MwNtickHandler, __OnTick, this);
-	MwAddUserHandler(this->widget, MwNmenuHandler, __OnMenu, this);
-	MwAddUserHandler(this->widget, MwNmouseDownHandler, __OnMouseDownHandler, this);
-	MwAddUserHandler(this->widget, MwNmouseUpHandler, __OnMouseUpHandler, this);
-	MwAddUserHandler(this->widget, MwNmouseMoveHandler, __OnMouseMoveHandler, this);
-	MwAddUserHandler(this->widget, MwNchangedHandler, __OnChangedHandler, this);
-	MwAddUserHandler(this->widget, MwNkeyHandler, __OnKeyHandler, this);
-	MwAddUserHandler(this->widget, MwNkeyReleaseHandler, __OnKeyReleaseHandler, this);
-	MwAddUserHandler(this->widget, MwNcloseHandler, __OnCloseHandler, this);
 }
 /* END AUTOGENERATE */

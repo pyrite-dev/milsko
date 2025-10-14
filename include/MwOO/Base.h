@@ -30,17 +30,6 @@ class Base {
 	int	   GetWidth(void);
 	int	   GetHeight(void);
 	/* BEGIN AUTOGENERATE */
-	virtual void OnActivate(void*) {};
-	virtual void OnResize(void*) {};
-	virtual void OnTick(void*) {};
-	virtual void OnMenu(void*) {};
-	virtual void OnMouseDownHandler(void*) {};
-	virtual void OnMouseUpHandler(void*) {};
-	virtual void OnMouseMoveHandler(void*) {};
-	virtual void OnChangedHandler(void*) {};
-	virtual void OnKeyHandler(void*) {};
-	virtual void OnKeyReleaseHandler(void*) {};
-	virtual void OnCloseHandler(void*) {};
 
 	/* END AUTOGENERATE */
 

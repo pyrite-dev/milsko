@@ -18,7 +18,7 @@ int main() {
 
 	vp = MwCreateWidget(MwViewportClass, "vp", w, 5, 5, 630, 470);
 
-	MwVaCreateWidget(MwImageClass, "image", MwViewportGetViewport(vp), 5, 5, 1024, 1024,
+	MwVaCreateWidget(MwImageClass, "image", MwViewportGetViewport(vp), 0, 0, 1024, 1024,
 			 MwNpixmap, MwLoadImage(vp, "examples/picture.png"),
 			 NULL);
 	MwViewportSetSize(vp, 1024, 1024);
