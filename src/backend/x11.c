@@ -320,9 +320,12 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->height  = height;
 	r->display = handle->display;
 	r->use_shm = XShmQueryExtension(handle->display) ? 1 : 0;
-	r->data	   = malloc(width * height * 4);
+	r->data	   = malloc(sizeof(unsigned long) * width * height);
 
 	r->use_render = XRenderQueryExtension(handle->display, &evbase, &erbase) ? 1 : 0;
+
+	/* FIXME */
+	r->use_shm = 0;
 
 	if(r->use_shm) {
 		r->image = XShmCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 24, ZPixmap, NULL, &r->shm, width, height);
@@ -355,7 +358,7 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 			p <<= 8;
 			p |= px[2];
 			XPutPixel(r->image, x, y, p);
-			*(unsigned long*)(&r->data[(x + y * width) * 4]) = p;
+			*(unsigned long*)(&r->data[(y * width + x) * sizeof(unsigned long)]) = p;
 		}
 	}
 
@@ -486,7 +489,7 @@ void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 	icon[1] = pixmap->height;
 
 	for(i = 0; i < pixmap->width * pixmap->height; i++) {
-		icon[2 + i] = *(unsigned long*)(&pixmap->data[i * 4]);
+		icon[2 + i] = *(unsigned long*)(&pixmap->data[i * sizeof(unsigned long)]);
 	}
 
 	XChangeProperty(handle->display, handle->window, atom, 6, 32, PropModeReplace, (unsigned char*)icon, 2 + pixmap->width * pixmap->height);
