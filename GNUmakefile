@@ -9,7 +9,7 @@ USE_STB_IMAGE = 1
 CC = $(GCC)gcc
 CXX = $(GCC)g++
 
-CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Wno-unused-value -Iinclude
+CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Wno-unused-value -Wno-sign-compare -Iinclude
 LDFLAGS =
 LIBS =
 
