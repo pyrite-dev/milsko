@@ -14,16 +14,17 @@
 #include <X11/extensions/Xrender.h>
 
 struct _MwLL {
-	Display* display;
-	Window	 window;
-	Pixmap	 pixmap;
-	GC	 gc;
-	Colormap colormap;
-	void*	 user;
-	Atom	 wm_delete;
-	int	 copy_buffer;
-	XIM	 xim;
-	XIC	 xic;
+	Display*     display;
+	Window	     window;
+	Pixmap	     pixmap;
+	GC	     gc;
+	Colormap     colormap;
+	void*	     user;
+	Atom	     wm_delete;
+	int	     copy_buffer;
+	XIM	     xim;
+	XIC	     xic;
+	XVisualInfo* visual;
 
 	unsigned int width;
 	unsigned int height;
@@ -42,6 +43,8 @@ struct _MwLLPixmap {
 	int	       width;
 	int	       height;
 	unsigned char* data;
+
+	int depth;
 
 	int		use_shm;
 	int		use_render;
