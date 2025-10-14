@@ -29,16 +29,16 @@
 #define MwNiconPixmap "ViconPixmap"
 #define MwNsizeHints "VsizeHints"
 
-#define MwNactivateHandler "Cactivate"		  /* NULL */
-#define MwNresizeHandler "Cresize"		  /* NULL */
-#define MwNtickHandler "Ctick"			  /* NULL */
-#define MwNmenuHandler "Cmenu"			  /* MwMenu */
-#define MwNmouseDownHandler "CmouseDownHandler"	  /* MwLLMouse* */
-#define MwNmouseUpHandler "CmouseUpHandler"	  /* asme as MwNmouseDownHandler */
-#define MwNmouseMoveHandler "CmouseMoveHandler"	  /* MwPoint* */
-#define MwNchangedHandler "CchangedHandler"	  /* NULL */
-#define MwNkeyHandler "CkeyHandler"		  /* int* (MwLLKeyEnum or character code) */
-#define MwNkeyReleaseHandler "CkeyReleaseHandler" /* same as MwNkeyHandler */
-#define MwNcloseHandler "CcloseHandler"		  /* NULL */
+#define MwNactivateHandler "Cactivate"	   /* NULL/int* (MwListBox) */
+#define MwNresizeHandler "Cresize"	   /* NULL */
+#define MwNtickHandler "Ctick"		   /* NULL */
+#define MwNmenuHandler "Cmenu"		   /* MwMenu */
+#define MwNmouseDownHandler "CmouseDown"   /* MwLLMouse* */
+#define MwNmouseUpHandler "CmouseUp"	   /* asme as MwNmouseDownHandler */
+#define MwNmouseMoveHandler "CmouseMove"   /* MwPoint* */
+#define MwNchangedHandler "Cchanged"	   /* NULL */
+#define MwNkeyHandler "Ckey"		   /* int* (MwLLKeyEnum or character code) */
+#define MwNkeyReleaseHandler "CkeyRelease" /* same as MwNkeyHandler */
+#define MwNcloseHandler "Cclose"	   /* NULL */
 
 #endif
