@@ -20,20 +20,22 @@ static void vscroll_changed(MwWidget handle, void* user, void* call) {
 static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 	MwListBox  lb = handle->parent->internal;
 	MwLLMouse* m  = call;
-	int	   st = 0;
-	int	   i;
-	int	   y = MwDefaultBorderWidth;
-	int	   h = MwGetInteger(handle, MwNheight);
+	if(m->button == MwLLMouseLeft) {
+		int st = 0;
+		int i;
+		int y = MwDefaultBorderWidth;
+		int h = MwGetInteger(handle, MwNheight);
 
-	st = get_first_entry(lb);
-	for(i = 0; i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
-		if(y <= m->point.y && m->point.y <= (y + MwTextHeight(handle, "M"))) {
-			lb->selected = st + i;
+		st = get_first_entry(lb);
+		for(i = 0; i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
+			if(y <= m->point.y && m->point.y <= (y + MwTextHeight(handle, "M"))) {
+				lb->selected = st + i;
+			}
+			y += MwTextHeight(handle, "M");
 		}
-		y += MwTextHeight(handle, "M");
-	}
 
-	MwForceRender(lb->frame);
+		MwForceRender(lb->frame);
+	}
 }
 
 static void frame_draw(MwWidget handle) {
@@ -107,6 +109,7 @@ static void resize(MwWidget handle) {
 	}
 
 	ih = arrlen(lb->list);
+	if(ih == 0) ih = 1;
 
 	MwVaApply(lb->vscroll,
 		  MwNareaShown, h / MwTextHeight(handle, "M"),
@@ -177,6 +180,25 @@ void MwListBoxInsert(MwWidget handle, int index, const char* text) {
 
 	if(index == -1) index = arrlen(lb->list);
 	arrins(lb->list, index, str);
+
+	resize(handle);
+	if(index < (MwGetInteger(lb->vscroll, MwNvalue) + MwGetInteger(lb->vscroll, MwNareaShown))) {
+		MwForceRender(lb->frame);
+	}
+}
+
+void MwListBoxDelete(MwWidget handle, int index) {
+	MwListBox lb = handle->internal;
+
+	if(index == -1) index = arrlen(lb->list) - 1;
+	arrdel(lb->list, index);
+
+	if(lb->selected >= arrlen(lb->list)) {
+		lb->selected = arrlen(lb->list) - 1;
+	}
+	if(lb->selected < 0) {
+		lb->selected = -1;
+	}
 
 	resize(handle);
 	if(index < (MwGetInteger(lb->vscroll, MwNvalue) + MwGetInteger(lb->vscroll, MwNareaShown))) {
