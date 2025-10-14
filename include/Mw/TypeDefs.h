@@ -121,10 +121,11 @@ struct _MwViewport {
 };
 
 struct _MwListBox {
-	MwWidget vscroll;
-	MwWidget frame;
-	char**	 list;
-	int	 selected;
+	MwWidget      vscroll;
+	MwWidget      frame;
+	char**	      list;
+	int	      selected;
+	unsigned long click_time;
 };
 
 struct _MwSizeHints {
