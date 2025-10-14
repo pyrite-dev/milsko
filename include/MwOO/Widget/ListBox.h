@@ -10,6 +10,7 @@ class ListBox : public MwOO::Base {
 	ListBox(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
 	void	    Insert(int index, const char* text);
 	void	    Delete(int index);
+	const char* Get(int index);
 	void	    SetBackground(const char* value);
 	const char* GetBackground(void);
 	void	    SetForeground(const char* value);
