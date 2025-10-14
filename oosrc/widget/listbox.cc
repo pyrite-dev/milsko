@@ -8,6 +8,9 @@ MwOO::ListBox::ListBox(const char* widget_name, MwOO::Base* parent, int x, int y
 void MwOO::ListBox::Insert(int index, const char* text){
 	MwListBoxInsert(this->widget, index, text);
 }
+void MwOO::ListBox::InsertMultiple(int index, char* const* text, int count){
+	MwListBoxInsertMultiple(this->widget, index, text, count);
+}
 void MwOO::ListBox::Delete(int index){
 	MwListBoxDelete(this->widget, index);
 }

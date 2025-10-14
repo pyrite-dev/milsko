@@ -27,6 +27,15 @@ MWDECL MwClass MwListBoxClass;
 MWDECL void MwListBoxInsert(MwWidget handle, int index, const char* text);
 
 /*!
+ * %brief Inserts multiple items on the listbox
+ * %param handle Widget
+ * %param index Index
+ * %param text Text
+ * %param count Count
+ */
+MWDECL void MwListBoxInsertMultiple(MwWidget handle, int index, char* const* text, int count);
+
+/*!
  * %brief Deletes item from the listbox
  * %param handle Widget
  * %param index Index

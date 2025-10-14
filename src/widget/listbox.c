@@ -193,6 +193,27 @@ void MwListBoxInsert(MwWidget handle, int index, const char* text) {
 	}
 }
 
+void MwListBoxInsertMultiple(MwWidget handle, int index, char* const* text, int count) {
+	int	  i;
+	MwListBox lb = handle->internal;
+	int	  old;
+	if(index == -1) index = arrlen(lb->list);
+	old = index;
+
+	for(i = 0; i < count; i++) {
+		char* str = malloc(strlen(text[i]) + 1);
+		strcpy(str, text[i]);
+
+		arrins(lb->list, index, str);
+		index++;
+	}
+
+	resize(handle);
+	if(old < (MwGetInteger(lb->vscroll, MwNvalue) + MwGetInteger(lb->vscroll, MwNareaShown))) {
+		MwForceRender(lb->frame);
+	}
+}
+
 void MwListBoxDelete(MwWidget handle, int index) {
 	MwListBox lb = handle->internal;
 
