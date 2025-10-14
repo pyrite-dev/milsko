@@ -33,5 +33,6 @@
 #include <Mw/Widget/ScrollBar.h>
 #include <Mw/Widget/NumberEntry.h>
 #include <Mw/Widget/Viewport.h>
+#include <Mw/Widget/ListBox.h>
 
 #endif

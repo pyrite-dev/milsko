@@ -19,6 +19,7 @@ typedef struct _MwFont		      MwFont;
 typedef struct _MwMenu*		      MwMenu;
 typedef struct _MwCursor	      MwCursor;
 typedef struct _MwEntry*	      MwEntry;
+typedef struct _MwViewport*	      MwViewport;
 typedef struct _MwSizeHints	      MwSizeHints;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
@@ -108,6 +109,13 @@ struct _MwEntry {
 	int	cursor;
 	int	right;
 	MwPoint mouse;
+};
+
+struct _MwViewport {
+	MwWidget vscroll;
+	MwWidget hscroll;
+	MwWidget frame;
+	MwWidget inframe;
 };
 
 struct _MwSizeHints {
