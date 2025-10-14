@@ -9,6 +9,7 @@ static void lldrawhandler(MwLL handle, void* data) {
 	(void)data;
 
 	MwDispatch(h, draw);
+	if(h->draw_inject != NULL) h->draw_inject(h);
 }
 
 static void lluphandler(MwLL handle, void* data) {
@@ -110,6 +111,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->close	 = 0;
 	h->destroy_queue = NULL;
 	h->prop_event	 = 1;
+	h->draw_inject	 = NULL;
 
 	if(h->lowlevel != NULL) {
 		h->lowlevel->user		   = h;

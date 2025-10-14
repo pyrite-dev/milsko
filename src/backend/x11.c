@@ -370,7 +370,8 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->use_shm = XShmQueryExtension(handle->display) ? 1 : 0;
 	r->data	   = malloc(sizeof(unsigned long) * width * height);
 
-	XRenderQueryExtension(handle->display, &evbase, &erbase) ? 1 : 0;
+	r->use_render = XRenderQueryExtension(handle->display, &evbase, &erbase) ? 1 : 0;
+	r->use_render = 0;
 
 	/* FIXME */
 	r->use_shm = 0;
@@ -477,14 +478,14 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 		for(y = 0; y < (int)rect->height; y++) {
 			for(x = 0; x < (int)rect->width; x++) {
-				double sy = (double)y / rect->height * pixmap->height;
-				double sx = (double)x / rect->width * pixmap->width;
-				char*  ipx;
-				char*  opx;
+				int   sy = y * pixmap->height / rect->height;
+				int   sx = x * pixmap->width / rect->width;
+				char* ipx;
+				char* opx;
 				sy = (int)sy;
 				sx = (int)sx;
 
-				ipx = &pixmap->image->data[(int)(pixmap->width * sy + sx) * (pixmap->image->bitmap_unit / 8)];
+				ipx = &pixmap->image->data[(pixmap->width * sy + sx) * (pixmap->image->bitmap_unit / 8)];
 				opx = &d[(rect->width * y + x) * (pixmap->image->bitmap_unit / 8)];
 				memcpy(opx, ipx, pixmap->image->bitmap_unit / 8);
 			}

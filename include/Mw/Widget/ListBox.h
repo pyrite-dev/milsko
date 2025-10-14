@@ -18,6 +18,14 @@ extern "C" {
  */
 MWDECL MwClass MwListBoxClass;
 
+/*!
+ * %brief Inserts item on the listbox
+ * %param handle Widget
+ * %param index Index
+ * %param text Text
+ */
+MWDECL void MwListBoxInsert(MwWidget handle, int index, const char* text);
+
 #ifdef __cplusplus
 }
 #endif

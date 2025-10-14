@@ -16,10 +16,11 @@ typedef struct _MwTextKeyValue	      MwTextKeyValue;
 typedef struct _MwUserHandlerKeyValue MwUserHandlerKeyValue;
 typedef struct _MwVoidKeyValue	      MwVoidKeyValue;
 typedef struct _MwFont		      MwFont;
-typedef struct _MwMenu*		      MwMenu;
 typedef struct _MwCursor	      MwCursor;
+typedef struct _MwMenu*		      MwMenu;
 typedef struct _MwEntry*	      MwEntry;
 typedef struct _MwViewport*	      MwViewport;
+typedef struct _MwListBox*	      MwListBox;
 typedef struct _MwSizeHints	      MwSizeHints;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
@@ -88,6 +89,7 @@ struct _MwWidget {
 
 	void* internal;
 	void* opaque;
+	void (*draw_inject)(MwWidget handle);
 
 	MwIntegerKeyValue*     integer;
 	MwTextKeyValue*	       text;
@@ -116,6 +118,13 @@ struct _MwViewport {
 	MwWidget hscroll;
 	MwWidget frame;
 	MwWidget inframe;
+};
+
+struct _MwListBox {
+	MwWidget vscroll;
+	MwWidget frame;
+	char**	 list;
+	int	 selected;
 };
 
 struct _MwSizeHints {

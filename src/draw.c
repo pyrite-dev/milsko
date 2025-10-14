@@ -13,7 +13,6 @@
 
 #define FontWidth 7
 #define FontHeight 14
-#define FontScale 1
 #define ColorDiff 128
 
 static int hex(const char* txt, int len) {
@@ -364,17 +363,23 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 }
 
 void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
-	int    i = 0, x, y, sx, sy;
-	MwRect r;
+	MwLLColor bg = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwDrawTextEx(handle, point, text, bold, align, color, bg);
+	MwLLFreeColor(bg);
+}
 
-	sx = point->x;
-	sy = point->y - MwTextHeight(handle, text) / 2;
+void MwDrawTextEx(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color, MwLLColor bgcolor) {
+	int	       i  = 0, x, y, sx, sy;
+	int	       tw = MwTextWidth(handle, text);
+	int	       th = MwTextHeight(handle, text);
+	unsigned char* px = malloc(tw * th * 4);
+	MwRect	       r;
+	MwLLPixmap     p;
 
-	if(align == MwALIGNMENT_CENTER) {
-		sx -= strlen(text) * FontWidth * FontScale / 2;
-	} else if(align == MwALIGNMENT_END) {
-		sx -= strlen(text) * FontWidth * FontScale;
-	}
+	memset(px, 0, tw * th * 4);
+
+	sx = 0;
+	sy = 0;
 
 	while(text[i] != 0) {
 		int out;
@@ -384,29 +389,50 @@ void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int
 
 		if(out == '\n') {
 			sx = 0;
-			sy += FontHeight * FontScale;
+			sy += FontHeight;
 		} else {
 			for(y = 0; y < FontHeight; y++) {
 				for(x = 0; x < FontWidth; x++) {
-					r.x	 = sx + x * FontScale;
-					r.y	 = sy + y * FontScale;
-					r.width	 = FontScale;
-					r.height = FontScale;
-
+					unsigned char* ppx = &px[((sy + y) * tw + sx + x) * 4];
 					if((bold ? MwBoldFontData : MwFontData)[out].data[y] & (1 << ((FontWidth - 1) - x))) {
-						MwDrawRect(handle, &r, color);
+						ppx[0] = color->red;
+						ppx[1] = color->green;
+						ppx[2] = color->blue;
+						ppx[3] = 255;
+					} else {
+						ppx[0] = bgcolor->red;
+						ppx[1] = bgcolor->green;
+						ppx[2] = bgcolor->blue;
+						ppx[3] = 255;
 					}
 				}
 			}
-			sx += FontWidth * FontScale;
+			sx += FontWidth;
 		}
 	}
+
+	p	 = MwLoadRaw(handle, px, tw, th);
+	r.x	 = point->x;
+	r.y	 = point->y - th / 2;
+	r.width	 = tw;
+	r.height = th;
+
+	if(align == MwALIGNMENT_CENTER) {
+		r.x -= tw / 2;
+	} else if(align == MwALIGNMENT_END) {
+		r.x -= tw;
+	}
+
+	MwLLDrawPixmap(handle->lowlevel, &r, p);
+	MwLLDestroyPixmap(p);
+	free(px);
 }
 
 int MwTextWidth(MwWidget handle, const char* text) {
 	(void)handle;
 
-	return strlen(text) * FontWidth * FontScale;
+	/* TODO: check newline */
+	return strlen(text) * FontWidth;
 }
 
 int MwTextHeight(MwWidget handle, const char* text) {
@@ -423,7 +449,7 @@ int MwTextHeight(MwWidget handle, const char* text) {
 		if(out == '\n') c++;
 	}
 
-	return FontHeight * FontScale * c;
+	return FontHeight * c;
 }
 
 #ifndef USE_STB_IMAGE
