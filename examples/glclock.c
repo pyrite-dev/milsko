@@ -18,9 +18,9 @@ void tick(MwWidget handle, void* user, void* call) {
 	time_t t = time(NULL);
 	int    i;
 	double rad;
-	int render = 0;
-	int w = MwGetInteger(opengl, MwNwidth);
-	int h = MwGetInteger(opengl, MwNheight);
+	int    render = 0;
+	int    w      = MwGetInteger(opengl, MwNwidth);
+	int    h      = MwGetInteger(opengl, MwNheight);
 	if(last != t) {
 		char* wday[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 		char* mon[]  = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -73,25 +73,25 @@ void tick(MwWidget handle, void* user, void* call) {
 	glVertex2f(cos(rad) * 0.5, sin(rad) * 0.5);
 	glEnd();
 
-	if(render && w > 0 && h > 0){
+	if(render && w > 0 && h > 0) {
 		unsigned char* buffer = malloc(w * h * 4);
-		MwLLPixmap px;
-		int j;
+		MwLLPixmap     px;
+		int	       j;
 
 		glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-		for(i = 0; i < h / 2; i++){
-			for(j = 0; j < w * 4; j++){
+		for(i = 0; i < h / 2; i++) {
+			for(j = 0; j < w * 4; j++) {
 				unsigned char b = buffer[i * w * 4 + j];
 
-				buffer[i * w * 4 + j] = buffer[(h - i - 1) * w * 4 + j];
+				buffer[i * w * 4 + j]		= buffer[(h - i - 1) * w * 4 + j];
 				buffer[(h - i - 1) * w * 4 + j] = b;
 			}
 		}
 
 		px = MwLoadRaw(window, buffer, w, h);
 		MwVaApply(window,
-			MwNiconPixmap, px,
-		NULL);
+			  MwNiconPixmap, px,
+			  NULL);
 		MwLLDestroyPixmap(px);
 
 		free(buffer);

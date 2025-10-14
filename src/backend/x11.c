@@ -174,6 +174,10 @@ void MwLLFreeColor(MwLLColor color) {
 	free(color);
 }
 
+void MwLLSetBackground(MwLL handle, MwLLColor color) {
+	XSetWindowBackground(handle->display, handle->window, color->pixel);
+}
+
 int MwLLPending(MwLL handle) {
 	XEvent ev;
 	if(XCheckTypedWindowEvent(handle->display, handle->window, ClientMessage, &ev) || XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {

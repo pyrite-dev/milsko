@@ -276,6 +276,11 @@ void MwLLFreeColor(MwLLColor color) {
 	free(color);
 }
 
+void MwLLSetBackground(MwLL handle, MwLLColor color) {
+	(void)handle;
+	(void)color;
+}
+
 void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
 	RECT rc;
 
