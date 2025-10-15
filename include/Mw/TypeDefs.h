@@ -138,8 +138,8 @@ struct _MwSizeHints {
 };
 
 struct _MwDirectoryEntry {
-	char*	      name;
-	unsigned long attribute;
+	char* name;
+	int   type;
 };
 
 #define MwCursorDataHeight 16

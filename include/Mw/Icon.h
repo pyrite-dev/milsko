@@ -42,7 +42,6 @@ MWDECL char* MwIconQuestion[];
  */
 MWDECL char* MwIconWarning[];
 
-
 #ifdef __cplusplus
 }
 #endif

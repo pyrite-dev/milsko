@@ -23,6 +23,7 @@
 #include <dlfcn.h>
 #include <signal.h>
 #include <dirent.h>
+#include <sys/stat.h>
 #endif
 
 #ifndef M_PI

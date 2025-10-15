@@ -13,7 +13,8 @@ typedef struct dir {
 } dir_t;
 #else
 typedef struct dir {
-	DIR* dir;
+	DIR*  dir;
+	char* base;
 } dir_t;
 #endif
 
@@ -35,6 +36,8 @@ void* MwDirectoryOpen(const char* path) {
 		free(dir);
 		return NULL;
 	}
+	dir->base = malloc(strlen(path) + 1);
+	strcpy(dir->base, path);
 #endif
 
 	return dir;
@@ -46,6 +49,7 @@ void MwDirectoryClose(void* handle) {
 	FindClose(dir->hFind);
 #else
 	closedir(dir->dir);
+	free(dir->base);
 #endif
 	free(handle);
 }
@@ -62,14 +66,36 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	}
 	entry->name = malloc(strlen(dir->ffd.cFileName) + 1);
 	strcpy(entry->name, dir->ffd.cFileName);
+
+	if(dir->ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+		entry->type = MwDIRECTORY_DIRECTORY;
+	} else {
+		entry->type = MwDIRECTORY_FILE;
+	}
 #else
 	struct dirent* d;
+	struct stat    s;
+	char*	       p;
 	if((d = readdir(dir->dir)) == NULL) {
 		free(entry);
 		return NULL;
 	}
 	entry->name = malloc(strlen(d->d_name) + 1);
 	strcpy(entry->name, d->d_name);
+
+	p = malloc(strlen(dir->base) + 1 + strlen(d->d_name) + 1);
+	strcpy(p, dir->base);
+	strcat(p, "/");
+	strcat(p, d->d_name);
+
+	stat(p, &s);
+	if(S_ISDIR(s.st_mode)) {
+		entry->type = MwDIRECTORY_DIRECTORY;
+	} else {
+		entry->type = MwDIRECTORY_FILE;
+	}
+
+	free(p);
 #endif
 
 	return entry;
