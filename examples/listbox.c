@@ -3,13 +3,30 @@
 
 #include "../resource/harvard.c"
 
-int main(){
-        MwWidget w = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480,
-                MwNtitle, "test",
-        NULL);
-        MwWidget lb = MwCreateWidget(MwListBoxClass, "listbox", w, 5, 5, 630, 470);
+MwWidget wmain;
 
-        MwListBoxInsertMultiple(lb, -1, (char**)harvard, sizeof(harvard) / sizeof(harvard[0]) - 1);
+void destroy(MwWidget handle, void* user, void* call) {
+	MwDestroyWidget(user);
+}
 
-        MwLoop(w);
+void activate(MwWidget handle, void* user, void* call) {
+	char	 msg[256];
+	MwWidget msgbox;
+	sprintf(msg, "You pressed: %s", MwListBoxGet(handle, *(int*)call));
+
+	msgbox = MwMessageBox(wmain, msg, "wow", MwMB_ICONINFO | MwMB_BUTTONOK);
+	MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, destroy, msgbox);
+}
+
+int main() {
+	MwWidget lb;
+	wmain = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480,
+				 MwNtitle, "test",
+				 NULL);
+	lb    = MwCreateWidget(MwListBoxClass, "listbox", wmain, 5, 5, 630, 470);
+
+	MwAddUserHandler(lb, MwNactivateHandler, activate, NULL);
+	MwListBoxInsertMultiple(lb, -1, (char**)harvard, sizeof(harvard) / sizeof(harvard[0]) - 1);
+
+	MwLoop(wmain);
 }
