@@ -185,7 +185,7 @@ sub generate {
 }
 
 scan("src");
-scan("src/external");
+scan("external");
 scan("src/icon");
 scan("src/cursor");
 scan("src/widget");
