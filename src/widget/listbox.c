@@ -40,6 +40,36 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 		}
 
 		MwForceRender(lb->frame);
+		lb->pressed = 1;
+	}
+}
+
+static void frame_mouse_up(MwWidget handle, void* user, void* call) {
+	MwListBox  lb = handle->parent->internal;
+	MwLLMouse* m  = call;
+	if(m->button == MwLLMouseLeft) {
+		lb->pressed = 0;
+	}
+}
+
+static void frame_mouse_move(MwWidget handle, void* user, void* call) {
+	MwListBox  lb = handle->parent->internal;
+	MwPoint* p  = call;
+	if(lb->pressed) {
+		int st = 0;
+		int i;
+		int y = MwDefaultBorderWidth;
+		int h = MwGetInteger(handle, MwNheight);
+
+		st = get_first_entry(lb);
+		for(i = 0; i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
+			if(y <= p->y && p->y <= (y + MwTextHeight(handle, "M"))) {
+				lb->selected   = st + i;
+			}
+			y += MwTextHeight(handle, "M");
+		}
+
+		MwForceRender(lb->frame);
 	}
 }
 
@@ -104,6 +134,8 @@ static void resize(MwWidget handle) {
 		lb->frame	       = MwVaCreateWidget(MwFrameClass, "frame", handle, 0, 0, w - 16, h, NULL);
 		lb->frame->draw_inject = frame_draw;
 		MwAddUserHandler(lb->frame, MwNmouseDownHandler, frame_mouse_down, NULL);
+		MwAddUserHandler(lb->frame, MwNmouseUpHandler, frame_mouse_up, NULL);
+		MwAddUserHandler(lb->frame, MwNmouseMoveHandler, frame_mouse_move, NULL);
 	} else {
 		MwVaApply(lb->frame,
 			  MwNx, 0,

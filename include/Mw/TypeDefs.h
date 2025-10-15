@@ -126,6 +126,7 @@ struct _MwListBox {
 	char**	      list;
 	int	      selected;
 	unsigned long click_time;
+	int pressed;
 };
 
 struct _MwSizeHints {
