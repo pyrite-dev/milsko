@@ -22,6 +22,7 @@ typedef struct _MwEntry*	      MwEntry;
 typedef struct _MwViewport*	      MwViewport;
 typedef struct _MwListBox*	      MwListBox;
 typedef struct _MwSizeHints	      MwSizeHints;
+typedef struct _MwDirectoryEntry      MwDirectoryEntry;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
 #else
@@ -134,6 +135,11 @@ struct _MwSizeHints {
 	int min_height;
 	int max_width;
 	int max_height;
+};
+
+struct _MwDirectoryEntry {
+	char*	      name;
+	unsigned long attribute;
 };
 
 #define MwCursorDataHeight 16

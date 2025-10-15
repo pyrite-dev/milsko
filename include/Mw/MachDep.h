@@ -22,6 +22,7 @@
 #include <sys/shm.h>
 #include <dlfcn.h>
 #include <signal.h>
+#include <dirent.h>
 #endif
 
 #ifndef M_PI

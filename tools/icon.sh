@@ -3,7 +3,9 @@
 
 cd resource/icon
 for i in *.gif; do
-	convert $i -shave 4x4 -alpha on -channel rgba -fill 'transparent' -opaque '#80ff80' `echo $i | cut -d. -f1`.png
+	if [ ! -f "`echo $i | cut -d. -f1`.png" ]; then
+		convert $i -shave 4x4 -alpha on -channel rgba -fill 'transparent' -opaque '#80ff80' `echo $i | cut -d. -f1`.png
+	fi
 done
 cd ../..
 
