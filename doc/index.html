@@ -165,6 +165,21 @@
 	<a href="#Mw_Default_h__MwDefaultBorderWidth">MwDefaultBorderWidth</a>
 </dd>
 <dt>
+	<a href="#Mw_Directory_h">Mw/Directory.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Directory_h__MwDirectoryOpen">MwDirectoryOpen</a>
+</dd>
+<dd>
+	<a href="#Mw_Directory_h__MwDirectoryClose">MwDirectoryClose</a>
+</dd>
+<dd>
+	<a href="#Mw_Directory_h__MwDirectoryRead">MwDirectoryRead</a>
+</dd>
+<dd>
+	<a href="#Mw_Directory_h__MwDirectoryFreeEntry">MwDirectoryFreeEntry</a>
+</dd>
+<dt>
 	<a href="#Mw_Draw_h">Mw/Draw.h</a>
 </dt>
 <dd>
@@ -1411,6 +1426,85 @@
 <dl>
 <dd>
 	Default border width.
+</dd>
+</dl>
+<hr>
+<h2 align="center" id="Mw_Directory_h">Mw/Directory.h</h2>
+<dl>
+<dt>
+	Directory functions.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Directory_h__MwDirectoryOpen">MWDECL <B><FONT COLOR="#228B22">void</FONT></B>* <B><FONT COLOR="#0000FF">MwDirectoryOpen</FONT></B> (
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* path
+);</pre>
+<dl>
+<dd>
+	Opens a directory.
+</dd>
+<dt>
+	Parameter <code>path</code>
+</dt>
+<dd>
+	Path.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Handle.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Directory_h__MwDirectoryClose">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDirectoryClose</FONT></B> (
+	<B><FONT COLOR="#228B22">void</FONT></B>* handle
+);</pre>
+<dl>
+<dd>
+	Closes a directory.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Handle.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Directory_h__MwDirectoryRead">MWDECL MwDirectoryEntry* <B><FONT COLOR="#0000FF">MwDirectoryRead</FONT></B> (
+	<B><FONT COLOR="#228B22">void</FONT></B>* handle
+);</pre>
+<dl>
+<dd>
+	Reads a directory.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Handle.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Directory entry.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Directory_h__MwDirectoryFreeEntry">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDirectoryFreeEntry</FONT></B> (
+	MwDirectoryEntry* entry
+);</pre>
+<dl>
+<dd>
+	Frees a directory entry.
+</dd>
+<dt>
+	Parameter <code>entry</code>
+</dt>
+<dd>
+	Entry.
 </dd>
 </dl>
 <hr>

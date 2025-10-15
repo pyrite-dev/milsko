@@ -23,13 +23,13 @@ typedef void* MwLLPixmap;
 
 #ifdef _MILSKO
 #ifdef USE_X11
-#include "../src/backend/x11.h"
+#include "../../src/backend/x11.h"
 #endif
 #ifdef USE_GDI
-#include "../src/backend/gdi.h"
+#include "../../src/backend/gdi.h"
 #endif
 #ifdef USE_DARWIN
-#include "../src/backend/mac/mac.h"
+#include "../../src/backend/mac/mac.h"
 #endif
 #endif
 #include <Mw/TypeDefs.h>
