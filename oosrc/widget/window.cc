@@ -16,6 +16,30 @@ const char* MwOO::Window::GetTitle(void){
 	return MwGetText(this->widget, MwNtitle);
 }
 
+void MwOO::Window::SetMain(int value){
+	MwSetInteger(this->widget, MwNmain, value);
+}
+
+int MwOO::Window::GetMain(void){
+	return MwGetInteger(this->widget, MwNmain);
+}
+
+void MwOO::Window::SetIconPixmap(void* value){
+	MwSetVoid(this->widget, MwNiconPixmap, value);
+}
+
+void* MwOO::Window::GetIconPixmap(void){
+	return MwGetVoid(this->widget, MwNiconPixmap);
+}
+
+void MwOO::Window::SetSizeHints(void* value){
+	MwSetVoid(this->widget, MwNsizeHints, value);
+}
+
+void* MwOO::Window::GetSizeHints(void){
+	return MwGetVoid(this->widget, MwNsizeHints);
+}
+
 void MwOO::Window::SetBackground(const char* value){
 	MwSetText(this->widget, MwNbackground, value);
 }

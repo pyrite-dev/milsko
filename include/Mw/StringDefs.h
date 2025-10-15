@@ -19,6 +19,7 @@
 #define MwNalignment "Ialignment"
 #define MwNbold "Ibold"
 #define MwNmain "Imain"
+#define MwNleftPadding "IleftPadding"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

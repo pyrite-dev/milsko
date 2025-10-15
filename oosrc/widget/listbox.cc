@@ -17,6 +17,14 @@ void MwOO::ListBox::Delete(int index){
 const char* MwOO::ListBox::Get(int index){
 	return MwListBoxGet(this->widget, index);
 }
+void MwOO::ListBox::SetLeftPadding(int value){
+	MwSetInteger(this->widget, MwNleftPadding, value);
+}
+
+int MwOO::ListBox::GetLeftPadding(void){
+	return MwGetInteger(this->widget, MwNleftPadding);
+}
+
 void MwOO::ListBox::SetBackground(const char* value){
 	MwSetText(this->widget, MwNbackground, value);
 }

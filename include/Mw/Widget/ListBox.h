@@ -2,6 +2,7 @@
 /*!
  * %file Mw/Widget/ListBox.h
  * %brief ListBox widget
+ * %prop MwNleftPadding
  */
 #ifndef __MW_WIDGET_LISTBOX_H__
 #define __MW_WIDGET_LISTBOX_H__

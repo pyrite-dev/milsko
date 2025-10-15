@@ -12,6 +12,8 @@ class Label : public MwOO::Base {
 	const char* GetText(void);
 	void	    SetAlignment(int value);
 	int	    GetAlignment(void);
+	void	    SetBold(int value);
+	int	    GetBold(void);
 	void	    SetBackground(const char* value);
 	const char* GetBackground(void);
 	void	    SetForeground(const char* value);
