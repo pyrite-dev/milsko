@@ -139,7 +139,7 @@ else
 include external/deps.mk
 endif
 
-EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC) examples/scrollbar$(EXEC) examples/checkbox$(EXEC) examples/messagebox$(EXEC) examples/viewport$(EXEC)
+EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC) examples/scrollbar$(EXEC) examples/checkbox$(EXEC) examples/messagebox$(EXEC) examples/viewport$(EXEC) examples/listbox$(EXEC)
 
 ifeq ($(OPENGL),1)
 L_OBJS += src/widget/opengl.o
