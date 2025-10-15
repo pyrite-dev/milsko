@@ -33,7 +33,7 @@ MWDECL void MwListBoxInsert(MwWidget handle, int index, const char* text);
  * %param text Text
  * %param count Count
  */
-MWDECL void MwListBoxInsertMultiple(MwWidget handle, int index, char* const* text, int count);
+MWDECL void MwListBoxInsertMultiple(MwWidget handle, int index, char** text, int count);
 
 /*!
  * %brief Deletes item from the listbox

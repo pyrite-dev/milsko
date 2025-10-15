@@ -225,7 +225,7 @@ void MwListBoxInsert(MwWidget handle, int index, const char* text) {
 	}
 }
 
-void MwListBoxInsertMultiple(MwWidget handle, int index, char* const* text, int count) {
+void MwListBoxInsertMultiple(MwWidget handle, int index, char** text, int count) {
 	int	  i;
 	MwListBox lb = handle->internal;
 	int	  old;
