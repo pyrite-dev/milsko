@@ -53,8 +53,8 @@ static void frame_mouse_up(MwWidget handle, void* user, void* call) {
 }
 
 static void frame_mouse_move(MwWidget handle, void* user, void* call) {
-	MwListBox  lb = handle->parent->internal;
-	MwPoint* p  = call;
+	MwListBox lb = handle->parent->internal;
+	MwPoint*  p  = call;
 	if(lb->pressed) {
 		int st = 0;
 		int i;
@@ -64,7 +64,7 @@ static void frame_mouse_move(MwWidget handle, void* user, void* call) {
 		st = get_first_entry(lb);
 		for(i = 0; i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
 			if(y <= p->y && p->y <= (y + MwTextHeight(handle, "M"))) {
-				lb->selected   = st + i;
+				lb->selected = st + i;
 			}
 			y += MwTextHeight(handle, "M");
 		}
