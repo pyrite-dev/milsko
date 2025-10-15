@@ -39,6 +39,14 @@ enum MwALIGNMENT {
 #define MwDEFAULT 0x0fffffff
 
 /*!
+ * %brief Directory entry type
+ */
+enum {
+	MwDIRECTORY_FILE = 0,
+	MwDIRECTORY_DIRECTORY
+};
+
+/*!
  * %brief Icon mask
  */
 #define MwMB_ICONMASK 0xf
