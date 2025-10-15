@@ -1,7 +1,7 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-#include "../resource/harvard.c"
+#include "harvard.c"
 
 MwWidget wmain;
 
