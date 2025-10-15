@@ -141,18 +141,18 @@ else
 include external/deps.mk
 endif
 
-EXAMPLES = examples/example$(EXEC) examples/rotate$(EXEC) examples/image$(EXEC) examples/scrollbar$(EXEC) examples/checkbox$(EXEC) examples/messagebox$(EXEC) examples/viewport$(EXEC) examples/listbox$(EXEC)
+EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/basic/image$(EXEC) examples/basic/scrollbar$(EXEC) examples/basic/checkbox$(EXEC) examples/basic/messagebox$(EXEC) examples/basic/viewport$(EXEC) examples/basic/listbox$(EXEC)
 
 ifeq ($(OPENGL),1)
 L_OBJS += src/widget/opengl.o
 OOL_OBJS += oosrc/widget/opengl.o
-EXAMPLES += examples/glclock$(EXEC) examples/gltriangle$(EXEC) examples/glgears$(EXEC) examples/glboing$(EXEC) examples/glcube$(EXEC) examples/gltripaint$(EXEC)
+EXAMPLES += examples/gldemos/clock$(EXEC) examples/gldemos/triangle$(EXEC) examples/gldemos/gears$(EXEC) examples/gldemos/boing$(EXEC) examples/gldemos/cube$(EXEC) examples/gldemos/tripaint$(EXEC)
 endif
 
 ifeq ($(VULKAN),1)
 L_OBJS += src/widget/vulkan.o
 OOL_OBJS += oosrc/widget/vulkan.o
-EXAMPLES += examples/vulkan$(EXEC)
+EXAMPLES += examples/vkdemos/vulkan$(EXEC)
 endif
 
 .PHONY: all install format clean lib oolib examples
@@ -186,7 +186,7 @@ src/$(LIB)Mw$(SO): $(L_OBJS)
 oosrc/$(LIB)MwOO$(SO): $(OOL_OBJS) src/$(LIB)Mw$(SO)
 	$(CC) $(OOL_LDFLAGS) $(SHARED) -o $@ $(OOL_OBJS) $(OOL_LIBS)
 
-examples/gl%$(EXEC): examples/gl%.o src/$(LIB)Mw$(SO)
+examples/gldemos/%$(EXEC): examples/gldemos/%.o src/$(LIB)Mw$(SO)
 	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS) $(GL)
 
 examples/%$(EXEC): examples/%.o src/$(LIB)Mw$(SO)
