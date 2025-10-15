@@ -87,7 +87,7 @@ static void frame_draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 
-	p.x = MwDefaultBorderWidth;
+	p.x = MwDefaultBorderWidth + MwGetInteger(handle->parent, MwNleftPadding);
 	p.y = MwDefaultBorderWidth;
 
 	st = get_first_entry(lb);
@@ -167,6 +167,8 @@ static int create(MwWidget handle) {
 	lb->selected   = -1;
 	lb->click_time = 0;
 
+	MwSetInteger(handle, MwNleftPadding, 0);
+
 	return 0;
 }
 
@@ -190,6 +192,10 @@ static void draw(MwWidget handle) {
 
 static void prop_change(MwWidget handle, const char* prop) {
 	if(strcmp(prop, MwNwidth) == 0 || strcmp(prop, MwNheight) == 0) resize(handle);
+	if(strcmp(prop, MwNleftPadding) == 0) {
+		MwListBox lb = handle->internal;
+		MwForceRender(lb->frame);
+	}
 }
 
 MwClassRec MwListBoxClassRec = {

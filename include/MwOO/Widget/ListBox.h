@@ -12,6 +12,8 @@ class ListBox : public MwOO::Base {
 	void	    InsertMultiple(int index, char** text, int count);
 	void	    Delete(int index);
 	const char* Get(int index);
+	void	    SetLeftPadding(int value);
+	int	    GetLeftPadding(void);
 	void	    SetBackground(const char* value);
 	const char* GetBackground(void);
 	void	    SetForeground(const char* value);

@@ -21,6 +21,14 @@ int MwOO::Label::GetAlignment(void){
 	return MwGetInteger(this->widget, MwNalignment);
 }
 
+void MwOO::Label::SetBold(int value){
+	MwSetInteger(this->widget, MwNbold, value);
+}
+
+int MwOO::Label::GetBold(void){
+	return MwGetInteger(this->widget, MwNbold);
+}
+
 void MwOO::Label::SetBackground(const char* value){
 	MwSetText(this->widget, MwNbackground, value);
 }

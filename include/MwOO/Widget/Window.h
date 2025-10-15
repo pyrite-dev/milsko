@@ -11,6 +11,12 @@ class Window : public MwOO::Base {
 	void	    MakeBorderless(int toggle);
 	void	    SetTitle(const char* value);
 	const char* GetTitle(void);
+	void	    SetMain(int value);
+	int	    GetMain(void);
+	void	    SetIconPixmap(void* value);
+	void*	    GetIconPixmap(void);
+	void	    SetSizeHints(void* value);
+	void*	    GetSizeHints(void);
 	void	    SetBackground(const char* value);
 	const char* GetBackground(void);
 	void	    SetForeground(const char* value);
