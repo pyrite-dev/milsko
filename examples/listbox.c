@@ -21,7 +21,7 @@ void activate(MwWidget handle, void* user, void* call) {
 int main() {
 	MwWidget lb;
 	wmain = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480,
-				 MwNtitle, "test",
+				 MwNtitle, "listbox",
 				 NULL);
 	lb    = MwCreateWidget(MwListBoxClass, "listbox", wmain, 5, 5, 630, 470);
 
