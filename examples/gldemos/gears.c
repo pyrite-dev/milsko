@@ -1,6 +1,6 @@
 /* $Id$ */
 #define TITLE "gears"
-#include "oldglut.c"
+#include "glutlayer.c"
 
 /*
  * 3-D gear wheels.  This program is in the public domain.

@@ -1,6 +1,6 @@
 /* $Id$ */
 #define TITLE "cube"
-#include "oldglut.c"
+#include "glutlayer.c"
 
 #include <GL/glu.h>
 

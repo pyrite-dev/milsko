@@ -1,6 +1,6 @@
 /* $Id$ */
 #define TITLE "boing"
-#include "oldglut.c"
+#include "glutlayer.c"
 
 /*
  * Bouncing ball demo.

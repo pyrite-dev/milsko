@@ -389,7 +389,9 @@ void vulkan_setup(MwWidget handle) {
 
 	// Create the Vertex Shader Module.
 	vertFile = fopen("triangle.vert.spv", "rb");
+	if(vertFile == NULL) vertFile = fopen("examples/vkdemos/triangle.vert.spv", "rb");
 	fragFile = fopen("triangle.frag.spv", "rb");
+	if(fragFile == NULL) fragFile = fopen("examples/vkdemos/triangle.frag.spv", "rb");
 
 	fseek(vertFile, 0L, SEEK_END);
 	vertFileSize = ftell(vertFile);
