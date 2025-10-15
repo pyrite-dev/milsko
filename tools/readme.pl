@@ -126,6 +126,8 @@ c("OPENGL        - Build OpenGL widget or not.", 60);
 l("");
 c("USE_STB_IMAGE - Use stb_image or not.", 60);
 l("");
+c("PREFIX        - Installation destination directory.", 60);
+l("");
 
 l("");
 c("Makefile targets");
@@ -139,8 +141,10 @@ l("");
 c("examples - Builds examples", 60);
 l("");
 c("all      - Builds lib and examples", 60);
-
 l("");
+c("install  - Installs Milsko to PREFIX", 60);
+l("");
+
 l(" -- Nishi  (nishi\@nishi.boats)");
 
 close(OUT);

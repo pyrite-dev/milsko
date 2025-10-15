@@ -1,5 +1,7 @@
 # $Id$
 
+PREFIX = /usr/milsko
+
 ifeq ($(TARGET),)
 TARGET = $(shell uname -s)
 endif
@@ -153,12 +155,24 @@ OOL_OBJS += oosrc/widget/vulkan.o
 EXAMPLES += examples/vulkan$(EXEC)
 endif
 
-.PHONY: all format clean lib oolib examples
+.PHONY: all install format clean lib oolib examples
 
 all: lib examples
 lib: src/$(LIB)Mw$(SO)
 oolib: oosrc/$(LIB)MwOO$(SO)
 examples: $(EXAMPLES)
+
+install: lib oolib
+	mkdir -p $(PREFIX)/lib
+	mkdir -p $(PREFIX)/bin
+	mkdir -p $(PREFIX)/include
+	for i in src oosrc; do \
+		cp $$i/*.so $(PREFIX)/lib/ ; \
+		cp $$i/*.a $(PREFIX)/lib/ ; \
+		cp $$i/*.dll $(PREFIX)/bin/ ; \
+	done ; true
+	cp -rf include/Mw $(PREFIX)/include/
+	cp -rf include/MwOO $(PREFIX)/include/
 
 format:
 	clang-format --verbose -i `find oosrc src include examples tools "(" -name "*.c" -or -name "*.h" ")" -and -not -name "stb_*.h"`

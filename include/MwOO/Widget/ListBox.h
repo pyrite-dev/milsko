@@ -9,7 +9,7 @@ class ListBox : public MwOO::Base {
       public:
 	ListBox(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
 	void	    Insert(int index, const char* text);
-	void	    InsertMultiple(int index, char* const* text, int count);
+	void	    InsertMultiple(int index, char** text, int count);
 	void	    Delete(int index);
 	const char* Get(int index);
 	void	    SetBackground(const char* value);

@@ -88,6 +88,8 @@ D. MinGW-w64/GCC/Clang
 
           USE_STB_IMAGE - Use stb_image or not.
 
+          PREFIX        - Installation destination directory.
+
 
                                 Makefile targets
 
@@ -100,5 +102,7 @@ D. MinGW-w64/GCC/Clang
           examples - Builds examples
 
           all      - Builds lib and examples
+
+          install  - Installs Milsko to PREFIX
 
  -- Nishi  (nishi@nishi.boats) 
