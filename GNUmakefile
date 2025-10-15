@@ -1,6 +1,6 @@
 # $Id$
 
-PREFIX = /usr/milsko
+PREFIX = /usr/local
 
 ifeq ($(TARGET),)
 TARGET = $(shell uname -s)
@@ -166,6 +166,7 @@ install: lib oolib
 	mkdir -p $(PREFIX)/lib
 	mkdir -p $(PREFIX)/bin
 	mkdir -p $(PREFIX)/include
+	mkdir -p $(PREFIX)/share/doc/milsko
 	for i in src oosrc; do \
 		cp $$i/*.so $(PREFIX)/lib/ ; \
 		cp $$i/*.a $(PREFIX)/lib/ ; \
@@ -173,6 +174,7 @@ install: lib oolib
 	done ; true
 	cp -rf include/Mw $(PREFIX)/include/
 	cp -rf include/MwOO $(PREFIX)/include/
+	cp -rf doc/* $(PREFIX)/share/doc/milsko/
 
 format:
 	clang-format --verbose -i `find oosrc src include examples tools "(" -name "*.c" -or -name "*.h" ")" -and -not -name "stb_*.h"`
