@@ -104,7 +104,7 @@ static void frame_draw(MwWidget handle) {
 			MwDrawRect(handle, &r2, text);
 		}
 		p.y += MwTextHeight(handle, lb->list[i]) / 2;
-		MwDrawTextEx(handle, &p, lb->list[i], 0, MwALIGNMENT_BEGINNING, selected ? base : text, selected ? text : base);
+		MwDrawText(handle, &p, lb->list[i], 0, MwALIGNMENT_BEGINNING, selected ? base : text);
 		p.y += MwTextHeight(handle, lb->list[i]) / 2;
 	}
 

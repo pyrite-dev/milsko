@@ -83,18 +83,6 @@ MWDECL void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int in
 MWDECL void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color);
 
 /*!
- * %brief Draws a text
- * %param handle Widget
- * %param point Center point of the text
- * %param text Text
- * %param bold Bold
- * %param align Align
- * %param color Color
- * %param bgcolor Background color
- */
-MWDECL void MwDrawTextEx(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color, MwLLColor bgcolor);
-
-/*!
  * %brief Creates a pixmap from image
  * %param handle Widget
  * %param path Path
@@ -144,15 +132,6 @@ MWDECL MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int 
  * %return Pixmap
  */
 MWDECL MwLLPixmap MwLoadXPM(MwWidget handle, char** data);
-
-/*!
- * %brief Creates a pixmap from XPM data with background
- * %param handle Widget
- * %param data Data
- * %param bgcolor RGBA data for background
- * %return Pixmap
- */
-MWDECL MwLLPixmap MwLoadXPMEx(MwWidget handle, char** data, unsigned char* bgcolor);
 
 /* color.c */
 
