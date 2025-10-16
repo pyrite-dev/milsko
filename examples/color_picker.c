@@ -6,6 +6,9 @@ MwWidget vp;
 #define WIN_SIZE 512
 #define PICKER_SIZE 360
 #define IMG_POS ((WIN_SIZE - PICKER_SIZE) / 2)
+#define SCROLL_BAR_WIDTH (PICKER_SIZE / 32)
+#define MARGIN (PICKER_SIZE / 64)
+#define COLOR_DISPLAY_HEIGHT (PICKER_SIZE / 4)
 
 typedef struct {
 	double r; // a fraction between 0 and 1
@@ -55,11 +58,13 @@ static rgb hsv2rgb(hsv in) {
 typedef struct {
 	MwWidget       parent;
 	MwWidget       color_wheel_img;
-	MwWidget       slider;
+	MwWidget       value_slider;
+	MwWidget       alpha_slider;
 	MwWidget       color_display;
 	MwLLPixmap     color_wheel_pixmap;
 	MwLLPixmap     color_display_pixmap;
 	double	       value;
+	double	       alpha;
 	unsigned char* color_wheel_image_data;
 	unsigned char* color_display_image_data;
 } color_wheel;
@@ -96,7 +101,7 @@ void color_wheel_wheel_image_update(color_wheel* wheel) {
 				wheel->color_wheel_image_data[i]     = color.r * 255;
 				wheel->color_wheel_image_data[i + 1] = color.g * 255;
 				wheel->color_wheel_image_data[i + 2] = color.b * 255;
-				wheel->color_wheel_image_data[i + 3] = 255;
+				wheel->color_wheel_image_data[i + 3] = wheel->alpha;
 			}
 		}
 	}
@@ -107,23 +112,6 @@ void color_wheel_wheel_image_update(color_wheel* wheel) {
 	MwVaApply(wheel->color_wheel_img, MwNpixmap, wheel->color_wheel_pixmap, NULL);
 }
 
-void color_wheel_color_display_update(color_wheel* wheel, int r, int g, int b) {
-	for(int y = 0; y < PICKER_SIZE / 16; y++) {
-		for(int x = 0; x < PICKER_SIZE; x++) {
-			int i = ((y * PICKER_SIZE) + x) * 4;
-
-			wheel->color_display_image_data[i]     = r;
-			wheel->color_display_image_data[i + 1] = g;
-			wheel->color_display_image_data[i + 2] = b;
-			wheel->color_display_image_data[i + 3] = 255;
-		}
-	}
-	if(wheel->color_display_pixmap != NULL) {
-		MwLLDestroyPixmap(wheel->color_display_pixmap);
-	}
-	wheel->color_display_pixmap = MwLoadRaw(wheel->parent, wheel->color_display_image_data, PICKER_SIZE, (PICKER_SIZE / 16));
-	MwVaApply(wheel->color_display, MwNpixmap, wheel->color_display_pixmap, NULL);
-}
 static void color_wheel_click(MwWidget handle, void* user, void* call) {
 	color_wheel* wheel = (color_wheel*)user;
 	MwLLMouse*   mouse = (MwLLMouse*)call;
@@ -135,12 +123,14 @@ static void color_wheel_click(MwWidget handle, void* user, void* call) {
 	int r = wheel->color_wheel_image_data[i];
 	int g = wheel->color_wheel_image_data[i + 1];
 	int b = wheel->color_wheel_image_data[i + 2];
+	int a = wheel->color_wheel_image_data[i + 3];
 
-	color_wheel_color_display_update(wheel, r, g, b);
-
-	printf("%d %d %d\n", r, g, b);
+	char* hexColor = malloc(8);
+	snprintf(hexColor, 8, "#%02X%02X%02X", r, g, b);
+	MwSetText(wheel->color_display, MwNbackground, hexColor);
+	free(hexColor);
 }
-static void color_wheel_on_change(MwWidget handle, void* user, void* call) {
+static void color_wheel_on_change_value(MwWidget handle, void* user, void* call) {
 	color_wheel* wheel = (color_wheel*)user;
 
 	int value = MwGetInteger(handle, MwNvalue);
@@ -150,26 +140,72 @@ static void color_wheel_on_change(MwWidget handle, void* user, void* call) {
 
 	color_wheel_wheel_image_update(wheel);
 }
+static void color_wheel_on_change_alpha(MwWidget handle, void* user, void* call) {
+	color_wheel* wheel = (color_wheel*)user;
 
+	int value = MwGetInteger(handle, MwNvalue);
+	int diff  = MwGetInteger(handle, MwNchangedBy);
+
+	wheel->alpha = (1.0 - ((double)value / 1024.)) * 255.;
+
+	color_wheel_wheel_image_update(wheel);
+}
 void color_wheel_setup(MwWidget parent, color_wheel* wheel) {
 	wheel->parent = parent;
 
-	wheel->color_wheel_img		= MwVaCreateWidget(MwImageClass, "image", wheel->parent, IMG_POS, IMG_POS, PICKER_SIZE, PICKER_SIZE, NULL);
+	wheel->color_wheel_img = MwVaCreateWidget(MwImageClass, "image", wheel->parent, IMG_POS, IMG_POS, PICKER_SIZE, PICKER_SIZE, NULL);
+
 	wheel->color_wheel_image_data	= malloc(PICKER_SIZE * PICKER_SIZE * 4);
-	wheel->color_display_image_data = malloc((PICKER_SIZE / 16) * PICKER_SIZE * 4);
+	wheel->color_display_image_data = malloc(PICKER_SIZE * COLOR_DISPLAY_HEIGHT * 4);
 
 	wheel->color_wheel_pixmap   = NULL;
 	wheel->color_display_pixmap = NULL;
 	wheel->value		    = 1;
+	wheel->alpha		    = 255;
 
 	color_wheel_wheel_image_update(wheel);
 
 	MwAddUserHandler(wheel->color_wheel_img, MwNmouseDownHandler, color_wheel_click, wheel);
 
-	wheel->slider = MwVaCreateWidget(MwScrollBarClass, "scroll", wheel->parent, IMG_POS + PICKER_SIZE, IMG_POS, PICKER_SIZE / 32, PICKER_SIZE, MwNorientation, MwVERTICAL, MwNminValue, 0, MwNmaxValue, 1024, NULL);
-	MwAddUserHandler(wheel->slider, MwNchangedHandler, color_wheel_on_change, wheel);
+	wheel->color_display = MwCreateWidget(MwFrameClass, "colorDisplayFrame", wheel->parent, IMG_POS, IMG_POS + PICKER_SIZE + MARGIN, PICKER_SIZE, PICKER_SIZE / 16);
+	MwSetText(wheel->color_display, MwNbackground, "#000000");
+	MwSetInteger(wheel->color_display, MwnhasBorder, 1);
+	MwSetInteger(wheel->color_display, MwNinverted, 1);
 
-	wheel->color_display = MwCreateWidget(MwImageClass, "colorDisplay", wheel->parent, IMG_POS, IMG_POS + PICKER_SIZE + (PICKER_SIZE / 64), PICKER_SIZE, PICKER_SIZE / 16);
+	wheel->value_slider = MwVaCreateWidget(MwScrollBarClass, "value-slider", wheel->parent,
+					       // x
+					       IMG_POS +
+						   PICKER_SIZE +
+						   MARGIN,
+
+					       // y
+					       IMG_POS,
+
+					       // width
+					       SCROLL_BAR_WIDTH,
+
+					       // height
+					       PICKER_SIZE,
+
+					       MwNorientation, MwVERTICAL, MwNminValue, 0, MwNmaxValue, 1024, NULL);
+
+	MwAddUserHandler(wheel->value_slider, MwNchangedHandler, color_wheel_on_change_value, wheel);
+
+	wheel->alpha_slider = MwVaCreateWidget(MwScrollBarClass, "alpha-slider", wheel->parent,
+					       // x
+					       IMG_POS +
+						   PICKER_SIZE +
+						   SCROLL_BAR_WIDTH + MARGIN + MARGIN,
+
+					       // y
+					       IMG_POS,
+
+					       // width
+					       SCROLL_BAR_WIDTH,
+
+					       // height
+					       PICKER_SIZE, MwNorientation, MwVERTICAL, MwNminValue, 0, MwNmaxValue, 1024, NULL);
+	MwAddUserHandler(wheel->alpha_slider, MwNchangedHandler, color_wheel_on_change_alpha, wheel);
 };
 
 int main() {

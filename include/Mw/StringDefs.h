@@ -22,6 +22,8 @@
 #define MwNmain "Imain"
 #define MwNleftPadding "IleftPadding"
 #define MwNhasHeading "IhasHeading"
+#define MwnhasBorder "IhasBorder"
+#define MwNinverted "Iinverted"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

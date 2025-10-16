@@ -8,15 +8,34 @@ static int create(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	  r;
+	MwRect	  fr;
+	MwRect	  rr;
 	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 
-	r.x	 = 0;
-	r.y	 = 0;
-	r.width	 = MwGetInteger(handle, MwNwidth);
-	r.height = MwGetInteger(handle, MwNheight);
+	int hasBorder = MwGetInteger(handle, MwnhasBorder);
+	int inverted;
 
-	MwDrawRect(handle, &r, base);
+	if(hasBorder) {
+		inverted  = MwGetInteger(handle, MwNinverted);
+		fr.x	  = 0;
+		fr.y	  = 0;
+		fr.width  = MwGetInteger(handle, MwNwidth);
+		fr.height = MwGetInteger(handle, MwNheight);
+		MwDrawFrame(handle, &fr, base, inverted);
+
+		rr.x	  = MwDefaultBorderWidth;
+		rr.y	  = MwDefaultBorderWidth;
+		rr.width  = MwGetInteger(handle, MwNwidth) - (MwDefaultBorderWidth * 2);
+		rr.height = MwGetInteger(handle, MwNheight) - (MwDefaultBorderWidth * 2);
+	} else {
+
+		rr.x	  = 0;
+		rr.y	  = 0;
+		rr.width  = MwGetInteger(handle, MwNwidth);
+		rr.height = MwGetInteger(handle, MwNheight);
+	}
+
+	MwDrawRect(handle, &rr, base);
 
 	MwLLFreeColor(base);
 }
