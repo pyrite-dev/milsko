@@ -205,4 +205,4 @@ examples/%.o: examples/%.c
 	$(CC) $(E_CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f */*.dll */*.so */*.lib */*.a */*.o */*/*.o external/*/src/*.o examples/*.exe $(EXAMPLES) examples/opengl examples/vulkan
+	rm -f */*.dll */*.so */*.lib */*.a */*.o */*/*.o external/*/src/*.o examples/*/*.exe $(EXAMPLES)
