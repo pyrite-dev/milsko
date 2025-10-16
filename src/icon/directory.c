@@ -4,24 +4,19 @@
 /* XPM */
 char *MwIconDirectory[] = {
 /* columns rows colors chars-per-pixel */
-"12 14 4 1 ",
-"  c black",
-". c #996633",
-"X c #FFCC99",
-"o c None",
+"8 8 5 1 ",
+"  c NavajoWhite",
+". c #2B251D",
+"X c #B8A07D",
+"o c black",
+"O c #574B3B",
 /* pixels */
-"      oooooo",
-"XXXXXX ooooo",
-"XXXXXXX     ",
-"XXXXXX.XXXXX",
-"......XXXXXX",
-"XXXXXXXXXXXX",
-"XXXXXXXXXXXX",
-"XXXXXXXXXXXX",
-"XXXXXXXXXXXX",
-"XXXXXXXXXXXX",
-"XXXXXXXXXXXX",
-"XXXXXXXXXXXX",
-"XXXXXXXXXXXX",
-"XXXXXXXXXXXX"
+"  ..XXXX",
+"    ..XX",
+"      oX",
+"     XoO",
+"     XoO",
+"     XoO",
+"     XoO",
+"X    XoO"
 };
