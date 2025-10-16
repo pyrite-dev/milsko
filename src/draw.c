@@ -642,7 +642,7 @@ typedef struct color {
 	int   a;
 } color_t;
 
-MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
+MwLLPixmap MwLoadXPMEx(MwWidget handle, char** data, unsigned char* bgcolor) {
 	int	       col, row, colors, cpp;
 	unsigned char* rgb;
 	MwLLPixmap     px;
@@ -665,10 +665,10 @@ MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
 			shput(c, k, v);
 			ind = shgeti(c, k);
 
-			c[ind].r = 0;
-			c[ind].g = 0;
-			c[ind].b = 0;
-			c[ind].a = 0;
+			c[ind].r = bgcolor[0];
+			c[ind].g = bgcolor[1];
+			c[ind].b = bgcolor[2];
+			c[ind].a = bgcolor[3];
 		} else {
 			MwLLColor color = MwParseColor(handle, v);
 
@@ -713,4 +713,11 @@ MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
 	shfree(c);
 
 	return px;
+}
+
+MwLLPixmap MwLoadXPM(MwWidget handle, char** data){
+	unsigned char rgba[4];
+	memset(rgba, 0, 4);
+
+	return MwLoadXPMEx(handle, data, rgba);
 }
