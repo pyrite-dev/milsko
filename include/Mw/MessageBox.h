@@ -30,6 +30,12 @@ MWDECL MwWidget MwMessageBox(MwWidget handle, const char* text, const char* titl
  */
 MWDECL MwWidget MwMessageBoxGetChild(MwWidget handle, int child);
 
+/*!
+ * %brief Destroys the message box
+ * %param handle Widget
+ */
+MWDECL void MwMessageBoxDestroy(MwWidget handle);
+
 #ifdef __cplusplus
 }
 #endif
