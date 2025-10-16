@@ -21,6 +21,7 @@
 #include <Mw/Icon.h>
 #include <Mw/MessageBox.h>
 #include <Mw/Directory.h>
+#include <Mw/String.h>
 
 #include <Mw/Widget/Window.h>
 #include <Mw/Widget/Menu.h>
