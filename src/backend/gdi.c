@@ -417,20 +417,15 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 	ICONINFO ii;
 	HICON	 ico;
-	HBITMAP	 mask;
-
-	mask = CreateBitmap(pixmap->width, pixmap->height, 1, 1, NULL);
 
 	memset(&ii, 0, sizeof(ii));
 	ii.fIcon    = TRUE;
 	ii.xHotspot = 0;
 	ii.yHotspot = 0;
-	ii.hbmMask  = mask;
+	ii.hbmMask  = pixmap->hMask;
 	ii.hbmColor = pixmap->hBitmap;
 
 	ico = CreateIconIndirect(&ii);
-
-	DeleteObject(mask);
 
 	SetClassLongPtr(handle->hWnd, GCLP_HICON, (LPARAM)ico);
 
