@@ -2,6 +2,8 @@
 #include <Mw/Milsko.h>
 
 void ok(MwWidget handle, void* user, void* call) {
+	(void)handle;
+	(void)call;
 	MwMessageBoxDestroy(user);
 }
 
