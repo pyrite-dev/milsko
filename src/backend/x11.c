@@ -299,7 +299,7 @@ void MwLLNextEvent(MwLL handle) {
 			XLookupString(&ev.xkey, str, 512, &sym, NULL);
 
 			/* wtf is wrong with xlib? */
-			if(strlen(str) == 0) {
+			if(strlen(str) == 0 || (str[0] < 0x20)) {
 				char* s = XKeysymToString(sym);
 
 				strcpy(str, s);
