@@ -46,11 +46,10 @@ struct _MwLLPixmap {
 
 	int depth;
 
-	int		use_shm;
-	int		use_render;
-	XShmSegmentInfo shm;
-	Display*	display;
-	XImage*		image;
+	int	 use_render;
+	Display* display;
+	XImage*	 image;
+	XImage*	 mask;
 };
 
 #endif

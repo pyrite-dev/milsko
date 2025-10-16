@@ -88,7 +88,7 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 		r->display = parent->display;
 		p	   = parent->window;
 	}
-	r->window = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, XDefaultScreen(r->display)));
+	r->window = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, DefaultScreen(r->display)));
 
 	r->visual = get_visual_info(r->display);
 
@@ -114,7 +114,7 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	r->wm_delete = XInternAtom(r->display, "WM_DELETE_WINDOW", False);
 	XSetWMProtocols(r->display, r->window, &r->wm_delete, 1);
 
-	r->gc = XCreateGC(r->display, r->window, 0, 0);
+	r->gc = XCreateGC(r->display, r->window, 0, NULL);
 
 	create_pixmap(r);
 
@@ -355,8 +355,9 @@ void MwLLSetTitle(MwLL handle, const char* title) {
 }
 
 MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int height) {
-	MwLLPixmap	  r = malloc(sizeof(*r));
-	char*		  d = malloc(4 * width * height);
+	MwLLPixmap	  r  = malloc(sizeof(*r));
+	char*		  di = malloc(4 * width * height);
+	char*		  dm = malloc(4 * width * height);
 	int		  y, x;
 	int		  evbase, erbase;
 	XWindowAttributes attr;
@@ -367,32 +368,12 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->width   = width;
 	r->height  = height;
 	r->display = handle->display;
-	r->use_shm = XShmQueryExtension(handle->display) ? 1 : 0;
 	r->data	   = malloc(sizeof(unsigned long) * width * height);
 
 	r->use_render = XRenderQueryExtension(handle->display, &evbase, &erbase) ? 1 : 0;
-	r->use_render = 0;
 
-	/* FIXME */
-	r->use_shm = 0;
-
-	if(r->use_shm) {
-		r->image = XShmCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), r->depth, ZPixmap, NULL, &r->shm, width, height);
-
-		r->shm.shmid = shmget(IPC_PRIVATE, r->image->bytes_per_line * height, IPC_CREAT | 0777);
-		if(r->shm.shmid == -1) {
-			XDestroyImage(r->image);
-			r->use_shm = 0;
-		} else {
-			free(d);
-			r->shm.shmaddr = d = r->image->data = shmat(r->shm.shmid, 0, 0);
-			r->shm.readOnly			    = False;
-			XShmAttach(handle->display, &r->shm);
-		}
-	}
-	if(!r->use_shm) {
-		r->image = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), r->depth, ZPixmap, 0, d, width, height, 32, width * 4);
-	}
+	r->image = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), r->depth, ZPixmap, 0, di, width, height, 32, width * 4);
+	r->mask	 = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), r->depth, ZPixmap, 0, dm, width, height, 32, width * 4);
 
 	for(y = 0; y < height; y++) {
 		for(x = 0; x < width; x++) {
@@ -406,20 +387,23 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 			*(unsigned long*)(&r->data[(y * width + x) * sizeof(unsigned long)]) = (px[3] << 24) | p;
 		}
 	}
+	for(y = 0; y < height; y++) {
+		for(x = 0; x < width; x++) {
+			if(data[(y * width + x) * 4 + 3]) {
+				XPutPixel(r->mask, x, y, 1);
+			} else {
+				XPutPixel(r->mask, x, y, 0);
+			}
+		}
+	}
 
 	return r;
 }
 
 void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 	if(pixmap->image != NULL) {
-		if(pixmap->use_shm) {
-			XShmDetach(pixmap->display, &pixmap->shm);
-		}
 		XDestroyImage(pixmap->image);
-		if(pixmap->use_shm) {
-			shmdt(pixmap->shm.shmaddr);
-			shmctl(pixmap->shm.shmid, IPC_RMID, 0);
-		}
+		XDestroyImage(pixmap->mask);
 		free(pixmap->data);
 	}
 
@@ -429,12 +413,33 @@ void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	if(pixmap->image != NULL && pixmap->use_render) {
 		Pixmap			 px	= XCreatePixmap(handle->display, handle->window, pixmap->width, pixmap->height, pixmap->depth);
+		Pixmap			 mask	= XCreatePixmap(handle->display, handle->window, rect->width, rect->height, 1);
+		Pixmap			 pxsrc	= XCreatePixmap(handle->display, handle->window, rect->width, rect->height, pixmap->depth);
+		GC			 maskgc = XCreateGC(handle->display, mask, 0, NULL);
 		XRenderPictFormat*	 format = XRenderFindStandardFormat(handle->display, PictStandardRGB24);
 		XRenderPictureAttributes attr;
 		Picture			 src, dest;
 		XTransform		 m;
 		double			 xsc = (double)pixmap->width / rect->width;
 		double			 ysc = (double)pixmap->height / rect->height;
+		char*			 dm  = malloc(rect->width * rect->height * 4);
+		XImage*			 destmask;
+		int			 y, x;
+
+		destmask = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, dm, rect->width, rect->height, 32, rect->width * 4);
+
+		for(y = 0; y < (int)rect->height; y++) {
+			for(x = 0; x < (int)rect->width; x++) {
+				int sy = y * pixmap->height / rect->height;
+				int sx = x * pixmap->width / rect->width;
+				sy     = (int)sy;
+				sx     = (int)sx;
+
+				XPutPixel(destmask, x, y, XGetPixel(pixmap->mask, sx, sy));
+			}
+		}
+
+		XPutImage(handle->display, mask, maskgc, destmask, 0, 0, 0, 0, rect->width, rect->height);
 
 		m.matrix[0][0] = XDoubleToFixed(xsc);
 		m.matrix[0][1] = XDoubleToFixed(0);
@@ -450,31 +455,39 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 		memset(&attr, 0, sizeof(attr));
 
-		if(pixmap->use_shm) {
-			XShmPutImage(handle->display, px, handle->gc, pixmap->image, 0, 0, 0, 0, pixmap->width, pixmap->height, False);
-		} else {
-			XPutImage(handle->display, px, handle->gc, pixmap->image, 0, 0, 0, 0, pixmap->width, pixmap->height);
-		}
+		XPutImage(handle->display, px, handle->gc, pixmap->image, 0, 0, 0, 0, pixmap->width, pixmap->height);
 
 		src  = XRenderCreatePicture(handle->display, px, format, 0, &attr);
-		dest = XRenderCreatePicture(handle->display, handle->pixmap, format, 0, &attr);
+		dest = XRenderCreatePicture(handle->display, pxsrc, format, 0, &attr);
 
 		XRenderSetPictureTransform(handle->display, src, &m);
-		XRenderComposite(handle->display, PictOpSrc, src, 0, dest, 0, 0, 0, 0, rect->x, rect->y, rect->width, rect->height);
+		XRenderComposite(handle->display, PictOpSrc, src, 0, dest, 0, 0, 0, 0, 0, 0, rect->width, rect->height);
 
 		XRenderFreePicture(handle->display, src);
 		XRenderFreePicture(handle->display, dest);
 
-		XFreePixmap(handle->display, px);
-	} else if(pixmap->image != NULL) {
-		int		use_shm = XShmQueryExtension(handle->display) ? 1 : 0;
-		XImage*		dest;
-		XShmSegmentInfo shm;
-		char*		d = malloc(rect->width * rect->height * 4);
-		int		y, x;
+		XSetClipMask(handle->display, handle->gc, mask);
+		XSetClipOrigin(handle->display, handle->gc, rect->x, rect->y);
+		XCopyArea(handle->display, pxsrc, handle->pixmap, handle->gc, 0, 0, rect->width, rect->height, rect->x, rect->y);
+		XSetClipMask(handle->display, handle->gc, None);
 
-		/* FIXME */
-		use_shm = 0;
+		XDestroyImage(destmask);
+
+		XFreeGC(handle->display, maskgc);
+		XFreePixmap(handle->display, mask);
+		XFreePixmap(handle->display, px);
+		XFreePixmap(handle->display, pxsrc);
+	} else if(pixmap->image != NULL) {
+		XImage* dest;
+		XImage* destmask;
+		Pixmap	mask   = XCreatePixmap(handle->display, handle->window, rect->width, rect->height, 1);
+		GC	maskgc = XCreateGC(handle->display, mask, 0, NULL);
+		char*	di     = malloc(rect->width * rect->height * 4);
+		char*	dm     = malloc(rect->width * rect->height * 4);
+		int	y, x;
+
+		dest	 = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), pixmap->depth, ZPixmap, 0, di, rect->width, rect->height, 32, rect->width * 4);
+		destmask = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, dm, rect->width, rect->height, 32, rect->width * 4);
 
 		for(y = 0; y < (int)rect->height; y++) {
 			for(x = 0; x < (int)rect->width; x++) {
@@ -486,42 +499,25 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 				sx = (int)sx;
 
 				ipx = &pixmap->image->data[(pixmap->width * sy + sx) * (pixmap->image->bitmap_unit / 8)];
-				opx = &d[(rect->width * y + x) * (pixmap->image->bitmap_unit / 8)];
+				opx = &di[(rect->width * y + x) * (pixmap->image->bitmap_unit / 8)];
 				memcpy(opx, ipx, pixmap->image->bitmap_unit / 8);
+
+				XPutPixel(destmask, x, y, XGetPixel(pixmap->mask, sx, sy));
 			}
 		}
 
-		if(use_shm) {
-			dest	  = XShmCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), pixmap->depth, ZPixmap, NULL, &shm, rect->width, rect->height);
-			shm.shmid = shmget(IPC_PRIVATE, dest->bytes_per_line * rect->height, IPC_CREAT | 0777);
-			if(shm.shmid == -1) {
-				XDestroyImage(dest);
-				use_shm = 0;
-			} else {
-				free(d);
-				shm.shmaddr = d = dest->data = shmat(shm.shmid, 0, 0);
-				shm.readOnly		     = False;
-				XShmAttach(handle->display, &shm);
-			}
-		}
-		if(!use_shm) {
-			dest = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), pixmap->depth, ZPixmap, 0, d, rect->width, rect->height, 32, rect->width * 4);
-		}
+		XPutImage(handle->display, mask, maskgc, destmask, 0, 0, 0, 0, rect->width, rect->height);
 
-		if(use_shm) {
-			XShmPutImage(handle->display, handle->pixmap, handle->gc, dest, 0, 0, rect->x, rect->y, rect->width, rect->height, False);
-		} else {
-			XPutImage(handle->display, handle->pixmap, handle->gc, dest, 0, 0, rect->x, rect->y, rect->width, rect->height);
-		}
+		XSetClipMask(handle->display, handle->gc, mask);
+		XSetClipOrigin(handle->display, handle->gc, rect->x, rect->y);
+		XPutImage(handle->display, handle->pixmap, handle->gc, dest, 0, 0, rect->x, rect->y, rect->width, rect->height);
+		XSetClipMask(handle->display, handle->gc, None);
 
-		if(use_shm) {
-			XShmDetach(handle->display, &shm);
-		}
 		XDestroyImage(dest);
-		if(use_shm) {
-			shmdt(shm.shmaddr);
-			shmctl(shm.shmid, IPC_RMID, 0);
-		}
+		XDestroyImage(destmask);
+
+		XFreeGC(handle->display, maskgc);
+		XFreePixmap(handle->display, mask);
 	}
 }
 

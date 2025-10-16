@@ -620,7 +620,7 @@ MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height)
 
 	MwLLFreeColor(bg);
 
-	px = MwLLCreatePixmap(handle->lowlevel, out, width, height);
+	px = MwLLCreatePixmap(handle->lowlevel, rgb, width, height);
 
 	free(out);
 
@@ -715,7 +715,7 @@ MwLLPixmap MwLoadXPMEx(MwWidget handle, char** data, unsigned char* bgcolor) {
 	return px;
 }
 
-MwLLPixmap MwLoadXPM(MwWidget handle, char** data){
+MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
 	unsigned char rgba[4];
 	memset(rgba, 0, 4);
 
