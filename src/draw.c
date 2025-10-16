@@ -363,12 +363,6 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 }
 
 void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
-	MwLLColor bg = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwDrawTextEx(handle, point, text, bold, align, color, bg);
-	MwLLFreeColor(bg);
-}
-
-void MwDrawTextEx(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color, MwLLColor bgcolor) {
 	int	       i  = 0, x, y, sx, sy;
 	int	       tw = MwTextWidth(handle, text);
 	int	       th = MwTextHeight(handle, text);
@@ -400,10 +394,10 @@ void MwDrawTextEx(MwWidget handle, MwPoint* point, const char* text, int bold, i
 						ppx[2] = color->blue;
 						ppx[3] = 255;
 					} else {
-						ppx[0] = bgcolor->red;
-						ppx[1] = bgcolor->green;
-						ppx[2] = bgcolor->blue;
-						ppx[3] = 255;
+						ppx[0] = 0;
+						ppx[1] = 0;
+						ppx[2] = 0;
+						ppx[3] = 0;
 					}
 				}
 			}
@@ -604,25 +598,8 @@ MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 
 MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height) {
 	MwLLPixmap     px;
-	MwLLColor      bg  = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	unsigned char* out = malloc(width * height * 4);
-	int	       y, x;
-	for(y = 0; y < height; y++) {
-		for(x = 0; x < width; x++) {
-			unsigned char* pin  = &rgb[(y * width + x) * 4];
-			unsigned char* pout = &out[(y * width + x) * 4];
-			pout[0]		    = pin[0] * (pin[3] / 255.0) + bg->red * (1.0 - pin[3] / 255.0);
-			pout[1]		    = pin[1] * (pin[3] / 255.0) + bg->green * (1.0 - pin[3] / 255.0);
-			pout[2]		    = pin[2] * (pin[3] / 255.0) + bg->blue * (1.0 - pin[3] / 255.0);
-			pout[3]		    = 255;
-		}
-	}
-
-	MwLLFreeColor(bg);
 
 	px = MwLLCreatePixmap(handle->lowlevel, rgb, width, height);
-
-	free(out);
 
 	return px;
 }
@@ -642,7 +619,7 @@ typedef struct color {
 	int   a;
 } color_t;
 
-MwLLPixmap MwLoadXPMEx(MwWidget handle, char** data, unsigned char* bgcolor) {
+MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
 	int	       col, row, colors, cpp;
 	unsigned char* rgb;
 	MwLLPixmap     px;
@@ -665,10 +642,10 @@ MwLLPixmap MwLoadXPMEx(MwWidget handle, char** data, unsigned char* bgcolor) {
 			shput(c, k, v);
 			ind = shgeti(c, k);
 
-			c[ind].r = bgcolor[0];
-			c[ind].g = bgcolor[1];
-			c[ind].b = bgcolor[2];
-			c[ind].a = bgcolor[3];
+			c[ind].r = 0;
+			c[ind].g = 0;
+			c[ind].b = 0;
+			c[ind].a = 0;
 		} else {
 			MwLLColor color = MwParseColor(handle, v);
 
@@ -713,11 +690,4 @@ MwLLPixmap MwLoadXPMEx(MwWidget handle, char** data, unsigned char* bgcolor) {
 	shfree(c);
 
 	return px;
-}
-
-MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
-	unsigned char rgba[4];
-	memset(rgba, 0, 4);
-
-	return MwLoadXPMEx(handle, data, rgba);
 }
