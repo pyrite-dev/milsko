@@ -14,6 +14,9 @@ void destroy(MwWidget handle, void* user, void* call) {
 void activate(MwWidget handle, void* user, void* call) {
 	char	 msg[256];
 	MwWidget msgbox;
+
+	(void)user;
+
 	sprintf(msg, "You pressed: %s", MwListBoxGet(handle, *(int*)call));
 
 	msgbox = MwMessageBox(wmain, msg, "wow", MwMB_ICONINFO | MwMB_BUTTONOK);

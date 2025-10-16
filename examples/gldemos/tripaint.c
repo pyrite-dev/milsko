@@ -23,6 +23,10 @@ static void tick(MwWidget handle, void* user, void* call) {
 	int w = MwGetInteger(opengl, MwNwidth);
 	int h = MwGetInteger(opengl, MwNheight);
 
+	(void)handle;
+	(void)user;
+	(void)call;
+
 	MwOpenGLMakeCurrent(opengl);
 
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -49,6 +53,10 @@ static void tick(MwWidget handle, void* user, void* call) {
 
 static void mouse(MwWidget handle, void* user, void* call) {
 	MwLLMouse* mouse = call;
+
+	(void)handle;
+	(void)user;
+
 	if(mouse->button == MwLLMouseLeft) {
 		t[ct].points[click * 2 + 0] = mouse->point.x;
 		t[ct].points[click * 2 + 1] = mouse->point.y;
@@ -86,8 +94,13 @@ static void mouse(MwWidget handle, void* user, void* call) {
 
 static void mouse_move(MwWidget handle, void* user, void* call) {
 	MwPoint* point = call;
+
+	(void)handle;
+	(void)user;
+
 	mx	       = point->x;
 	my	       = point->y;
+
 	if(click == 2) {
 		t[ct].points[2 * 2 + 0] = point->x;
 		t[ct].points[2 * 2 + 1] = point->y;

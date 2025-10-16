@@ -14,12 +14,19 @@ static int get_first_entry(MwListBox lb) {
 
 static void vscroll_changed(MwWidget handle, void* user, void* call) {
 	MwListBox lb = handle->parent->internal;
+
+	(void)user;
+	(void)call;
+
 	MwForceRender(lb->frame);
 }
 
 static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 	MwListBox  lb = handle->parent->internal;
 	MwLLMouse* m  = call;
+
+	(void)user;
+
 	if(m->button == MwLLMouseLeft) {
 		int st = 0;
 		int i;
@@ -47,6 +54,9 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 static void frame_mouse_up(MwWidget handle, void* user, void* call) {
 	MwListBox  lb = handle->parent->internal;
 	MwLLMouse* m  = call;
+
+	(void)user;
+
 	if(m->button == MwLLMouseLeft) {
 		lb->pressed = 0;
 	}
@@ -55,6 +65,9 @@ static void frame_mouse_up(MwWidget handle, void* user, void* call) {
 static void frame_mouse_move(MwWidget handle, void* user, void* call) {
 	MwListBox lb = handle->parent->internal;
 	MwPoint*  p  = call;
+
+	(void)user;
+
 	if(lb->pressed) {
 		int st = 0;
 		int i;
