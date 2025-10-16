@@ -335,8 +335,10 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	MwLLPixmap	 r  = malloc(sizeof(*r));
 	HDC		 dc = GetDC(handle->hWnd);
 	BITMAPINFOHEADER bmih;
-	RGBQUAD*	 quad = NULL;
+	RGBQUAD*	 quad;
 	int		 y, x;
+	int		 w     = (width + (16 - (width % 16))) / 8;
+	WORD*		 words = malloc(w * height);
 
 	r->width  = width;
 	r->height = height;
@@ -355,15 +357,26 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 
 	r->hBitmap = CreateDIBSection(dc, (BITMAPINFO*)&bmih, DIB_RGB_COLORS, (void**)&quad, NULL, (DWORD)0);
 
+	memset(words, 0, w * height);
 	for(y = 0; y < height; y++) {
+		BYTE* l = (BYTE*)&words[y * (w / 2)];
 		for(x = 0; x < width; x++) {
 			RGBQUAD*       q  = &quad[y * width + x];
 			unsigned char* px = &data[(y * width + x) * 4];
-			q->rgbRed	  = px[0];
-			q->rgbGreen	  = px[1];
-			q->rgbBlue	  = px[2];
+
+			q->rgbRed   = px[0];
+			q->rgbGreen = px[1];
+			q->rgbBlue  = px[2];
+
+			if(px[3]) {
+				l[x / 8] |= 1 << (7 - (x % 8));
+			}
 		}
 	}
+
+	r->hMask = CreateBitmap(width, height, 1, 1, words);
+
+	free(words);
 
 	ReleaseDC(handle->hWnd, dc);
 
@@ -382,7 +395,7 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	SelectObject(hmdc, pixmap->hBitmap);
 
 	SetStretchBltMode(handle->hDC, HALFTONE);
-	StretchBlt(handle->hDC, rect->x, rect->y, rect->width, rect->height, hmdc, 0, 0, pixmap->width, pixmap->height, SRCCOPY);
+	MaskBlt(handle->hDC, rect->x, rect->y, rect->width, rect->height, hmdc, 0, 0, pixmap->hMask, 0, 0, MAKEROP4(SRCCOPY, 0x00AA0029));
 
 	DeleteDC(hmdc);
 }
@@ -470,13 +483,13 @@ void MwLLDetach(MwLL handle, MwPoint* point) {
 
 	GetClientRect(handle->hWnd, &rc2);
 
-	SetWindowLongPtr(handle->hWnd, GWL_STYLE, (LPARAM)WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+	SetWindowLongPtr(handle->hWnd, GWL_STYLE, (LPARAM)WS_OVERLAPPEDWINDOW);
 	SetParent(handle->hWnd, NULL);
 
 	rc.left += point->x;
 	rc.top += point->y;
 
-	AdjustWindowRect(&rc2, WS_OVERLAPPEDWINDOW | WS_VISIBLE, FALSE);
+	AdjustWindowRect(&rc2, WS_OVERLAPPEDWINDOW, FALSE);
 	rc2.right -= rc2.left;
 	rc2.bottom -= rc2.top;
 

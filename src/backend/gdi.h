@@ -45,6 +45,7 @@ struct _MwLLPixmap {
 	int height;
 
 	HBITMAP hBitmap;
+	HBITMAP hMask;
 };
 
 #endif
