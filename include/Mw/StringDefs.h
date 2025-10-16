@@ -14,6 +14,7 @@
 #define MwNminValue "IminValue"
 #define MwNmaxValue "ImaxValue"
 #define MwNvalue "Ivalue"
+#define MwNchangedBy "IchangedBy"
 #define MwNareaShown "IareaShown"
 #define MwNchecked "Ichecked"
 #define MwNalignment "Ialignment"
