@@ -311,7 +311,7 @@ int MwLLPending(MwLL handle) {
 
 	(void)handle;
 
-	return PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE) ? 1 : 0;
+	return PeekMessage(&msg, handle->hWnd, 0, 0, PM_NOREMOVE) ? 1 : 0;
 }
 
 void MwLLNextEvent(MwLL handle) {
@@ -319,8 +319,8 @@ void MwLLNextEvent(MwLL handle) {
 
 	(void)handle;
 
-	while(PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-		GetMessage(&msg, NULL, 0, 0);
+	while(PeekMessage(&msg, handle->hWnd, 0, 0, PM_NOREMOVE)) {
+		GetMessage(&msg, handle->hWnd, 0, 0);
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
