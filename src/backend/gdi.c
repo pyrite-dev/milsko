@@ -337,8 +337,12 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	BITMAPINFOHEADER bmih;
 	RGBQUAD*	 quad;
 	int		 y, x;
-	int		 w     = (width + (16 - (width % 16))) / 8;
-	WORD*		 words = malloc(w * height);
+	int		 w = (width + (16 - (width % 16))) / 8;
+	WORD*		 words;
+
+	if(16 * (width / 16) == width) w -= 2;
+
+	words = malloc(w * height);
 
 	r->width  = width;
 	r->height = height;
@@ -478,18 +482,22 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 }
 
 void MwLLDetach(MwLL handle, MwPoint* point) {
-	RECT rc, rc2;
+	RECT   rc, rc2;
+	LPARAM lp = GetWindowLongPtr(handle->hWnd, GWL_STYLE);
+
+	lp &= WS_VISIBLE;
+
 	GetWindowRect(GetParent(handle->hWnd), &rc);
 
 	GetClientRect(handle->hWnd, &rc2);
 
-	SetWindowLongPtr(handle->hWnd, GWL_STYLE, (LPARAM)WS_OVERLAPPEDWINDOW);
+	SetWindowLongPtr(handle->hWnd, GWL_STYLE, (LPARAM)WS_OVERLAPPEDWINDOW | lp);
 	SetParent(handle->hWnd, NULL);
 
 	rc.left += point->x;
 	rc.top += point->y;
 
-	AdjustWindowRect(&rc2, WS_OVERLAPPEDWINDOW, FALSE);
+	AdjustWindowRect(&rc2, WS_OVERLAPPEDWINDOW | lp, FALSE);
 	rc2.right -= rc2.left;
 	rc2.bottom -= rc2.top;
 
