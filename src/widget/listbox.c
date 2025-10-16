@@ -139,7 +139,7 @@ static void frame_draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 
-	p.x = MwDefaultBorderWidth + MwGetInteger(handle->parent, MwNleftPadding);
+	p.x = MwDefaultBorderWidth;
 	p.y = MwDefaultBorderWidth;
 
 	st = get_first_entry(handle->parent, lb);
@@ -166,7 +166,7 @@ static void frame_draw(MwWidget handle) {
 			MwLLDrawPixmap(handle->lowlevel, &r2, lb->list[i].pixmap);
 		}
 		p.y += MwTextHeight(handle, "M") / 2;
-		p.x = 0;
+		p.x = MwGetInteger(handle->parent, MwNleftPadding);
 		for(j = 0; j < arrlen(lb->list[i].name); j++) {
 			p.x += MwDefaultBorderWidth;
 			MwDrawText(handle, &p, lb->list[i].name[j], 0, MwALIGNMENT_BEGINNING, selected ? base : text);
