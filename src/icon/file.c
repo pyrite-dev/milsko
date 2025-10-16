@@ -1,4 +1,4 @@
-/* $Id: icon.sh 344 2025-10-15 16:17:47Z nishi $ */
+/* $Id$ */
 #include <Mw/Milsko.h>
 
 /* XPM */
