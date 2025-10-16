@@ -373,7 +373,7 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->use_render = XRenderQueryExtension(handle->display, &evbase, &erbase) ? 1 : 0;
 
 	r->image = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), r->depth, ZPixmap, 0, di, width, height, 32, width * 4);
-	r->mask	 = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), r->depth, ZPixmap, 0, dm, width, height, 32, width * 4);
+	r->mask	 = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, dm, width, height, 32, width * 4);
 
 	for(y = 0; y < height; y++) {
 		for(x = 0; x < width; x++) {
