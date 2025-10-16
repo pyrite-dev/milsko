@@ -11,7 +11,7 @@ USE_STB_IMAGE = 1
 CC = $(GCC)gcc
 CXX = $(GCC)g++
 
-CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Wno-unused-value -Wno-sign-compare -Iinclude
+CFLAGS = -Wall -Wextra -Wno-implicit-fallthrough -Wno-sign-compare -Iinclude
 LDFLAGS =
 LIBS =
 
@@ -199,7 +199,7 @@ oosrc/%.o: oosrc/%.cc
 	$(CXX) $(OOL_CXXFLAGS) -fno-exceptions -fno-rtti -c -o $@ $<
 
 external/%.o: external/%.c
-	$(CC) $(L_CFLAGS) -c -o $@ $<
+	$(CC) $(L_CFLAGS) -Wno-unused-value -Wno-unused-parameter -c -o $@ $<
 
 examples/%.o: examples/%.c
 	$(CC) $(E_CFLAGS) -c -o $@ $<

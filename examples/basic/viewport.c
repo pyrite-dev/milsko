@@ -7,6 +7,9 @@ static void resize(MwWidget handle, void* user, void* call) {
 	int w = MwGetInteger(handle, MwNwidth);
 	int h = MwGetInteger(handle, MwNheight);
 
+	(void)user;
+	(void)call;
+
 	MwVaApply(vp,
 		  MwNwidth, w - 10,
 		  MwNheight, h - 10,

@@ -9,16 +9,28 @@ void ok(MwWidget handle, void* user, void* call) {
 
 void spawn(MwWidget handle, void* user, void* call) {
 	MwWidget mb = MwMessageBox(user, "news has arrived!", "title", MwMB_ICONNEWS | MwMB_BUTTONOK);
+
+	(void)handle;
+	(void)call;
+
 	MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, ok, mb);
 }
 
 void spawn2(MwWidget handle, void* user, void* call) {
 	MwWidget mb = MwMessageBox(user, "something went wrong!", "title", MwMB_ICONERROR | MwMB_BUTTONOK);
+
+	(void)handle;
+	(void)call;
+
 	MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, ok, mb);
 }
 
 void spawn3(MwWidget handle, void* user, void* call) {
 	int i;
+
+	(void)handle;
+	(void)call;
+
 	for(i = 0; i <= 6; i++) {
 		MwWidget mb = MwMessageBox(user, "messagebox test", "title", i | MwMB_BUTTONOK);
 		MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, ok, mb);

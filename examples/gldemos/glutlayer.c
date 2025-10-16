@@ -23,7 +23,6 @@ static void tick(MwWidget handle, void* user, void* client) {
 static void resize(MwWidget handle, void* user, void* client) {
 	int ww, wh;
 
-	(void)handle;
 	(void)user;
 	(void)client;
 
@@ -39,6 +38,9 @@ static void resize(MwWidget handle, void* user, void* client) {
 }
 
 static void key_pressed(MwWidget handle, void* user, void* client) {
+	(void)handle;
+	(void)user;
+
 	key(*(int*)client);
 }
 

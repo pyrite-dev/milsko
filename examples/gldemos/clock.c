@@ -21,6 +21,11 @@ void tick(MwWidget handle, void* user, void* call) {
 	int    render = 0;
 	int    w      = MwGetInteger(opengl, MwNwidth);
 	int    h      = MwGetInteger(opengl, MwNheight);
+
+	(void)handle;
+	(void)user;
+	(void)call;
+
 	if(last != t) {
 		char* wday[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 		char* mon[]  = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -103,6 +108,9 @@ void tick(MwWidget handle, void* user, void* call) {
 void resize(MwWidget handle, void* user, void* call) {
 	int w = MwGetInteger(handle, MwNwidth);
 	int h = MwGetInteger(handle, MwNheight);
+
+	(void)user;
+	(void)call;
 
 	MwVaApply(opengl,
 		  MwNwidth, w / 5 * 2,
