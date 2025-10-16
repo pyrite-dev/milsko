@@ -23,20 +23,39 @@ MWDECL MwClass MwListBoxClass;
  * %brief Inserts item on the listbox
  * %param handle Widget
  * %param index Index
- * %param text Text
  * %param pixmap Pixmap
+ * %param ... Text
  */
-MWDECL void MwListBoxInsert(MwWidget handle, int index, const char* text, MwLLPixmap pixmap);
+MWDECL void MwListBoxInsert(MwWidget handle, int index, MwLLPixmap pixmap, ...); /* VA_HINT:pixmap */
 
 /*!
  * %brief Inserts multiple items on the listbox
  * %param handle Widget
  * %param index Index
- * %param text Text
- * %param pixmap Pixmap
  * %param count Count
+ * %param pixmap Pixmap
+ * %param ... Text
  */
-MWDECL void MwListBoxInsertMultiple(MwWidget handle, int index, char** text, MwLLPixmap* pixmap, int count);
+MWDECL void MwListBoxInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, ...); /* VA_HINT:pixmap */
+
+/*!
+ * %brief Inserts item on the listbox
+ * %param handle Widget
+ * %param index Index
+ * %param pixmap Pixmap
+ * %param va Text
+ */
+MWDECL void MwListBoxVaInsert(MwWidget handle, int index, MwLLPixmap pixmap, va_list va);
+
+/*!
+ * %brief Inserts multiple items on the listbox
+ * %param handle Widget
+ * %param index Index
+ * %param count Count
+ * %param pixmap Pixmap
+ * %param va Text
+ */
+MWDECL void MwListBoxVaInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, va_list va);
 
 /*!
  * %brief Deletes item from the listbox
@@ -52,6 +71,14 @@ MWDECL void MwListBoxDelete(MwWidget handle, int index);
  * %return Item
  */
 MWDECL const char* MwListBoxGet(MwWidget handle, int index);
+
+/*!
+ * %brief Sets an item width of the listbox
+ * %param handle Widget
+ * %param index Column index
+ * %param width Width
+ */
+MWDECL void MwListBoxSetWidth(MwWidget handle, int index, int width);
 
 #ifdef __cplusplus
 }

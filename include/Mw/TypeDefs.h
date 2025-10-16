@@ -121,7 +121,7 @@ struct _MwViewport {
 };
 
 struct _MwListBoxEntry {
-	char*	   name;
+	char**	   name;
 	MwLLPixmap pixmap;
 };
 
@@ -132,6 +132,7 @@ struct _MwListBox {
 	int		selected;
 	unsigned long	click_time;
 	int		pressed;
+	int*		width;
 };
 
 struct _MwSizeHints {

@@ -8,6 +8,7 @@ MwOO::Window::Window(const char* widget_name, MwOO::Base* parent, int x, int y, 
 void MwOO::Window::MakeBorderless(int toggle){
 	MwWindowMakeBorderless(this->widget, toggle);
 }
+
 void MwOO::Window::SetTitle(const char* value){
 	MwSetText(this->widget, MwNtitle, value);
 }

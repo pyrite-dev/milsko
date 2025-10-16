@@ -15,6 +15,11 @@ MwOO::Base::Base(MwWidget widget, int gc){
 	this->SetHandler();
 }
 
+MwOO::Base::Base(void){
+	this->widget = NULL;
+	this->can_be_gc = 0;
+}
+
 MwOO::Base::~Base(void){
 	if(this->can_be_gc) MwDestroyWidget(this->widget);
 }

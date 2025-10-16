@@ -20,6 +20,7 @@
 #define MwNbold "Ibold"
 #define MwNmain "Imain"
 #define MwNleftPadding "IleftPadding"
+#define MwNhasHeading "IhasHeading"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

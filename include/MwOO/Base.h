@@ -33,6 +33,7 @@ class Base {
 
 	/* END AUTOGENERATE */
 
+	Base(void);
 	Base(MwClass widget_class, const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
 	Base(MwWidget widget, int gc = 0);
 	~Base(void);

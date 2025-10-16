@@ -41,7 +41,7 @@ enum MwALIGNMENT {
 /*!
  * %brief Directory entry type
  */
-enum {
+enum MwDIRECTORY_TYPE {
 	MwDIRECTORY_FILE = 0,
 	MwDIRECTORY_DIRECTORY
 };

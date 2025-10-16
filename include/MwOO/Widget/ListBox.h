@@ -8,10 +8,13 @@ namespace MwOO {
 class ListBox : public MwOO::Base {
       public:
 	ListBox(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
-	void	    Insert(int index, const char* text, MwLLPixmap pixmap);
-	void	    InsertMultiple(int index, char** text, MwLLPixmap* pixmap, int count);
+	void	    Insert(int index, MwLLPixmap pixmap, ...);
+	void	    InsertMultiple(int index, int count, MwLLPixmap* pixmap, ...);
+	void	    VaInsert(int index, MwLLPixmap pixmap, va_list va);
+	void	    VaInsertMultiple(int index, int count, MwLLPixmap* pixmap, va_list va);
 	void	    Delete(int index);
 	const char* Get(int index);
+	void	    SetWidth(int index, int width);
 	void	    SetLeftPadding(int value);
 	int	    GetLeftPadding(void);
 	void	    SetBackground(const char* value);

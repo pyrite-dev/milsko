@@ -8,18 +8,27 @@ MwOO::Vulkan::Vulkan(const char* widget_name, MwOO::Base* parent, int x, int y, 
 void MwOO::Vulkan::EnableExtension(void){
 	MwVulkanEnableExtension(this->widget);
 }
+
 void MwOO::Vulkan::EnableLayer(void){
 	MwVulkanEnableLayer(this->widget);
 }
+
 void MwOO::Vulkan::Configure(void){
 	MwVulkanConfigure(this->widget);
 }
+
 void* MwOO::Vulkan::GetField(MwVulkanField field, MwErrorEnum* out){
-	return MwVulkanGetField(this->widget, field, out);
+	void* ret;
+	ret = MwVulkanGetField(this->widget, field, out);
+	return ret;
 }
+
 VkBool32 MwOO::Vulkan::Supported(void){
-	return MwVulkanSupported(this->widget);
+	VkBool32 ret;
+	ret = MwVulkanSupported(this->widget);
+	return ret;
 }
+
 void MwOO::Vulkan::SetBackground(const char* value){
 	MwSetText(this->widget, MwNbackground, value);
 }
