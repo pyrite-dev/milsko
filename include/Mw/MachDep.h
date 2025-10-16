@@ -18,8 +18,6 @@
 #include <time.h>
 #ifndef _WIN32
 #include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
 #include <dlfcn.h>
 #include <signal.h>
 #include <dirent.h>
