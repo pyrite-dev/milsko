@@ -98,8 +98,8 @@ static void mouse_move(MwWidget handle, void* user, void* call) {
 	(void)handle;
 	(void)user;
 
-	mx	       = point->x;
-	my	       = point->y;
+	mx = point->x;
+	my = point->y;
 
 	if(click == 2) {
 		t[ct].points[2 * 2 + 0] = point->x;

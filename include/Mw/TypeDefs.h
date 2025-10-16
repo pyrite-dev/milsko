@@ -21,6 +21,7 @@ typedef struct _MwMenu*		      MwMenu;
 typedef struct _MwEntry*	      MwEntry;
 typedef struct _MwViewport*	      MwViewport;
 typedef struct _MwListBox*	      MwListBox;
+typedef struct _MwListBoxEntry	      MwListBoxEntry;
 typedef struct _MwSizeHints	      MwSizeHints;
 typedef struct _MwDirectoryEntry      MwDirectoryEntry;
 #ifdef _MILSKO
@@ -119,14 +120,18 @@ struct _MwViewport {
 	MwWidget inframe;
 };
 
+struct _MwListBoxEntry {
+	char*	   name;
+	MwLLPixmap pixmap;
+};
+
 struct _MwListBox {
-	MwWidget      vscroll;
-	MwWidget      frame;
-	char**	      list;
-	MwLLPixmap*   pixmap_list;
-	int	      selected;
-	unsigned long click_time;
-	int	      pressed;
+	MwWidget	vscroll;
+	MwWidget	frame;
+	MwListBoxEntry* list;
+	int		selected;
+	unsigned long	click_time;
+	int		pressed;
 };
 
 struct _MwSizeHints {
