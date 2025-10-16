@@ -1,22 +1,274 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-MwWidget MwFileChooser(MwWidget handle, const char* title){
-	MwWidget window;
-	MwPoint	 p;
-	int	 ww = MwGetInteger(handle, MwNwidth);
-	int	 wh = MwGetInteger(handle, MwNheight);
-	int	 w, h;
+typedef struct filechooser {
+	MwWidget nav;
+	MwWidget files;
+	MwWidget addr;
+	MwWidget addr_back;
+	MwWidget addr_fwd;
+	MwWidget addr_up;
+	MwWidget filename_label;
+	MwWidget filename;
+	MwWidget okay;
+	MwWidget cancel;
+
+	MwLLPixmap dir;
+	MwLLPixmap file;
+	MwLLPixmap back;
+	MwLLPixmap forward;
+	MwLLPixmap up;
+} filechooser_t;
+
+static void destroy(MwWidget handle) {
+	filechooser_t* fc = handle->opaque;
+
+	MwLLDestroyPixmap(fc->dir);
+	MwLLDestroyPixmap(fc->file);
+	free(handle->opaque);
+	MwDestroyWidget(handle);
+}
+
+static void cancel(MwWidget handle, void* user, void* call) {
+	(void)user;
+	(void)call;
+
+	destroy(handle->parent);
+}
+
+static void okay(MwWidget handle, void* user, void* call) {
+	(void)user;
+	(void)call;
+
+	destroy(handle->parent);
+}
+
+static void layout(MwWidget handle) {
+	filechooser_t* fc = handle->opaque;
+	int	       w  = MwGetInteger(handle, MwNwidth);
+	int	       h  = MwGetInteger(handle, MwNheight);
+	int	       wx, wy, ww, wh;
+
+	wx = 5;
+	wy = 5 + 24 + 5;
+	ww = 160;
+	wh = h - 10 - 24 - 5 - 24 - 5 - 24 - 5;
+	if(fc->nav == NULL) {
+		fc->nav = MwCreateWidget(MwListBoxClass, "nav", handle, wx, wy, ww, wh);
+	} else {
+		MwVaApply(fc->nav,
+			  MwNx, wx,
+			  MwNy, wy,
+			  MwNwidth, ww,
+			  MwNheight, wh,
+			  NULL);
+	}
+
+	wx = 5 + 160 + 5;
+	wy = 5 + 24 + 5;
+	ww = w - 5 - 160 - 5 - 5;
+	wh = h - 10 - 24 - 5 - 24 - 5 - 24 - 5;
+	if(fc->files == NULL) {
+		fc->files = MwVaCreateWidget(MwListBoxClass, "files", handle, wx, wy, ww, wh,
+					     MwNhasHeading, 1,
+					     NULL);
+	} else {
+		MwVaApply(fc->files,
+			  MwNx, wx,
+			  MwNy, wy,
+			  MwNwidth, ww,
+			  MwNheight, wh,
+			  NULL);
+	}
+
+	wx = 5 + ((24 + 5) * 3);
+	wy = 5;
+	ww = w - 10 - ((24 + 5) * 3);
+	wh = 24;
+	if(fc->addr == NULL) {
+		fc->addr = MwCreateWidget(MwEntryClass, "addr", handle, wx, wy, ww, wh);
+	} else {
+		MwVaApply(fc->addr,
+			  MwNx, wx,
+			  MwNy, wy,
+			  MwNwidth, ww,
+			  MwNheight, wh,
+			  NULL);
+	}
+
+	wx = 5;
+	wy = 5;
+	ww = 24;
+	wh = 24;
+	if(fc->addr_back == NULL) {
+		fc->addr_back = MwVaCreateWidget(MwButtonClass, "addr_back", handle, wx, wy, ww, wh,
+						 MwNpixmap, fc->back,
+						 NULL);
+	} else {
+		MwVaApply(fc->addr_back,
+			  MwNx, wx,
+			  MwNy, wy,
+			  MwNwidth, ww,
+			  MwNheight, wh,
+			  NULL);
+	}
+
+	wx = 5 + 24 + 5;
+	wy = 5;
+	ww = 24;
+	wh = 24;
+	if(fc->addr_fwd == NULL) {
+		fc->addr_fwd = MwVaCreateWidget(MwButtonClass, "addr_fwd", handle, wx, wy, ww, wh,
+						MwNpixmap, fc->forward,
+						NULL);
+	} else {
+		MwVaApply(fc->addr_fwd,
+			  MwNx, wx,
+			  MwNy, wy,
+			  MwNwidth, ww,
+			  MwNheight, wh,
+			  NULL);
+	}
+
+	wx = 5 + 24 + 5 + 24 + 5;
+	wy = 5;
+	ww = 24;
+	wh = 24;
+	if(fc->addr_up == NULL) {
+		fc->addr_up = MwVaCreateWidget(MwButtonClass, "addr_up", handle, wx, wy, ww, wh,
+					       MwNpixmap, fc->up,
+					       NULL);
+	} else {
+		MwVaApply(fc->addr_up,
+			  MwNx, wx,
+			  MwNy, wy,
+			  MwNwidth, ww,
+			  MwNheight, wh,
+			  NULL);
+	}
+
+	wx = 5 + ((24 + 5) * 3);
+	wy = h - 5 - 24 - 5 - 24;
+	ww = w - 10 - ((24 + 5) * 3);
+	wh = 24;
+	if(fc->filename == NULL) {
+		fc->filename = MwCreateWidget(MwEntryClass, "filename", handle, wx, wy, ww, wh);
+	} else {
+		MwVaApply(fc->filename,
+			  MwNx, wx,
+			  MwNy, wy,
+			  MwNwidth, ww,
+			  MwNheight, wh,
+			  NULL);
+	}
+
+	wx = 5;
+	wy = h - 5 - 24 - 5 - 24;
+	ww = ((24 + 5) * 3);
+	wh = 24;
+	if(fc->filename_label == NULL) {
+		fc->filename_label = MwVaCreateWidget(MwLabelClass, "filename_label", handle, wx, wy, ww, wh,
+						      MwNtext, "Filename:",
+						      NULL);
+	} else {
+		MwVaApply(fc->filename_label,
+			  MwNx, wx,
+			  MwNy, wy,
+			  MwNwidth, ww,
+			  MwNheight, wh,
+			  NULL);
+	}
+
+	wx = w - 5 - 24 * 3 - 5 - 24 * 3;
+	wy = h - 5 - 24;
+	ww = 24 * 3;
+	wh = 24;
+	if(fc->okay == NULL) {
+		fc->okay = MwVaCreateWidget(MwButtonClass, "ok", handle, wx, wy, ww, wh,
+					    MwNtext, "Okay",
+					    NULL);
+
+		MwAddUserHandler(fc->okay, MwNactivateHandler, okay, NULL);
+	} else {
+		MwVaApply(fc->okay,
+			  MwNx, wx,
+			  MwNy, wy,
+			  MwNwidth, ww,
+			  MwNheight, wh,
+			  NULL);
+	}
+
+	wx = w - 5 - 24 * 3;
+	wy = h - 5 - 24;
+	ww = 24 * 3;
+	wh = 24;
+	if(fc->cancel == NULL) {
+		fc->cancel = MwVaCreateWidget(MwButtonClass, "cancel", handle, wx, wy, ww, wh,
+					      MwNtext, "Cancel",
+					      NULL);
+
+		MwAddUserHandler(fc->cancel, MwNactivateHandler, cancel, NULL);
+	} else {
+		MwVaApply(fc->cancel,
+			  MwNx, wx,
+			  MwNy, wy,
+			  MwNwidth, ww,
+			  MwNheight, wh,
+			  NULL);
+	}
+}
+
+static void resize(MwWidget handle, void* user, void* call) {
+	(void)user;
+	(void)call;
+
+	layout(handle);
+}
+
+static void scan(MwWidget handle, const char* path) {
+	filechooser_t* fc = handle->opaque;
+
+	MwListBoxReset(fc->files);
+	MwListBoxInsert(fc->files, -1, NULL, "Name", "Date modified", "Size", NULL);
+	MwListBoxSetWidth(fc->files, 0, -128 - 64);
+	MwListBoxSetWidth(fc->files, 1, 128);
+	MwListBoxSetWidth(fc->files, 2, 0);
+}
+
+MwWidget MwFileChooser(MwWidget handle, const char* title) {
+	MwWidget       window;
+	MwPoint	       p;
+	int	       ww = MwGetInteger(handle, MwNwidth);
+	int	       wh = MwGetInteger(handle, MwNheight);
+	int	       w, h;
+	filechooser_t* fc = malloc(sizeof(*fc));
+
+	memset(fc, 0, sizeof(*fc));
 
 	p.x = 0;
 	p.y = 0;
 
-	window = MwVaCreateWidget(MwWindowClass, "filechooser", handle, ww, wh, (w = 640), (h = 300),
-		MwNtitle, title,
-	NULL);
+	w      = 700;
+	h      = w * 2 / 3;
+	window = MwVaCreateWidget(MwWindowClass, "filechooser", handle, ww, wh, w, h,
+				  MwNtitle, title,
+				  NULL);
+
+	fc->dir	    = MwLoadXPM(window, MwIconDirectory);
+	fc->file    = MwLoadXPM(window, MwIconFile);
+	fc->back    = MwLoadXPM(window, MwIconBack);
+	fc->forward = MwLoadXPM(window, MwIconForward);
+	fc->up	    = MwLoadXPM(window, MwIconUp);
+
+	window->opaque = fc;
+
+	layout(window);
+	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
+
+	scan(window, ".");
 
 	MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
-	
+
 	return window;
 }

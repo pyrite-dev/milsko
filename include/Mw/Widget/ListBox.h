@@ -80,6 +80,12 @@ MWDECL const char* MwListBoxGet(MwWidget handle, int index);
  */
 MWDECL void MwListBoxSetWidth(MwWidget handle, int index, int width);
 
+/*!
+ * %brief Resets the listbox
+ * %param handle Widget
+ */
+MWDECL void MwListBoxReset(MwWidget handle);
+
 #ifdef __cplusplus
 }
 #endif
