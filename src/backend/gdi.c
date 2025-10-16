@@ -101,10 +101,9 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		if(style & WS_CHILD) return HTCLIENT;
 		return DefWindowProc(hWnd, msg, wp, lp);
 	} else if(msg == WM_DESTROY) {
-		MwLLDispatch(u->ll, close, NULL);
 		PostQuitMessage(0);
 	} else if(msg == WM_CLOSE) {
-		DestroyWindow(hWnd);
+		MwLLDispatch(u->ll, close, NULL);
 	} else if(msg == WM_CHAR) {
 		int n = wp;
 
