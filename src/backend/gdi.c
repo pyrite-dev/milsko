@@ -395,11 +395,21 @@ void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 
 void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	HDC hmdc = CreateCompatibleDC(handle->hDC);
+	POINT p[3];
+
+	p[0].x = rect->x;
+	p[0].y = rect->y;
+
+	p[1].x = rect->x + rect->width;
+	p[1].y = rect->y;
+
+	p[2].x = rect->x;
+	p[2].y = rect->y + rect->height;
 
 	SelectObject(hmdc, pixmap->hBitmap);
 
 	SetStretchBltMode(handle->hDC, HALFTONE);
-	MaskBlt(handle->hDC, rect->x, rect->y, rect->width, rect->height, hmdc, 0, 0, pixmap->hMask, 0, 0, MAKEROP4(SRCCOPY, 0x00AA0029));
+	PlgBlt(handle->hDC, p, hmdc, 0, 0, pixmap->width, pixmap->height, pixmap->hMask, 0, 0);
 
 	DeleteDC(hmdc);
 }
