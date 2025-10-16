@@ -7,7 +7,7 @@ MwWidget vp;
 #define PICKER_SIZE 360
 #define IMG_POS ((WIN_SIZE - PICKER_SIZE) / 2)
 #define SCROLL_BAR_WIDTH (PICKER_SIZE / 32)
-#define MARGIN (PICKER_SIZE / 64)
+#define MARGIN (PICKER_SIZE / 32)
 #define COLOR_DISPLAY_HEIGHT (PICKER_SIZE / 4)
 
 typedef struct {
@@ -193,18 +193,18 @@ void color_wheel_setup(MwWidget parent, color_wheel* wheel) {
 
 	wheel->alpha_slider = MwVaCreateWidget(MwScrollBarClass, "alpha-slider", wheel->parent,
 					       // x
-					       IMG_POS +
-						   PICKER_SIZE +
-						   SCROLL_BAR_WIDTH + MARGIN + MARGIN,
-
-					       // y
 					       IMG_POS,
 
+					       // y
+					       IMG_POS -
+						   SCROLL_BAR_WIDTH - MARGIN,
+
 					       // width
-					       SCROLL_BAR_WIDTH,
+					       PICKER_SIZE,
 
 					       // height
-					       PICKER_SIZE, MwNorientation, MwVERTICAL, MwNminValue, 0, MwNmaxValue, 1024, NULL);
+					       SCROLL_BAR_WIDTH,
+					       MwNorientation, MwHORIZONTAL, MwNminValue, 0, MwNmaxValue, 1024, NULL);
 	MwAddUserHandler(wheel->alpha_slider, MwNchangedHandler, color_wheel_on_change_alpha, wheel);
 };
 
