@@ -39,23 +39,10 @@ typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
 
 #if __STDC_VERSION__ >= 199901L || __GNUC__ > 2
 typedef unsigned long long MwOffset;
-
-#define MwOffsetPrint "%llu"
 #elif defined(_MSC_VER) || defined(__BORLANDC__) || defined(__WATCOMC__)
 typedef unsigned __int64 MwOffset;
-
-#if defined(_MSC_VER)
-#define MwOffsetPrint "%I64u"
-#elif defined(__BORLANDC__)
-#define MwOffsetPrint "%I64llu"
-#elif defined(__WATCOMC__)
-#define MwOffsetPrint "%llu"
-#endif
-
 #else
 typedef unsigned long MwOffset; /* out of hope */
-
-#define MwOffsetPrint "%lu"
 #endif
 
 #include <Mw/LowLevel.h>
