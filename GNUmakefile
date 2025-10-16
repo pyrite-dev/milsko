@@ -130,7 +130,7 @@ L_OBJS += src/backend/mac/mac.o src/backend/mac/carbon.o
 
 LIB = lib
 SO = .dylib
-EXEC = 
+EXEC =
 
 SHARED = -dynamiclib
 endif
@@ -141,7 +141,7 @@ else
 include external/deps.mk
 endif
 
-EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/basic/image$(EXEC) examples/basic/scrollbar$(EXEC) examples/basic/checkbox$(EXEC) examples/basic/messagebox$(EXEC) examples/basic/viewport$(EXEC) examples/basic/listbox$(EXEC)
+EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/basic/image$(EXEC) examples/basic/scrollbar$(EXEC) examples/basic/checkbox$(EXEC) examples/basic/messagebox$(EXEC) examples/basic/viewport$(EXEC) examples/basic/listbox$(EXEC) examples/color_picker$(EXEC)
 
 ifeq ($(OPENGL),1)
 L_OBJS += src/widget/opengl.o

@@ -132,7 +132,7 @@ static void draw(MwWidget handle) {
 }
 
 static void mouse_move(MwWidget handle) {
-	int	     or	 = MwGetInteger(handle, MwNorientation);
+	int or		 = MwGetInteger(handle, MwNorientation);
 	scrollbar_t* scr = handle->internal;
 
 	if(!handle->pressed) return;
@@ -160,31 +160,35 @@ static void mouse_move(MwWidget handle) {
 }
 
 static void mouse_down(MwWidget handle, void* ptr) {
-	int	     ww	 = MwGetInteger(handle, MwNwidth);
-	int	     wh	 = MwGetInteger(handle, MwNheight);
-	int	     or	 = MwGetInteger(handle, MwNorientation);
+	int ww		 = MwGetInteger(handle, MwNwidth);
+	int wh		 = MwGetInteger(handle, MwNheight);
+	int or		 = MwGetInteger(handle, MwNorientation);
 	scrollbar_t* scr = handle->internal;
 	MwLLMouse*   m	 = ptr;
 
 	if(m->button == MwLLMouseWheelUp) {
-		int min = MwGetInteger(handle, MwNminValue);
-		int val = MwGetInteger(handle, MwNvalue);
+		int min	 = MwGetInteger(handle, MwNminValue);
+		int val	 = MwGetInteger(handle, MwNvalue);
+		int diff = MwGetInteger(handle, MwNareaShown);
 
-		val -= MwGetInteger(handle, MwNareaShown);
+		val -= diff;
 
 		if(val < min) val = min;
 
 		MwSetInteger(handle, MwNvalue, val);
+		MwSetInteger(handle, MwNchangedBy, -diff);
 		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
 	} else if(m->button == MwLLMouseWheelDown) {
-		int max = MwGetInteger(handle, MwNmaxValue);
-		int val = MwGetInteger(handle, MwNvalue);
+		int max	 = MwGetInteger(handle, MwNmaxValue);
+		int val	 = MwGetInteger(handle, MwNvalue);
+		int diff = MwGetInteger(handle, MwNareaShown);
 
-		val += MwGetInteger(handle, MwNareaShown);
+		val += diff;
 
 		if(val > max) val = max;
 
 		MwSetInteger(handle, MwNvalue, val);
+		MwSetInteger(handle, MwNchangedBy, diff);
 		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
 	}
 	if(m->button != MwLLMouseLeft) return;
