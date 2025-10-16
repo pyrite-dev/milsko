@@ -36,9 +36,7 @@ typedef void (*MwHandler5)(MwWidget handle, void* ptr);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
 
-#ifdef _MILSKO
 #include <Mw/LowLevel.h>
-#endif
 
 struct _MwPoint {
 	int x;
@@ -125,6 +123,7 @@ struct _MwListBox {
 	MwWidget      vscroll;
 	MwWidget      frame;
 	char**	      list;
+	MwLLPixmap*   pixmap_list;
 	int	      selected;
 	unsigned long click_time;
 	int	      pressed;

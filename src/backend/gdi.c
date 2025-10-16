@@ -394,7 +394,7 @@ void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 }
 
 void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	HDC hmdc = CreateCompatibleDC(handle->hDC);
+	HDC   hmdc = CreateCompatibleDC(handle->hDC);
 	POINT p[3];
 
 	p[0].x = rect->x;
