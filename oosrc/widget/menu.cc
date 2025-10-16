@@ -6,8 +6,11 @@ MwOO::Menu::Menu(const char* widget_name, MwOO::Base* parent, int x, int y, int 
 }
 
 MwMenu MwOO::Menu::Add(MwMenu menu, const char* name){
-	return MwMenuAdd(this->widget, menu, name);
+	MwMenu ret;
+	ret = MwMenuAdd(this->widget, menu, name);
+	return ret;
 }
+
 void MwOO::Menu::SetBackground(const char* value){
 	MwSetText(this->widget, MwNbackground, value);
 }

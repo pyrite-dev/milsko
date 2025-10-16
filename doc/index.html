@@ -24,7 +24,7 @@
 	<a href="#Mw_Constants_h__MwDEFAULT">MwDEFAULT</a>
 </dd>
 <dd>
-	<a href="#Mw_Constants_h__enum_">enum;</a>
+	<a href="#Mw_Constants_h__MwDIRECTORY_TYPE">MwDIRECTORY_TYPE</a>
 </dd>
 <dd>
 	<a href="#Mw_Constants_h__MwMB_ICONMASK">MwMB_ICONMASK</a>
@@ -300,6 +300,15 @@
 	<a href="#Mw_Milsko_h">Mw/Milsko.h</a>
 </dt>
 <dt>
+	<a href="#Mw_String_h">Mw/String.h</a>
+</dt>
+<dd>
+	<a href="#Mw_String_h__MwStringDupliacte">MwStringDupliacte</a>
+</dd>
+<dd>
+	<a href="#Mw_String_h__MwStringConcat">MwStringConcat</a>
+</dd>
+<dt>
 	<a href="#Mw_StringDefs_h">Mw/StringDefs.h</a>
 </dt>
 <dt>
@@ -369,10 +378,19 @@
 	<a href="#Mw_Widget_ListBox_h__MwListBoxInsertMultiple">MwListBoxInsertMultiple</a>
 </dd>
 <dd>
+	<a href="#Mw_Widget_ListBox_h__MwListBoxVaInsert">MwListBoxVaInsert</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_ListBox_h__MwListBoxVaInsertMultiple">MwListBoxVaInsertMultiple</a>
+</dd>
+<dd>
 	<a href="#Mw_Widget_ListBox_h__MwListBoxDelete">MwListBoxDelete</a>
 </dd>
 <dd>
 	<a href="#Mw_Widget_ListBox_h__MwListBoxGet">MwListBoxGet</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_ListBox_h__MwListBoxSetWidth">MwListBoxSetWidth</a>
 </dd>
 <dt>
 	<a href="#Mw_Widget_Menu_h">Mw/Widget/Menu.h</a>
@@ -537,7 +555,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__enum_"><B><FONT COLOR="#228B22">enum</FONT></B>;</pre>
+<pre id="Mw_Constants_h__MwDIRECTORY_TYPE"><B><FONT COLOR="#228B22">enum</FONT></B> MwDIRECTORY_TYPE;</pre>
 <dl>
 <dd>
 	Directory entry type.
@@ -2258,6 +2276,62 @@
 </dt>
 </dl>
 <hr>
+<h2 align="center" id="Mw_String_h">Mw/String.h</h2>
+<dl>
+<dt>
+	String utilities.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_String_h__MwStringDupliacte">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwStringDupliacte</FONT></B> (
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* str
+);</pre>
+<dl>
+<dd>
+	Duplicates a string.
+</dd>
+<dt>
+	Parameter <code>str</code>
+</dt>
+<dd>
+	String.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	String.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_String_h__MwStringConcat">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwStringConcat</FONT></B> (
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* str1,
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* str2
+);</pre>
+<dl>
+<dd>
+	Concatenates 2 strings.
+</dd>
+<dt>
+	Parameter <code>str1</code>
+</dt>
+<dd>
+	String.
+</dd>
+<dt>
+	Parameter <code>str2</code>
+</dt>
+<dd>
+	String.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	String.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_StringDefs_h">Mw/StringDefs.h</h2>
 <dl>
 <dt>
@@ -2446,8 +2520,8 @@
 <pre id="Mw_Widget_ListBox_h__MwListBoxInsert">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsert</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text,
-	MwLLPixmap pixmap
+	MwLLPixmap pixmap,
+	...
 );</pre>
 <dl>
 <dd>
@@ -2466,25 +2540,25 @@
 	Index.
 </dd>
 <dt>
-	Parameter <code>text</code>
-</dt>
-<dd>
-	Text.
-</dd>
-<dt>
 	Parameter <code>pixmap</code>
 </dt>
 <dd>
 	Pixmap.
+</dd>
+<dt>
+	Parameter <code>...</code>
+</dt>
+<dd>
+	Text.
 </dd>
 </dl>
 <hr>
 <pre id="Mw_Widget_ListBox_h__MwListBoxInsertMultiple">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsertMultiple</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index,
-	<B><FONT COLOR="#228B22">char</FONT></B>** text,
+	<B><FONT COLOR="#228B22">int</FONT></B> count,
 	MwLLPixmap* pixmap,
-	<B><FONT COLOR="#228B22">int</FONT></B> count
+	...
 );</pre>
 <dl>
 <dd>
@@ -2503,10 +2577,10 @@
 	Index.
 </dd>
 <dt>
-	Parameter <code>text</code>
+	Parameter <code>count</code>
 </dt>
 <dd>
-	Text.
+	Count.
 </dd>
 <dt>
 	Parameter <code>pixmap</code>
@@ -2515,10 +2589,89 @@
 	Pixmap.
 </dd>
 <dt>
+	Parameter <code>...</code>
+</dt>
+<dd>
+	Text.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_ListBox_h__MwListBoxVaInsert">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxVaInsert</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> index,
+	MwLLPixmap pixmap,
+	va_list va
+);</pre>
+<dl>
+<dd>
+	Inserts item on the listbox.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>index</code>
+</dt>
+<dd>
+	Index.
+</dd>
+<dt>
+	Parameter <code>pixmap</code>
+</dt>
+<dd>
+	Pixmap.
+</dd>
+<dt>
+	Parameter <code>va</code>
+</dt>
+<dd>
+	Text.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_ListBox_h__MwListBoxVaInsertMultiple">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxVaInsertMultiple</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> index,
+	<B><FONT COLOR="#228B22">int</FONT></B> count,
+	MwLLPixmap* pixmap,
+	va_list va
+);</pre>
+<dl>
+<dd>
+	Inserts multiple items on the listbox.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>index</code>
+</dt>
+<dd>
+	Index.
+</dd>
+<dt>
 	Parameter <code>count</code>
 </dt>
 <dd>
 	Count.
+</dd>
+<dt>
+	Parameter <code>pixmap</code>
+</dt>
+<dd>
+	Pixmap.
+</dd>
+<dt>
+	Parameter <code>va</code>
+</dt>
+<dd>
+	Text.
 </dd>
 </dl>
 <hr>
@@ -2569,6 +2722,35 @@
 </dt>
 <dd>
 	Item.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_ListBox_h__MwListBoxSetWidth">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxSetWidth</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> index,
+	<B><FONT COLOR="#228B22">int</FONT></B> width
+);</pre>
+<dl>
+<dd>
+	Sets an item width of the listbox.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>index</code>
+</dt>
+<dd>
+	Column index.
+</dd>
+<dt>
+	Parameter <code>width</code>
+</dt>
+<dd>
+	Width.
 </dd>
 </dl>
 <hr>

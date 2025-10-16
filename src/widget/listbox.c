@@ -3,13 +3,52 @@
 
 #include "../../external/stb_ds.h"
 
-static int get_first_entry(MwListBox lb) {
+static int get_first_entry(MwWidget handle, MwListBox lb) {
 	int st = 0;
-	st     = MwGetInteger(lb->vscroll, MwNvalue);
-	st     = st * (MwGetInteger(lb->vscroll, MwNmaxValue) - MwGetInteger(lb->vscroll, MwNareaShown)) / MwGetInteger(lb->vscroll, MwNmaxValue);
-	if(st < 0) st = 0;
+	int y  = MwGetInteger(handle, MwNhasHeading) ? 1 : 0;
+
+	st = MwGetInteger(lb->vscroll, MwNvalue);
+	st = st * (MwGetInteger(lb->vscroll, MwNmaxValue) - MwGetInteger(lb->vscroll, MwNareaShown)) / MwGetInteger(lb->vscroll, MwNmaxValue);
+	if(st < y) st = y;
 
 	return st;
+}
+
+static int get_col_width(MwListBox lb, int ind) {
+	int total = MwGetInteger(lb->frame, MwNwidth);
+	int wid, i;
+	if(arrlen(lb->width) <= ind) {
+		wid = 0;
+	} else {
+		wid = lb->width[ind];
+	}
+	if(wid > 0) return wid;
+
+	if(wid == 0) {
+		for(i = 0; i < arrlen(lb->width) && i < ind; i++) {
+			int w = lb->width[i];
+			if(w < 0) {
+				total -= total + w;
+			} else if(wid > 0) {
+				total -= w;
+			}
+		}
+		return total;
+	}
+
+	if(wid < 0) {
+		for(i = 0; i < arrlen(lb->width) && i < ind; i++) {
+			int w = lb->width[i];
+			if(w < 0) {
+				total -= total + w;
+			} else if(wid > 0) {
+				total -= w;
+			}
+		}
+		return total + wid;
+	}
+
+	return 0;
 }
 
 static void vscroll_changed(MwWidget handle, void* user, void* call) {
@@ -33,7 +72,7 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 		int y = MwDefaultBorderWidth;
 		int h = MwGetInteger(handle, MwNheight);
 
-		st = get_first_entry(lb);
+		st = get_first_entry(handle->parent, lb);
 		for(i = 0; i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
 			if(y <= m->point.y && m->point.y <= (y + MwTextHeight(handle, "M"))) {
 				unsigned long t;
@@ -74,7 +113,7 @@ static void frame_mouse_move(MwWidget handle, void* user, void* call) {
 		int y = MwDefaultBorderWidth;
 		int h = MwGetInteger(handle, MwNheight);
 
-		st = get_first_entry(lb);
+		st = get_first_entry(handle->parent, lb);
 		for(i = 0; i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
 			if(y <= p->y && p->y <= (y + MwTextHeight(handle, "M"))) {
 				lb->selected = st + i;
@@ -103,17 +142,18 @@ static void frame_draw(MwWidget handle) {
 	p.x = MwDefaultBorderWidth + MwGetInteger(handle->parent, MwNleftPadding);
 	p.y = MwDefaultBorderWidth;
 
-	st = get_first_entry(lb);
+	st = get_first_entry(handle->parent, lb);
 
 	for(i = st; i < arrlen(lb->list) && i < st + (r.height - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
 		int selected = lb->selected == i ? 1 : 0;
+		int j;
 
 		if(selected) {
 			MwRect r2;
 			r2.x	  = 0;
 			r2.y	  = p.y;
 			r2.width  = r.width;
-			r2.height = MwTextHeight(handle, lb->list[i].name);
+			r2.height = MwTextHeight(handle, "M");
 			MwDrawRect(handle, &r2, text);
 		}
 		if(lb->list[i].pixmap != NULL) {
@@ -125,9 +165,14 @@ static void frame_draw(MwWidget handle) {
 			r2.height = h;
 			MwLLDrawPixmap(handle->lowlevel, &r2, lb->list[i].pixmap);
 		}
-		p.y += MwTextHeight(handle, lb->list[i].name) / 2;
-		MwDrawText(handle, &p, lb->list[i].name, 0, MwALIGNMENT_BEGINNING, selected ? base : text);
-		p.y += MwTextHeight(handle, lb->list[i].name) / 2;
+		p.y += MwTextHeight(handle, "M") / 2;
+		p.x = 0;
+		for(j = 0; j < arrlen(lb->list[i].name); j++) {
+			p.x += MwDefaultBorderWidth;
+			if(strlen(lb->list[i].name[j]) > 0) MwDrawText(handle, &p, lb->list[i].name[j], 0, MwALIGNMENT_BEGINNING, selected ? base : text);
+			p.x += get_col_width(lb, j) - MwDefaultBorderWidth;
+		}
+		p.y += MwTextHeight(handle, "M") / 2;
 	}
 
 	MwDrawFrame(handle, &r, base, 1);
@@ -140,7 +185,10 @@ static void resize(MwWidget handle) {
 	MwListBox lb = handle->internal;
 	int	  w  = MwGetInteger(handle, MwNwidth);
 	int	  h  = MwGetInteger(handle, MwNheight);
-	int	  ih;
+	int	  ih, y;
+
+	y = MwGetInteger(handle, MwNhasHeading) ? (MwTextHeight(handle, "M") + MwDefaultBorderWidth * 2) : 0;
+
 	if(lb->vscroll == NULL) {
 		lb->vscroll = MwVaCreateWidget(MwScrollBarClass, "vscroll", handle, w - 16, 0, 16, h, NULL);
 		MwAddUserHandler(lb->vscroll, MwNchangedHandler, vscroll_changed, NULL);
@@ -152,8 +200,10 @@ static void resize(MwWidget handle) {
 			  MwNheight, h,
 			  NULL);
 	}
+
+	h -= y;
 	if(lb->frame == NULL) {
-		lb->frame	       = MwVaCreateWidget(MwFrameClass, "frame", handle, 0, 0, w - 16, h, NULL);
+		lb->frame	       = MwVaCreateWidget(MwFrameClass, "frame", handle, 0, y, w - 16, h, NULL);
 		lb->frame->draw_inject = frame_draw;
 		MwAddUserHandler(lb->frame, MwNmouseDownHandler, frame_mouse_down, NULL);
 		MwAddUserHandler(lb->frame, MwNmouseUpHandler, frame_mouse_up, NULL);
@@ -161,11 +211,12 @@ static void resize(MwWidget handle) {
 	} else {
 		MwVaApply(lb->frame,
 			  MwNx, 0,
-			  MwNy, 0,
+			  MwNy, y,
 			  MwNwidth, w - 16,
 			  MwNheight, h,
 			  NULL);
 	}
+	h -= MwDefaultBorderWidth * 2;
 
 	ih = arrlen(lb->list);
 	if(ih == 0) ih = 1;
@@ -188,8 +239,10 @@ static int create(MwWidget handle) {
 	lb->list       = NULL;
 	lb->selected   = -1;
 	lb->click_time = 0;
+	lb->width      = NULL;
 
 	MwSetInteger(handle, MwNleftPadding, 0);
+	MwSetInteger(handle, MwNhasHeading, 0);
 
 	return 0;
 }
@@ -201,12 +254,15 @@ static void destroy(MwWidget handle) {
 		free(lb->list[i].name);
 	}
 	arrfree(lb->list);
+	arrfree(lb->width);
 	free(handle->internal);
 }
 
 static void draw(MwWidget handle) {
 	MwRect	  r;
 	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwListBox lb   = handle->internal;
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -214,15 +270,42 @@ static void draw(MwWidget handle) {
 	r.height = MwGetInteger(handle, MwNheight);
 
 	MwDrawRect(handle, &r, base);
+	if(MwGetInteger(handle, MwNhasHeading) && arrlen(lb->list) > 0) {
+		MwPoint p;
+		int	i;
+		int	x = 0;
 
+		r.width -= 16;
+
+		for(i = 0; i < arrlen(lb->list[0].name); i++) {
+			r.x	 = x;
+			r.y	 = 0;
+			r.width	 = get_col_width(lb, i);
+			r.height = MwDefaultBorderWidth * 2 + MwTextHeight(handle, "M");
+			MwDrawFrame(handle, &r, base, 0);
+
+			x += MwDefaultBorderWidth;
+
+			p.x = x;
+			p.y = r.y + r.height / 2;
+			MwDrawText(handle, &p, lb->list[0].name[i], 0, MwALIGNMENT_BEGINNING, text);
+
+			x += r.width + MwDefaultBorderWidth;
+		}
+	}
+
+	MwLLFreeColor(text);
 	MwLLFreeColor(base);
 }
 
 static void prop_change(MwWidget handle, const char* prop) {
-	if(strcmp(prop, MwNwidth) == 0 || strcmp(prop, MwNheight) == 0) resize(handle);
+	if(strcmp(prop, MwNwidth) == 0 || strcmp(prop, MwNheight) == 0 || strcmp(prop, MwNhasHeading) == 0) resize(handle);
 	if(strcmp(prop, MwNleftPadding) == 0) {
 		MwListBox lb = handle->internal;
 		MwForceRender(lb->frame);
+	}
+	if(strcmp(prop, MwNhasHeading) == 0) {
+		MwForceRender(handle);
 	}
 }
 
@@ -244,11 +327,16 @@ MwClassRec MwListBoxClassRec = {
     NULL};
 MwClass MwListBoxClass = &MwListBoxClassRec;
 
-void MwListBoxInsert(MwWidget handle, int index, const char* text, MwLLPixmap pixmap) {
+void MwListBoxVaInsert(MwWidget handle, int index, MwLLPixmap pixmap, va_list va) {
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
+	char*	       name;
 
-	entry.name = MwStringDupliacte(text);
+	entry.name = NULL;
+	while((name = va_arg(va, char*)) != NULL) {
+		name = MwStringDupliacte(name);
+		arrput(entry.name, name);
+	}
 
 	entry.pixmap = pixmap;
 
@@ -261,17 +349,30 @@ void MwListBoxInsert(MwWidget handle, int index, const char* text, MwLLPixmap pi
 	}
 }
 
-void MwListBoxInsertMultiple(MwWidget handle, int index, char** text, MwLLPixmap* pixmap, int count) {
+void MwListBoxVaInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, va_list va) {
 	int	  i;
 	MwListBox lb = handle->internal;
 	int	  old;
+	char***	  vlist = NULL;
+	char**	  list;
 	if(index == -1) index = arrlen(lb->list);
 	old = index;
 
+	while((list = va_arg(va, char**)) != NULL) {
+		arrput(vlist, list);
+	}
+
 	for(i = 0; i < count; i++) {
 		MwListBoxEntry entry;
+		char*	       name;
+		int	       j;
 
-		entry.name = MwStringDupliacte(text[i]);
+		entry.name = NULL;
+		for(j = 0; j < arrlen(vlist); j++) {
+			if(vlist[j][i] == NULL) continue;
+			name = MwStringDupliacte(vlist[j][i]);
+			arrput(entry.name, name);
+		}
 
 		entry.pixmap = NULL;
 		if(pixmap != NULL) entry.pixmap = pixmap[i];
@@ -279,6 +380,8 @@ void MwListBoxInsertMultiple(MwWidget handle, int index, char** text, MwLLPixmap
 		arrins(lb->list, index, entry);
 		index++;
 	}
+
+	arrfree(vlist);
 
 	resize(handle);
 	if(old < (MwGetInteger(lb->vscroll, MwNvalue) + MwGetInteger(lb->vscroll, MwNareaShown))) {
@@ -288,9 +391,13 @@ void MwListBoxInsertMultiple(MwWidget handle, int index, char** text, MwLLPixmap
 
 void MwListBoxDelete(MwWidget handle, int index) {
 	MwListBox lb = handle->internal;
+	int	  i;
 
 	if(index == -1) index = arrlen(lb->list) - 1;
-	free(lb->list[index].name);
+	for(i = 0; i < arrlen(lb->list[index].name); i++) {
+		free(lb->list[index].name[i]);
+	}
+	arrfree(lb->list[index].name);
 	arrdel(lb->list, index);
 
 	if(lb->selected >= arrlen(lb->list)) {
@@ -306,11 +413,36 @@ void MwListBoxDelete(MwWidget handle, int index) {
 	}
 }
 
+void MwListBoxInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, ...) {
+	va_list va;
+	va_start(va, pixmap);
+	MwListBoxVaInsertMultiple(handle, index, count, pixmap, va);
+	va_end(va);
+}
+
+void MwListBoxInsert(MwWidget handle, int index, MwLLPixmap pixmap, ...) {
+	va_list va;
+	va_start(va, pixmap);
+	MwListBoxVaInsert(handle, index, pixmap, va);
+	va_end(va);
+}
+
 const char* MwListBoxGet(MwWidget handle, int index) {
 	MwListBox lb = handle->internal;
 
 	if(index < 0) return NULL;
 	if(index >= arrlen(lb->list)) return NULL;
 
-	return lb->list[index].name;
+	return lb->list[index].name[0];
+}
+
+void MwListBoxSetWidth(MwWidget handle, int index, int width) {
+	MwListBox lb = handle->internal;
+
+	while(((index + 1) - arrlen(lb->width)) > 0) arrput(lb->width, 0);
+
+	lb->width[index] = width;
+
+	MwForceRender(handle);
+	MwForceRender(lb->frame);
 }

@@ -44,6 +44,7 @@ foreach my $f (@files) {
     my @props    = ();
     my @methods  = ();
     my @omethods = ();
+    my @comments = ();
     my @names    = ();
     my @args     = ();
 
@@ -55,12 +56,13 @@ foreach my $f (@files) {
             @props = split(/[ \t]+/, $1);
         }
         elsif ($l =~
-/^MWDECL[ \t]+(.+)[ \t]+Mw${name}([^ \t]+)[ \t]*\([^,\)]+(?:,(.*))?\);$/
+/^MWDECL[ \t]+(.+)[ \t]+Mw${name}([^ \t]+)[ \t]*\([^,\)]+(?:,(.*))?\);(?: \/\*(.+))?$/
           )
         {
             my $arg = $3;
             my $ret = $1;
             my $nam = $2;
+            my $com = $4;
 
             $arg =~ s/^[ \t]+//;
             $arg =~ s/[ \t]+$//;
@@ -72,6 +74,7 @@ foreach my $f (@files) {
             push(@methods,  "$ret $nam($arg)");
             push(@omethods, "$ret MwOO::${name}::$nam($arg)");
             push(@names,    $nam);
+            push(@comments, $com);
 
             my @al = split(/[ \t]*,[ \t]*/, $arg);
             my $i  = 0;
@@ -152,7 +155,8 @@ foreach my $f (@files) {
 
     my $i = 0;
     foreach my $m (@omethods) {
-        my $end = "";
+        my $end    = "";
+        my $suffix = "";
         if ($m =~ /^MwWidget[ \t]+/) {
             my $l = $m;
             $l =~ s/^MwWidget([ \t]+)/MwOO::Base\1/;
@@ -161,23 +165,46 @@ foreach my $f (@files) {
         else {
             print(OUT "$m\{\n");
         }
+        if ($args[$i] =~ /\.\.\./) {
+            print(OUT "	va_list va;\n");
+        }
+        if (!($m =~ /^void[ \t]+/)) {
+            my $rettype = $m;
+            $rettype =~ s/^MwWidget([ \t]+)/MwOO::Base\1/;
+            $rettype =~ s/ MwOO::.+\)$//;
+            print(OUT "	$rettype ret;\n");
+        }
+        if ($args[$i] =~ /\.\.\./) {
+            my $p = $comments[$i];
+            $p =~ /VA_HINT:([^ ]+)/;
+            print(OUT "	va_start(va, $1);\n");
+            $suffix = "Va";
+        }
         if ($m =~ /^void[ \t]+/) {
-            print(OUT "	Mw${name}" . $names[$i]);
+            print(OUT "	Mw${name}$suffix" . $names[$i]);
         }
         elsif ($m =~ /^MwWidget[ \t]+/) {
-            print(OUT "	return MwOO::Base(Mw${name}" . $names[$i]);
+            print(OUT "	ret = MwOO::Base(Mw${name}$suffix" . $names[$i]);
             $end = ")";
         }
         else {
-            print(OUT "	return Mw${name}" . $names[$i]);
+            print(OUT "	ret = Mw${name}$suffix" . $names[$i]);
         }
         if ($args[$i] eq "void") {
             print(OUT "(this->widget)$end;\n");
         }
         else {
-            print(OUT "(this->widget, " . $args[$i] . ")$end;\n");
+            my $p = $args[$i];
+            $p =~ s/\.\.\./va/;
+            print(OUT "(this->widget, " . $p . ")$end;\n");
         }
-        print(OUT "}\n");
+        if ($args[$i] =~ /\.\.\./) {
+            print(OUT "	va_end(va);\n");
+        }
+        if (!($m =~ /^void[ \t]+/)) {
+            print(OUT "	return ret;\n");
+        }
+        print(OUT "}\n\n");
         $i++;
     }
     foreach my $prop (@props) {
