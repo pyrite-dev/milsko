@@ -103,3 +103,10 @@ MwWidget MwMessageBoxGetChild(MwWidget handle, int child) {
 
 	return hmget(mb, child);
 }
+
+void MwMessageBoxDestroy(MwWidget handle) {
+	void* px;
+
+	if((px = MwGetVoid(handle, MwNpixmap)) != NULL) MwLLDestroyPixmap(px);
+	MwDestroyWidget(handle);
+}

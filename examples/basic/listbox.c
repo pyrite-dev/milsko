@@ -6,7 +6,7 @@
 MwWidget wmain;
 
 void destroy(MwWidget handle, void* user, void* call) {
-	MwDestroyWidget(user);
+	MwMessageBoxDestroy(user);
 }
 
 void activate(MwWidget handle, void* user, void* call) {

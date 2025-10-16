@@ -207,9 +207,6 @@
 	<a href="#Mw_Draw_h__MwDrawText">MwDrawText</a>
 </dd>
 <dd>
-	<a href="#Mw_Draw_h__MwDrawTextEx">MwDrawTextEx</a>
-</dd>
-<dd>
 	<a href="#Mw_Draw_h__MwLoadImage">MwLoadImage</a>
 </dd>
 <dd>
@@ -258,7 +255,13 @@
 	<a href="#Mw_Icon_h">Mw/Icon.h</a>
 </dt>
 <dd>
+	<a href="#Mw_Icon_h__MwIconDirectory__">MwIconDirectory[]</a>
+</dd>
+<dd>
 	<a href="#Mw_Icon_h__MwIconError__">MwIconError[]</a>
+</dd>
+<dd>
+	<a href="#Mw_Icon_h__MwIconFile__">MwIconFile[]</a>
 </dd>
 <dd>
 	<a href="#Mw_Icon_h__MwIconInfo__">MwIconInfo[]</a>
@@ -289,6 +292,9 @@
 </dd>
 <dd>
 	<a href="#Mw_MessageBox_h__MwMessageBoxGetChild">MwMessageBoxGetChild</a>
+</dd>
+<dd>
+	<a href="#Mw_MessageBox_h__MwMessageBoxDestroy">MwMessageBoxDestroy</a>
 </dd>
 <dt>
 	<a href="#Mw_Milsko_h">Mw/Milsko.h</a>
@@ -1803,63 +1809,6 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwDrawTextEx">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDrawTextEx</FONT></B> (
-	MwWidget handle,
-	MwPoint* point,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text,
-	<B><FONT COLOR="#228B22">int</FONT></B> bold,
-	<B><FONT COLOR="#228B22">int</FONT></B> align,
-	MwLLColor color,
-	MwLLColor bgcolor
-);</pre>
-<dl>
-<dd>
-	Draws a text.
-</dd>
-<dt>
-	Parameter <code>handle</code>
-</dt>
-<dd>
-	Widget.
-</dd>
-<dt>
-	Parameter <code>point</code>
-</dt>
-<dd>
-	Center point of the text.
-</dd>
-<dt>
-	Parameter <code>text</code>
-</dt>
-<dd>
-	Text.
-</dd>
-<dt>
-	Parameter <code>bold</code>
-</dt>
-<dd>
-	Bold.
-</dd>
-<dt>
-	Parameter <code>align</code>
-</dt>
-<dd>
-	Align.
-</dd>
-<dt>
-	Parameter <code>color</code>
-</dt>
-<dd>
-	Color.
-</dd>
-<dt>
-	Parameter <code>bgcolor</code>
-</dt>
-<dd>
-	Background color.
-</dd>
-</dl>
-<hr>
 <pre id="Mw_Draw_h__MwLoadImage">MWDECL MwLLPixmap <B><FONT COLOR="#0000FF">MwLoadImage</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* path
@@ -2143,10 +2092,24 @@
 </dt>
 </dl>
 <hr>
+<pre id="Mw_Icon_h__MwIconDirectory__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconDirectory[];</pre>
+<dl>
+<dd>
+	Directory icon.
+</dd>
+</dl>
+<hr>
 <pre id="Mw_Icon_h__MwIconError__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconError[];</pre>
 <dl>
 <dd>
 	Error icon.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Icon_h__MwIconFile__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconFile[];</pre>
+<dl>
+<dd>
+	File icon.
 </dd>
 </dl>
 <hr>
@@ -2270,6 +2233,21 @@
 </dt>
 <dd>
 	Child.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_MessageBox_h__MwMessageBoxDestroy">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwMessageBoxDestroy</FONT></B> (
+	MwWidget handle
+);</pre>
+<dl>
+<dd>
+	Destroys the message box.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
 </dd>
 </dl>
 <hr>
@@ -2468,7 +2446,8 @@
 <pre id="Mw_Widget_ListBox_h__MwListBoxInsert">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsert</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text,
+	MwLLPixmap pixmap
 );</pre>
 <dl>
 <dd>
@@ -2492,12 +2471,19 @@
 <dd>
 	Text.
 </dd>
+<dt>
+	Parameter <code>pixmap</code>
+</dt>
+<dd>
+	Pixmap.
+</dd>
 </dl>
 <hr>
 <pre id="Mw_Widget_ListBox_h__MwListBoxInsertMultiple">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsertMultiple</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index,
 	<B><FONT COLOR="#228B22">char</FONT></B>** text,
+	MwLLPixmap* pixmap,
 	<B><FONT COLOR="#228B22">int</FONT></B> count
 );</pre>
 <dl>
@@ -2521,6 +2507,12 @@
 </dt>
 <dd>
 	Text.
+</dd>
+<dt>
+	Parameter <code>pixmap</code>
+</dt>
+<dd>
+	Pixmap.
 </dd>
 <dt>
 	Parameter <code>count</code>
