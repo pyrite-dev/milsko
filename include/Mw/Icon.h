@@ -18,6 +18,11 @@ extern "C" {
 MWDECL char* MwIconBack[];
 
 /*!
+ * %brief Computer icon
+ */
+MWDECL char* MwIconComputer[];
+
+/*!
  * %brief Directory icon
  */
 MWDECL char* MwIconDirectory[];
