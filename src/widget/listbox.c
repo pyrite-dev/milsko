@@ -105,10 +105,11 @@ static void frame_draw(MwWidget handle) {
 		}
 		if(lb->pixmap_list[i] != NULL) {
 			MwRect r2;
+			int    h  = (lb->pixmap_list[i]->height > MwTextHeight(handle, "M")) ? MwTextHeight(handle, "M") : lb->pixmap_list[i]->height;
 			r2.x	  = MwDefaultBorderWidth;
-			r2.y	  = p.y + (MwTextHeight(handle, "M") - lb->pixmap_list[i]->height) / 2;
-			r2.width  = lb->pixmap_list[i]->width;
-			r2.height = lb->pixmap_list[i]->height;
+			r2.y	  = p.y + (MwTextHeight(handle, "M") - h) / 2;
+			r2.width  = h * lb->pixmap_list[i]->width / lb->pixmap_list[i]->height;
+			r2.height = h;
 			MwLLDrawPixmap(handle->lowlevel, &r2, lb->pixmap_list[i]);
 		}
 		p.y += MwTextHeight(handle, lb->list[i]) / 2;
@@ -228,7 +229,7 @@ MwClassRec MwListBoxClassRec = {
     NULL};
 MwClass MwListBoxClass = &MwListBoxClassRec;
 
-void MwListBoxInsert(MwWidget handle, int index, const char* text) {
+void MwListBoxInsert(MwWidget handle, int index, const char* text, MwLLPixmap pixmap) {
 	char*	  str = malloc(strlen(text) + 1);
 	MwListBox lb  = handle->internal;
 
@@ -236,7 +237,7 @@ void MwListBoxInsert(MwWidget handle, int index, const char* text) {
 
 	if(index == -1) index = arrlen(lb->list);
 	arrins(lb->list, index, str);
-	arrins(lb->pixmap_list, index, NULL);
+	arrins(lb->pixmap_list, index, pixmap);
 
 	resize(handle);
 	if(index < (MwGetInteger(lb->vscroll, MwNvalue) + MwGetInteger(lb->vscroll, MwNareaShown))) {
@@ -244,7 +245,7 @@ void MwListBoxInsert(MwWidget handle, int index, const char* text) {
 	}
 }
 
-void MwListBoxInsertMultiple(MwWidget handle, int index, char** text, int count) {
+void MwListBoxInsertMultiple(MwWidget handle, int index, char** text, MwLLPixmap* pixmap, int count) {
 	int	  i;
 	MwListBox lb = handle->internal;
 	int	  old;
@@ -256,7 +257,11 @@ void MwListBoxInsertMultiple(MwWidget handle, int index, char** text, int count)
 		strcpy(str, text[i]);
 
 		arrins(lb->list, index, str);
-		arrins(lb->pixmap_list, index, NULL);
+		if(pixmap == NULL) {
+			arrins(lb->pixmap_list, index, NULL);
+		} else {
+			arrins(lb->pixmap_list, index, pixmap[i]);
+		}
 		index++;
 	}
 
