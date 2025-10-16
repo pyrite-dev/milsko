@@ -363,12 +363,17 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 }
 
 void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
-	int	       i  = 0, x, y, sx, sy;
-	int	       tw = MwTextWidth(handle, text);
-	int	       th = MwTextHeight(handle, text);
-	unsigned char* px = malloc(tw * th * 4);
+	int	       i = 0, x, y, sx, sy;
+	int	       tw;
+	int	       th;
+	unsigned char* px;
 	MwRect	       r;
 	MwLLPixmap     p;
+
+	if(strlen(text) == 0) text = " ";
+	tw = MwTextWidth(handle, text);
+	th = MwTextHeight(handle, text);
+	px = malloc(tw * th * 4);
 
 	memset(px, 0, tw * th * 4);
 

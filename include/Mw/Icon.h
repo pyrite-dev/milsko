@@ -13,6 +13,11 @@ extern "C" {
 #endif
 
 /*!
+ * %brief Back icon
+ */
+MWDECL char* MwIconBack[];
+
+/*!
  * %brief Directory icon
  */
 MWDECL char* MwIconDirectory[];
@@ -26,6 +31,11 @@ MWDECL char* MwIconError[];
  * %brief File icon
  */
 MWDECL char* MwIconFile[];
+
+/*!
+ * %brief Forward icon
+ */
+MWDECL char* MwIconForward[];
 
 /*!
  * %brief Info icon
@@ -46,6 +56,11 @@ MWDECL char* MwIconNote[];
  * %brief Question icon
  */
 MWDECL char* MwIconQuestion[];
+
+/*!
+ * %brief Up icon
+ */
+MWDECL char* MwIconUp[];
 
 /*!
  * %brief Warning icon
