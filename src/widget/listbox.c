@@ -248,8 +248,7 @@ void MwListBoxInsert(MwWidget handle, int index, const char* text, MwLLPixmap pi
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
 
-	entry.name = malloc(strlen(text) + 1);
-	strcpy(entry.name, text);
+	entry.name = MwStringDupliacte(text);
 
 	entry.pixmap = pixmap;
 
@@ -272,8 +271,7 @@ void MwListBoxInsertMultiple(MwWidget handle, int index, char** text, MwLLPixmap
 	for(i = 0; i < count; i++) {
 		MwListBoxEntry entry;
 
-		entry.name = malloc(strlen(text[i]) + 1);
-		strcpy(entry.name, text[i]);
+		entry.name = MwStringDupliacte(text[i]);
 
 		entry.pixmap = NULL;
 		if(pixmap != NULL) entry.pixmap = pixmap[i];

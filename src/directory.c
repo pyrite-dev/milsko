@@ -64,8 +64,7 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 		free(entry);
 		return NULL;
 	}
-	entry->name = malloc(strlen(dir->ffd.cFileName) + 1);
-	strcpy(entry->name, dir->ffd.cFileName);
+	entry->name = MwStringDupliacte(dir->ffd.cFileName);
 
 	if(dir->ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 		entry->type = MwDIRECTORY_DIRECTORY;
@@ -80,8 +79,7 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 		free(entry);
 		return NULL;
 	}
-	entry->name = malloc(strlen(d->d_name) + 1);
-	strcpy(entry->name, d->d_name);
+	entry->name = MwStringDupliacte(d->d_name);
 
 	p = malloc(strlen(dir->base) + 1 + strlen(d->d_name) + 1);
 	strcpy(p, dir->base);
