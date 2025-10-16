@@ -37,6 +37,14 @@ typedef void (*MwHandler5)(MwWidget handle, void* ptr);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
 
+#if __STDC_VERSION__ >= 199901L
+typedef unsigned long long MwOffset;
+#elif defined(_MSC_VER) || defined(__BORLANDC__) || defined(__WATCOMC__)
+typedef unsigned __int64 MwOffset;
+#elif
+typedef unsigned long MwOffset; /* out of hope */
+#endif
+
 #include <Mw/LowLevel.h>
 
 struct _MwPoint {
