@@ -597,7 +597,7 @@ MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 }
 
 MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height) {
-	MwLLPixmap     px;
+	MwLLPixmap px;
 
 	px = MwLLCreatePixmap(handle->lowlevel, rgb, width, height);
 
