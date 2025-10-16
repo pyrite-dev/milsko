@@ -93,8 +93,7 @@ static void llkeyrelhandler(MwLL handle, void* data) {
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	MwWidget h = malloc(sizeof(*h));
 
-	h->name = malloc(strlen(name) + 1);
-	strcpy(h->name, name);
+	h->name = MwStringDupliacte(name);
 
 	h->parent   = parent;
 	h->children = NULL;
@@ -270,8 +269,7 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 	if(strcmp(key, MwNtitle) == 0) {
 		MwLLSetTitle(handle->lowlevel, value);
 	} else {
-		char* v = malloc(strlen(value) + 1);
-		strcpy(v, value);
+		char* v = MwStringDupliacte(value);
 
 		if(shgeti(handle->text, key) != -1) free(shget(handle->text, key));
 

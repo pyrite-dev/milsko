@@ -193,12 +193,10 @@ MwClass MwMenuClass = &MwMenuClassRec;
 MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
 	MwMenu m   = menu == NULL ? handle->internal : menu;
 	MwMenu new = malloc(sizeof(*new));
-	new->name  = malloc(strlen(name) + 1);
+	new->name  = MwStringDupliacte(name);
 	new->sub   = NULL;
 	new->wsub  = NULL;
 	new->keep  = 0;
-
-	strcpy(new->name, name);
 
 	arrput(m->sub, new);
 
