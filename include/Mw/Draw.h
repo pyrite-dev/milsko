@@ -145,6 +145,15 @@ MWDECL MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int 
  */
 MWDECL MwLLPixmap MwLoadXPM(MwWidget handle, char** data);
 
+/*!
+ * %brief Creates a pixmap from XPM data with background
+ * %param handle Widget
+ * %param data Data
+ * %param bgcolor RGBA data for background
+ * %return Pixmap
+ */
+MWDECL MwLLPixmap MwLoadXPMEx(MwWidget handle, char** data, unsigned char* bgcolor);
+
 /* color.c */
 
 /*!
