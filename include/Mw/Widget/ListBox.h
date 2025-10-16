@@ -24,17 +24,19 @@ MWDECL MwClass MwListBoxClass;
  * %param handle Widget
  * %param index Index
  * %param text Text
+ * %param pixmap Pixmap
  */
-MWDECL void MwListBoxInsert(MwWidget handle, int index, const char* text);
+MWDECL void MwListBoxInsert(MwWidget handle, int index, const char* text, MwLLPixmap pixmap);
 
 /*!
  * %brief Inserts multiple items on the listbox
  * %param handle Widget
  * %param index Index
  * %param text Text
+ * %param pixmap Pixmap
  * %param count Count
  */
-MWDECL void MwListBoxInsertMultiple(MwWidget handle, int index, char** text, int count);
+MWDECL void MwListBoxInsertMultiple(MwWidget handle, int index, char** text, MwLLPixmap* pixmap, int count);
 
 /*!
  * %brief Deletes item from the listbox

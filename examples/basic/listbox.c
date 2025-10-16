@@ -26,7 +26,7 @@ int main() {
 	lb    = MwCreateWidget(MwListBoxClass, "listbox", wmain, 5, 5, 630, 470);
 
 	MwAddUserHandler(lb, MwNactivateHandler, activate, NULL);
-	MwListBoxInsertMultiple(lb, -1, (char**)harvard, sizeof(harvard) / sizeof(harvard[0]) - 1);
+	MwListBoxInsertMultiple(lb, -1, (char**)harvard, NULL, sizeof(harvard) / sizeof(harvard[0]) - 1);
 
 	MwLoop(wmain);
 }
