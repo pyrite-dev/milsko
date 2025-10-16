@@ -18,6 +18,7 @@ typedef struct filechooser {
 	MwLLPixmap back;
 	MwLLPixmap forward;
 	MwLLPixmap up;
+	MwLLPixmap computer;
 } filechooser_t;
 
 static void destroy(MwWidget handle) {
@@ -25,6 +26,10 @@ static void destroy(MwWidget handle) {
 
 	MwLLDestroyPixmap(fc->dir);
 	MwLLDestroyPixmap(fc->file);
+	MwLLDestroyPixmap(fc->back);
+	MwLLDestroyPixmap(fc->forward);
+	MwLLDestroyPixmap(fc->up);
+	MwLLDestroyPixmap(fc->computer);
 	free(handle->opaque);
 	MwDestroyWidget(handle);
 }
@@ -54,7 +59,10 @@ static void layout(MwWidget handle) {
 	ww = 160;
 	wh = h - 10 - 24 - 5 - 24 - 5 - 24 - 5;
 	if(fc->nav == NULL) {
-		fc->nav = MwCreateWidget(MwListBoxClass, "nav", handle, wx, wy, ww, wh);
+		fc->nav = MwVaCreateWidget(MwListBoxClass, "nav", handle, wx, wy, ww, wh,
+					   MwNleftPadding, 16,
+					   NULL);
+		MwListBoxInsert(fc->nav, -1, fc->computer, "Home", NULL);
 	} else {
 		MwVaApply(fc->nav,
 			  MwNx, wx,
@@ -71,6 +79,7 @@ static void layout(MwWidget handle) {
 	if(fc->files == NULL) {
 		fc->files = MwVaCreateWidget(MwListBoxClass, "files", handle, wx, wy, ww, wh,
 					     MwNhasHeading, 1,
+					     MwNleftPadding, 16,
 					     NULL);
 	} else {
 		MwVaApply(fc->files,
@@ -254,11 +263,12 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 				  MwNtitle, title,
 				  NULL);
 
-	fc->dir	    = MwLoadXPM(window, MwIconDirectory);
-	fc->file    = MwLoadXPM(window, MwIconFile);
-	fc->back    = MwLoadXPM(window, MwIconBack);
-	fc->forward = MwLoadXPM(window, MwIconForward);
-	fc->up	    = MwLoadXPM(window, MwIconUp);
+	fc->dir	     = MwLoadXPM(window, MwIconDirectory);
+	fc->file     = MwLoadXPM(window, MwIconFile);
+	fc->back     = MwLoadXPM(window, MwIconBack);
+	fc->forward  = MwLoadXPM(window, MwIconForward);
+	fc->up	     = MwLoadXPM(window, MwIconUp);
+	fc->computer = MwLoadXPM(window, MwIconComputer);
 
 	window->opaque = fc;
 
