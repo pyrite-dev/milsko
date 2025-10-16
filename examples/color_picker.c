@@ -61,6 +61,7 @@ typedef struct {
 	MwWidget       value_slider;
 	MwWidget       alpha_slider;
 	MwWidget       color_display;
+	MwWidget       color_display_text;
 	MwLLPixmap     color_wheel_pixmap;
 	MwLLPixmap     color_display_pixmap;
 	double	       value;
@@ -128,6 +129,8 @@ static void color_wheel_click(MwWidget handle, void* user, void* call) {
 	char* hexColor = malloc(8);
 	snprintf(hexColor, 8, "#%02X%02X%02X", r, g, b);
 	MwSetText(wheel->color_display, MwNbackground, hexColor);
+	MwSetText(wheel->color_display_text, MwNbackground, hexColor);
+	MwSetText(wheel->color_display_text, MwNtext, hexColor);
 	free(hexColor);
 }
 static void color_wheel_on_change_value(MwWidget handle, void* user, void* call) {
@@ -171,6 +174,8 @@ void color_wheel_setup(MwWidget parent, color_wheel* wheel) {
 	MwSetText(wheel->color_display, MwNbackground, "#000000");
 	MwSetInteger(wheel->color_display, MwnhasBorder, 1);
 	MwSetInteger(wheel->color_display, MwNinverted, 1);
+
+	wheel->color_display_text = MwCreateWidget(MwLabelClass, "colorDisplayFrameText", wheel->color_display, MwDefaultBorderWidth, MwDefaultBorderWidth, PICKER_SIZE - MwDefaultBorderWidth, (PICKER_SIZE / 16) - (MwDefaultBorderWidth * 2));
 
 	wheel->value_slider = MwVaCreateWidget(MwScrollBarClass, "value-slider", wheel->parent,
 					       // x
