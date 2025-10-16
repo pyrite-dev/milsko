@@ -37,7 +37,7 @@ typedef void (*MwHandler5)(MwWidget handle, void* ptr);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
 
-#if __STDC_VERSION__ >= 199901L
+#if __STDC_VERSION__ >= 199901L || __GNUC__ > 2
 typedef unsigned long long MwOffset;
 
 #define MwOffsetPrint "%llu"
@@ -52,7 +52,7 @@ typedef unsigned __int64 MwOffset;
 #define MwOffsetPrint "%llu"
 #endif
 
-#elif
+#else
 typedef unsigned long MwOffset; /* out of hope */
 
 #define MwOffsetPrint "%lu"
