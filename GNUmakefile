@@ -32,7 +32,7 @@ L_CFLAGS = $(DEPINC) $(CFLAGS) -fPIC -D_MILSKO
 L_LDFLAGS = $(LDFLAGS)
 L_LIBS = $(LIBS)
 
-L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o src/error.o src/unicode.o src/color.o src/messagebox.o src/directory.o
+L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o src/error.o src/unicode.o src/color.o src/messagebox.o src/directory.o src/string.o
 L_OBJS += external/ds.o external/image.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o src/widget/checkbox.o src/widget/label.o src/widget/entry.o src/widget/numberentry.o src/widget/viewport.o src/widget/listbox.o
 L_OBJS += src/cursor/default.o src/cursor/cross.o src/cursor/text.o
