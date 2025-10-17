@@ -174,6 +174,7 @@ static void MwFreeWidget(MwWidget handle) {
 	int	 i;
 	MwWidget root = handle;
 
+	handle->destroyed = 0;
 	MwDispatch(handle, destroy);
 
 	for(i = 0; i < arrlen(handle->children); i++) {
