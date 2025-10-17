@@ -66,6 +66,7 @@ typedef struct {
 	double	       value;
 	unsigned char* color_wheel_image_data;
 	unsigned char* color_display_image_data;
+	MwPoint	       point;
 } color_wheel;
 
 void color_wheel_wheel_image_update(color_wheel* wheel) {
@@ -138,8 +139,17 @@ static void color_wheel_click(MwWidget handle, void* user, void* call) {
 	(void)a;
 
 	hexColor = malloc(8);
+	char* fgColor  = malloc(8);
 	snprintf(hexColor, 8, "#%02X%02X%02X", r, g, b);
+
+	int fr = r > 128 ? 0 : 255;
+	int fg = g > 128 ? 0 : 255;
+	int fb = b > 128 ? 0 : 255;
+
+	snprintf(fgColor, 8, "#%02X%02X%02X", fr, fg, fb);
 	MwSetText(wheel->color_display, MwNbackground, hexColor);
+	MwSetText(wheel->color_display_text, MwNforeground, fgColor);
+
 	MwSetText(wheel->color_display_text, MwNbackground, hexColor);
 	MwSetText(wheel->color_display_text, MwNtext, hexColor);
 	free(hexColor);
