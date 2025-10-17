@@ -139,8 +139,8 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 		h->lowlevel->handler->move	   = llmovehandler;
 		h->lowlevel->handler->key	   = llkeyhandler;
 		h->lowlevel->handler->key_released = llkeyrelhandler;
-		h->lowlevel->handler->focus_in = llfocusinhandler;
-		h->lowlevel->handler->focus_out = llfocusouthandler;
+		h->lowlevel->handler->focus_in	   = llfocusinhandler;
+		h->lowlevel->handler->focus_out	   = llfocusouthandler;
 	}
 
 	if(parent != NULL) arrput(parent->children, h);
@@ -414,7 +414,7 @@ void MwSetDefault(MwWidget handle) {
 	inherit_text(handle, MwNforeground, MwDefaultForeground);
 }
 
-void MwHideCursor(MwWidget handle){
+void MwHideCursor(MwWidget handle) {
 	MwLLSetCursor(handle->lowlevel, &MwCursorHidden, &MwCursorHiddenMask);
 }
 
@@ -478,10 +478,11 @@ void MwAddTickList(MwWidget handle) {
 	arrput(root->tick_list, handle);
 }
 
-void MwFocus(MwWidget handle){
+void MwFocus(MwWidget handle) {
 	MwLLFocus(handle->lowlevel);
 }
 
-void MwGrabPointer(MwWidget handle, int toggle){
+void MwGrabPointer(MwWidget handle, int toggle) {
+	if(toggle) MwFocus(handle);
 	MwLLGrabPointer(handle->lowlevel, toggle);
 }

@@ -157,6 +157,7 @@ struct _MwDirectoryEntry {
 	char*	 name;
 	int	 type;
 	MwOffset size;
+	time_t	 mtime;
 };
 
 #define MwCursorDataHeight 16

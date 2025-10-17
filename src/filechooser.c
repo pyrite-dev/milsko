@@ -43,7 +43,7 @@ static void cancel(MwWidget handle, void* user, void* call) {
 	destroy(handle->parent);
 }
 
-static void cancel_window(MwWidget handle, void* user, void* call){
+static void cancel_window(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
@@ -284,8 +284,12 @@ static void scan(MwWidget handle, const char* path) {
 	for(i = 0; i < arrlen(entries); i++) {
 		if(strcmp(entries[i]->name, ".") == 0 || strcmp(entries[i]->name, "..") == 0) continue;
 		if(entries[i]->type == MwDIRECTORY_DIRECTORY) {
+			char* date = malloc(128);
+
+			MwStringTime(date, entries[i]->mtime);
+
 			arrput(names, entries[i]->name);
-			arrput(dates, NULL);
+			arrput(dates, date);
 			arrput(sizes, NULL);
 			arrput(icons, fc->dir);
 		}
@@ -295,18 +299,8 @@ static void scan(MwWidget handle, const char* path) {
 			char* date = malloc(128);
 			char* size = malloc(128);
 
-			memset(date, 0, 128);
-			memset(size, 0, 128);
-
-			if(entries[i]->size / 1024 == 0) {
-				sprintf(size, "%d", (int)entries[i]->size);
-			} else if(entries[i]->size / 1024 / 1024 == 0) {
-				sprintf(size, "%.1fK", (double)entries[i]->size / 1024);
-			} else if(entries[i]->size / 1024 / 1024 / 1024 == 0) {
-				sprintf(size, "%.1fM", (double)entries[i]->size / 1024 / 1024);
-			} else {
-				sprintf(size, "%.1fG", (double)entries[i]->size / 1024 / 1024 / 1024);
-			}
+			MwStringTime(date, entries[i]->mtime);
+			MwStringSize(size, entries[i]->size);
 
 			arrput(names, entries[i]->name);
 			arrput(dates, date);

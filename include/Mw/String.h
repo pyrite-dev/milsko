@@ -7,6 +7,7 @@
 #define __MW_STRING_H__
 
 #include <Mw/MachDep.h>
+#include <Mw/TypeDefs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,6 +27,20 @@ MWDECL char* MwStringDupliacte(const char* str);
  * %return String
  */
 MWDECL char* MwStringConcat(const char* str1, const char* str2);
+
+/*!
+ * %brief Converts size to string
+ * %param out Output
+ * %param size Size
+ */
+MWDECL void MwStringSize(char* out, MwOffset size);
+
+/*!
+ * %brief Converts time to string
+ * %param out Output
+ * %param t Time
+ */
+MWDECL void MwStringTime(char* out, time_t t);
 
 #ifdef __cplusplus
 }
