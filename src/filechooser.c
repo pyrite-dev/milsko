@@ -1,6 +1,8 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
+#include "../external/stb_ds.h"
+
 typedef struct filechooser {
 	MwWidget nav;
 	MwWidget files;
@@ -234,8 +236,27 @@ static void resize(MwWidget handle, void* user, void* call) {
 	layout(handle);
 }
 
+static int qsort_files(const void* a, const void* b){
+	MwDirectoryEntry* aent = *(MwDirectoryEntry**)a;
+	MwDirectoryEntry* bent = *(MwDirectoryEntry**)b;
+
+	return strcmp(aent->name, bent->name);
+}
+
 static void scan(MwWidget handle, const char* path) {
 	filechooser_t* fc = handle->opaque;
+	void* dir = MwDirectoryOpen(path);
+	MwDirectoryEntry** entries = NULL;
+	int i;
+	char** names = NULL;
+	MwLLPixmap* icons = NULL;
+	if(dir != NULL){
+		MwDirectoryEntry* entry;
+		while((entry = MwDirectoryRead(dir)) != NULL) arrput(entries, entry);
+		MwDirectoryClose(dir);
+
+		qsort(entries, arrlen(entries), sizeof(MwDirectoryEntry*), qsort_files);
+	}
 
 	MwVaApply(fc->addr,
 		  MwNtext, path,
@@ -246,6 +267,28 @@ static void scan(MwWidget handle, const char* path) {
 	MwListBoxSetWidth(fc->files, 0, -128 - 64);
 	MwListBoxSetWidth(fc->files, 1, 128);
 	MwListBoxSetWidth(fc->files, 2, 0);
+
+	icons = NULL;
+	names = NULL;
+	for(i = 0; i < arrlen(entries); i++){
+		if(strcmp(entries[i]->name, ".") == 0 || strcmp(entries[i]->name, "..") == 0) continue;
+		if(entries[i]->type == MwDIRECTORY_DIRECTORY){
+			arrput(names, entries[i]->name);
+			arrput(icons, fc->dir);
+		}
+	}
+	for(i = 0; i < arrlen(entries); i++){
+		if(entries[i]->type == MwDIRECTORY_FILE){
+			arrput(names, entries[i]->name);
+			arrput(icons, fc->file);
+		}
+	}
+	MwListBoxInsertMultiple(fc->files, -1, arrlen(names), icons, names, NULL);
+	arrfree(names);
+	arrfree(icons);
+
+	for(i = 0; i < arrlen(entries); i++) MwDirectoryFreeEntry(entries[i]);
+	arrfree(entries);
 }
 
 MwWidget MwFileChooser(MwWidget handle, const char* title) {
