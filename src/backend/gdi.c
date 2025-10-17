@@ -338,10 +338,12 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	int		 y, x;
 	int		 w = (width + (16 - (width % 16))) / 8;
 	WORD*		 words;
+	WORD*		 words2;
 
 	if(16 * (width / 16) == width) w -= 2;
 
-	words = malloc(w * height);
+	words  = malloc(w * height);
+	words2 = malloc(w * height);
 
 	r->width  = width;
 	r->height = height;
@@ -361,8 +363,10 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->hBitmap = CreateDIBSection(dc, (BITMAPINFO*)&bmih, DIB_RGB_COLORS, (void**)&quad, NULL, (DWORD)0);
 
 	memset(words, 0, w * height);
+	memset(words2, 0, w * height);
 	for(y = 0; y < height; y++) {
-		BYTE* l = (BYTE*)&words[y * (w / 2)];
+		BYTE* l	 = (BYTE*)&words[y * (w / 2)];
+		BYTE* l2 = (BYTE*)&words2[y * (w / 2)];
 		for(x = 0; x < width; x++) {
 			RGBQUAD*       q  = &quad[y * width + x];
 			unsigned char* px = &data[(y * width + x) * 4];
@@ -373,13 +377,17 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 
 			if(px[3]) {
 				l[x / 8] |= 1 << (7 - (x % 8));
+			} else {
+				l2[x / 8] |= 1 << (7 - (x % 8));
 			}
 		}
 	}
 
-	r->hMask = CreateBitmap(width, height, 1, 1, words);
+	r->hMask  = CreateBitmap(width, height, 1, 1, words);
+	r->hMask2 = CreateBitmap(width, height, 1, 1, words2);
 
 	free(words);
+	free(words2);
 
 	ReleaseDC(handle->hWnd, dc);
 
@@ -387,6 +395,8 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 }
 
 void MwLLDestroyPixmap(MwLLPixmap pixmap) {
+	DeleteObject(pixmap->hMask);
+	DeleteObject(pixmap->hMask2);
 	DeleteObject(pixmap->hBitmap);
 
 	free(pixmap);
@@ -421,7 +431,7 @@ void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 	ii.fIcon    = TRUE;
 	ii.xHotspot = 0;
 	ii.yHotspot = 0;
-	ii.hbmMask  = pixmap->hMask;
+	ii.hbmMask  = pixmap->hMask2;
 	ii.hbmColor = pixmap->hBitmap;
 
 	ico = CreateIconIndirect(&ii);
