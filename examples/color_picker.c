@@ -69,8 +69,9 @@ typedef struct {
 } color_wheel;
 
 void color_wheel_wheel_image_update(color_wheel* wheel) {
-	for(int y = 0; y < PICKER_SIZE; y++) {
-		for(int x = 0; x < PICKER_SIZE; x++) {
+	int y, x;
+	for(y = 0; y < PICKER_SIZE; y++) {
+		for(x = 0; x < PICKER_SIZE; x++) {
 			int i  = ((y * PICKER_SIZE) + x) * 4;
 			int _x = x - (PICKER_SIZE / 2);
 			int _y = y - (PICKER_SIZE / 2);
@@ -89,14 +90,16 @@ void color_wheel_wheel_image_update(color_wheel* wheel) {
 				float angle = atan2(yd, xd) - M_PI;
 				float hue   = (angle * 180.) / M_PI;
 
+				hsv hsv_v;
+				rgb color;
+
 				if(hue < 0.0) {
 					hue += 360;
 				}
-				rgb color = hsv2rgb((hsv){
-				    .h = hue / 360.,
-				    .s = (dist / 179.61),
-				    .v = wheel->value,
-				});
+				hsv_v.h = hue / 360.;
+				hsv_v.s = (dist / 179.61);
+				hsv_v.v = wheel->value;
+				color	= hsv2rgb(hsv_v);
 
 				wheel->color_wheel_image_data[i]     = color.r * 255;
 				wheel->color_wheel_image_data[i + 1] = color.g * 255;
@@ -116,17 +119,25 @@ void color_wheel_wheel_image_update(color_wheel* wheel) {
 static void color_wheel_click(MwWidget handle, void* user, void* call) {
 	color_wheel* wheel = (color_wheel*)user;
 	MwLLMouse*   mouse = (MwLLMouse*)call;
+	char*	     hexColor;
+	int	     i, r, g, b, a;
+
+	(void)handle;
+	(void)user;
+	(void)call;
 
 	color_wheel_wheel_image_update(wheel);
 
-	int i = ((mouse->point.y * PICKER_SIZE) + mouse->point.x) * 4;
+	i = ((mouse->point.y * PICKER_SIZE) + mouse->point.x) * 4;
 
-	int r = wheel->color_wheel_image_data[i];
-	int g = wheel->color_wheel_image_data[i + 1];
-	int b = wheel->color_wheel_image_data[i + 2];
-	int a = wheel->color_wheel_image_data[i + 3];
+	r = wheel->color_wheel_image_data[i];
+	g = wheel->color_wheel_image_data[i + 1];
+	b = wheel->color_wheel_image_data[i + 2];
+	a = wheel->color_wheel_image_data[i + 3];
 
-	char* hexColor = malloc(8);
+	(void)a;
+
+	hexColor = malloc(8);
 	snprintf(hexColor, 8, "#%02X%02X%02X", r, g, b);
 	MwSetText(wheel->color_display, MwNbackground, hexColor);
 	MwSetText(wheel->color_display_text, MwNbackground, hexColor);
@@ -138,6 +149,9 @@ static void color_wheel_on_change_value(MwWidget handle, void* user, void* call)
 
 	int value = MwGetInteger(handle, MwNvalue);
 	int diff  = MwGetInteger(handle, MwNchangedBy);
+
+	(void)diff;
+	(void)call;
 
 	wheel->value = 1.0 - ((double)value / 1024.);
 

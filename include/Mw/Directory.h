@@ -39,6 +39,12 @@ MWDECL MwDirectoryEntry* MwDirectoryRead(void* handle);
  */
 MWDECL void MwDirectoryFreeEntry(MwDirectoryEntry* entry);
 
+/*!
+ * %brief Gets a current directory
+ * %param Directory
+ */
+MWDECL char* MwDirectoryCurrent(void);
+
 #ifdef __cplusplus
 }
 #endif

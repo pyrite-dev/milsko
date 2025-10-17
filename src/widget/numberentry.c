@@ -126,17 +126,21 @@ static void mouse_down(MwWidget handle, void* ptr) {
 	MwForceRender(handle);
 }
 
+static void prop_change(MwWidget handle, const char* prop) {
+	if(strcmp(prop, MwNtext) == 0) MwForceRender(handle);
+}
+
 MwClassRec MwNumberEntryClassRec = {
-    create,	/* create */
-    destroy,	/* destroy */
-    draw,	/* draw */
-    NULL,	/* click */
-    NULL,	/* parent_resize */
-    NULL,	/* prop_change */
-    mouse_move, /* mouse_move */
-    mouse_up,	/* mouse_up */
-    mouse_down, /* mouse_down */
-    key,	/* key */
+    create,	 /* create */
+    destroy,	 /* destroy */
+    draw,	 /* draw */
+    NULL,	 /* click */
+    NULL,	 /* parent_resize */
+    prop_change, /* prop_change */
+    mouse_move,	 /* mouse_move */
+    mouse_up,	 /* mouse_up */
+    mouse_down,	 /* mouse_down */
+    key,	 /* key */
     NULL,
     NULL,
     NULL,

@@ -237,6 +237,10 @@ static void resize(MwWidget handle, void* user, void* call) {
 static void scan(MwWidget handle, const char* path) {
 	filechooser_t* fc = handle->opaque;
 
+	MwVaApply(fc->addr,
+		  MwNtext, path,
+		  NULL);
+
 	MwListBoxReset(fc->files);
 	MwListBoxInsert(fc->files, -1, NULL, "Name", "Date modified", "Size", NULL);
 	MwListBoxSetWidth(fc->files, 0, -128 - 64);
@@ -251,6 +255,7 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	int	       wh = MwGetInteger(handle, MwNheight);
 	int	       w, h;
 	filechooser_t* fc = malloc(sizeof(*fc));
+	char*	       path;
 
 	memset(fc, 0, sizeof(*fc));
 
@@ -275,7 +280,9 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	layout(window);
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
 
-	scan(window, ".");
+	path = MwDirectoryCurrent();
+	scan(window, path);
+	free(path);
 
 	MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);

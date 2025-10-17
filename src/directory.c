@@ -103,3 +103,16 @@ void MwDirectoryFreeEntry(MwDirectoryEntry* entry) {
 	free(entry->name);
 	free(entry);
 }
+
+char* MwDirectoryCurrent(void) {
+#ifdef _WIN32
+	int   len = GetCurrentDirectory(0, NULL);
+	char* out = malloc(len);
+
+	GetCurrentDirectory(len, out);
+
+	return out;
+#else
+	return getcwd(NULL, 0);
+#endif
+}
