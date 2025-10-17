@@ -117,13 +117,17 @@ static void key(MwWidget handle, int code) {
 	MwForceRender(handle);
 }
 
+static void prop_change(MwWidget handle, const char* prop) {
+	if(strcmp(prop, MwNtext) == 0) MwForceRender(handle);
+}
+
 MwClassRec MwEntryClassRec = {
     create,	    /* create */
     destroy,	    /* destroy */
     draw,	    /* draw */
     NULL,	    /* click */
     NULL,	    /* parent_resize */
-    NULL,	    /* prop_change */
+    prop_change,    /* prop_change */
     NULL,	    /* mouse_move */
     MwForceRender2, /* mouse_up */
     MwForceRender2, /* mouse_down */

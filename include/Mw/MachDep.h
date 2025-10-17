@@ -16,7 +16,9 @@
 #include <math.h>
 #include <ctype.h>
 #include <time.h>
-#ifndef _WIN32
+#ifdef _WIN32
+#include <direct.h>
+#else
 #include <unistd.h>
 #include <dlfcn.h>
 #include <signal.h>
