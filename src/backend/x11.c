@@ -347,6 +347,10 @@ void MwLLNextEvent(MwLL handle) {
 				n = MwLLKeyEnter;
 			} else if(strcmp(str, "Escape") == 0){
 				n = MwLLKeyEscape;
+			}else if(strcmp(str, "Shift_L") == 0){
+				n = MwLLKeyLeftShift;
+			}else if(strcmp(str, "Shift_R") == 0){
+				n = MwLLKeyRightShift;
 			}
 
 			if(n != -1) {

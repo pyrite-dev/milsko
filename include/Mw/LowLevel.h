@@ -44,7 +44,9 @@ enum MwLLKeyEnum {
 	MwLLKeyUp,
 	MwLLKeyDown,
 	MwLLKeyEnter,
-	MwLLKeyEscape
+	MwLLKeyEscape,
+	MwLLKeyLeftShift,
+	MwLLKeyRightShift
 };
 
 enum MwLLMouseEnum {

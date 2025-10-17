@@ -143,6 +143,8 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		if(wp == VK_RETURN) n = MwLLKeyEnter;
 		if(wp == VK_BACK) n = MwLLKeyBackSpace;
 		if(wp == VK_ESCAPE) n = MwLLKeyEscape;
+		if(wp == VK_LSHIFT) n = MwLLKeyLeftShift;
+		if(wp == VK_RSHIFT) n = MwLLKeyRightShift;
 		if(n != -1) {
 			if(msg == WM_KEYDOWN) {
 				MwLLDispatch(u->ll, key, &n);
