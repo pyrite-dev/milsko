@@ -236,7 +236,7 @@ static void resize(MwWidget handle, void* user, void* call) {
 	layout(handle);
 }
 
-static int qsort_files(const void* a, const void* b){
+static int qsort_files(const void* a, const void* b) {
 	MwDirectoryEntry* aent = *(MwDirectoryEntry**)a;
 	MwDirectoryEntry* bent = *(MwDirectoryEntry**)b;
 
@@ -244,13 +244,15 @@ static int qsort_files(const void* a, const void* b){
 }
 
 static void scan(MwWidget handle, const char* path) {
-	filechooser_t* fc = handle->opaque;
-	void* dir = MwDirectoryOpen(path);
+	filechooser_t*	   fc	   = handle->opaque;
+	void*		   dir	   = MwDirectoryOpen(path);
 	MwDirectoryEntry** entries = NULL;
-	int i;
-	char** names = NULL;
-	MwLLPixmap* icons = NULL;
-	if(dir != NULL){
+	int		   i;
+	char**		   names = NULL;
+	char**		   dates = NULL;
+	char**		   sizes = NULL;
+	MwLLPixmap*	   icons = NULL;
+	if(dir != NULL) {
 		MwDirectoryEntry* entry;
 		while((entry = MwDirectoryRead(dir)) != NULL) arrput(entries, entry);
 		MwDirectoryClose(dir);
@@ -264,26 +266,56 @@ static void scan(MwWidget handle, const char* path) {
 
 	MwListBoxReset(fc->files);
 	MwListBoxInsert(fc->files, -1, NULL, "Name", "Date modified", "Size", NULL);
-	MwListBoxSetWidth(fc->files, 0, -128 - 64);
+	MwListBoxSetWidth(fc->files, 0, -128 - 96);
 	MwListBoxSetWidth(fc->files, 1, 128);
 	MwListBoxSetWidth(fc->files, 2, 0);
 
 	icons = NULL;
 	names = NULL;
-	for(i = 0; i < arrlen(entries); i++){
+	dates = NULL;
+	sizes = NULL;
+	for(i = 0; i < arrlen(entries); i++) {
 		if(strcmp(entries[i]->name, ".") == 0 || strcmp(entries[i]->name, "..") == 0) continue;
-		if(entries[i]->type == MwDIRECTORY_DIRECTORY){
+		if(entries[i]->type == MwDIRECTORY_DIRECTORY) {
 			arrput(names, entries[i]->name);
+			arrput(dates, NULL);
+			arrput(sizes, NULL);
 			arrput(icons, fc->dir);
 		}
 	}
-	for(i = 0; i < arrlen(entries); i++){
-		if(entries[i]->type == MwDIRECTORY_FILE){
+	for(i = 0; i < arrlen(entries); i++) {
+		if(entries[i]->type == MwDIRECTORY_FILE) {
+			char* date = malloc(128);
+			char* size = malloc(128);
+
+			memset(date, 0, 128);
+			memset(size, 0, 128);
+
+			if(entries[i]->size / 1024 == 0) {
+				sprintf(size, "%d", (int)entries[i]->size);
+			} else if(entries[i]->size / 1024 / 1024 == 0) {
+				sprintf(size, "%.1fK", (double)entries[i]->size / 1024);
+			} else if(entries[i]->size / 1024 / 1024 / 1024 == 0) {
+				sprintf(size, "%.1fM", (double)entries[i]->size / 1024 / 1024);
+			} else {
+				sprintf(size, "%.1fG", (double)entries[i]->size / 1024 / 1024 / 1024);
+			}
+
 			arrput(names, entries[i]->name);
+			arrput(dates, date);
+			arrput(sizes, size);
 			arrput(icons, fc->file);
 		}
 	}
-	MwListBoxInsertMultiple(fc->files, -1, arrlen(names), icons, names, NULL);
+	MwListBoxInsertMultiple(fc->files, -1, arrlen(names), icons, names, dates, sizes, NULL);
+	for(i = 0; i < arrlen(dates); i++) {
+		if(dates[i] != NULL) free(dates[i]);
+	}
+	for(i = 0; i < arrlen(sizes); i++) {
+		if(sizes[i] != NULL) free(sizes[i]);
+	}
+	arrfree(sizes);
+	arrfree(dates);
 	arrfree(names);
 	arrfree(icons);
 
@@ -299,7 +331,7 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	int	       w, h;
 	filechooser_t* fc = malloc(sizeof(*fc));
 	char*	       path;
-	MwLLPixmap icon;
+	MwLLPixmap     icon;
 
 	memset(fc, 0, sizeof(*fc));
 
@@ -321,8 +353,8 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 
 	icon = MwLoadXPM(window, MwIconSearch);
 	MwVaApply(window,
-		MwNiconPixmap, icon,
-	NULL);
+		  MwNiconPixmap, icon,
+		  NULL);
 
 	window->opaque = fc;
 
