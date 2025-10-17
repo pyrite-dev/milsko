@@ -132,14 +132,15 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 void MwLLDestroy(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
-	XDestroyIC(handle->xic);
-	XCloseIM(handle->xim);
+	if(handle->xic) XDestroyIC(handle->xic);
+	if(handle->xim) XCloseIM(handle->xim);
 
 	destroy_pixmap(handle);
 	XFree(handle->visual);
 	XFreeGC(handle->display, handle->gc);
 	XUnmapWindow(handle->display, handle->window);
 	XDestroyWindow(handle->display, handle->window);
+
 	XFlush(handle->display);
 	free(handle);
 }

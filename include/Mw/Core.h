@@ -16,7 +16,7 @@
  * %param y Handler name
  */
 #define MwDispatch(x, y) \
-	if(x->widget_class != NULL && x->widget_class->y != NULL) x->widget_class->y(x)
+	if(!x->destroyed && x->widget_class != NULL && x->widget_class->y != NULL) x->widget_class->y(x)
 
 /*!
  * %warning Used internally
@@ -26,7 +26,7 @@
  * %return `0` for success, otherwise failed
  */
 #define MwDispatch2(x, y) \
-	((x->widget_class != NULL && x->widget_class->y != NULL) ? x->widget_class->y(x) : 0)
+	((!x->destroyed && x->widget_class != NULL && x->widget_class->y != NULL) ? x->widget_class->y(x) : 0)
 
 /*!
  * %warning Used internally
@@ -36,7 +36,7 @@
  * %param z Argument
  */
 #define MwDispatch3(x, y, z) \
-	if(x->widget_class != NULL && x->widget_class->y != NULL) x->widget_class->y(x, z)
+	if(!x->destroyed && x->widget_class != NULL && x->widget_class->y != NULL) x->widget_class->y(x, z)
 
 #define MwWaitMS 10
 
