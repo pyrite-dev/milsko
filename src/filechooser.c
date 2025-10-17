@@ -43,6 +43,13 @@ static void cancel(MwWidget handle, void* user, void* call) {
 	destroy(handle->parent);
 }
 
+static void cancel_window(MwWidget handle, void* user, void* call){
+	(void)user;
+	(void)call;
+
+	destroy(handle);
+}
+
 static void okay(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
@@ -360,6 +367,7 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 
 	layout(window);
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
+	MwAddUserHandler(window, MwNcloseHandler, cancel_window, NULL);
 
 	path = MwDirectoryCurrent();
 	scan(window, path);
