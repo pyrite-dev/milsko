@@ -1,4 +1,5 @@
 /* $Id$ */
+
 #include <Mw/Milsko.h>
 #include <stdint.h>
 MwWidget vp;
@@ -138,8 +139,8 @@ static void color_wheel_click(MwWidget handle, void* user, void* call) {
 
 	(void)a;
 
-	hexColor = malloc(8);
-	char* fgColor  = malloc(8);
+	hexColor      = malloc(8);
+	char* fgColor = malloc(8);
 	snprintf(hexColor, 8, "#%02X%02X%02X", r, g, b);
 
 	int fr = r > 128 ? 0 : 255;
