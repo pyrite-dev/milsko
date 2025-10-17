@@ -231,6 +231,12 @@ MWDECL void MwForceRender(MwWidget handle);
  */
 MWDECL void MwForceRender2(MwWidget handle, void* ptr);
 
+/*!
+ * %brief Adds an widget to tick handler list
+ * %param handle Widget
+ */
+MWDECL void MwAddTickList(MwWidget handle);
+
 #ifdef __cplusplus
 }
 #endif

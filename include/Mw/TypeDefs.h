@@ -105,6 +105,7 @@ struct _MwWidget {
 	MwVoidKeyValue*	       data;
 
 	MwWidget* destroy_queue;
+	MwWidget* tick_list;
 };
 #endif
 
