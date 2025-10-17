@@ -63,6 +63,11 @@ MWDECL char* MwIconNote[];
 MWDECL char* MwIconQuestion[];
 
 /*!
+ * %brief Search icon
+ */
+MWDECL char* MwIconSearch[];
+
+/*!
  * %brief Up icon
  */
 MWDECL char* MwIconUp[];
@@ -71,6 +76,7 @@ MWDECL char* MwIconUp[];
  * %brief Warning icon
  */
 MWDECL char* MwIconWarning[];
+
 
 #ifdef __cplusplus
 }
