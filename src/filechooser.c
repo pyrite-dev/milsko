@@ -299,6 +299,7 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	int	       w, h;
 	filechooser_t* fc = malloc(sizeof(*fc));
 	char*	       path;
+	MwLLPixmap icon;
 
 	memset(fc, 0, sizeof(*fc));
 
@@ -317,6 +318,11 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	fc->forward  = MwLoadXPM(window, MwIconForward);
 	fc->up	     = MwLoadXPM(window, MwIconUp);
 	fc->computer = MwLoadXPM(window, MwIconComputer);
+
+	icon = MwLoadXPM(window, MwIconSearch);
+	MwVaApply(window,
+		MwNiconPixmap, icon,
+	NULL);
 
 	window->opaque = fc;
 
