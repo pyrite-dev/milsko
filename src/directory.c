@@ -71,6 +71,12 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	} else {
 		entry->type = MwDIRECTORY_FILE;
 	}
+	entry->size = 0;
+
+	entry->size = entry->size << 32;
+	entry->size |= dir->ffd.nFileSizeHigh;
+	entry->size = entry->size << 32;
+	entry->size |= dir->ffd.nFileSizeLow;
 #else
 	struct dirent* d;
 	struct stat    s;
@@ -92,6 +98,7 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	} else {
 		entry->type = MwDIRECTORY_FILE;
 	}
+	entry->size = s.st_size;
 
 	free(p);
 #endif

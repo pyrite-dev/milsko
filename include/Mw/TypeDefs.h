@@ -154,8 +154,9 @@ struct _MwSizeHints {
 };
 
 struct _MwDirectoryEntry {
-	char* name;
-	int   type;
+	char*	 name;
+	int	 type;
+	MwOffset size;
 };
 
 #define MwCursorDataHeight 16
