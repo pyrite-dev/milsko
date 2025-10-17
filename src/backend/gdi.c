@@ -91,7 +91,29 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		p.x = LOWORD(lp);
 		p.y = HIWORD(lp);
 
+		if(u->ll->grabbed){
+			RECT rc;
+
+			GetClientRect(hWnd, &rc);
+			p.x -= (rc.right - rc.left) / 2;
+			p.y -= (rc.bottom - rc.top) / 2;
+		}
+
 		MwLLDispatch(u->ll, move, &p);
+
+		if(u->ll->grabbed && (p.x != 0 || p.y != 0)){
+			RECT rc;
+			POINT p;
+
+			GetClientRect(hWnd, &rc);
+
+			p.x = (rc.right - rc.left) / 2;
+			p.y = (rc.bottom - rc.top) / 2;
+
+			MapWindowPoints(hWnd, HWND_DESKTOP, &p, 1);
+
+			SetCursorPos(p.x, p.y);
+		}
 	} else if(msg == WM_SIZE) {
 		MwLLDispatch(u->ll, resize, NULL);
 	} else if(msg == WM_ERASEBKGND) {
@@ -108,12 +130,19 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		int n = wp;
 
 		MwLLDispatch(u->ll, key, &n);
+	}else if(msg == WM_SETFOCUS){
+		MwLLDispatch(u->ll, focus_in, NULL);
+	}else if(msg == WM_KILLFOCUS){
+		MwLLDispatch(u->ll, focus_out, NULL);
 	} else if(msg == WM_KEYDOWN || msg == WM_KEYUP) {
 		int n = -1;
 		if(wp == VK_LEFT) n = MwLLKeyLeft;
 		if(wp == VK_RIGHT) n = MwLLKeyRight;
 		if(wp == VK_UP) n = MwLLKeyUp;
 		if(wp == VK_DOWN) n = MwLLKeyDown;
+		if(wp == VK_RETURN) n = MwLLKeyEnter;
+		if(wp == VK_BACK) n = MwLLKeyBackSpace;
+		if(wp == VK_ESCAPE) n = MwLLKeyEscape;
 		if(n != -1) {
 			if(msg == WM_KEYDOWN) {
 				MwLLDispatch(u->ll, key, &n);
@@ -181,6 +210,7 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 
 	RegisterClassEx(&wc);
 
+	r->grabbed = 0;
 	r->copy_buffer = 1;
 	r->hWnd	       = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->hWnd, 0, wc.hInstance, NULL);
 	r->hInstance   = wc.hInstance;
@@ -555,4 +585,37 @@ void MwLLMakeBorderless(MwLL handle, int toggle) {
 
 long MwLLGetTick(void) {
 	return GetTickCount();
+}
+
+void MwLLFocus(MwLL handle){
+	SetFocus(handle->hWnd);
+}
+
+void MwLLGrabPointer(MwLL handle, int toggle){
+	if(toggle){
+		POINT p;
+		RECT rc;
+
+		GetClientRect(handle->hWnd, &rc);
+
+		rc.right -= rc.left;
+		rc.bottom -= rc.top;
+
+		p.x = (rc.right - rc.left) / 2;
+		p.y = (rc.bottom - rc.top) / 2;
+
+		MapWindowPoints(handle->hWnd, HWND_DESKTOP, &p, 1);
+
+		handle->grabbed = 1;
+
+		SetFocus(handle->hWnd);
+
+		GetWindowRect(handle->hWnd, &rc);
+		ClipCursor(&rc);
+
+		SetCursorPos(p.x, p.y);
+	}else{
+		handle->grabbed = 0;
+		ClipCursor(NULL);
+	}
 }

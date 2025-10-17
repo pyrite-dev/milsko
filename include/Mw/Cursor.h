@@ -44,6 +44,16 @@ MWDECL MwCursor MwCursorText;
  */
 MWDECL MwCursor MwCursorTextMask;
 
+/*!
+ * %brief Hidden cursor
+ */
+MWDECL MwCursor MwCursorHidden;
+
+/*!
+ * %brief Hidden cursor mask
+ */
+MWDECL MwCursor MwCursorHiddenMask;
+
 #ifdef __cplusplus
 }
 #endif

@@ -45,5 +45,7 @@
 #define MwNkeyHandler "Ckey"		   /* int* (MwLLKeyEnum or character code) */
 #define MwNkeyReleaseHandler "CkeyRelease" /* same as MwNkeyHandler */
 #define MwNcloseHandler "Cclose"	   /* NULL */
+#define MwNfocusInHandler "CfocusIn"	   /* NULL */
+#define MwNfocusOutHandler "CfocusOut"	   /* NULL */
 
 #endif

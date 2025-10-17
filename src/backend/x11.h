@@ -29,6 +29,8 @@ struct _MwLL {
 	unsigned int height;
 
 	MwLLHandler handler;
+
+	int grabbed;
 };
 
 struct _MwLLColor {

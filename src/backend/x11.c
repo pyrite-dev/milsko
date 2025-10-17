@@ -20,7 +20,7 @@ enum mwm_hints_enum {
 	MWM_FUNC_CLOSE	  = (1L << 5)
 };
 
-static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | KeymapNotify;
+static unsigned long mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | KeymapNotify | FocusChangeMask;
 
 static void create_pixmap(MwLL handle) {
 	XWindowAttributes attr;
@@ -109,6 +109,8 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 
 	r->width  = width;
 	r->height = height;
+
+	r->grabbed = 0;
 
 	r->colormap  = DefaultColormap(r->display, XDefaultScreen(r->display));
 	r->wm_delete = XInternAtom(r->display, "WM_DELETE_WINDOW", False);
@@ -284,12 +286,28 @@ void MwLLNextEvent(MwLL handle) {
 			if(ev.xclient.data.l[0] == (long)handle->wm_delete) {
 				MwLLDispatch(handle, close, NULL);
 			}
+		} else if(ev.type == FocusIn){
+			MwLLDispatch(handle, focus_in, NULL);
+		} else if(ev.type == FocusOut){
+			MwLLDispatch(handle, focus_out, NULL);
 		} else if(ev.type == MotionNotify) {
 			MwPoint p;
+			XWindowAttributes attr;
+
+			XGetWindowAttributes(handle->display, handle->window, &attr);
+
 			p.x = ev.xmotion.x;
 			p.y = ev.xmotion.y;
 
+			if(handle->grabbed){
+				p.x -= attr.width / 2;
+				p.y -= attr.height / 2;
+			}
+
 			MwLLDispatch(handle, move, &p);
+			if(handle->grabbed && (p.x != 0 || p.y != 0)){
+				XWarpPointer(handle->display, None, handle->window, 0, 0, 0, 0, attr.width / 2, attr.height / 2);
+			}
 		} else if(ev.type == KeyPress || ev.type == KeyRelease) {
 			int    n = -1;
 			char   str[512];
@@ -325,6 +343,10 @@ void MwLLNextEvent(MwLL handle) {
 				n = MwLLKeyUp;
 			} else if(strcmp(str, "Down") == 0) {
 				n = MwLLKeyDown;
+			} else if(strcmp(str, "Return") == 0){
+				n = MwLLKeyEnter;
+			} else if(strcmp(str, "Escape") == 0){
+				n = MwLLKeyEscape;
 			}
 
 			if(n != -1) {
@@ -662,4 +684,22 @@ long MwLLGetTick(void) {
 	n += ts.tv_sec * 1000;
 
 	return n;
+}
+
+void MwLLFocus(MwLL handle){
+	XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
+}
+
+void MwLLGrabPointer(MwLL handle, int toggle){
+	XWindowAttributes attr;
+
+	XGetWindowAttributes(handle->display, handle->window, &attr);
+
+	if(toggle){
+		handle->grabbed = 1;
+
+		XWarpPointer(handle->display, None, handle->window, 0, 0, 0, 0, attr.width / 2, attr.height / 2);
+	}else{
+		handle->grabbed = 0;
+	}
 }
