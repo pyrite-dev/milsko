@@ -112,6 +112,9 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->destroy_queue = NULL;
 	h->prop_event	 = 1;
 	h->draw_inject	 = NULL;
+	h->tick_list	 = NULL;
+
+	if(parent == NULL) arrput(h->tick_list, h);
 
 	if(h->lowlevel != NULL) {
 		h->lowlevel->user		   = h;
@@ -190,13 +193,24 @@ static void MwFreeWidget(MwWidget handle) {
 	shfree(handle->data);
 
 	arrfree(handle->destroy_queue);
+	arrfree(handle->tick_list);
 
 	free(handle);
 }
 
 void MwDestroyWidget(MwWidget handle) {
+	int	 i;
+	MwWidget root = handle;
 	if(handle->parent != NULL) {
 		arrput(handle->parent->destroy_queue, handle);
+	}
+
+	while(root->parent != NULL) root = root->parent;
+	for(i = 0; i < arrlen(root->tick_list); i++) {
+		if(handle == root->tick_list[i]) {
+			arrdel(root->tick_list, i);
+			i--;
+		}
 	}
 }
 
@@ -235,10 +249,13 @@ int MwPending(MwWidget handle) {
 
 void MwLoop(MwWidget handle) {
 	long tick = MwLLGetTick();
+	int  i;
 	while(!handle->close) {
 		while(MwPending(handle)) MwStep(handle);
 
-		MwDispatchUserHandler(handle, MwNtickHandler, NULL);
+		for(i = 0; i < arrlen(handle->tick_list); i++) {
+			MwDispatchUserHandler(handle->tick_list[i], MwNtickHandler, NULL);
+		}
 		tick = MwWaitMS - (MwLLGetTick() - tick);
 		if(tick > 0) MwLLSleep(tick);
 		tick = MwLLGetTick();
@@ -425,4 +442,11 @@ void MwForceRender2(MwWidget handle, void* ptr) {
 	(void)ptr;
 
 	MwForceRender(handle);
+}
+
+void MwAddTickList(MwWidget handle) {
+	MwWidget root = handle;
+	while(root->parent != NULL) root = root->parent;
+
+	arrput(root->tick_list, handle);
 }
