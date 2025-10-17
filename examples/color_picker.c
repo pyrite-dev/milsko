@@ -1,6 +1,6 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
-
+#include <stdint.h>
 MwWidget vp;
 
 #define WIN_SIZE 512
@@ -59,13 +59,11 @@ typedef struct {
 	MwWidget       parent;
 	MwWidget       color_wheel_img;
 	MwWidget       value_slider;
-	MwWidget       alpha_slider;
 	MwWidget       color_display;
 	MwWidget       color_display_text;
 	MwLLPixmap     color_wheel_pixmap;
 	MwLLPixmap     color_display_pixmap;
 	double	       value;
-	double	       alpha;
 	unsigned char* color_wheel_image_data;
 	unsigned char* color_display_image_data;
 } color_wheel;
@@ -94,15 +92,17 @@ void color_wheel_wheel_image_update(color_wheel* wheel) {
 				if(hue < 0.0) {
 					hue += 360;
 				}
-				rgb color			     = hsv2rgb((hsv){
-							       .h = hue / 360.,
-							       .s = dist / 179.61,
-							       .v = wheel->value,
-				   });
+				rgb color = hsv2rgb((hsv){
+				    .h = hue / 360.,
+				    .s = (dist / 179.61),
+				    .v = wheel->value,
+				});
+
 				wheel->color_wheel_image_data[i]     = color.r * 255;
 				wheel->color_wheel_image_data[i + 1] = color.g * 255;
 				wheel->color_wheel_image_data[i + 2] = color.b * 255;
-				wheel->color_wheel_image_data[i + 3] = wheel->alpha;
+
+				wheel->color_wheel_image_data[i + 3] = 255;
 			}
 		}
 	}
@@ -143,16 +143,6 @@ static void color_wheel_on_change_value(MwWidget handle, void* user, void* call)
 
 	color_wheel_wheel_image_update(wheel);
 }
-static void color_wheel_on_change_alpha(MwWidget handle, void* user, void* call) {
-	color_wheel* wheel = (color_wheel*)user;
-
-	int value = MwGetInteger(handle, MwNvalue);
-	int diff  = MwGetInteger(handle, MwNchangedBy);
-
-	wheel->alpha = (1.0 - ((double)value / 1024.)) * 255.;
-
-	color_wheel_wheel_image_update(wheel);
-}
 void color_wheel_setup(MwWidget parent, color_wheel* wheel) {
 	wheel->parent = parent;
 
@@ -164,7 +154,6 @@ void color_wheel_setup(MwWidget parent, color_wheel* wheel) {
 	wheel->color_wheel_pixmap   = NULL;
 	wheel->color_display_pixmap = NULL;
 	wheel->value		    = 1;
-	wheel->alpha		    = 255;
 
 	color_wheel_wheel_image_update(wheel);
 
@@ -195,22 +184,6 @@ void color_wheel_setup(MwWidget parent, color_wheel* wheel) {
 					       MwNorientation, MwVERTICAL, MwNminValue, 0, MwNmaxValue, 1024, NULL);
 
 	MwAddUserHandler(wheel->value_slider, MwNchangedHandler, color_wheel_on_change_value, wheel);
-
-	wheel->alpha_slider = MwVaCreateWidget(MwScrollBarClass, "alpha-slider", wheel->parent,
-					       // x
-					       IMG_POS,
-
-					       // y
-					       IMG_POS -
-						   SCROLL_BAR_WIDTH - MARGIN,
-
-					       // width
-					       PICKER_SIZE,
-
-					       // height
-					       SCROLL_BAR_WIDTH,
-					       MwNorientation, MwHORIZONTAL, MwNminValue, 0, MwNmaxValue, 1024, NULL);
-	MwAddUserHandler(wheel->alpha_slider, MwNchangedHandler, color_wheel_on_change_alpha, wheel);
 };
 
 int main() {
