@@ -37,8 +37,9 @@ typedef void* MwLLPixmap;
 #define MwLLDispatch(x, y, z) \
 	if(x->handler != NULL && x->handler->y != NULL) x->handler->y(x, z)
 
+#define MwLLKeyMask (1 << 31)
 enum MwLLKeyEnum {
-	MwLLKeyBackSpace = (1 << 31) | 1,
+	MwLLKeyBackSpace = MwLLKeyMask | 1,
 	MwLLKeyLeft,
 	MwLLKeyRight,
 	MwLLKeyUp,

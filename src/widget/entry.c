@@ -100,7 +100,7 @@ static void key(MwWidget handle, int code) {
 	} else if(code == MwLLKeyRight) {
 		if(t->cursor == MwUTF8Length(str)) return;
 		t->cursor++;
-	} else {
+	} else if(!(code & MwLLKeyMask)) {
 		int incr = 0;
 		out	 = malloc(strlen(str) + 5 + 1);
 		incr += MwUTF8Copy(str, 0, out, 0, t->cursor);
