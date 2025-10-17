@@ -42,7 +42,9 @@ enum MwLLKeyEnum {
 	MwLLKeyLeft,
 	MwLLKeyRight,
 	MwLLKeyUp,
-	MwLLKeyDown
+	MwLLKeyDown,
+	MwLLKeyEnter,
+	MwLLKeyEscape
 };
 
 enum MwLLMouseEnum {
@@ -67,6 +69,8 @@ struct _MwLLHandler {
 	void (*move)(MwLL handle, void* data);
 	void (*key)(MwLL handle, void* data);
 	void (*key_released)(MwLL handle, void* data);
+	void (*focus_in)(MwLL handle, void* data);
+	void (*focus_out)(MwLL handle, void* data);
 };
 
 #ifdef __cplusplus
@@ -116,6 +120,9 @@ MWDECL void MwLLMakeBorderless(MwLL handle, int toggle);
 MWDECL long MwLLGetTick(void);
 
 MWDECL void MwLLSetBackground(MwLL handle, MwLLColor color);
+
+MWDECL void MwLLFocus(MwLL handle);
+MWDECL void MwLLGrabPointer(MwLL handle, int toggle);
 
 #ifdef __cplusplus
 }

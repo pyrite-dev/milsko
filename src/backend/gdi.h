@@ -30,6 +30,8 @@ struct _MwLL {
 	int	  copy_buffer;
 
 	MwLLHandler handler;
+
+	int grabbed;
 };
 
 struct _MwLLColor {

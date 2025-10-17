@@ -237,6 +237,25 @@ MWDECL void MwForceRender2(MwWidget handle, void* ptr);
  */
 MWDECL void MwAddTickList(MwWidget handle);
 
+/*!
+ * %brief Focus the widget
+ * %param handle Widget
+ */
+MWDECL void MwFocus(MwWidget handle);
+
+/*!
+ * %brief Grabs the pointer
+ * %param handle Widget
+ * %param toggle Toggle
+ */
+MWDECL void MwGrabPointer(MwWidget handle, int toggle);
+
+/*!
+ * %brief Hides the cursor
+ * %param handle Widget
+ */
+MWDECL void MwHideCursor(MwWidget handle);
+
 #ifdef __cplusplus
 }
 #endif

@@ -90,6 +90,18 @@ static void llkeyrelhandler(MwLL handle, void* data) {
 	MwDispatchUserHandler(h, MwNkeyReleaseHandler, data);
 }
 
+static void llfocusinhandler(MwLL handle, void* data) {
+	MwWidget h = (MwWidget)handle->user;
+
+	MwDispatchUserHandler(h, MwNfocusInHandler, data);
+}
+
+static void llfocusouthandler(MwLL handle, void* data) {
+	MwWidget h = (MwWidget)handle->user;
+
+	MwDispatchUserHandler(h, MwNfocusOutHandler, data);
+}
+
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	MwWidget h = malloc(sizeof(*h));
 
@@ -127,6 +139,8 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 		h->lowlevel->handler->move	   = llmovehandler;
 		h->lowlevel->handler->key	   = llkeyhandler;
 		h->lowlevel->handler->key_released = llkeyrelhandler;
+		h->lowlevel->handler->focus_in = llfocusinhandler;
+		h->lowlevel->handler->focus_out = llfocusouthandler;
 	}
 
 	if(parent != NULL) arrput(parent->children, h);
@@ -400,6 +414,10 @@ void MwSetDefault(MwWidget handle) {
 	inherit_text(handle, MwNforeground, MwDefaultForeground);
 }
 
+void MwHideCursor(MwWidget handle){
+	MwLLSetCursor(handle->lowlevel, &MwCursorHidden, &MwCursorHiddenMask);
+}
+
 void MwDispatchUserHandler(MwWidget handle, const char* key, void* handler_data) {
 	int ind = shgeti(handle->handler, key);
 	if(ind == -1) return;
@@ -458,4 +476,12 @@ void MwAddTickList(MwWidget handle) {
 	while(root->parent != NULL) root = root->parent;
 
 	arrput(root->tick_list, handle);
+}
+
+void MwFocus(MwWidget handle){
+	MwLLFocus(handle->lowlevel);
+}
+
+void MwGrabPointer(MwWidget handle, int toggle){
+	MwLLGrabPointer(handle->lowlevel, toggle);
 }
