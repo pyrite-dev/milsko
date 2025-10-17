@@ -98,7 +98,8 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	} else {
 		entry->type = MwDIRECTORY_FILE;
 	}
-	entry->size = s.st_size;
+	entry->size  = s.st_size;
+	entry->mtime = s.st_mtime;
 
 	free(p);
 #endif

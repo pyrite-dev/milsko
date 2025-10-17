@@ -286,12 +286,12 @@ void MwLLNextEvent(MwLL handle) {
 			if(ev.xclient.data.l[0] == (long)handle->wm_delete) {
 				MwLLDispatch(handle, close, NULL);
 			}
-		} else if(ev.type == FocusIn){
+		} else if(ev.type == FocusIn) {
 			MwLLDispatch(handle, focus_in, NULL);
-		} else if(ev.type == FocusOut){
+		} else if(ev.type == FocusOut) {
 			MwLLDispatch(handle, focus_out, NULL);
 		} else if(ev.type == MotionNotify) {
-			MwPoint p;
+			MwPoint		  p;
 			XWindowAttributes attr;
 
 			XGetWindowAttributes(handle->display, handle->window, &attr);
@@ -299,13 +299,13 @@ void MwLLNextEvent(MwLL handle) {
 			p.x = ev.xmotion.x;
 			p.y = ev.xmotion.y;
 
-			if(handle->grabbed){
+			if(handle->grabbed) {
 				p.x -= attr.width / 2;
 				p.y -= attr.height / 2;
 			}
 
 			MwLLDispatch(handle, move, &p);
-			if(handle->grabbed && (p.x != 0 || p.y != 0)){
+			if(handle->grabbed && (p.x != 0 || p.y != 0)) {
 				XWarpPointer(handle->display, None, handle->window, 0, 0, 0, 0, attr.width / 2, attr.height / 2);
 			}
 		} else if(ev.type == KeyPress || ev.type == KeyRelease) {
@@ -343,13 +343,13 @@ void MwLLNextEvent(MwLL handle) {
 				n = MwLLKeyUp;
 			} else if(strcmp(str, "Down") == 0) {
 				n = MwLLKeyDown;
-			} else if(strcmp(str, "Return") == 0){
+			} else if(strcmp(str, "Return") == 0) {
 				n = MwLLKeyEnter;
-			} else if(strcmp(str, "Escape") == 0){
+			} else if(strcmp(str, "Escape") == 0) {
 				n = MwLLKeyEscape;
-			}else if(strcmp(str, "Shift_L") == 0){
+			} else if(strcmp(str, "Shift_L") == 0) {
 				n = MwLLKeyLeftShift;
-			}else if(strcmp(str, "Shift_R") == 0){
+			} else if(strcmp(str, "Shift_R") == 0) {
 				n = MwLLKeyRightShift;
 			}
 
@@ -690,20 +690,20 @@ long MwLLGetTick(void) {
 	return n;
 }
 
-void MwLLFocus(MwLL handle){
+void MwLLFocus(MwLL handle) {
 	XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
 }
 
-void MwLLGrabPointer(MwLL handle, int toggle){
+void MwLLGrabPointer(MwLL handle, int toggle) {
 	XWindowAttributes attr;
 
 	XGetWindowAttributes(handle->display, handle->window, &attr);
 
-	if(toggle){
+	if(toggle) {
 		handle->grabbed = 1;
 
 		XWarpPointer(handle->display, None, handle->window, 0, 0, 0, 0, attr.width / 2, attr.height / 2);
-	}else{
+	} else {
 		handle->grabbed = 0;
 	}
 }

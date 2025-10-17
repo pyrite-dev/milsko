@@ -91,7 +91,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		p.x = LOWORD(lp);
 		p.y = HIWORD(lp);
 
-		if(u->ll->grabbed){
+		if(u->ll->grabbed) {
 			RECT rc;
 
 			GetClientRect(hWnd, &rc);
@@ -101,8 +101,8 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 		MwLLDispatch(u->ll, move, &p);
 
-		if(u->ll->grabbed && (p.x != 0 || p.y != 0)){
-			RECT rc;
+		if(u->ll->grabbed && (p.x != 0 || p.y != 0)) {
+			RECT  rc;
 			POINT p;
 
 			GetClientRect(hWnd, &rc);
@@ -130,9 +130,9 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		int n = wp;
 
 		MwLLDispatch(u->ll, key, &n);
-	}else if(msg == WM_SETFOCUS){
+	} else if(msg == WM_SETFOCUS) {
 		MwLLDispatch(u->ll, focus_in, NULL);
-	}else if(msg == WM_KILLFOCUS){
+	} else if(msg == WM_KILLFOCUS) {
 		MwLLDispatch(u->ll, focus_out, NULL);
 	} else if(msg == WM_KEYDOWN || msg == WM_KEYUP) {
 		int n = -1;
@@ -212,7 +212,7 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 
 	RegisterClassEx(&wc);
 
-	r->grabbed = 0;
+	r->grabbed     = 0;
 	r->copy_buffer = 1;
 	r->hWnd	       = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->hWnd, 0, wc.hInstance, NULL);
 	r->hInstance   = wc.hInstance;
@@ -589,14 +589,14 @@ long MwLLGetTick(void) {
 	return GetTickCount();
 }
 
-void MwLLFocus(MwLL handle){
+void MwLLFocus(MwLL handle) {
 	SetFocus(handle->hWnd);
 }
 
-void MwLLGrabPointer(MwLL handle, int toggle){
-	if(toggle){
+void MwLLGrabPointer(MwLL handle, int toggle) {
+	if(toggle) {
 		POINT p;
-		RECT rc;
+		RECT  rc;
 
 		GetClientRect(handle->hWnd, &rc);
 
@@ -616,7 +616,7 @@ void MwLLGrabPointer(MwLL handle, int toggle){
 		ClipCursor(&rc);
 
 		SetCursorPos(p.x, p.y);
-	}else{
+	} else {
 		handle->grabbed = 0;
 		ClipCursor(NULL);
 	}

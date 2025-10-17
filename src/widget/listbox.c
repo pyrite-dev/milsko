@@ -171,6 +171,8 @@ static void frame_draw(MwWidget handle) {
 			p.x += MwDefaultBorderWidth;
 			MwDrawText(handle, &p, lb->list[i].name[j], 0, MwALIGNMENT_BEGINNING, selected ? base : text);
 			p.x += get_col_width(lb, j) - MwDefaultBorderWidth;
+
+			if(j == 0) p.x -= MwGetInteger(handle->parent, MwNleftPadding);
 		}
 		p.y += MwTextHeight(handle, "M") / 2;
 	}
