@@ -170,12 +170,21 @@ MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget p
 }
 
 static void MwFreeWidget(MwWidget handle) {
-	int i;
+	int	 i;
+	MwWidget root = handle;
 
 	MwDispatch(handle, destroy);
 
 	for(i = 0; i < arrlen(handle->children); i++) {
 		MwFreeWidget(handle->children[i]);
+	}
+
+	while(root->parent != NULL) root = root->parent;
+	for(i = 0; i < arrlen(root->tick_list); i++) {
+		if(handle == root->tick_list[i]) {
+			arrdel(root->tick_list, i);
+			i--;
+		}
 	}
 
 	free(handle->name);
@@ -199,18 +208,8 @@ static void MwFreeWidget(MwWidget handle) {
 }
 
 void MwDestroyWidget(MwWidget handle) {
-	int	 i;
-	MwWidget root = handle;
 	if(handle->parent != NULL) {
 		arrput(handle->parent->destroy_queue, handle);
-	}
-
-	while(root->parent != NULL) root = root->parent;
-	for(i = 0; i < arrlen(root->tick_list); i++) {
-		if(handle == root->tick_list[i]) {
-			arrdel(root->tick_list, i);
-			i--;
-		}
 	}
 }
 
