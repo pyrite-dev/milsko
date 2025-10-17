@@ -113,6 +113,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->prop_event	 = 1;
 	h->draw_inject	 = NULL;
 	h->tick_list	 = NULL;
+	h->destroyed	 = 0;
 
 	if(parent == NULL) arrput(h->tick_list, h);
 
@@ -211,17 +212,11 @@ void MwDestroyWidget(MwWidget handle) {
 	if(handle->parent != NULL) {
 		arrput(handle->parent->destroy_queue, handle);
 	}
+	handle->destroyed = 1;
 }
 
-void MwStep(MwWidget handle) {
+static void clean_destroy_queue(MwWidget handle) {
 	int i, j;
-	if(setjmp(handle->before_step)) return;
-	for(i = 0; i < arrlen(handle->children); i++) MwStep(handle->children[i]);
-
-	handle->prop_event = 0;
-	if(handle->lowlevel != NULL) MwLLNextEvent(handle->lowlevel);
-	handle->prop_event = 1;
-
 	for(i = 0; i < arrlen(handle->destroy_queue); i++) {
 		MwWidget w = handle->destroy_queue[i];
 
@@ -238,12 +233,24 @@ void MwStep(MwWidget handle) {
 	arrfree(handle->destroy_queue);
 }
 
+void MwStep(MwWidget handle) {
+	int i;
+	if(setjmp(handle->before_step)) return;
+	for(i = 0; i < arrlen(handle->children); i++) MwStep(handle->children[i]);
+
+	handle->prop_event = 0;
+	if(handle->lowlevel != NULL && MwLLPending(handle->lowlevel)) MwLLNextEvent(handle->lowlevel);
+	handle->prop_event = 1;
+
+	clean_destroy_queue(handle);
+}
+
 int MwPending(MwWidget handle) {
 	int i;
 	for(i = 0; i < arrlen(handle->children); i++) {
 		if(MwPending(handle->children[i])) return 1;
 	}
-	return MwLLPending(handle->lowlevel);
+	return (arrlen(handle->destroy_queue) > 0 ? 1 : 0) || MwLLPending(handle->lowlevel);
 }
 
 void MwLoop(MwWidget handle) {
@@ -255,6 +262,7 @@ void MwLoop(MwWidget handle) {
 		for(i = 0; i < arrlen(handle->tick_list); i++) {
 			MwDispatchUserHandler(handle->tick_list[i], MwNtickHandler, NULL);
 		}
+
 		tick = MwWaitMS - (MwLLGetTick() - tick);
 		if(tick > 0) MwLLSleep(tick);
 		tick = MwLLGetTick();
@@ -394,6 +402,7 @@ void MwSetDefault(MwWidget handle) {
 void MwDispatchUserHandler(MwWidget handle, const char* key, void* handler_data) {
 	int ind = shgeti(handle->handler, key);
 	if(ind == -1) return;
+	if(handle->destroyed) return;
 
 	handle->handler[ind].value(handle, handle->handler[ind].user_data, handler_data);
 }

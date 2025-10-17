@@ -106,6 +106,8 @@ struct _MwWidget {
 
 	MwWidget* destroy_queue;
 	MwWidget* tick_list;
+
+	int destroyed;
 };
 #endif
 

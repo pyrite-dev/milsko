@@ -58,7 +58,9 @@ int main() {
 	reshape(400, 400);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
-	MwAddUserHandler(window, MwNtickHandler, tick, NULL);
+	MwAddUserHandler(opengl, MwNtickHandler, tick, NULL);
+
+	MwAddTickList(opengl);
 
 	MwAddUserHandler(opengl, MwNkeyHandler, key_pressed, NULL);
 
