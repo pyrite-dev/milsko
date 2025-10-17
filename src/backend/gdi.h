@@ -46,6 +46,7 @@ struct _MwLLPixmap {
 
 	HBITMAP hBitmap;
 	HBITMAP hMask;
+	HBITMAP hMask2;
 };
 
 #endif
