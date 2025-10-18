@@ -124,3 +124,85 @@ char* MwDirectoryCurrent(void) {
 	return getcwd(NULL, 0);
 #endif
 }
+
+#ifdef _WIN32
+#define DIRSEP '\\'
+#else
+#define DIRSEP '/'
+#endif
+static void MwDirectoryJoinSingle(char* target, char* p) {
+	int i;
+	if(strcmp(p, ".") == 0) return;
+
+	for(i = strlen(target) - 1; i >= 0; i--) {
+		if(target[i] == DIRSEP) {
+			target[i] = 0;
+		} else {
+			break;
+		}
+	}
+
+	if(strcmp(p, "..") == 0) {
+		for(i = strlen(target) - 1; i >= 0; i--) {
+			if(target[i] != DIRSEP) {
+				target[i] = 0;
+			} else {
+				break;
+			}
+		}
+	} else {
+		char b[2];
+		b[0] = DIRSEP;
+		b[1] = 0;
+
+		strcat(target, b);
+		strcat(target, p);
+	}
+
+	for(i = strlen(target) - 1; i >= 0; i--) {
+		if(target[i] == DIRSEP) {
+			target[i] = 0;
+		} else {
+			break;
+		}
+	}
+
+	if(strchr(target, DIRSEP) == NULL) {
+		char b[2];
+		b[0] = DIRSEP;
+		b[1] = 0;
+
+		strcat(target, b);
+	}
+}
+
+char* MwDirectoryJoin(char* a, char* b) {
+	char* p	   = malloc(strlen(a) + 1 + strlen(b) + 1);
+	char* bdup = MwStringDupliacte(b);
+	char* b2   = bdup;
+	int   i;
+
+	strcpy(p, a);
+	for(i = strlen(p) - 1; i >= 0; i--) {
+		if(p[i] == DIRSEP) {
+			p[i] = 0;
+		} else {
+			break;
+		}
+	}
+	while(b2 != NULL) {
+		char* current = b2;
+
+		b2 = strchr(b2, DIRSEP);
+		if(b2 != NULL) {
+			b2[0] = 0;
+		}
+
+		MwDirectoryJoinSingle(p, current);
+
+		if(b2 != NULL) b2++;
+	}
+	free(bdup);
+
+	return p;
+}

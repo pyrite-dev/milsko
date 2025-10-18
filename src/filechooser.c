@@ -75,7 +75,27 @@ static void files_activate(MwWidget handle, void* user, void* call) {
 
 	(void)user;
 
-	scan(handle->parent, fc->sorted_entries[index - 1]->name);
+	if(fc->sorted_entries[index - 1]->type == MwDIRECTORY_DIRECTORY) {
+		char* p = MwDirectoryJoin(fc->path, fc->sorted_entries[index - 1]->name);
+
+		scan(handle->parent, p);
+
+		free(p);
+	} else {
+		okay(fc->okay, NULL, NULL);
+	}
+}
+
+static void addr_up_activate(MwWidget handle, void* user, void* call) {
+	filechooser_t* fc = handle->parent->opaque;
+	char*	       p  = MwDirectoryJoin(fc->path, "..");
+
+	(void)user;
+	(void)call;
+
+	scan(handle->parent, p);
+
+	free(p);
 }
 
 static void layout(MwWidget handle) {
@@ -178,6 +198,7 @@ static void layout(MwWidget handle) {
 		fc->addr_up = MwVaCreateWidget(MwButtonClass, "addr_up", handle, wx, wy, ww, wh,
 					       MwNpixmap, fc->up,
 					       NULL);
+		MwAddUserHandler(fc->addr_up, MwNactivateHandler, addr_up_activate, NULL);
 	} else {
 		MwVaApply(fc->addr_up,
 			  MwNx, wx,
