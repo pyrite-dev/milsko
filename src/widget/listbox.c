@@ -73,13 +73,16 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 		int h = MwGetInteger(handle, MwNheight);
 
 		st = get_first_entry(handle->parent, lb);
-		for(i = 0; i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
+		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
 			if(y <= m->point.y && m->point.y <= (y + MwTextHeight(handle, "M"))) {
 				unsigned long t;
+
+				lb->selected = st + i;
+
 				if(((t = MwLLGetTick()) - lb->click_time) < 250 && lb->selected == st + i) {
 					MwDispatchUserHandler(handle->parent, MwNactivateHandler, &lb->selected);
 				}
-				lb->selected   = st + i;
+
 				lb->click_time = t;
 			}
 			y += MwTextHeight(handle, "M");
@@ -114,7 +117,7 @@ static void frame_mouse_move(MwWidget handle, void* user, void* call) {
 		int h = MwGetInteger(handle, MwNheight);
 
 		st = get_first_entry(handle->parent, lb);
-		for(i = 0; i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
+		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
 			if(y <= p->y && p->y <= (y + MwTextHeight(handle, "M"))) {
 				lb->selected = st + i;
 			}
