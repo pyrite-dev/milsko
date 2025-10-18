@@ -69,6 +69,13 @@ static void okay(MwWidget handle, void* user, void* call) {
 	destroy(handle->parent);
 }
 
+static void msgbox_okay(MwWidget handle, void* user, void* call){
+	(void)user;
+	(void)call;
+
+	MwDestroyWidget(handle->parent);
+}
+
 static void files_activate(MwWidget handle, void* user, void* call) {
 	int	       index = *(int*)call;
 	filechooser_t* fc    = handle->parent->opaque;
@@ -310,18 +317,21 @@ static void scan(MwWidget handle, const char* path) {
 	char**	       sizes = NULL;
 	MwLLPixmap*    icons = NULL;
 
-	arrfree(fc->sorted_entries);
-	for(i = 0; i < arrlen(fc->entries); i++) MwDirectoryFreeEntry(fc->entries[i]);
-	arrfree(fc->entries);
-
 	if(dir != NULL) {
 		MwDirectoryEntry* entry;
+
+		arrfree(fc->sorted_entries);
+		for(i = 0; i < arrlen(fc->entries); i++) MwDirectoryFreeEntry(fc->entries[i]);
+		arrfree(fc->entries);
+
 		while((entry = MwDirectoryRead(dir)) != NULL) arrput(fc->entries, entry);
 		MwDirectoryClose(dir);
 
 		qsort(fc->entries, arrlen(fc->entries), sizeof(MwDirectoryEntry*), qsort_files);
 	} else {
-		MwMessageBox(handle, "Directory does not exist!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
+		MwWidget msgbox = MwMessageBox(handle, "Directory does not exist!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
+		MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, msgbox_okay, NULL);
+		return;
 	}
 
 	if(fc->path != NULL) free(fc->path);
