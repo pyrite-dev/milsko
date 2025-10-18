@@ -45,6 +45,14 @@ MWDECL void MwDirectoryFreeEntry(MwDirectoryEntry* entry);
  */
 MWDECL char* MwDirectoryCurrent(void);
 
+/*!
+ * %brief Joins 2 paths
+ * %param a Path
+ * %param b Path
+ * %return Path
+ */
+MWDECL char* MwDirectoryJoin(char* a, char* b);
+
 #ifdef __cplusplus
 }
 #endif
