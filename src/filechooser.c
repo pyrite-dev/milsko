@@ -28,6 +28,8 @@ typedef struct filechooser {
 	MwLLPixmap computer;
 } filechooser_t;
 
+static void scan(MwWidget handle, const char* path);
+
 static void destroy(MwWidget handle) {
 	filechooser_t* fc = handle->opaque;
 	int	       i;
@@ -67,6 +69,15 @@ static void okay(MwWidget handle, void* user, void* call) {
 	destroy(handle->parent);
 }
 
+static void files_activate(MwWidget handle, void* user, void* call) {
+	int	       index = *(int*)call;
+	filechooser_t* fc    = handle->parent->opaque;
+
+	(void)user;
+
+	scan(handle->parent, fc->sorted_entries[index - 1]->name);
+}
+
 static void layout(MwWidget handle) {
 	filechooser_t* fc = handle->opaque;
 	int	       w  = MwGetInteger(handle, MwNwidth);
@@ -100,6 +111,7 @@ static void layout(MwWidget handle) {
 					     MwNhasHeading, 1,
 					     MwNleftPadding, 16,
 					     NULL);
+		MwAddUserHandler(fc->files, MwNactivateHandler, files_activate, NULL);
 	} else {
 		MwVaApply(fc->files,
 			  MwNx, wx,
