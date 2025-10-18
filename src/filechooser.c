@@ -98,6 +98,13 @@ static void addr_up_activate(MwWidget handle, void* user, void* call) {
 	free(p);
 }
 
+static void addr_activate(MwWidget handle, void* user, void* call) {
+	(void)user;
+	(void)call;
+
+	scan(handle->parent, MwGetText(handle, MwNtext));
+}
+
 static void layout(MwWidget handle) {
 	filechooser_t* fc = handle->opaque;
 	int	       w  = MwGetInteger(handle, MwNwidth);
@@ -147,6 +154,7 @@ static void layout(MwWidget handle) {
 	wh = 24;
 	if(fc->addr == NULL) {
 		fc->addr = MwCreateWidget(MwEntryClass, "addr", handle, wx, wy, ww, wh);
+		MwAddUserHandler(fc->addr, MwNactivateHandler, addr_activate, NULL);
 	} else {
 		MwVaApply(fc->addr,
 			  MwNx, wx,
@@ -312,6 +320,8 @@ static void scan(MwWidget handle, const char* path) {
 		MwDirectoryClose(dir);
 
 		qsort(fc->entries, arrlen(fc->entries), sizeof(MwDirectoryEntry*), qsort_files);
+	} else {
+		MwMessageBox(handle, "Directory does not exist!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
 	}
 
 	if(fc->path != NULL) free(fc->path);
