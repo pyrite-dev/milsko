@@ -5,7 +5,7 @@
 
 typedef struct filechooser {
 	char* path;
-	
+
 	MwDirectoryEntry** entries;
 	MwDirectoryEntry** sorted_entries;
 
@@ -30,7 +30,7 @@ typedef struct filechooser {
 
 static void destroy(MwWidget handle) {
 	filechooser_t* fc = handle->opaque;
-	int i;
+	int	       i;
 
 	arrfree(fc->sorted_entries);
 	for(i = 0; i < arrlen(fc->entries); i++) MwDirectoryFreeEntry(fc->entries[i]);
@@ -261,13 +261,13 @@ static int qsort_files(const void* a, const void* b) {
 }
 
 static void scan(MwWidget handle, const char* path) {
-	filechooser_t*	   fc	   = handle->opaque;
-	void*		   dir	   = MwDirectoryOpen(path);
-	int		   i;
-	char**		   names = NULL;
-	char**		   dates = NULL;
-	char**		   sizes = NULL;
-	MwLLPixmap*	   icons = NULL;
+	filechooser_t* fc  = handle->opaque;
+	void*	       dir = MwDirectoryOpen(path);
+	int	       i;
+	char**	       names = NULL;
+	char**	       dates = NULL;
+	char**	       sizes = NULL;
+	MwLLPixmap*    icons = NULL;
 
 	arrfree(fc->sorted_entries);
 	for(i = 0; i < arrlen(fc->entries); i++) MwDirectoryFreeEntry(fc->entries[i]);
