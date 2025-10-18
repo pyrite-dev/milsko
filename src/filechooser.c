@@ -7,6 +7,7 @@ typedef struct filechooser {
 	char* path;
 	
 	MwDirectoryEntry** entries;
+	MwDirectoryEntry** sorted_entries;
 
 	MwWidget nav;
 	MwWidget files;
@@ -31,6 +32,7 @@ static void destroy(MwWidget handle) {
 	filechooser_t* fc = handle->opaque;
 	int i;
 
+	arrfree(fc->sorted_entries);
 	for(i = 0; i < arrlen(fc->entries); i++) MwDirectoryFreeEntry(fc->entries[i]);
 	arrfree(fc->entries);
 
@@ -267,6 +269,7 @@ static void scan(MwWidget handle, const char* path) {
 	char**		   sizes = NULL;
 	MwLLPixmap*	   icons = NULL;
 
+	arrfree(fc->sorted_entries);
 	for(i = 0; i < arrlen(fc->entries); i++) MwDirectoryFreeEntry(fc->entries[i]);
 	arrfree(fc->entries);
 
@@ -306,6 +309,8 @@ static void scan(MwWidget handle, const char* path) {
 			arrput(dates, date);
 			arrput(sizes, NULL);
 			arrput(icons, fc->dir);
+
+			arrput(fc->sorted_entries, fc->entries[i]);
 		}
 	}
 	for(i = 0; i < arrlen(fc->entries); i++) {
@@ -320,6 +325,8 @@ static void scan(MwWidget handle, const char* path) {
 			arrput(dates, date);
 			arrput(sizes, size);
 			arrput(icons, fc->file);
+
+			arrput(fc->sorted_entries, fc->entries[i]);
 		}
 	}
 	MwListBoxInsertMultiple(fc->files, -1, arrlen(names), icons, names, dates, sizes, NULL);
