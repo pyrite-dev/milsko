@@ -4,6 +4,10 @@
 #include "../external/stb_ds.h"
 
 typedef struct filechooser {
+	char* path;
+	
+	MwDirectoryEntry** entries;
+
 	MwWidget nav;
 	MwWidget files;
 	MwWidget addr;
@@ -25,6 +29,10 @@ typedef struct filechooser {
 
 static void destroy(MwWidget handle) {
 	filechooser_t* fc = handle->opaque;
+	int i;
+
+	for(i = 0; i < arrlen(fc->entries); i++) MwDirectoryFreeEntry(fc->entries[i]);
+	arrfree(fc->entries);
 
 	MwLLDestroyPixmap(fc->dir);
 	MwLLDestroyPixmap(fc->file);
@@ -253,19 +261,25 @@ static int qsort_files(const void* a, const void* b) {
 static void scan(MwWidget handle, const char* path) {
 	filechooser_t*	   fc	   = handle->opaque;
 	void*		   dir	   = MwDirectoryOpen(path);
-	MwDirectoryEntry** entries = NULL;
 	int		   i;
 	char**		   names = NULL;
 	char**		   dates = NULL;
 	char**		   sizes = NULL;
 	MwLLPixmap*	   icons = NULL;
+
+	for(i = 0; i < arrlen(fc->entries); i++) MwDirectoryFreeEntry(fc->entries[i]);
+	arrfree(fc->entries);
+
 	if(dir != NULL) {
 		MwDirectoryEntry* entry;
-		while((entry = MwDirectoryRead(dir)) != NULL) arrput(entries, entry);
+		while((entry = MwDirectoryRead(dir)) != NULL) arrput(fc->entries, entry);
 		MwDirectoryClose(dir);
 
-		qsort(entries, arrlen(entries), sizeof(MwDirectoryEntry*), qsort_files);
+		qsort(fc->entries, arrlen(fc->entries), sizeof(MwDirectoryEntry*), qsort_files);
 	}
+
+	if(fc->path != NULL) free(fc->path);
+	fc->path = MwStringDupliacte(path);
 
 	MwVaApply(fc->addr,
 		  MwNtext, path,
@@ -281,28 +295,28 @@ static void scan(MwWidget handle, const char* path) {
 	names = NULL;
 	dates = NULL;
 	sizes = NULL;
-	for(i = 0; i < arrlen(entries); i++) {
-		if(strcmp(entries[i]->name, ".") == 0 || strcmp(entries[i]->name, "..") == 0) continue;
-		if(entries[i]->type == MwDIRECTORY_DIRECTORY) {
+	for(i = 0; i < arrlen(fc->entries); i++) {
+		if(strcmp(fc->entries[i]->name, ".") == 0 || strcmp(fc->entries[i]->name, "..") == 0) continue;
+		if(fc->entries[i]->type == MwDIRECTORY_DIRECTORY) {
 			char* date = malloc(128);
 
-			MwStringTime(date, entries[i]->mtime);
+			MwStringTime(date, fc->entries[i]->mtime);
 
-			arrput(names, entries[i]->name);
+			arrput(names, fc->entries[i]->name);
 			arrput(dates, date);
 			arrput(sizes, NULL);
 			arrput(icons, fc->dir);
 		}
 	}
-	for(i = 0; i < arrlen(entries); i++) {
-		if(entries[i]->type == MwDIRECTORY_FILE) {
+	for(i = 0; i < arrlen(fc->entries); i++) {
+		if(fc->entries[i]->type == MwDIRECTORY_FILE) {
 			char* date = malloc(128);
 			char* size = malloc(128);
 
-			MwStringTime(date, entries[i]->mtime);
-			MwStringSize(size, entries[i]->size);
+			MwStringTime(date, fc->entries[i]->mtime);
+			MwStringSize(size, fc->entries[i]->size);
 
-			arrput(names, entries[i]->name);
+			arrput(names, fc->entries[i]->name);
 			arrput(dates, date);
 			arrput(sizes, size);
 			arrput(icons, fc->file);
@@ -319,9 +333,6 @@ static void scan(MwWidget handle, const char* path) {
 	arrfree(dates);
 	arrfree(names);
 	arrfree(icons);
-
-	for(i = 0; i < arrlen(entries); i++) MwDirectoryFreeEntry(entries[i]);
-	arrfree(entries);
 }
 
 MwWidget MwFileChooser(MwWidget handle, const char* title) {
