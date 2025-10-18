@@ -100,6 +100,8 @@ static void key(MwWidget handle, int code) {
 	} else if(code == MwLLKeyRight) {
 		if(t->cursor == MwUTF8Length(str)) return;
 		t->cursor++;
+	} else if(code == MwLLKeyEnter) {
+		MwDispatchUserHandler(handle, MwNactivateHandler, NULL);
 	} else if(!(code & MwLLKeyMask)) {
 		int incr = 0;
 		out	 = malloc(strlen(str) + 5 + 1);
