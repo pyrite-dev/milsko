@@ -20,6 +20,7 @@
 #include <direct.h>
 #else
 #include <unistd.h>
+#include <pwd.h>
 #include <dlfcn.h>
 #include <signal.h>
 #include <dirent.h>

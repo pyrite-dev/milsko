@@ -69,7 +69,7 @@ static void okay(MwWidget handle, void* user, void* call) {
 	destroy(handle->parent);
 }
 
-static void msgbox_okay(MwWidget handle, void* user, void* call){
+static void msgbox_okay(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
@@ -90,6 +90,22 @@ static void files_activate(MwWidget handle, void* user, void* call) {
 		free(p);
 	} else {
 		okay(fc->okay, NULL, NULL);
+	}
+}
+
+static void nav_activate(MwWidget handle, void* user, void* call) {
+	int	    index = *(int*)call;
+	const char* e	  = MwListBoxGet(handle, index);
+
+	(void)user;
+
+	if(strcmp(e, "Home") == 0) {
+#ifdef _WIN32
+#else
+		struct passwd* p = getpwuid(getuid());
+
+		scan(handle->parent, p->pw_dir);
+#endif
 	}
 }
 
@@ -127,6 +143,7 @@ static void layout(MwWidget handle) {
 					   MwNleftPadding, 16,
 					   NULL);
 		MwListBoxInsert(fc->nav, -1, fc->computer, "Home", NULL);
+		MwAddUserHandler(fc->nav, MwNactivateHandler, nav_activate, NULL);
 	} else {
 		MwVaApply(fc->nav,
 			  MwNx, wx,
