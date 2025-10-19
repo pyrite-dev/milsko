@@ -3,5 +3,13 @@
 
 proc run {project_name} {
 	if { "$project_name" == "MilskoDoxygen" } {
+		RunCommand "doxygen"
+		RunCommand "rm -rf /var/www/milsko-doxygen"
+		RunCommand "mv doxygen/html /var/www/milsko-doxygen"
+	} else {
+		RunCommand "make clean"
+		if { "$project_name" == "MilskoLinux" } {
+			RunCommand "make -j4"
+		}
 	}
 }
