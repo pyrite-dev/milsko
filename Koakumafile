@@ -9,7 +9,12 @@ proc run {project_name} {
 	} else {
 		RunCommand "make clean"
 		if { "$project_name" == "MilskoLinux" } {
-			RunCommand "make -j4"
+			RunCommand "make -j4 VULKAN_NO_STRING_HELPER=1"
+		} elseif { "$project_name" == "MilskoWin32" } {
+			RunCommand "make -j4 VULKAN=0 TARGET=Windows GCC=i686-w64-mingw32-"
+		} elseif { "$project_name" == "MilskoWin64" } {
+			RunCommand "make -j4 VULKAN=0 TARGET=Windows GCC=x86_64-w64-mingw32-"
 		}
+
 	}
 }
