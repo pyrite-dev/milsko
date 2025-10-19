@@ -76,10 +76,11 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
 			if(y <= m->point.y && m->point.y <= (y + MwTextHeight(handle, "M"))) {
 				unsigned long t;
+				int	      old = lb->selected;
 
 				lb->selected = st + i;
 
-				if(((t = MwLLGetTick()) - lb->click_time) < 250 && lb->selected == st + i) {
+				if(((t = MwLLGetTick()) - lb->click_time) < 250 && old == st + i) {
 					MwDispatchUserHandler(handle->parent, MwNactivateHandler, &lb->selected);
 				}
 

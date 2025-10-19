@@ -4,7 +4,9 @@
 #include "../external/stb_ds.h"
 
 typedef struct filechooser {
-	char* path;
+	char*  path;
+	char** history;
+	int    history_seek;
 
 	MwDirectoryEntry** entries;
 	MwDirectoryEntry** sorted_entries;
@@ -28,11 +30,14 @@ typedef struct filechooser {
 	MwLLPixmap computer;
 } filechooser_t;
 
-static void scan(MwWidget handle, const char* path);
+static void scan(MwWidget handle, const char* path, int record);
 
 static void destroy(MwWidget handle) {
 	filechooser_t* fc = handle->opaque;
 	int	       i;
+
+	for(i = 0; i < arrlen(fc->history); i++) free(fc->history[i]);
+	arrfree(fc->history);
 
 	arrfree(fc->sorted_entries);
 	for(i = 0; i < arrlen(fc->entries); i++) MwDirectoryFreeEntry(fc->entries[i]);
@@ -85,7 +90,7 @@ static void files_activate(MwWidget handle, void* user, void* call) {
 	if(fc->sorted_entries[index - 1]->type == MwDIRECTORY_DIRECTORY) {
 		char* p = MwDirectoryJoin(fc->path, fc->sorted_entries[index - 1]->name);
 
-		scan(handle->parent, p);
+		scan(handle->parent, p, 1);
 
 		free(p);
 	} else {
@@ -104,7 +109,7 @@ static void nav_activate(MwWidget handle, void* user, void* call) {
 #else
 		struct passwd* p = getpwuid(getuid());
 
-		scan(handle->parent, p->pw_dir);
+		scan(handle->parent, p->pw_dir, 1);
 #endif
 	}
 }
@@ -116,16 +121,40 @@ static void addr_up_activate(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	scan(handle->parent, p);
+	scan(handle->parent, p, 1);
 
 	free(p);
+}
+
+static void addr_back_activate(MwWidget handle, void* user, void* call) {
+	filechooser_t* fc = handle->parent->opaque;
+
+	(void)user;
+	(void)call;
+
+	if(fc->history_seek > 1) {
+		fc->history_seek -= 2;
+		scan(handle->parent, fc->history[fc->history_seek], 0);
+		fc->history_seek++;
+	}
+}
+
+static void addr_fwd_activate(MwWidget handle, void* user, void* call) {
+	filechooser_t* fc = handle->parent->opaque;
+
+	(void)user;
+	(void)call;
+
+	if(fc->history_seek < arrlen(fc->history)) {
+		scan(handle->parent, fc->history[fc->history_seek++], 0);
+	}
 }
 
 static void addr_activate(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	scan(handle->parent, MwGetText(handle, MwNtext));
+	scan(handle->parent, MwGetText(handle, MwNtext), 1);
 }
 
 static void layout(MwWidget handle) {
@@ -196,6 +225,7 @@ static void layout(MwWidget handle) {
 		fc->addr_back = MwVaCreateWidget(MwButtonClass, "addr_back", handle, wx, wy, ww, wh,
 						 MwNpixmap, fc->back,
 						 NULL);
+		MwAddUserHandler(fc->addr_back, MwNactivateHandler, addr_back_activate, NULL);
 	} else {
 		MwVaApply(fc->addr_back,
 			  MwNx, wx,
@@ -213,6 +243,7 @@ static void layout(MwWidget handle) {
 		fc->addr_fwd = MwVaCreateWidget(MwButtonClass, "addr_fwd", handle, wx, wy, ww, wh,
 						MwNpixmap, fc->forward,
 						NULL);
+		MwAddUserHandler(fc->addr_fwd, MwNactivateHandler, addr_fwd_activate, NULL);
 	} else {
 		MwVaApply(fc->addr_fwd,
 			  MwNx, wx,
@@ -325,7 +356,7 @@ static int qsort_files(const void* a, const void* b) {
 	return strcmp(aent->name, bent->name);
 }
 
-static void scan(MwWidget handle, const char* path) {
+static void scan(MwWidget handle, const char* path, int record) {
 	filechooser_t* fc  = handle->opaque;
 	void*	       dir = MwDirectoryOpen(path);
 	int	       i;
@@ -345,6 +376,19 @@ static void scan(MwWidget handle, const char* path) {
 		MwDirectoryClose(dir);
 
 		qsort(fc->entries, arrlen(fc->entries), sizeof(MwDirectoryEntry*), qsort_files);
+
+		if(record) {
+			char* str = MwStringDupliacte(path);
+
+			while(arrlen(fc->history) > fc->history_seek) {
+				free(fc->history[fc->history_seek]);
+				arrdel(fc->history, fc->history_seek);
+			}
+
+			arrins(fc->history, fc->history_seek, str);
+
+			fc->history_seek++;
+		}
 	} else {
 		MwWidget msgbox = MwMessageBox(handle, "Directory does not exist!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
 		MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, msgbox_okay, NULL);
@@ -433,6 +477,8 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 				  MwNtitle, title,
 				  NULL);
 
+	fc->history_seek = 0;
+
 	fc->dir	     = MwLoadXPM(window, MwIconDirectory);
 	fc->file     = MwLoadXPM(window, MwIconFile);
 	fc->back     = MwLoadXPM(window, MwIconBack);
@@ -452,7 +498,7 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	MwAddUserHandler(window, MwNcloseHandler, cancel_window, NULL);
 
 	path = MwDirectoryCurrent();
-	scan(window, path);
+	scan(window, path, 1);
 	free(path);
 
 	MwLLDetach(window->lowlevel, &p);
