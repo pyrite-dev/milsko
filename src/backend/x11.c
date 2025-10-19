@@ -46,7 +46,6 @@ static void wait_map(MwLL handle){
 	while(1){
 		XNextEvent(handle->display, &ev);
 		if(ev.type == MapNotify && ev.xmap.window == handle->window){
-			printf("mapped!\n");
 			break;
 		}else{
 			arrput(queue, ev);
