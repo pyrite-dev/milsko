@@ -15,6 +15,7 @@ class ListBox : public MwOO::Base {
 	void	    Delete(int index);
 	const char* Get(int index);
 	void	    SetWidth(int index, int width);
+	void	    Reset(void);
 	void	    SetLeftPadding(int value);
 	int	    GetLeftPadding(void);
 	void	    SetBackground(const char* value);

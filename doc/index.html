@@ -134,6 +134,18 @@
 <dd>
 	<a href="#Mw_Core_h__MwForceRender2">MwForceRender2</a>
 </dd>
+<dd>
+	<a href="#Mw_Core_h__MwAddTickList">MwAddTickList</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwFocus">MwFocus</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwGrabPointer">MwGrabPointer</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwHideCursor">MwHideCursor</a>
+</dd>
 <dt>
 	<a href="#Mw_Cursor_h">Mw/Cursor.h</a>
 </dt>
@@ -154,6 +166,12 @@
 </dd>
 <dd>
 	<a href="#Mw_Cursor_h__MwCursorTextMask">MwCursorTextMask</a>
+</dd>
+<dd>
+	<a href="#Mw_Cursor_h__MwCursorHidden">MwCursorHidden</a>
+</dd>
+<dd>
+	<a href="#Mw_Cursor_h__MwCursorHiddenMask">MwCursorHiddenMask</a>
 </dd>
 <dt>
 	<a href="#Mw_Default_h">Mw/Default.h</a>
@@ -181,6 +199,12 @@
 </dd>
 <dd>
 	<a href="#Mw_Directory_h__MwDirectoryFreeEntry">MwDirectoryFreeEntry</a>
+</dd>
+<dd>
+	<a href="#Mw_Directory_h__MwDirectoryCurrent">MwDirectoryCurrent</a>
+</dd>
+<dd>
+	<a href="#Mw_Directory_h__MwDirectoryJoin">MwDirectoryJoin</a>
 </dd>
 <dt>
 	<a href="#Mw_Draw_h">Mw/Draw.h</a>
@@ -243,6 +267,9 @@
 	<a href="#Mw_Error_h__MwGetLastError">MwGetLastError</a>
 </dd>
 <dt>
+	<a href="#Mw_FileChoose_h">Mw/FileChoose.h</a>
+</dt>
+<dt>
 	<a href="#Mw_Font_h">Mw/Font.h</a>
 </dt>
 <dd>
@@ -255,6 +282,12 @@
 	<a href="#Mw_Icon_h">Mw/Icon.h</a>
 </dt>
 <dd>
+	<a href="#Mw_Icon_h__MwIconBack__">MwIconBack[]</a>
+</dd>
+<dd>
+	<a href="#Mw_Icon_h__MwIconComputer__">MwIconComputer[]</a>
+</dd>
+<dd>
 	<a href="#Mw_Icon_h__MwIconDirectory__">MwIconDirectory[]</a>
 </dd>
 <dd>
@@ -262,6 +295,9 @@
 </dd>
 <dd>
 	<a href="#Mw_Icon_h__MwIconFile__">MwIconFile[]</a>
+</dd>
+<dd>
+	<a href="#Mw_Icon_h__MwIconForward__">MwIconForward[]</a>
 </dd>
 <dd>
 	<a href="#Mw_Icon_h__MwIconInfo__">MwIconInfo[]</a>
@@ -274,6 +310,12 @@
 </dd>
 <dd>
 	<a href="#Mw_Icon_h__MwIconQuestion__">MwIconQuestion[]</a>
+</dd>
+<dd>
+	<a href="#Mw_Icon_h__MwIconSearch__">MwIconSearch[]</a>
+</dd>
+<dd>
+	<a href="#Mw_Icon_h__MwIconUp__">MwIconUp[]</a>
 </dd>
 <dd>
 	<a href="#Mw_Icon_h__MwIconWarning__">MwIconWarning[]</a>
@@ -307,6 +349,12 @@
 </dd>
 <dd>
 	<a href="#Mw_String_h__MwStringConcat">MwStringConcat</a>
+</dd>
+<dd>
+	<a href="#Mw_String_h__MwStringSize">MwStringSize</a>
+</dd>
+<dd>
+	<a href="#Mw_String_h__MwStringTime">MwStringTime</a>
 </dd>
 <dt>
 	<a href="#Mw_StringDefs_h">Mw/StringDefs.h</a>
@@ -391,6 +439,9 @@
 </dd>
 <dd>
 	<a href="#Mw_Widget_ListBox_h__MwListBoxSetWidth">MwListBoxSetWidth</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_ListBox_h__MwListBoxReset">MwListBoxReset</a>
 </dd>
 <dt>
 	<a href="#Mw_Widget_Menu_h">Mw/Widget/Menu.h</a>
@@ -1386,6 +1437,73 @@
 </dd>
 </dl>
 <hr>
+<pre id="Mw_Core_h__MwAddTickList">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwAddTickList</FONT></B> (
+	MwWidget handle
+);</pre>
+<dl>
+<dd>
+	Adds an widget to tick handler list.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwFocus">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwFocus</FONT></B> (
+	MwWidget handle
+);</pre>
+<dl>
+<dd>
+	Focus the widget.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwGrabPointer">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwGrabPointer</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
+<dl>
+<dd>
+	Grabs the pointer.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>toggle</code>
+</dt>
+<dd>
+	Toggle.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwHideCursor">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwHideCursor</FONT></B> (
+	MwWidget handle
+);</pre>
+<dl>
+<dd>
+	Hides the cursor.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_Cursor_h">Mw/Cursor.h</h2>
 <dl>
 <dt>
@@ -1432,6 +1550,20 @@
 <dl>
 <dd>
 	Text cursor mask.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Cursor_h__MwCursorHidden">MWDECL MwCursor MwCursorHidden;</pre>
+<dl>
+<dd>
+	Hidden cursor.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Cursor_h__MwCursorHiddenMask">MWDECL MwCursor MwCursorHiddenMask;</pre>
+<dl>
+<dd>
+	Hidden cursor mask.
 </dd>
 </dl>
 <hr>
@@ -1539,6 +1671,49 @@
 </dt>
 <dd>
 	Entry.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Directory_h__MwDirectoryCurrent">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwDirectoryCurrent</FONT></B> (
+	<B><FONT COLOR="#228B22">void</FONT></B>
+);</pre>
+<dl>
+<dd>
+	Gets a current directory.
+</dd>
+<dt>
+	Parameter <code>Directory</code>
+</dt>
+<dd>
+	
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Directory_h__MwDirectoryJoin">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwDirectoryJoin</FONT></B> (
+	<B><FONT COLOR="#228B22">char</FONT></B>* a,
+	<B><FONT COLOR="#228B22">char</FONT></B>* b
+);</pre>
+<dl>
+<dd>
+	Joins 2 paths.
+</dd>
+<dt>
+	Parameter <code>a</code>
+</dt>
+<dd>
+	Path.
+</dd>
+<dt>
+	Parameter <code>b</code>
+</dt>
+<dd>
+	Path.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Path.
 </dd>
 </dl>
 <hr>
@@ -2082,6 +2257,13 @@
 </dd>
 </dl>
 <hr>
+<h2 align="center" id="Mw_FileChoose_h">Mw/FileChoose.h</h2>
+<dl>
+<dt>
+	File chooser.
+</dt>
+</dl>
+<hr>
 <h2 align="center" id="Mw_Font_h">Mw/Font.h</h2>
 <dl>
 <dt>
@@ -2110,6 +2292,20 @@
 </dt>
 </dl>
 <hr>
+<pre id="Mw_Icon_h__MwIconBack__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconBack[];</pre>
+<dl>
+<dd>
+	Back icon.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Icon_h__MwIconComputer__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconComputer[];</pre>
+<dl>
+<dd>
+	Computer icon.
+</dd>
+</dl>
+<hr>
 <pre id="Mw_Icon_h__MwIconDirectory__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconDirectory[];</pre>
 <dl>
 <dd>
@@ -2128,6 +2324,13 @@
 <dl>
 <dd>
 	File icon.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Icon_h__MwIconForward__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconForward[];</pre>
+<dl>
+<dd>
+	Forward icon.
 </dd>
 </dl>
 <hr>
@@ -2156,6 +2359,20 @@
 <dl>
 <dd>
 	Question icon.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Icon_h__MwIconSearch__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconSearch[];</pre>
+<dl>
+<dd>
+	Search icon.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Icon_h__MwIconUp__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconUp[];</pre>
+<dl>
+<dd>
+	Up icon.
 </dd>
 </dl>
 <hr>
@@ -2329,6 +2546,50 @@
 </dt>
 <dd>
 	String.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_String_h__MwStringSize">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwStringSize</FONT></B> (
+	<B><FONT COLOR="#228B22">char</FONT></B>* out,
+	MwOffset size
+);</pre>
+<dl>
+<dd>
+	Converts size to string.
+</dd>
+<dt>
+	Parameter <code>out</code>
+</dt>
+<dd>
+	Output.
+</dd>
+<dt>
+	Parameter <code>size</code>
+</dt>
+<dd>
+	Size.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_String_h__MwStringTime">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwStringTime</FONT></B> (
+	<B><FONT COLOR="#228B22">char</FONT></B>* out,
+	time_t t
+);</pre>
+<dl>
+<dd>
+	Converts time to string.
+</dd>
+<dt>
+	Parameter <code>out</code>
+</dt>
+<dd>
+	Output.
+</dd>
+<dt>
+	Parameter <code>t</code>
+</dt>
+<dd>
+	Time.
 </dd>
 </dl>
 <hr>
@@ -2751,6 +3012,21 @@
 </dt>
 <dd>
 	Width.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_ListBox_h__MwListBoxReset">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxReset</FONT></B> (
+	MwWidget handle
+);</pre>
+<dl>
+<dd>
+	Resets the listbox.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
 </dd>
 </dl>
 <hr>

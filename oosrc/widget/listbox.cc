@@ -41,6 +41,10 @@ void MwOO::ListBox::SetWidth(int index, int width){
 	MwListBoxSetWidth(this->widget, index, width);
 }
 
+void MwOO::ListBox::Reset(void){
+	MwListBoxReset(this->widget);
+}
+
 void MwOO::ListBox::SetLeftPadding(int value){
 	MwSetInteger(this->widget, MwNleftPadding, value);
 }
