@@ -31,6 +31,7 @@ struct _MwLL {
 	MwLLHandler handler;
 
 	int grabbed;
+	int wait_map;
 };
 
 struct _MwLLColor {

@@ -1,6 +1,8 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
+#include "../../external/stb_ds.h"
+
 typedef struct mwm_hints {
 	unsigned long flags;
 	unsigned long functions;
@@ -91,6 +93,7 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	r->window = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, DefaultScreen(r->display)));
 
 	r->visual = get_visual_info(r->display);
+	r->wait_map = 1;
 
 	XSetLocaleModifiers("");
 	if((r->xim = XOpenIM(r->display, 0, 0, 0)) == NULL) {
@@ -232,9 +235,20 @@ int MwLLPending(MwLL handle) {
 
 void MwLLNextEvent(MwLL handle) {
 	XEvent ev;
+	XEvent* queue = NULL;
 	while(XCheckTypedWindowEvent(handle->display, handle->window, ClientMessage, &ev) || XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 		int render = 0;
-		if(ev.type == Expose) {
+		if(ev.type == MapNotify){
+			handle->wait_map = 0;
+
+			while(arrlen(queue) > 0){
+				XPutBackEvent(handle->display, &queue[0]);
+				arrdel(queue, 0);
+			}
+			arrfree(queue);
+		}else if(handle->wait_map){
+			arrput(queue, ev);
+		}else if(ev.type == Expose) {
 			render = 1;
 		} else if(ev.type == ButtonPress) {
 			MwLLMouse p;
@@ -371,6 +385,8 @@ void MwLLNextEvent(MwLL handle) {
 			if(handle->copy_buffer) XCopyArea(handle->display, handle->pixmap, handle->window, handle->gc, 0, 0, w, h, 0, 0);
 		}
 	}
+
+	arrfree(queue);
 }
 
 void MwLLSleep(int ms) {
@@ -664,6 +680,11 @@ void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
 
 	XUnmapWindow(handle->display, handle->window);
 	XMapWindow(handle->display, handle->window);
+
+	XFlush(handle->display);
+	XSync(handle->display, False);
+
+	handle->wait_map = 1;
 }
 
 void MwLLMakeBorderless(MwLL handle, int toggle) {
@@ -676,6 +697,11 @@ void MwLLMakeBorderless(MwLL handle, int toggle) {
 
 	XUnmapWindow(handle->display, handle->window);
 	XMapWindow(handle->display, handle->window);
+
+	XFlush(handle->display);
+	XSync(handle->display, False);
+
+	handle->wait_map = 1;
 }
 
 long MwLLGetTick(void) {
