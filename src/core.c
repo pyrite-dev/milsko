@@ -265,7 +265,7 @@ int MwPending(MwWidget handle) {
 	for(i = 0; i < arrlen(handle->children); i++) {
 		if(MwPending(handle->children[i])) return 1;
 	}
-	return (arrlen(handle->destroy_queue) > 0 ? 1 : 0) || MwLLPending(handle->lowlevel);
+	return (arrlen(handle->destroy_queue) > 0 ? 1 : 0) || (handle->widget_class == NULL ? 0 : MwLLPending(handle->lowlevel));
 }
 
 void MwLoop(MwWidget handle) {
