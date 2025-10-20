@@ -49,7 +49,3 @@ MwClassRec MwWindowClassRec = {
     NULL,
     NULL};
 MwClass MwWindowClass = &MwWindowClassRec;
-
-void MwWindowSetIcon(MwWidget handle, MwLLPixmap pixmap) {
-	MwLLSetIcon(handle->lowlevel, pixmap);
-}
