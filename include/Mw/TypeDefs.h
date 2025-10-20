@@ -46,6 +46,10 @@ typedef unsigned __int64 MwOffset;
 typedef unsigned long MwOffset; /* out of hope */
 #endif
 
+typedef unsigned char MwBool;
+#define MwTRUE ((MwBool)1)
+#define MwFALSE ((MwBool)0)
+
 #include <Mw/LowLevel.h>
 
 struct _MwPoint {
