@@ -9,3 +9,4 @@
 /external/libpng/include/*.h linguist-generated
 /external/libpng/src/*.c linguist-generated
 /external/libpng/src/*.h linguist-generated
+/resource/doxygen-theme/* linguist-generated

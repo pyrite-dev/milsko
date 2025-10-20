@@ -1,7 +1,7 @@
 # $Id$
 PROJECT_LOGO = "resource/logo64.png"
 PROJECT_NAME = Milsko
-PROJECT_BRIEF "Lightweight and fast GUI toolkit"
+PROJECT_BRIEF = "Lightweight and fast GUI toolkit"
 OUTPUT_DIRECTORY = doxygen
 TAB_SIZE = 8
 OPTIMIZE_OUTPUT_FOR_C = YES
@@ -9,6 +9,7 @@ MARKDOWN_SUPPORT = YES
 FILE_PATTERNS = *.h
 INPUT = include/Mw
 RECURSIVE = YES
+SOURCE_BROWSER = YES
 HTML_DYNAMIC_MENUS = YES
 GENERATE_TREEVIEW = YES
 FULL_SIDEBAR = NO
@@ -21,3 +22,6 @@ OUTPUT_LANGUAGE = English
 FILTER_PATTERNS = *.h=tools/doxyfilter.pl
 GENERATE_LATEX = NO
 EXTRACT_ALL = YES
+
+HTML_EXTRA_STYLESHEET = resource/doxygen-theme/doxygen-awesome.css
+HTML_COLORSTYLE = LIGHT
