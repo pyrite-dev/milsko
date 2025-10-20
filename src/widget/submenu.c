@@ -188,6 +188,8 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	(void)out;
+
 	if(strcmp(name, "mwSubMenuAppear") == 0) {
 		MwMenu	 menu  = va_arg(va, MwMenu);
 		MwPoint* point = va_arg(va, MwPoint*);
