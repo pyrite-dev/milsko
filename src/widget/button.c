@@ -80,6 +80,5 @@ MwClassRec MwButtonClassRec = {
     NULL,
     NULL,
     NULL,
-    NULL,
     NULL};
 MwClass MwButtonClass = &MwButtonClassRec;

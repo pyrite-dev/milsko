@@ -183,6 +183,5 @@ MwClassRec MwOpenGLClassRec = {
     NULL,
     NULL,
     NULL,
-    NULL,
     NULL};
 MwClass MwOpenGLClass = &MwOpenGLClassRec;

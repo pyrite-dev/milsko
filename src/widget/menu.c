@@ -210,6 +210,5 @@ MwClassRec MwMenuClassRec = {
     NULL,
     NULL,
     NULL,
-    NULL,
     NULL};
 MwClass MwMenuClass = &MwMenuClassRec;

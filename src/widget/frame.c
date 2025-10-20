@@ -55,6 +55,5 @@ MwClassRec MwFrameClassRec = {
     NULL,
     NULL,
     NULL,
-    NULL,
     NULL};
 MwClass MwFrameClass = &MwFrameClassRec;

@@ -145,6 +145,5 @@ MwClassRec MwNumberEntryClassRec = {
     NULL,
     NULL,
     NULL,
-    NULL,
     NULL};
 MwClass MwNumberEntryClass = &MwNumberEntryClassRec;

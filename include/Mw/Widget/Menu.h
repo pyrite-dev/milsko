@@ -26,7 +26,7 @@ MWDECL MwClass MwMenuClass;
  * %param name Menu name
  * %return Menu
  */
-static MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
+MwInline MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
 	MwMenu out;
 	MwWidgetExecute(handle, "mwMenuAdd", &out, menu, name);
 	return out;

@@ -234,7 +234,6 @@ MwClassRec MwScrollBarClassRec = {
     NULL,
     NULL,
     NULL,
-    NULL,
     NULL};
 MwClass MwScrollBarClass = &MwScrollBarClassRec;
 

@@ -52,6 +52,5 @@ MwClassRec MwCheckBoxClassRec = {
     NULL,
     NULL,
     NULL,
-    NULL,
     NULL};
 MwClass MwCheckBoxClass = &MwCheckBoxClassRec;

@@ -63,7 +63,7 @@ void MwListBoxVaInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap
  * %param handle Widget
  * %param index Index
  */
-static void MwListBoxDelete(MwWidget handle, int index) {
+MwInline void MwListBoxDelete(MwWidget handle, int index) {
 	MwWidgetExecute(handle, "mwListboxDelete", NULL, index);
 };
 
@@ -73,7 +73,7 @@ static void MwListBoxDelete(MwWidget handle, int index) {
  * %param index Index
  * %return Item
  */
-static const char* MwListBoxGet(MwWidget handle, int index) {
+MwInline const char* MwListBoxGet(MwWidget handle, int index) {
 	const char* out;
 	MwWidgetExecute(handle, "mwListBoxGet", &out, index);
 	return out;
@@ -85,7 +85,7 @@ static const char* MwListBoxGet(MwWidget handle, int index) {
  * %param index Column index
  * %param width Width
  */
-static void MwListBoxSetWidth(MwWidget handle, int index, int width) {
+MwInline void MwListBoxSetWidth(MwWidget handle, int index, int width) {
 	MwWidgetExecute(handle, "mwListBoxSetWidth", NULL, index, width);
 };
 
@@ -93,7 +93,7 @@ static void MwListBoxSetWidth(MwWidget handle, int index, int width) {
  * %brief Resets the listbox
  * %param handle Widget
  */
-static void MwListBoxReset(MwWidget handle) {
+MwInline void MwListBoxReset(MwWidget handle) {
 	MwWidgetExecute(handle, "mwListBoxReset", NULL, handle);
 };
 

@@ -527,6 +527,5 @@ MwClassRec MwVulkanClassRec = {
     NULL,
     NULL,
     NULL,
-    NULL,
     NULL};
 MwClass MwVulkanClass = &MwVulkanClassRec;

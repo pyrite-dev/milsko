@@ -451,12 +451,23 @@ static void mwListBoxSetWidthImpl(MwWidget handle, int index, int width) {
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	(void)out;
+
 	if(strcmp(name, "mwListBoxDelete") == 0) {
 		int index = va_arg(va, int);
 		mwListBoxDeleteImpl(handle, index);
 	}
 	if(strcmp(name, "mwListBoxReset") == 0) {
 		mwListBoxResetImpl(handle);
+	}
+	if(strcmp(name, "mwListBoxGet") == 0) {
+		int index = va_arg(va, int);
+		mwListBoxGetImpl(handle, index);
+	}
+	if(strcmp(name, "mwListBoxSetWidth") == 0) {
+		int index = va_arg(va, int);
+		int width = va_arg(va, int);
+		mwListBoxSetWidthImpl(handle, index, width);
 	}
 }
 
@@ -472,7 +483,6 @@ MwClassRec MwListBoxClassRec = {
     NULL,	  /* mouse_down */
     NULL,	  /* key */
     func_handler, /* custom */
-    NULL,
     NULL,
     NULL,
     NULL,

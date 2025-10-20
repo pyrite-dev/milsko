@@ -43,6 +43,5 @@ MwClassRec MwImageClassRec = {
     NULL,
     NULL,
     NULL,
-    NULL,
     NULL};
 MwClass MwImageClass = &MwImageClassRec;

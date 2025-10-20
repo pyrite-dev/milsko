@@ -133,7 +133,6 @@ MwClassRec MwViewportClassRec = {
     NULL,
     NULL,
     NULL,
-    NULL,
     NULL};
 MwClass MwViewportClass = &MwViewportClassRec;
 

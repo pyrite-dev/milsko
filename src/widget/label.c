@@ -60,6 +60,5 @@ MwClassRec MwLabelClassRec = {
     NULL,
     NULL,
     NULL,
-    NULL,
     NULL};
 MwClass MwLabelClass = &MwLabelClassRec;

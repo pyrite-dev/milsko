@@ -25,6 +25,8 @@ static void mwWindowMakeBorderlessImpl(MwWidget handle, int toggle) {
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	(void)out;
+
 	if(strcmp(name, "mwWindowMakeBorderless") == 0) {
 		int toggle = va_arg(va, int);
 		mwWindowMakeBorderlessImpl(handle, toggle);
@@ -42,7 +44,6 @@ MwClassRec MwWindowClassRec = {
     NULL,	  /* mouse_down */
     NULL,	  /* key */
     func_handler, /* custom */
-    NULL,
     NULL,
     NULL,
     NULL,
