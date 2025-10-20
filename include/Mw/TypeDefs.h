@@ -39,11 +39,11 @@ typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
 typedef void (*MwHandlerExecute)(MwWidget handle, const char* name, void* out, va_list args);
 
 #if __STDC_VERSION__ >= 199901L || __GNUC__ > 2
-typedef unsigned long long MwOffset;
+typedef long long MwOffset;
 #elif defined(_MSC_VER) || defined(__BORLANDC__) || defined(__WATCOMC__)
-typedef unsigned __int64 MwOffset;
+typedef __int64 MwOffset;
 #else
-typedef unsigned long MwOffset; /* out of hope */
+typedef long MwOffset; /* out of hope */
 #endif
 
 typedef unsigned char MwBool;
