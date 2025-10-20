@@ -46,7 +46,7 @@ void MwListBoxInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* 
  * %param pixmap Pixmap
  * %param va Text
  */
-void MwListBoxVaInsert(MwWidget handle, int index, MwLLPixmap pixmap, va_list va);
+MWDECL void MwListBoxVaInsert(MwWidget handle, int index, MwLLPixmap pixmap, va_list va);
 
 /*!
  * %brief Inserts multiple items on the listbox
@@ -56,7 +56,7 @@ void MwListBoxVaInsert(MwWidget handle, int index, MwLLPixmap pixmap, va_list va
  * %param pixmap Pixmap
  * %param va Text
  */
-void MwListBoxVaInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, va_list va);
+MWDECL void MwListBoxVaInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, va_list va);
 
 /*!
  * %brief Deletes item from the listbox
