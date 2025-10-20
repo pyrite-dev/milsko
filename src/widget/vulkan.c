@@ -470,7 +470,7 @@ VkBool32 MwVulkanSupported(void) {
 	}
 };
 
-void* _mwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
+static void* mwVulkanGetFieldImpl(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
 	vulkan_t* o = handle->internal;
 
 	switch(field) {
@@ -508,7 +508,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 	if(strcmp(name, "mwVulkanGetField") == 0) {
 		MwVulkanField field = va_arg(va, MwVulkanField);
 		MwErrorEnum*  err   = va_arg(va, MwErrorEnum*);
-		*(void**)out	    = _mwVulkanGetField(handle, field, err);
+		*(void**)out	    = mwVulkanGetFieldImpl(handle, field, err);
 	}
 }
 

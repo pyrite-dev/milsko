@@ -186,7 +186,6 @@ struct _MwClass {
 	MwHandler5	 mouse_down;
 	MwHandler4	 key;
 	MwHandlerExecute execute;
-	void*		 reserved1;
 	void*		 reserved2;
 	void*		 reserved3;
 	void*		 reserved4;

@@ -20,14 +20,14 @@ static void draw(MwWidget handle) {
 
 	MwLLFreeColor(c);
 }
-void _mwWindowMakeBorderless(MwWidget handle, int toggle) {
+static void mwWindowMakeBorderlessImpl(MwWidget handle, int toggle) {
 	MwLLMakeBorderless(handle->lowlevel, toggle);
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	if(strcmp(name, "mwWindowMakeBorderless") == 0) {
 		int toggle = va_arg(va, int);
-		_mwWindowMakeBorderless(handle, toggle);
+		mwWindowMakeBorderlessImpl(handle, toggle);
 	}
 }
 MwClassRec MwWindowClassRec = {

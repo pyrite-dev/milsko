@@ -126,7 +126,7 @@ static void destroy(MwWidget handle) {
 	free(o);
 }
 
-void _mwOpenGLMakeCurrent(MwWidget handle) {
+static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 	opengl_t* o = (opengl_t*)handle->internal;
 #ifdef _WIN32
 	o->wglMakeCurrent(o->dc, o->gl);
@@ -135,7 +135,7 @@ void _mwOpenGLMakeCurrent(MwWidget handle) {
 #endif
 }
 
-void _mwOpenGLSwapBuffer(MwWidget handle) {
+static void mwOpenGLSwapBufferImpl(MwWidget handle) {
 	opengl_t* o = (opengl_t*)handle->internal;
 #ifdef _WIN32
 	SwapBuffers(o->dc);
@@ -146,7 +146,7 @@ void _mwOpenGLSwapBuffer(MwWidget handle) {
 #endif
 }
 
-void* _mwOpenGLGetProcAddress(MwWidget handle, const char* name) {
+static void* mwOpenGLGetProcAddressImpl(MwWidget handle, const char* name) {
 	opengl_t* o = (opengl_t*)handle->internal;
 #ifdef _WIN32
 	return o->wglGetProcAddress(name);
@@ -157,14 +157,14 @@ void* _mwOpenGLGetProcAddress(MwWidget handle, const char* name) {
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	if(strcmp(name, "mwOpenGLMakeCurrent") == 0) {
-		_mwOpenGLMakeCurrent(handle);
+		mwOpenGLMakeCurrentImpl(handle);
 	}
 	if(strcmp(name, "mwOpenGLSwapBuffer") == 0) {
-		_mwOpenGLSwapBuffer(handle);
+		mwOpenGLSwapBufferImpl(handle);
 	}
 	if(strcmp(name, "mwOpenGLGetProcAddress") == 0) {
 		const char* _name = va_arg(va, const char*);
-		*(void**)out	  = _mwOpenGLGetProcAddress(handle, _name);
+		*(void**)out	  = mwOpenGLGetProcAddressImpl(handle, _name);
 	}
 }
 

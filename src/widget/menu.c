@@ -172,7 +172,7 @@ static void mouse_up(MwWidget handle, void* ptr) {
 	MwForceRender(handle);
 }
 
-MwMenu _mwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
+static MwMenu mwMenuAddImpl(MwWidget handle, MwMenu menu, const char* name) {
 	MwMenu m   = menu == NULL ? handle->internal : menu;
 	MwMenu new = malloc(sizeof(*new));
 	new->name  = MwStringDupliacte(name);
@@ -191,7 +191,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 	if(strcmp(name, "mwMenuAdd") == 0) {
 		MwMenu	    menu = va_arg(va, MwMenu);
 		const char* name = va_arg(va, const char*);
-		*(MwMenu*)out	 = _mwMenuAdd(handle, menu, name);
+		*(MwMenu*)out	 = mwMenuAddImpl(handle, menu, name);
 	}
 }
 
