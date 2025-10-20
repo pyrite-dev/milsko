@@ -17,6 +17,12 @@ void MwOO::Vulkan::Configure(void){
 	MwVulkanConfigure(this->widget);
 }
 
+void* MwOO::Vulkan::GetField(MwVulkanField field, MwErrorEnum* out){
+	void* ret;
+	ret = MwVulkanGetField(this->widget, field, out);
+	return ret;
+}
+
 VkBool32 MwOO::Vulkan::Supported(void){
 	VkBool32 ret;
 	ret = MwVulkanSupported(this->widget);

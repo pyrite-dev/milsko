@@ -11,6 +11,7 @@ class Vulkan : public MwOO::Base {
 	void	    EnableExtension(void);
 	void	    EnableLayer(void);
 	void	    Configure(void);
+	void*	    GetField(MwVulkanField field, MwErrorEnum* out);
 	VkBool32    Supported(void);
 	void	    SetBackground(const char* value);
 	const char* GetBackground(void);

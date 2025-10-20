@@ -27,6 +27,24 @@ void MwOO::ListBox::VaInsertMultiple(int index, int count, MwLLPixmap* pixmap, v
 	MwListBoxVaInsertMultiple(this->widget, index, count, pixmap, va);
 }
 
+void MwOO::ListBox::Delete(int index){
+	MwListBoxDelete(this->widget, index);
+}
+
+const char* MwOO::ListBox::Get(int index){
+	const char* ret;
+	ret = MwListBoxGet(this->widget, index);
+	return ret;
+}
+
+void MwOO::ListBox::SetWidth(int index, int width){
+	MwListBoxSetWidth(this->widget, index, width);
+}
+
+void MwOO::ListBox::Reset(void){
+	MwListBoxReset(this->widget);
+}
+
 void MwOO::ListBox::SetLeftPadding(int value){
 	MwSetInteger(this->widget, MwNleftPadding, value);
 }

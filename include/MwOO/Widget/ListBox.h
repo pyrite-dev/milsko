@@ -12,6 +12,10 @@ class ListBox : public MwOO::Base {
 	void	    InsertMultiple(int index, int count, MwLLPixmap* pixmap, ...);
 	void	    VaInsert(int index, MwLLPixmap pixmap, va_list va);
 	void	    VaInsertMultiple(int index, int count, MwLLPixmap* pixmap, va_list va);
+	void	    Delete(int index);
+	const char* Get(int index);
+	void	    SetWidth(int index, int width);
+	void	    Reset(void);
 	void	    SetLeftPadding(int value);
 	int	    GetLeftPadding(void);
 	void	    SetBackground(const char* value);

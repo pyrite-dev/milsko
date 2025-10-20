@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+# $Id$
+
 if [[ $1 -eq "" ]]; then
     echo "Blank argument."
     exit

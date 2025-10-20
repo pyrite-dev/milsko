@@ -8,6 +8,7 @@ namespace MwOO {
 class ScrollBar : public MwOO::Base {
       public:
 	ScrollBar(const char* widget_name, MwOO::Base* parent, int x, int y, int w, int h);
+	int	    GetVisibleLength(void);
 	void	    SetAreaShown(int value);
 	int	    GetAreaShown(void);
 	void	    SetValue(int value);
