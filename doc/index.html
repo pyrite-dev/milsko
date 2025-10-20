@@ -78,6 +78,12 @@
 	<a href="#Mw_Core_h__MwDestroyWidget">MwDestroyWidget</a>
 </dd>
 <dd>
+	<a href="#Mw_Core_h__MwWidgetExecute">MwWidgetExecute</a>
+</dd>
+<dd>
+	<a href="#Mw_Core_h__MwVaWidgetExecute">MwVaWidgetExecute</a>
+</dd>
+<dd>
 	<a href="#Mw_Core_h__MwLoop">MwLoop</a>
 </dd>
 <dd>
@@ -267,7 +273,7 @@
 	<a href="#Mw_Error_h__MwGetLastError">MwGetLastError</a>
 </dd>
 <dt>
-	<a href="#Mw_FileChoose_h">Mw/FileChoose.h</a>
+	<a href="#Mw_FileChooser_h">Mw/FileChooser.h</a>
 </dt>
 <dt>
 	<a href="#Mw_Font_h">Mw/Font.h</a>
@@ -376,6 +382,18 @@
 </dd>
 <dd>
 	<a href="#Mw_Unicode_h__MwUTF32ToUTF8">MwUTF32ToUTF8</a>
+</dd>
+<dt>
+	<a href="#Mw_Version_h">Mw/Version.h</a>
+</dt>
+<dd>
+	<a href="#Mw_Version_h__MwMAJOR">MwMAJOR</a>
+</dd>
+<dd>
+	<a href="#Mw_Version_h__MwMINOR">MwMINOR</a>
+</dd>
+<dd>
+	<a href="#Mw_Version_h__MwVERSION">MwVERSION</a>
 </dd>
 <dt>
 	<a href="#Mw_Widget_Button_h">Mw/Widget/Button.h</a>
@@ -976,6 +994,60 @@
 </dt>
 <dd>
 	Widget.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwWidgetExecute">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWidgetExecute</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* func_name,
+	<B><FONT COLOR="#228B22">void</FONT></B>* out,
+	...
+);</pre>
+<dl>
+<dd>
+	Executes a method specific to the widget (varadic version).
+</dd>
+<dt>
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td>Prefer using corresponding functions for better code clarity and type safety.</td></table>
+</dt>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>...</code>
+</dt>
+<dd>
+	Widget function arguments.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Core_h__MwVaWidgetExecute">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwVaWidgetExecute</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* func_name,
+	<B><FONT COLOR="#228B22">void</FONT></B>* out,
+	va_list va
+);</pre>
+<dl>
+<dd>
+	Executes a method specific to the widget (va_list version).
+</dd>
+<dt>
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td>Prefer using corresponding functions for better code clarity and type safety.</td></table>
+</dt>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>va</code>
+</dt>
+<dd>
+	Widget function arguments.
 </dd>
 </dl>
 <hr>
@@ -2257,7 +2329,7 @@
 </dd>
 </dl>
 <hr>
-<h2 align="center" id="Mw_FileChoose_h">Mw/FileChoose.h</h2>
+<h2 align="center" id="Mw_FileChooser_h">Mw/FileChooser.h</h2>
 <dl>
 <dt>
 	File chooser.
@@ -2680,6 +2752,34 @@
 </dd>
 </dl>
 <hr>
+<h2 align="center" id="Mw_Version_h">Mw/Version.h</h2>
+<dl>
+<dt>
+	Version informations.
+</dt>
+</dl>
+<hr>
+<pre id="Mw_Version_h__MwMAJOR">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMAJOR</FONT> 0</pre>
+<dl>
+<dd>
+	Major version.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Version_h__MwMINOR">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMINOR</FONT> 0</pre>
+<dl>
+<dd>
+	Minor version.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Version_h__MwVERSION">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwVERSION</FONT> <B><FONT COLOR="#BC8F8F">&quot;pre-1.0&quot;</FONT></B></pre>
+<dl>
+<dd>
+	Version in string.
+</dd>
+</dl>
+<hr>
 <h2 align="center" id="Mw_Widget_Button_h">Mw/Widget/Button.h</h2>
 <dl>
 <dt>
@@ -2778,7 +2878,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxInsert">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsert</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxInsert"><B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsert</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index,
 	MwLLPixmap pixmap,
@@ -2814,7 +2914,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxInsertMultiple">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsertMultiple</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxInsertMultiple"><B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsertMultiple</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index,
 	<B><FONT COLOR="#228B22">int</FONT></B> count,
@@ -2857,7 +2957,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxVaInsert">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxVaInsert</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxVaInsert"><B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxVaInsert</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index,
 	MwLLPixmap pixmap,
@@ -2893,7 +2993,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxVaInsertMultiple">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxVaInsertMultiple</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxVaInsertMultiple"><B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxVaInsertMultiple</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index,
 	<B><FONT COLOR="#228B22">int</FONT></B> count,
@@ -2936,7 +3036,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxDelete">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxDelete</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxDelete">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxDelete</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index
 );</pre>
@@ -2958,7 +3058,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxGet">MWDECL <B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwListBoxGet</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxGet">MwInline <B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwListBoxGet</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index
 );</pre>
@@ -2986,7 +3086,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxSetWidth">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxSetWidth</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxSetWidth">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxSetWidth</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index,
 	<B><FONT COLOR="#228B22">int</FONT></B> width
@@ -3015,7 +3115,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxReset">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxReset</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxReset">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxReset</FONT></B> (
 	MwWidget handle
 );</pre>
 <dl>
@@ -3044,7 +3144,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Menu_h__MwMenuAdd">MWDECL MwMenu <B><FONT COLOR="#0000FF">MwMenuAdd</FONT></B> (
+<pre id="Mw_Widget_Menu_h__MwMenuAdd">MwInline MwMenu <B><FONT COLOR="#0000FF">MwMenuAdd</FONT></B> (
 	MwWidget handle,
 	MwMenu menu,
 	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* name
@@ -3107,7 +3207,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_OpenGL_h__MwOpenGLMakeCurrent">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwOpenGLMakeCurrent</FONT></B> (
+<pre id="Mw_Widget_OpenGL_h__MwOpenGLMakeCurrent">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwOpenGLMakeCurrent</FONT></B> (
 	MwWidget handle
 );</pre>
 <dl>
@@ -3122,7 +3222,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_OpenGL_h__MwOpenGLGetProcAddress">MWDECL <B><FONT COLOR="#228B22">void</FONT></B>* <B><FONT COLOR="#0000FF">MwOpenGLGetProcAddress</FONT></B> (
+<pre id="Mw_Widget_OpenGL_h__MwOpenGLGetProcAddress">MwInline <B><FONT COLOR="#228B22">void</FONT></B>* <B><FONT COLOR="#0000FF">MwOpenGLGetProcAddress</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* name
 );</pre>
@@ -3150,7 +3250,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_OpenGL_h__MwOpenGLSwapBuffer">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwOpenGLSwapBuffer</FONT></B> (
+<pre id="Mw_Widget_OpenGL_h__MwOpenGLSwapBuffer">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwOpenGLSwapBuffer</FONT></B> (
 	MwWidget handle
 );</pre>
 <dl>
@@ -3179,7 +3279,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ScrollBar_h__MwScrollBarGetVisibleLength">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwScrollBarGetVisibleLength</FONT></B> (
+<pre id="Mw_Widget_ScrollBar_h__MwScrollBarGetVisibleLength">MwInline <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwScrollBarGetVisibleLength</FONT></B> (
 	MwWidget handle
 );</pre>
 <dl>
@@ -3228,7 +3328,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Viewport_h__MwViewportGetViewport">MWDECL MwWidget <B><FONT COLOR="#0000FF">MwViewportGetViewport</FONT></B> (
+<pre id="Mw_Widget_Viewport_h__MwViewportGetViewport">MwInline MwWidget <B><FONT COLOR="#0000FF">MwViewportGetViewport</FONT></B> (
 	MwWidget handle
 );</pre>
 <dl>
@@ -3249,7 +3349,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Viewport_h__MwViewportSetSize">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwViewportSetSize</FONT></B> (
+<pre id="Mw_Widget_Viewport_h__MwViewportSetSize">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwViewportSetSize</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> w,
 	<B><FONT COLOR="#228B22">int</FONT></B> h
@@ -3422,7 +3522,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h__MwVulkanGetField">MWDECL <B><FONT COLOR="#228B22">void</FONT></B>* <B><FONT COLOR="#0000FF">MwVulkanGetField</FONT></B> (
+<pre id="Mw_Widget_Vulkan_h__MwVulkanGetField">MwInline <B><FONT COLOR="#228B22">void</FONT></B>* <B><FONT COLOR="#0000FF">MwVulkanGetField</FONT></B> (
 	MwWidget handle,
 	MwVulkanField field,
 	MwErrorEnum* out
@@ -3459,7 +3559,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Window_h__MwWindowMakeBorderless">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+<pre id="Mw_Widget_Window_h__MwWindowMakeBorderless">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
