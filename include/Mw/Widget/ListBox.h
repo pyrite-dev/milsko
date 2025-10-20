@@ -75,7 +75,7 @@ MwInline void MwListBoxDelete(MwWidget handle, int index) {
  */
 MwInline const char* MwListBoxGet(MwWidget handle, int index) {
 	const char* out;
-	MwWidgetExecute(handle, "mwListBoxGet", &out, index);
+	MwWidgetExecute(handle, "mwListBoxGet", (void*)&out, index);
 	return out;
 };
 
