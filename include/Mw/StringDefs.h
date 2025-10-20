@@ -47,5 +47,6 @@
 #define MwNcloseHandler "Cclose"	   /* NULL */
 #define MwNfocusInHandler "CfocusIn"	   /* NULL */
 #define MwNfocusOutHandler "CfocusOut"	   /* NULL */
+#define MwNfileChosenHandler "CfileChosen"	   /* char* */
 
 #endif
