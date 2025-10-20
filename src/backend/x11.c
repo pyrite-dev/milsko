@@ -40,19 +40,19 @@ static void destroy_pixmap(MwLL handle) {
 	XFreePixmap(handle->display, handle->pixmap);
 }
 
-static void wait_map(MwLL handle){
+static void wait_map(MwLL handle) {
 	XEvent* queue = NULL;
-	XEvent ev;
-	while(1){
+	XEvent	ev;
+	while(1) {
 		XNextEvent(handle->display, &ev);
-		if(ev.type == MapNotify && ev.xmap.window == handle->window){
+		if(ev.type == MapNotify && ev.xmap.window == handle->window) {
 			break;
-		}else{
+		} else {
 			arrput(queue, ev);
 		}
 	}
 
-	while(arrlen(queue) > 0){
+	while(arrlen(queue) > 0) {
 		XPutBackEvent(handle->display, &queue[0]);
 		arrdel(queue, 0);
 	}
