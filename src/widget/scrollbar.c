@@ -132,7 +132,7 @@ static void draw(MwWidget handle) {
 }
 
 static void mouse_move(MwWidget handle) {
-	int	     or	 = MwGetInteger(handle, MwNorientation);
+	int or		 = MwGetInteger(handle, MwNorientation);
 	scrollbar_t* scr = handle->internal;
 
 	if(!handle->pressed) return;
@@ -160,9 +160,9 @@ static void mouse_move(MwWidget handle) {
 }
 
 static void mouse_down(MwWidget handle, void* ptr) {
-	int	     ww	 = MwGetInteger(handle, MwNwidth);
-	int	     wh	 = MwGetInteger(handle, MwNheight);
-	int	     or	 = MwGetInteger(handle, MwNorientation);
+	int ww		 = MwGetInteger(handle, MwNwidth);
+	int wh		 = MwGetInteger(handle, MwNheight);
+	int or		 = MwGetInteger(handle, MwNorientation);
 	scrollbar_t* scr = handle->internal;
 	MwLLMouse*   m	 = ptr;
 
@@ -219,25 +219,7 @@ static void prop_change(MwWidget handle, const char* key) {
 	}
 }
 
-MwClassRec MwScrollBarClassRec = {
-    create,	    /* create */
-    destroy,	    /* destroy */
-    draw,	    /* draw */
-    NULL,	    /* click */
-    NULL,	    /* parent_resize */
-    prop_change,    /* prop_change */
-    mouse_move,	    /* mouse_move */
-    MwForceRender2, /* mouse_up */
-    mouse_down,	    /* mouse_down */
-    NULL,	    /* key */
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL};
-MwClass MwScrollBarClass = &MwScrollBarClassRec;
-
-int MwScrollBarGetVisibleLength(MwWidget handle) {
+static int mwScrollBarGetVisibleLengthImpl(MwWidget handle) {
 	int ww	= MwGetInteger(handle, MwNwidth);
 	int wh	= MwGetInteger(handle, MwNheight);
 	int or	= MwGetInteger(handle, MwNorientation);
@@ -253,3 +235,29 @@ int MwScrollBarGetVisibleLength(MwWidget handle) {
 	}
 	return s - tri - MwDefaultBorderWidth * 2;
 }
+
+static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	(void)va;
+
+	if(strcmp(name, "mwScrollBarGetVisibleLength") == 0) {
+		*(int*)out = mwScrollBarGetVisibleLengthImpl(handle);
+	}
+}
+
+MwClassRec MwScrollBarClassRec = {
+    create,	    /* create */
+    destroy,	    /* destroy */
+    draw,	    /* draw */
+    NULL,	    /* click */
+    NULL,	    /* parent_resize */
+    prop_change,    /* prop_change */
+    mouse_move,	    /* mouse_move */
+    MwForceRender2, /* mouse_up */
+    mouse_down,	    /* mouse_down */
+    NULL,	    /* key */
+    func_handler,   /* custom */
+    NULL,
+    NULL,
+    NULL,
+    NULL};
+MwClass MwScrollBarClass = &MwScrollBarClassRec;

@@ -39,4 +39,6 @@
 #define MWDECL extern
 #endif
 
+#define MwInline __inline
+
 #endif

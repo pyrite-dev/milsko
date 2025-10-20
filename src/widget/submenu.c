@@ -146,25 +146,7 @@ static void click(MwWidget handle) {
 	}
 }
 
-MwClassRec MwSubMenuClassRec = {
-    create,	    /* create */
-    destroy,	    /* destroy */
-    draw,	    /* draw */
-    click,	    /* click */
-    NULL,	    /* parent_resize */
-    NULL,	    /* prop_change */
-    NULL,	    /* mouse_move */
-    MwForceRender2, /* mouse_up */
-    MwForceRender2, /* mouse_down */
-    NULL,	    /* key */
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL};
-MwClass MwSubMenuClass = &MwSubMenuClassRec;
-
-void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
+static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
 	int i, w = 0, h = 0;
 #ifdef UNIX
 	XSetWindowAttributes xswa;
@@ -204,3 +186,31 @@ void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 		  MwNheight, h,
 		  NULL);
 }
+
+static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	(void)out;
+
+	if(strcmp(name, "mwSubMenuAppear") == 0) {
+		MwMenu	 menu  = va_arg(va, MwMenu);
+		MwPoint* point = va_arg(va, MwPoint*);
+		mwSubMenuAppearImpl(handle, menu, point);
+	}
+}
+
+MwClassRec MwSubMenuClassRec = {
+    create,	    /* create */
+    destroy,	    /* destroy */
+    draw,	    /* draw */
+    click,	    /* click */
+    NULL,	    /* parent_resize */
+    NULL,	    /* prop_change */
+    NULL,	    /* mouse_move */
+    MwForceRender2, /* mouse_up */
+    MwForceRender2, /* mouse_down */
+    NULL,	    /* key */
+    func_handler,   /* custom */
+    NULL,
+    NULL,
+    NULL,
+    NULL};
+MwClass MwSubMenuClass = &MwSubMenuClassRec;

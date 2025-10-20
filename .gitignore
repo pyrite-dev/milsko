@@ -1,7 +1,9 @@
 *.o
 *.so
-examples/example
-examples/image
-examples/opengl
-examples/rotate
-examples/vulkan
+examples/*
+examples/*.exe
+examples/*/*
+examples/*/*.exe
+!examples/*/
+!examples/*.*
+!examples/*/*.*

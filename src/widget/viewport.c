@@ -118,31 +118,13 @@ static void prop_change(MwWidget handle, const char* prop) {
 	if(strcmp(prop, MwNwidth) == 0 || strcmp(prop, MwNheight) == 0) resize(handle);
 }
 
-MwClassRec MwViewportClassRec = {
-    create,	 /* create */
-    destroy,	 /* destroy */
-    draw,	 /* draw */
-    NULL,	 /* click */
-    NULL,	 /* parent_resize */
-    prop_change, /* prop_change */
-    NULL,	 /* mouse_move */
-    NULL,	 /* mouse_up */
-    NULL,	 /* mouse_down */
-    NULL,	 /* key */
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL};
-MwClass MwViewportClass = &MwViewportClassRec;
-
-MwWidget MwViewportGetViewport(MwWidget handle) {
+static MwWidget mwViewportGetViewportImpl(MwWidget handle) {
 	MwViewport vp = handle->internal;
 
 	return vp->inframe;
 }
 
-void MwViewportSetSize(MwWidget handle, int w, int h) {
+static void mwViewportSetSizeImpl(MwWidget handle, int w, int h) {
 	MwViewport vp = handle->internal;
 
 	MwVaApply(vp->inframe,
@@ -152,3 +134,32 @@ void MwViewportSetSize(MwWidget handle, int w, int h) {
 
 	resize(handle);
 }
+
+static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	if(strcmp(name, "mwViewportGetViewport") == 0) {
+		*(MwWidget*)out = mwViewportGetViewportImpl(handle);
+	}
+	if(strcmp(name, "mwViewportSetSize") == 0) {
+		int w = va_arg(va, int);
+		int h = va_arg(va, int);
+		mwViewportSetSizeImpl(handle, w, h);
+	}
+}
+
+MwClassRec MwViewportClassRec = {
+    create,	  /* create */
+    destroy,	  /* destroy */
+    draw,	  /* draw */
+    NULL,	  /* click */
+    NULL,	  /* parent_resize */
+    prop_change,  /* prop_change */
+    NULL,	  /* mouse_move */
+    NULL,	  /* mouse_up */
+    NULL,	  /* mouse_down */
+    NULL,	  /* key */
+    func_handler, /* custom */
+    NULL,
+    NULL,
+    NULL,
+    NULL};
+MwClass MwViewportClass = &MwViewportClassRec;

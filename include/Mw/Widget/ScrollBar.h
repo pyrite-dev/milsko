@@ -9,6 +9,7 @@
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
+#include <Mw/Core.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,7 +25,11 @@ MWDECL MwClass MwScrollBarClass;
  * %param handle Widget
  * %return Visible length
  */
-MWDECL int MwScrollBarGetVisibleLength(MwWidget handle);
+MwInline int MwScrollBarGetVisibleLength(MwWidget handle) {
+	int out;
+	MwWidgetExecute(handle, "mwScrollBarGetVisibleLength", &out, NULL);
+	return out;
+};
 
 #ifdef __cplusplus
 }

@@ -36,6 +36,7 @@ typedef void (*MwHandler4)(MwWidget handle, int key);
 typedef void (*MwHandler5)(MwWidget handle, void* ptr);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
+typedef void (*MwHandlerExecute)(MwWidget handle, const char* name, void* out, va_list args);
 
 #if __STDC_VERSION__ >= 199901L || __GNUC__ > 2
 typedef unsigned long long MwOffset;
@@ -174,21 +175,21 @@ struct _MwCursor {
 };
 
 struct _MwClass {
-	MwHandler2 create;
-	MwHandler  destroy;
-	MwHandler  draw;
-	MwHandler  click;
-	MwHandler  parent_resize;
-	MwHandler3 prop_change;
-	MwHandler  mouse_move;
-	MwHandler5 mouse_up;
-	MwHandler5 mouse_down;
-	MwHandler4 key;
-	void*	   reserved1;
-	void*	   reserved2;
-	void*	   reserved3;
-	void*	   reserved4;
-	void*	   reserved5;
+	MwHandler2	 create;
+	MwHandler	 destroy;
+	MwHandler	 draw;
+	MwHandler	 click;
+	MwHandler	 parent_resize;
+	MwHandler3	 prop_change;
+	MwHandler	 mouse_move;
+	MwHandler5	 mouse_up;
+	MwHandler5	 mouse_down;
+	MwHandler4	 key;
+	MwHandlerExecute execute;
+	void*		 reserved2;
+	void*		 reserved3;
+	void*		 reserved4;
+	void*		 reserved5;
 };
 
 struct _MwFont {

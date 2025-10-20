@@ -56,7 +56,7 @@ MwClassRec MwLabelClassRec = {
     NULL,	 /* mouse_up */
     NULL,	 /* mouse_down */
     NULL,	 /* key */
-    NULL,
+    NULL,	 /* custom */
     NULL,
     NULL,
     NULL,

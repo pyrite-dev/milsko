@@ -312,24 +312,6 @@ static void prop_change(MwWidget handle, const char* prop) {
 	}
 }
 
-MwClassRec MwListBoxClassRec = {
-    create,	 /* create */
-    destroy,	 /* destroy */
-    draw,	 /* draw */
-    NULL,	 /* click */
-    NULL,	 /* parent_resize */
-    prop_change, /* prop_change */
-    NULL,	 /* mouse_move */
-    NULL,	 /* mouse_up */
-    NULL,	 /* mouse_down */
-    NULL,	 /* key */
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL};
-MwClass MwListBoxClass = &MwListBoxClassRec;
-
 void MwListBoxVaInsert(MwWidget handle, int index, MwLLPixmap pixmap, va_list va) {
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
@@ -392,7 +374,7 @@ void MwListBoxVaInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap
 	}
 }
 
-void MwListBoxDelete(MwWidget handle, int index) {
+static void mwListBoxDeleteImpl(MwWidget handle, int index) {
 	MwListBox lb = handle->internal;
 	int	  i;
 
@@ -416,7 +398,7 @@ void MwListBoxDelete(MwWidget handle, int index) {
 	}
 }
 
-void MwListBoxReset(MwWidget handle) {
+static void mwListBoxResetImpl(MwWidget handle) {
 	MwListBox lb = handle->internal;
 	int	  i;
 
@@ -448,7 +430,7 @@ void MwListBoxInsert(MwWidget handle, int index, MwLLPixmap pixmap, ...) {
 	va_end(va);
 }
 
-const char* MwListBoxGet(MwWidget handle, int index) {
+static const char* mwListBoxGetImpl(MwWidget handle, int index) {
 	MwListBox lb = handle->internal;
 
 	if(index < 0) return NULL;
@@ -457,7 +439,7 @@ const char* MwListBoxGet(MwWidget handle, int index) {
 	return lb->list[index].name[0];
 }
 
-void MwListBoxSetWidth(MwWidget handle, int index, int width) {
+static void mwListBoxSetWidthImpl(MwWidget handle, int index, int width) {
 	MwListBox lb = handle->internal;
 
 	while(((index + 1) - arrlen(lb->width)) > 0) arrput(lb->width, 0);
@@ -467,3 +449,42 @@ void MwListBoxSetWidth(MwWidget handle, int index, int width) {
 	MwForceRender(handle);
 	MwForceRender(lb->frame);
 }
+
+static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	(void)out;
+
+	if(strcmp(name, "mwListBoxDelete") == 0) {
+		int index = va_arg(va, int);
+		mwListBoxDeleteImpl(handle, index);
+	}
+	if(strcmp(name, "mwListBoxReset") == 0) {
+		mwListBoxResetImpl(handle);
+	}
+	if(strcmp(name, "mwListBoxGet") == 0) {
+		int index = va_arg(va, int);
+		mwListBoxGetImpl(handle, index);
+	}
+	if(strcmp(name, "mwListBoxSetWidth") == 0) {
+		int index = va_arg(va, int);
+		int width = va_arg(va, int);
+		mwListBoxSetWidthImpl(handle, index, width);
+	}
+}
+
+MwClassRec MwListBoxClassRec = {
+    create,	  /* create */
+    destroy,	  /* destroy */
+    draw,	  /* draw */
+    NULL,	  /* click */
+    NULL,	  /* parent_resize */
+    prop_change,  /* prop_change */
+    NULL,	  /* mouse_move */
+    NULL,	  /* mouse_up */
+    NULL,	  /* mouse_down */
+    NULL,	  /* key */
+    func_handler, /* custom */
+    NULL,
+    NULL,
+    NULL,
+    NULL};
+MwClass MwListBoxClass = &MwListBoxClassRec;

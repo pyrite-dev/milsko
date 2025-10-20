@@ -8,6 +8,7 @@
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
+#include <Mw/Core.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,7 +19,9 @@ extern "C" {
  */
 MWDECL MwClass MwSubMenuClass;
 
-MWDECL void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point);
+MwInline void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
+	MwWidgetExecute(handle, "mwSubMenuAppear", NULL, menu, point);
+};
 
 #ifdef __cplusplus
 }

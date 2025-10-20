@@ -8,6 +8,7 @@
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
+#include <Mw/Core.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,7 +24,11 @@ MWDECL MwClass MwViewportClass;
  * %param handle Widget
  * %return Widget
  */
-MWDECL MwWidget MwViewportGetViewport(MwWidget handle);
+MwInline MwWidget MwViewportGetViewport(MwWidget handle) {
+	MwWidget out;
+	MwWidgetExecute(handle, "mwViewportGetViewport", &out);
+	return out;
+};
 
 /*!
  * %brief Set viewport size
@@ -31,7 +36,9 @@ MWDECL MwWidget MwViewportGetViewport(MwWidget handle);
  * %param w Width
  * %param h Height
  */
-MWDECL void MwViewportSetSize(MwWidget handle, int w, int h);
+MwInline void MwViewportSetSize(MwWidget handle, int w, int h) {
+	MwWidgetExecute(handle, "mwViewportSetSize", NULL, w, h);
+};
 
 #ifdef __cplusplus
 }

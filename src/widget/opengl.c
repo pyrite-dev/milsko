@@ -126,25 +126,7 @@ static void destroy(MwWidget handle) {
 	free(o);
 }
 
-MwClassRec MwOpenGLClassRec = {
-    create,  /* create */
-    destroy, /* destroy */
-    NULL,    /* draw */
-    NULL,    /* click */
-    NULL,    /* parent_resize */
-    NULL,    /* prop_change */
-    NULL,    /* mouse_move */
-    NULL,    /* mouse_up */
-    NULL,    /* mouse_down */
-    NULL,    /* key */
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL};
-MwClass MwOpenGLClass = &MwOpenGLClassRec;
-
-void MwOpenGLMakeCurrent(MwWidget handle) {
+static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 	opengl_t* o = (opengl_t*)handle->internal;
 #ifdef _WIN32
 	o->wglMakeCurrent(o->dc, o->gl);
@@ -153,7 +135,7 @@ void MwOpenGLMakeCurrent(MwWidget handle) {
 #endif
 }
 
-void MwOpenGLSwapBuffer(MwWidget handle) {
+static void mwOpenGLSwapBufferImpl(MwWidget handle) {
 	opengl_t* o = (opengl_t*)handle->internal;
 #ifdef _WIN32
 	SwapBuffers(o->dc);
@@ -164,7 +146,7 @@ void MwOpenGLSwapBuffer(MwWidget handle) {
 #endif
 }
 
-void* MwOpenGLGetProcAddress(MwWidget handle, const char* name) {
+static void* mwOpenGLGetProcAddressImpl(MwWidget handle, const char* name) {
 	opengl_t* o = (opengl_t*)handle->internal;
 #ifdef _WIN32
 	return o->wglGetProcAddress(name);
@@ -172,3 +154,34 @@ void* MwOpenGLGetProcAddress(MwWidget handle, const char* name) {
 	return o->glXGetProcAddress((const GLubyte*)name);
 #endif
 }
+
+static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	if(strcmp(name, "mwOpenGLMakeCurrent") == 0) {
+		mwOpenGLMakeCurrentImpl(handle);
+	}
+	if(strcmp(name, "mwOpenGLSwapBuffer") == 0) {
+		mwOpenGLSwapBufferImpl(handle);
+	}
+	if(strcmp(name, "mwOpenGLGetProcAddress") == 0) {
+		const char* _name = va_arg(va, const char*);
+		*(void**)out	  = mwOpenGLGetProcAddressImpl(handle, _name);
+	}
+}
+
+MwClassRec MwOpenGLClassRec = {
+    create,	  /* create */
+    destroy,	  /* destroy */
+    NULL,	  /* draw */
+    NULL,	  /* click */
+    NULL,	  /* parent_resize */
+    NULL,	  /* prop_change */
+    NULL,	  /* mouse_move */
+    NULL,	  /* mouse_up */
+    NULL,	  /* mouse_down */
+    NULL,	  /* key */
+    func_handler, /* custom */
+    NULL,
+    NULL,
+    NULL,
+    NULL};
+MwClass MwOpenGLClass = &MwOpenGLClassRec;

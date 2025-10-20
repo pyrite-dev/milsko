@@ -20,29 +20,32 @@ static void draw(MwWidget handle) {
 
 	MwLLFreeColor(c);
 }
+static void mwWindowMakeBorderlessImpl(MwWidget handle, int toggle) {
+	MwLLMakeBorderless(handle->lowlevel, toggle);
+}
 
+static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	(void)out;
+
+	if(strcmp(name, "mwWindowMakeBorderless") == 0) {
+		int toggle = va_arg(va, int);
+		mwWindowMakeBorderlessImpl(handle, toggle);
+	}
+}
 MwClassRec MwWindowClassRec = {
-    create, /* create */
-    NULL,   /* destroy */
-    draw,   /* draw */
-    NULL,   /* click */
-    NULL,   /* parent_resize */
-    NULL,   /* prop_change */
-    NULL,   /* mouse_move */
-    NULL,   /* mouse_up */
-    NULL,   /* mouse_down */
-    NULL,   /* key */
-    NULL,
+    create,	  /* create */
+    NULL,	  /* destroy */
+    draw,	  /* draw */
+    NULL,	  /* click */
+    NULL,	  /* parent_resize */
+    NULL,	  /* prop_change */
+    NULL,	  /* mouse_move */
+    NULL,	  /* mouse_up */
+    NULL,	  /* mouse_down */
+    NULL,	  /* key */
+    func_handler, /* custom */
     NULL,
     NULL,
     NULL,
     NULL};
 MwClass MwWindowClass = &MwWindowClassRec;
-
-void MwWindowSetIcon(MwWidget handle, MwLLPixmap pixmap) {
-	MwLLSetIcon(handle->lowlevel, pixmap);
-}
-
-void MwWindowMakeBorderless(MwWidget handle, int toggle) {
-	MwLLMakeBorderless(handle->lowlevel, toggle);
-}
