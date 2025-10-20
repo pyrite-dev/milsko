@@ -452,7 +452,25 @@ void MwVulkanEnableExtension(const char* name) {
 void MwVulkanEnableLayer(const char* name) {
 	arrput(enabledLayers, name);
 }
-void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
+
+VkBool32 MwVulkanSupported(void) {
+	if(vulkan_supported == VULKAN_SUPPORTED_UNKNOWN) {
+		LIB_TYPE lib = vulkan_lib_load();
+		if(lib == NULL) {
+			vulkan_supported = VULKAN_SUPPORTED_NO;
+		} else {
+			vulkan_supported = VULKAN_SUPPORTED_YES;
+			LIB_CLOSE(lib);
+		}
+	}
+	if(vulkan_supported == VULKAN_SUPPORTED_YES) {
+		return VK_TRUE;
+	} else {
+		return VK_FALSE;
+	}
+};
+
+void* _mwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
 	vulkan_t* o = handle->internal;
 
 	switch(field) {
@@ -486,34 +504,26 @@ void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
 	}
 };
 
-VkBool32 MwVulkanSupported(void) {
-	if(vulkan_supported == VULKAN_SUPPORTED_UNKNOWN) {
-		LIB_TYPE lib = vulkan_lib_load();
-		if(lib == NULL) {
-			vulkan_supported = VULKAN_SUPPORTED_NO;
-		} else {
-			vulkan_supported = VULKAN_SUPPORTED_YES;
-			LIB_CLOSE(lib);
-		}
+static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	if(strcmp(name, "mwVulkanGetField") == 0) {
+		MwVulkanField field = va_arg(va, MwVulkanField);
+		MwErrorEnum*  err   = va_arg(va, MwErrorEnum*);
+		*(void**)out	    = _mwVulkanGetField(handle, field, err);
 	}
-	if(vulkan_supported == VULKAN_SUPPORTED_YES) {
-		return VK_TRUE;
-	} else {
-		return VK_FALSE;
-	}
-};
+}
 
 MwClassRec MwVulkanClassRec = {
-    create,  /* create */
-    destroy, /* destroy */
-    NULL,    /* draw */
-    NULL,    /* click */
-    NULL,    /* parent_resize */
-    NULL,    /* prop_change */
-    NULL,    /* mouse_move */
-    NULL,    /* mouse_up */
-    NULL,    /* mouse_down */
-    NULL,    /* key */
+    create,	  /* create */
+    destroy,	  /* destroy */
+    NULL,	  /* draw */
+    NULL,	  /* click */
+    NULL,	  /* parent_resize */
+    NULL,	  /* prop_change */
+    NULL,	  /* mouse_move */
+    NULL,	  /* mouse_up */
+    NULL,	  /* mouse_down */
+    NULL,	  /* key */
+    func_handler, /* custom */
     NULL,
     NULL,
     NULL,

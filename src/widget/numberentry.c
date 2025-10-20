@@ -141,6 +141,7 @@ MwClassRec MwNumberEntryClassRec = {
     mouse_up,	 /* mouse_up */
     mouse_down,	 /* mouse_down */
     key,	 /* key */
+    NULL,	 /* custom */
     NULL,
     NULL,
     NULL,

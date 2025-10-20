@@ -172,25 +172,7 @@ static void mouse_up(MwWidget handle, void* ptr) {
 	MwForceRender(handle);
 }
 
-MwClassRec MwMenuClassRec = {
-    create,	   /* create */
-    destroy,	   /* destroy */
-    draw,	   /* draw */
-    NULL,	   /* click */
-    parent_resize, /* parent_resize */
-    NULL,	   /* prop_change */
-    NULL,	   /* mouse_move */
-    mouse_up,	   /* mouse_up */
-    mouse_down,	   /* mouse_down */
-    NULL,	   /* key */
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL};
-MwClass MwMenuClass = &MwMenuClassRec;
-
-MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
+MwMenu _mwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
 	MwMenu m   = menu == NULL ? handle->internal : menu;
 	MwMenu new = malloc(sizeof(*new));
 	new->name  = MwStringDupliacte(name);
@@ -204,3 +186,30 @@ MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
 
 	return new;
 }
+
+static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	if(strcmp(name, "mwMenuAdd") == 0) {
+		MwMenu	    menu = va_arg(va, MwMenu);
+		const char* name = va_arg(va, const char*);
+		*(MwMenu*)out	 = _mwMenuAdd(handle, menu, name);
+	}
+}
+
+MwClassRec MwMenuClassRec = {
+    create,	   /* create */
+    destroy,	   /* destroy */
+    draw,	   /* draw */
+    NULL,	   /* click */
+    parent_resize, /* parent_resize */
+    NULL,	   /* prop_change */
+    NULL,	   /* mouse_move */
+    mouse_up,	   /* mouse_up */
+    mouse_down,	   /* mouse_down */
+    NULL,	   /* key */
+    func_handler,  /* custom */
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL};
+MwClass MwMenuClass = &MwMenuClassRec;

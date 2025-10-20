@@ -8,6 +8,7 @@
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
+#include <Mw/Core.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -33,7 +34,9 @@ MWDECL MwClass MwOpenGLClass;
  * %brief Make a widget current OpenGL context
  * %param handle Widget
  */
-MWDECL void MwOpenGLMakeCurrent(MwWidget handle);
+static void MwOpenGLMakeCurrent(MwWidget handle) {
+	MwWidgetExecute(handle, "mwOpenGLMakeCurrent", NULL);
+};
 
 /*!
  * %brief Get a procedure from OpenGL
@@ -41,13 +44,19 @@ MWDECL void MwOpenGLMakeCurrent(MwWidget handle);
  * %param name Name
  * %return Procedure
  */
-MWDECL void* MwOpenGLGetProcAddress(MwWidget handle, const char* name);
+static void* MwOpenGLGetProcAddress(MwWidget handle, const char* name) {
+	void* out;
+	MwWidgetExecute(handle, "mwOpenGLGetProcAddress", &out, name);
+	return out;
+};
 
 /*!
  * %brief Swaps the buffer of OpenGL context
  * %param handle Widget
  */
-MWDECL void MwOpenGLSwapBuffer(MwWidget handle);
+static void MwOpenGLSwapBuffer(MwWidget handle) {
+	MwWidgetExecute(handle, "mwOpenGLSwapBuffer", NULL);
+};
 
 #ifdef __cplusplus
 }

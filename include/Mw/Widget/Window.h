@@ -9,6 +9,7 @@
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
+#include <Mw/Core.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,7 +25,9 @@ MWDECL MwClass MwWindowClass;
  * %param handle Widget
  * %param toggle Toggle
  */
-MWDECL void MwWindowMakeBorderless(MwWidget handle, int toggle);
+static void MwWindowMakeBorderless(MwWidget handle, int toggle) {
+	MwWidgetExecute(handle, "mwWindowMakeBorderless", NULL, toggle);
+};
 
 #ifdef __cplusplus
 }

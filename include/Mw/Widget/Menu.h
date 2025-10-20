@@ -8,6 +8,7 @@
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
+#include <Mw/Core.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,7 +26,11 @@ MWDECL MwClass MwMenuClass;
  * %param name Menu name
  * %return Menu
  */
-MWDECL MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name);
+static MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
+	MwMenu out;
+	MwWidgetExecute(handle, "mwMenuAdd", &out, menu, name);
+	return out;
+};
 
 #ifdef __cplusplus
 }

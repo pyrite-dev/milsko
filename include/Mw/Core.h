@@ -92,6 +92,14 @@ MWDECL MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwW
 MWDECL void MwDestroyWidget(MwWidget handle);
 
 /*!
+ * %brief Executes a method specific to the widget.
+ * %warning Prefer using corresponding inlined functions for code clarity and type safety.
+ * %param handle Widget
+ * %param ... Widget arguments.
+ */
+MWDECL void MwWidgetExecute(MwWidget handle, const char* func_name, void* out, ...);
+
+/*!
  * %brief Runs the main loop
  * %param handle Widget
  */

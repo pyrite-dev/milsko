@@ -21,6 +21,7 @@
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
+#include <Mw/Core.h>
 #include <Mw/Error.h>
 
 #ifdef __cplusplus
@@ -112,7 +113,11 @@ typedef enum MwVulkanField_T {
  * %brief Function for getting a field from within Vulkan.
  * %warning Consult the documentation for MwVulkanField to know what type is expected for out.
  */
-MWDECL void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out);
+static void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
+	void* field_out;
+	MwWidgetExecute(handle, "mwVulkanGetField", &field_out, field, out);
+	return field_out;
+};
 
 /*!
  * %brief Return whether Vulkan is installed on the target platform.
