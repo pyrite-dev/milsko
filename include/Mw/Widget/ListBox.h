@@ -27,7 +27,7 @@ MWDECL MwClass MwListBoxClass;
  * %param pixmap Pixmap
  * %param ... Text
  */
-void MwListBoxInsert(MwWidget handle, int index, MwLLPixmap pixmap, ...); /* VA_HINT:pixmap */
+MWDECL void MwListBoxInsert(MwWidget handle, int index, MwLLPixmap pixmap, ...); /* VA_HINT:pixmap */
 
 /*!
  * %brief Inserts multiple items on the listbox
@@ -37,7 +37,7 @@ void MwListBoxInsert(MwWidget handle, int index, MwLLPixmap pixmap, ...); /* VA_
  * %param pixmap Pixmap
  * %param ... Text
  */
-void MwListBoxInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, ...); /* VA_HINT:pixmap */
+MWDECL void MwListBoxInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, ...); /* VA_HINT:pixmap */
 
 /*!
  * %brief Inserts item on the listbox
