@@ -68,7 +68,39 @@
 		<handler name="focusOut" />
 		<handler name="fileChosen" />
 	</attributes>
+	<enumerations>
+		<enumeration name="DIRECTION">
+			<integer name="NORTH">0</integer>
+			<integer name="SOUTH" />
+			<integer name="EAST" />
+			<integer name="WEST" />
+		</enumeration>
+		<enumeration name="ORIENTATION">
+			<integer name="VERTICAL">0</integer>
+			<integer name="HORIZONTAL" />
+		</enumeration>
+		<enumeration name="ALIGNMENT">
+			<integer name="ALIGNMENT_CENTER">0</integer>
+			<integer name="ALIGNMENT_BEGINNING" />
+			<integer name="ALIGNMENT_END" />
+		</enumeration>
+		<enumeration name="MB_ICON">
+			<integer name="MB_ICONWARNING">0x1</integer>
+			<integer name="MB_ICONINFO" />
+			<integer name="MB_ICONNOTE" />
+			<integer name="MB_ICONQUESTION" />
+			<integer name="MB_ICONNEWS" />
+			<integer name="MB_ICONERROR" />
+		</enumeration>
+	</enumerations>
 	<constants>
+		<integer name="MwDEFAULT">0x0fffffff</integer>
+		<integer name="MwMB_ICONMASK">0xf</integer>
+		<integer name="MwMB_BUTTONMASK">0xf0</integer>
+		<integer name="MwMB_BUTTONOK">0x10</integer>
+		<integer name="MwMB_BUTTONCANCEL">0x20</integer>
+		<integer name="MwMB_BUTTONYES">0x40</integer>
+		<integer name="MwMB_BUTTONNO">0x80</integer>
 	</constants>
 	<structs>
 		<struct name="MwPoint">
@@ -261,6 +293,44 @@
 			<return>
 				<string />
 			</return>
+		</function>
+	</header>
+	<header name="FileChooser">
+		<function name="MwFileChooser">
+			<return>
+				<widget />
+			</return>
+			<arguments>
+				<widget name="handle" />
+				<string name="title" />
+			</arguments>
+		</function>
+	</header>
+	<header name="MessageBox">
+		<function name="MwMessageBox">
+			<return>
+				<widget />
+			</return>
+			<arguments>
+				<widget name="handle" />
+				<string name="text" />
+				<string name="title" />
+				<integer name="flag" unsigned="yes" />
+			</arguments>
+		</function>
+		<function name="MwMessageBoxGetChild">
+			<return>
+				<widget />
+			</return>
+			<arguments>
+				<widget name="handle" />
+				<integer name="child" />
+			</arguments>
+		</function>
+		<function name="MwMessageBoxDestroy">
+			<arguments>
+				<widget name="handle" />
+			</arguments>
 		</function>
 	</header>
 	<widget name="Button">

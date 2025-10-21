@@ -78,7 +78,7 @@ static void msgbox_okay(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	MwDestroyWidget(handle->parent);
+	MwMessageBoxDestroy(handle->parent);
 }
 
 static void files_activate(MwWidget handle, void* user, void* call) {
