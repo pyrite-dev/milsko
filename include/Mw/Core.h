@@ -105,7 +105,7 @@ MWDECL void MwWidgetExecute(MwWidget handle, const char* func_name, void* out, .
  * %param handle Widget
  * %param va Widget function arguments.
  */
-MWDECL void MwVaWidgetExecute(MwWidget handle, const char* func_name, void* out, va_list va);
+MWDECL void MwVaListWidgetExecute(MwWidget handle, const char* func_name, void* out, va_list va);
 
 /*!
  * %brief Runs the main loop

@@ -233,11 +233,11 @@ void MwDestroyWidget(MwWidget handle) {
 void MwWidgetExecute(MwWidget handle, const char* func_name, void* out, ...) {
 	va_list args;
 	va_start(args, out);
+	MwVaListWidgetExecute(handle, func_name, out, args);
 	va_end(args);
-	MwVaWidgetExecute(handle, func_name, out, args);
 }
 
-void MwVaWidgetExecute(MwWidget handle, const char* func_name, void* out, va_list va) {
+void MwVaListWidgetExecute(MwWidget handle, const char* func_name, void* out, va_list va) {
 	if(handle->widget_class->execute != NULL) {
 		handle->widget_class->execute(handle, func_name, out, va);
 	}
