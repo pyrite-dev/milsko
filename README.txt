@@ -26,8 +26,6 @@ the Unix-like environment with X11 for runtime.
 
             src -      Contains the source for Milsko library
 
-            oosrc -    Contains the source for Milsko OO binding
-
             include -  Contains the headers for Milsko
 
             doc -      Contains the documentation for Milsko
@@ -74,11 +72,9 @@ D. MinGW-w64/GCC/Clang
                           default settings.
 
           GCC           - Prefix for GCC toolchains. This does not
-                          matter if you set CC/CXX manually.
+                          matter if you set CC manually.
 
           CC            - C compiler.
-
-          CXX           - C++ compiler.
 
           DEBUG         - Debug build or not, 0 in default settings.
 
@@ -96,8 +92,6 @@ D. MinGW-w64/GCC/Clang
           This section exists for people who chose D.
 
           lib      - Builds Milsko library
-
-          oolib    - Builds OO binding
 
           examples - Builds examples
 
