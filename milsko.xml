@@ -1,14 +1,18 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
 <!--
-	Basically, you have to implement 7 types:
+	Basically, you have to implement 8+n types:
 	 - Integer (int)
 	 - Unsigned integer (unsigned int)
 	 - String (char*)
+	 - Pointer (void*)
+	 - Struct and pointer to it
 	 - Widget (MwWidget, which is void*)
 	 - Class (MwClass, which is void*)
 	 - Handler (void(*)(MwWidget handle, void* user_data, void* client_data))
 	 - Error handler (void(*)(int code, const char* message, void* user_data))
+
+	For widget functions, you must pass widget and arguments to MwVaWidgetExecute.
 -->
 <milsko>
 	<!--
@@ -281,5 +285,120 @@
 			<attribute name="alignment" />
 			<attribute name="bold" />
 		</attributes>
+	</widget>
+	<widget name="ListBox">
+		<attributes>
+			<attribute name="leftPadding" />
+		</attributes>
+		<functions>
+			<function name="Insert">
+				<arguments>
+					<integer name="index" />
+					<pixmap name="pixmap" />
+					<variable />
+				</arguments>
+			</function>
+			<function name="InsertMultiple">
+				<arguments>
+					<integer name="index" />
+					<integer name="count" />
+					<pixmap name="pixmap" pointer="yes" />
+					<variable />
+				</arguments>
+			</function>
+			<function name="Delete">
+				<arguments>
+					<integer name="index" />
+				</arguments>
+			</function>
+			<function name="Get">
+				<return>
+					<string />
+				</return>
+				<arguments>
+					<integer name="index" />
+				</arguments>
+			</function>
+			<function name="SetWidth">
+				<arguments>
+					<integer name="index" />
+					<integer name="width" />
+				</arguments>
+			</function>
+			<function name="Reset" />
+		</functions>
+	</widget>
+	<widget name="Menu">
+		<functions>
+			<function name="Add">
+				<return>
+					<struct defname="MwMenu" pointer="yes" />
+				</return>
+				<arguments>
+					<struct defname="MwMenu" name="menu" pointer="yes" />
+					<string name="name" />
+				</arguments>
+			</function>
+		</functions>
+	</widget>
+	<widget name="NumberEntry">
+		<attributes>
+			<attribute name="text" />
+		</attributes>
+	</widget>
+	<widget name="OpenGL">
+		<functions>
+			<function name="MakeCurrent" />
+			<function name="GetProcAddress">
+				<return>
+					<pointer />
+				</return>
+				<arguments>
+					<string name="name" />
+				</arguments>
+			</function>
+			<function name="SwapBuffer" />
+		</functions>
+	</widget>
+	<widget name="ScrollBar">
+		<attributes>
+			<attribute name="areaShown" />
+			<attribute name="value" />
+			<attribute name="minValue" />
+			<attribute name="maxValue" />
+			<attribute name="orientation" />
+		</attributes>
+		<functions>
+			<function name="GetVisibleLength">
+				<return>
+					<integer />
+				</return>
+			</function>
+		</functions>
+	</widget>
+	<widget name="SubMenu">
+		<functions>
+			<function name="Appear">
+				<arguments>
+					<struct defname="MwMenu" pointer="yes" name="menu" />
+					<struct defname="MwPoint" pointer="yes" name="point" />
+				</arguments>
+			</function>
+		</functions>
+	</widget>
+	<widget name="Viewport">
+		<functions>
+			<function name="GetViewport">
+				<return>
+					<widget />
+				</return>
+			</function>
+			<function name="SetSize">
+				<arguments>
+					<integer name="w" />
+					<integer name="h" />
+				</arguments>
+			</function>
+		</functions>
 	</widget>
 </milsko>

@@ -2,7 +2,6 @@
 /*!
  * %file Mw/Widget/NumberEntry.h
  * %brief NumberEntry widget
- * %prop MwNtext
  */
 #ifndef __MW_WIDGET_NUMBERENTRY_H__
 #define __MW_WIDGET_NUMBERENTRY_H__

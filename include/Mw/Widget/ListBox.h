@@ -84,7 +84,7 @@ MwInline void MwListBoxSetWidth(MwWidget handle, int index, int width) {
  * %param handle Widget
  */
 MwInline void MwListBoxReset(MwWidget handle) {
-	MwVaWidgetExecute(handle, "mwListBoxReset", NULL, handle);
+	MwVaWidgetExecute(handle, "mwListBoxReset", NULL);
 };
 
 #ifdef __cplusplus
