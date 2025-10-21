@@ -24,7 +24,7 @@
 		 - MwNwidth
 		 - MwNheight
 	-->
-	<attributes>
+	<properties>
 		<integer name="x" />
 		<integer name="y" />
 		<integer name="width" />
@@ -67,7 +67,7 @@
 		<handler name="focusIn" />
 		<handler name="focusOut" />
 		<handler name="fileChosen" />
-	</attributes>
+	</properties>
 	<enumerations>
 		<enumeration name="DIRECTION">
 			<integer name="NORTH">0</integer>
@@ -334,38 +334,38 @@
 		</function>
 	</header>
 	<widget name="Button">
-		<attributes>
-			<attribute name="pixmap" />
-			<attribute name="text" />
-		</attributes>
+		<properties>
+			<property name="pixmap" />
+			<property name="text" />
+		</properties>
 	</widget>
 	<widget name="CheckBox">
-		<attributes>
-			<attribute name="checked" />
-		</attributes>
+		<properties>
+			<property name="checked" />
+		</properties>
 	</widget>
 	<widget name="Entry">
-		<attributes>
-			<attribute name="text" />
-		</attributes>
+		<properties>
+			<property name="text" />
+		</properties>
 	</widget>
 	<widget name="Frame" />
 	<widget name="Image">
-		<attributes>
-			<attribute name="pixmap" />
-		</attributes>
+		<properties>
+			<property name="pixmap" />
+		</properties>
 	</widget>
 	<widget name="Label">
-		<attributes>
-			<attribute name="text" />
-			<attribute name="alignment" />
-			<attribute name="bold" />
-		</attributes>
+		<properties>
+			<property name="text" />
+			<property name="alignment" />
+			<property name="bold" />
+		</properties>
 	</widget>
 	<widget name="ListBox">
-		<attributes>
-			<attribute name="leftPadding" />
-		</attributes>
+		<properties>
+			<property name="leftPadding" />
+		</properties>
 		<functions>
 			<function name="Insert">
 				<arguments>
@@ -418,9 +418,9 @@
 		</functions>
 	</widget>
 	<widget name="NumberEntry">
-		<attributes>
-			<attribute name="text" />
-		</attributes>
+		<properties>
+			<property name="text" />
+		</properties>
 	</widget>
 	<widget name="OpenGL">
 		<functions>
@@ -437,13 +437,13 @@
 		</functions>
 	</widget>
 	<widget name="ScrollBar">
-		<attributes>
-			<attribute name="areaShown" />
-			<attribute name="value" />
-			<attribute name="minValue" />
-			<attribute name="maxValue" />
-			<attribute name="orientation" />
-		</attributes>
+		<properties>
+			<property name="areaShown" />
+			<property name="value" />
+			<property name="minValue" />
+			<property name="maxValue" />
+			<property name="orientation" />
+		</properties>
 		<functions>
 			<function name="GetVisibleLength">
 				<return>
