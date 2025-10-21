@@ -30,10 +30,10 @@ typedef struct _MwWidget* MwWidget;
 typedef void* MwWidget;
 #endif
 typedef void (*MwHandler)(MwWidget handle);
-typedef int (*MwHandler2)(MwWidget handle);
-typedef void (*MwHandler3)(MwWidget handle, const char* key);
-typedef void (*MwHandler4)(MwWidget handle, int key);
-typedef void (*MwHandler5)(MwWidget handle, void* ptr);
+typedef int (*MwHandlerWithStatus)(MwWidget handle);
+typedef void (*MwHandlerProp)(MwWidget handle, const char* key);
+typedef void (*MwHandlerKey)(MwWidget handle, int key);
+typedef void (*MwHandlerMouse)(MwWidget handle, void* ptr);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
 typedef void (*MwHandlerExecute)(MwWidget handle, const char* name, void* out, va_list args);
@@ -175,21 +175,21 @@ struct _MwCursor {
 };
 
 struct _MwClass {
-	MwHandler2	 create;
-	MwHandler	 destroy;
-	MwHandler	 draw;
-	MwHandler	 click;
-	MwHandler	 parent_resize;
-	MwHandler3	 prop_change;
-	MwHandler	 mouse_move;
-	MwHandler5	 mouse_up;
-	MwHandler5	 mouse_down;
-	MwHandler4	 key;
-	MwHandlerExecute execute;
-	void*		 reserved2;
-	void*		 reserved3;
-	void*		 reserved4;
-	void*		 reserved5;
+	MwHandlerWithStatus create;
+	MwHandler	    destroy;
+	MwHandler	    draw;
+	MwHandler	    click;
+	MwHandler	    parent_resize;
+	MwHandlerProp	    prop_change;
+	MwHandler	    mouse_move;
+	MwHandlerMouse	    mouse_up;
+	MwHandlerMouse	    mouse_down;
+	MwHandlerKey	    key;
+	MwHandlerExecute    execute;
+	void*		    reserved2;
+	void*		    reserved3;
+	void*		    reserved4;
+	void*		    reserved5;
 };
 
 struct _MwFont {
