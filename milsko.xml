@@ -15,6 +15,18 @@
 	For widget functions, you must pass widget and arguments to MwVaWidgetExecute.
 -->
 <milsko>
+	<structs>
+		<struct name="MwPoint">
+			<integer name="x" />
+			<integer name="y" />
+		</struct>
+		<struct name="MwSizeHints">
+			<integer name="min_width" />
+			<integer name="min_height" />
+			<integer name="max_width" />
+			<integer name="max_height" />
+		</struct>
+	</structs>
 	<!--
 		All widgets have:
 		 - MwNbackground
@@ -51,7 +63,7 @@
 
 		<pixmap name="pixmap" />
 		<pixmap name="iconPixmap" />
-		<siezhints name="sizeHints" />
+		<struct defname="MwSizeHints" pointer="yes" name="sizeHints" />
 
 		<handler name="activate" />
 		<handler name="resize" />
@@ -102,12 +114,6 @@
 		<integer name="MwMB_BUTTONYES">0x40</integer>
 		<integer name="MwMB_BUTTONNO">0x80</integer>
 	</constants>
-	<structs>
-		<struct name="MwPoint">
-			<integer name="x" />
-			<integer name="y" />
-		</struct>
-	</structs>
 	<header name="Core">
 		<function name="MwCreateWidget">
 			<return>
