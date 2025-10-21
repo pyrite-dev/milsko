@@ -39,7 +39,7 @@
 #define MwNtickHandler "Ctick"		   /* NULL */
 #define MwNmenuHandler "Cmenu"		   /* MwMenu */
 #define MwNmouseDownHandler "CmouseDown"   /* MwLLMouse* */
-#define MwNmouseUpHandler "CmouseUp"	   /* asme as MwNmouseDownHandler */
+#define MwNmouseUpHandler "CmouseUp"	   /* same as MwNmouseDownHandler */
 #define MwNmouseMoveHandler "CmouseMove"   /* MwPoint* */
 #define MwNchangedHandler "Cchanged"	   /* NULL */
 #define MwNkeyHandler "Ckey"		   /* int* (MwLLKeyEnum or character code) */
