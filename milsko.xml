@@ -1,0 +1,255 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<!--
+	Basically, you have to implement 7 types:
+	 - Integer (int)
+	 - Unsigned integer (unsigned int)
+	 - String (char*)
+	 - Widget (MwWidget, which is void*)
+	 - Class (MwClass, which is void*)
+	 - Handler (void(*)(MwWidget handle, void* user_data, void* client_data))
+	 - Error handler (void(*)(int code, const char* message, void* user_data))
+-->
+<milsko>
+	<!--
+		All widgets have:
+		 - MwNbackground
+		 - MwNforeground
+		 - MwNx
+		 - MwNy
+		 - MwNwidth
+		 - MwNheight
+	-->
+	<attributes>
+		<integer name="x" />
+		<integer name="y" />
+		<integer name="width" />
+		<integer name="height" />
+		<integer name="orientation" />
+		<integer name="minValue" />
+		<integer name="maxValue" />
+		<integer name="value" />
+		<integer name="changedBy" />
+		<integer name="areaShown" />
+		<integer name="checked" />
+		<integer name="alignment" />
+		<integer name="bold" />
+		<integer name="main" />
+		<integer name="leftPadding" />
+		<integer name="hasHeading" />
+		<integer name="hasBorder" />
+		<integer name="inverted" />
+
+		<string name="title" />
+		<string name="text" />
+		<string name="background" />
+		<string name="foreground" />
+
+		<pixmap name="pixmap" />
+		<pixmap name="iconPixmap" />
+		<siezhints name="sizeHints" />
+
+		<handler name="activate" />
+		<handler name="resize" />
+		<handler name="tick" />
+		<handler name="menu" />
+		<handler name="mouseDown" />
+		<handler name="mouseUp" />
+		<handler name="mouseMove" />
+		<handler name="changed" />
+		<handler name="key" />
+		<handler name="keyRelease" />
+		<handler name="close" />
+		<handler name="focusIn" />
+		<handler name="focusOut" />
+		<handler name="fileChosen" />
+	</attributes>
+	<constants>
+	</constants>
+	<header name="core">
+		<function name="MwCreateWidget">
+			<return>
+				<widget />
+			</return>
+			<arguments>
+				<class name="widget_class" />
+				<string name="name" />
+				<widget name="parent" />
+				<integer name="x" />
+				<integer name="y" />
+				<integer name="width" unsigned="yes" />
+				<integer name="height" unsigned="yes" />
+			</arguments>
+		</function>
+		<function name="MwVaCreateWidget">
+			<return>
+				<widget />
+			</return>
+			<arguments>
+				<class name="widget_class" />
+				<string name="name" />
+				<widget name="parent" />
+				<integer name="x" />
+				<integer name="y" />
+				<integer name="width" unsigned="yes" />
+				<integer name="height" unsigned="yes" />
+				<variable />
+			</arguments>
+		</function>
+		<function name="MwWidgetExecute">
+			<arguments>
+				<widget name="handle" />
+				<string name="func_name" />
+				<pointer name="out" />
+				<variable />
+			</arguments>
+		</function>
+		<function name="MwDestroyWidget">
+			<arguments>
+				<widget name="handle" />
+			</arguments>
+		</function>
+		<function name="MwLoop">
+			<arguments>
+				<widget name="handle" />
+			</arguments>
+		</function>
+		<function name="MwStep">
+			<arguments>
+				<widget name="handle" />
+			</arguments>
+		</function>
+		<function name="MwPending">
+			<return>
+				<integer />
+			</return>
+			<arguments>
+				<widget name="handle" />
+			</arguments>
+		</function>
+		<function name="MwSetInteger">
+			<arguments>
+				<widget name="handle" />
+				<string name="key" />
+				<integer name="n" />
+			</arguments>
+		</function>
+		<function name="MwSetText">
+			<arguments>
+				<widget name="handle" />
+				<string name="key" />
+				<string name="value" />
+			</arguments>
+		</function>
+		<function name="MwSetVoid">
+			<arguments>
+				<widget name="handle" />
+				<string name="key" />
+				<pointer name="value" />
+			</arguments>
+		</function>
+		<function name="MwGetInteger">
+			<return>
+				<integer />
+			</return>
+			<arguments>
+				<widget name="handle" />
+				<string name="key" />
+			</arguments>
+		</function>
+		<function name="MwGetText">
+			<return>
+				<string />
+			</return>
+			<arguments>
+				<widget name="handle" />
+				<string name="key" />
+			</arguments>
+		</function>
+		<function name="MwGetVoid">
+			<return>
+				<pointer />
+			</return>
+			<arguments>
+				<widget name="handle" />
+				<string name="key" />
+			</arguments>
+		</function>
+		<function name="MwSetDefault">
+			<arguments>
+				<widget name="handle" />
+			</arguments>
+		</function>
+		<function name="MwVaApply">
+			<arguments>
+				<widget name="handle" />
+				<variable />
+			</arguments>
+		</function>
+		<function name="MwAddUserHandler">
+			<arguments>
+				<widget name="handle" />
+				<string name="key" />
+				<handler name="handler" />
+				<pointer name="user_data" />
+			</arguments>
+		</function>
+		<function name="MwDispatchUserHandler">
+			<arguments>
+				<widget name="handle" />
+				<string name="key" />
+				<pointer name="handler_data" />
+			</arguments>
+		</function>
+		<function name="MwSetErrorHandler">
+			<arguments>
+				<error_handler name="handler" />
+				<pointer name="user_data" />
+			</arguments>
+		</function>
+		<function name="MwDispatchError">
+			<arguments>
+				<integer name="code" />
+				<string name="message" />
+			</arguments>
+		</function>
+		<function name="MwForceRender">
+			<arguments>
+				<widget name="handle" />
+			</arguments>
+		</function>
+		<function name="MwForceRender2">
+			<arguments>
+				<widget name="handle" />
+				<pointer name="ptr" />
+			</arguments>
+		</function>
+		<function name="MwAddTickList">
+			<arguments>
+				<widget name="handle" />
+			</arguments>
+		</function>
+		<function name="MwFocus">
+			<arguments>
+				<widget name="handle" />
+			</arguments>
+		</function>
+		<function name="MwGrabPointer">
+			<arguments>
+				<widget name="handle" />
+				<integer name="toggle" />
+			</arguments>
+		</function>
+		<function name="MwHideCursor">
+			<arguments>
+				<widget name="handle" />
+			</arguments>
+		</function>
+	</header>
+	<widget name="Button">
+		<attributes>
+			<attribute name="pixmap" />
+			<attribute name="text" />
+		</attributes>
+	</widget>
+</milsko>
