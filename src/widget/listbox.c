@@ -312,7 +312,7 @@ static void prop_change(MwWidget handle, const char* prop) {
 	}
 }
 
-void MwListBoxVaInsert(MwWidget handle, int index, MwLLPixmap pixmap, va_list va) {
+static void mwListBoxInsertImpl(MwWidget handle, int index, MwLLPixmap pixmap, va_list va) {
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
 	char*	       name;
@@ -334,7 +334,7 @@ void MwListBoxVaInsert(MwWidget handle, int index, MwLLPixmap pixmap, va_list va
 	}
 }
 
-void MwListBoxVaInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, va_list va) {
+static void mwListBoxInsertMultipleImpl(MwWidget handle, int index, int count, MwLLPixmap* pixmap, va_list va) {
 	int	  i;
 	MwListBox lb = handle->internal;
 	int	  old;
@@ -416,20 +416,6 @@ static void mwListBoxResetImpl(MwWidget handle) {
 	MwForceRender(lb->frame);
 }
 
-void MwListBoxInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, ...) {
-	va_list va;
-	va_start(va, pixmap);
-	MwListBoxVaInsertMultiple(handle, index, count, pixmap, va);
-	va_end(va);
-}
-
-void MwListBoxInsert(MwWidget handle, int index, MwLLPixmap pixmap, ...) {
-	va_list va;
-	va_start(va, pixmap);
-	MwListBoxVaInsert(handle, index, pixmap, va);
-	va_end(va);
-}
-
 static const char* mwListBoxGetImpl(MwWidget handle, int index) {
 	MwListBox lb = handle->internal;
 
@@ -468,6 +454,23 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		int index = va_arg(va, int);
 		int width = va_arg(va, int);
 		mwListBoxSetWidthImpl(handle, index, width);
+	}
+	if(strcmp(name, "mwListBoxInsert") == 0) {
+		int	   index  = va_arg(va, int);
+		MwLLPixmap pixmap = va_arg(va, MwLLPixmap);
+		va_list*   pva	  = va_arg(va, va_list*);
+		va_list	   va;
+		memcpy(&va, pva, sizeof(va));
+		mwListBoxInsertImpl(handle, index, pixmap, va);
+	}
+	if(strcmp(name, "mwListBoxInsertMultiple") == 0) {
+		int	    index  = va_arg(va, int);
+		int	    count  = va_arg(va, int);
+		MwLLPixmap* pixmap = va_arg(va, MwLLPixmap*);
+		va_list*    pva	   = va_arg(va, va_list*);
+		va_list	    va;
+		memcpy(&va, pva, sizeof(va));
+		mwListBoxInsertMultipleImpl(handle, index, count, pixmap, va);
 	}
 }
 

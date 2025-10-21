@@ -2,7 +2,6 @@
 /*!
  * %file Mw/Widget/Entry.h
  * %brief Entry widget
- * %prop MwNtext
  */
 #ifndef __MW_WIDGET_ENTRY_H__
 #define __MW_WIDGET_ENTRY_H__

@@ -2,7 +2,6 @@
 /*!
  * %file Mw/Widget/ListBox.h
  * %brief ListBox widget
- * %prop MwNleftPadding
  */
 #ifndef __MW_WIDGET_LISTBOX_H__
 #define __MW_WIDGET_LISTBOX_H__
@@ -27,7 +26,12 @@ MWDECL MwClass MwListBoxClass;
  * %param pixmap Pixmap
  * %param ... Text
  */
-MWDECL void MwListBoxInsert(MwWidget handle, int index, MwLLPixmap pixmap, ...); /* VA_HINT:pixmap */
+MwInline void MwListBoxInsert(MwWidget handle, int index, MwLLPixmap pixmap, ...) {
+	va_list va;
+	va_start(va, pixmap);
+	MwVaWidgetExecute(handle, "mwListBoxInsert", NULL, index, pixmap, &va);
+	va_end(va);
+}
 
 /*!
  * %brief Inserts multiple items on the listbox
@@ -37,26 +41,12 @@ MWDECL void MwListBoxInsert(MwWidget handle, int index, MwLLPixmap pixmap, ...);
  * %param pixmap Pixmap
  * %param ... Text
  */
-MWDECL void MwListBoxInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, ...); /* VA_HINT:pixmap */
-
-/*!
- * %brief Inserts item on the listbox
- * %param handle Widget
- * %param index Index
- * %param pixmap Pixmap
- * %param va Text
- */
-MWDECL void MwListBoxVaInsert(MwWidget handle, int index, MwLLPixmap pixmap, va_list va);
-
-/*!
- * %brief Inserts multiple items on the listbox
- * %param handle Widget
- * %param index Index
- * %param count Count
- * %param pixmap Pixmap
- * %param va Text
- */
-MWDECL void MwListBoxVaInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, va_list va);
+MwInline void MwListBoxInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, ...) {
+	va_list va;
+	va_start(va, pixmap);
+	MwVaWidgetExecute(handle, "mwListBoxInsertMultiple", NULL, index, count, pixmap, &va);
+	va_end(va);
+}
 
 /*!
  * %brief Deletes item from the listbox

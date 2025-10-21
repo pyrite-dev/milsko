@@ -1,12 +1,10 @@
 # $Id$
 CC = wcc386 -bt=nt -q
-CXX = wpp386 -bt=nt -q
 LD = wlink option quiet
 
 CFLAGS = -i=include -d_MILSKO -dUSE_GDI -dUSE_STB_IMAGE -dSTBI_NO_SIMD
-CXXFLAGS = -i=include
 LDFLAGS = system nt_dll
-all: src/Mw.dll oosrc/MwOO.dll
+all: src/Mw.dll
 clean: .SYMBOLIC
 	%erase src/core.obj
 	%erase src/string.obj
@@ -55,30 +53,10 @@ clean: .SYMBOLIC
 	%erase src/widget/listbox.obj
 	%erase src/widget/numberentry.obj
 	%erase src/backend/gdi.obj
-	%erase oosrc/base.obj
-	%erase oosrc/widget/button.obj
-	%erase oosrc/widget/frame.obj
-	%erase oosrc/widget/image.obj
-	%erase oosrc/widget/menu.obj
-	%erase oosrc/widget/opengl.obj
-	%erase oosrc/widget/scrollbar.obj
-	%erase oosrc/widget/submenu.obj
-	%erase oosrc/widget/window.obj
-	%erase oosrc/widget/checkbox.obj
-	%erase oosrc/widget/viewport.obj
-	%erase oosrc/widget/listbox.obj
-	%erase oosrc/widget/label.obj
-	%erase oosrc/widget/entry.obj
-	%erase oosrc/widget/numberentry.obj
 	%erase src/Mw.dll
-	%erase oosrc/MwOO.dll
 
 src/Mw.dll:  src/core.obj src/string.obj src/draw.obj src/default.obj src/lowlevel.obj src/error.obj src/unicode.obj src/font.obj src/color.obj src/directory.obj src/messagebox.obj src/boldfont.obj src/filechooser.obj external/ds.obj external/image.obj src/icon/info.obj src/icon/note.obj src/icon/warning.obj src/icon/error.obj src/icon/news.obj src/icon/question.obj src/icon/directory.obj src/icon/file.obj src/icon/back.obj src/icon/forward.obj src/icon/up.obj src/icon/computer.obj src/icon/search.obj src/cursor/default.obj src/cursor/cross.obj src/cursor/text.obj src/cursor/hidden.obj src/widget/button.obj src/widget/frame.obj src/widget/opengl.obj src/widget/window.obj src/widget/menu.obj src/widget/entry.obj src/widget/submenu.obj src/widget/viewport.obj src/widget/image.obj src/widget/scrollbar.obj src/widget/checkbox.obj src/widget/label.obj src/widget/listbox.obj src/widget/numberentry.obj src/backend/gdi.obj
 	$(LD) $(LDFLAGS) option implib=src/Mw.lib name $@  file src/core.obj file src/string.obj file src/draw.obj file src/default.obj file src/lowlevel.obj file src/error.obj file src/unicode.obj file src/font.obj file src/color.obj file src/directory.obj file src/messagebox.obj file src/boldfont.obj file src/filechooser.obj file external/ds.obj file external/image.obj file src/icon/info.obj file src/icon/note.obj file src/icon/warning.obj file src/icon/error.obj file src/icon/news.obj file src/icon/question.obj file src/icon/directory.obj file src/icon/file.obj file src/icon/back.obj file src/icon/forward.obj file src/icon/up.obj file src/icon/computer.obj file src/icon/search.obj file src/cursor/default.obj file src/cursor/cross.obj file src/cursor/text.obj file src/cursor/hidden.obj file src/widget/button.obj file src/widget/frame.obj file src/widget/opengl.obj file src/widget/window.obj file src/widget/menu.obj file src/widget/entry.obj file src/widget/submenu.obj file src/widget/viewport.obj file src/widget/image.obj file src/widget/scrollbar.obj file src/widget/checkbox.obj file src/widget/label.obj file src/widget/listbox.obj file src/widget/numberentry.obj file src/backend/gdi.obj library clib3r.lib library opengl32.lib library gdi32.lib library user32.lib
-	
-
-oosrc/MwOO.dll:  oosrc/base.obj oosrc/widget/button.obj oosrc/widget/frame.obj oosrc/widget/image.obj oosrc/widget/menu.obj oosrc/widget/opengl.obj oosrc/widget/scrollbar.obj oosrc/widget/submenu.obj oosrc/widget/window.obj oosrc/widget/checkbox.obj oosrc/widget/viewport.obj oosrc/widget/listbox.obj oosrc/widget/label.obj oosrc/widget/entry.obj oosrc/widget/numberentry.obj
-	$(LD) $(LDFLAGS) option implib=oosrc/MwOO.lib name $@  file oosrc/base.obj file oosrc/widget/button.obj file oosrc/widget/frame.obj file oosrc/widget/image.obj file oosrc/widget/menu.obj file oosrc/widget/opengl.obj file oosrc/widget/scrollbar.obj file oosrc/widget/submenu.obj file oosrc/widget/window.obj file oosrc/widget/checkbox.obj file oosrc/widget/viewport.obj file oosrc/widget/listbox.obj file oosrc/widget/label.obj file oosrc/widget/entry.obj file oosrc/widget/numberentry.obj library clib3r.lib library src/Mw.lib
 	
 
 
@@ -176,33 +154,3 @@ src/widget/numberentry.obj: src/widget/numberentry.c
 	$(CC) $(CFLAGS) -fo=$@ $<
 src/backend/gdi.obj: src/backend/gdi.c
 	$(CC) $(CFLAGS) -fo=$@ $<
-oosrc/base.obj: oosrc/base.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/button.obj: oosrc/widget/button.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/frame.obj: oosrc/widget/frame.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/image.obj: oosrc/widget/image.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/menu.obj: oosrc/widget/menu.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/opengl.obj: oosrc/widget/opengl.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/scrollbar.obj: oosrc/widget/scrollbar.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/submenu.obj: oosrc/widget/submenu.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/window.obj: oosrc/widget/window.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/checkbox.obj: oosrc/widget/checkbox.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/viewport.obj: oosrc/widget/viewport.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/listbox.obj: oosrc/widget/listbox.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/label.obj: oosrc/widget/label.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/entry.obj: oosrc/widget/entry.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<
-oosrc/widget/numberentry.obj: oosrc/widget/numberentry.cc
-	$(CXX) $(CXXFLAGS) -fo=$@ $<

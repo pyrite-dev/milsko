@@ -2,7 +2,6 @@
 /*!
  * %file Mw/Widget/Image.h
  * %brief Image widget
- * %prop MwNpixmap
  */
 #ifndef __MW_WIDGET_IMAGE_H__
 #define __MW_WIDGET_IMAGE_H__

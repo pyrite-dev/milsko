@@ -1,13 +1,11 @@
 # $Id$
 CC = bcc32 -c
-CXX = bcc32 -c -P
 LD = bcc32
 
 CFLAGS = -Iinclude -D_MILSKO -DUSE_GDI -DUSE_STB_IMAGE -DSTBI_NO_SIMD
-CXXFLAGS = -Iinclude
 LDFLAGS = -tWD
-.SUFFIXES: .obj .c .cc
-all: src\Mw.dll oosrc\MwOO.dll
+.SUFFIXES: .obj .c
+all: src\Mw.dll
 clean: 
 	del /f /q src\core.obj
 	del /f /q src\string.obj
@@ -56,33 +54,11 @@ clean:
 	del /f /q src\widget\listbox.obj
 	del /f /q src\widget\numberentry.obj
 	del /f /q src\backend\gdi.obj
-	del /f /q oosrc\base.obj
-	del /f /q oosrc\widget\button.obj
-	del /f /q oosrc\widget\frame.obj
-	del /f /q oosrc\widget\image.obj
-	del /f /q oosrc\widget\menu.obj
-	del /f /q oosrc\widget\opengl.obj
-	del /f /q oosrc\widget\scrollbar.obj
-	del /f /q oosrc\widget\submenu.obj
-	del /f /q oosrc\widget\window.obj
-	del /f /q oosrc\widget\checkbox.obj
-	del /f /q oosrc\widget\viewport.obj
-	del /f /q oosrc\widget\listbox.obj
-	del /f /q oosrc\widget\label.obj
-	del /f /q oosrc\widget\entry.obj
-	del /f /q oosrc\widget\numberentry.obj
 	del /f /q src\Mw.dll
-	del /f /q oosrc\MwOO.dll
 
 src\Mw.dll:  src\core.obj src\string.obj src\draw.obj src\default.obj src\lowlevel.obj src\error.obj src\unicode.obj src\font.obj src\color.obj src\directory.obj src\messagebox.obj src\boldfont.obj src\filechooser.obj external\ds.obj external\image.obj src\icon\info.obj src\icon\note.obj src\icon\warning.obj src\icon\error.obj src\icon\news.obj src\icon\question.obj src\icon\directory.obj src\icon\file.obj src\icon\back.obj src\icon\forward.obj src\icon\up.obj src\icon\computer.obj src\icon\search.obj src\cursor\default.obj src\cursor\cross.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\opengl.obj src\widget\window.obj src\widget\menu.obj src\widget\entry.obj src\widget\submenu.obj src\widget\viewport.obj src\widget\image.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\label.obj src\widget\listbox.obj src\widget\numberentry.obj src\backend\gdi.obj
 	$(LD) $(LDFLAGS)  -e$@  src\core.obj src\string.obj src\draw.obj src\default.obj src\lowlevel.obj src\error.obj src\unicode.obj src\font.obj src\color.obj src\directory.obj src\messagebox.obj src\boldfont.obj src\filechooser.obj external\ds.obj external\image.obj src\icon\info.obj src\icon\note.obj src\icon\warning.obj src\icon\error.obj src\icon\news.obj src\icon\question.obj src\icon\directory.obj src\icon\file.obj src\icon\back.obj src\icon\forward.obj src\icon\up.obj src\icon\computer.obj src\icon\search.obj src\cursor\default.obj src\cursor\cross.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\opengl.obj src\widget\window.obj src\widget\menu.obj src\widget\entry.obj src\widget\submenu.obj src\widget\viewport.obj src\widget\image.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\label.obj src\widget\listbox.obj src\widget\numberentry.obj src\backend\gdi.obj  -lopengl32.lib -lgdi32.lib -luser32.lib
 	implib src\Mw.lib src\Mw.dll
 
-oosrc\MwOO.dll:  oosrc\base.obj oosrc\widget\button.obj oosrc\widget\frame.obj oosrc\widget\image.obj oosrc\widget\menu.obj oosrc\widget\opengl.obj oosrc\widget\scrollbar.obj oosrc\widget\submenu.obj oosrc\widget\window.obj oosrc\widget\checkbox.obj oosrc\widget\viewport.obj oosrc\widget\listbox.obj oosrc\widget\label.obj oosrc\widget\entry.obj oosrc\widget\numberentry.obj
-	$(LD) $(LDFLAGS)  -e$@  oosrc\base.obj oosrc\widget\button.obj oosrc\widget\frame.obj oosrc\widget\image.obj oosrc\widget\menu.obj oosrc\widget\opengl.obj oosrc\widget\scrollbar.obj oosrc\widget\submenu.obj oosrc\widget\window.obj oosrc\widget\checkbox.obj oosrc\widget\viewport.obj oosrc\widget\listbox.obj oosrc\widget\label.obj oosrc\widget\entry.obj oosrc\widget\numberentry.obj  -lsrc\Mw.lib
-	implib oosrc\MwOO.lib oosrc\MwOO.dll
-
 .c.obj:
 	$(CC) $(CFLAGS) -o$@ $<
-.cc.obj:
-	$(CXX) $(CXXFLAGS) -o$@ $<

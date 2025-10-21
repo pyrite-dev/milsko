@@ -66,7 +66,7 @@
 	</attributes>
 	<constants>
 	</constants>
-	<header name="core">
+	<header name="Core">
 		<function name="MwCreateWidget">
 			<return>
 				<widget />
@@ -246,10 +246,40 @@
 			</arguments>
 		</function>
 	</header>
+	<header name="Error">
+		<function name="MwGetLastError">
+			<return>
+				<string />
+			</return>
+		</function>
+	</header>
 	<widget name="Button">
 		<attributes>
 			<attribute name="pixmap" />
 			<attribute name="text" />
+		</attributes>
+	</widget>
+	<widget name="CheckBox">
+		<attributes>
+			<attribute name="checked" />
+		</attributes>
+	</widget>
+	<widget name="Entry">
+		<attributes>
+			<attribute name="text" />
+		</attributes>
+	</widget>
+	<widget name="Frame" />
+	<widget name="Image">
+		<attributes>
+			<attribute name="pixmap" />
+		</attributes>
+	</widget>
+	<widget name="Label">
+		<attributes>
+			<attribute name="text" />
+			<attribute name="alignment" />
+			<attribute name="bold" />
 		</attributes>
 	</widget>
 </milsko>

@@ -2,7 +2,6 @@
 /*!
  * %file Mw/Widget/Label.h
  * %brief Label widget
- * %prop MwNtext MwNalignment MwNbold
  */
 #ifndef __MW_WIDGET_LABEL_H__
 #define __MW_WIDGET_LABEL_H__

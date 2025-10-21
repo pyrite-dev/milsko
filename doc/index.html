@@ -444,12 +444,6 @@
 	<a href="#Mw_Widget_ListBox_h__MwListBoxInsertMultiple">MwListBoxInsertMultiple</a>
 </dd>
 <dd>
-	<a href="#Mw_Widget_ListBox_h__MwListBoxVaInsert">MwListBoxVaInsert</a>
-</dd>
-<dd>
-	<a href="#Mw_Widget_ListBox_h__MwListBoxVaInsertMultiple">MwListBoxVaInsertMultiple</a>
-</dd>
-<dd>
 	<a href="#Mw_Widget_ListBox_h__MwListBoxDelete">MwListBoxDelete</a>
 </dd>
 <dd>
@@ -2878,7 +2872,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxInsert">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsert</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxInsert">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsert</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index,
 	MwLLPixmap pixmap,
@@ -2914,7 +2908,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxInsertMultiple">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsertMultiple</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxInsertMultiple">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsertMultiple</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index,
 	<B><FONT COLOR="#228B22">int</FONT></B> count,
@@ -2951,85 +2945,6 @@
 </dd>
 <dt>
 	Parameter <code>...</code>
-</dt>
-<dd>
-	Text.
-</dd>
-</dl>
-<hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxVaInsert">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxVaInsert</FONT></B> (
-	MwWidget handle,
-	<B><FONT COLOR="#228B22">int</FONT></B> index,
-	MwLLPixmap pixmap,
-	va_list va
-);</pre>
-<dl>
-<dd>
-	Inserts item on the listbox.
-</dd>
-<dt>
-	Parameter <code>handle</code>
-</dt>
-<dd>
-	Widget.
-</dd>
-<dt>
-	Parameter <code>index</code>
-</dt>
-<dd>
-	Index.
-</dd>
-<dt>
-	Parameter <code>pixmap</code>
-</dt>
-<dd>
-	Pixmap.
-</dd>
-<dt>
-	Parameter <code>va</code>
-</dt>
-<dd>
-	Text.
-</dd>
-</dl>
-<hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxVaInsertMultiple">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxVaInsertMultiple</FONT></B> (
-	MwWidget handle,
-	<B><FONT COLOR="#228B22">int</FONT></B> index,
-	<B><FONT COLOR="#228B22">int</FONT></B> count,
-	MwLLPixmap* pixmap,
-	va_list va
-);</pre>
-<dl>
-<dd>
-	Inserts multiple items on the listbox.
-</dd>
-<dt>
-	Parameter <code>handle</code>
-</dt>
-<dd>
-	Widget.
-</dd>
-<dt>
-	Parameter <code>index</code>
-</dt>
-<dd>
-	Index.
-</dd>
-<dt>
-	Parameter <code>count</code>
-</dt>
-<dd>
-	Count.
-</dd>
-<dt>
-	Parameter <code>pixmap</code>
-</dt>
-<dd>
-	Pixmap.
-</dd>
-<dt>
-	Parameter <code>va</code>
 </dt>
 <dd>
 	Text.

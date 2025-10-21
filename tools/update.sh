@@ -6,6 +6,5 @@ if which gmake >/dev/null 2>&1; then
 fi
 ./tools/doc.pl
 ./tools/icon.sh
-./tools/genoo.pl
 ./tools/genmk.pl
 $MAKE format
