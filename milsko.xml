@@ -70,6 +70,12 @@
 	</attributes>
 	<constants>
 	</constants>
+	<structs>
+		<struct name="MwPoint">
+			<integer name="x" />
+			<integer name="y" />
+		</struct>
+	</structs>
 	<header name="Core">
 		<function name="MwCreateWidget">
 			<return>
@@ -332,10 +338,10 @@
 		<functions>
 			<function name="Add">
 				<return>
-					<struct defname="MwMenu" pointer="yes" />
+					<pointer />
 				</return>
 				<arguments>
-					<struct defname="MwMenu" name="menu" pointer="yes" />
+					<pointer />
 					<string name="name" />
 				</arguments>
 			</function>
@@ -380,7 +386,7 @@
 		<functions>
 			<function name="Appear">
 				<arguments>
-					<struct defname="MwMenu" pointer="yes" name="menu" />
+					<pointer />
 					<struct defname="MwPoint" pointer="yes" name="point" />
 				</arguments>
 			</function>
