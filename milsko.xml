@@ -81,28 +81,28 @@
 		<handler name="fileChosen" />
 	</properties>
 	<enumerations>
-		<enumeration name="DIRECTION">
-			<integer name="NORTH">0</integer>
-			<integer name="SOUTH" />
-			<integer name="EAST" />
-			<integer name="WEST" />
+		<enumeration name="MwDIRECTION">
+			<integer name="MwNORTH">0</integer>
+			<integer name="MwSOUTH" />
+			<integer name="MwEAST" />
+			<integer name="MwWEST" />
 		</enumeration>
-		<enumeration name="ORIENTATION">
-			<integer name="VERTICAL">0</integer>
-			<integer name="HORIZONTAL" />
+		<enumeration name="MwORIENTATION">
+			<integer name="MwVERTICAL">0</integer>
+			<integer name="MwHORIZONTAL" />
 		</enumeration>
-		<enumeration name="ALIGNMENT">
-			<integer name="ALIGNMENT_CENTER">0</integer>
-			<integer name="ALIGNMENT_BEGINNING" />
-			<integer name="ALIGNMENT_END" />
+		<enumeration name="MwALIGNMENT">
+			<integer name="MwALIGNMENT_CENTER">0</integer>
+			<integer name="MwALIGNMENT_BEGINNING" />
+			<integer name="MwALIGNMENT_END" />
 		</enumeration>
-		<enumeration name="MB_ICON">
-			<integer name="MB_ICONWARNING">0x1</integer>
-			<integer name="MB_ICONINFO" />
-			<integer name="MB_ICONNOTE" />
-			<integer name="MB_ICONQUESTION" />
-			<integer name="MB_ICONNEWS" />
-			<integer name="MB_ICONERROR" />
+		<enumeration name="MwMB_ICON">
+			<integer name="MwMB_ICONWARNING">0x1</integer>
+			<integer name="MwMB_ICONINFO" />
+			<integer name="MwMB_ICONNOTE" />
+			<integer name="MwMB_ICONQUESTION" />
+			<integer name="MwMB_ICONNEWS" />
+			<integer name="MwMB_ICONERROR" />
 		</enumeration>
 	</enumerations>
 	<constants>
