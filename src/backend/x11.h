@@ -13,17 +13,16 @@
 #include <X11/extensions/Xrender.h>
 
 struct _MwLL {
-	Display*     display;
-	Window	     window;
-	Pixmap	     pixmap;
-	GC	     gc;
-	Colormap     colormap;
-	void*	     user;
-	Atom	     wm_delete;
-	int	     copy_buffer;
-	XIM	     xim;
-	XIC	     xic;
-	XVisualInfo* visual;
+	Display* display;
+	Window	 window;
+	Pixmap	 pixmap;
+	GC	 gc;
+	Colormap colormap;
+	void*	 user;
+	Atom	 wm_delete;
+	int	 copy_buffer;
+	XIM	 xim;
+	XIC	 xic;
 
 	unsigned int width;
 	unsigned int height;
@@ -31,6 +30,18 @@ struct _MwLL {
 	MwLLHandler handler;
 
 	int grabbed;
+
+	unsigned long red_mask;
+	unsigned long red_max;
+	unsigned long red_shift;
+
+	unsigned long green_mask;
+	unsigned long green_max;
+	unsigned long green_shift;
+
+	unsigned long blue_mask;
+	unsigned long blue_max;
+	unsigned long blue_shift;
 };
 
 struct _MwLLColor {

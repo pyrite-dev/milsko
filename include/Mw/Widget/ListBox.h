@@ -64,7 +64,7 @@ MWDECL void MwListBoxVaInsertMultiple(MwWidget handle, int index, int count, MwL
  * %param index Index
  */
 MwInline void MwListBoxDelete(MwWidget handle, int index) {
-	MwWidgetExecute(handle, "mwListboxDelete", NULL, index);
+	MwVaWidgetExecute(handle, "mwListboxDelete", NULL, index);
 };
 
 /*!
@@ -75,7 +75,7 @@ MwInline void MwListBoxDelete(MwWidget handle, int index) {
  */
 MwInline const char* MwListBoxGet(MwWidget handle, int index) {
 	const char* out;
-	MwWidgetExecute(handle, "mwListBoxGet", (void*)&out, index);
+	MwVaWidgetExecute(handle, "mwListBoxGet", (void*)&out, index);
 	return out;
 };
 
@@ -86,7 +86,7 @@ MwInline const char* MwListBoxGet(MwWidget handle, int index) {
  * %param width Width
  */
 MwInline void MwListBoxSetWidth(MwWidget handle, int index, int width) {
-	MwWidgetExecute(handle, "mwListBoxSetWidth", NULL, index, width);
+	MwVaWidgetExecute(handle, "mwListBoxSetWidth", NULL, index, width);
 };
 
 /*!
@@ -94,7 +94,7 @@ MwInline void MwListBoxSetWidth(MwWidget handle, int index, int width) {
  * %param handle Widget
  */
 MwInline void MwListBoxReset(MwWidget handle) {
-	MwWidgetExecute(handle, "mwListBoxReset", NULL, handle);
+	MwVaWidgetExecute(handle, "mwListBoxReset", NULL, handle);
 };
 
 #ifdef __cplusplus

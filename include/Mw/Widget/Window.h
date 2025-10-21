@@ -26,7 +26,7 @@ MWDECL MwClass MwWindowClass;
  * %param toggle Toggle
  */
 MwInline void MwWindowMakeBorderless(MwWidget handle, int toggle) {
-	MwWidgetExecute(handle, "mwWindowMakeBorderless", NULL, toggle);
+	MwVaWidgetExecute(handle, "mwWindowMakeBorderless", NULL, toggle);
 };
 
 #ifdef __cplusplus

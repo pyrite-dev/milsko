@@ -27,7 +27,7 @@ MWDECL MwClass MwScrollBarClass;
  */
 MwInline int MwScrollBarGetVisibleLength(MwWidget handle) {
 	int out;
-	MwWidgetExecute(handle, "mwScrollBarGetVisibleLength", &out, NULL);
+	MwVaWidgetExecute(handle, "mwScrollBarGetVisibleLength", &out, NULL);
 	return out;
 };
 

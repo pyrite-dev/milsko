@@ -35,7 +35,7 @@ MWDECL MwClass MwOpenGLClass;
  * %param handle Widget
  */
 MwInline void MwOpenGLMakeCurrent(MwWidget handle) {
-	MwWidgetExecute(handle, "mwOpenGLMakeCurrent", NULL);
+	MwVaWidgetExecute(handle, "mwOpenGLMakeCurrent", NULL);
 };
 
 /*!
@@ -46,7 +46,7 @@ MwInline void MwOpenGLMakeCurrent(MwWidget handle) {
  */
 MwInline void* MwOpenGLGetProcAddress(MwWidget handle, const char* name) {
 	void* out;
-	MwWidgetExecute(handle, "mwOpenGLGetProcAddress", &out, name);
+	MwVaWidgetExecute(handle, "mwOpenGLGetProcAddress", &out, name);
 	return out;
 };
 
@@ -55,7 +55,7 @@ MwInline void* MwOpenGLGetProcAddress(MwWidget handle, const char* name) {
  * %param handle Widget
  */
 MwInline void MwOpenGLSwapBuffer(MwWidget handle) {
-	MwWidgetExecute(handle, "mwOpenGLSwapBuffer", NULL);
+	MwVaWidgetExecute(handle, "mwOpenGLSwapBuffer", NULL);
 };
 
 #ifdef __cplusplus

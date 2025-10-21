@@ -26,7 +26,7 @@ MWDECL MwClass MwViewportClass;
  */
 MwInline MwWidget MwViewportGetViewport(MwWidget handle) {
 	MwWidget out;
-	MwWidgetExecute(handle, "mwViewportGetViewport", &out);
+	MwVaWidgetExecute(handle, "mwViewportGetViewport", &out);
 	return out;
 };
 
@@ -37,7 +37,7 @@ MwInline MwWidget MwViewportGetViewport(MwWidget handle) {
  * %param h Height
  */
 MwInline void MwViewportSetSize(MwWidget handle, int w, int h) {
-	MwWidgetExecute(handle, "mwViewportSetSize", NULL, w, h);
+	MwVaWidgetExecute(handle, "mwViewportSetSize", NULL, w, h);
 };
 
 #ifdef __cplusplus

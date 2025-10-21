@@ -20,7 +20,7 @@ extern "C" {
 MWDECL MwClass MwSubMenuClass;
 
 MwInline void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
-	MwWidgetExecute(handle, "mwSubMenuAppear", NULL, menu, point);
+	MwVaWidgetExecute(handle, "mwSubMenuAppear", NULL, menu, point);
 };
 
 #ifdef __cplusplus

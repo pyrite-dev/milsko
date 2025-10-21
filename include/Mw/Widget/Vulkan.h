@@ -115,7 +115,7 @@ typedef enum MwVulkanField_T {
  */
 MwInline void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
 	void* field_out;
-	MwWidgetExecute(handle, "mwVulkanGetField", &field_out, field, out);
+	MwVaWidgetExecute(handle, "mwVulkanGetField", &field_out, field, out);
 	return field_out;
 };
 

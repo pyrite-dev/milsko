@@ -230,7 +230,7 @@ void MwDestroyWidget(MwWidget handle) {
 	handle->destroyed = 1;
 }
 
-void MwWidgetExecute(MwWidget handle, const char* func_name, void* out, ...) {
+void MwVaWidgetExecute(MwWidget handle, const char* func_name, void* out, ...) {
 	va_list args;
 	va_start(args, out);
 	MwVaListWidgetExecute(handle, func_name, out, args);

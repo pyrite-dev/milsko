@@ -28,7 +28,7 @@ MWDECL MwClass MwMenuClass;
  */
 MwInline MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
 	MwMenu out;
-	MwWidgetExecute(handle, "mwMenuAdd", &out, menu, name);
+	MwVaWidgetExecute(handle, "mwMenuAdd", &out, menu, name);
 	return out;
 };
 

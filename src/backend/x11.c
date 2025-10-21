@@ -59,22 +59,14 @@ static void wait_map(MwLL handle) {
 	arrfree(queue);
 }
 
-static unsigned long generate_color(XVisualInfo* xvi, unsigned long r, unsigned long g, unsigned long b) {
-	int	      i;
-	unsigned long n = 1;
+static unsigned long generate_color(MwLL handle, unsigned long r, unsigned long g, unsigned long b) {
 	unsigned long c = 0;
 
-	i = 0;
-	while(!((n << i) & xvi->red_mask)) i++;
-	c |= (r * (xvi->red_mask >> i) / 255) << i;
+	c |= (r * handle->red_max / 255) << handle->red_shift;
 
-	i = 0;
-	while(!((n << i) & xvi->green_mask)) i++;
-	c |= (g * (xvi->green_mask >> i) / 255) << i;
+	c |= (g * handle->green_max / 255) << handle->green_shift;
 
-	i = 0;
-	while(!((n << i) & xvi->blue_mask)) i++;
-	c |= (b * (xvi->blue_mask >> i) / 255) << i;
+	c |= (b * handle->blue_max / 255) << handle->blue_shift;
 
 	return c;
 }
@@ -90,8 +82,11 @@ static XVisualInfo* get_visual_info(Display* display) {
 }
 
 MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
-	MwLL   r;
-	Window p;
+	MwLL	      r;
+	Window	      p;
+	XVisualInfo*  xvi;
+	unsigned long n = 1;
+	int	      i;
 
 	r = malloc(sizeof(*r));
 
@@ -111,7 +106,29 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	}
 	r->window = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, DefaultScreen(r->display)));
 
-	r->visual = get_visual_info(r->display);
+	xvi = get_visual_info(r->display);
+
+	if(xvi->red_mask != 0) {
+		i = 0;
+		while(!((n << i) & xvi->red_mask)) i++;
+		r->red_mask  = xvi->red_mask;
+		r->red_max   = xvi->red_mask >> i;
+		r->red_shift = i;
+
+		i = 0;
+		while(!((n << i) & xvi->green_mask)) i++;
+		r->green_mask  = xvi->green_mask;
+		r->green_max   = xvi->green_mask >> i;
+		r->green_shift = i;
+
+		i = 0;
+		while(!((n << i) & xvi->blue_mask)) i++;
+		r->blue_mask  = xvi->blue_mask;
+		r->blue_max   = xvi->blue_mask >> i;
+		r->blue_shift = i;
+	}
+
+	XFree(xvi);
 
 	XSetLocaleModifiers("");
 	if((r->xim = XOpenIM(r->display, 0, 0, 0)) == NULL) {
@@ -160,7 +177,6 @@ void MwLLDestroy(MwLL handle) {
 	if(handle->xim) XCloseIM(handle->xim);
 
 	destroy_pixmap(handle);
-	XFree(handle->visual);
 	XFreeGC(handle->display, handle->gc);
 	XUnmapWindow(handle->display, handle->window);
 	XDestroyWindow(handle->display, handle->window);
@@ -194,7 +210,7 @@ MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b) {
 	MwLLColor c = malloc(sizeof(*c));
 	XColor	  xc;
 
-	if(handle->visual->red_mask == 0) {
+	if(handle->red_mask == 0) {
 		if(r > 255) r = 255;
 		if(g > 255) g = 255;
 		if(b > 255) b = 255;
@@ -209,7 +225,7 @@ MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b) {
 
 		c->pixel = xc.pixel;
 	} else {
-		c->pixel = generate_color(handle->visual, r, g, b);
+		c->pixel = generate_color(handle, r, g, b);
 	}
 	c->red	 = r;
 	c->green = g;

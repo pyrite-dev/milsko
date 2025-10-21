@@ -97,7 +97,7 @@ MWDECL void MwDestroyWidget(MwWidget handle);
  * %param handle Widget
  * %param ... Widget function arguments.
  */
-MWDECL void MwWidgetExecute(MwWidget handle, const char* func_name, void* out, ...);
+MWDECL void MwVaWidgetExecute(MwWidget handle, const char* func_name, void* out, ...);
 
 /*!
  * %brief Executes a method specific to the widget (va_list version).
