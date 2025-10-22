@@ -35,6 +35,11 @@
 		 - MwNy
 		 - MwNwidth
 		 - MwNheight
+
+		Integer properties must be prefixed with I.
+		String properties must be prefixed with S.
+		Handler properties must be prefixed with C.
+		Other properties must be prefixed with V.
 	-->
 	<properties>
 		<integer name="x" />
