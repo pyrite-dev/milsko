@@ -433,7 +433,7 @@
 						<pointer />
 					</return>
 					<arguments>
-						<pointer />
+						<pointer name="menu" />
 						<string name="name" />
 					</arguments>
 				</function>
@@ -478,7 +478,7 @@
 			<functions>
 				<function name="Appear">
 					<arguments>
-						<pointer />
+						<pointer name="menu" />
 						<struct defname="MwPoint" pointer="yes" name="point" />
 					</arguments>
 				</function>
