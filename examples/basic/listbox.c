@@ -24,30 +24,37 @@ void activate(MwWidget handle, void* user, void* call) {
 }
 
 int main() {
-	MwWidget lb;
-	int	 len  = sizeof(harvard) / sizeof(harvard[0]) - 1;
-	char**	 list = malloc(sizeof(*list) * len);
-	int	 i;
+	MwWidget	 lb;
+	int		 len = sizeof(harvard) / sizeof(harvard[0]) - 1;
+	int		 i;
+	MwListBoxPacket* packet;
+	int		 index;
 	wmain = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480,
 				 MwNtitle, "listbox",
 				 NULL);
 	lb    = MwCreateWidget(MwListBoxClass, "listbox", wmain, 5, 5, 630, 470);
 
+	packet = MwListBoxCreatePacket();
+	index  = MwListBoxPacketInsert(packet, -1);
+	MwListBoxPacketSet(packet, index, 0, "Harvard sentence");
+	MwListBoxPacketSet(packet, index, 1, "Length");
+
 	for(i = 0; i < len; i++) {
-		list[i] = malloc(16);
-		sprintf(list[i], "%d", (int)strlen(harvard[i]));
+		char sz[16];
+		sprintf(sz, "%d", (int)strlen(harvard[i]));
+		index = MwListBoxPacketInsert(packet, -1);
+		MwListBoxPacketSet(packet, index, 0, harvard[i]);
+		MwListBoxPacketSet(packet, index, 1, sz);
 	}
 
 	MwAddUserHandler(lb, MwNactivateHandler, activate, NULL);
-	MwListBoxInsert(lb, -1, NULL, "Harvard sentences", "Length", NULL);
-	MwListBoxInsertMultiple(lb, -1, len, NULL, (char**)harvard, (char**)list, NULL);
 	MwVaApply(lb,
 		  MwNhasHeading, 1,
 		  NULL);
 	MwListBoxSetWidth(lb, 0, -64);
+	MwListBoxInsert(lb, -1, packet);
 
-	for(i = 0; i < len; i++) free(list[i]);
-	free(list);
+	MwListBoxDestroyPacket(packet);
 
 	MwLoop(wmain);
 }

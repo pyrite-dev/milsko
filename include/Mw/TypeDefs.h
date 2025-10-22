@@ -24,6 +24,7 @@ typedef struct _MwListBox*	      MwListBox;
 typedef struct _MwListBoxEntry	      MwListBoxEntry;
 typedef struct _MwSizeHints	      MwSizeHints;
 typedef struct _MwDirectoryEntry      MwDirectoryEntry;
+typedef struct _MwListBoxPacket	      MwListBoxPacket;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
 #else
@@ -163,6 +164,11 @@ struct _MwDirectoryEntry {
 	int	 type;
 	MwOffset size;
 	time_t	 mtime;
+};
+
+struct _MwListBoxPacket {
+	MwLLPixmap* pixmaps;
+	char***	    names;
 };
 
 #define MwCursorDataHeight 16

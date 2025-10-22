@@ -3,6 +3,56 @@
 
 #include "../../external/stb_ds.h"
 
+MwListBoxPacket* MwListBoxCreatePacket(void) {
+	MwListBoxPacket* packet = malloc(sizeof(*packet));
+	memset(packet, 0, sizeof(*packet));
+
+	return packet;
+}
+
+void MwListBoxDestroyPacket(MwListBoxPacket* packet) {
+	int i;
+
+	for(i = 0; i < arrlen(packet->names); i++) {
+	}
+
+	arrfree(packet->names);
+	arrfree(packet->pixmaps);
+
+	free(packet);
+}
+
+int MwListBoxPacketInsert(MwListBoxPacket* packet, int index) {
+	int i;
+
+	if(index == -1) index = arrlen(packet->names);
+	for(i = arrlen(packet->names); i < index; i++) {
+		arrput(packet->names, NULL);
+		arrput(packet->pixmaps, NULL);
+	}
+
+	arrins(packet->names, index, NULL);
+	arrins(packet->pixmaps, index, NULL);
+
+	return index;
+}
+
+void MwListBoxPacketSet(MwListBoxPacket* packet, int index, int col, const char* text) {
+	char* t = text == NULL ? NULL : MwStringDupliacte(text);
+	int   i;
+
+	if(col == -1) col = arrlen(packet->names[index]);
+	for(i = arrlen(packet->names[index]); i < col; i++) {
+		arrput(packet->names[index], NULL);
+	}
+
+	arrins(packet->names[index], col, t);
+}
+
+void MwListBoxPacketSetIcon(MwListBoxPacket* packet, int index, MwLLPixmap icon) {
+	packet->pixmaps[index] = icon;
+}
+
 static int get_first_entry(MwWidget handle, MwListBox lb) {
 	int st = 0;
 	int y  = MwGetInteger(handle, MwNhasHeading) ? 1 : 0;
@@ -172,8 +222,12 @@ static void frame_draw(MwWidget handle) {
 		p.y += MwTextHeight(handle, "M") / 2;
 		p.x = MwGetInteger(handle->parent, MwNleftPadding);
 		for(j = 0; j < arrlen(lb->list[i].name); j++) {
+			char* t = lb->list[i].name[j];
+
+			if(t == NULL) t = "";
+
 			p.x += MwDefaultBorderWidth;
-			MwDrawText(handle, &p, lb->list[i].name[j], 0, MwALIGNMENT_BEGINNING, selected ? base : text);
+			MwDrawText(handle, &p, t, 0, MwALIGNMENT_BEGINNING, selected ? base : text);
 			p.x += get_col_width(lb, j) - MwDefaultBorderWidth;
 
 			if(j == 0) p.x -= MwGetInteger(handle->parent, MwNleftPadding);
@@ -312,61 +366,38 @@ static void prop_change(MwWidget handle, const char* prop) {
 	}
 }
 
-static void mwListBoxInsertImpl(MwWidget handle, int index, MwLLPixmap pixmap, va_list va) {
-	MwListBox      lb = handle->internal;
-	MwListBoxEntry entry;
-	char*	       name;
-
-	entry.name = NULL;
-	while((name = va_arg(va, char*)) != NULL) {
-		name = MwStringDupliacte(name);
-		arrput(entry.name, name);
-	}
-
-	entry.pixmap = pixmap;
-
-	if(index == -1) index = arrlen(lb->list);
-	arrins(lb->list, index, entry);
-
-	resize(handle);
-	if(index < (MwGetInteger(lb->vscroll, MwNvalue) + MwGetInteger(lb->vscroll, MwNareaShown))) {
-		MwForceRender(lb->frame);
-	}
-}
-
-static void mwListBoxInsertMultipleImpl(MwWidget handle, int index, int count, MwLLPixmap* pixmap, va_list va) {
+static void mwListBoxInsertImpl(MwWidget handle, int index, MwListBoxPacket* packet) {
 	int	  i;
 	MwListBox lb = handle->internal;
 	int	  old;
-	char***	  vlist = NULL;
-	char**	  list;
+	int	  max = 0;
 	if(index == -1) index = arrlen(lb->list);
 	old = index;
 
-	while((list = va_arg(va, char**)) != NULL) {
-		arrput(vlist, list);
+	for(i = 0; i < arrlen(packet->names); i++) {
+		if(arrlen(packet->names[i]) > max) max = arrlen(packet->names[i]);
 	}
 
-	for(i = 0; i < count; i++) {
+	for(i = 0; i < arrlen(packet->names); i++) {
 		MwListBoxEntry entry;
 		char*	       name;
 		int	       j;
 
 		entry.name = NULL;
-		for(j = 0; j < arrlen(vlist); j++) {
-			if(vlist[j][i] == NULL) continue;
-			name = MwStringDupliacte(vlist[j][i]);
-			arrput(entry.name, name);
+		for(j = 0; j < max; j++) {
+			if(arrlen(packet->names[i]) > j && packet->names[i][j] != NULL) {
+				name = MwStringDupliacte(packet->names[i][j]);
+				arrput(entry.name, name);
+			} else {
+				arrput(entry.name, NULL);
+			}
 		}
 
-		entry.pixmap = NULL;
-		if(pixmap != NULL) entry.pixmap = pixmap[i];
+		entry.pixmap = packet->pixmaps[i];
 
 		arrins(lb->list, index, entry);
 		index++;
 	}
-
-	arrfree(vlist);
 
 	resize(handle);
 	if(old < (MwGetInteger(lb->vscroll, MwNvalue) + MwGetInteger(lb->vscroll, MwNareaShown))) {
@@ -456,21 +487,9 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		mwListBoxSetWidthImpl(handle, index, width);
 	}
 	if(strcmp(name, "mwListBoxInsert") == 0) {
-		int	   index  = va_arg(va, int);
-		MwLLPixmap pixmap = va_arg(va, MwLLPixmap);
-		va_list*   pva	  = va_arg(va, va_list*);
-		va_list	   va;
-		memcpy(&va, pva, sizeof(va));
-		mwListBoxInsertImpl(handle, index, pixmap, va);
-	}
-	if(strcmp(name, "mwListBoxInsertMultiple") == 0) {
-		int	    index  = va_arg(va, int);
-		int	    count  = va_arg(va, int);
-		MwLLPixmap* pixmap = va_arg(va, MwLLPixmap*);
-		va_list*    pva	   = va_arg(va, va_list*);
-		va_list	    va;
-		memcpy(&va, pva, sizeof(va));
-		mwListBoxInsertMultipleImpl(handle, index, count, pixmap, va);
+		int		 index	= va_arg(va, int);
+		MwListBoxPacket* packet = va_arg(va, MwListBoxPacket*);
+		mwListBoxInsertImpl(handle, index, packet);
 	}
 }
 

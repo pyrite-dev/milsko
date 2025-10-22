@@ -168,11 +168,20 @@ static void layout(MwWidget handle) {
 	ww = 160;
 	wh = h - 10 - 24 - 5 - 24 - 5 - 24 - 5;
 	if(fc->nav == NULL) {
+		MwListBoxPacket* p = MwListBoxCreatePacket();
+		int		 index;
+
+		index = MwListBoxPacketInsert(p, -1);
+		MwListBoxPacketSet(p, index, 0, "Home");
+		MwListBoxPacketSetIcon(p, index, fc->computer);
+
 		fc->nav = MwVaCreateWidget(MwListBoxClass, "nav", handle, wx, wy, ww, wh,
 					   MwNleftPadding, 16,
 					   NULL);
-		MwListBoxInsert(fc->nav, -1, fc->computer, "Home", NULL);
+		MwListBoxInsert(fc->nav, -1, p);
 		MwAddUserHandler(fc->nav, MwNactivateHandler, nav_activate, NULL);
+
+		MwListBoxDestroyPacket(p);
 	} else {
 		MwVaApply(fc->nav,
 			  MwNx, wx,
@@ -357,13 +366,11 @@ static int qsort_files(const void* a, const void* b) {
 }
 
 static void scan(MwWidget handle, const char* path, int record) {
-	filechooser_t* fc  = handle->opaque;
-	void*	       dir = MwDirectoryOpen(path);
-	int	       i;
-	char**	       names = NULL;
-	char**	       dates = NULL;
-	char**	       sizes = NULL;
-	MwLLPixmap*    icons = NULL;
+	filechooser_t*	 fc  = handle->opaque;
+	void*		 dir = MwDirectoryOpen(path);
+	int		 i;
+	MwListBoxPacket* p = MwListBoxCreatePacket();
+	int		 index;
 
 	if(dir != NULL) {
 		MwDirectoryEntry* entry;
@@ -403,57 +410,50 @@ static void scan(MwWidget handle, const char* path, int record) {
 		  NULL);
 
 	MwListBoxReset(fc->files);
-	MwListBoxInsert(fc->files, -1, NULL, "Name", "Date modified", "Size", NULL);
 	MwListBoxSetWidth(fc->files, 0, -128 - 96);
 	MwListBoxSetWidth(fc->files, 1, 128);
 	MwListBoxSetWidth(fc->files, 2, 0);
 
-	icons = NULL;
-	names = NULL;
-	dates = NULL;
-	sizes = NULL;
+	index = MwListBoxPacketInsert(p, -1);
+	MwListBoxPacketSet(p, index, -1, "Name");
+	MwListBoxPacketSet(p, index, -1, "Date modified");
+	MwListBoxPacketSet(p, index, -1, "Size");
+
 	for(i = 0; i < arrlen(fc->entries); i++) {
 		if(strcmp(fc->entries[i]->name, ".") == 0 || strcmp(fc->entries[i]->name, "..") == 0) continue;
 		if(fc->entries[i]->type == MwDIRECTORY_DIRECTORY) {
-			char* date = malloc(128);
+			char date[128];
 
 			MwStringTime(date, fc->entries[i]->mtime);
 
-			arrput(names, fc->entries[i]->name);
-			arrput(dates, date);
-			arrput(sizes, NULL);
-			arrput(icons, fc->dir);
+			index = MwListBoxPacketInsert(p, -1);
+			MwListBoxPacketSetIcon(p, index, fc->dir);
+			MwListBoxPacketSet(p, index, -1, fc->entries[i]->name);
+			MwListBoxPacketSet(p, index, -1, date);
+			MwListBoxPacketSet(p, index, -1, NULL);
 
 			arrput(fc->sorted_entries, fc->entries[i]);
 		}
 	}
 	for(i = 0; i < arrlen(fc->entries); i++) {
 		if(fc->entries[i]->type == MwDIRECTORY_FILE) {
-			char* date = malloc(128);
-			char* size = malloc(128);
+			char date[128];
+			char size[128];
 
 			MwStringTime(date, fc->entries[i]->mtime);
 			MwStringSize(size, fc->entries[i]->size);
 
-			arrput(names, fc->entries[i]->name);
-			arrput(dates, date);
-			arrput(sizes, size);
-			arrput(icons, fc->file);
+			index = MwListBoxPacketInsert(p, -1);
+			MwListBoxPacketSetIcon(p, index, fc->file);
+			MwListBoxPacketSet(p, index, -1, fc->entries[i]->name);
+			MwListBoxPacketSet(p, index, -1, date);
+			MwListBoxPacketSet(p, index, -1, size);
 
 			arrput(fc->sorted_entries, fc->entries[i]);
 		}
 	}
-	MwListBoxInsertMultiple(fc->files, -1, arrlen(names), icons, names, dates, sizes, NULL);
-	for(i = 0; i < arrlen(dates); i++) {
-		if(dates[i] != NULL) free(dates[i]);
-	}
-	for(i = 0; i < arrlen(sizes); i++) {
-		if(sizes[i] != NULL) free(sizes[i]);
-	}
-	arrfree(sizes);
-	arrfree(dates);
-	arrfree(names);
-	arrfree(icons);
+	MwListBoxInsert(fc->files, -1, p);
+	MwListBoxDestroyPacket(p);
 }
 
 MwWidget MwFileChooser(MwWidget handle, const char* title) {

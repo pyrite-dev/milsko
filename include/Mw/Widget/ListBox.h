@@ -20,32 +20,50 @@ extern "C" {
 MWDECL MwClass MwListBoxClass;
 
 /*!
+ * %brief Creates a listbox packet
+ * %return Packet
+ */
+MWDECL MwListBoxPacket* MwListBoxCreatePacket(void);
+
+/*!
+ * %brief Destroys a listbox packet
+ * %param packet Packet
+ */
+MWDECL void MwListBoxDestroyPacket(MwListBoxPacket* packet);
+
+/*!
+ * %brief Inserts a new item to a packet
+ * %param packet Packet
+ * %param index Index
+ * %return Index
+ */
+MWDECL int MwListBoxPacketInsert(MwListBoxPacket* packet, int index);
+
+/*!
+ * %brief Sets a column of item in a packet
+ * %param packet Packet
+ * %param index Index
+ * %param col Column
+ * %param text Text
+ */
+MWDECL void MwListBoxPacketSet(MwListBoxPacket* packet, int index, int col, const char* text);
+
+/*!
+ * %brief Sets an icon of item in a packet
+ * %param packet Packet
+ * %param index Index
+ * %param icon Icon
+ */
+MWDECL void MwListBoxPacketSetIcon(MwListBoxPacket* packet, int index, MwLLPixmap icon);
+
+/*!
  * %brief Inserts item on the listbox
  * %param handle Widget
  * %param index Index
- * %param pixmap Pixmap
- * %param ... Text
+ * %param packet Packet
  */
-MwInline void MwListBoxInsert(MwWidget handle, int index, MwLLPixmap pixmap, ...) {
-	va_list va;
-	va_start(va, pixmap);
-	MwVaWidgetExecute(handle, "mwListBoxInsert", NULL, index, pixmap, &va);
-	va_end(va);
-}
-
-/*!
- * %brief Inserts multiple items on the listbox
- * %param handle Widget
- * %param index Index
- * %param count Count
- * %param pixmap Pixmap
- * %param ... Text
- */
-MwInline void MwListBoxInsertMultiple(MwWidget handle, int index, int count, MwLLPixmap* pixmap, ...) {
-	va_list va;
-	va_start(va, pixmap);
-	MwVaWidgetExecute(handle, "mwListBoxInsertMultiple", NULL, index, count, pixmap, &va);
-	va_end(va);
+MwInline void MwListBoxInsert(MwWidget handle, int index, void* packet) {
+	MwVaWidgetExecute(handle, "mwListBoxInsert", NULL, index, packet);
 }
 
 /*!
