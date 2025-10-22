@@ -38,7 +38,7 @@ L_OBJS += src/cursor/hidden.o src/cursor/default.o src/cursor/cross.o src/cursor
 L_OBJS += src/icon/question.o src/icon/warning.o src/icon/note.o src/icon/info.o src/icon/news.o src/icon/error.o src/icon/file.o src/icon/directory.o src/icon/back.o src/icon/forward.o src/icon/up.o src/icon/computer.o src/icon/search.o
 
 E_CFLAGS = $(CFLAGS)
-E_LDFLAGS = $(LDFLAGS) -Lsrc
+E_LDFLAGS = $(LDFLAGS) -Lsrc -Wl,-rpath,$(shell pwd)/src
 E_LIBS = $(LIBS) -lMw
 
 FOUND_PLATFORM = 0
