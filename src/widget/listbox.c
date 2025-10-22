@@ -12,8 +12,13 @@ MwListBoxPacket* MwListBoxCreatePacket(void) {
 
 void MwListBoxDestroyPacket(MwListBoxPacket* packet) {
 	int i;
+	int j;
 
 	for(i = 0; i < arrlen(packet->names); i++) {
+		for(j = 0; j < arrlen(packet->names[i]); j++){
+			if(packet->names[i][j] != NULL) free(packet->names[i][j]);
+		}
+		arrfree(packet->names[i]);
 	}
 
 	arrfree(packet->names);
