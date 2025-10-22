@@ -23,5 +23,5 @@ camera {
 	look_at <8, 0.75, 0>
 	angle 35
 	up <0, 1, 0>
-	right <5, 0, 0>
+	right image_width / image_height * x
 }
