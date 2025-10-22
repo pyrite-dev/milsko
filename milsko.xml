@@ -499,5 +499,16 @@
 				</function>
 			</functions>
 		</widget>
+		<widget name="Window">
+			<properties>
+				<property name="title" />
+				<property name="main" />
+				<property name="iconPixmap" />
+				<property name="sizeHints" />
+			</properties>
+			<functions>
+				<function name="MakeBorderless" />
+			</functions>
+		</widget>
 	</widgets>
 </milsko>
