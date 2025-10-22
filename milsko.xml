@@ -354,148 +354,150 @@
 			</functions>
 		</header>
 	</headers>
-	<widget name="Button">
-		<properties>
-			<property name="pixmap" />
-			<property name="text" />
-		</properties>
-	</widget>
-	<widget name="CheckBox">
-		<properties>
-			<property name="checked" />
-		</properties>
-	</widget>
-	<widget name="Entry">
-		<properties>
-			<property name="text" />
-		</properties>
-	</widget>
-	<widget name="Frame" />
-	<widget name="Image">
-		<properties>
-			<property name="pixmap" />
-		</properties>
-	</widget>
-	<widget name="Label">
-		<properties>
-			<property name="text" />
-			<property name="alignment" />
-			<property name="bold" />
-		</properties>
-	</widget>
-	<widget name="ListBox">
-		<properties>
-			<property name="leftPadding" />
-		</properties>
-		<functions>
-			<function name="Insert">
-				<arguments>
-					<integer name="index" />
-					<pixmap name="pixmap" />
-					<variable />
-				</arguments>
-			</function>
-			<function name="InsertMultiple">
-				<arguments>
-					<integer name="index" />
-					<integer name="count" />
-					<pixmap name="pixmap" pointer="yes" />
-					<variable />
-				</arguments>
-			</function>
-			<function name="Delete">
-				<arguments>
-					<integer name="index" />
-				</arguments>
-			</function>
-			<function name="Get">
-				<return>
-					<string />
-				</return>
-				<arguments>
-					<integer name="index" />
-				</arguments>
-			</function>
-			<function name="SetWidth">
-				<arguments>
-					<integer name="index" />
-					<integer name="width" />
-				</arguments>
-			</function>
-			<function name="Reset" />
-		</functions>
-	</widget>
-	<widget name="Menu">
-		<functions>
-			<function name="Add">
-				<return>
-					<pointer />
-				</return>
-				<arguments>
-					<pointer />
-					<string name="name" />
-				</arguments>
-			</function>
-		</functions>
-	</widget>
-	<widget name="NumberEntry">
-		<properties>
-			<property name="text" />
-		</properties>
-	</widget>
-	<widget name="OpenGL">
-		<functions>
-			<function name="MakeCurrent" />
-			<function name="GetProcAddress">
-				<return>
-					<pointer />
-				</return>
-				<arguments>
-					<string name="name" />
-				</arguments>
-			</function>
-			<function name="SwapBuffer" />
-		</functions>
-	</widget>
-	<widget name="ScrollBar">
-		<properties>
-			<property name="areaShown" />
-			<property name="value" />
-			<property name="minValue" />
-			<property name="maxValue" />
-			<property name="orientation" />
-		</properties>
-		<functions>
-			<function name="GetVisibleLength">
-				<return>
-					<integer />
-				</return>
-			</function>
-		</functions>
-	</widget>
-	<widget name="SubMenu">
-		<functions>
-			<function name="Appear">
-				<arguments>
-					<pointer />
-					<struct defname="MwPoint" pointer="yes" name="point" />
-				</arguments>
-			</function>
-		</functions>
-	</widget>
-	<widget name="Viewport">
-		<functions>
-			<function name="GetViewport">
-				<return>
-					<widget />
-				</return>
-			</function>
-			<function name="SetSize">
-				<arguments>
-					<integer name="w" />
-					<integer name="h" />
-				</arguments>
-			</function>
-		</functions>
-	</widget>
+	<widgets>
+		<widget name="Button">
+			<properties>
+				<property name="pixmap" />
+				<property name="text" />
+			</properties>
+		</widget>
+		<widget name="CheckBox">
+			<properties>
+				<property name="checked" />
+			</properties>
+		</widget>
+		<widget name="Entry">
+			<properties>
+				<property name="text" />
+			</properties>
+		</widget>
+		<widget name="Frame" />
+		<widget name="Image">
+			<properties>
+				<property name="pixmap" />
+			</properties>
+		</widget>
+		<widget name="Label">
+			<properties>
+				<property name="text" />
+				<property name="alignment" />
+				<property name="bold" />
+			</properties>
+		</widget>
+		<widget name="ListBox">
+			<properties>
+				<property name="leftPadding" />
+			</properties>
+			<functions>
+				<function name="Insert">
+					<arguments>
+						<integer name="index" />
+						<pixmap name="pixmap" />
+						<variable />
+					</arguments>
+				</function>
+				<function name="InsertMultiple">
+					<arguments>
+						<integer name="index" />
+						<integer name="count" />
+						<pixmap name="pixmap" pointer="yes" />
+						<variable />
+					</arguments>
+				</function>
+				<function name="Delete">
+					<arguments>
+						<integer name="index" />
+					</arguments>
+				</function>
+				<function name="Get">
+					<return>
+						<string />
+					</return>
+					<arguments>
+						<integer name="index" />
+					</arguments>
+				</function>
+				<function name="SetWidth">
+					<arguments>
+						<integer name="index" />
+						<integer name="width" />
+					</arguments>
+				</function>
+				<function name="Reset" />
+			</functions>
+		</widget>
+		<widget name="Menu">
+			<functions>
+				<function name="Add">
+					<return>
+						<pointer />
+					</return>
+					<arguments>
+						<pointer />
+						<string name="name" />
+					</arguments>
+				</function>
+			</functions>
+		</widget>
+		<widget name="NumberEntry">
+			<properties>
+				<property name="text" />
+			</properties>
+		</widget>
+		<widget name="OpenGL">
+			<functions>
+				<function name="MakeCurrent" />
+				<function name="GetProcAddress">
+					<return>
+						<pointer />
+					</return>
+					<arguments>
+						<string name="name" />
+					</arguments>
+				</function>
+				<function name="SwapBuffer" />
+			</functions>
+		</widget>
+		<widget name="ScrollBar">
+			<properties>
+				<property name="areaShown" />
+				<property name="value" />
+				<property name="minValue" />
+				<property name="maxValue" />
+				<property name="orientation" />
+			</properties>
+			<functions>
+				<function name="GetVisibleLength">
+					<return>
+						<integer />
+					</return>
+				</function>
+			</functions>
+		</widget>
+		<widget name="SubMenu">
+			<functions>
+				<function name="Appear">
+					<arguments>
+						<pointer />
+						<struct defname="MwPoint" pointer="yes" name="point" />
+					</arguments>
+				</function>
+			</functions>
+		</widget>
+		<widget name="Viewport">
+			<functions>
+				<function name="GetViewport">
+					<return>
+						<widget />
+					</return>
+				</function>
+				<function name="SetSize">
+					<arguments>
+						<integer name="w" />
+						<integer name="h" />
+					</arguments>
+				</function>
+			</functions>
+		</widget>
+	</widgets>
 </milsko>
