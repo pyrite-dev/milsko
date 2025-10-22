@@ -151,7 +151,7 @@
 						<variable />
 					</arguments>
 				</function>
-				<function name="MwWidgetExecute">
+				<function name="MwVaWidgetExecute">
 					<arguments>
 						<widget name="handle" />
 						<string name="func_name" />
