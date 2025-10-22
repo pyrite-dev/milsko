@@ -88,6 +88,21 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	unsigned long n = 1;
 	int	      i;
 
+#ifdef HAS_FREETYPE
+	FT_Error err;
+	FT_Error (*_FT_Init_FreeType)(FT_Library*);
+	FT_Error (*_FT_New_Face)(FT_Library  library,
+				 const char* filepathname,
+				 FT_Long     face_index,
+				 FT_Face*    aface);
+	FT_Error (*_FT_New_Memory_Face)(
+	    FT_Library	   library,
+	    const FT_Byte* file_base,
+	    FT_Long	   file_size,
+	    FT_Long	   face_index,
+	    FT_Face*	   aface);
+#endif
+
 	r = malloc(sizeof(*r));
 
 	MwLLCreateCommon(r);
@@ -167,10 +182,52 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	XSync(r->display, False);
 	wait_map(r);
 
+#ifdef HAS_FREETYPE
+	if(parent == NULL) {
+		r->ftOwns   = MwTRUE;
+		r->ftLib    = NULL;
+		r->ftHandle = NULL;
+		r->ftFace   = NULL;
+		r->ftLib    = dlopen("libfreetype.so", RTLD_LAZY | RTLD_GLOBAL);
+		if(r->ftLib != NULL) {
+			FT_WITH_FUNC(r, FT_Init_FreeType, {
+				if((err = _FT_Init_FreeType(&r->ftHandle)) != 0) {
+					printf("[WARNING] Could not initialize freetype2, will fall back to bitmap rendering.");
+					print_ft_error(r->ftLib, err);
+					goto ft_load_fail;
+				};
+			});
+
+			FT_WITH_FUNC(r, FT_New_Memory_Face, {
+				if((err = _FT_New_Memory_Face(r->ftHandle, MwFreeTypeFontData, MwFreeTypeFontSize, 0, &r->ftFace)) != 0) {
+					printf("[WARNING] Could not load the font for freetyep2, will fall back to bitmap rendering. ");
+					print_ft_error(r->ftLib, err);
+					goto ft_load_fail;
+				}
+			});
+		} else {
+			printf("[WARNING] You are on a platform where freetype2 is supported, but libfreetype.so was not found. Will fall back to bitmap rendering.\n");
+			goto ft_load_fail;
+		}
+	} else {
+		r->ftLib    = parent->ftLib;
+		r->ftHandle = parent->ftHandle;
+		r->ftFace   = parent->ftFace;
+		r->ftOwns   = MwFALSE;
+	}
+
+#endif
+
+ft_load_fail:
 	return r;
 }
 
 void MwLLDestroy(MwLL handle) {
+#ifdef HAS_FREETYPE
+	FT_Error (*_FT_Done_FreeType)(FT_Library library);
+	FT_Error err;
+#endif
+
 	MwLLDestroyCommon(handle);
 
 	if(handle->xic) XDestroyIC(handle->xic);
@@ -180,6 +237,20 @@ void MwLLDestroy(MwLL handle) {
 	XFreeGC(handle->display, handle->gc);
 	XUnmapWindow(handle->display, handle->window);
 	XDestroyWindow(handle->display, handle->window);
+
+#ifdef HAS_FREETYPE
+	if(handle->ftLib != NULL && handle->ftHandle != NULL) {
+		// Only call the destroy function for freetype if we are the owner.
+		if(handle->ftOwns) {
+			FT_WITH_FUNC(handle, FT_Done_FreeType, {
+				if((err = _FT_Done_FreeType(handle->ftHandle)) != 0) {
+					printf("[WARNING] Could not unload freetype or its handle! ");
+					print_ft_error(handle->ftLib, err);
+				}
+			});
+		}
+	};
+#endif
 
 	XFlush(handle->display);
 	free(handle);
@@ -755,3 +826,14 @@ void MwLLGrabPointer(MwLL handle, int toggle) {
 		handle->grabbed = 0;
 	}
 }
+
+#ifdef HAS_FREETYPE
+void print_ft_error(void* ftLib, FT_Error err) {
+	const char* (*_FT_Error_String)(FT_Error) = dlsym(ftLib, "FT_Error_String");
+	if(_FT_Error_String != NULL) {
+		printf("Error %d: %s\n", err, _FT_Error_String(err));
+	} else {
+		printf("Couldn't load FT_Error_String to get error message for %d.\n", err);
+	}
+}
+#endif

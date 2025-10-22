@@ -31,11 +31,12 @@ L_CFLAGS = $(DEPINC) $(CFLAGS) -fPIC -D_MILSKO
 L_LDFLAGS = $(LDFLAGS)
 L_LIBS = $(LIBS)
 
-L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/font.o src/boldfont.o src/error.o src/unicode.o src/color.o src/messagebox.o src/directory.o src/string.o src/filechooser.o
+L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/boldfont.o src/error.o src/unicode.o src/color.o src/messagebox.o src/directory.o src/string.o src/filechooser.o
 L_OBJS += external/ds.o external/image.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o src/widget/checkbox.o src/widget/label.o src/widget/entry.o src/widget/numberentry.o src/widget/viewport.o src/widget/listbox.o
 L_OBJS += src/cursor/hidden.o src/cursor/default.o src/cursor/cross.o src/cursor/text.o
 L_OBJS += src/icon/question.o src/icon/warning.o src/icon/note.o src/icon/info.o src/icon/news.o src/icon/error.o src/icon/file.o src/icon/directory.o src/icon/back.o src/icon/forward.o src/icon/up.o src/icon/computer.o src/icon/search.o
+L_OBJS += src/text/font.o src/text/draw.o
 
 E_CFLAGS = $(CFLAGS)
 E_LDFLAGS = $(LDFLAGS) -Lsrc -Wl,-rpath,$(shell pwd)/src
@@ -48,6 +49,7 @@ CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
 LDFLAGS += -L/usr/X11R7/lib -L/usr/pkg/lib -Wl,-R/usr/X11R7/lib -Wl,-R/usr/pkg/lib
 UNIX = 1
 OPENGL = 1
+FREETYPE = 1
 FOUND_PLATFORM = 1
 endif
 
@@ -56,6 +58,7 @@ L_LIBS += -ldl
 UNIX = 1
 OPENGL = 1
 VULKAN = 1
+FREETYPE = 1
 FOUND_PLATFORM = 1
 endif
 
@@ -63,6 +66,7 @@ ifeq ($(TARGET),Windows)
 WINDOWS = 1
 OPENGL = 1
 VULKAN = 1
+FREETYPE = 0
 FOUND_PLATFORM = 1
 endif
 
@@ -71,6 +75,7 @@ CC = gcc
 UNIX = 1
 L_LIBS += -lsocket -lnsl
 OPENGL = 1
+FREETYPE = 0
 FOUND_PLATFORM = 1
 endif
 
@@ -79,6 +84,7 @@ CC = gcc
 DARWIN = 1
 L_LIBS += -framework Carbon
 FOUND_PLATFORM = 1
+FREETYPE = 0
 endif
 
 ifeq ($(FOUND_PLATFORM),0)
@@ -142,6 +148,12 @@ endif
 ifeq ($(VULKAN),1)
 L_OBJS += src/widget/vulkan.o
 EXAMPLES += examples/vkdemos/vulkan$(EXEC)
+endif
+
+ifeq ($(FREETYPE),1)
+L_CFLAGS += -I/usr/include/freetype2 -DHAS_FREETYPE
+# L_LDFLAGS += -lfreetype
+L_OBJS += src/text/ft_font.o
 endif
 
 .PHONY: all install format clean lib examples

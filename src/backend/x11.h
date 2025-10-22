@@ -12,6 +12,11 @@
 #include <X11/Xcursor/Xcursor.h>
 #include <X11/extensions/Xrender.h>
 
+#ifdef HAS_FREETYPE
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#endif
+
 struct _MwLL {
 	Display* display;
 	Window	 window;
@@ -42,6 +47,13 @@ struct _MwLL {
 	unsigned long blue_mask;
 	unsigned long blue_max;
 	unsigned long blue_shift;
+
+#ifdef HAS_FREETYPE
+	void*	   ftLib;
+	FT_Library ftHandle;
+	MwBool	   ftOwns;
+	FT_Face	   ftFace;
+#endif
 };
 
 struct _MwLLColor {
@@ -63,5 +75,20 @@ struct _MwLLPixmap {
 	XImage*	 image;
 	XImage*	 mask;
 };
+
+#ifdef HAS_FREETYPE
+void print_ft_error(void* ftLib, FT_Error err);
+#define MwFreeTypeFontSize 181388
+extern FT_Byte MwFreeTypeFontData[MwFreeTypeFontSize];
+
+#define FT_WITH_FUNC(handle, func, block) \
+	{ \
+		_##func = dlsym(handle->ftLib, #func); \
+		if(_##func != NULL) { \
+			block \
+		} else \
+			printf("[WARNING] Unable to resolve function " #func ".\n"); \
+	}
+#endif
 
 #endif
