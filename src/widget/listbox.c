@@ -181,7 +181,7 @@ static void frame_draw(MwWidget handle) {
 		p.y += MwTextHeight(handle, "M") / 2;
 	}
 
-	MwDrawFrame(handle, &r, base, 1);
+	MwDrawWidgetBack(handle, &r, base, 1);
 
 	MwLLFreeColor(text);
 	MwLLFreeColor(base);
@@ -285,7 +285,7 @@ static void draw(MwWidget handle) {
 			r.y	 = 0;
 			r.width	 = get_col_width(lb, i);
 			r.height = MwDefaultBorderWidth * 2 + MwTextHeight(handle, "M");
-			MwDrawFrame(handle, &r, base, 0);
+			MwDrawWidgetBack(handle, &r, base, 0);
 
 			x += MwDefaultBorderWidth;
 

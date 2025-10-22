@@ -42,6 +42,14 @@ MWDECL MwLLColor MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, 
 MWDECL void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color);
 
 /*!
+ * %brief Draws a filled rectangle that fades to a darker color
+ * %param handle Widget
+ * %param rect Rectangle area
+ * %param color Color
+ */
+MWDECL void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color);
+
+/*!
  * %brief Draws a frame
  * %param handle Widget
  * %param rect Rectangle area
@@ -50,6 +58,16 @@ MWDECL void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color);
  * %warning `rect` gets changed to the area of rectangle inside
  */
 MWDECL void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
+
+/*!
+ * %brief Does the DrawFrame/DrawRect combo used for drawing widget.
+ * %param handle Widget
+ * %param rect Rectangle area
+ * %param color Color
+ * %param invert Invert the 3D border color or not
+ * %warning `rect` gets changed to the area of rectangle inside
+ */
+MWDECL void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border);
 
 /*!
  * %brief Draws a triangle

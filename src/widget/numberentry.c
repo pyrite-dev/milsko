@@ -34,8 +34,7 @@ static void draw(MwWidget handle) {
 	r.y	 = 0;
 	r.width	 = e->right;
 	r.height = h / 2;
-	MwDrawFrame(handle, &r, base, pr);
-	MwDrawRect(handle, &r, base);
+	MwDrawWidgetBack(handle, &r, base, pr, MwTRUE);
 
 	if(r.width > r.height) {
 		r.width = r.height;
@@ -51,8 +50,7 @@ static void draw(MwWidget handle) {
 	r.y	 = h / 2;
 	r.width	 = e->right;
 	r.height = h / 2;
-	MwDrawFrame(handle, &r, base, pr);
-	MwDrawRect(handle, &r, base);
+	MwDrawWidgetBack(handle, &r, base, pr, MwTRUE);
 
 	if(r.width > r.height) {
 		r.width = r.height;

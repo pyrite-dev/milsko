@@ -13,8 +13,11 @@
 
 #define FontWidth 7
 #define FontHeight 14
+#ifdef MW_CLASSIC_THEME
 #define ColorDiff 128
-
+#else
+#define ColorDiff 48
+#endif
 static int hex(const char* txt, int len) {
 	int i;
 	int r = 0;
@@ -90,9 +93,46 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 
 	MwLLPolygon(handle->lowlevel, p, 4, color);
 }
+void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
+	MwPoint p[4];
+	int	y;
+	double	darken	   = 0.;
+	double	darkenStep = (ColorDiff / 2.) / rect->height;
+
+	for(y = 0; y < rect->height; y++) {
+		MwLLColor lighter = MwLightenColor(handle, color, -darken, -darken, -darken);
+
+		p[0].x = rect->x;
+		p[0].y = rect->y + y;
+
+		p[1].x = rect->x + rect->width;
+		p[1].y = rect->y + y;
+
+		p[2].x = rect->x + rect->width;
+		p[2].y = rect->y + y;
+
+		p[3].x = rect->x;
+		p[3].y = rect->y + y + 1;
+
+		MwLLPolygon(handle->lowlevel, p, 4, lighter);
+
+		MwLLFreeColor(lighter);
+		darken += darkenStep;
+	}
+}
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth);
+}
+void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
+	if(border) {
+		MwDrawFrame(handle, rect, color, invert);
+	}
+#ifdef MW_CLASSIC_THEME
+	MwDrawRect(handle, rect, color);
+#else
+	MwDrawRectFading(handle, rect, color);
+#endif
 }
 
 void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
