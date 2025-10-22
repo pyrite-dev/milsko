@@ -438,10 +438,22 @@
 	<a href="#Mw_Widget_ListBox_h__MwListBoxClass">MwListBoxClass</a>
 </dd>
 <dd>
-	<a href="#Mw_Widget_ListBox_h__MwListBoxInsert">MwListBoxInsert</a>
+	<a href="#Mw_Widget_ListBox_h__MwListBoxCreatePacket">MwListBoxCreatePacket</a>
 </dd>
 <dd>
-	<a href="#Mw_Widget_ListBox_h__MwListBoxInsertMultiple">MwListBoxInsertMultiple</a>
+	<a href="#Mw_Widget_ListBox_h__MwListBoxDestroyPacket">MwListBoxDestroyPacket</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_ListBox_h__MwListBoxPacketInsert">MwListBoxPacketInsert</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_ListBox_h__MwListBoxPacketSet">MwListBoxPacketSet</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_ListBox_h__MwListBoxPacketSetIcon">MwListBoxPacketSetIcon</a>
+</dd>
+<dd>
+	<a href="#Mw_Widget_ListBox_h__MwListBoxInsert">MwListBoxInsert</a>
 </dd>
 <dd>
 	<a href="#Mw_Widget_ListBox_h__MwListBoxDelete">MwListBoxDelete</a>
@@ -2872,11 +2884,133 @@
 </dd>
 </dl>
 <hr>
+<pre id="Mw_Widget_ListBox_h__MwListBoxCreatePacket">MWDECL MwListBoxPacket* <B><FONT COLOR="#0000FF">MwListBoxCreatePacket</FONT></B> (
+	<B><FONT COLOR="#228B22">void</FONT></B>
+);</pre>
+<dl>
+<dd>
+	Creates a listbox packet.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Packet.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_ListBox_h__MwListBoxDestroyPacket">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxDestroyPacket</FONT></B> (
+	MwListBoxPacket* packet
+);</pre>
+<dl>
+<dd>
+	Destroys a listbox packet.
+</dd>
+<dt>
+	Parameter <code>packet</code>
+</dt>
+<dd>
+	Packet.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_ListBox_h__MwListBoxPacketInsert">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxPacketInsert</FONT></B> (
+	MwListBoxPacket* packet,
+	<B><FONT COLOR="#228B22">int</FONT></B> index
+);</pre>
+<dl>
+<dd>
+	Inserts a new item to a packet.
+</dd>
+<dt>
+	Parameter <code>packet</code>
+</dt>
+<dd>
+	Packet.
+</dd>
+<dt>
+	Parameter <code>index</code>
+</dt>
+<dd>
+	Index.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Index.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_ListBox_h__MwListBoxPacketSet">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxPacketSet</FONT></B> (
+	MwListBoxPacket* packet,
+	<B><FONT COLOR="#228B22">int</FONT></B> index,
+	<B><FONT COLOR="#228B22">int</FONT></B> col,
+	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text
+);</pre>
+<dl>
+<dd>
+	Sets a column of item in a packet.
+</dd>
+<dt>
+	Parameter <code>packet</code>
+</dt>
+<dd>
+	Packet.
+</dd>
+<dt>
+	Parameter <code>index</code>
+</dt>
+<dd>
+	Index.
+</dd>
+<dt>
+	Parameter <code>col</code>
+</dt>
+<dd>
+	Column.
+</dd>
+<dt>
+	Parameter <code>text</code>
+</dt>
+<dd>
+	Text.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Widget_ListBox_h__MwListBoxPacketSetIcon">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxPacketSetIcon</FONT></B> (
+	MwListBoxPacket* packet,
+	<B><FONT COLOR="#228B22">int</FONT></B> index,
+	MwLLPixmap icon
+);</pre>
+<dl>
+<dd>
+	Sets an icon of item in a packet.
+</dd>
+<dt>
+	Parameter <code>packet</code>
+</dt>
+<dd>
+	Packet.
+</dd>
+<dt>
+	Parameter <code>index</code>
+</dt>
+<dd>
+	Index.
+</dd>
+<dt>
+	Parameter <code>icon</code>
+</dt>
+<dd>
+	Icon.
+</dd>
+</dl>
+<hr>
 <pre id="Mw_Widget_ListBox_h__MwListBoxInsert">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsert</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> index,
-	MwLLPixmap pixmap,
-	...
+	<B><FONT COLOR="#228B22">void</FONT></B>* packet
 );</pre>
 <dl>
 <dd>
@@ -2895,59 +3029,10 @@
 	Index.
 </dd>
 <dt>
-	Parameter <code>pixmap</code>
+	Parameter <code>packet</code>
 </dt>
 <dd>
-	Pixmap.
-</dd>
-<dt>
-	Parameter <code>...</code>
-</dt>
-<dd>
-	Text.
-</dd>
-</dl>
-<hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxInsertMultiple">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsertMultiple</FONT></B> (
-	MwWidget handle,
-	<B><FONT COLOR="#228B22">int</FONT></B> index,
-	<B><FONT COLOR="#228B22">int</FONT></B> count,
-	MwLLPixmap* pixmap,
-	...
-);</pre>
-<dl>
-<dd>
-	Inserts multiple items on the listbox.
-</dd>
-<dt>
-	Parameter <code>handle</code>
-</dt>
-<dd>
-	Widget.
-</dd>
-<dt>
-	Parameter <code>index</code>
-</dt>
-<dd>
-	Index.
-</dd>
-<dt>
-	Parameter <code>count</code>
-</dt>
-<dd>
-	Count.
-</dd>
-<dt>
-	Parameter <code>pixmap</code>
-</dt>
-<dd>
-	Pixmap.
-</dd>
-<dt>
-	Parameter <code>...</code>
-</dt>
-<dd>
-	Text.
+	Packet.
 </dd>
 </dl>
 <hr>
