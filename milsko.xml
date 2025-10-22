@@ -324,6 +324,35 @@
 				</function>
 			</functions>
 		</header>
+		<header name="MessageBox">
+			<functions>
+				<function name="MwMessageBox">
+					<return>
+						<widget />
+					</return>
+					<arguments>
+						<widget name="handle" />
+						<string name="text" />
+						<string name="title" />
+						<integer name="flag" unsigned="yes" />
+					</arguments>
+				</function>
+				<function name="MwMessageBoxGetChild">
+					<return>
+						<widget />
+					</return>
+					<arguments>
+						<widget name="handle" />
+						<integer name="child" />
+					</arguments>
+				</function>
+				<function name="MwMessageBoxDestroy">
+					<arguments>
+						<widget name="handle" />
+					</arguments>
+				</function>
+			</functions>
+		</header>
 		<header name="Widget/ListBox.h">
 			<functions>
 				<function name="MwListBoxCreatePacket">
@@ -358,35 +387,6 @@
 						<pointer name="packet" />
 						<integer name="index" />
 						<pixmap name="icon" />
-					</arguments>
-				</function>
-			</functions>
-		</header>
-		<header name="MessageBox">
-			<functions>
-				<function name="MwMessageBox">
-					<return>
-						<widget />
-					</return>
-					<arguments>
-						<widget name="handle" />
-						<string name="text" />
-						<string name="title" />
-						<integer name="flag" unsigned="yes" />
-					</arguments>
-				</function>
-				<function name="MwMessageBoxGetChild">
-					<return>
-						<widget />
-					</return>
-					<arguments>
-						<widget name="handle" />
-						<integer name="child" />
-					</arguments>
-				</function>
-				<function name="MwMessageBoxDestroy">
-					<arguments>
-						<widget name="handle" />
 					</arguments>
 				</function>
 			</functions>
