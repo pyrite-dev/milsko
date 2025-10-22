@@ -155,7 +155,7 @@
 					<arguments>
 						<widget name="handle" />
 						<string name="func_name" />
-						<pointer name="out" />
+						<pointer name="output" />
 						<variable />
 					</arguments>
 				</function>
