@@ -19,7 +19,7 @@ object {
 }
 
 camera {
-	location <8+5, 2.5, -35>
+	location <8+5, 2.5, -37.5>
 	look_at <7, 0.75, 0>
 	angle 35
 	up <0, 1, 0>
