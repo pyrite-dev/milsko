@@ -96,7 +96,7 @@ sub generate {
     print(OUT "LD = $link\n");
     print(OUT "\n");
     print(OUT
-"CFLAGS = ${inc}include ${def}_MILSKO ${def}USE_GDI ${def}USE_STB_IMAGE ${def}STBI_NO_SIMD\n"
+"CFLAGS = ${inc}include ${def}_MILSKO ${def}USE_GDI ${def}USE_STB_TRUETYPE ${def}USE_STB_IMAGE ${def}STBI_NO_SIMD\n"
     );
     print(OUT "LDFLAGS = $dll");
     print(OUT "\n");

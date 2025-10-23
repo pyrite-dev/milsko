@@ -106,8 +106,10 @@ static void draw(MwWidget handle) {
 
 	BEGIN_MENU_LOOP;
 	if(m->sub[i]->wsub != NULL) {
+		MwDrawFrame(handle, &r, base, MwFALSE);
 		MwDrawWidgetBack(handle, &r, base, 0, MwFALSE);
 	} else if(in_area && handle->pressed) {
+		MwDrawFrame(handle, &r, base, MwFALSE);
 		MwDrawWidgetBack(handle, &r, base, 0, MwFALSE);
 	}
 

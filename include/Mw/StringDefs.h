@@ -34,6 +34,8 @@
 #define MwNpixmap "Vpixmap"
 #define MwNiconPixmap "ViconPixmap"
 #define MwNsizeHints "VsizeHints"
+#define MwNfont "Vfont"
+#define MwNboldFont "VboldFont"
 
 #define MwNactivateHandler "Cactivate"	   /* NULL/int* (MwListBox) */
 #define MwNresizeHandler "Cresize"	   /* NULL */

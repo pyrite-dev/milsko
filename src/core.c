@@ -421,8 +421,8 @@ static void inherit_text(MwWidget handle, const char* key, const char* default_v
 }
 
 static void inherit_integer(MwWidget handle, const char* key, int default_value) {
-	int n;
-	MwWidget    h = handle;
+	int	 n;
+	MwWidget h = handle;
 	while(h != NULL) {
 		if((n = MwGetInteger(h, key)) != -1) {
 			MwSetInteger(handle, key, n);
@@ -433,6 +433,36 @@ static void inherit_integer(MwWidget handle, const char* key, int default_value)
 	MwSetInteger(handle, key, default_value);
 }
 
+#ifdef USE_STB_TRUETYPE
+static void set_font(MwWidget handle) {
+	void*	 f;
+	MwWidget h = handle;
+	while(h != NULL) {
+		if((f = MwGetVoid(h, MwNfont)) != NULL) {
+			MwSetVoid(handle, MwNfont, f);
+			return;
+		}
+		h = h->parent;
+	}
+	f = MwFontLoad(MwTTFData, MwTTFDataSize);
+	MwSetVoid(handle, MwNfont, f);
+}
+
+static void set_boldfont(MwWidget handle) {
+	void*	 f;
+	MwWidget h = handle;
+	while(h != NULL) {
+		if((f = MwGetVoid(h, MwNboldFont)) != NULL) {
+			MwSetVoid(handle, MwNboldFont, f);
+			return;
+		}
+		h = h->parent;
+	}
+	f = MwFontLoad(MwBoldTTFData, MwBoldTTFDataSize);
+	MwSetVoid(handle, MwNboldFont, f);
+}
+#endif
+
 void MwSetDefault(MwWidget handle) {
 	MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
 
@@ -442,6 +472,10 @@ void MwSetDefault(MwWidget handle) {
 	inherit_integer(handle, MwNmodernLook, 0);
 #else
 	inherit_integer(handle, MwNmodernLook, 1);
+#endif
+#ifdef USE_STB_TRUETYPE
+	set_font(handle);
+	set_boldfont(handle);
 #endif
 }
 

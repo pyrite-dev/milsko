@@ -70,6 +70,8 @@
 		<pixmap name="pixmap" />
 		<pixmap name="iconPixmap" />
 		<struct defname="MwSizeHints" pointer="yes" name="sizeHints" />
+		<pointer name="font" />
+		<pointer name="boldFont" />
 
 		<handler name="activate" />
 		<handler name="resize" />
