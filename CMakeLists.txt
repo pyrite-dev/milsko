@@ -7,7 +7,7 @@ project(
 )
 
 option(OPENGL "Compile OpenGL widget or not" ON)
-if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
+if(CMAKE_SYSTEM_NAME STREQUAL "SunOS")
 	option(VULKAN "Compile Vulkan widget or not" OFF)
 else()
 	option(VULKAN "Compile Vulkan widget or not" ON)
@@ -102,11 +102,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		PRIVATE
 		USE_GDI
 	)
-	target_link_libraries(
-		Mw
-		PRIVATE
-		gdi32
-	)
+	list(APPEND LIBRARIES gdi32)
+
+	list(APPEND GL_LIBRARIES opengl32 glu32)
 else()
 	find_package(PkgConfig)
 	pkg_check_modules(X11 REQUIRED x11)
@@ -118,34 +116,44 @@ else()
 		PRIVATE
 		src/backend/x11.c
 	)
-	target_include_directories(
-		Mw
-		PRIVATE
-		${X11_INCLUDE_DIRS} ${XRENDER_INCLUDE_DIRS} ${XCURSOR_INCLUDE_DIRS}
-	)
-	target_link_directories(
-		Mw
-		PRIVATE
-		${X11_LIBRARY_DIRS} ${XRENDER_LIBRARY_DIRS} ${XCURSOR_LIBRARY_DIRS}
-	)
-	target_link_libraries(
-		Mw
-		PRIVATE
-		${X11_LIBRARIES} ${XRENDER_LIBRARIES} ${XCURSOR_LIBRARIES} m
-	)
 	target_compile_definitions(
 		Mw
 		PRIVATE
 		USE_X11
 	)
+	list(APPEND INCLUDE_DIRS ${X11_INCLUDE_DIRS} ${XRENDER_INCLUDE_DIRS} ${XCURSOR_INCLUDE_DIRS})
+	list(APPEND LIBRARY_DIRS ${X11_LIBRARY_DIRS} ${XRENDER_LIBRARY_DIRS} ${XCURSOR_LIBRARY_DIRS})
+	list(APPEND LIBRARIES ${X11_LIBRARIES} ${XRENDER_LIBRARIES} ${XCURSOR_LIBRARIES} m)
 	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-		target_link_libraries(
-			Mw
-			PRIVATE
-			dl
-		)
+		list(APPEND LIBRARIES dl)
 	endif()
+	if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD" AND VULKAN)
+		list(APPEND INCLUDE_DIRS /usr/pkg/include)
+	endif()
+
+	list(APPEND GL_INCLUDE_DIRS ${INCLUDE_DIRS})
+	list(APPEND GL_LIBRARY_DIRS ${LIBRARY_DIRS})
+	list(APPEND GL_LIBRARIES GL GLU)
+
+	list(APPEND VK_INCLUDE_DIRS ${INCLUDE_DIRS})
+	list(APPEND VK_LIBRARY_DIRS ${LIBRARY_DIRS})
 endif()
+
+target_include_directories(
+	Mw
+	PRIVATE
+	${INCLUDE_DIRS}
+)
+target_link_directories(
+	Mw
+	PRIVATE
+	${LIBRARY_DIRS}
+)
+target_link_libraries(
+	Mw
+	PRIVATE
+	${LIBRARIES}
+)
 
 target_compile_definitions(
 	Mw
@@ -155,6 +163,12 @@ target_compile_definitions(
 
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples/basic)
+	if(OPENGL)
+		add_subdirectory(examples/gldemos)
+	endif()
+	if(VULKAN)
+		add_subdirectory(examples/vkdemos)
+	endif()
 endif()
 
 include(GNUInstallDirs)

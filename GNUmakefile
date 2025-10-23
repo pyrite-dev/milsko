@@ -21,6 +21,10 @@ else
 CFLAGS += -O2
 endif
 
+ifeq ($(TARGET),NetBSD)
+VULKAN_NO_STRING_HELPER = 1
+endif
+
 ifeq ($(VULKAN_NO_STRING_HELPER),1)
 VK_STRING_HELPER_DEFINE =
 else
@@ -50,6 +54,7 @@ CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
 LDFLAGS += -L/usr/X11R7/lib -L/usr/pkg/lib -Wl,-R/usr/X11R7/lib -Wl,-R/usr/pkg/lib
 UNIX = 1
 OPENGL = 1
+VULKAN = 1
 FOUND_PLATFORM = 1
 endif
 

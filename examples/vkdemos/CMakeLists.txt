@@ -1,11 +1,11 @@
 # $Id$
 file(
 	GLOB
-	EXAMPLES_BASIC_SOURCES
+	EXAMPLES_VKDEMOS_SOURCES
 	*.c
 )
 
-foreach(PATH IN LISTS EXAMPLES_BASIC_SOURCES)
+foreach(PATH IN LISTS EXAMPLES_VKDEMOS_SOURCES)
 	get_filename_component(
 		TARGET
 		${PATH}
@@ -17,6 +17,7 @@ foreach(PATH IN LISTS EXAMPLES_BASIC_SOURCES)
 	target_include_directories(
 		${TARGET}
 		PRIVATE
+		${VK_INCLUDE_DIRS}
 		${CMAKE_SOURCE_DIR}/include
 	)
 	target_link_libraries(

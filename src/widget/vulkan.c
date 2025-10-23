@@ -11,13 +11,13 @@
 #ifdef _WIN32
 #define VK_USE_PLATFORM_WIN32_KHR 1
 #endif
-#ifdef __linux__
+#ifdef __unix__
 #define VK_USE_PLATFORM_XLIB_KHR 1
 #endif
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
-#ifdef __linux__
+#ifdef __unix__
 #include <vulkan/vulkan_xlib.h>
 #endif
 
@@ -306,7 +306,7 @@ static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
 	VK_CMD(_vkCreateWin32SurfaceKHR(o->vkInstance, &createInfo, NULL,
 					&o->vkSurface));
 #endif
-#ifdef __linux__
+#ifdef __unix__
 	LOAD_VK_FUNCTION(vkCreateXlibSurfaceKHR);
 
 	VkXlibSurfaceCreateInfoKHR createInfo = {
