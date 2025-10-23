@@ -88,7 +88,6 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 	int	       tw, th;
 	MwRect	       r;
 	MwLLPixmap     p;
-	int	       i;
 	int	       ax, lsb;
 	int	       x = 0;
 	if(ttf == NULL) return 1;
@@ -126,11 +125,14 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 				if(a != 0) {
 					a /= 255;
 
-					a = 1 - a;
+					opx[0] = base->red * (1 - a);
+					opx[1] = base->green * (1 - a);
+					opx[2] = base->blue * (1 - a);
 
-					opx[0] = base->red * a;
-					opx[1] = base->green * a;
-					opx[2] = base->blue * a;
+					opx[0] += color->red * a;
+					opx[1] += color->green * a;
+					opx[2] += color->blue * a;
+
 					opx[3] = 255;
 				}
 			}
