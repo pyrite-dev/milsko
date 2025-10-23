@@ -189,15 +189,7 @@ static void ft_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 #endif
 
 void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
-#ifdef HAS_FREETYPE
-	if(handle->lowlevel->ftLib != NULL) {
-		ft_MwDrawText(handle, point, text, bold, align, color);
-	} else {
-#endif
-		bitmap_MwDrawText(handle, point, text, bold, align, color);
-#ifdef HAS_FREETYPE
-	}
-#endif
+	bitmap_MwDrawText(handle, point, text, bold, align, color);
 }
 
 int MwTextWidth(MwWidget handle, const char* text) {

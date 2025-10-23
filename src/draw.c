@@ -92,31 +92,33 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 	MwLLPolygon(handle->lowlevel, p, 4, color);
 }
 void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
-	MwPoint p[4];
-	int	y;
-	double	darken	   = 0.;
-	double	darkenStep = (ColorDiff / 2.) / rect->height;
+	MwLLPixmap pixmap;
+	int	   y;
+	int	   x;
+	double	   darken     = 0.;
+	double	   darkenStep = (ColorDiff / 2.) / rect->height;
+
+#define SIZE (rect->width * rect->height * 4)
+	unsigned char* data = malloc(SIZE);
+	memset(data, 0, SIZE);
+#undef SIZE
 
 	for(y = 0; y < rect->height; y++) {
-		MwLLColor lighter = MwLightenColor(handle, color, -darken, -darken, -darken);
-
-		p[0].x = rect->x;
-		p[0].y = rect->y + y;
-
-		p[1].x = rect->x + rect->width;
-		p[1].y = rect->y + y;
-
-		p[2].x = rect->x + rect->width;
-		p[2].y = rect->y + y;
-
-		p[3].x = rect->x;
-		p[3].y = rect->y + y + 1;
-
-		MwLLPolygon(handle->lowlevel, p, 4, lighter);
-
-		MwLLFreeColor(lighter);
+		MwLLColor col = MwLightenColor(handle, color, -darken, -darken, -darken);
+		for(x = 0; x < rect->width; x++) {
+			int idx	      = ((y * rect->width) + x) * 4;
+			data[idx]     = col->red;
+			data[idx + 1] = col->green;
+			data[idx + 2] = col->blue;
+			data[idx + 3] = 255;
+		}
+		MwLLFreeColor(col);
 		darken += darkenStep;
 	}
+
+	pixmap = MwLLCreatePixmap(handle->lowlevel, data, rect->width / 4, rect->height);
+	MwLLDrawPixmap(handle->lowlevel, rect, pixmap);
+	MwLLDestroyPixmap(pixmap);
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {

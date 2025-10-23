@@ -49,7 +49,6 @@ CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
 LDFLAGS += -L/usr/X11R7/lib -L/usr/pkg/lib -Wl,-R/usr/X11R7/lib -Wl,-R/usr/pkg/lib
 UNIX = 1
 OPENGL = 1
-FREETYPE = 1
 FOUND_PLATFORM = 1
 endif
 
@@ -58,7 +57,6 @@ L_LIBS += -ldl
 UNIX = 1
 OPENGL = 1
 VULKAN = 1
-FREETYPE = 1
 FOUND_PLATFORM = 1
 endif
 
@@ -66,7 +64,6 @@ ifeq ($(TARGET),Windows)
 WINDOWS = 1
 OPENGL = 1
 VULKAN = 1
-FREETYPE = 0
 FOUND_PLATFORM = 1
 endif
 
@@ -75,7 +72,6 @@ CC = gcc
 UNIX = 1
 L_LIBS += -lsocket -lnsl
 OPENGL = 1
-FREETYPE = 0
 FOUND_PLATFORM = 1
 endif
 
@@ -84,7 +80,6 @@ CC = gcc
 DARWIN = 1
 L_LIBS += -framework Carbon
 FOUND_PLATFORM = 1
-FREETYPE = 0
 endif
 
 ifeq ($(FOUND_PLATFORM),0)
@@ -150,11 +145,6 @@ L_OBJS += src/widget/vulkan.o
 EXAMPLES += examples/vkdemos/vulkan$(EXEC)
 endif
 
-ifeq ($(FREETYPE),1)
-L_CFLAGS += -I/usr/include/freetype2 -DHAS_FREETYPE
-# L_LDFLAGS += -lfreetype
-L_OBJS += src/text/ft_font.o
-endif
 
 .PHONY: all install format clean lib examples
 
