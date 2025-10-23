@@ -156,3 +156,15 @@ target_compile_definitions(
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples/basic)
 endif()
+
+include(GNUInstallDirs)
+install(
+	TARGETS Mw
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+install(
+	DIRECTORY ${CMAKE_SOURCE_DIR}/include/
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+	FILES_MATCHING PATTERN "*.h"
+)
