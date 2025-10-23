@@ -3,7 +3,7 @@
 
 object {
 	text {
-		ttf "resource/mononoki.ttf",
+		ttf "resource/DejaVuSansMono.ttf",
 		"Milsko Toolkit",
 		1, 0
 	}
