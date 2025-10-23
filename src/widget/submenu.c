@@ -147,7 +147,7 @@ static void click(MwWidget handle) {
 
 static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
 	int i, w = 0, h = 0;
-#ifdef UNIX
+#ifdef USE_X11
 	XSetWindowAttributes xswa;
 	Atom		     wndtype = XInternAtom(handle->lowlevel->display, "_NET_WM_WINDOW_TYPE", False);
 	Atom		     wndmenu = XInternAtom(handle->lowlevel->display, "_NET_WM_WINDOW_TYPE_MENU", False);
@@ -162,7 +162,7 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
 
 	MwLLDetach(handle->lowlevel, point);
 
-#ifdef _WIN32
+#ifdef USE_GDI
 	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_STYLE, (LPARAM)0);
 	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_EXSTYLE, (LPARAM)WS_EX_TOOLWINDOW);
 #endif

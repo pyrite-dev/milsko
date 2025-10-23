@@ -253,6 +253,6 @@ void MwFontFree(void* handle) {
 	free(ttf->data);
 	free(ttf);
 #else
-	(void)font;
+	(void)handle;
 #endif
 }
