@@ -15,6 +15,7 @@ endif()
 option(CLASSIC "Use classic theme" OFF)
 option(USE_STB_IMAGE "Use stb_image" ON)
 option(USE_STB_TRUETYPE "Use stb_truetype" ON)
+option(BUILD_EXAMPLES "Build examples" OFF)
 
 file(
 	GLOB
@@ -152,4 +153,6 @@ target_compile_definitions(
 	_MILSKO
 )
 
-add_subdirectory(examples/basic)
+if(BUILD_EXAMPLES)
+	add_subdirectory(examples/basic)
+endif()
