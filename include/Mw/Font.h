@@ -52,7 +52,7 @@ MWDECL unsigned int MwBoldTTFDataSize;
 MWDECL void* MwFontLoad(unsigned char* data, unsigned int size);
 
 /*!
- * %brieff Frees a font handle
+ * %brief Frees a font handle
  * %param handle Handle
  */
 MWDECL void MwFontFree(void* handle);

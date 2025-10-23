@@ -225,7 +225,13 @@
 	<a href="#Mw_Draw_h__MwDrawRect">MwDrawRect</a>
 </dd>
 <dd>
+	<a href="#Mw_Draw_h__MwDrawRectFading">MwDrawRectFading</a>
+</dd>
+<dd>
 	<a href="#Mw_Draw_h__MwDrawFrame">MwDrawFrame</a>
+</dd>
+<dd>
+	<a href="#Mw_Draw_h__MwDrawWidgetBack">MwDrawWidgetBack</a>
 </dd>
 <dd>
 	<a href="#Mw_Draw_h__MwDrawTriangle">MwDrawTriangle</a>
@@ -283,6 +289,24 @@
 </dd>
 <dd>
 	<a href="#Mw_Font_h__MwBoldFontData__">MwBoldFontData[]</a>
+</dd>
+<dd>
+	<a href="#Mw_Font_h__MwTTFData__">MwTTFData[]</a>
+</dd>
+<dd>
+	<a href="#Mw_Font_h__MwTTFDataSize">MwTTFDataSize</a>
+</dd>
+<dd>
+	<a href="#Mw_Font_h__MwBoldTTFData__">MwBoldTTFData[]</a>
+</dd>
+<dd>
+	<a href="#Mw_Font_h__MwBoldTTFDataSize">MwBoldTTFDataSize</a>
+</dd>
+<dd>
+	<a href="#Mw_Font_h__MwFontLoad">MwFontLoad</a>
+</dd>
+<dd>
+	<a href="#Mw_Font_h__MwFontFree">MwFontFree</a>
 </dd>
 <dt>
 	<a href="#Mw_Icon_h">Mw/Icon.h</a>
@@ -602,98 +626,140 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwDIRECTION"><B><FONT COLOR="#228B22">enum</FONT></B> MwDIRECTION;</pre>
+<pre id="Mw_Constants_h__MwDIRECTION">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Direction enumeration.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwORIENTATION"><B><FONT COLOR="#228B22">enum</FONT></B> MwORIENTATION;</pre>
+<pre id="Mw_Constants_h__MwORIENTATION">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Orientation.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwALIGNMENT"><B><FONT COLOR="#228B22">enum</FONT></B> MwALIGNMENT;</pre>
+<pre id="Mw_Constants_h__MwALIGNMENT">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Alignment.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwDEFAULT">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwDEFAULT</FONT> 0x0fffffff</pre>
+<pre id="Mw_Constants_h__MwDEFAULT">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Default.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwDIRECTORY_TYPE"><B><FONT COLOR="#228B22">enum</FONT></B> MwDIRECTORY_TYPE;</pre>
+<pre id="Mw_Constants_h__MwDIRECTORY_TYPE">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Directory entry type.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwMB_ICONMASK">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_ICONMASK</FONT> 0xf</pre>
+<pre id="Mw_Constants_h__MwMB_ICONMASK">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Icon mask.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwMB_BUTTONMASK">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONMASK</FONT> 0xf0</pre>
+<pre id="Mw_Constants_h__MwMB_BUTTONMASK">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Button mask.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwMB_BUTTONOK">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONOK</FONT> 0x10</pre>
+<pre id="Mw_Constants_h__MwMB_BUTTONOK">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	OK button.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwMB_BUTTONCANCEL">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONCANCEL</FONT> 0x20</pre>
+<pre id="Mw_Constants_h__MwMB_BUTTONCANCEL">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Cancel button.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwMB_BUTTONYES">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONYES</FONT> 0x40</pre>
+<pre id="Mw_Constants_h__MwMB_BUTTONYES">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Yes button.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwMB_BUTTONNO">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONNO</FONT> 0x80</pre>
+<pre id="Mw_Constants_h__MwMB_BUTTONNO">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	No button.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwMB_BUTTONOKCANCEL">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONOKCANCEL</FONT> (MwMB_BUTTONCANCEL | MwMB_BUTTONOK)</pre>
+<pre id="Mw_Constants_h__MwMB_BUTTONOKCANCEL">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Ok and Cancel button.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwMB_BUTTONYESNO">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONYESNO</FONT> (MwMB_BUTTONYES | MwMB_BUTTONNO)</pre>
+<pre id="Mw_Constants_h__MwMB_BUTTONYESNO">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Yes and No button.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Constants_h__MwMB_BUTTONYESNOCANCEL">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMB_BUTTONYESNOCANCEL</FONT> (MwMB_BUTTONYES | MwMB_BUTTONNO | MwMB_BUTTONCANCEL)</pre>
+<pre id="Mw_Constants_h__MwMB_BUTTONYESNOCANCEL">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Yes, No and Cancel button.
@@ -707,7 +773,10 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwDispatch">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <B><FONT COLOR="#0000FF">MwDispatch</FONT></B>(x, y)</pre>
+<pre id="Mw_Core_h__MwDispatch">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Dispatches the handler of widget class.
@@ -729,7 +798,10 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwDispatch2">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <B><FONT COLOR="#0000FF">MwDispatch2</FONT></B>(x, y)</pre>
+<pre id="Mw_Core_h__MwDispatch2">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Dispatches the handler of widget class.
@@ -757,7 +829,10 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwDispatch3">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <B><FONT COLOR="#0000FF">MwDispatch3</FONT></B>(x, y, z)</pre>
+<pre id="Mw_Core_h__MwDispatch3">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Dispatches the handler of widget class.
@@ -785,14 +860,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwCreateWidget">MWDECL MwWidget <B><FONT COLOR="#0000FF">MwCreateWidget</FONT></B> (
-	MwClass widget_class,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* name,
-	MwWidget parent,
-	<B><FONT COLOR="#228B22">int</FONT></B> x,
-	<B><FONT COLOR="#228B22">int</FONT></B> y,
-	<B><FONT COLOR="#228B22">unsigned</FONT></B> <B><FONT COLOR="#228B22">int</FONT></B> width,
-	<B><FONT COLOR="#228B22">unsigned</FONT></B> <B><FONT COLOR="#228B22">int</FONT></B> height
+<pre id="Mw_Core_h__MwCreateWidget">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -848,15 +918,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwVaCreateWidget">MWDECL MwWidget <B><FONT COLOR="#0000FF">MwVaCreateWidget</FONT></B> (
-	MwClass widget_class,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* name,
-	MwWidget parent,
-	<B><FONT COLOR="#228B22">int</FONT></B> x,
-	<B><FONT COLOR="#228B22">int</FONT></B> y,
-	<B><FONT COLOR="#228B22">unsigned</FONT></B> <B><FONT COLOR="#228B22">int</FONT></B> width,
-	<B><FONT COLOR="#228B22">unsigned</FONT></B> <B><FONT COLOR="#228B22">int</FONT></B> height,
-	...
+<pre id="Mw_Core_h__MwVaCreateWidget">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -918,15 +982,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwVaListCreateWidget">MWDECL MwWidget <B><FONT COLOR="#0000FF">MwVaListCreateWidget</FONT></B> (
-	MwClass widget_class,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* name,
-	MwWidget parent,
-	<B><FONT COLOR="#228B22">int</FONT></B> x,
-	<B><FONT COLOR="#228B22">int</FONT></B> y,
-	<B><FONT COLOR="#228B22">unsigned</FONT></B> <B><FONT COLOR="#228B22">int</FONT></B> width,
-	<B><FONT COLOR="#228B22">unsigned</FONT></B> <B><FONT COLOR="#228B22">int</FONT></B> height,
-	va_list va
+<pre id="Mw_Core_h__MwVaListCreateWidget">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -988,8 +1046,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwDestroyWidget">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDestroyWidget</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Core_h__MwDestroyWidget">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1003,11 +1062,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwVaWidgetExecute">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwVaWidgetExecute</FONT></B> (
+<pre id="Mw_Core_h__MwVaWidgetExecute">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* func_name,
-	<B><FONT COLOR="#228B22">void</FONT></B>* out,
-	...
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1030,11 +1087,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwVaListWidgetExecute">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwVaListWidgetExecute</FONT></B> (
+<pre id="Mw_Core_h__MwVaListWidgetExecute">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* func_name,
-	<B><FONT COLOR="#228B22">void</FONT></B>* out,
-	va_list va
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1057,8 +1112,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwLoop">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwLoop</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Core_h__MwLoop">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1072,8 +1128,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwStep">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwStep</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Core_h__MwStep">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1087,8 +1144,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwPending">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwPending</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Core_h__MwPending">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1108,10 +1166,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwSetInteger">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwSetInteger</FONT></B> (
+<pre id="Mw_Core_h__MwSetInteger">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* key,
-	<B><FONT COLOR="#228B22">int</FONT></B> n
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1137,10 +1194,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwSetText">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwSetText</FONT></B> (
+<pre id="Mw_Core_h__MwSetText">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* key,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* value
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1166,10 +1222,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwSetVoid">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwSetVoid</FONT></B> (
+<pre id="Mw_Core_h__MwSetVoid">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* key,
-	<B><FONT COLOR="#228B22">void</FONT></B>* value
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1195,9 +1250,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwGetInteger">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwGetInteger</FONT></B> (
+<pre id="Mw_Core_h__MwGetInteger">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* key
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1223,9 +1278,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwGetText">MWDECL <B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwGetText</FONT></B> (
+<pre id="Mw_Core_h__MwGetText">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* key
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1251,9 +1306,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwGetVoid">MWDECL <B><FONT COLOR="#228B22">void</FONT></B>* <B><FONT COLOR="#0000FF">MwGetVoid</FONT></B> (
+<pre id="Mw_Core_h__MwGetVoid">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* key
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1279,8 +1334,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwSetDefault">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwSetDefault</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Core_h__MwSetDefault">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1297,9 +1353,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwVaApply">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwVaApply</FONT></B> (
+<pre id="Mw_Core_h__MwVaApply">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	...
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1319,9 +1375,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwVaListApply">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwVaListApply</FONT></B> (
+<pre id="Mw_Core_h__MwVaListApply">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	va_list va
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1341,11 +1397,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwAddUserHandler">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwAddUserHandler</FONT></B> (
+<pre id="Mw_Core_h__MwAddUserHandler">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* key,
-	MwUserHandler handler,
-	<B><FONT COLOR="#228B22">void</FONT></B>* user_data
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1377,10 +1431,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwDispatchUserHandler">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDispatchUserHandler</FONT></B> (
+<pre id="Mw_Core_h__MwDispatchUserHandler">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* key,
-	<B><FONT COLOR="#228B22">void</FONT></B>* handler_data
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1406,9 +1459,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwSetErrorHandler">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwSetErrorHandler</FONT></B> (
-	MwErrorHandler handler,
-	<B><FONT COLOR="#228B22">void</FONT></B>* user_data
+<pre id="Mw_Core_h__MwSetErrorHandler">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1434,9 +1487,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwDispatchError">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDispatchError</FONT></B> (
-	<B><FONT COLOR="#228B22">int</FONT></B> code,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* message
+<pre id="Mw_Core_h__MwDispatchError">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1456,9 +1509,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwGetBeforeStep">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwGetBeforeStep</FONT></B> (
+<pre id="Mw_Core_h__MwGetBeforeStep">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	jmp_buf* jmpbuf
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1478,8 +1531,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwForceRender">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwForceRender</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Core_h__MwForceRender">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1493,9 +1547,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwForceRender2">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwForceRender2</FONT></B> (
+<pre id="Mw_Core_h__MwForceRender2">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">void</FONT></B>* ptr
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1515,8 +1569,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwAddTickList">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwAddTickList</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Core_h__MwAddTickList">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1530,8 +1585,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwFocus">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwFocus</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Core_h__MwFocus">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1545,7 +1601,7 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwGrabPointer">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwGrabPointer</FONT></B> (
+<pre id="Mw_Core_h__MwGrabPointer">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
 	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
@@ -1567,8 +1623,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Core_h__MwHideCursor">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwHideCursor</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Core_h__MwHideCursor">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1589,56 +1646,80 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Cursor_h__MwCursorDefault">MWDECL MwCursor MwCursorDefault;</pre>
+<pre id="Mw_Cursor_h__MwCursorDefault">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Default cursor.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Cursor_h__MwCursorDefaultMask">MWDECL MwCursor MwCursorDefaultMask;</pre>
+<pre id="Mw_Cursor_h__MwCursorDefaultMask">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Default cursor mask.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Cursor_h__MwCursorCross">MWDECL MwCursor MwCursorCross;</pre>
+<pre id="Mw_Cursor_h__MwCursorCross">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Cross cursor.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Cursor_h__MwCursorCrossMask">MWDECL MwCursor MwCursorCrossMask;</pre>
+<pre id="Mw_Cursor_h__MwCursorCrossMask">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Cross cursor mask.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Cursor_h__MwCursorText">MWDECL MwCursor MwCursorText;</pre>
+<pre id="Mw_Cursor_h__MwCursorText">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Text cursor.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Cursor_h__MwCursorTextMask">MWDECL MwCursor MwCursorTextMask;</pre>
+<pre id="Mw_Cursor_h__MwCursorTextMask">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Text cursor mask.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Cursor_h__MwCursorHidden">MWDECL MwCursor MwCursorHidden;</pre>
+<pre id="Mw_Cursor_h__MwCursorHidden">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Hidden cursor.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Cursor_h__MwCursorHiddenMask">MWDECL MwCursor MwCursorHiddenMask;</pre>
+<pre id="Mw_Cursor_h__MwCursorHiddenMask">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Hidden cursor mask.
@@ -1652,21 +1733,30 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Default_h__MwDefaultBackground">MWDECL <B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* MwDefaultBackground;</pre>
+<pre id="Mw_Default_h__MwDefaultBackground">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Default background color.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Default_h__MwDefaultForeground">MWDECL <B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* MwDefaultForeground;</pre>
+<pre id="Mw_Default_h__MwDefaultForeground">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Default foreground color.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Default_h__MwDefaultBorderWidth">MWDECL <B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">int</FONT></B> MwDefaultBorderWidth;</pre>
+<pre id="Mw_Default_h__MwDefaultBorderWidth">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Default border width.
@@ -1680,8 +1770,9 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Directory_h__MwDirectoryOpen">MWDECL <B><FONT COLOR="#228B22">void</FONT></B>* <B><FONT COLOR="#0000FF">MwDirectoryOpen</FONT></B> (
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* path
+<pre id="Mw_Directory_h__MwDirectoryOpen">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1701,8 +1792,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Directory_h__MwDirectoryClose">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDirectoryClose</FONT></B> (
-	<B><FONT COLOR="#228B22">void</FONT></B>* handle
+<pre id="Mw_Directory_h__MwDirectoryClose">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1716,8 +1808,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Directory_h__MwDirectoryRead">MWDECL MwDirectoryEntry* <B><FONT COLOR="#0000FF">MwDirectoryRead</FONT></B> (
-	<B><FONT COLOR="#228B22">void</FONT></B>* handle
+<pre id="Mw_Directory_h__MwDirectoryRead">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1737,8 +1830,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Directory_h__MwDirectoryFreeEntry">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDirectoryFreeEntry</FONT></B> (
-	MwDirectoryEntry* entry
+<pre id="Mw_Directory_h__MwDirectoryFreeEntry">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1752,8 +1846,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Directory_h__MwDirectoryCurrent">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwDirectoryCurrent</FONT></B> (
-	<B><FONT COLOR="#228B22">void</FONT></B>
+<pre id="Mw_Directory_h__MwDirectoryCurrent">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1767,9 +1862,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Directory_h__MwDirectoryJoin">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwDirectoryJoin</FONT></B> (
-	<B><FONT COLOR="#228B22">char</FONT></B>* a,
-	<B><FONT COLOR="#228B22">char</FONT></B>* b
+<pre id="Mw_Directory_h__MwDirectoryJoin">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1802,9 +1897,9 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwParseColor">MWDECL MwLLColor <B><FONT COLOR="#0000FF">MwParseColor</FONT></B> (
+<pre id="Mw_Draw_h__MwParseColor">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1830,12 +1925,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwLightenColor">MWDECL MwLLColor <B><FONT COLOR="#0000FF">MwLightenColor</FONT></B> (
+<pre id="Mw_Draw_h__MwLightenColor">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	MwLLColor color,
-	<B><FONT COLOR="#228B22">int</FONT></B> r,
-	<B><FONT COLOR="#228B22">int</FONT></B> g,
-	<B><FONT COLOR="#228B22">int</FONT></B> b
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1879,10 +1971,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwDrawRect">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDrawRect</FONT></B> (
+<pre id="Mw_Draw_h__MwDrawRect">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	MwRect* rect,
-	MwLLColor color
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1908,11 +1999,37 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwDrawFrame">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDrawFrame</FONT></B> (
+<pre id="Mw_Draw_h__MwDrawRectFading">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	MwRect* rect,
-	MwLLColor color,
-	<B><FONT COLOR="#228B22">int</FONT></B> invert
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
+<dl>
+<dd>
+	Draws a filled rectangle that fades to a darker color.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>rect</code>
+</dt>
+<dd>
+	Rectangle area.
+</dd>
+<dt>
+	Parameter <code>color</code>
+</dt>
+<dd>
+	Color.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwDrawFrame">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1947,12 +2064,46 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwDrawTriangle">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDrawTriangle</FONT></B> (
+<pre id="Mw_Draw_h__MwDrawWidgetBack">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	MwRect* rect,
-	MwLLColor color,
-	<B><FONT COLOR="#228B22">int</FONT></B> invert,
-	<B><FONT COLOR="#228B22">int</FONT></B> direction
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
+<dl>
+<dd>
+	Does the DrawFrame/DrawRect combo used for drawing widget.
+</dd>
+<dt>
+	<table border="0"><tr><td><img src="warning.gif" alt="warning"></td><td><code>rect</code> gets changed to the area of rectangle inside.</td></table>
+</dt>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Widget.
+</dd>
+<dt>
+	Parameter <code>rect</code>
+</dt>
+<dd>
+	Rectangle area.
+</dd>
+<dt>
+	Parameter <code>color</code>
+</dt>
+<dd>
+	Color.
+</dd>
+<dt>
+	Parameter <code>invert</code>
+</dt>
+<dd>
+	Invert the 3D border color or not.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Draw_h__MwDrawTriangle">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -1984,12 +2135,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwDrawFrameEx">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDrawFrameEx</FONT></B> (
+<pre id="Mw_Draw_h__MwDrawFrameEx">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	MwRect* rect,
-	MwLLColor color,
-	<B><FONT COLOR="#228B22">int</FONT></B> invert,
-	<B><FONT COLOR="#228B22">int</FONT></B> border
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2030,13 +2178,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwDrawText">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwDrawText</FONT></B> (
+<pre id="Mw_Draw_h__MwDrawText">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	MwPoint* point,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text,
-	<B><FONT COLOR="#228B22">int</FONT></B> bold,
-	<B><FONT COLOR="#228B22">int</FONT></B> align,
-	MwLLColor color
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2080,9 +2224,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwLoadImage">MWDECL MwLLPixmap <B><FONT COLOR="#0000FF">MwLoadImage</FONT></B> (
+<pre id="Mw_Draw_h__MwLoadImage">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* path
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2108,9 +2252,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwTextWidth">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwTextWidth</FONT></B> (
+<pre id="Mw_Draw_h__MwTextWidth">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2136,9 +2280,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwTextHeight">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwTextHeight</FONT></B> (
+<pre id="Mw_Draw_h__MwTextHeight">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2164,11 +2308,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwGetColor">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwGetColor</FONT></B> (
-	MwLLColor color,
-	<B><FONT COLOR="#228B22">int</FONT></B>* red,
-	<B><FONT COLOR="#228B22">int</FONT></B>* green,
-	<B><FONT COLOR="#228B22">int</FONT></B>* blue
+<pre id="Mw_Draw_h__MwGetColor">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2200,11 +2342,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwLoadRaw">MWDECL MwLLPixmap <B><FONT COLOR="#0000FF">MwLoadRaw</FONT></B> (
+<pre id="Mw_Draw_h__MwLoadRaw">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">unsigned</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* rgb,
-	<B><FONT COLOR="#228B22">int</FONT></B> width,
-	<B><FONT COLOR="#228B22">int</FONT></B> height
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2242,9 +2382,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwLoadXPM">MWDECL MwLLPixmap <B><FONT COLOR="#0000FF">MwLoadXPM</FONT></B> (
+<pre id="Mw_Draw_h__MwLoadXPM">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">char</FONT></B>** data
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2270,9 +2410,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Draw_h__MwParseColorName">MWDECL MwLLColor <B><FONT COLOR="#0000FF">MwParseColorName</FONT></B> (
+<pre id="Mw_Draw_h__MwParseColorName">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* color
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2305,29 +2445,39 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Error_h__MwErrorEnum_T"><B><FONT COLOR="#228B22">typedef</FONT></B> <B><FONT COLOR="#228B22">enum</FONT></B> MwErrorEnum_T;</pre>
+<pre id="Mw_Error_h__MwErrorEnum_T">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Error code enumeration.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Error_h___MwEsuccess_"> MwEsuccess = 0</pre>
+<pre id="Mw_Error_h___MwEsuccess_">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	No error.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Error_h___MwEerror"> MwEerror</pre>
+<pre id="Mw_Error_h___MwEerror">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	There was an error.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Error_h__MwGetLastError">MWDECL <B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwGetLastError</FONT></B> (
-	<B><FONT COLOR="#228B22">void</FONT></B>
+<pre id="Mw_Error_h__MwGetLastError">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2349,17 +2499,107 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Font_h__MwFontData__">MWDECL MwFont MwFontData[];</pre>
+<pre id="Mw_Font_h__MwFontData__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Default font data.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Font_h__MwBoldFontData__">MWDECL MwFont MwBoldFontData[];</pre>
+<pre id="Mw_Font_h__MwBoldFontData__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Default bold font data.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Font_h__MwTTFData__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
+<dl>
+<dd>
+	Default TTF font data.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Font_h__MwTTFDataSize">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
+<dl>
+<dd>
+	Default TTF font size.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Font_h__MwBoldTTFData__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
+<dl>
+<dd>
+	Default bold TTF font data.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Font_h__MwBoldTTFDataSize">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
+<dl>
+<dd>
+	Default bold TTF font size.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Font_h__MwFontLoad">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
+<dl>
+<dd>
+	Loads a TTF Font.
+</dd>
+<dt>
+	Parameter <code>data</code>
+</dt>
+<dd>
+	Data.
+</dd>
+<dt>
+	Parameter <code>size</code>
+</dt>
+<dd>
+	Data size.
+</dd>
+<dt>
+	Returns
+</dt>
+<dd>
+	Font handle.
+</dd>
+</dl>
+<hr>
+<pre id="Mw_Font_h__MwFontFree">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
+<dl>
+<dd>
+	Frees a font handle.
+</dd>
+<dt>
+	Parameter <code>handle</code>
+</dt>
+<dd>
+	Handle.
 </dd>
 </dl>
 <hr>
@@ -2370,91 +2610,130 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconBack__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconBack[];</pre>
+<pre id="Mw_Icon_h__MwIconBack__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Back icon.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconComputer__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconComputer[];</pre>
+<pre id="Mw_Icon_h__MwIconComputer__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Computer icon.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconDirectory__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconDirectory[];</pre>
+<pre id="Mw_Icon_h__MwIconDirectory__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Directory icon.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconError__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconError[];</pre>
+<pre id="Mw_Icon_h__MwIconError__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Error icon.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconFile__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconFile[];</pre>
+<pre id="Mw_Icon_h__MwIconFile__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	File icon.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconForward__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconForward[];</pre>
+<pre id="Mw_Icon_h__MwIconForward__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Forward icon.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconInfo__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconInfo[];</pre>
+<pre id="Mw_Icon_h__MwIconInfo__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Info icon.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconNews__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconNews[];</pre>
+<pre id="Mw_Icon_h__MwIconNews__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	News icon.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconNote__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconNote[];</pre>
+<pre id="Mw_Icon_h__MwIconNote__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Note icon.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconQuestion__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconQuestion[];</pre>
+<pre id="Mw_Icon_h__MwIconQuestion__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Question icon.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconSearch__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconSearch[];</pre>
+<pre id="Mw_Icon_h__MwIconSearch__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Search icon.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconUp__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconUp[];</pre>
+<pre id="Mw_Icon_h__MwIconUp__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Up icon.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Icon_h__MwIconWarning__">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* MwIconWarning[];</pre>
+<pre id="Mw_Icon_h__MwIconWarning__">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Warning icon.
@@ -2485,11 +2764,9 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_MessageBox_h__MwMessageBox">MWDECL MwWidget <B><FONT COLOR="#0000FF">MwMessageBox</FONT></B> (
+<pre id="Mw_MessageBox_h__MwMessageBox">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* title,
-	<B><FONT COLOR="#228B22">unsigned</FONT></B> <B><FONT COLOR="#228B22">int</FONT></B> flag
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2527,9 +2804,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_MessageBox_h__MwMessageBoxGetChild">MWDECL MwWidget <B><FONT COLOR="#0000FF">MwMessageBoxGetChild</FONT></B> (
+<pre id="Mw_MessageBox_h__MwMessageBoxGetChild">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">int</FONT></B> child
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2549,8 +2826,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_MessageBox_h__MwMessageBoxDestroy">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwMessageBoxDestroy</FONT></B> (
-	MwWidget handle
+<pre id="Mw_MessageBox_h__MwMessageBoxDestroy">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2578,8 +2856,9 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_String_h__MwStringDupliacte">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwStringDupliacte</FONT></B> (
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* str
+<pre id="Mw_String_h__MwStringDupliacte">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2599,9 +2878,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_String_h__MwStringConcat">MWDECL <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwStringConcat</FONT></B> (
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* str1,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* str2
+<pre id="Mw_String_h__MwStringConcat">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2627,9 +2906,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_String_h__MwStringSize">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwStringSize</FONT></B> (
-	<B><FONT COLOR="#228B22">char</FONT></B>* out,
-	MwOffset size
+<pre id="Mw_String_h__MwStringSize">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2649,9 +2928,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_String_h__MwStringTime">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwStringTime</FONT></B> (
-	<B><FONT COLOR="#228B22">char</FONT></B>* out,
-	time_t t
+<pre id="Mw_String_h__MwStringTime">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2692,9 +2971,9 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Unicode_h__MwUTF8ToUTF32">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwUTF8ToUTF32</FONT></B> (
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* input,
-	<B><FONT COLOR="#228B22">int</FONT></B>* output
+<pre id="Mw_Unicode_h__MwUTF8ToUTF32">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2708,8 +2987,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Unicode_h__MwUTF8Length">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwUTF8Length</FONT></B> (
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* input
+<pre id="Mw_Unicode_h__MwUTF8Length">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2723,12 +3003,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Unicode_h__MwUTF8Copy">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwUTF8Copy</FONT></B> (
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* src,
-	<B><FONT COLOR="#228B22">int</FONT></B> srcskip,
-	<B><FONT COLOR="#228B22">char</FONT></B>* dst,
-	<B><FONT COLOR="#228B22">int</FONT></B> dstskip,
-	<B><FONT COLOR="#228B22">int</FONT></B> len
+<pre id="Mw_Unicode_h__MwUTF8Copy">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2742,9 +3019,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Unicode_h__MwUTF32ToUTF8">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwUTF32ToUTF8</FONT></B> (
-	<B><FONT COLOR="#228B22">int</FONT></B> input,
-	<B><FONT COLOR="#228B22">char</FONT></B>* output
+<pre id="Mw_Unicode_h__MwUTF32ToUTF8">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2765,21 +3042,30 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Version_h__MwMAJOR">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMAJOR</FONT> 0</pre>
+<pre id="Mw_Version_h__MwMAJOR">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Major version.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Version_h__MwMINOR">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwMINOR</FONT> 0</pre>
+<pre id="Mw_Version_h__MwMINOR">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Minor version.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Version_h__MwVERSION">#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MwVERSION</FONT> <B><FONT COLOR="#BC8F8F">&quot;pre-1.0&quot;</FONT></B></pre>
+<pre id="Mw_Version_h__MwVERSION">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Version in string.
@@ -2793,7 +3079,10 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Button_h__MwButtonClass">MWDECL MwClass MwButtonClass;</pre>
+<pre id="Mw_Widget_Button_h__MwButtonClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Button widget class.
@@ -2807,7 +3096,10 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_CheckBox_h__MwCheckBoxClass">MWDECL MwClass MwCheckBoxClass;</pre>
+<pre id="Mw_Widget_CheckBox_h__MwCheckBoxClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	CheckBox widget class.
@@ -2821,7 +3113,10 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Entry_h__MwEntryClass">MWDECL MwClass MwEntryClass;</pre>
+<pre id="Mw_Widget_Entry_h__MwEntryClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Entry widget class.
@@ -2835,7 +3130,10 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Frame_h__MwFrameClass">MWDECL MwClass MwFrameClass;</pre>
+<pre id="Mw_Widget_Frame_h__MwFrameClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Frame widget class.
@@ -2849,7 +3147,10 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Image_h__MwImageClass">MWDECL MwClass MwImageClass;</pre>
+<pre id="Mw_Widget_Image_h__MwImageClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Image widget class.
@@ -2863,7 +3164,10 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Label_h__MwLabelClass">MWDECL MwClass MwLabelClass;</pre>
+<pre id="Mw_Widget_Label_h__MwLabelClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Label widget class.
@@ -2877,15 +3181,19 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxClass">MWDECL MwClass MwListBoxClass;</pre>
+<pre id="Mw_Widget_ListBox_h__MwListBoxClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	ListBox widget class.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxCreatePacket">MWDECL MwListBoxPacket* <B><FONT COLOR="#0000FF">MwListBoxCreatePacket</FONT></B> (
-	<B><FONT COLOR="#228B22">void</FONT></B>
+<pre id="Mw_Widget_ListBox_h__MwListBoxCreatePacket">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2899,8 +3207,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxDestroyPacket">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxDestroyPacket</FONT></B> (
-	MwListBoxPacket* packet
+<pre id="Mw_Widget_ListBox_h__MwListBoxDestroyPacket">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2914,9 +3223,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxPacketInsert">MWDECL <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxPacketInsert</FONT></B> (
-	MwListBoxPacket* packet,
-	<B><FONT COLOR="#228B22">int</FONT></B> index
+<pre id="Mw_Widget_ListBox_h__MwListBoxPacketInsert">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2942,11 +3251,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxPacketSet">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxPacketSet</FONT></B> (
-	MwListBoxPacket* packet,
-	<B><FONT COLOR="#228B22">int</FONT></B> index,
-	<B><FONT COLOR="#228B22">int</FONT></B> col,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* text
+<pre id="Mw_Widget_ListBox_h__MwListBoxPacketSet">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -2978,10 +3285,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxPacketSetIcon">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxPacketSetIcon</FONT></B> (
-	MwListBoxPacket* packet,
-	<B><FONT COLOR="#228B22">int</FONT></B> index,
-	MwLLPixmap icon
+<pre id="Mw_Widget_ListBox_h__MwListBoxPacketSetIcon">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3007,10 +3313,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxInsert">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxInsert</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxInsert">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">int</FONT></B> index,
-	<B><FONT COLOR="#228B22">void</FONT></B>* packet
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3036,9 +3341,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxDelete">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxDelete</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxDelete">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">int</FONT></B> index
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3058,9 +3363,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxGet">MwInline <B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* <B><FONT COLOR="#0000FF">MwListBoxGet</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxGet">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">int</FONT></B> index
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3086,10 +3391,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxSetWidth">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxSetWidth</FONT></B> (
+<pre id="Mw_Widget_ListBox_h__MwListBoxSetWidth">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">int</FONT></B> index,
-	<B><FONT COLOR="#228B22">int</FONT></B> width
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3115,8 +3419,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ListBox_h__MwListBoxReset">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwListBoxReset</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Widget_ListBox_h__MwListBoxReset">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3137,17 +3442,19 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Menu_h__MwMenuClass">MWDECL MwClass MwMenuClass;</pre>
+<pre id="Mw_Widget_Menu_h__MwMenuClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Menu widget class.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Menu_h__MwMenuAdd">MwInline MwMenu <B><FONT COLOR="#0000FF">MwMenuAdd</FONT></B> (
+<pre id="Mw_Widget_Menu_h__MwMenuAdd">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	MwMenu menu,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* name
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3186,7 +3493,10 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_NumberEntry_h__MwNumberEntryClass">MWDECL MwClass MwNumberEntryClass;</pre>
+<pre id="Mw_Widget_NumberEntry_h__MwNumberEntryClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	NumberEntry widget class.
@@ -3200,15 +3510,19 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_OpenGL_h__MwOpenGLClass">MWDECL MwClass MwOpenGLClass;</pre>
+<pre id="Mw_Widget_OpenGL_h__MwOpenGLClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	OpenGL widget class.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_OpenGL_h__MwOpenGLMakeCurrent">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwOpenGLMakeCurrent</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Widget_OpenGL_h__MwOpenGLMakeCurrent">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3222,9 +3536,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_OpenGL_h__MwOpenGLGetProcAddress">MwInline <B><FONT COLOR="#228B22">void</FONT></B>* <B><FONT COLOR="#0000FF">MwOpenGLGetProcAddress</FONT></B> (
+<pre id="Mw_Widget_OpenGL_h__MwOpenGLGetProcAddress">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* name
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3250,8 +3564,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_OpenGL_h__MwOpenGLSwapBuffer">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwOpenGLSwapBuffer</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Widget_OpenGL_h__MwOpenGLSwapBuffer">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3272,15 +3587,19 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_ScrollBar_h__MwScrollBarClass">MWDECL MwClass MwScrollBarClass;</pre>
+<pre id="Mw_Widget_ScrollBar_h__MwScrollBarClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	ScrollBar widget class.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_ScrollBar_h__MwScrollBarGetVisibleLength">MwInline <B><FONT COLOR="#228B22">int</FONT></B> <B><FONT COLOR="#0000FF">MwScrollBarGetVisibleLength</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Widget_ScrollBar_h__MwScrollBarGetVisibleLength">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3307,7 +3626,10 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_SubMenu_h__MwSubMenuClass">MWDECL MwClass MwSubMenuClass;</pre>
+<pre id="Mw_Widget_SubMenu_h__MwSubMenuClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	SubMenu widget class.
@@ -3321,15 +3643,19 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Viewport_h__MwViewportClass">MWDECL MwClass MwViewportClass;</pre>
+<pre id="Mw_Widget_Viewport_h__MwViewportClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Viewport widget class.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Viewport_h__MwViewportGetViewport">MwInline MwWidget <B><FONT COLOR="#0000FF">MwViewportGetViewport</FONT></B> (
-	MwWidget handle
+<pre id="Mw_Widget_Viewport_h__MwViewportGetViewport">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3349,10 +3675,9 @@
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Viewport_h__MwViewportSetSize">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwViewportSetSize</FONT></B> (
+<pre id="Mw_Widget_Viewport_h__MwViewportSetSize">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	<B><FONT COLOR="#228B22">int</FONT></B> w,
-	<B><FONT COLOR="#228B22">int</FONT></B> h
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3388,15 +3713,19 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h__MwVulkanClass">MWDECL MwClass MwVulkanClass;</pre>
+<pre id="Mw_Widget_Vulkan_h__MwVulkanClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Vulkan widget class.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h__MwVulkanEnableExtension">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwVulkanEnableExtension</FONT></B> (
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* ext_name
+<pre id="Mw_Widget_Vulkan_h__MwVulkanEnableExtension">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3407,8 +3736,9 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h__MwVulkanEnableLayer">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwVulkanEnableLayer</FONT></B> (
-	<B><FONT COLOR="#228B22">const</FONT></B> <B><FONT COLOR="#228B22">char</FONT></B>* ext_name
+<pre id="Mw_Widget_Vulkan_h__MwVulkanEnableLayer">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3419,36 +3749,49 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h__MwVulkanConfig_T"><B><FONT COLOR="#228B22">typedef</FONT></B> <B><FONT COLOR="#228B22">struct</FONT></B> MwVulkanConfig_T;</pre>
+<pre id="Mw_Widget_Vulkan_h__MwVulkanConfig_T">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Configuration options that can be passed to setup Vulkan before a widget is created.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h__api_version"> uint32_t api_version;</pre>
+<pre id="Mw_Widget_Vulkan_h__api_version">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Vulkan API version (default: VK_API_VERSION_1_0).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h__vk_version"> uint32_t vk_version;</pre>
+<pre id="Mw_Widget_Vulkan_h__vk_version">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Vulkan version (default: VK_VERSION_1_0).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h__validation_layers"> VkBool32 validation_layers;</pre>
+<pre id="Mw_Widget_Vulkan_h__validation_layers">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Whether or not to enable validation layers (default: false).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h__MwVulkanConfigure">MWDECL <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwVulkanConfigure</FONT></B> (
-	MwVulkanConfig cfg
+<pre id="Mw_Widget_Vulkan_h__MwVulkanConfigure">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3459,73 +3802,99 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h__MwVulkanField_T"><B><FONT COLOR="#228B22">typedef</FONT></B> <B><FONT COLOR="#228B22">enum</FONT></B> MwVulkanField_T;</pre>
+<pre id="Mw_Widget_Vulkan_h__MwVulkanField_T">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Field that can be gotten from Vulkan.
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h___MwVulkanField_GetInstanceProcAddr_"> MwVulkanField_GetInstanceProcAddr = 0</pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_GetInstanceProcAddr_">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	The address of the vulkan widget's vkGetInstanceProcAddr function (PFN_vkGetInstanceProcAddr).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h___MwVulkanField_Instance"> MwVulkanField_Instance</pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_Instance">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	The address of the vulkan widget's instance (VkInstance).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h___MwVulkanField_Surface"> MwVulkanField_Surface</pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_Surface">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	The address of the vulkan widget's surface (VkSurfaceKHR).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h___MwVulkanField_PhysicalDevice"> MwVulkanField_PhysicalDevice</pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_PhysicalDevice">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	The address of the vulkan widget's physical device (VkPhysicalDevice).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h___MwVulkanField_LogicalDevice"> MwVulkanField_LogicalDevice</pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_LogicalDevice">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	The address of the vulkan widget's logical device (VkDevice).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h___MwVulkanField_GraphicsQueueIndex"> MwVulkanField_GraphicsQueueIndex</pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_GraphicsQueueIndex">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	The address of the index that the vulkan widget uses for the graphics queue (uint32_t *).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h___MwVulkanField_PresentQueueIndex"> MwVulkanField_PresentQueueIndex</pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_PresentQueueIndex">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	The address of the index that the vulkan widget uses for the present queue (uint32_t *).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h___MwVulkanField_PresentQueue"> MwVulkanField_PresentQueue</pre>
+<pre id="Mw_Widget_Vulkan_h___MwVulkanField_PresentQueue">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	The address of the vulkan widget's graphics queue (VkQueue).
 </dd>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h__MwVulkanGetField">MwInline <B><FONT COLOR="#228B22">void</FONT></B>* <B><FONT COLOR="#0000FF">MwVulkanGetField</FONT></B> (
+<pre id="Mw_Widget_Vulkan_h__MwVulkanGetField">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
 	MwWidget handle,
-	MwVulkanField field,
-	MwErrorEnum* out
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3536,8 +3905,9 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Vulkan_h__MwVulkanSupported">MWDECL VkBool32 <B><FONT COLOR="#0000FF">MwVulkanSupported</FONT></B> (
-	<B><FONT COLOR="#228B22">void</FONT></B>
+<pre id="Mw_Widget_Vulkan_h__MwVulkanSupported">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
 );</pre>
 <dl>
 <dd>
@@ -3552,7 +3922,10 @@
 </dt>
 </dl>
 <hr>
-<pre id="Mw_Widget_Window_h__MwWindowClass">MWDECL MwClass MwWindowClass;</pre>
+<pre id="Mw_Widget_Window_h__MwWindowClass">MwInline <B><FONT COLOR="#228B22">void</FONT></B> <B><FONT COLOR="#0000FF">MwWindowMakeBorderless</FONT></B> (
+	MwWidget handle,
+	<B><FONT COLOR="#228B22">int</FONT></B> toggle
+);</pre>
 <dl>
 <dd>
 	Window widget class.

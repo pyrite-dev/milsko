@@ -148,6 +148,7 @@ scan("external");
 scan("src/icon");
 scan("src/cursor");
 scan("src/widget");
+scan("src/text");
 push(@cfiles, "src/backend/gdi.c");
 
 generate("BorMakefile", "Borland");
