@@ -3,7 +3,7 @@
 
 object {
 	text {
-		ttf "resource/DejaVuSansMono.ttf",
+		ttf "resource/DejaVuSerif.ttf",
 		"Milsko Toolkit",
 		1, 0
 	}
@@ -19,8 +19,8 @@ object {
 }
 
 camera {
-	location <8+6, 2.5, -40>
-	look_at <8, 0.75, 0>
+	location <8+5, 2.5, -35>
+	look_at <7, 0.75, 0>
 	angle 35
 	up <0, 1, 0>
 	right image_width / image_height * x
