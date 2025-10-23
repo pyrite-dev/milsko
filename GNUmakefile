@@ -171,7 +171,7 @@ install: lib
 	cp -rf doc/* $(PREFIX)/share/doc/milsko/
 
 format:
-	clang-format --verbose -i `find src include examples tools "(" -name "*.c" -or -name "*.h" ")" -and -not -name "stb_*.h"`
+	clang-format --verbose -i `find src include examples tools "(" -name "*.c" -or -name "*.h" ")" -and -not -name "stb_*.h" -and -not -name "ttf.c" -and -not -name "boldttf.c" -and -not -name "font.c" -and -not -name "boldfont.c"`
 	perltidy -b -bext='/' --paren-tightness=2 `find tools -name "*.pl"`
 
 src/$(LIB)Mw$(SO): $(L_OBJS)

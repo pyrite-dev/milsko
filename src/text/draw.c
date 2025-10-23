@@ -82,7 +82,7 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 
 #ifdef USE_STB_TRUETYPE
 static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
-	ttf_t*	       ttf = MwGetVoid(handle, MwNfont);
+	ttf_t*	       ttf = MwGetVoid(handle, bold ? MwNboldFont : MwNfont);
 	MwLLColor      base;
 	unsigned char* px;
 	int	       tw, th;
