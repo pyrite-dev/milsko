@@ -60,6 +60,7 @@
 		<integer name="hasHeading" />
 		<integer name="hasBorder" />
 		<integer name="inverted" />
+		<integer name="modernLook" />
 
 		<string name="title" />
 		<string name="text" />

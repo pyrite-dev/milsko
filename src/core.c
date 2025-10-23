@@ -420,11 +420,29 @@ static void inherit_text(MwWidget handle, const char* key, const char* default_v
 	MwSetText(handle, key, default_value);
 }
 
+static void inherit_integer(MwWidget handle, const char* key, int default_value) {
+	int n;
+	MwWidget    h = handle;
+	while(h != NULL) {
+		if((n = MwGetInteger(h, key)) != -1) {
+			MwSetInteger(handle, key, n);
+			return;
+		}
+		h = h->parent;
+	}
+	MwSetInteger(handle, key, default_value);
+}
+
 void MwSetDefault(MwWidget handle) {
 	MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
 
 	inherit_text(handle, MwNbackground, MwDefaultBackground);
 	inherit_text(handle, MwNforeground, MwDefaultForeground);
+#ifdef MW_CLASSIC_THEME
+	inherit_integer(handle, MwNmodernLook, 0);
+#else
+	inherit_integer(handle, MwNmodernLook, 1);
+#endif
 }
 
 void MwHideCursor(MwWidget handle) {

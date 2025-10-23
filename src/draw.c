@@ -11,11 +11,14 @@
 
 #include "../external/stb_ds.h"
 
-#ifdef MW_CLASSIC_THEME
-#define ColorDiff 128
-#else
-#define ColorDiff 48
-#endif
+static int get_color_diff(MwWidget handle){
+	if(MwGetInteger(handle, MwNmodernLook)){
+		return 48;
+	}else{
+		return 128;
+	}
+}
+
 static int hex(const char* txt, int len) {
 	int i;
 	int r = 0;
@@ -96,12 +99,11 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	int	   y;
 	int	   x;
 	double	   darken     = 0.;
+	int ColorDiff = get_color_diff(handle);
 	double	   darkenStep = (ColorDiff / 2.) / rect->height;
-
-#define SIZE (rect->width * rect->height * 4)
-	unsigned char* data = malloc(SIZE);
-	memset(data, 0, SIZE);
-#undef SIZE
+	unsigned long sz = rect->width * rect->height * 4;
+	unsigned char* data = malloc(sz);
+	memset(data, 0, sz);
 
 	for(y = 0; y < rect->height; y++) {
 		MwLLColor col = MwLightenColor(handle, color, -darken, -darken, -darken);
@@ -122,21 +124,23 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
-	MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth);
+	MwDrawFrameEx(handle, rect, color, invert, MwGetInteger(handle, MwNmodernLook) ? 1 : MwDefaultBorderWidth);
 }
+
 void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
 	if(border) {
 		MwDrawFrame(handle, rect, color, invert);
 	}
-#ifdef MW_CLASSIC_THEME
-	MwDrawRect(handle, rect, color);
-#else
-	MwDrawRectFading(handle, rect, color);
-#endif
+	if(MwGetInteger(handle, MwNmodernLook)){
+		MwDrawRectFading(handle, rect, color);
+	}else{
+		MwDrawRect(handle, rect, color);
+	}
 }
 
 void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
 	MwPoint	  p[6];
+	int ColorDiff = get_color_diff(handle);
 	MwLLColor darker  = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 
@@ -191,7 +195,8 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 
 void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction) {
 	MwPoint	  p1[4], p2[4], p3[4], p4[3];
-	const int border  = MwDefaultBorderWidth;
+	const int border  = MwGetInteger(handle, MwNmodernLook) ? 1 : MwDefaultBorderWidth;
+	int ColorDiff = get_color_diff(handle);
 	MwLLColor darker  = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 

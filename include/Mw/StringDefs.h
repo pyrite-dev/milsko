@@ -24,6 +24,7 @@
 #define MwNhasHeading "IhasHeading"
 #define MwnhasBorder "IhasBorder"
 #define MwNinverted "Iinverted"
+#define MwNmodernLook "ImodernLook"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
