@@ -15,7 +15,6 @@ endif()
 option(CLASSIC "Use classic theme" OFF)
 option(USE_STB_IMAGE "Use stb_image" ON)
 option(USE_STB_TRUETYPE "Use stb_truetype" ON)
-option(BUILD_EXAMPLES "Build examples" OFF)
 
 file(
 	GLOB
@@ -103,8 +102,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		USE_GDI
 	)
 	list(APPEND LIBRARIES gdi32)
-
-	list(APPEND GL_LIBRARIES opengl32 glu32)
 else()
 	find_package(PkgConfig)
 	pkg_check_modules(X11 REQUIRED x11)
@@ -130,13 +127,6 @@ else()
 	if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD" AND VULKAN)
 		list(APPEND INCLUDE_DIRS /usr/pkg/include)
 	endif()
-
-	list(APPEND GL_INCLUDE_DIRS ${INCLUDE_DIRS})
-	list(APPEND GL_LIBRARY_DIRS ${LIBRARY_DIRS})
-	list(APPEND GL_LIBRARIES GL GLU)
-
-	list(APPEND VK_INCLUDE_DIRS ${INCLUDE_DIRS})
-	list(APPEND VK_LIBRARY_DIRS ${LIBRARY_DIRS})
 endif()
 
 target_include_directories(
@@ -160,16 +150,6 @@ target_compile_definitions(
 	PRIVATE
 	_MILSKO
 )
-
-if(BUILD_EXAMPLES)
-	add_subdirectory(examples/basic)
-	if(OPENGL)
-		add_subdirectory(examples/gldemos)
-	endif()
-	if(VULKAN)
-		add_subdirectory(examples/vkdemos)
-	endif()
-endif()
 
 include(GNUInstallDirs)
 install(
