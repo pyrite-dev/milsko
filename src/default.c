@@ -1,6 +1,10 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-const int   MwDefaultBorderWidth = 2;
-const char* MwDefaultBackground	 = "#ddd";
-const char* MwDefaultForeground	 = "#000";
+#ifdef MW_CLASSIC_THEME
+const int MwDefaultBorderWidth = 2;
+#else
+const int MwDefaultBorderWidth = 1;
+#endif
+const char* MwDefaultBackground = "#ddd";
+const char* MwDefaultForeground = "#000";

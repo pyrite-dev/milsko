@@ -2,6 +2,7 @@
 #include <Mw/Milsko.h>
 
 #include "../../external/stb_ds.h"
+#include "Mw/TypeDefs.h"
 
 static void set_xywh(MwWidget handle) {
 	int    height = 0;
@@ -101,14 +102,13 @@ static void draw(MwWidget handle) {
 	MwLLColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	MENU_LOOP_DECL;
 
-	MwDrawFrame(handle, &r, base, 0);
-	MwDrawRect(handle, &r, base);
+	MwDrawWidgetBack(handle, &r, base, 0, MwTRUE);
 
 	BEGIN_MENU_LOOP;
 	if(m->sub[i]->wsub != NULL) {
-		MwDrawFrame(handle, &r, base, 0);
+		MwDrawWidgetBack(handle, &r, base, 0, MwFALSE);
 	} else if(in_area && handle->pressed) {
-		MwDrawFrame(handle, &r, base, 0);
+		MwDrawWidgetBack(handle, &r, base, 0, MwFALSE);
 	}
 
 	MwDrawText(handle, &p, m->sub[i]->name + incr, 1, MwALIGNMENT_BEGINNING, text);

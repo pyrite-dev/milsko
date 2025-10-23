@@ -11,10 +11,11 @@
 
 #include "../external/stb_ds.h"
 
-#define FontWidth 7
-#define FontHeight 14
+#ifdef MW_CLASSIC_THEME
 #define ColorDiff 128
-
+#else
+#define ColorDiff 48
+#endif
 static int hex(const char* txt, int len) {
 	int i;
 	int r = 0;
@@ -90,9 +91,48 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 
 	MwLLPolygon(handle->lowlevel, p, 4, color);
 }
+void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
+	MwLLPixmap pixmap;
+	int	   y;
+	int	   x;
+	double	   darken     = 0.;
+	double	   darkenStep = (ColorDiff / 2.) / rect->height;
+
+#define SIZE (rect->width * rect->height * 4)
+	unsigned char* data = malloc(SIZE);
+	memset(data, 0, SIZE);
+#undef SIZE
+
+	for(y = 0; y < rect->height; y++) {
+		MwLLColor col = MwLightenColor(handle, color, -darken, -darken, -darken);
+		for(x = 0; x < rect->width; x++) {
+			int idx	      = ((y * rect->width) + x) * 4;
+			data[idx]     = col->red;
+			data[idx + 1] = col->green;
+			data[idx + 2] = col->blue;
+			data[idx + 3] = 255;
+		}
+		MwLLFreeColor(col);
+		darken += darkenStep;
+	}
+
+	pixmap = MwLLCreatePixmap(handle->lowlevel, data, rect->width / 4, rect->height);
+	MwLLDrawPixmap(handle->lowlevel, rect, pixmap);
+	MwLLDestroyPixmap(pixmap);
+}
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth);
+}
+void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
+	if(border) {
+		MwDrawFrame(handle, rect, color, invert);
+	}
+#ifdef MW_CLASSIC_THEME
+	MwDrawRect(handle, rect, color);
+#else
+	MwDrawRectFading(handle, rect, color);
+#endif
 }
 
 void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
@@ -360,95 +400,6 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 
 	MwLLFreeColor(lighter);
 	MwLLFreeColor(darker);
-}
-
-void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
-	int	       i = 0, x, y, sx, sy;
-	int	       tw;
-	int	       th;
-	unsigned char* px;
-	MwRect	       r;
-	MwLLPixmap     p;
-
-	if(strlen(text) == 0) text = " ";
-	tw = MwTextWidth(handle, text);
-	th = MwTextHeight(handle, text);
-	px = malloc(tw * th * 4);
-
-	memset(px, 0, tw * th * 4);
-
-	sx = 0;
-	sy = 0;
-
-	while(text[i] != 0) {
-		int out;
-		i += MwUTF8ToUTF32(text + i, &out);
-
-		if(out >= 0x80) out = 0;
-
-		if(out == '\n') {
-			sx = 0;
-			sy += FontHeight;
-		} else {
-			for(y = 0; y < FontHeight; y++) {
-				for(x = 0; x < FontWidth; x++) {
-					unsigned char* ppx = &px[((sy + y) * tw + sx + x) * 4];
-					if((bold ? MwBoldFontData : MwFontData)[out].data[y] & (1 << ((FontWidth - 1) - x))) {
-						ppx[0] = color->red;
-						ppx[1] = color->green;
-						ppx[2] = color->blue;
-						ppx[3] = 255;
-					} else {
-						ppx[0] = 0;
-						ppx[1] = 0;
-						ppx[2] = 0;
-						ppx[3] = 0;
-					}
-				}
-			}
-			sx += FontWidth;
-		}
-	}
-
-	p	 = MwLoadRaw(handle, px, tw, th);
-	r.x	 = point->x;
-	r.y	 = point->y - th / 2;
-	r.width	 = tw;
-	r.height = th;
-
-	if(align == MwALIGNMENT_CENTER) {
-		r.x -= tw / 2;
-	} else if(align == MwALIGNMENT_END) {
-		r.x -= tw;
-	}
-
-	MwLLDrawPixmap(handle->lowlevel, &r, p);
-	MwLLDestroyPixmap(p);
-	free(px);
-}
-
-int MwTextWidth(MwWidget handle, const char* text) {
-	(void)handle;
-
-	/* TODO: check newline */
-	return strlen(text) * FontWidth;
-}
-
-int MwTextHeight(MwWidget handle, const char* text) {
-	int c = 1;
-	int i = 0;
-
-	(void)handle;
-	(void)text;
-
-	while(text[i] != 0) {
-		int out;
-		i += MwUTF8ToUTF32(text + i, &out);
-
-		if(out == '\n') c++;
-	}
-
-	return FontHeight * c;
 }
 
 #ifndef USE_STB_IMAGE

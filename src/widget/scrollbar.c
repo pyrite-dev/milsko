@@ -78,8 +78,7 @@ static void draw(MwWidget handle) {
 	ux = r.height;
 	dx = r.width - r.height;
 
-	MwDrawFrame(handle, &r, dark, 1);
-	MwDrawRect(handle, &r, dark);
+	MwDrawWidgetBack(handle, &r, dark, 1, MwTRUE);
 
 	rt = r;
 
@@ -124,15 +123,14 @@ static void draw(MwWidget handle) {
 		}
 	}
 
-	MwDrawFrame(handle, &rbar, base, 0);
-	MwDrawRect(handle, &rbar, base);
+	MwDrawWidgetBack(handle, &rbar, base, 0, MwTRUE);
 
 	MwLLFreeColor(dark);
 	MwLLFreeColor(base);
 }
 
 static void mouse_move(MwWidget handle) {
-	int	     or	 = MwGetInteger(handle, MwNorientation);
+	int or		 = MwGetInteger(handle, MwNorientation);
 	scrollbar_t* scr = handle->internal;
 
 	if(!handle->pressed) return;
@@ -160,9 +158,9 @@ static void mouse_move(MwWidget handle) {
 }
 
 static void mouse_down(MwWidget handle, void* ptr) {
-	int	     ww	 = MwGetInteger(handle, MwNwidth);
-	int	     wh	 = MwGetInteger(handle, MwNheight);
-	int	     or	 = MwGetInteger(handle, MwNorientation);
+	int ww		 = MwGetInteger(handle, MwNwidth);
+	int wh		 = MwGetInteger(handle, MwNheight);
+	int or		 = MwGetInteger(handle, MwNorientation);
 	scrollbar_t* scr = handle->internal;
 	MwLLMouse*   m	 = ptr;
 

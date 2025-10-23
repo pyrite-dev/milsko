@@ -22,8 +22,7 @@ static void draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 
-	MwDrawFrame(handle, &r, base, handle->pressed);
-	MwDrawRect(handle, &r, base);
+	MwDrawWidgetBack(handle, &r, base, handle->pressed, MwTRUE);
 
 	if(px != NULL) {
 		int ow = r.width;
