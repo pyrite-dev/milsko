@@ -483,8 +483,8 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		mwListBoxResetImpl(handle);
 	}
 	if(strcmp(name, "mwListBoxGet") == 0) {
-		int index = va_arg(va, int);
-		mwListBoxGetImpl(handle, index);
+		int index	   = va_arg(va, int);
+		*(const char**)out = mwListBoxGetImpl(handle, index);
 	}
 	if(strcmp(name, "mwListBoxSetWidth") == 0) {
 		int index = va_arg(va, int);
