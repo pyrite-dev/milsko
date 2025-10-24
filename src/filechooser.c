@@ -479,14 +479,14 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 
 	fc->history_seek = 0;
 
-	fc->dir	     = MwLoadXPM(window, MwIconDirectory);
-	fc->file     = MwLoadXPM(window, MwIconFile);
-	fc->back     = MwLoadXPM(window, MwIconBack);
-	fc->forward  = MwLoadXPM(window, MwIconForward);
-	fc->up	     = MwLoadXPM(window, MwIconUp);
-	fc->computer = MwLoadXPM(window, MwIconComputer);
+	fc->dir	     = MwLoadIcon(window, MwIconDirectory);
+	fc->file     = MwLoadIcon(window, MwIconFile);
+	fc->back     = MwLoadIcon(window, MwIconBack);
+	fc->forward  = MwLoadIcon(window, MwIconForward);
+	fc->up	     = MwLoadIcon(window, MwIconUp);
+	fc->computer = MwLoadIcon(window, MwIconComputer);
 
-	icon = MwLoadXPM(window, MwIconSearch);
+	icon = MwLoadIcon(window, MwIconSearch);
 	MwVaApply(window,
 		  MwNiconPixmap, icon,
 		  NULL);

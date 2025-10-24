@@ -53,7 +53,7 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	if((flag & MwMB_ICONMASK) != 0) {
 		MwWidget   icon;
 		MwLLPixmap px;
-		char**	   data = NULL;
+		unsigned int*	   data = NULL;
 
 		icon = MwCreateWidget(MwImageClass, "image", window, 8, (h - 48) / 2, 48, 48);
 
@@ -70,10 +70,6 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 			data = MwIconNote;
 			break;
 		}
-		case MwMB_ICONQUESTION: {
-			data = MwIconQuestion;
-			break;
-		}
 		case MwMB_ICONNEWS: {
 			data = MwIconNews;
 			break;
@@ -84,7 +80,7 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 		}
 		}
 
-		px = MwLoadXPM(icon, data);
+		px = MwLoadIcon(icon, data);
 
 		MwSetVoid(icon, MwNpixmap, px);
 

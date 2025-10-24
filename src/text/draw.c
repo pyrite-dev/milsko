@@ -122,19 +122,10 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
 				double	       a   = out[cy * ow + cx];
 
-				if(a != 0) {
-					a /= 255;
-
-					opx[0] = base->red * (1 - a);
-					opx[1] = base->green * (1 - a);
-					opx[2] = base->blue * (1 - a);
-
-					opx[0] += color->red * a;
-					opx[1] += color->green * a;
-					opx[2] += color->blue * a;
-
-					opx[3] = 255;
-				}
+				opx[0] = color->red;
+				opx[1] = color->green;
+				opx[2] = color->blue;
+				opx[3] = a;
 			}
 		}
 

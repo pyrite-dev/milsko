@@ -1,14 +1,6 @@
 #!/bin/sh
 # $Id$
 
-cd resource/icon
-for i in *.gif; do
-	if [ ! -f "`echo $i | cut -d. -f1`.png" ]; then
-		convert $i -shave 4x4 -alpha on -channel rgba -fill 'transparent' -opaque '#80ff80' `echo $i | cut -d. -f1`.png
-	fi
-done
-cd ../..
-
 echo '/* $Id$ */' > include/Mw/Icon.h
 echo '/*!' >> include/Mw/Icon.h
 echo ' * %file Mw/Icon.h' >> include/Mw/Icon.h
@@ -31,16 +23,22 @@ for i in resource/icon/*.png; do
 	OUT=src/icon/$LOWER.c
 	NAME=`echo -n $LOWER | perl -e 'my $l = <>;$l =~ s/^(.)/uc($1)/e;print($l);'`
 	NAME=MwIcon$NAME
+	WIDTH=`convert $i json:- 2>/dev/null | jq '.[0].image.geometry.width'`
+	HEIGHT=`convert $i json:- 2>/dev/null | jq '.[0].image.geometry.height'`
 	echo '/* $Id$ */' > $OUT
 	echo '#include <Mw/Milsko.h>' >> $OUT
 	echo >> $OUT
-	convert $i xpm:- 2>/dev/null | sed -E 's/^static //' | sed 's/xpm__/'$NAME'/' >> $OUT
+	echo "unsigned int $NAME[] = {" >> $OUT
+	echo "	($WIDTH << 16) | $HEIGHT," >> $OUT
+	convert $i txt:- 2>/dev/null | grep -oE '#[0-9a-fA-F]{8}' | sed 's/#/	0x/' | sed -E 's/$/,/' >> $OUT
+	echo "	0" >> $OUT
+	echo "};" >> $OUT
 	echo $NAME
 done | while read a; do
 	echo '/*!' >> include/Mw/Icon.h
 	echo " * %brief `echo $a | sed s/MwIcon//` icon" >> include/Mw/Icon.h
 	echo ' */' >> include/Mw/Icon.h
-	echo "MWDECL char* $a[];" >> include/Mw/Icon.h
+	echo "MWDECL unsigned int $a[];" >> include/Mw/Icon.h
 	echo '' >> include/Mw/Icon.h
 done
 echo '' >> include/Mw/Icon.h

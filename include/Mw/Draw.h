@@ -151,6 +151,14 @@ MWDECL MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int 
  */
 MWDECL MwLLPixmap MwLoadXPM(MwWidget handle, char** data);
 
+/*!
+ * %brief Creates a pixmap from icon data
+ * %param handle Widget
+ * %param data Data
+ * %return Pixmap
+ */
+MWDECL MwLLPixmap MwLoadIcon(MwWidget handle, unsigned int* data);
+
 /* color.c */
 
 /*!

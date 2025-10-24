@@ -15,67 +15,63 @@ extern "C" {
 /*!
  * %brief Back icon
  */
-MWDECL char* MwIconBack[];
+MWDECL unsigned int MwIconBack[];
 
 /*!
  * %brief Computer icon
  */
-MWDECL char* MwIconComputer[];
+MWDECL unsigned int MwIconComputer[];
 
 /*!
  * %brief Directory icon
  */
-MWDECL char* MwIconDirectory[];
+MWDECL unsigned int MwIconDirectory[];
 
 /*!
  * %brief Error icon
  */
-MWDECL char* MwIconError[];
+MWDECL unsigned int MwIconError[];
 
 /*!
  * %brief File icon
  */
-MWDECL char* MwIconFile[];
+MWDECL unsigned int MwIconFile[];
 
 /*!
  * %brief Forward icon
  */
-MWDECL char* MwIconForward[];
+MWDECL unsigned int MwIconForward[];
 
 /*!
  * %brief Info icon
  */
-MWDECL char* MwIconInfo[];
+MWDECL unsigned int MwIconInfo[];
 
 /*!
  * %brief News icon
  */
-MWDECL char* MwIconNews[];
+MWDECL unsigned int MwIconNews[];
 
 /*!
  * %brief Note icon
  */
-MWDECL char* MwIconNote[];
-
-/*!
- * %brief Question icon
- */
-MWDECL char* MwIconQuestion[];
+MWDECL unsigned int MwIconNote[];
 
 /*!
  * %brief Search icon
  */
-MWDECL char* MwIconSearch[];
+MWDECL unsigned int MwIconSearch[];
 
 /*!
  * %brief Up icon
  */
-MWDECL char* MwIconUp[];
+MWDECL unsigned int MwIconUp[];
 
 /*!
  * %brief Warning icon
  */
-MWDECL char* MwIconWarning[];
+MWDECL unsigned int MwIconWarning[];
+
 
 #ifdef __cplusplus
 }

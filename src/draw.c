@@ -559,8 +559,35 @@ MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 
 MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height) {
 	MwLLPixmap px;
+	unsigned char* out = malloc(width * height * 4);
+	int i;
+	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 
-	px = MwLLCreatePixmap(handle->lowlevel, rgb, width, height);
+	memset(out, 0, width * height * 4);
+	for(i = 0; i < width * height; i++){
+		unsigned char* pin = &rgb[i * 4];
+		unsigned char* pout = &out[i * 4];
+		double a = pin[3];
+
+		a /= 255;
+		if(a != 0){
+			pout[0] = pin[0] * a;
+			pout[1] = pin[1] * a;
+			pout[2] = pin[2] * a;
+
+			pout[0] += base->red * (1 - a);
+			pout[1] += base->green * (1 - a);
+			pout[2] += base->blue * (1 - a);
+
+			pout[3] = 255;
+		}
+	}
+
+	MwLLFreeColor(base);
+
+	px = MwLLCreatePixmap(handle->lowlevel, out, width, height);
+
+	free(out);
 
 	return px;
 }
@@ -569,6 +596,31 @@ void MwGetColor(MwLLColor color, int* red, int* green, int* blue) {
 	*red   = color->red;
 	*green = color->green;
 	*blue  = color->blue;
+}
+
+MwLLPixmap MwLoadIcon(MwWidget handle, unsigned int* data) {
+	int width = (data[0] >> 16) & 0xffff;
+	int height = (data[0]) & 0xffff;
+	unsigned char* rgba = malloc(width * height * 4);
+	MwLLPixmap px;
+	int i;
+
+	memset(rgba, 0, width * height * 4);
+
+	for(i = 0; i < width * height; i++){
+		unsigned char* px = &rgba[i * 4];
+
+		px[0] = (data[i + 1] >> 24) & 0xff;
+		px[1] = (data[i + 1] >> 16) & 0xff;
+		px[2] = (data[i + 1] >> 8) & 0xff;
+		px[3] = data[i + 1] & 0xff;
+	}
+
+	px = MwLoadRaw(handle, rgba, width, height);
+
+	free(rgba);
+
+	return px;
 }
 
 typedef struct color {
