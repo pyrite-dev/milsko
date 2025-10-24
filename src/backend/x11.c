@@ -476,6 +476,7 @@ void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 }
 
 void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
+	if(rect->width == 0 || rect->height == 0) return;
 	if(pixmap->image != NULL && pixmap->use_render) {
 		Pixmap			 px	= XCreatePixmap(handle->display, handle->window, pixmap->width, pixmap->height, pixmap->depth);
 		Pixmap			 mask	= XCreatePixmap(handle->display, handle->window, rect->width, rect->height, 1);

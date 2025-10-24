@@ -561,7 +561,7 @@ MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height)
 	MwLLPixmap px;
 	unsigned char* out = malloc(width * height * 4);
 	int i;
-	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor base = handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
 
 	memset(out, 0, width * height * 4);
 	for(i = 0; i < width * height; i++){
@@ -583,7 +583,7 @@ MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height)
 		}
 	}
 
-	MwLLFreeColor(base);
+	if(handle->bgcolor == NULL) MwLLFreeColor(base);
 
 	px = MwLLCreatePixmap(handle->lowlevel, out, width, height);
 

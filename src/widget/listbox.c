@@ -214,6 +214,7 @@ static void frame_draw(MwWidget handle) {
 			r2.width  = r.width;
 			r2.height = MwTextHeight(handle, "M");
 			MwDrawRect(handle, &r2, text);
+			handle->bgcolor = text;
 		}
 		if(lb->list[i].pixmap != NULL) {
 			MwRect r2;
@@ -238,6 +239,7 @@ static void frame_draw(MwWidget handle) {
 			if(j == 0) p.x -= MwGetInteger(handle->parent, MwNleftPadding);
 		}
 		p.y += MwTextHeight(handle, "M") / 2;
+		handle->bgcolor = NULL;
 	}
 
 	MwDrawFrame(handle, &r, base, 1);
