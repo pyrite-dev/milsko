@@ -3,7 +3,7 @@
 
 object {
 	text {
-		ttf "resource/DejaVuSerif.ttf",
+		ttf "resource/IBMPlexSerif.ttf",
 		"Milsko Toolkit",
 		1, 0
 	}
