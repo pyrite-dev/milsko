@@ -12,9 +12,9 @@ proc run {project_name} {
 			if { "$target" == "Linux" } {
 				RunCommand "make -j4 VULKAN_NO_STRING_HELPER=1"
 			} elseif { "$target" == "Win32" } {
-				RunCommand "make -j4 VULKAN=0 TARGET=Windows GCC=i686-w64-mingw32-"
+				RunCommand "make -j4 VULKAN=0 USE_FREETYPE2=0 USE_STB_TRUETYPE=1 TARGET=Windows GCC=i686-w64-mingw32-"
 			} elseif { "$target" == "Win64" } {
-				RunCommand "make -j4 VULKAN=0 TARGET=Windows GCC=x86_64-w64-mingw32-"
+				RunCommand "make -j4 VULKAN=0 USE_FREETYPE2=0 USE_STB_TRUETYPE=1 TARGET=Windows GCC=x86_64-w64-mingw32-"
 			}
 		}
 	}
