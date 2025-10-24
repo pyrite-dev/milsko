@@ -24,9 +24,10 @@ MWDECL const char* MwDefaultBackground;
 MWDECL const char* MwDefaultForeground;
 
 /*!
- * %brief Default border width
+ * %brief Gets default border width
+ * %param handle Widget
  */
-MWDECL const int MwDefaultBorderWidth;
+MWDECL int MwGetDefaultBorderWidth(MwWidget handle);
 
 #ifdef __cplusplus
 }

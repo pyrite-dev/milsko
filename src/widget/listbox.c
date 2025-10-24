@@ -124,11 +124,11 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 	if(m->button == MwLLMouseLeft) {
 		int st = 0;
 		int i;
-		int y = MwDefaultBorderWidth;
+		int y = MwGetDefaultBorderWidth(handle);
 		int h = MwGetInteger(handle, MwNheight);
 
 		st = get_first_entry(handle->parent, lb);
-		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
+		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwGetDefaultBorderWidth(handle) * 2) / MwTextHeight(handle, "M"); i++) {
 			if(y <= m->point.y && m->point.y <= (y + MwTextHeight(handle, "M"))) {
 				unsigned long t;
 				int	      old = lb->selected;
@@ -169,11 +169,11 @@ static void frame_mouse_move(MwWidget handle, void* user, void* call) {
 	if(lb->pressed) {
 		int st = 0;
 		int i;
-		int y = MwDefaultBorderWidth;
+		int y = MwGetDefaultBorderWidth(handle);
 		int h = MwGetInteger(handle, MwNheight);
 
 		st = get_first_entry(handle->parent, lb);
-		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
+		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwGetDefaultBorderWidth(handle) * 2) / MwTextHeight(handle, "M"); i++) {
 			if(y <= p->y && p->y <= (y + MwTextHeight(handle, "M"))) {
 				lb->selected = st + i;
 			}
@@ -198,12 +198,12 @@ static void frame_draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 
-	p.x = MwDefaultBorderWidth;
-	p.y = MwDefaultBorderWidth;
+	p.x = MwGetDefaultBorderWidth(handle);
+	p.y = MwGetDefaultBorderWidth(handle);
 
 	st = get_first_entry(handle->parent, lb);
 
-	for(i = st; i < arrlen(lb->list) && i < st + (r.height - MwDefaultBorderWidth * 2) / MwTextHeight(handle, "M"); i++) {
+	for(i = st; i < arrlen(lb->list) && i < st + (r.height - MwGetDefaultBorderWidth(handle) * 2) / MwTextHeight(handle, "M"); i++) {
 		int selected = lb->selected == i ? 1 : 0;
 		int j;
 
@@ -219,7 +219,7 @@ static void frame_draw(MwWidget handle) {
 		if(lb->list[i].pixmap != NULL) {
 			MwRect r2;
 			int    h  = (lb->list[i].pixmap->height > MwTextHeight(handle, "M")) ? MwTextHeight(handle, "M") : lb->list[i].pixmap->height;
-			r2.x	  = MwDefaultBorderWidth;
+			r2.x	  = MwGetDefaultBorderWidth(handle);
 			r2.y	  = p.y + (MwTextHeight(handle, "M") - h) / 2;
 			r2.width  = h * lb->list[i].pixmap->width / lb->list[i].pixmap->height;
 			r2.height = h;
@@ -232,9 +232,9 @@ static void frame_draw(MwWidget handle) {
 
 			if(t == NULL) t = "";
 
-			p.x += MwDefaultBorderWidth;
+			p.x += MwGetDefaultBorderWidth(handle);
 			MwDrawText(handle, &p, t, 0, MwALIGNMENT_BEGINNING, selected ? base : text);
-			p.x += get_col_width(lb, j) - MwDefaultBorderWidth;
+			p.x += get_col_width(lb, j) - MwGetDefaultBorderWidth(handle);
 
 			if(j == 0) p.x -= MwGetInteger(handle->parent, MwNleftPadding);
 		}
@@ -254,7 +254,7 @@ static void resize(MwWidget handle) {
 	int	  h  = MwGetInteger(handle, MwNheight);
 	int	  ih, y;
 
-	y = MwGetInteger(handle, MwNhasHeading) ? (MwTextHeight(handle, "M") + MwDefaultBorderWidth * 2) : 0;
+	y = MwGetInteger(handle, MwNhasHeading) ? (MwTextHeight(handle, "M") + MwGetDefaultBorderWidth(handle) * 2) : 0;
 
 	if(lb->vscroll == NULL) {
 		lb->vscroll = MwVaCreateWidget(MwScrollBarClass, "vscroll", handle, w - 16, 0, 16, h, NULL);
@@ -283,7 +283,7 @@ static void resize(MwWidget handle) {
 			  MwNheight, h,
 			  NULL);
 	}
-	h -= MwDefaultBorderWidth * 2;
+	h -= MwGetDefaultBorderWidth(handle) * 2;
 
 	ih = arrlen(lb->list);
 	if(ih == 0) ih = 1;
@@ -345,16 +345,16 @@ static void draw(MwWidget handle) {
 			r.x	 = x;
 			r.y	 = 0;
 			r.width	 = get_col_width(lb, i);
-			r.height = MwDefaultBorderWidth * 2 + MwTextHeight(handle, "M");
+			r.height = MwGetDefaultBorderWidth(handle) * 2 + MwTextHeight(handle, "M");
 			MwDrawFrame(handle, &r, base, 0);
 
-			x += MwDefaultBorderWidth;
+			x += MwGetDefaultBorderWidth(handle);
 
 			p.x = x;
 			p.y = r.y + r.height / 2;
 			MwDrawText(handle, &p, lb->list[0].name[i], 0, MwALIGNMENT_BEGINNING, text);
 
-			x += r.width + MwDefaultBorderWidth;
+			x += r.width + MwGetDefaultBorderWidth(handle);
 		}
 	}
 

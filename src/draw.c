@@ -124,7 +124,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
-	MwDrawFrameEx(handle, rect, color, invert, MwGetInteger(handle, MwNmodernLook) ? 1 : MwDefaultBorderWidth);
+	MwDrawFrameEx(handle, rect, color, invert, MwGetDefaultBorderWidth(handle));
 }
 
 void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
@@ -195,7 +195,7 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 
 void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction) {
 	MwPoint	  p1[4], p2[4], p3[4], p4[3];
-	const int border    = MwGetInteger(handle, MwNmodernLook) ? 1 : MwDefaultBorderWidth;
+	const int border    = MwGetInteger(handle, MwNmodernLook) ? 1 : MwGetDefaultBorderWidth(handle);
 	int	  ColorDiff = get_color_diff(handle);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
@@ -558,19 +558,19 @@ MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 }
 
 MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height) {
-	MwLLPixmap px;
+	MwLLPixmap     px;
 	unsigned char* out = malloc(width * height * 4);
-	int i;
-	MwLLColor base = handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
+	int	       i;
+	MwLLColor      base = handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
 
 	memset(out, 0, width * height * 4);
-	for(i = 0; i < width * height; i++){
-		unsigned char* pin = &rgb[i * 4];
+	for(i = 0; i < width * height; i++) {
+		unsigned char* pin  = &rgb[i * 4];
 		unsigned char* pout = &out[i * 4];
-		double a = pin[3];
+		double	       a    = pin[3];
 
 		a /= 255;
-		if(a != 0){
+		if(a != 0) {
 			pout[0] = pin[0] * a;
 			pout[1] = pin[1] * a;
 			pout[2] = pin[2] * a;
@@ -599,15 +599,15 @@ void MwGetColor(MwLLColor color, int* red, int* green, int* blue) {
 }
 
 MwLLPixmap MwLoadIcon(MwWidget handle, unsigned int* data) {
-	int width = (data[0] >> 16) & 0xffff;
-	int height = (data[0]) & 0xffff;
-	unsigned char* rgba = malloc(width * height * 4);
-	MwLLPixmap px;
-	int i;
+	int	       width  = (data[0] >> 16) & 0xffff;
+	int	       height = (data[0]) & 0xffff;
+	unsigned char* rgba   = malloc(width * height * 4);
+	MwLLPixmap     px;
+	int	       i;
 
 	memset(rgba, 0, width * height * 4);
 
-	for(i = 0; i < width * height; i++){
+	for(i = 0; i < width * height; i++) {
 		unsigned char* px = &rgba[i * 4];
 
 		px[0] = (data[i + 1] >> 24) & 0xff;

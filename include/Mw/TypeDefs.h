@@ -88,7 +88,7 @@ struct _MwVoidKeyValue {
 
 #ifdef _MILSKO
 struct _MwWidget {
-	char* name;
+	char*	  name;
 	MwLLColor bgcolor;
 
 	MwLL	  lowlevel;

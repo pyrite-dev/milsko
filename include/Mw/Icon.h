@@ -72,7 +72,6 @@ MWDECL unsigned int MwIconUp[];
  */
 MWDECL unsigned int MwIconWarning[];
 
-
 #ifdef __cplusplus
 }
 #endif

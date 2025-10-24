@@ -189,7 +189,7 @@ void color_wheel_setup(MwWidget parent, color_wheel* wheel) {
 	MwSetInteger(wheel->color_display, MwnhasBorder, 1);
 	MwSetInteger(wheel->color_display, MwNinverted, 1);
 
-	wheel->color_display_text = MwCreateWidget(MwLabelClass, "colorDisplayFrameText", wheel->color_display, MwDefaultBorderWidth, MwDefaultBorderWidth, PICKER_SIZE - MwDefaultBorderWidth, (PICKER_SIZE / 16) - (MwDefaultBorderWidth * 2));
+	wheel->color_display_text = MwCreateWidget(MwLabelClass, "colorDisplayFrameText", wheel->color_display, MwGetDefaultBorderWidth(parent), MwGetDefaultBorderWidth(parent), PICKER_SIZE - MwGetDefaultBorderWidth(parent), (PICKER_SIZE / 16) - (MwGetDefaultBorderWidth(parent) * 2));
 
 	wheel->value_slider = MwVaCreateWidget(MwScrollBarClass, "value-slider", wheel->parent,
 					       // x

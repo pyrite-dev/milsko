@@ -51,9 +51,9 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	if(flag & MwMB_BUTTONYES) spawn_button(window, w - (x += 8 + 80), h - 8 - 24, MwMB_BUTTONYES, "Yes");
 
 	if((flag & MwMB_ICONMASK) != 0) {
-		MwWidget   icon;
-		MwLLPixmap px;
-		unsigned int*	   data = NULL;
+		MwWidget      icon;
+		MwLLPixmap    px;
+		unsigned int* data = NULL;
 
 		icon = MwCreateWidget(MwImageClass, "image", window, 8, (h - 48) / 2, 48, 48);
 
