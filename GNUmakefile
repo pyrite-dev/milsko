@@ -5,9 +5,13 @@ PREFIX = /usr/local
 ifeq ($(TARGET),)
 TARGET = $(shell uname -s)
 endif
+ifneq ($(TARGET),$(shell uname -s))
+CROSS = 1
+endif
 
 USE_STB_IMAGE = 1
-USE_STB_TRUETYPE = 1
+USE_STB_TRUETYPE = 0
+USE_FREETYPE2 = 1
 
 CC = $(GCC)gcc
 
@@ -137,6 +141,15 @@ ifeq ($(USE_STB_IMAGE),1)
 L_CFLAGS += -DUSE_STB_IMAGE
 else
 include external/deps.mk
+endif
+
+ifeq ($(USE_FREETYPE2),1)
+L_CFLAGS += -DUSE_FREETYPE2
+
+ifneq ($(CROSS),1)
+L_CFLAGS += $(shell pkg-config --cflags freetype2)
+L_LIBS += $(shell pkg-config --libs freetype2)
+endif
 endif
 
 ifeq ($(USE_STB_TRUETYPE),1)

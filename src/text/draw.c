@@ -1,7 +1,18 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-#ifdef USE_STB_TRUETYPE
+#if defined(USE_FREETYPE2)
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+typedef struct ttf {
+	FT_Library library;
+	FT_Face	   face;
+	void*	   data;
+} ttf_t;
+
+#define TTF
+#elif defined(USE_STB_TRUETYPE)
 #include "../../external/stb_truetype.h"
 
 typedef struct ttf {
@@ -11,6 +22,8 @@ typedef struct ttf {
 	int	       ascent;
 	int	       descent;
 } ttf_t;
+
+#define TTF
 #endif
 
 #define FontWidth 7
@@ -80,10 +93,9 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 	free(px);
 }
 
-#ifdef USE_STB_TRUETYPE
+#if defined(USE_STB_TRUETYPE)
 static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
 	ttf_t*	       ttf = MwGetVoid(handle, bold ? MwNboldFont : MwNfont);
-	MwLLColor      base;
 	unsigned char* px;
 	int	       tw, th;
 	MwRect	       r;
@@ -91,8 +103,6 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 	int	       ax, lsb;
 	int	       x = 0;
 	if(ttf == NULL) return 1;
-
-	base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 
 	tw = MwTextWidth(handle, text);
 	th = MwTextHeight(handle, text);
@@ -149,12 +159,10 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 	MwLLDestroyPixmap(p);
 	free(px);
 
-	MwLLFreeColor(base);
-
 	return 0;
 }
 
-int ttf_MwTextWidth(MwWidget handle, const char* text) {
+static int ttf_MwTextWidth(MwWidget handle, const char* text) {
 	ttf_t* ttf = MwGetVoid(handle, MwNfont);
 	int    ax, lsb;
 	int    tw = 0;
@@ -172,26 +180,108 @@ int ttf_MwTextWidth(MwWidget handle, const char* text) {
 	return tw;
 }
 
-int ttf_MwTextHeight(MwWidget handle, int count) {
+static int ttf_MwTextHeight(MwWidget handle, int count) {
 	ttf_t* ttf = MwGetVoid(handle, MwNfont);
 	if(ttf == NULL) return -1;
 
 	return (ttf->ascent - ttf->descent) * ttf->scale * count;
 }
+#elif defined(USE_FREETYPE2)
+static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
+	ttf_t*	       ttf = MwGetVoid(handle, bold ? MwNboldFont : MwNfont);
+	int	       tw, th;
+	unsigned char* px;
+	MwLLPixmap     p;
+	MwRect	       r;
+	int	       x = 0;
+	if(ttf == NULL) return 1;
+
+	tw = MwTextWidth(handle, text);
+	th = MwTextHeight(handle, text);
+	px = malloc(tw * th * 4);
+
+	memset(px, 0, tw * th * 4);
+	while(text[0] != 0) {
+		int	   c;
+		FT_Bitmap* bmp;
+		int	   cy, cx;
+		text += MwUTF8ToUTF32(text, &c);
+
+		FT_Load_Char(ttf->face, c, FT_LOAD_RENDER);
+		bmp = &ttf->face->glyph->bitmap;
+
+		for(cy = 0; cy < bmp->rows; cy++) {
+			for(cx = 0; cx < bmp->width; cx++) {
+				int	       ox  = x + cx + ttf->face->glyph->bitmap_left;
+				int	       oy  = th - ttf->face->glyph->bitmap_top + cy + (ttf->face->descender * 14 / ttf->face->units_per_EM);
+				unsigned char* opx = &px[(oy * tw + ox) * 4];
+
+				opx[0] = color->red;
+				opx[1] = color->green;
+				opx[2] = color->blue;
+				opx[3] = bmp->buffer[cy * bmp->pitch + cx];
+			}
+		}
+
+		x += ttf->face->glyph->metrics.horiAdvance / 64;
+	}
+
+	p	 = MwLoadRaw(handle, px, tw, th);
+	r.x	 = point->x;
+	r.y	 = point->y - th / 2;
+	r.width	 = tw;
+	r.height = th;
+
+	if(align == MwALIGNMENT_CENTER) {
+		r.x -= tw / 2;
+	} else if(align == MwALIGNMENT_END) {
+		r.x -= tw;
+	}
+
+	MwLLDrawPixmap(handle->lowlevel, &r, p);
+	MwLLDestroyPixmap(p);
+	free(px);
+
+	return 0;
+}
+
+static int ttf_MwTextWidth(MwWidget handle, const char* text) {
+	ttf_t* ttf = MwGetVoid(handle, MwNfont);
+	int    tw  = 0;
+	if(ttf == NULL) return -1;
+
+	while(text[0] != 0) {
+		int c;
+		text += MwUTF8ToUTF32(text, &c);
+
+		FT_Load_Char(ttf->face, c, FT_LOAD_RENDER);
+
+		tw += ttf->face->glyph->metrics.horiAdvance / 64;
+	}
+
+	return tw;
+}
+
+static int ttf_MwTextHeight(MwWidget handle, int count) {
+	ttf_t* ttf = MwGetVoid(handle, MwNfont);
+	if(ttf == NULL) return -1;
+
+	return (ttf->face->height * 14 / ttf->face->units_per_EM) * count;
+}
 #endif
 
 void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
-#ifdef USE_STB_TRUETYPE
+#ifdef TTF
 	if(ttf_MwDrawText(handle, point, text, bold, align, color))
 #endif
 		bitmap_MwDrawText(handle, point, text, bold, align, color);
 }
 
 int MwTextWidth(MwWidget handle, const char* text) {
+	/* TODO: check newline */
+#ifdef TTF
 	int st;
 
-	/* TODO: check newline */
-#ifdef USE_STB_TRUETYPE
 	if((st = ttf_MwTextWidth(handle, text)) != -1) return st;
 #else
 	(void)handle;
@@ -203,7 +293,9 @@ int MwTextWidth(MwWidget handle, const char* text) {
 int MwTextHeight(MwWidget handle, const char* text) {
 	int c = 1;
 	int i = 0;
+#ifdef TTF
 	int st;
+#endif
 
 	(void)handle;
 	(void)text;
@@ -214,14 +306,24 @@ int MwTextHeight(MwWidget handle, const char* text) {
 
 		if(out == '\n') c++;
 	}
-#ifdef USE_STB_TRUETYPE
+#ifdef TTF
 	if((st = ttf_MwTextHeight(handle, c)) != -1) return st;
 #endif
 	return FontHeight * c;
 }
 
 void* MwFontLoad(unsigned char* data, unsigned int size) {
-#ifdef USE_STB_TRUETYPE
+#if defined(USE_FREETYPE2)
+	ttf_t* ttf = malloc(sizeof(*ttf));
+	ttf->data  = malloc(size);
+	memcpy(ttf->data, data, size);
+	FT_Init_FreeType(&ttf->library);
+	FT_New_Memory_Face(ttf->library, ttf->data, size, 0, &ttf->face);
+
+	FT_Set_Pixel_Sizes(ttf->face, 0, 14);
+
+	return ttf;
+#elif defined(USE_STB_TRUETYPE)
 	ttf_t* ttf = malloc(sizeof(*ttf));
 	ttf->data  = malloc(size);
 	memcpy(ttf->data, data, size);
@@ -232,12 +334,22 @@ void* MwFontLoad(unsigned char* data, unsigned int size) {
 
 	return ttf;
 #else
+	(void)data;
+	(void)size;
 	return NULL;
 #endif
 }
 
 void MwFontFree(void* handle) {
-#ifdef USE_STB_TRUETYPE
+#if defined(USE_FREETYPE2)
+	ttf_t* ttf = handle;
+
+	FT_Done_Face(ttf->face);
+	FT_Done_FreeType(ttf->library);
+
+	free(ttf->data);
+	free(ttf);
+#elif defined(USE_STB_TRUETYPE)
 	ttf_t* ttf = handle;
 
 	free(ttf->data);

@@ -14,7 +14,8 @@ else()
 endif()
 option(CLASSIC "Use classic theme" OFF)
 option(USE_STB_IMAGE "Use stb_image" ON)
-option(USE_STB_TRUETYPE "Use stb_truetype" ON)
+option(USE_STB_TRUETYPE "Use stb_truetype" OFF)
+option(USE_FREETYPE2 "Use FreeType 2" ON)
 
 file(
 	GLOB
@@ -74,6 +75,20 @@ if(USE_STB_TRUETYPE)
 		PRIVATE
 		USE_STB_TRUETYPE
 	)
+endif()
+
+if(USE_FREETYPE2)
+	target_compile_definitions(
+		Mw
+		PRIVATE
+		USE_FREETYPE2
+	)
+
+	find_package(PkgConfig)
+	pkg_check_modules(FT2 REQUIRED freetype2)
+	list(APPEND INCLUDE_DIRS ${FT2_INCLUDE_DIRS})
+	list(APPEND LIBRARY_DIRS ${FT2_LIBRARY_DIRS})
+	list(APPEND LIBRARIES ${FT2_LIBRARIES})
 endif()
 
 target_include_directories(

@@ -434,7 +434,7 @@ static void inherit_integer(MwWidget handle, const char* key, int default_value)
 	MwSetInteger(handle, key, default_value);
 }
 
-#ifdef USE_STB_TRUETYPE
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
 static void set_font(MwWidget handle) {
 	void*	 f;
 	MwWidget h = handle;
@@ -474,7 +474,7 @@ void MwSetDefault(MwWidget handle) {
 #else
 	inherit_integer(handle, MwNmodernLook, 1);
 #endif
-#ifdef USE_STB_TRUETYPE
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
 	set_font(handle);
 	set_boldfont(handle);
 #endif

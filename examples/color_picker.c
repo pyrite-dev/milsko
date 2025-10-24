@@ -1,7 +1,6 @@
 /* $Id$ */
 
 #include <Mw/Milsko.h>
-#include <stdint.h>
 MwWidget vp;
 
 #define WIN_SIZE 512
