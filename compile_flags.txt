@@ -1,5 +1,0 @@
--D_MILSKO
--DUSE_X11
--DHAS_FREETYPE
--I/usr/include/freetype2
--Iinclude
