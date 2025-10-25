@@ -272,6 +272,13 @@ MWDECL void MwGrabPointer(MwWidget handle, int toggle);
  */
 MWDECL void MwHideCursor(MwWidget handle);
 
+/*!
+ * %param Toggles the dark theme
+ * %param handle Widget
+ * %param toggle Toggle
+ */
+MWDECL void MwToggleDarkTheme(MwWidget handle, int toggle);
+
 #ifdef __cplusplus
 }
 #endif

@@ -303,6 +303,12 @@
 						<widget name="handle" />
 					</arguments>
 				</function>
+				<function name="MwToggleDarkTheme">
+					<arguments>
+						<widget name="handle" />
+						<integer name="toggle" />
+					</arguments>
+				</function>
 			</functions>
 		</header>
 		<header name="Error">

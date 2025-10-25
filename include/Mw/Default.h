@@ -24,6 +24,16 @@ MWDECL const char* MwDefaultBackground;
 MWDECL const char* MwDefaultForeground;
 
 /*!
+ * %brief Default dark theme background color
+ */
+MWDECL const char* MwDefaultDarkBackground;
+
+/*!
+ * %brief Default dark theme foreground color
+ */
+MWDECL const char* MwDefaultDarkForeground;
+
+/*!
  * %brief Gets default border width
  * %param handle Widget
  */

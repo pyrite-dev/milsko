@@ -11,6 +11,16 @@ void handler(MwWidget handle, void* user_data, void* call_data) {
 	printf("hello world!\n");
 }
 
+int  toggle = 0;
+void handler_dark(MwWidget handle, void* user_data, void* call_data) {
+	(void)handle;
+	(void)user_data;
+	(void)call_data;
+
+	toggle = toggle ? 0 : 1;
+	MwToggleDarkTheme(window, toggle);
+}
+
 void resize(MwWidget handle, void* user_data, void* call_data) {
 	unsigned int w, h, mh;
 
@@ -53,23 +63,26 @@ int main() {
 				   NULL);
 	menu	= MwCreateWidget(MwMenuClass, "menu", window, 0, 0, 0, 0);
 	button	= MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 300, 125,
-				   MwNtext, "lorem ipsum",
+				   MwNtext, "toggle dark theme",
 				   NULL);
 	button2 = MwVaCreateWidget(MwButtonClass, "button", window, 50, 225, 100, 125,
 				   MwNtext, "lorem ipsum",
 				   MwNbackground, "#f66",
+				   MwNforeground, "#000",
 				   NULL);
 	button3 = MwVaCreateWidget(MwButtonClass, "button", window, 150, 225, 100, 125,
 				   MwNtext, "lorem ipsum",
 				   MwNbackground, "#6f6",
+				   MwNforeground, "#000",
 				   NULL);
 	button4 = MwVaCreateWidget(MwButtonClass, "button", window, 250, 225, 100, 125,
 				   MwNtext, "lorem ipsum",
 				   MwNbackground, "#66f",
+				   MwNforeground, "#000",
 				   NULL);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
-	MwAddUserHandler(button, MwNactivateHandler, handler, NULL);
+	MwAddUserHandler(button, MwNactivateHandler, handler_dark, NULL);
 	MwAddUserHandler(button2, MwNactivateHandler, handler, NULL);
 	MwAddUserHandler(button3, MwNactivateHandler, handler, NULL);
 	MwAddUserHandler(button4, MwNactivateHandler, handler, NULL);

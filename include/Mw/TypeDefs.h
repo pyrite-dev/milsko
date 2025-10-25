@@ -90,6 +90,7 @@ struct _MwVoidKeyValue {
 struct _MwWidget {
 	char*	  name;
 	MwLLColor bgcolor;
+	int	  dark_theme;
 
 	MwLL	  lowlevel;
 	MwWidget  parent;

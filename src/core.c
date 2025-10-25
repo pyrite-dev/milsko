@@ -127,6 +127,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->draw_inject	 = NULL;
 	h->tick_list	 = NULL;
 	h->destroyed	 = 0;
+	h->dark_theme	 = 0;
 
 	if(parent == NULL) arrput(h->tick_list, h);
 
@@ -369,6 +370,25 @@ int MwGetInteger(MwWidget handle, const char* key) {
 }
 
 const char* MwGetText(MwWidget handle, const char* key) {
+	if(shgeti(handle->text, key) == -1 && (strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0)) {
+		const char* v = NULL;
+		MwWidget    h = handle->parent;
+		while(h != NULL) {
+			if((v = MwGetText(h, key)) != NULL) break;
+			h = h->parent;
+		}
+		if(v == NULL) {
+			if(handle->dark_theme) {
+				if(strcmp(key, MwNbackground) == 0) return MwDefaultDarkBackground;
+				if(strcmp(key, MwNforeground) == 0) return MwDefaultDarkForeground;
+			} else {
+				if(strcmp(key, MwNbackground) == 0) return MwDefaultBackground;
+				if(strcmp(key, MwNforeground) == 0) return MwDefaultForeground;
+			}
+		}
+		return v;
+	}
+
 	return shget(handle->text, key);
 }
 
@@ -406,19 +426,6 @@ void MwVaListApply(MwWidget handle, va_list va) {
 			MwSetVoid(handle, key, v);
 		}
 	}
-}
-
-static void inherit_text(MwWidget handle, const char* key, const char* default_value) {
-	const char* text;
-	MwWidget    h = handle;
-	while(h != NULL) {
-		if((text = MwGetText(h, key)) != NULL) {
-			MwSetText(handle, key, text);
-			return;
-		}
-		h = h->parent;
-	}
-	MwSetText(handle, key, default_value);
 }
 
 static void inherit_integer(MwWidget handle, const char* key, int default_value) {
@@ -467,8 +474,6 @@ static void set_boldfont(MwWidget handle) {
 void MwSetDefault(MwWidget handle) {
 	MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
 
-	inherit_text(handle, MwNbackground, MwDefaultBackground);
-	inherit_text(handle, MwNforeground, MwDefaultForeground);
 #ifdef MW_CLASSIC_THEME
 	inherit_integer(handle, MwNmodernLook, 0);
 #else
@@ -551,4 +556,21 @@ void MwFocus(MwWidget handle) {
 void MwGrabPointer(MwWidget handle, int toggle) {
 	if(toggle) MwFocus(handle);
 	MwLLGrabPointer(handle->lowlevel, toggle);
+}
+
+static void force_render_all(MwWidget handle) {
+	int i;
+	for(i = 0; i < arrlen(handle->children); i++) {
+		force_render_all(handle->children[i]);
+	}
+	MwForceRender(handle);
+}
+
+void MwToggleDarkTheme(MwWidget handle, int toggle) {
+	int old = handle->dark_theme;
+	if(old != toggle) {
+		handle->dark_theme = toggle;
+
+		force_render_all(handle);
+	}
 }

@@ -6,9 +6,9 @@ MwWidget vp;
 #define WIN_SIZE 512
 #define PICKER_SIZE 360
 #define IMG_POS ((WIN_SIZE - PICKER_SIZE) / 2)
-#define SCROLL_BAR_WIDTH (PICKER_SIZE / 32)
+#define SCROLL_BAR_WIDTH 12
 #define MARGIN (PICKER_SIZE / 32)
-#define COLOR_DISPLAY_HEIGHT (PICKER_SIZE / 4)
+#define COLOR_DISPLAY_HEIGHT 12
 
 typedef struct {
 	double r; // a fraction between 0 and 1
