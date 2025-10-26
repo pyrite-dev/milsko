@@ -68,23 +68,27 @@ D. MinGW-w64/GCC/Clang
 
           This section exists for people who chose D.
 
-          TARGET        - Target environment, chosen by Makefile in
-                          default settings.
+          TARGET           - Target environment, chosen by Makefile in
+                             default settings.
 
-          GCC           - Prefix for GCC toolchains. This does not
-                          matter if you set CC manually.
+          GCC              - Prefix for GCC toolchains. This does not
+                             matter if you set CC manually.
 
-          CC            - C compiler.
+          CC               - C compiler.
 
-          DEBUG         - Debug build or not, 0 in default settings.
+          DEBUG            - Debug build or not, 0 in default settings.
 
-          VULKAN        - Build Vulkan widget or not.
+          VULKAN           - Build Vulkan widget or not.
 
-          OPENGL        - Build OpenGL widget or not.
+          OPENGL           - Build OpenGL widget or not.
 
-          USE_STB_IMAGE - Use stb_image or not.
+          USE_STB_IMAGE    - Use stb_image or not.
 
-          PREFIX        - Installation destination directory.
+          USE_STB_TRUETYPE - Use stb_truetype or not.
+
+          USE_FREETYPE2    - Use FreeType2 or not.
+
+          PREFIX           - Installation destination directory.
 
 
                                 Makefile targets
