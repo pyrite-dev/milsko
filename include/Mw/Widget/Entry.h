@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/Widget/Entry.h
- * %brief Entry widget
+ * @file Mw/Widget/Entry.h
+ * @brief Entry widget
  */
 #ifndef __MW_WIDGET_ENTRY_H__
 #define __MW_WIDGET_ENTRY_H__
@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 /*!
- * %brief Entry widget class
+ * @brief Entry widget class
  */
 MWDECL MwClass MwEntryClass;
 

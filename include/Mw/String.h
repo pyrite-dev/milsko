@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/String.h
- * %brief String utilities
+ * @file Mw/String.h
+ * @brief String utilities
  */
 #ifndef __MW_STRING_H__
 #define __MW_STRING_H__
@@ -14,31 +14,31 @@ extern "C" {
 #endif
 
 /*!
- * %brief Duplicates a string
- * %param str String
- * %return String
+ * @brief Duplicates a string
+ * @param str String
+ * @return String
  */
 MWDECL char* MwStringDupliacte(const char* str);
 
 /*!
- * %brief Concatenates 2 strings
- * %param str1 String
- * %param str2 String
- * %return String
+ * @brief Concatenates 2 strings
+ * @param str1 String
+ * @param str2 String
+ * @return String
  */
 MWDECL char* MwStringConcat(const char* str1, const char* str2);
 
 /*!
- * %brief Converts size to string
- * %param out Output
- * %param size Size
+ * @brief Converts size to string
+ * @param out Output
+ * @param size Size
  */
 MWDECL void MwStringSize(char* out, MwOffset size);
 
 /*!
- * %brief Converts time to string
- * %param out Output
- * %param t Time
+ * @brief Converts time to string
+ * @param out Output
+ * @param t Time
  */
 MWDECL void MwStringTime(char* out, time_t t);
 

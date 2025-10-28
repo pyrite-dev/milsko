@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/Icon.h
- * %brief Icon
+ * @file Mw/Icon.h
+ * @brief Icon
  */
 #ifndef __MW_ICON_H__
 #define __MW_ICON_H__
@@ -13,62 +13,62 @@ extern "C" {
 #endif
 
 /*!
- * %brief Back icon
+ * @brief Back icon
  */
 MWDECL unsigned int MwIconBack[];
 
 /*!
- * %brief Computer icon
+ * @brief Computer icon
  */
 MWDECL unsigned int MwIconComputer[];
 
 /*!
- * %brief Directory icon
+ * @brief Directory icon
  */
 MWDECL unsigned int MwIconDirectory[];
 
 /*!
- * %brief Error icon
+ * @brief Error icon
  */
 MWDECL unsigned int MwIconError[];
 
 /*!
- * %brief File icon
+ * @brief File icon
  */
 MWDECL unsigned int MwIconFile[];
 
 /*!
- * %brief Forward icon
+ * @brief Forward icon
  */
 MWDECL unsigned int MwIconForward[];
 
 /*!
- * %brief Info icon
+ * @brief Info icon
  */
 MWDECL unsigned int MwIconInfo[];
 
 /*!
- * %brief News icon
+ * @brief News icon
  */
 MWDECL unsigned int MwIconNews[];
 
 /*!
- * %brief Note icon
+ * @brief Note icon
  */
 MWDECL unsigned int MwIconNote[];
 
 /*!
- * %brief Search icon
+ * @brief Search icon
  */
 MWDECL unsigned int MwIconSearch[];
 
 /*!
- * %brief Up icon
+ * @brief Up icon
  */
 MWDECL unsigned int MwIconUp[];
 
 /*!
- * %brief Warning icon
+ * @brief Warning icon
  */
 MWDECL unsigned int MwIconWarning[];
 

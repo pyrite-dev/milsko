@@ -1,13 +1,13 @@
 /* $Id$ */
 /*!
- * %file Mw/Constants.h
- * %brief Constants
+ * @file Mw/Constants.h
+ * @brief Constants
  */
 #ifndef __MW_CONSTANTS_H__
 #define __MW_CONSTANTS_H__
 
 /*!
- * %brief Direction enumeration
+ * @brief Direction enumeration
  */
 enum MwDIRECTION {
 	MwNORTH = 0,
@@ -17,7 +17,7 @@ enum MwDIRECTION {
 };
 
 /*!
- * %brief Orientation
+ * @brief Orientation
  */
 enum MwORIENTATION {
 	MwVERTICAL = 0,
@@ -25,7 +25,7 @@ enum MwORIENTATION {
 };
 
 /*!
- * %brief Alignment
+ * @brief Alignment
  */
 enum MwALIGNMENT {
 	MwALIGNMENT_CENTER = 0,
@@ -34,12 +34,12 @@ enum MwALIGNMENT {
 };
 
 /*!
- * %brief Default
+ * @brief Default
  */
 #define MwDEFAULT 0x0fffffff
 
 /*!
- * %brief Directory entry type
+ * @brief Directory entry type
  */
 enum MwDIRECTORY_TYPE {
 	MwDIRECTORY_FILE = 0,
@@ -47,7 +47,7 @@ enum MwDIRECTORY_TYPE {
 };
 
 /*!
- * %brief Icon mask
+ * @brief Icon mask
  */
 #define MwMB_ICONMASK 0xf
 
@@ -60,42 +60,42 @@ enum MwMB_ICON {
 };
 
 /*!
- * %brief Button mask
+ * @brief Button mask
  */
 #define MwMB_BUTTONMASK 0xf0
 
 /*!
- * %brief OK button
+ * @brief OK button
  */
 #define MwMB_BUTTONOK 0x10
 
 /*!
- * %brief Cancel button
+ * @brief Cancel button
  */
 #define MwMB_BUTTONCANCEL 0x20
 
 /*!
- * %brief Yes button
+ * @brief Yes button
  */
 #define MwMB_BUTTONYES 0x40
 
 /*!
- * %brief No button
+ * @brief No button
  */
 #define MwMB_BUTTONNO 0x80
 
 /*!
- * %brief Ok and Cancel button
+ * @brief Ok and Cancel button
  */
 #define MwMB_BUTTONOKCANCEL (MwMB_BUTTONCANCEL | MwMB_BUTTONOK)
 
 /*!
- * %brief Yes and No button
+ * @brief Yes and No button
  */
 #define MwMB_BUTTONYESNO (MwMB_BUTTONYES | MwMB_BUTTONNO)
 
 /*!
- * %brief Yes, No and Cancel button
+ * @brief Yes, No and Cancel button
  */
 #define MwMB_BUTTONYESNOCANCEL (MwMB_BUTTONYES | MwMB_BUTTONNO | MwMB_BUTTONCANCEL)
 

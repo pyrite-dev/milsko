@@ -1,8 +1,8 @@
 /* $Id$ */
 /*!
- * %file Mw/Widget/Vulkan.h
- * %brief Vulkan widget
- * %warning This header is not documented yet
+ * @file Mw/Widget/Vulkan.h
+ * @brief Vulkan widget
+ * @warning This header is not documented yet
  */
 
 /**
@@ -29,89 +29,89 @@ extern "C" {
 #endif
 
 /*!
- * %brief Vulkan widget class
+ * @brief Vulkan widget class
  */
 MWDECL MwClass MwVulkanClass;
 
 /*!
- * %brief Add an extension to the list of extensions to enable prior to initialization.
- * %warning This must be called before MwCreateWidget.
+ * @brief Add an extension to the list of extensions to enable prior to initialization.
+ * @warning This must be called before MwCreateWidget.
  */
 MWDECL void MwVulkanEnableExtension(const char* ext_name);
 
 /*!
- * %brief Add an layer to the list of layers to enable prior to initialization.
- * %warning This must be called before MwCreateWidget.
+ * @brief Add an layer to the list of layers to enable prior to initialization.
+ * @warning This must be called before MwCreateWidget.
  */
 MWDECL void MwVulkanEnableLayer(const char* ext_name);
 
 /*!
- * %brief Configuration options that can be passed to setup Vulkan before a widget is created.
+ * @brief Configuration options that can be passed to setup Vulkan before a widget is created.
  */
 typedef struct MwVulkanConfig_T {
 	/*!
-	 * %brief Vulkan API version (default: VK_API_VERSION_1_0)
+	 * @brief Vulkan API version (default: VK_API_VERSION_1_0)
 	 */
 	uint32_t api_version;
 	/*!
-	 * %brief Vulkan version (default: VK_VERSION_1_0)
+	 * @brief Vulkan version (default: VK_VERSION_1_0)
 	 */
 	uint32_t vk_version;
 	/*!
-	 * %brief Whether or not to enable validation layers (default: false)
+	 * @brief Whether or not to enable validation layers (default: false)
 	 */
 	VkBool32 validation_layers;
 } MwVulkanConfig;
 
 /*!
- * %brief Configure Vulkan prior to initializing the widget.
- * %warning This must be called before MwCreateWidget.
- * %warning The configuration provided will be used for future initializations of the Vulkan widget (unless it's changed)
+ * @brief Configure Vulkan prior to initializing the widget.
+ * @warning This must be called before MwCreateWidget.
+ * @warning The configuration provided will be used for future initializations of the Vulkan widget (unless it's changed)
  */
 MWDECL void MwVulkanConfigure(MwVulkanConfig cfg);
 
 /*!
- * %brief Field that can be gotten from Vulkan.
+ * @brief Field that can be gotten from Vulkan.
  */
 typedef enum MwVulkanField_T {
 	/*!
-	 * %brief The address of the vulkan widget's vkGetInstanceProcAddr function (PFN_vkGetInstanceProcAddr)
+	 * @brief The address of the vulkan widget's vkGetInstanceProcAddr function (PFN_vkGetInstanceProcAddr)
 	 */
 	MwVulkanField_GetInstanceProcAddr = 0,
 	/*!
-	 * %brief The address of the vulkan widget's instance (VkInstance)
+	 * @brief The address of the vulkan widget's instance (VkInstance)
 	 */
 	MwVulkanField_Instance,
 	/*!
-	 * %brief The address of the vulkan widget's surface (VkSurfaceKHR)
+	 * @brief The address of the vulkan widget's surface (VkSurfaceKHR)
 	 */
 	MwVulkanField_Surface,
 	/*!
-	 * %brief The address of the vulkan widget's physical device (VkPhysicalDevice)
+	 * @brief The address of the vulkan widget's physical device (VkPhysicalDevice)
 	 */
 	MwVulkanField_PhysicalDevice,
 	/*!
-	 * %brief The address of the vulkan widget's logical device (VkDevice)
+	 * @brief The address of the vulkan widget's logical device (VkDevice)
 	 */
 	MwVulkanField_LogicalDevice,
 	/*!
-	 * %brief The address of the index that the vulkan widget uses for the graphics queue (uint32_t *)
+	 * @brief The address of the index that the vulkan widget uses for the graphics queue (uint32_t *)
 	 */
 	MwVulkanField_GraphicsQueueIndex,
 	/*!
-	 * %brief The address of the index that the vulkan widget uses for the present queue (uint32_t *)
+	 * @brief The address of the index that the vulkan widget uses for the present queue (uint32_t *)
 	 */
 	MwVulkanField_PresentQueueIndex,
 	MwVulkanField_GraphicsQueue,
 	/*!
-	 * %brief The address of the vulkan widget's graphics queue (VkQueue)
+	 * @brief The address of the vulkan widget's graphics queue (VkQueue)
 	 */
 	MwVulkanField_PresentQueue,
 } MwVulkanField;
 
 /*!
- * %brief Function for getting a field from within Vulkan.
- * %warning Consult the documentation for MwVulkanField to know what type is expected for out.
+ * @brief Function for getting a field from within Vulkan.
+ * @warning Consult the documentation for MwVulkanField to know what type is expected for out.
  */
 MwInline void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
 	void* field_out;
@@ -120,7 +120,7 @@ MwInline void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnu
 };
 
 /*!
- * %brief Return whether Vulkan is installed on the target platform.
+ * @brief Return whether Vulkan is installed on the target platform.
  */
 MWDECL VkBool32 MwVulkanSupported(void);
 

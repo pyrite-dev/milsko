@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/Unicode.h
- * %brief Handles UTF8 stuff
+ * @file Mw/Unicode.h
+ * @brief Handles UTF8 stuff
  */
 #ifndef __MW_UNICODE_H__
 #define __MW_UNICODE_H__
@@ -14,36 +14,36 @@ extern "C" {
 #endif
 
 /*!
- * %brief Converts UTF-8 to UTF-32
- * %brief input Input
- * %brief output Output
- * %return Bytes this multibyte takes
+ * @brief Converts UTF-8 to UTF-32
+ * @brief input Input
+ * @brief output Output
+ * @return Bytes this multibyte takes
  */
 MWDECL int MwUTF8ToUTF32(const char* input, int* output);
 
 /*!
- * %brief Calculates UTF-8 string length
- * %brief input Input
- * %return Length
+ * @brief Calculates UTF-8 string length
+ * @brief input Input
+ * @return Length
  */
 MWDECL int MwUTF8Length(const char* input);
 
 /*!
- * %brief Copies UTF-8 string to other string
- * %brief src Source
- * %brief srcskip Length to be skipped
- * %brief dst Destination
- * %brief dstskip Length to be skipped
- * %brief len Length
- * %return Copied length in bytes
+ * @brief Copies UTF-8 string to other string
+ * @brief src Source
+ * @brief srcskip Length to be skipped
+ * @brief dst Destination
+ * @brief dstskip Length to be skipped
+ * @brief len Length
+ * @return Copied length in bytes
  */
 MWDECL int MwUTF8Copy(const char* src, int srcskip, char* dst, int dstskip, int len);
 
 /*!
- * %brief Converts UTF-32 to UTF-8
- * %brief input Input
- * %brief output Output
- * %return Bytes this wide byte takes
+ * @brief Converts UTF-32 to UTF-8
+ * @brief input Input
+ * @brief output Output
+ * @return Bytes this wide byte takes
  */
 MWDECL int MwUTF32ToUTF8(int input, char* output);
 

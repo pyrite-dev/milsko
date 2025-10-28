@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/Widget/Button.h
- * %brief Button widget
+ * @file Mw/Widget/Button.h
+ * @brief Button widget
  */
 #ifndef __MW_WIDGET_BUTTON_H__
 #define __MW_WIDGET_BUTTON_H__
@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 /*!
- * %brief Button widget class
+ * @brief Button widget class
  */
 MWDECL MwClass MwButtonClass;
 

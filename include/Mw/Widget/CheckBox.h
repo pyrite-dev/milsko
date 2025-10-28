@@ -1,7 +1,7 @@
 /* $Id: CheckBox.h 206 2025-10-07 15:10:46Z nishi $ */
 /*!
- * %file Mw/Widget/CheckBox.h
- * %brief CheckBox widget
+ * @file Mw/Widget/CheckBox.h
+ * @brief CheckBox widget
  */
 #ifndef __MW_WIDGET_CHECKBOX_H__
 #define __MW_WIDGET_CHECKBOX_H__
@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 /*!
- * %brief CheckBox widget class
+ * @brief CheckBox widget class
  */
 MWDECL MwClass MwCheckBoxClass;
 

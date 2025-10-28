@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/Default.h
- * %brief Default properties
+ * @file Mw/Default.h
+ * @brief Default properties
  */
 #ifndef __MW_DEFAULT_H__
 #define __MW_DEFAULT_H__
@@ -14,28 +14,28 @@ extern "C" {
 #endif
 
 /*!
- * %brief Default background color
+ * @brief Default background color
  */
 MWDECL const char* MwDefaultBackground;
 
 /*!
- * %brief Default foreground color
+ * @brief Default foreground color
  */
 MWDECL const char* MwDefaultForeground;
 
 /*!
- * %brief Default dark theme background color
+ * @brief Default dark theme background color
  */
 MWDECL const char* MwDefaultDarkBackground;
 
 /*!
- * %brief Default dark theme foreground color
+ * @brief Default dark theme foreground color
  */
 MWDECL const char* MwDefaultDarkForeground;
 
 /*!
- * %brief Gets default border width
- * %param handle Widget
+ * @brief Gets default border width
+ * @param handle Widget
  */
 MWDECL int MwGetDefaultBorderWidth(MwWidget handle);
 

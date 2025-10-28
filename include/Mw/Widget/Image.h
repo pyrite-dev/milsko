@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/Widget/Image.h
- * %brief Image widget
+ * @file Mw/Widget/Image.h
+ * @brief Image widget
  */
 #ifndef __MW_WIDGET_IMAGE_H__
 #define __MW_WIDGET_IMAGE_H__
@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 /*!
- * %brief Image widget class
+ * @brief Image widget class
  */
 MWDECL MwClass MwImageClass;
 

@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/Widget/SubMenu.h
- * %brief SubMenu widget
+ * @file Mw/Widget/SubMenu.h
+ * @brief SubMenu widget
  */
 #ifndef __MW_WIDGET_SUBMENU_H__
 #define __MW_WIDGET_SUBMENU_H__
@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 /*!
- * %brief SubMenu widget class
+ * @brief SubMenu widget class
  */
 MWDECL MwClass MwSubMenuClass;
 

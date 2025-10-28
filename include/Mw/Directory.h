@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/Directory.h
- * %brief Directory functions
+ * @file Mw/Directory.h
+ * @brief Directory functions
  */
 #ifndef __MW_DIRECTORY_H__
 #define __MW_DIRECTORY_H__
@@ -14,42 +14,42 @@ extern "C" {
 #endif
 
 /*!
- * %brief Opens a directory
- * %param path Path
- * %return Handle
+ * @brief Opens a directory
+ * @param path Path
+ * @return Handle
  */
 MWDECL void* MwDirectoryOpen(const char* path);
 
 /*!
- * %brief Closes a directory
- * %param handle Handle
+ * @brief Closes a directory
+ * @param handle Handle
  */
 MWDECL void MwDirectoryClose(void* handle);
 
 /*!
- * %brief Reads a directory
- * %param handle Handle
- * %return Directory entry
+ * @brief Reads a directory
+ * @param handle Handle
+ * @return Directory entry
  */
 MWDECL MwDirectoryEntry* MwDirectoryRead(void* handle);
 
 /*!
- * %brief Frees a directory entry
- * %param entry Entry
+ * @brief Frees a directory entry
+ * @param entry Entry
  */
 MWDECL void MwDirectoryFreeEntry(MwDirectoryEntry* entry);
 
 /*!
- * %brief Gets a current directory
- * %param Directory
+ * @brief Gets a current directory
+ * @param Directory
  */
 MWDECL char* MwDirectoryCurrent(void);
 
 /*!
- * %brief Joins 2 paths
- * %param a Path
- * %param b Path
- * %return Path
+ * @brief Joins 2 paths
+ * @param a Path
+ * @param b Path
+ * @return Path
  */
 MWDECL char* MwDirectoryJoin(char* a, char* b);
 

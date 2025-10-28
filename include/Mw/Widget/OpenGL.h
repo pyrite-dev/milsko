@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/Widget/OpenGL.h
- * %brief OpenGL widget
+ * @file Mw/Widget/OpenGL.h
+ * @brief OpenGL widget
  */
 #ifndef __MW_WIDGET_OPENGL_H__
 #define __MW_WIDGET_OPENGL_H__
@@ -26,23 +26,23 @@ extern "C" {
 #endif
 
 /*!
- * %brief OpenGL widget class
+ * @brief OpenGL widget class
  */
 MWDECL MwClass MwOpenGLClass;
 
 /*!
- * %brief Make a widget current OpenGL context
- * %param handle Widget
+ * @brief Make a widget current OpenGL context
+ * @param handle Widget
  */
 MwInline void MwOpenGLMakeCurrent(MwWidget handle) {
 	MwVaWidgetExecute(handle, "mwOpenGLMakeCurrent", NULL);
 };
 
 /*!
- * %brief Get a procedure from OpenGL
- * %param handle Widget
- * %param name Name
- * %return Procedure
+ * @brief Get a procedure from OpenGL
+ * @param handle Widget
+ * @param name Name
+ * @return Procedure
  */
 MwInline void* MwOpenGLGetProcAddress(MwWidget handle, const char* name) {
 	void* out;
@@ -51,8 +51,8 @@ MwInline void* MwOpenGLGetProcAddress(MwWidget handle, const char* name) {
 };
 
 /*!
- * %brief Swaps the buffer of OpenGL context
- * %param handle Widget
+ * @brief Swaps the buffer of OpenGL context
+ * @param handle Widget
  */
 MwInline void MwOpenGLSwapBuffer(MwWidget handle) {
 	MwVaWidgetExecute(handle, "mwOpenGLSwapBuffer", NULL);

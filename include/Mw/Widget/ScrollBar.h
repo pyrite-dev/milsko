@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/Widget/ScrollBar.h
- * %brief ScrollBar widget
+ * @file Mw/Widget/ScrollBar.h
+ * @brief ScrollBar widget
  */
 #ifndef __MW_WIDGET_SCROLLBAR_H__
 #define __MW_WIDGET_SCROLLBAR_H__
@@ -15,14 +15,14 @@ extern "C" {
 #endif
 
 /*!
- * %brief ScrollBar widget class
+ * @brief ScrollBar widget class
  */
 MWDECL MwClass MwScrollBarClass;
 
 /*!
- * %brief Calculates a visible length of scrollbar
- * %param handle Widget
- * %return Visible length
+ * @brief Calculates a visible length of scrollbar
+ * @param handle Widget
+ * @return Visible length
  */
 MwInline int MwScrollBarGetVisibleLength(MwWidget handle) {
 	int out;

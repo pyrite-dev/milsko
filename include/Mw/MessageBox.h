@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/MessageBox.h
- * %brief Message box
+ * @file Mw/MessageBox.h
+ * @brief Message box
  */
 #ifndef __MW_MESSAGEBOX_H__
 #define __MW_MESSAGEBOX_H__
@@ -14,25 +14,25 @@ extern "C" {
 #endif
 
 /*!
- * %brief Creates a message box
- * %param handle Widget
- * %param text Text
- * %param title Title text
- * %param flag Flag
- * %return Widget
+ * @brief Creates a message box
+ * @param handle Widget
+ * @param text Text
+ * @param title Title text
+ * @param flag Flag
+ * @return Widget
  */
 MWDECL MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsigned int flag);
 
 /*!
- * %brief Gets a child of the message box
- * %param handle Widget
- * %param child Child
+ * @brief Gets a child of the message box
+ * @param handle Widget
+ * @param child Child
  */
 MWDECL MwWidget MwMessageBoxGetChild(MwWidget handle, int child);
 
 /*!
- * %brief Destroys the message box
- * %param handle Widget
+ * @brief Destroys the message box
+ * @param handle Widget
  */
 MWDECL void MwMessageBoxDestroy(MwWidget handle);
 

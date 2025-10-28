@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
- * %file Mw/Cursor.h
- * %brief Cursor externs
+ * @file Mw/Cursor.h
+ * @brief Cursor externs
  */
 
 #ifndef __MW_CURSOR_H__
@@ -15,42 +15,42 @@ extern "C" {
 #endif
 
 /*!
- * %brief Default cursor
+ * @brief Default cursor
  */
 MWDECL MwCursor MwCursorDefault;
 
 /*!
- * %brief Default cursor mask
+ * @brief Default cursor mask
  */
 MWDECL MwCursor MwCursorDefaultMask;
 
 /*!
- * %brief Cross cursor
+ * @brief Cross cursor
  */
 MWDECL MwCursor MwCursorCross;
 
 /*!
- * %brief Cross cursor mask
+ * @brief Cross cursor mask
  */
 MWDECL MwCursor MwCursorCrossMask;
 
 /*!
- * %brief Text cursor
+ * @brief Text cursor
  */
 MWDECL MwCursor MwCursorText;
 
 /*!
- * %brief Text cursor mask
+ * @brief Text cursor mask
  */
 MWDECL MwCursor MwCursorTextMask;
 
 /*!
- * %brief Hidden cursor
+ * @brief Hidden cursor
  */
 MWDECL MwCursor MwCursorHidden;
 
 /*!
- * %brief Hidden cursor mask
+ * @brief Hidden cursor mask
  */
 MWDECL MwCursor MwCursorHiddenMask;
 
