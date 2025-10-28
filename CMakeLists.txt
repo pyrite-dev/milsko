@@ -146,7 +146,7 @@ endif()
 
 target_include_directories(
 	Mw
-	PRIVATE
+	PUBLIC
 	${INCLUDE_DIRS}
 )
 target_link_directories(
