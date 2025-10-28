@@ -263,9 +263,9 @@ static void clean_destroy_queue(MwWidget handle) {
 	arrfree(handle->destroy_queue);
 }
 
-void MwStep(MwWidget handle) {
+int MwStep(MwWidget handle) {
 	int i;
-	if(setjmp(handle->before_step)) return;
+	if(setjmp(handle->before_step)) return 0;
 	for(i = 0; i < arrlen(handle->children); i++) MwStep(handle->children[i]);
 
 	handle->prop_event = 0;
@@ -273,6 +273,8 @@ void MwStep(MwWidget handle) {
 	handle->prop_event = 1;
 
 	clean_destroy_queue(handle);
+	if(handle->parent == NULL && handle->destroyed) return 1;
+	return 0;
 }
 
 int MwPending(MwWidget handle) {
@@ -287,7 +289,11 @@ void MwLoop(MwWidget handle) {
 	long tick = MwLLGetTick();
 	int  i;
 	while(!handle->close) {
-		while(MwPending(handle)) MwStep(handle);
+		int v = 0;
+		while(MwPending(handle)) {
+			if((v = MwStep(handle)) != 0) break;
+		}
+		if(v != 0) break;
 
 		for(i = 0; i < arrlen(handle->tick_list); i++) {
 			MwDispatchUserHandler(handle->tick_list[i], MwNtickHandler, NULL);

@@ -116,8 +116,9 @@ MWDECL void MwLoop(MwWidget handle);
 /*!
  * @brief Runs the single step
  * @param handle Widget
+ * @return `0` if successful
  */
-MWDECL void MwStep(MwWidget handle);
+MWDECL int MwStep(MwWidget handle);
 
 /*!
  * @brief Check if any event is pending
