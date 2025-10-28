@@ -13,6 +13,7 @@ else()
 	option(VULKAN "Compile Vulkan widget or not" ON)
 endif()
 option(CLASSIC "Use classic theme" OFF)
+option(BUILD_EXAMPLES "Build examples" OFF)
 option(USE_STB_IMAGE "Use stb_image" ON)
 option(USE_STB_TRUETYPE "Use stb_truetype" OFF)
 option(USE_FREETYPE2 "Use FreeType 2" ON)
@@ -93,7 +94,7 @@ endif()
 
 target_include_directories(
 	Mw
-	PRIVATE
+	PUBLIC
 	include
 )
 
@@ -146,7 +147,7 @@ endif()
 
 target_include_directories(
 	Mw
-	PUBLIC
+	PRIVATE
 	${INCLUDE_DIRS}
 )
 target_link_directories(
@@ -178,4 +179,6 @@ install(
 	FILES_MATCHING PATTERN "*.h"
 )
 
-add_subdirectory(examples)
+if(BUILD_EXAMPLES)
+	add_subdirectory(examples)
+endif()
