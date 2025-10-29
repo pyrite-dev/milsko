@@ -35,6 +35,7 @@ for i in resource/icon/*.png; do
 	echo "};" >> $OUT
 	echo $NAME
 done | while read a; do
+	echo $a
 	echo '/*!' >> include/Mw/Icon.h
 	echo " * %brief `echo $a | sed s/MwIcon//` icon" >> include/Mw/Icon.h
 	echo ' */' >> include/Mw/Icon.h

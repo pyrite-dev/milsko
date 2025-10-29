@@ -41,10 +41,10 @@ L_LDFLAGS = $(LDFLAGS)
 L_LIBS = $(LIBS)
 
 L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/error.o src/unicode.o src/color.o src/messagebox.o src/directory.o src/string.o src/filechooser.o
-L_OBJS += external/ds.o external/image.o external/truetype.o
+L_OBJS += external/stb_ds.o external/stb_image.o external/stb_truetype.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o src/widget/checkbox.o src/widget/label.o src/widget/entry.o src/widget/numberentry.o src/widget/viewport.o src/widget/listbox.o
 L_OBJS += src/cursor/hidden.o src/cursor/default.o src/cursor/cross.o src/cursor/text.o
-L_OBJS += src/icon/warning.o src/icon/note.o src/icon/info.o src/icon/news.o src/icon/error.o src/icon/file.o src/icon/directory.o src/icon/back.o src/icon/forward.o src/icon/up.o src/icon/computer.o src/icon/search.o
+L_OBJS += src/icon/warning.o src/icon/note.o src/icon/info.o src/icon/news.o src/icon/error.o src/icon/file.o src/icon/directory.o src/icon/back.o src/icon/forward.o src/icon/up.o src/icon/down.o src/icon/left.o src/icon/right.o src/icon/computer.o src/icon/search.o
 L_OBJS += src/text/font.o src/text/boldfont.o src/text/ttf.o src/text/boldttf.o src/text/draw.o
 
 E_CFLAGS = $(CFLAGS)
@@ -160,14 +160,17 @@ EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/b
 
 ifeq ($(OPENGL),1)
 L_OBJS += src/widget/opengl.o
-EXAMPLES += examples/gldemos/clock$(EXEC) examples/gldemos/triangle$(EXEC) examples/gldemos/gears$(EXEC) examples/gldemos/boing$(EXEC) examples/gldemos/cube$(EXEC) examples/gldemos/tripaint$(EXEC)
+
+MP_OBJS = examples/mpegplayer/main.o
+MP_OBJS += external/pl_mpeg.o external/stb_ds.o external/miniaudio.o
+
+EXAMPLES += examples/gldemos/clock$(EXEC) examples/gldemos/triangle$(EXEC) examples/gldemos/gears$(EXEC) examples/gldemos/boing$(EXEC) examples/gldemos/cube$(EXEC) examples/gldemos/tripaint$(EXEC) examples/mpegplayer/mpegplayer$(EXEC)
 endif
 
 ifeq ($(VULKAN),1)
 L_OBJS += src/widget/vulkan.o
 EXAMPLES += examples/vkdemos/vulkan$(EXEC)
 endif
-
 
 .PHONY: all install format clean lib examples
 
@@ -195,6 +198,9 @@ format:
 src/$(LIB)Mw$(SO): $(L_OBJS)
 	$(CC) $(L_LDFLAGS) $(SHARED) -o $@ $^ $(L_LIBS)
 
+examples/mpegplayer/mpegplayer$(EXEC): $(MP_OBJS) src/$(LIB)Mw$(SO)
+	$(CC) $(E_LDFLAGS) -o $@ $(MP_OBJS) $(E_LIBS) $(GL)
+
 examples/gldemos/%$(EXEC): examples/gldemos/%.o src/$(LIB)Mw$(SO)
 	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS) $(GL)
 
@@ -205,7 +211,7 @@ src/%.o: src/%.c
 	$(CC) $(L_CFLAGS) -c -o $@ $<
 
 external/%.o: external/%.c
-	$(CC) $(L_CFLAGS) -Wno-unused-value -Wno-unused-parameter -c -o $@ $<
+	$(CC) $(L_CFLAGS) -Wno-unused-value -Wno-unused-parameter -Wno-unused-function -c -o $@ $<
 
 examples/%.o: examples/%.c
 	$(CC) $(E_CFLAGS) -c -o $@ $<

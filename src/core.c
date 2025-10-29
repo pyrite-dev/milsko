@@ -128,7 +128,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->tick_list	 = NULL;
 	h->destroyed	 = 0;
 	h->dark_theme	 = 0;
-	h->bgcolor = NULL;
+	h->bgcolor	 = NULL;
 
 	if(parent == NULL) arrput(h->tick_list, h);
 
