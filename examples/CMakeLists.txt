@@ -14,6 +14,13 @@ foreach(PATH IN LISTS EXAMPLES_SOURCES)
 		PRIVATE
 		Mw
 	)
+	if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
+		target_link_libraries(
+			${TARGET}
+			PRIVATE
+			m
+		)
+	endif()
 endforeach()
 
 add_subdirectory(basic)
