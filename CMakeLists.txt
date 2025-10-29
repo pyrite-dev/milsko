@@ -6,6 +6,8 @@ project(
 	DESCRIPTION "Milsko GUI Toolkit"
 )
 
+include(CheckIncludeFiles)
+
 option(OPENGL "Compile OpenGL widget or not" ON)
 if(CMAKE_SYSTEM_NAME STREQUAL "SunOS")
 	option(VULKAN "Compile Vulkan widget or not" OFF)
@@ -140,8 +142,11 @@ else()
 	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		list(APPEND LIBRARIES dl)
 	endif()
-	if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD" AND VULKAN)
-		list(APPEND INCLUDE_DIRS /usr/pkg/include)
+	if(VULKAN)
+		pkg_check_modules(VULKAN REQUIRED vulkan)
+		list(APPEND INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS})
+		list(APPEND LIBRARY_DIRS ${VULKAN_LIBRARY_DIRS})
+		list(APPEND LIBRARIES ${VULKAN_LIBRARIES})
 	endif()
 endif()
 
@@ -160,6 +165,17 @@ target_link_libraries(
 	PRIVATE
 	${LIBRARIES}
 )
+
+if(VULKAN)
+	check_include_files(vulkan/vk_enum_string_helper.h HAS_VK_ENUM_STRING_HELPER)
+	if(HAS_VK_ENUM_STRING_HELPER)
+		target_compile_definitions(
+			Mw
+			PRIVATE
+			HAS_VK_ENUM_STRING_HELPER
+		)
+	endif()
+endif()
 
 target_compile_definitions(
 	Mw

@@ -55,7 +55,7 @@ static void llclosehandler(MwLL handle, void* data) {
 
 	(void)data;
 
-	if((n = MwGetInteger(h, MwNmain)) != -1 && n) {
+	if((n = MwGetInteger(h, MwNmain)) != MwDEFAULT && n) {
 		while(h != NULL) {
 			h->close = 1;
 			MwDispatchUserHandler(h, MwNcloseHandler, NULL);
@@ -152,7 +152,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	sh_new_strdup(h->handler);
 	sh_new_strdup(h->data);
 
-	shdefault(h->integer, -1);
+	shdefault(h->integer, MwDEFAULT);
 	shdefault(h->text, NULL);
 	shdefault(h->handler, NULL);
 	shdefault(h->data, NULL);
@@ -369,7 +369,7 @@ int MwGetInteger(MwWidget handle, const char* key) {
 		if(strcmp(key, MwNy) == 0) return y;
 		if(strcmp(key, MwNwidth) == 0) return w;
 		if(strcmp(key, MwNheight) == 0) return h;
-		return -1;
+		return MwDEFAULT;
 	} else {
 		return shget(handle->integer, key);
 	}
@@ -438,7 +438,7 @@ static void inherit_integer(MwWidget handle, const char* key, int default_value)
 	int	 n;
 	MwWidget h = handle;
 	while(h != NULL) {
-		if((n = MwGetInteger(h, key)) != -1) {
+		if((n = MwGetInteger(h, key)) != MwDEFAULT) {
 			MwSetInteger(handle, key, n);
 			return;
 		}
