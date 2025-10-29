@@ -578,7 +578,6 @@ MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height)
 			pout[0] += base->red * (1 - a);
 			pout[1] += base->green * (1 - a);
 			pout[2] += base->blue * (1 - a);
-
 			pout[3] = 255;
 		}
 	}
