@@ -130,14 +130,18 @@ void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 }
 
 void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
+	MwLLColor col;
+
 	if(border) {
 		MwDrawFrame(handle, rect, color, invert);
 	}
+	col = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
 	if(MwGetInteger(handle, MwNmodernLook)) {
-		MwDrawRectFading(handle, rect, color);
+		MwDrawRectFading(handle, rect, col);
 	} else {
-		MwDrawRect(handle, rect, color);
+		MwDrawRect(handle, rect, col);
 	}
+	if(col != color) MwLLFreeColor(col);
 }
 
 void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
