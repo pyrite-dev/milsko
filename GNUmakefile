@@ -161,9 +161,6 @@ EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/b
 ifeq ($(OPENGL),1)
 L_OBJS += src/widget/opengl.o
 
-MP_OBJS = examples/mpegplayer/mpegplayer.o
-MP_OBJS += external/pl_mpeg.o external/stb_ds.o external/miniaudio.o
-
 EXAMPLES += examples/gldemos/clock$(EXEC) examples/gldemos/triangle$(EXEC) examples/gldemos/gears$(EXEC) examples/gldemos/boing$(EXEC) examples/gldemos/cube$(EXEC) examples/gldemos/tripaint$(EXEC)
 endif
 
@@ -197,9 +194,6 @@ format:
 
 src/$(LIB)Mw$(SO): $(L_OBJS)
 	$(CC) $(L_LDFLAGS) $(SHARED) -o $@ $^ $(L_LIBS)
-
-examples/mpegplayer/mpegplayer$(EXEC): $(MP_OBJS) src/$(LIB)Mw$(SO)
-	$(CC) $(E_LDFLAGS) -o $@ $(MP_OBJS) $(E_LIBS) $(GL)
 
 examples/gldemos/%$(EXEC): examples/gldemos/%.o src/$(LIB)Mw$(SO)
 	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS) $(GL)
