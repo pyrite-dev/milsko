@@ -2,13 +2,6 @@
 
 PREFIX = /usr/local
 
-ifeq ($(TARGET),)
-TARGET = $(shell uname -s)
-endif
-ifneq ($(TARGET),$(shell uname -s))
-CROSS = 1
-endif
-
 USE_STB_IMAGE = 1
 USE_STB_TRUETYPE = 0
 USE_FREETYPE2 = 1
@@ -25,17 +18,6 @@ else
 CFLAGS += -O2
 endif
 
-ifeq ($(TARGET),NetBSD)
-VULKAN_NO_STRING_HELPER = 1
-endif
-
-ifeq ($(VULKAN_NO_STRING_HELPER),1)
-VK_STRING_HELPER_DEFINE =
-else
-VK_STRING_HELPER_DEFINE = -DHAS_VK_ENUM_STRING_HELPER
-endif
-CFLAGS += $(VK_STRING_HELPER_DEFINE)
-
 L_CFLAGS = $(DEPINC) $(CFLAGS) -fPIC -D_MILSKO
 L_LDFLAGS = $(LDFLAGS)
 L_LIBS = $(LIBS)
@@ -51,123 +33,14 @@ E_CFLAGS = $(CFLAGS)
 E_LDFLAGS = $(LDFLAGS) -Lsrc -Wl,-rpath,$(shell pwd)/src
 E_LIBS = $(LIBS) -lMw
 
-FOUND_PLATFORM = 0
-
-ifeq ($(TARGET),NetBSD)
-CFLAGS += -I/usr/X11R7/include -I/usr/pkg/include
-LDFLAGS += -L/usr/X11R7/lib -L/usr/pkg/lib -Wl,-R/usr/X11R7/lib -Wl,-R/usr/pkg/lib
-UNIX = 1
-OPENGL = 1
-VULKAN = 1
-FOUND_PLATFORM = 1
-endif
-
-ifeq ($(TARGET),Linux)
-L_LIBS += -ldl
-UNIX = 1
-OPENGL = 1
-VULKAN = 1
-FOUND_PLATFORM = 1
-endif
-
-ifeq ($(TARGET),Windows)
-WINDOWS = 1
-OPENGL = 1
-VULKAN = 1
-FOUND_PLATFORM = 1
-endif
-
-ifeq ($(TARGET),SunOS)
-CC = gcc
-UNIX = 1
-L_LIBS += -lsocket -lnsl
-OPENGL = 1
-FOUND_PLATFORM = 1
-endif
-
-ifeq ($(TARGET),Darwin)
-CC = gcc
-DARWIN = 1
-L_LIBS += -framework Carbon
-FOUND_PLATFORM = 1
-endif
-
-ifeq ($(FOUND_PLATFORM),0)
-$(error Add your platform definition)
-endif
-
-# Standard gcc accepts this but we have to override this for Apple's gcc.
-SHARED = -shared
-
-ifeq ($(UNIX),1)
-L_CFLAGS += -DUSE_X11 -DUNIX
-L_OBJS += src/backend/x11.o
-L_LIBS += -lm -lX11 -lXrender -lXcursor
-
-GL = -lGL -lGLU
-
-E_LIBS += -lm
-
-LIB = lib
-SO = .so
-EXEC =
-endif
-
-ifeq ($(WINDOWS),1)
-L_CFLAGS += -DUSE_GDI
-L_LDFLAGS += -Wl,--out-implib,src/libMw.a -static-libgcc
-L_OBJS += src/backend/gdi.o
-L_LIBS += -lgdi32
-
-GL = -lopengl32 -lglu32
-
-LIB =
-SO = .dll
-EXEC = .exe
-endif
-
-ifeq ($(DARWIN),1)
-L_CFLAGS += -DSTBI_NO_THREAD_LOCALS -DUSE_DARWIN
-L_OBJS += src/backend/mac/mac.o src/backend/mac/carbon.o
-
-LIB = lib
-SO = .dylib
-EXEC =
-
-SHARED = -dynamiclib
-endif
-
-ifeq ($(USE_STB_IMAGE),1)
-L_CFLAGS += -DUSE_STB_IMAGE
-else
-include external/deps.mk
-endif
-
-ifeq ($(USE_FREETYPE2),1)
-L_CFLAGS += -DUSE_FREETYPE2
-
-ifneq ($(CROSS),1)
-L_CFLAGS += $(shell pkg-config --cflags freetype2)
-L_LIBS += $(shell pkg-config --libs freetype2)
-endif
-endif
-
-ifeq ($(USE_STB_TRUETYPE),1)
-L_CFLAGS += -DUSE_STB_TRUETYPE
-endif
+include mk/platform.mk
+include mk/flags.mk
+include mk/stb.mk
+include mk/freetype2.mk
+include mk/opengl.mk
+include mk/vulkan.mk
 
 EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/basic/image$(EXEC) examples/basic/scrollbar$(EXEC) examples/basic/checkbox$(EXEC) examples/basic/messagebox$(EXEC) examples/basic/viewport$(EXEC) examples/basic/listbox$(EXEC) examples/color_picker$(EXEC)
-
-ifeq ($(OPENGL),1)
-L_OBJS += src/widget/opengl.o
-
-EXAMPLES += examples/gldemos/clock$(EXEC) examples/gldemos/triangle$(EXEC) examples/gldemos/gears$(EXEC) examples/gldemos/boing$(EXEC) examples/gldemos/cube$(EXEC) examples/gldemos/tripaint$(EXEC)
-endif
-
-ifeq ($(VULKAN),1)
-L_OBJS += src/widget/vulkan.o
-EXAMPLES += examples/vkdemos/vulkan$(EXEC)
-endif
 
 .PHONY: all install format clean lib examples
 
