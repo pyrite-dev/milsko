@@ -33,14 +33,14 @@ E_CFLAGS = $(CFLAGS)
 E_LDFLAGS = $(LDFLAGS) -Lsrc -Wl,-rpath,$(shell pwd)/src
 E_LIBS = $(LIBS) -lMw
 
+EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/basic/image$(EXEC) examples/basic/scrollbar$(EXEC) examples/basic/checkbox$(EXEC) examples/basic/messagebox$(EXEC) examples/basic/viewport$(EXEC) examples/basic/listbox$(EXEC) examples/color_picker$(EXEC)
+
 include mk/platform.mk
 include mk/flags.mk
 include mk/stb.mk
 include mk/freetype2.mk
 include mk/opengl.mk
 include mk/vulkan.mk
-
-EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/basic/image$(EXEC) examples/basic/scrollbar$(EXEC) examples/basic/checkbox$(EXEC) examples/basic/messagebox$(EXEC) examples/basic/viewport$(EXEC) examples/basic/listbox$(EXEC) examples/color_picker$(EXEC)
 
 .PHONY: all install format clean lib examples
 
