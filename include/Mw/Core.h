@@ -38,7 +38,7 @@
 #define MwDispatch3(x, y, z) \
 	if(!x->destroyed && x->widget_class != NULL && x->widget_class->y != NULL) x->widget_class->y(x, z)
 
-#define MwWaitMS 10
+#define MwWaitMS 30
 
 #ifdef __cplusplus
 extern "C" {
