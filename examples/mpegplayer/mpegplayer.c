@@ -125,7 +125,7 @@ static void tick(MwWidget handle, void* user, void* call){
 		}
 		frames[0].count++;
 		if(f >= 1 && frames[0].count >= (int)f + (int)a){
-			if(a > 1) a--;
+			if(a > 1) a -= (int)a;
 			a += f - (int)f;
 			free(frames[0].buffer);
 			arrdel(frames, 0);
