@@ -129,9 +129,6 @@ static void tick(MwWidget handle, void* user, void* call){
 			a += f - (int)f;
 			free(frames[0].buffer);
 			arrdel(frames, 0);
-		}else if(f < 1){
-			free(frames[0].buffer);
-			arrdel(frames, 0);
 		}
 	}
 	ma_mutex_unlock(&mutex);
