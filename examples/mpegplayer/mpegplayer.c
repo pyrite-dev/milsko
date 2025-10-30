@@ -57,7 +57,7 @@ static void* thread_routine(void* arg){
 
 	while(!plm_has_ended(plm) && !quit){
 		ma_mutex_lock(&mutex);
-		if(arrlen(frames) > 10 || paused){
+		if(arrlen(frames) > 1000 || paused){
 			ma_mutex_unlock(&mutex);
 #ifdef _WIN32
 			Sleep(1);
@@ -88,7 +88,7 @@ static void data_callback(ma_device* device, void* out, const void* in, ma_uint3
 	memset(out, 0, sizeof(float) * frame * 2);
 
 	ma_mutex_lock(&mutex);
-	while(fsz > 0 && arrlen(buffers) > 0){
+	while(!paused && fsz > 0 && arrlen(buffers) > 0){
 		int sz = 0;
 		if(fsz > (buffers[0].size - buffers[0].seek)){
 			sz = buffers[0].size - buffers[0].seek;
@@ -115,7 +115,7 @@ static void tick(MwWidget handle, void* user, void* call){
 	(void)call;
 
 	ma_mutex_lock(&mutex);
-	if(arrlen(frames) > 0){
+	if(!paused && arrlen(frames) > 0){
 		double f = (1000.0 / wait) / plm_get_framerate(plm);
 
 		if(frames[0].count == 0){
@@ -125,8 +125,8 @@ static void tick(MwWidget handle, void* user, void* call){
 		}
 		frames[0].count++;
 		if(f >= 1 && frames[0].count >= (int)f + (int)a){
-			a += f - (int)f;
 			if(a > 1) a--;
+			a += f - (int)f;
 			free(frames[0].buffer);
 			arrdel(frames, 0);
 		}else if(f < 1){
