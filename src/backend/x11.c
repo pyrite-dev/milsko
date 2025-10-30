@@ -412,7 +412,12 @@ void MwLLNextEvent(MwLL handle) {
 }
 
 void MwLLSleep(int ms) {
-	usleep(ms * 1000);
+	struct timespec ts;
+
+	ts.tv_sec = ms / 1000;
+	ts.tv_nsec = (ms % 1000) * 1000 * 1000;
+
+	nanosleep(&ts, NULL);
 }
 
 void MwLLSetTitle(MwLL handle, const char* title) {

@@ -161,10 +161,10 @@ EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/b
 ifeq ($(OPENGL),1)
 L_OBJS += src/widget/opengl.o
 
-MP_OBJS = examples/mpegplayer/main.o
+MP_OBJS = examples/mpegplayer/mpegplayer.o
 MP_OBJS += external/pl_mpeg.o external/stb_ds.o external/miniaudio.o
 
-EXAMPLES += examples/gldemos/clock$(EXEC) examples/gldemos/triangle$(EXEC) examples/gldemos/gears$(EXEC) examples/gldemos/boing$(EXEC) examples/gldemos/cube$(EXEC) examples/gldemos/tripaint$(EXEC) examples/mpegplayer/mpegplayer$(EXEC)
+EXAMPLES += examples/gldemos/clock$(EXEC) examples/gldemos/triangle$(EXEC) examples/gldemos/gears$(EXEC) examples/gldemos/boing$(EXEC) examples/gldemos/cube$(EXEC) examples/gldemos/tripaint$(EXEC)
 endif
 
 ifeq ($(VULKAN),1)
@@ -211,7 +211,7 @@ src/%.o: src/%.c
 	$(CC) $(L_CFLAGS) -c -o $@ $<
 
 external/%.o: external/%.c
-	$(CC) $(L_CFLAGS) -Wno-unused-value -Wno-unused-parameter -Wno-unused-function -c -o $@ $<
+	$(CC) $(L_CFLAGS) -Wno-unused-value -Wno-unused-parameter -Wno-unused-function -Wno-stringop-overflow -c -o $@ $<
 
 examples/%.o: examples/%.c
 	$(CC) $(E_CFLAGS) -c -o $@ $<

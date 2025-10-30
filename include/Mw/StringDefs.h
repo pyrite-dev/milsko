@@ -25,6 +25,7 @@
 #define MwnhasBorder "IhasBorder"
 #define MwNinverted "Iinverted"
 #define MwNmodernLook "ImodernLook"
+#define MwNwaitMS "IwaitMS"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
