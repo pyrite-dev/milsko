@@ -18,15 +18,14 @@ clean:
 	del /f /q src\color.obj
 	del /f /q src\directory.obj
 	del /f /q src\messagebox.obj
-	del /f /q external\ds.obj
-	del /f /q external\image.obj
-	del /f /q external\truetype.obj
+	del /f /q external\stb_ds.obj
+	del /f /q external\stb_image.obj
+	del /f /q external\stb_truetype.obj
 	del /f /q src\icon\info.obj
 	del /f /q src\icon\note.obj
 	del /f /q src\icon\warning.obj
 	del /f /q src\icon\error.obj
 	del /f /q src\icon\news.obj
-	del /f /q src\icon\question.obj
 	del /f /q src\icon\directory.obj
 	del /f /q src\icon\file.obj
 	del /f /q src\icon\back.obj
@@ -34,6 +33,9 @@ clean:
 	del /f /q src\icon\up.obj
 	del /f /q src\icon\computer.obj
 	del /f /q src\icon\search.obj
+	del /f /q src\icon\down.obj
+	del /f /q src\icon\left.obj
+	del /f /q src\icon\right.obj
 	del /f /q src\cursor\default.obj
 	del /f /q src\cursor\cross.obj
 	del /f /q src\cursor\text.obj
@@ -60,8 +62,8 @@ clean:
 	del /f /q src\backend\gdi.obj
 	del /f /q src\Mw.dll
 
-src\Mw.dll:  src\core.obj src\string.obj src\draw.obj src\default.obj src\filechooser.obj src\lowlevel.obj src\error.obj src\unicode.obj src\color.obj src\directory.obj src\messagebox.obj external\ds.obj external\image.obj external\truetype.obj src\icon\info.obj src\icon\note.obj src\icon\warning.obj src\icon\error.obj src\icon\news.obj src\icon\question.obj src\icon\directory.obj src\icon\file.obj src\icon\back.obj src\icon\forward.obj src\icon\up.obj src\icon\computer.obj src\icon\search.obj src\cursor\default.obj src\cursor\cross.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\opengl.obj src\widget\window.obj src\widget\menu.obj src\widget\entry.obj src\widget\submenu.obj src\widget\viewport.obj src\widget\image.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\label.obj src\widget\listbox.obj src\widget\numberentry.obj src\text\font.obj src\text\draw.obj src\text\boldfont.obj src\text\ttf.obj src\text\boldttf.obj src\backend\gdi.obj
-	$(LD) $(LDFLAGS)  -e$@  src\core.obj src\string.obj src\draw.obj src\default.obj src\filechooser.obj src\lowlevel.obj src\error.obj src\unicode.obj src\color.obj src\directory.obj src\messagebox.obj external\ds.obj external\image.obj external\truetype.obj src\icon\info.obj src\icon\note.obj src\icon\warning.obj src\icon\error.obj src\icon\news.obj src\icon\question.obj src\icon\directory.obj src\icon\file.obj src\icon\back.obj src\icon\forward.obj src\icon\up.obj src\icon\computer.obj src\icon\search.obj src\cursor\default.obj src\cursor\cross.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\opengl.obj src\widget\window.obj src\widget\menu.obj src\widget\entry.obj src\widget\submenu.obj src\widget\viewport.obj src\widget\image.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\label.obj src\widget\listbox.obj src\widget\numberentry.obj src\text\font.obj src\text\draw.obj src\text\boldfont.obj src\text\ttf.obj src\text\boldttf.obj src\backend\gdi.obj  -lopengl32.lib -lgdi32.lib -luser32.lib
+src\Mw.dll:  src\core.obj src\string.obj src\draw.obj src\default.obj src\filechooser.obj src\lowlevel.obj src\error.obj src\unicode.obj src\color.obj src\directory.obj src\messagebox.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\icon\info.obj src\icon\note.obj src\icon\warning.obj src\icon\error.obj src\icon\news.obj src\icon\directory.obj src\icon\file.obj src\icon\back.obj src\icon\forward.obj src\icon\up.obj src\icon\computer.obj src\icon\search.obj src\icon\down.obj src\icon\left.obj src\icon\right.obj src\cursor\default.obj src\cursor\cross.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\opengl.obj src\widget\window.obj src\widget\menu.obj src\widget\entry.obj src\widget\submenu.obj src\widget\viewport.obj src\widget\image.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\label.obj src\widget\listbox.obj src\widget\numberentry.obj src\text\font.obj src\text\draw.obj src\text\boldfont.obj src\text\ttf.obj src\text\boldttf.obj src\backend\gdi.obj
+	$(LD) $(LDFLAGS)  -e$@  src\core.obj src\string.obj src\draw.obj src\default.obj src\filechooser.obj src\lowlevel.obj src\error.obj src\unicode.obj src\color.obj src\directory.obj src\messagebox.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\icon\info.obj src\icon\note.obj src\icon\warning.obj src\icon\error.obj src\icon\news.obj src\icon\directory.obj src\icon\file.obj src\icon\back.obj src\icon\forward.obj src\icon\up.obj src\icon\computer.obj src\icon\search.obj src\icon\down.obj src\icon\left.obj src\icon\right.obj src\cursor\default.obj src\cursor\cross.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\opengl.obj src\widget\window.obj src\widget\menu.obj src\widget\entry.obj src\widget\submenu.obj src\widget\viewport.obj src\widget\image.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\label.obj src\widget\listbox.obj src\widget\numberentry.obj src\text\font.obj src\text\draw.obj src\text\boldfont.obj src\text\ttf.obj src\text\boldttf.obj src\backend\gdi.obj  -lopengl32.lib -lgdi32.lib -luser32.lib
 	implib src\Mw.lib src\Mw.dll
 
 .c.obj:

@@ -23,14 +23,15 @@ for i in resource/icon/*.png; do
 	OUT=src/icon/$LOWER.c
 	NAME=`echo -n $LOWER | perl -e 'my $l = <>;$l =~ s/^(.)/uc($1)/e;print($l);'`
 	NAME=MwIcon$NAME
-	WIDTH=`convert $i json:- 2>/dev/null | jq '.[0].image.geometry.width'`
-	HEIGHT=`convert $i json:- 2>/dev/null | jq '.[0].image.geometry.height'`
+	GEO=`convert $i json:- 2>/dev/null | jq -r '(.[0].image.geometry.width | tostring) + "x" + (.[0].image.geometry.height | tostring)'`
+	WIDTH=`echo $GEO | cut -dx -f1`
+	HEIGHT=`echo $GEO | cut -dx -f2`
 	echo '/* $Id$ */' > $OUT
 	echo '#include <Mw/Milsko.h>' >> $OUT
 	echo >> $OUT
 	echo "unsigned int $NAME[] = {" >> $OUT
 	echo "	($WIDTH << 16) | $HEIGHT," >> $OUT
-	convert $i txt:- 2>/dev/null | grep -oE '#[0-9a-fA-F]{8}' | sed 's/#/	0x/' | sed -E 's/$/,/' >> $OUT
+	convert $i txt:- 2>/dev/null | grep -oE '[0-9a-fA-F]{8}' | xargs printf '	0x%s,\n' >> $OUT
 	echo "	0" >> $OUT
 	echo "};" >> $OUT
 	echo $NAME

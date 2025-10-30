@@ -1,4 +1,4 @@
-/* $Id: icon.sh 488 2025-10-24 16:27:10Z nishi $ */
+/* $Id: icon.sh 505 2025-10-29 21:44:51Z nishi $ */
 #include <Mw/Milsko.h>
 
 unsigned int MwIconSearch[] = {
