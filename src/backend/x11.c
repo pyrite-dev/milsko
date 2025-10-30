@@ -406,7 +406,7 @@ void MwLLNextEvent(MwLL handle) {
 			MwLLGetXYWH(handle, &x, &y, &w, &h);
 
 			MwLLDispatch(handle, draw, NULL);
-			if(handle->copy_buffer){
+			if(handle->copy_buffer) {
 				XCopyArea(handle->display, handle->pixmap, handle->window, handle->gc, 0, 0, w, h, 0, 0);
 				XSetWindowBackgroundPixmap(handle->display, handle->window, handle->pixmap);
 			}

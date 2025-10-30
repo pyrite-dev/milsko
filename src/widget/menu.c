@@ -208,7 +208,7 @@ MwClassRec MwMenuClassRec = {
     mouse_up,	   /* mouse_up */
     mouse_down,	   /* mouse_down */
     NULL,	   /* key */
-    func_handler,  /* custom */
+    func_handler,  /* execute */
     NULL,
     NULL,
     NULL,

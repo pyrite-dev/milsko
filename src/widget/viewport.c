@@ -157,7 +157,7 @@ MwClassRec MwViewportClassRec = {
     NULL,	  /* mouse_up */
     NULL,	  /* mouse_down */
     NULL,	  /* key */
-    func_handler, /* custom */
+    func_handler, /* execute */
     NULL,
     NULL,
     NULL,

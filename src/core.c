@@ -158,11 +158,13 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	shdefault(h->handler, NULL);
 	shdefault(h->data, NULL);
 
+	h->prop_event = 0;
 	if(MwDispatch2(h, create) != 0) {
 		h->widget_class = NULL;
 		MwDestroyWidget(h);
 		return NULL;
 	}
+	h->prop_event = 1;
 
 	return h;
 }
@@ -589,6 +591,6 @@ void MwToggleDarkTheme(MwWidget handle, int toggle) {
 	}
 }
 
-MwWidget MwGetParent(MwWidget handle){
+MwWidget MwGetParent(MwWidget handle) {
 	return handle->parent;
 }

@@ -23,10 +23,10 @@ static void draw(MwWidget handle) {
 		fr.height = MwGetInteger(handle, MwNheight);
 		MwDrawFrame(handle, &fr, base, inverted);
 
-		rr.x	  = MwGetDefaultBorderWidth(handle);
-		rr.y	  = MwGetDefaultBorderWidth(handle);
-		rr.width  = MwGetInteger(handle, MwNwidth) - (MwGetDefaultBorderWidth(handle) * 2);
-		rr.height = MwGetInteger(handle, MwNheight) - (MwGetDefaultBorderWidth(handle) * 2);
+		rr.x	  = MwDefaultBorderWidth(handle);
+		rr.y	  = MwDefaultBorderWidth(handle);
+		rr.width  = MwGetInteger(handle, MwNwidth) - (MwDefaultBorderWidth(handle) * 2);
+		rr.height = MwGetInteger(handle, MwNheight) - (MwDefaultBorderWidth(handle) * 2);
 	} else {
 
 		rr.x	  = 0;
@@ -51,7 +51,7 @@ MwClassRec MwFrameClassRec = {
     NULL,   /* mouse_up */
     NULL,   /* mouse_down */
     NULL,   /* key */
-    NULL,   /* custom */
+    NULL,   /* execute */
     NULL,
     NULL,
     NULL,

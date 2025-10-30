@@ -38,5 +38,6 @@
 #include <Mw/Widget/NumberEntry.h>
 #include <Mw/Widget/Viewport.h>
 #include <Mw/Widget/ListBox.h>
+#include <Mw/Widget/ProgressBar.h>
 
 #endif

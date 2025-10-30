@@ -61,6 +61,7 @@
 		<integer name="hasBorder" />
 		<integer name="inverted" />
 		<integer name="modernLook" />
+		<integer name="waitMS" />
 
 		<string name="title" />
 		<string name="text" />
@@ -309,6 +310,14 @@
 						<integer name="toggle" />
 					</arguments>
 				</function>
+				<function name="MwGetParent">
+					<return>
+						<widget />
+					</return>
+					<arguments>
+						<widget name="handle" />
+					</arguments>
+				</function>
 			</functions>
 		</header>
 		<header name="Error">
@@ -547,6 +556,13 @@
 			<functions>
 				<function name="MakeBorderless" />
 			</functions>
+		</widget>
+		<widget name="ProgressBar">
+			<properties>
+				<property name="minValue" />
+				<property name="maxValue" />
+				<property name="value" />
+			</properties>
 		</widget>
 	</widgets>
 </milsko>

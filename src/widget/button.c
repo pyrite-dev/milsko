@@ -38,8 +38,8 @@ static void draw(MwWidget handle) {
 			r.width	 = px->width * sh;
 			r.height = px->height * sh;
 		}
-		r.width -= MwGetDefaultBorderWidth(handle) * 2;
-		r.height -= MwGetDefaultBorderWidth(handle) * 2;
+		r.width -= MwDefaultBorderWidth(handle) * 2;
+		r.height -= MwDefaultBorderWidth(handle) * 2;
 
 		r.x += (double)(ow - r.width) / 2;
 		r.y += (double)(oh - r.height) / 2;
@@ -75,7 +75,7 @@ MwClassRec MwButtonClassRec = {
     MwForceRender2, /* mouse_up */
     MwForceRender2, /* mouse_down */
     NULL,	    /* key */
-    NULL,	    /* custom */
+    NULL,	    /* execute */
     NULL,
     NULL,
     NULL,

@@ -133,7 +133,7 @@ MwClassRec MwEntryClassRec = {
     MwForceRender2, /* mouse_up */
     MwForceRender2, /* mouse_down */
     key,	    /* key */
-    NULL,	    /* custom */
+    NULL,	    /* execute */
     NULL,
     NULL,
     NULL,

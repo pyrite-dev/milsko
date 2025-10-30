@@ -126,7 +126,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
-	MwDrawFrameEx(handle, rect, color, invert, MwGetDefaultBorderWidth(handle));
+	MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle));
 }
 
 void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
@@ -201,11 +201,11 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 
 void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction) {
 	MwPoint	  p1[4], p2[4], p3[4], p4[3];
-	const int border    = MwGetInteger(handle, MwNmodernLook) ? 1 : MwGetDefaultBorderWidth(handle);
+	const int border    = MwGetInteger(handle, MwNmodernLook) ? 1 : MwDefaultBorderWidth(handle);
 	int	  ColorDiff = get_color_diff(handle);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
-	MwLLColor col = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
+	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
 
 	double deg = 30 * ((direction == MwEAST || direction == MwWEST) ? 2 : 1);
 	double c   = cos(deg / 180 * M_PI);

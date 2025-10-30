@@ -194,13 +194,13 @@ static void mouse_down(MwWidget handle, void* ptr) {
 	scr->point = handle->mouse_point;
 	scr->drag  = 0;
 	if(or == MwVERTICAL) {
-		int tri = (ww - MwGetDefaultBorderWidth(handle) * 2) + MwGetDefaultBorderWidth(handle);
+		int tri = (ww - MwDefaultBorderWidth(handle) * 2) + MwDefaultBorderWidth(handle);
 		if(tri <= scr->point.y && scr->point.y <= (wh - tri)) {
 			scr->drag = 1;
 			scr->pos  = calc_positition(handle) - scr->point.y;
 		}
 	} else if(or == MwHORIZONTAL) {
-		int tri = (wh - MwGetDefaultBorderWidth(handle) * 2) + MwGetDefaultBorderWidth(handle);
+		int tri = (wh - MwDefaultBorderWidth(handle) * 2) + MwDefaultBorderWidth(handle);
 		if(tri <= scr->point.x && scr->point.x <= (ww - tri)) {
 			scr->drag = 1;
 			scr->pos  = calc_positition(handle) - scr->point.x;
@@ -225,13 +225,13 @@ static int mwScrollBarGetVisibleLengthImpl(MwWidget handle) {
 	int s	= 0;
 
 	if(or == MwVERTICAL) {
-		tri = (ww - MwGetDefaultBorderWidth(handle) * 2) * 2;
+		tri = (ww - MwDefaultBorderWidth(handle) * 2) * 2;
 		s   = wh;
 	} else if(or == MwHORIZONTAL) {
-		tri = (wh - MwGetDefaultBorderWidth(handle) * 2) * 2;
+		tri = (wh - MwDefaultBorderWidth(handle) * 2) * 2;
 		s   = ww;
 	}
-	return s - tri - MwGetDefaultBorderWidth(handle) * 2;
+	return s - tri - MwDefaultBorderWidth(handle) * 2;
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
@@ -253,7 +253,7 @@ MwClassRec MwScrollBarClassRec = {
     MwForceRender2, /* mouse_up */
     mouse_down,	    /* mouse_down */
     NULL,	    /* key */
-    func_handler,   /* custom */
+    func_handler,   /* execute */
     NULL,
     NULL,
     NULL,

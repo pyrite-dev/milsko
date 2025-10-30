@@ -47,7 +47,7 @@ MwClassRec MwCheckBoxClassRec = {
     MwForceRender2, /* mouse_up */
     MwForceRender2, /* mouse_down */
     NULL,	    /* key */
-    NULL,	    /* custom */
+    NULL,	    /* execute */
     NULL,
     NULL,
     NULL,
