@@ -588,3 +588,7 @@ void MwToggleDarkTheme(MwWidget handle, int toggle) {
 		force_render_all(handle);
 	}
 }
+
+MwWidget MwGetParent(MwWidget handle){
+	return handle->parent;
+}

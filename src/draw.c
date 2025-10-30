@@ -121,6 +121,8 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	pixmap = MwLLCreatePixmap(handle->lowlevel, data, rect->width / 4, rect->height);
 	MwLLDrawPixmap(handle->lowlevel, rect, pixmap);
 	MwLLDestroyPixmap(pixmap);
+
+	free(data);
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {

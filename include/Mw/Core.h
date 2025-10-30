@@ -280,6 +280,13 @@ MWDECL void MwHideCursor(MwWidget handle);
  */
 MWDECL void MwToggleDarkTheme(MwWidget handle, int toggle);
 
+/*!
+ * @brief Gets the parent widget
+ * @param handle Widget
+ * @return Parent widget
+ */
+MWDECL MwWidget MwGetParent(MwWidget handle);
+
 #ifdef __cplusplus
 }
 #endif

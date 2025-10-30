@@ -192,6 +192,8 @@ static void frame_draw(MwWidget handle) {
 	int	  i;
 	MwPoint	  p;
 	int	  st = 0;
+	int ent;
+	int area;
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -203,7 +205,10 @@ static void frame_draw(MwWidget handle) {
 
 	st = get_first_entry(handle->parent, lb);
 
-	for(i = st; i < arrlen(lb->list) && i < st + (r.height - MwGetDefaultBorderWidth(handle) * 2) / MwTextHeight(handle, "M"); i++) {
+	area = r.height - MwGetDefaultBorderWidth(handle) * 2;
+	ent = area / MwTextHeight(handle, "M");
+
+	for(i = st; i < arrlen(lb->list) && i < st + ent; i++) {
 		int selected = lb->selected == i ? 1 : 0;
 		int j;
 
