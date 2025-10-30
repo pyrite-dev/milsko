@@ -588,10 +588,3 @@ void MwToggleDarkTheme(MwWidget handle, int toggle) {
 		force_render_all(handle);
 	}
 }
-
-MwWidget MwQuery(MwWidget handle, const char* query){
-	(void)handle;
-	(void)query;
-
-	return NULL;
-}

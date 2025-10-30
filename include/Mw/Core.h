@@ -280,13 +280,6 @@ MWDECL void MwHideCursor(MwWidget handle);
  */
 MWDECL void MwToggleDarkTheme(MwWidget handle, int toggle);
 
-/*!
- * @brief Queries the widget
- * @param handle Widget
- * @param query Query
- */
-MWDECL MwWidget MwQuery(MwWidget handle, const char* query);
-
 #ifdef __cplusplus
 }
 #endif
