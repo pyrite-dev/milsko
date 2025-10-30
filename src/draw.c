@@ -205,6 +205,7 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 	int	  ColorDiff = get_color_diff(handle);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
+	MwLLColor col = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
 
 	double deg = 30 * ((direction == MwEAST || direction == MwWEST) ? 2 : 1);
 	double c   = cos(deg / 180 * M_PI);
@@ -407,7 +408,8 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p4[2].x = rect->x + rect->width - c * border;
 		p4[2].y = rect->y + s * border;
 	}
-	MwLLPolygon(handle->lowlevel, p4, 3, color);
+	MwLLPolygon(handle->lowlevel, p4, 3, col);
+	if(color != col) MwLLFreeColor(col);
 
 	MwLLFreeColor(lighter);
 	MwLLFreeColor(darker);
