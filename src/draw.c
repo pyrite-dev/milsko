@@ -144,6 +144,73 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 	if(col != color) MwLLFreeColor(col);
 }
 
+void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
+	MwPoint	  p[6];
+	int	  border    = MwDefaultBorderWidth(handle);
+	int	  ColorDiff = get_color_diff(handle);
+	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
+	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
+	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
+
+	p[0].x = rect->x;
+	p[0].y = rect->y + rect->height / 2;
+
+	p[1].x = rect->x + rect->width / 2;
+	p[1].y = rect->y;
+
+	p[2].x = rect->x + rect->width;
+	p[2].y = rect->y + rect->height / 2;
+
+	p[3].x = rect->x + rect->width - border;
+	p[3].y = rect->y + rect->height / 2;
+
+	p[4].x = rect->x + rect->width / 2;
+	p[4].y = rect->y + border;
+
+	p[5].x = rect->x + border;
+	p[5].y = rect->y + rect->height / 2;
+
+	MwLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
+
+	p[0].x = rect->x;
+	p[0].y = rect->y + rect->height / 2;
+
+	p[1].x = rect->x + rect->width / 2;
+	p[1].y = rect->y + rect->height;
+
+	p[2].x = rect->x + rect->width;
+	p[2].y = rect->y + rect->height / 2;
+
+	p[3].x = rect->x + rect->width - border;
+	p[3].y = rect->y + rect->height / 2;
+
+	p[4].x = rect->x + rect->width / 2;
+	p[4].y = rect->y + rect->height - border;
+
+	p[5].x = rect->x + border;
+	p[5].y = rect->y + rect->height / 2;
+
+	MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
+
+	p[0].x = rect->x + rect->width / 2;
+	p[0].y = border;
+
+	p[1].x = rect->x + rect->width - border;
+	p[1].y = rect->height / 2;
+
+	p[2].x = rect->x + rect->width / 2;
+	p[2].y = rect->y + rect->height - border;
+
+	p[3].x = rect->x + border;
+	p[3].y = rect->height / 2;
+
+	MwLLPolygon(handle->lowlevel, p, 4, col);
+
+	if(col != color) MwLLFreeColor(col);
+	MwLLFreeColor(lighter);
+	MwLLFreeColor(darker);
+}
+
 void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
 	MwPoint	  p[6];
 	int	  ColorDiff = get_color_diff(handle);

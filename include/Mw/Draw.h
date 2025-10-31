@@ -159,6 +159,15 @@ MWDECL MwLLPixmap MwLoadXPM(MwWidget handle, char** data);
  */
 MWDECL MwLLPixmap MwLoadIcon(MwWidget handle, unsigned int* data);
 
+/*!
+ * @brief Draws a diamond
+ * @param handle Widget
+ * @param rect Rectangle area
+ * @param color Color
+ * @param invert Invert the 3D border color or not
+ */
+MWDECL void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
+
 /* color.c */
 
 /*!

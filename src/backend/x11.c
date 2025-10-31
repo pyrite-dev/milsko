@@ -195,7 +195,7 @@ void MwLLPolygon(MwLL handle, MwPoint* points, int points_count, MwLLColor color
 		p[i].x = points[i].x;
 		p[i].y = points[i].y;
 	}
-	XFillPolygon(handle->display, handle->pixmap, handle->gc, p, points_count, Convex, CoordModeOrigin);
+	XFillPolygon(handle->display, handle->pixmap, handle->gc, p, points_count, Nonconvex, CoordModeOrigin);
 
 	free(p);
 }
