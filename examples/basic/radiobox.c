@@ -3,7 +3,7 @@
 
 int main() {
 	MwWidget window = MwVaCreateWidget(MwWindowClass, "test", NULL, MwDEFAULT, MwDEFAULT, 8 + 16 + 8 + 16 * 10 + 8, 8 + 16 + 8 + 16 + 8,
-					   MwNtitle, "checkbox",
+					   MwNtitle, "radiobox",
 					   NULL);
 
 	MwVaCreateWidget(MwRadioBoxClass, "cb1", window, 8, 8, 16, 16,
