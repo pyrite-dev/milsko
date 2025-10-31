@@ -26,6 +26,7 @@
 #define MwNinverted "Iinverted"
 #define MwNmodernLook "ImodernLook"
 #define MwNwaitMS "IwaitMS"
+#define MwNhideInput "IhideInput"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

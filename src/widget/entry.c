@@ -42,6 +42,7 @@ static void draw(MwWidget handle) {
 		int	i;
 		int	start;
 		int	textlen;
+		int	attr;
 		MwRect	currc;
 
 		p.x = (r.width - (r.width / w * w)) / 2;
@@ -54,7 +55,11 @@ static void draw(MwWidget handle) {
 
 		start = (t->cursor - 1) / len;
 		start *= len;
-		MwUTF8Copy(str, start, show, 0, len);
+		if((attr = MwGetInteger(handle, MwNhideInput)) == MwDEFAULT || !attr) {
+			MwUTF8Copy(str, start, show, 0, len);
+		} else {
+			for(i = 0; i < MwUTF8Length(str) - start; i++) show[i] = '*';
+		}
 
 		MwDrawText(handle, &p, show, 0, MwALIGNMENT_BEGINNING, text);
 
@@ -119,7 +124,7 @@ static void key(MwWidget handle, int code) {
 }
 
 static void prop_change(MwWidget handle, const char* prop) {
-	if(strcmp(prop, MwNtext) == 0) MwForceRender(handle);
+	if(strcmp(prop, MwNtext) == 0 || strcmp(prop, MwNhideInput) == 0) MwForceRender(handle);
 }
 
 MwClassRec MwEntryClassRec = {

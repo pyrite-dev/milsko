@@ -681,6 +681,8 @@ void MwLLDetach(MwLL handle, MwPoint* point) {
 void MwLLShow(MwLL handle, int show) {
 	if(show) {
 		XMapWindow(handle->display, handle->window);
+		wait_map(handle);
+
 		XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
 	} else {
 		XUnmapWindow(handle->display, handle->window);

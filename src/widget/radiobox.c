@@ -27,7 +27,7 @@ static void draw(MwWidget handle) {
 }
 
 static void click(MwWidget handle) {
-	MwSetInteger(handle, MwNchecked, MwGetInteger(handle, MwNchecked) ? 0 : 1);
+	if(!MwGetInteger(handle, MwNchecked)) MwSetInteger(handle, MwNchecked, 1);
 	if(MwGetInteger(handle, MwNchecked) && handle->parent != NULL) {
 		int i;
 		for(i = 0; i < arrlen(handle->parent->children); i++) {
