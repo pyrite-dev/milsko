@@ -564,5 +564,10 @@
 				<property name="value" />
 			</properties>
 		</widget>
+		<widget name="RadioBox">
+			<properties>
+				<property name="checked" />
+			</properties>
+		</widget>
 	</widgets>
 </milsko>
