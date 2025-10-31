@@ -3,8 +3,8 @@
 
 echo '/* $Id$ */' > include/Mw/Icon.h
 echo '/*!' >> include/Mw/Icon.h
-echo ' * %file Mw/Icon.h' >> include/Mw/Icon.h
-echo ' * %brief Icon' >> include/Mw/Icon.h
+echo ' * @file Mw/Icon.h' >> include/Mw/Icon.h
+echo ' * @brief Icon' >> include/Mw/Icon.h
 echo ' */' >> include/Mw/Icon.h
 echo '#ifndef __MW_ICON_H__' >> include/Mw/Icon.h
 echo '#define __MW_ICON_H__' >> include/Mw/Icon.h
@@ -38,7 +38,7 @@ for i in resource/icon/*.png; do
 done | while read a; do
 	echo $a
 	echo '/*!' >> include/Mw/Icon.h
-	echo " * %brief `echo $a | sed s/MwIcon//` icon" >> include/Mw/Icon.h
+	echo " * @brief `echo $a | sed s/MwIcon//` icon" >> include/Mw/Icon.h
 	echo ' */' >> include/Mw/Icon.h
 	echo "MWDECL unsigned int $a[];" >> include/Mw/Icon.h
 	echo '' >> include/Mw/Icon.h
