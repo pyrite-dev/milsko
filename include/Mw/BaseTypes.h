@@ -48,7 +48,7 @@ typedef unsigned __int16 MwU16;
 typedef __int8 MwI8;
 typedef unsigned __int8 MwU8;
 
-#define OTHOTHER_TYPES_DEFINED
+#define OTHER_TYPES_DEFINED
 #else
 /* out of hope */
 typedef long MwI64;
