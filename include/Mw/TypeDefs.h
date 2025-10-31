@@ -7,22 +7,18 @@
 #define __MW_TYPEDEFS_H__
 
 #include <Mw/MachDep.h>
+#include <Mw/BaseTypes.h>
 
 typedef struct _MwClass *	      MwClass, MwClassRec;
-typedef struct _MwPoint		      MwPoint;
-typedef struct _MwRect		      MwRect;
 typedef struct _MwIntegerKeyValue     MwIntegerKeyValue;
 typedef struct _MwTextKeyValue	      MwTextKeyValue;
 typedef struct _MwUserHandlerKeyValue MwUserHandlerKeyValue;
 typedef struct _MwVoidKeyValue	      MwVoidKeyValue;
-typedef struct _MwFont		      MwFont;
-typedef struct _MwCursor	      MwCursor;
 typedef struct _MwMenu*		      MwMenu;
 typedef struct _MwEntry*	      MwEntry;
 typedef struct _MwViewport*	      MwViewport;
 typedef struct _MwListBox*	      MwListBox;
 typedef struct _MwListBoxEntry	      MwListBoxEntry;
-typedef struct _MwSizeHints	      MwSizeHints;
 typedef struct _MwDirectoryEntry      MwDirectoryEntry;
 typedef struct _MwListBoxPacket	      MwListBoxPacket;
 #ifdef _MILSKO
@@ -38,32 +34,6 @@ typedef void (*MwHandlerMouse)(MwWidget handle, void* ptr);
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
 typedef void (*MwHandlerExecute)(MwWidget handle, const char* name, void* out, va_list args);
-
-#if __STDC_VERSION__ >= 199901L || __GNUC__ > 2
-typedef long long MwOffset;
-#elif defined(_MSC_VER) || defined(__BORLANDC__) || defined(__WATCOMC__)
-typedef __int64 MwOffset;
-#else
-typedef long MwOffset; /* out of hope */
-#endif
-
-typedef unsigned char MwBool;
-#define MwTRUE ((MwBool)1)
-#define MwFALSE ((MwBool)0)
-
-#include <Mw/LowLevel.h>
-
-struct _MwPoint {
-	int x;
-	int y;
-};
-
-struct _MwRect {
-	int	     x;
-	int	     y;
-	unsigned int width;
-	unsigned int height;
-};
 
 struct _MwTextKeyValue {
 	char* key;
@@ -85,6 +55,8 @@ struct _MwVoidKeyValue {
 	char* key;
 	void* value;
 };
+
+#include <Mw/LowLevel.h>
 
 #ifdef _MILSKO
 struct _MwWidget {
@@ -154,13 +126,6 @@ struct _MwListBox {
 	int*		width;
 };
 
-struct _MwSizeHints {
-	int min_width;
-	int min_height;
-	int max_width;
-	int max_height;
-};
-
 struct _MwDirectoryEntry {
 	char*	 name;
 	int	 type;
@@ -171,15 +136,6 @@ struct _MwDirectoryEntry {
 struct _MwListBoxPacket {
 	MwLLPixmap* pixmaps;
 	char***	    names;
-};
-
-#define MwCursorDataHeight 16
-struct _MwCursor {
-	int	     width;
-	int	     height;
-	int	     x;
-	int	     y;
-	unsigned int data[MwCursorDataHeight];
 };
 
 struct _MwClass {
@@ -198,12 +154,6 @@ struct _MwClass {
 	void*		    reserved3;
 	void*		    reserved4;
 	void*		    reserved5;
-};
-
-struct _MwFont {
-	int	      left;
-	int	      top;
-	unsigned char data[16];
 };
 
 #endif
