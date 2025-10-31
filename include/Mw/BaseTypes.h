@@ -18,10 +18,14 @@ typedef unsigned char MwBool;
 
 #if __STDC_VERSION__ >= 199901L || __GNUC__ > 2
 typedef long long MwOffset;
+typedef unsigned long long MwUOffset;
 #elif defined(_MSC_VER) || defined(__BORLANDC__) || defined(__WATCOMC__)
 typedef __int64 MwOffset;
+typedef unsigned __int64 MwUOffset;
 #else
-typedef long MwOffset; /* out of hope */
+/* out of hope */
+typedef long MwOffset;
+typedef unsigned long MwUOffset;
 #endif
 
 struct _MwPoint {
