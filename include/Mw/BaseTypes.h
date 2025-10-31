@@ -19,52 +19,52 @@ typedef unsigned char MwBool;
 #if __STDC_VERSION__ >= 199901L
 #include <stdint.h>
 
-typedef int64_t MwI64;
+typedef int64_t	 MwI64;
 typedef uint64_t MwU64;
 
-typedef int32_t MwI32;
+typedef int32_t	 MwI32;
 typedef uint32_t MwU32;
 
-typedef int16_t MwI16;
+typedef int16_t	 MwI16;
 typedef uint16_t MwU16;
 
-typedef int8_t MwI8;
+typedef int8_t	MwI8;
 typedef uint8_t MwU8;
 
 #define OTHER_TYPES_DEFINED
 #elif __GNUC__ > 2
-typedef long long MwI64;
+typedef long long	   MwI64;
 typedef unsigned long long MwU64;
 #elif defined(_MSC_VER) || defined(__BORLANDC__) || defined(__WATCOMC__)
-typedef __int64 MwI64;
+typedef __int64		 MwI64;
 typedef unsigned __int64 MwU64;
 
-typedef __int32 MwI32;
+typedef __int32		 MwI32;
 typedef unsigned __int32 MwU32;
 
-typedef __int16 MwI16;
+typedef __int16		 MwI16;
 typedef unsigned __int16 MwU16;
 
-typedef __int8 MwI8;
+typedef __int8		MwI8;
 typedef unsigned __int8 MwU8;
 
 #define OTHER_TYPES_DEFINED
 #else
 /* out of hope */
-typedef long MwI64;
+typedef long	      MwI64;
 typedef unsigned long MwU64;
 #endif
 
 #ifdef OTHER_TYPES_DEFINED
 #undef OTHER_TYPES_DEFINED
 #else
-typedef int MwI32;
+typedef int	     MwI32;
 typedef unsigned int MwU32;
 
-typedef short MwI16;
+typedef short	       MwI16;
 typedef unsigned short MwU16;
 
-typedef signed char MwI8;
+typedef signed char   MwI8;
 typedef unsigned char MwU8;
 #endif
 
