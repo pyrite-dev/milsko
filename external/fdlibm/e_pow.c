@@ -1,4 +1,3 @@
-/* @(#)e_pow.c 1.5 04/04/22 SMI */
 /*
  * ====================================================
  * Copyright (C) 2004 by Sun Microsystems, Inc. All rights reserved.
@@ -9,32 +8,27 @@
  * ====================================================
  */
 
-/* $Id$ */
-
-#include <Mw/BaseTypes.h>
-#include "math_internal.h"
-
-/* __ieee754_pow(x,y) return x**y
+/* __fdlibm_pow(x,y) return x**y
  *
  *		      n
  * Method:  Let x =  2   * (1+f)
  *	1. Compute and return log2(x) in two pieces:
  *		log2(x) = w1 + w2,
  *	   where w1 has 53-24 = 29 bit trailing zeros.
- *	2. Perform y*log2(x) = n+y' by simulating multi-precision
+ *	2. Perform y*log2(x) = n+y' by simulating muti-precision
  *	   arithmetic, where |y'|<=0.5.
  *	3. Return x**y = 2**n*exp(y'*log2)
  *
  * Special cases:
  *	1.  (anything) ** 0  is 1
  *	2.  (anything) ** 1  is itself
- *	3.  (anything) ** NAN is NAN except 1 ** NAN = 1
+ *	3.  (anything) ** NAN is NAN
  *	4.  NAN ** (anything except 0) is NAN
  *	5.  +-(|x| > 1) **  +INF is +INF
  *	6.  +-(|x| > 1) **  -INF is +0
  *	7.  +-(|x| < 1) **  +INF is +0
  *	8.  +-(|x| < 1) **  -INF is +INF
- *	9.  +-1         ** +-INF is 1
+ *	9.  +-1         ** +-INF is NAN
  *	10. +0 ** (+anything except 0, NAN)               is +0
  *	11. -0 ** (+anything except 0, NAN, odd integer)  is +0
  *	12. +0 ** (-anything except 0, NAN)               is +INF
@@ -58,6 +52,8 @@
  * compiler will convert from decimal to binary accurately enough
  * to produce the hexadecimal values shown.
  */
+
+#include "math.h"
 
 static const double
     bp[] = {
@@ -97,29 +93,29 @@ static const double
     ivln2_h = 1.44269502162933349609e+00,  /* 0x3FF71547, 0x60000000 =24b 1/ln2*/
     ivln2_l = 1.92596299112661746887e-08;  /* 0x3E54AE0B, 0xF85DDF44 =1/ln2 tail*/
 
-double
-nbsd_pow(double x, double y) {
-	double z, ax, z_h, z_l, p_h, p_l;
-	double yy1, t1, t2, r, s, t, u, v, w;
-	MwI32  i, j, k, yisint, n;
-	MwI32  hx, hy, ix, iy;
-	MwU32  lx, ly;
+double __fdlibm_pow(double x, double y) {
+	double	 z, ax, z_h, z_l, p_h, p_l;
+	double	 y1, t1, t2, r, s, t, u, v, w;
+	int	 i0, i1, i, j, k, yisint, n;
+	int	 hx, hy, ix, iy;
+	unsigned lx, ly;
 
-	EXTRACT_WORDS(hx, lx, x);
-	EXTRACT_WORDS(hy, ly, y);
+	i0 = ((*(int*)&one) >> 29) ^ 1;
+	i1 = 1 - i0;
+	hx = __HI(x);
+	lx = __LO(x);
+	hy = __HI(y);
+	ly = __LO(y);
 	ix = hx & 0x7fffffff;
 	iy = hy & 0x7fffffff;
 
 	/* y==zero: x**0 = 1 */
 	if((iy | ly) == 0) return one;
 
-	/* x==1: 1**y = 1, even if y is NaN */
-	if(hx == 0x3ff00000 && lx == 0) return one;
-
-	/* y!=zero: result is NaN if either arg is NaN */
+	/* +-NaN return x+y */
 	if(ix > 0x7ff00000 || ((ix == 0x7ff00000) && (lx != 0)) ||
 	   iy > 0x7ff00000 || ((iy == 0x7ff00000) && (ly != 0)))
-		return (x + 0.0) + (y + 0.0);
+		return x + y;
 
 	/* determine if y is an odd int when x < 0
 	 * yisint = 0	... y is not an integer
@@ -133,7 +129,7 @@ nbsd_pow(double x, double y) {
 			k = (iy >> 20) - 0x3ff; /* exponent */
 			if(k > 20) {
 				j = ly >> (52 - k);
-				if((MwU32)(j << (52 - k)) == ly) yisint = 2 - (j & 1);
+				if((j << (52 - k)) == ly) yisint = 2 - (j & 1);
 			} else if(ly == 0) {
 				j = iy >> (20 - k);
 				if((j << (20 - k)) == iy) yisint = 2 - (j & 1);
@@ -145,7 +141,7 @@ nbsd_pow(double x, double y) {
 	if(ly == 0) {
 		if(iy == 0x7ff00000) { /* y is +-inf */
 			if(((ix - 0x3ff00000) | lx) == 0)
-				return one;	  /* (-1)**+-inf is 1 */
+				return y - y;	  /* inf**+-1 is NaN */
 			else if(ix >= 0x3ff00000) /* (|x|>1)**+-inf = inf,0 */
 				return (hy >= 0) ? y : zero;
 			else /* (|x|<1)**-,+inf = inf,0 */
@@ -179,11 +175,7 @@ nbsd_pow(double x, double y) {
 		}
 	}
 
-	/* CYGNUS LOCAL + fdlibm-5.3 fix: This used to be
-	    n = (hx>>31)+1;
-	   but ANSI C says a right shift of a signed negative quantity is
-	   implementation defined.  */
-	n = ((MwU32)hx >> 31) - 1;
+	n = (hx >> 31) + 1;
 
 	/* (x<0)**(non-int) is NaN */
 	if((n | yisint) == 0) return (x - x) / (x - x);
@@ -202,13 +194,13 @@ nbsd_pow(double x, double y) {
 		if(ix > 0x3ff00000) return (hy > 0) ? s * hugev * hugev : s * tinyv * tinyv;
 		/* now |1-x| is tinyv <= 2**-20, suffice to compute
 		   log(x) by x-x^2/2+x^3/3-x^4/4 */
-		t  = ax - one; /* t has 20 trailing zeros */
-		w  = (t * t) * (0.5 - t * (0.3333333333333333333333 - t * 0.25));
-		u  = ivln2_h * t; /* ivln2_h has 21 sig. bits */
-		v  = t * ivln2_l - w * ivln2;
-		t1 = u + v;
-		SET_LOW_WORD(t1, 0);
-		t2 = v - (t1 - u);
+		t	 = ax - one; /* t has 20 trailing zeros */
+		w	 = (t * t) * (0.5 - t * (0.3333333333333333333333 - t * 0.25));
+		u	 = ivln2_h * t; /* ivln2_h has 21 sig. bits */
+		v	 = t * ivln2_l - w * ivln2;
+		t1	 = u + v;
+		__LO(t1) = 0;
+		t2	 = v - (t1 - u);
 	} else {
 		double ss, s2, s_h, s_l, t_h, t_l;
 		n = 0;
@@ -216,7 +208,7 @@ nbsd_pow(double x, double y) {
 		if(ix < 0x00100000) {
 			ax *= two53;
 			n -= 53;
-			GET_HIGH_WORD(ix, ax);
+			ix = __HI(ax);
 		}
 		n += ((ix) >> 20) - 0x3ff;
 		j = ix & 0x000fffff;
@@ -230,50 +222,51 @@ nbsd_pow(double x, double y) {
 			n += 1;
 			ix -= 0x00100000;
 		}
-		SET_HIGH_WORD(ax, ix);
+		__HI(ax) = ix;
 
 		/* compute ss = s_h+s_l = (x-1)/(x+1) or (x-1.5)/(x+1.5) */
-		u   = ax - bp[k]; /* bp[0]=1.0, bp[1]=1.5 */
-		v   = one / (ax + bp[k]);
-		ss  = u * v;
-		s_h = ss;
-		SET_LOW_WORD(s_h, 0);
+		u	  = ax - bp[k]; /* bp[0]=1.0, bp[1]=1.5 */
+		v	  = one / (ax + bp[k]);
+		ss	  = u * v;
+		s_h	  = ss;
+		__LO(s_h) = 0;
 		/* t_h=ax+bp[k] High */
-		t_h = zero;
-		SET_HIGH_WORD(t_h, ((ix >> 1) | 0x20000000) + 0x00080000 + (k << 18));
-		t_l = ax - (t_h - bp[k]);
-		s_l = v * ((u - s_h * t_h) - s_h * t_l);
+		t_h	  = zero;
+		__HI(t_h) = ((ix >> 1) | 0x20000000) + 0x00080000 + (k << 18);
+		t_l	  = ax - (t_h - bp[k]);
+		s_l	  = v * ((u - s_h * t_h) - s_h * t_l);
 		/* compute log(ax) */
 		s2 = ss * ss;
 		r  = s2 * s2 * (L1 + s2 * (L2 + s2 * (L3 + s2 * (L4 + s2 * (L5 + s2 * L6)))));
 		r += s_l * (s_h + ss);
-		s2  = s_h * s_h;
-		t_h = 3.0 + s2 + r;
-		SET_LOW_WORD(t_h, 0);
-		t_l = r - ((t_h - 3.0) - s2);
+		s2	  = s_h * s_h;
+		t_h	  = 3.0 + s2 + r;
+		__LO(t_h) = 0;
+		t_l	  = r - ((t_h - 3.0) - s2);
 		/* u+v = ss*(1+...) */
 		u = s_h * t_h;
 		v = s_l * t_h + t_l * ss;
 		/* 2/(3log2)*(ss+...) */
-		p_h = u + v;
-		SET_LOW_WORD(p_h, 0);
-		p_l = v - (p_h - u);
-		z_h = cp_h * p_h; /* cp_h+cp_l = 2/(3*log2) */
-		z_l = cp_l * p_h + p_l * cp + dp_l[k];
+		p_h	  = u + v;
+		__LO(p_h) = 0;
+		p_l	  = v - (p_h - u);
+		z_h	  = cp_h * p_h; /* cp_h+cp_l = 2/(3*log2) */
+		z_l	  = cp_l * p_h + p_l * cp + dp_l[k];
 		/* log2(ax) = (ss+..)*2/(3*log2) = n + dp_h + z_h + z_l */
-		t  = (double)n;
-		t1 = (((z_h + z_l) + dp_h[k]) + t);
-		SET_LOW_WORD(t1, 0);
-		t2 = z_l - (((t1 - t) - dp_h[k]) - z_h);
+		t	 = (double)n;
+		t1	 = (((z_h + z_l) + dp_h[k]) + t);
+		__LO(t1) = 0;
+		t2	 = z_l - (((t1 - t) - dp_h[k]) - z_h);
 	}
 
-	/* split up y into yy1+y2 and compute (yy1+y2)*(t1+t2) */
-	yy1 = y;
-	SET_LOW_WORD(yy1, 0);
-	p_l = (y - yy1) * t1 + y * t2;
-	p_h = yy1 * t1;
-	z   = p_l + p_h;
-	EXTRACT_WORDS(j, i, z);
+	/* split up y into y1+y2 and compute (y1+y2)*(t1+t2) */
+	y1	 = y;
+	__LO(y1) = 0;
+	p_l	 = (y - y1) * t1 + y * t2;
+	p_h	 = y1 * t1;
+	z	 = p_l + p_h;
+	j	 = __HI(z);
+	i	 = __LO(z);
 	if(j >= 0x40900000) {			  /* z >= 1024 */
 		if(((j - 0x40900000) | i) != 0)	  /* if z > 1024 */
 			return s * hugev * hugev; /* overflow */
@@ -294,28 +287,28 @@ nbsd_pow(double x, double y) {
 	k = (i >> 20) - 0x3ff;
 	n = 0;
 	if(i > 0x3fe00000) { /* if |z| > 0.5, set n = [z+0.5] */
-		n = j + (0x00100000 >> (k + 1));
-		k = ((n & 0x7fffffff) >> 20) - 0x3ff; /* new k for n */
-		t = zero;
-		SET_HIGH_WORD(t, n & ~(0x000fffff >> k));
-		n = ((n & 0x000fffff) | 0x00100000) >> (20 - k);
+		n	= j + (0x00100000 >> (k + 1));
+		k	= ((n & 0x7fffffff) >> 20) - 0x3ff; /* new k for n */
+		t	= zero;
+		__HI(t) = (n & ~(0x000fffff >> k));
+		n	= ((n & 0x000fffff) | 0x00100000) >> (20 - k);
 		if(j < 0) n = -n;
 		p_h -= t;
 	}
-	t = p_l + p_h;
-	SET_LOW_WORD(t, 0);
-	u  = t * lg2_h;
-	v  = (p_l - (t - p_h)) * lg2 + t * lg2_l;
-	z  = u + v;
-	w  = v - (z - u);
-	t  = z * z;
-	t1 = z - t * (P1 + t * (P2 + t * (P3 + t * (P4 + t * P5))));
-	r  = (z * t1) / (t1 - two) - (w + z * w);
-	z  = one - (r - z);
-	GET_HIGH_WORD(j, z);
+	t	= p_l + p_h;
+	__LO(t) = 0;
+	u	= t * lg2_h;
+	v	= (p_l - (t - p_h)) * lg2 + t * lg2_l;
+	z	= u + v;
+	w	= v - (z - u);
+	t	= z * z;
+	t1	= z - t * (P1 + t * (P2 + t * (P3 + t * (P4 + t * P5))));
+	r	= (z * t1) / (t1 - two) - (w + z * w);
+	z	= one - (r - z);
+	j	= __HI(z);
 	j += (n << 20);
-	if((j >> 20) <= 0) z = nbsd_scalbn(z, n); /* subnormal output */
+	if((j >> 20) <= 0) z = scalbn(z, n); /* subnormal output */
 	else
-		SET_HIGH_WORD(z, j);
+		__HI(z) += (n << 20);
 	return s * z;
 }

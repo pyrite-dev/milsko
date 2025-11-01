@@ -12,7 +12,6 @@
 #define FEATX86_SSE (1 << 25)
 #define FEATX86_SSE2 (1 << 26)
 #endif
-#include "nbsd_math.h"
 
 struct _MwLLMathVTable {
 	void (*Add)(MwLLVec* a, MwLLVec* b, MwLLVec* out);

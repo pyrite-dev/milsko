@@ -2,7 +2,7 @@
 CC = bcc32 -c
 LD = bcc32
 
-CFLAGS = -Iinclude -D_MILSKO -DUSE_GDI -DUSE_STB_TRUETYPE -DUSE_STB_IMAGE -DSTBI_NO_SIMD
+CFLAGS = -Iinclude -Iexternal\fdlibm -D_MILSKO -DUSE_GDI -DUSE_STB_TRUETYPE -DUSE_STB_IMAGE -DSTBI_NO_SIMD
 LDFLAGS = -tWD
 .SUFFIXES: .obj .c
 all: src\Mw.dll
@@ -64,16 +64,89 @@ clean:
 	del /f /q src\math\default.obj
 	del /f /q src\math\math.obj
 	del /f /q src\math\mmx.obj
-	del /f /q src\math\nbsd_pow.obj
-	del /f /q src\math\nbsd_endian.obj
-	del /f /q src\math\nbsd_copysign.obj
-	del /f /q src\math\nbsd_scalbn.obj
 	del /f /q src\color_picker\color_picker.obj
+	del /f /q external\fdlibm\e_acos.obj
+	del /f /q external\fdlibm\e_acosh.obj
+	del /f /q external\fdlibm\e_asin.obj
+	del /f /q external\fdlibm\e_atan2.obj
+	del /f /q external\fdlibm\e_atanh.obj
+	del /f /q external\fdlibm\e_cosh.obj
+	del /f /q external\fdlibm\e_exp.obj
+	del /f /q external\fdlibm\e_fmod.obj
+	del /f /q external\fdlibm\e_gamma.obj
+	del /f /q external\fdlibm\e_gamma_r.obj
+	del /f /q external\fdlibm\e_hypot.obj
+	del /f /q external\fdlibm\e_j0.obj
+	del /f /q external\fdlibm\e_j1.obj
+	del /f /q external\fdlibm\e_jn.obj
+	del /f /q external\fdlibm\e_lgamma.obj
+	del /f /q external\fdlibm\e_lgamma_r.obj
+	del /f /q external\fdlibm\e_log.obj
+	del /f /q external\fdlibm\e_log10.obj
+	del /f /q external\fdlibm\e_pow.obj
+	del /f /q external\fdlibm\e_rem_pio2.obj
+	del /f /q external\fdlibm\e_remainder.obj
+	del /f /q external\fdlibm\e_scalb.obj
+	del /f /q external\fdlibm\e_sinh.obj
+	del /f /q external\fdlibm\e_sqrt.obj
+	del /f /q external\fdlibm\k_cos.obj
+	del /f /q external\fdlibm\k_rem_pio2.obj
+	del /f /q external\fdlibm\k_sin.obj
+	del /f /q external\fdlibm\k_tan.obj
+	del /f /q external\fdlibm\s_asinh.obj
+	del /f /q external\fdlibm\s_atan.obj
+	del /f /q external\fdlibm\s_cbrt.obj
+	del /f /q external\fdlibm\s_ceil.obj
+	del /f /q external\fdlibm\s_copysign.obj
+	del /f /q external\fdlibm\s_cos.obj
+	del /f /q external\fdlibm\s_erf.obj
+	del /f /q external\fdlibm\s_expm1.obj
+	del /f /q external\fdlibm\s_fabs.obj
+	del /f /q external\fdlibm\s_finite.obj
+	del /f /q external\fdlibm\s_floor.obj
+	del /f /q external\fdlibm\s_frexp.obj
+	del /f /q external\fdlibm\s_ilogb.obj
+	del /f /q external\fdlibm\s_isnan.obj
+	del /f /q external\fdlibm\s_ldexp.obj
+	del /f /q external\fdlibm\s_log1p.obj
+	del /f /q external\fdlibm\s_sin.obj
+	del /f /q external\fdlibm\s_logb.obj
+	del /f /q external\fdlibm\s_modf.obj
+	del /f /q external\fdlibm\s_nextafter.obj
+	del /f /q external\fdlibm\s_rint.obj
+	del /f /q external\fdlibm\s_scalbn.obj
+	del /f /q external\fdlibm\s_signgam.obj
+	del /f /q external\fdlibm\s_significand.obj
+	del /f /q external\fdlibm\s_tan.obj
+	del /f /q external\fdlibm\s_tanh.obj
+	del /f /q external\fdlibm\w_acos.obj
+	del /f /q external\fdlibm\w_acosh.obj
+	del /f /q external\fdlibm\w_asin.obj
+	del /f /q external\fdlibm\w_atan2.obj
+	del /f /q external\fdlibm\w_atanh.obj
+	del /f /q external\fdlibm\w_cosh.obj
+	del /f /q external\fdlibm\w_exp.obj
+	del /f /q external\fdlibm\w_fmod.obj
+	del /f /q external\fdlibm\w_gamma.obj
+	del /f /q external\fdlibm\w_gamma_r.obj
+	del /f /q external\fdlibm\w_hypot.obj
+	del /f /q external\fdlibm\w_j0.obj
+	del /f /q external\fdlibm\w_j1.obj
+	del /f /q external\fdlibm\w_jn.obj
+	del /f /q external\fdlibm\w_lgamma.obj
+	del /f /q external\fdlibm\w_lgamma_r.obj
+	del /f /q external\fdlibm\w_log.obj
+	del /f /q external\fdlibm\w_log10.obj
+	del /f /q external\fdlibm\w_pow.obj
+	del /f /q external\fdlibm\w_remainder.obj
+	del /f /q external\fdlibm\w_scalb.obj
+	del /f /q external\fdlibm\w_sinh.obj
+	del /f /q external\fdlibm\w_sqrt.obj
 	del /f /q src\backend\gdi.obj
 	del /f /q src\Mw.dll
 
-src\Mw.dll:  src\core.obj src\text.obj src\string.obj src\draw.obj src\default.obj src\filechooser.obj src\lowlevel.obj src\error.obj src\unicode.obj src\color.obj src\directory.obj src\messagebox.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\icon\info.obj src\icon\note.obj src\icon\warning.obj src\icon\error.obj src\icon\news.obj src\icon\directory.obj src\icon\file.obj src\icon\back.obj src\icon\forward.obj src\icon\up.obj src\icon\computer.obj src\icon\search.obj src\icon\down.obj src\icon\left.obj src\icon\right.obj src\cursor\default.obj src\cursor\cross.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\opengl.obj src\widget\window.obj src\widget\menu.obj src\widget\entry.obj src\widget\submenu.obj src\widget\viewport.obj src\widget\image.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\label.obj src\widget\listbox.obj src\widget\numberentry.obj src\widget\progressbar.obj src\widget\radiobox.obj src\font\boldttf.obj src\font\ttf.obj src\font\boldfont.obj src\font\font.obj src\math\default.obj src\math\math.obj src\math\mmx.obj src\math\nbsd_pow.obj src\math\nbsd_endian.obj src\math\nbsd_copysign.obj src\math\nbsd_scalbn.obj src\color_picker\color_picker.obj src\backend\gdi.obj
-	$(LD) $(LDFLAGS)  -e$@  src\core.obj src\text.obj src\string.obj src\draw.obj src\default.obj src\filechooser.obj src\lowlevel.obj src\error.obj src\unicode.obj src\color.obj src\directory.obj src\messagebox.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\icon\info.obj src\icon\note.obj src\icon\warning.obj src\icon\error.obj src\icon\news.obj src\icon\directory.obj src\icon\file.obj src\icon\back.obj src\icon\forward.obj src\icon\up.obj src\icon\computer.obj src\icon\search.obj src\icon\down.obj src\icon\left.obj src\icon\right.obj src\cursor\default.obj src\cursor\cross.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\opengl.obj src\widget\window.obj src\widget\menu.obj src\widget\entry.obj src\widget\submenu.obj src\widget\viewport.obj src\widget\image.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\label.obj src\widget\listbox.obj src\widget\numberentry.obj src\widget\progressbar.obj src\widget\radiobox.obj src\font\boldttf.obj src\font\ttf.obj src\font\boldfont.obj src\font\font.obj src\math\default.obj src\math\math.obj src\math\mmx.obj src\math\nbsd_pow.obj src\math\nbsd_endian.obj src\math\nbsd_copysign.obj src\math\nbsd_scalbn.obj src\color_picker\color_picker.obj src\backend\gdi.obj  -lopengl32.lib -lgdi32.lib -luser32.lib
+src\Mw.dll:  src\core.obj src\text.obj src\string.obj src\draw.obj src\default.obj src\filechooser.obj src\lowlevel.obj src\error.obj src\unicode.obj src\color.obj src\directory.obj src\messagebox.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\icon\info.obj src\icon\note.obj src\icon\warning.obj src\icon\error.obj src\icon\news.obj src\icon\directory.obj src\icon\file.obj src\icon\back.obj src\icon\forward.obj src\icon\up.obj src\icon\computer.obj src\icon\search.obj src\icon\down.obj src\icon\left.obj src\icon\right.obj src\cursor\default.obj src\cursor\cross.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\opengl.obj src\widget\window.obj src\widget\menu.obj src\widget\entry.obj src\widget\submenu.obj src\widget\viewport.obj src\widget\image.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\label.obj src\widget\listbox.obj src\widget\numberentry.obj src\widget\progressbar.obj src\widget\radiobox.obj src\font\boldttf.obj src\font\ttf.obj src\font\boldfont.obj src\font\font.obj src\math\default.obj src\math\math.obj src\math\mmx.obj src\color_picker\color_picker.obj external\fdlibm\e_acos.obj external\fdlibm\e_acosh.obj external\fdlibm\e_asin.obj external\fdlibm\e_atan2.obj external\fdlibm\e_atanh.obj external\fdlibm\e_cosh.obj external\fdlibm\e_exp.obj external\fdlibm\e_fmod.obj external\fdlibm\e_gamma.obj external\fdlibm\e_gamma_r.obj external\fdlibm\e_hypot.obj external\fdlibm\e_j0.obj external\fdlibm\e_j1.obj external\fdlibm\e_jn.obj external\fdlibm\e_lgamma.obj external\fdlibm\e_lgamma_r.obj external\fdlibm\e_log.obj external\fdlibm\e_log10.obj external\fdlibm\e_pow.obj external\fdlibm\e_rem_pio2.obj external\fdlibm\e_remainder.obj external\fdlibm\e_scalb.obj external\fdlibm\e_sinh.obj external\fdlibm\e_sqrt.obj external\fdlibm\k_cos.obj external\fdlibm\k_rem_pio2.obj external\fdlibm\k_sin.obj external\fdlibm\k_tan.obj external\fdlibm\s_asinh.obj external\fdlibm\s_atan.obj external\fdlibm\s_cbrt.obj external\fdlibm\s_ceil.obj external\fdlibm\s_copysign.obj external\fdlibm\s_cos.obj external\fdlibm\s_erf.obj external\fdlibm\s_expm1.obj external\fdlibm\s_fabs.obj external\fdlibm\s_finite.obj external\fdlibm\s_floor.obj external\fdlibm\s_frexp.obj external\fdlibm\s_ilogb.obj external\fdlibm\s_isnan.obj external\fdlibm\s_ldexp.obj external\fdlibm\s_log1p.obj external\fdlibm\s_sin.obj external\fdlibm\s_logb.obj external\fdlibm\s_modf.obj external\fdlibm\s_nextafter.obj external\fdlibm\s_rint.obj external\fdlibm\s_scalbn.obj external\fdlibm\s_signgam.obj external\fdlibm\s_significand.obj external\fdlibm\s_tan.obj external\fdlibm\s_tanh.obj external\fdlibm\w_acos.obj external\fdlibm\w_acosh.obj external\fdlibm\w_asin.obj external\fdlibm\w_atan2.obj external\fdlibm\w_atanh.obj external\fdlibm\w_cosh.obj external\fdlibm\w_exp.obj external\fdlibm\w_fmod.obj external\fdlibm\w_gamma.obj external\fdlibm\w_gamma_r.obj external\fdlibm\w_hypot.obj external\fdlibm\w_j0.obj external\fdlibm\w_j1.obj external\fdlibm\w_jn.obj external\fdlibm\w_lgamma.obj external\fdlibm\w_lgamma_r.obj external\fdlibm\w_log.obj external\fdlibm\w_log10.obj external\fdlibm\w_pow.obj external\fdlibm\w_remainder.obj external\fdlibm\w_scalb.obj external\fdlibm\w_sinh.obj external\fdlibm\w_sqrt.obj src\backend\gdi.obj
+	$(LD) $(LDFLAGS)  -e$@  src\core.obj src\text.obj src\string.obj src\draw.obj src\default.obj src\filechooser.obj src\lowlevel.obj src\error.obj src\unicode.obj src\color.obj src\directory.obj src\messagebox.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\icon\info.obj src\icon\note.obj src\icon\warning.obj src\icon\error.obj src\icon\news.obj src\icon\directory.obj src\icon\file.obj src\icon\back.obj src\icon\forward.obj src\icon\up.obj src\icon\computer.obj src\icon\search.obj src\icon\down.obj src\icon\left.obj src\icon\right.obj src\cursor\default.obj src\cursor\cross.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\opengl.obj src\widget\window.obj src\widget\menu.obj src\widget\entry.obj src\widget\submenu.obj src\widget\viewport.obj src\widget\image.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\label.obj src\widget\listbox.obj src\widget\numberentry.obj src\widget\progressbar.obj src\widget\radiobox.obj src\font\boldttf.obj src\font\ttf.obj src\font\boldfont.obj src\font\font.obj src\math\default.obj src\math\math.obj src\math\mmx.obj src\color_picker\color_picker.obj external\fdlibm\e_acos.obj external\fdlibm\e_acosh.obj external\fdlibm\e_asin.obj external\fdlibm\e_atan2.obj external\fdlibm\e_atanh.obj external\fdlibm\e_cosh.obj external\fdlibm\e_exp.obj external\fdlibm\e_fmod.obj external\fdlibm\e_gamma.obj external\fdlibm\e_gamma_r.obj external\fdlibm\e_hypot.obj external\fdlibm\e_j0.obj external\fdlibm\e_j1.obj external\fdlibm\e_jn.obj external\fdlibm\e_lgamma.obj external\fdlibm\e_lgamma_r.obj external\fdlibm\e_log.obj external\fdlibm\e_log10.obj external\fdlibm\e_pow.obj external\fdlibm\e_rem_pio2.obj external\fdlibm\e_remainder.obj external\fdlibm\e_scalb.obj external\fdlibm\e_sinh.obj external\fdlibm\e_sqrt.obj external\fdlibm\k_cos.obj external\fdlibm\k_rem_pio2.obj external\fdlibm\k_sin.obj external\fdlibm\k_tan.obj external\fdlibm\s_asinh.obj external\fdlibm\s_atan.obj external\fdlibm\s_cbrt.obj external\fdlibm\s_ceil.obj external\fdlibm\s_copysign.obj external\fdlibm\s_cos.obj external\fdlibm\s_erf.obj external\fdlibm\s_expm1.obj external\fdlibm\s_fabs.obj external\fdlibm\s_finite.obj external\fdlibm\s_floor.obj external\fdlibm\s_frexp.obj external\fdlibm\s_ilogb.obj external\fdlibm\s_isnan.obj external\fdlibm\s_ldexp.obj external\fdlibm\s_log1p.obj external\fdlibm\s_sin.obj external\fdlibm\s_logb.obj external\fdlibm\s_modf.obj external\fdlibm\s_nextafter.obj external\fdlibm\s_rint.obj external\fdlibm\s_scalbn.obj external\fdlibm\s_signgam.obj external\fdlibm\s_significand.obj external\fdlibm\s_tan.obj external\fdlibm\s_tanh.obj external\fdlibm\w_acos.obj external\fdlibm\w_acosh.obj external\fdlibm\w_asin.obj external\fdlibm\w_atan2.obj external\fdlibm\w_atanh.obj external\fdlibm\w_cosh.obj external\fdlibm\w_exp.obj external\fdlibm\w_fmod.obj external\fdlibm\w_gamma.obj external\fdlibm\w_gamma_r.obj external\fdlibm\w_hypot.obj external\fdlibm\w_j0.obj external\fdlibm\w_j1.obj external\fdlibm\w_jn.obj external\fdlibm\w_lgamma.obj external\fdlibm\w_lgamma_r.obj external\fdlibm\w_log.obj external\fdlibm\w_log10.obj external\fdlibm\w_pow.obj external\fdlibm\w_remainder.obj external\fdlibm\w_scalb.obj external\fdlibm\w_sinh.obj external\fdlibm\w_sqrt.obj src\backend\gdi.obj  -lopengl32.lib -lgdi32.lib -luser32.lib
 	implib src\Mw.lib src\Mw.dll
 
 .c.obj:

@@ -8,7 +8,7 @@ USE_FREETYPE2 = 1
 
 CC = $(GCC)gcc
 
-CFLAGS = -Wall -Wextra -Wno-implicit-fallthrough -Wno-sign-compare -Iinclude
+CFLAGS = -Wall -Wextra -Wno-implicit-fallthrough -Wno-sign-compare -Iinclude -Iexternal/fdlibm
 LDFLAGS =
 LIBS =
 
@@ -42,6 +42,7 @@ include mk/freetype2.mk
 include mk/opengl.mk
 include mk/vulkan.mk
 include mk/math.mk
+include mk/fdlibm.mk
 
 .PHONY: all install format clean lib examples
 
@@ -79,7 +80,7 @@ src/%.o: src/%.c
 	$(CC) $(L_CFLAGS) -c -o $@ $<
 
 external/%.o: external/%.c
-	$(CC) $(L_CFLAGS) -Wno-unused-value -Wno-unused-parameter -Wno-unused-function -Wno-stringop-overflow -c -o $@ $<
+	$(CC) $(L_CFLAGS) -Wno-unknown-warning-option -Wno-maybe-uninitialized -Wno-parentheses -Wno-unused-but-set-variable -Wno-unused-const-variable -Wno-sometimes-uninitialized -Wno-strict-aliasing -Wno-unused-value -Wno-unused-parameter -Wno-unused-function -Wno-stringop-overflow -c -o $@ $<
 
 examples/%.o: examples/%.c
 	$(CC) $(E_CFLAGS) -c -o $@ $<

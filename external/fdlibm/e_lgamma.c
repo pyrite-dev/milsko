@@ -1,0 +1,27 @@
+
+/* @(#)e_lgamma.c 1.3 95/01/18 */
+/*
+ * ====================================================
+ * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+ *
+ * Developed at SunSoft, a Sun Microsystems, Inc. business.
+ * Permission to use, copy, modify, and distribute this
+ * software is freely granted, provided that this notice
+ * is preserved.
+ * ====================================================
+ *
+ */
+
+/* __fdlibm_lgamma(x)
+ * Return the logarithm of the Gamma function of x.
+ *
+ * Method: call __fdlibm_lgamma_r
+ */
+
+#include "math.h"
+
+extern int signgam;
+
+double __fdlibm_lgamma(double x) {
+	return __fdlibm_lgamma_r(x, &signgam);
+}
