@@ -91,8 +91,8 @@ static void color_picker_click(MwWidget handle, void* user, void* call) {
 	MwLLMouse*    mouse  = (MwLLMouse*)call;
 	char*	      hexColor;
 	int	      i, r, g, b, a;
-	char* fgColor;
-	int fr, fg, fb;
+	char*	      fgColor;
+	int	      fr, fg, fb;
 
 	(void)handle;
 	(void)user;
@@ -109,8 +109,8 @@ static void color_picker_click(MwWidget handle, void* user, void* call) {
 
 	(void)a;
 
-	hexColor      = malloc(8);
-	fgColor = malloc(8);
+	hexColor = malloc(8);
+	fgColor	 = malloc(8);
 	snprintf(hexColor, 8, "#%02X%02X%02X", r, g, b);
 
 	fr = r > 128 ? 0 : 255;
@@ -201,7 +201,7 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	MwPoint	      p;
 	color_picker* wheel;
 	MwWidget      window;
-	int ww, wh;
+	int	      ww, wh;
 
 	// remove later
 	MwLLVec test_1	 = MwLLVecU32x2(2, 5);
@@ -214,8 +214,8 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	printf("%d + %d = %d\n", test_1.un.u32.a, test_2.un.u32.a, test_out.un.u32.a);
 	printf("%d + %d = %d\n", test_1.un.u32.b, test_2.un.u32.b, test_out.un.u32.b);
 
-	ww = MwGetInteger(handle, MwNwidth);
-	wh = MwGetInteger(handle, MwNheight);
+	ww  = MwGetInteger(handle, MwNwidth);
+	wh  = MwGetInteger(handle, MwNheight);
 	p.x = p.y = 0;
 
 	window = MwVaCreateWidget(MwWindowClass, "main", handle, MwDEFAULT, MwDEFAULT,

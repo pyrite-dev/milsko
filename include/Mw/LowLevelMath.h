@@ -52,7 +52,7 @@ enum _MwLLVecType {
 	_MwLLVecType_Max,
 };
 struct _MwLLVec {
-	int  ty;
+	int	     ty;
 	MwLLVecUnion un;
 };
 

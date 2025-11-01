@@ -40,7 +40,7 @@ switch(ty) {
 
 #if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
 static MwU32 getCPUFeatures(void) {
-	MwU32	    _eax = 1;
+	MwU32 _eax = 1;
 	MwU32 _edx;
 
 #ifdef __WATCOMC__
@@ -50,7 +50,7 @@ static MwU32 getCPUFeatures(void) {
 		mov _edx, edx
 	}
 #else
-	asm volatile (
+	asm volatile(
 	    "cpuid" : "=a"(_eax), "=d"(_edx)
 	    : "a"(1) : "ebx", "ecx");
 #endif
