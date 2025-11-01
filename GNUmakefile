@@ -8,7 +8,7 @@ USE_FREETYPE2 = 1
 
 CC = $(GCC)gcc
 
-CFLAGS = -Wall -Wextra -Wno-implicit-fallthrough -Wno-sign-compare -Iinclude -Iexternal/fdlibm
+CFLAGS = -Wall -Wextra -Wno-implicit-fallthrough -Wno-sign-compare -Iinclude
 LDFLAGS =
 LIBS =
 
