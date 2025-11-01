@@ -30,7 +30,7 @@ L_OBJS += src/icon/warning.o src/icon/note.o src/icon/info.o src/icon/news.o src
 L_OBJS += src/font/font.o src/font/boldfont.o src/font/ttf.o src/font/boldttf.o
 
 E_CFLAGS = $(CFLAGS)
-E_LDFLAGS = $(LDFLAGS) -Lsrc -Wl,-rpath,$(shell pwd)/src
+E_LDFLAGS = $(LDFLAGS) -Lsrc -Wl,-rpath,./src
 E_LIBS = $(LIBS) -lMw
 
 EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/basic/image$(EXEC) examples/basic/scrollbar$(EXEC) examples/basic/checkbox$(EXEC) examples/basic/radiobox$(EXEC) examples/basic/messagebox$(EXEC) examples/basic/viewport$(EXEC) examples/basic/listbox$(EXEC) examples/basic/progressbar$(EXEC) examples/basic/color_picker$(EXEC)

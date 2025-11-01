@@ -94,15 +94,18 @@ static void default_greaterThen_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.u8.h = a->un.u8.h >= b->un.u8.h;
 };
 static MwLLMathVTable table_u8 = {
-    .Add	 = default_add_u8,
-    .Sub	 = default_sub_u8,
-    .Multiply	 = default_multiply_u8,
-    .Reciprocal	 = default_reciprocal_u8,
-    .SquareRoot	 = default_squareRoot_u8,
-    .ShiftRight	 = default_shiftRight_u8,
-    .ShiftLeft	 = default_shiftLeft_u8,
-    .Equal	 = default_equal_u8,
-    .GreaterThen = default_greaterThen_u8,
+    default_add_u8,
+    default_multiply_u8,
+    default_sub_u8,
+    default_reciprocal_u8,
+    default_squareRoot_u8,
+    NULL,
+   	NULL,
+   	default_shiftRight_u8,
+    default_shiftLeft_u8,
+    default_equal_u8,
+    default_greaterThen_u8,
+    NULL
 };
 static void default_add_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.u16.a = a->un.u16.a + b->un.u16.a;
