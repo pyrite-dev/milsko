@@ -8,8 +8,6 @@ int main() {
 
 	MwWidget cpicker = MwColorPicker(w, "cpicker");
 
-	printf("!\n");
-
 	(void)cpicker;
 
 	MwLoop(w);

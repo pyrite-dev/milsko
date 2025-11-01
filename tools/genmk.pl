@@ -86,7 +86,7 @@ sub generate {
         $dir      = "/";
         $del      = "%erase";
         $prefobj  = "file ";
-        $needlibs = "${lib}clib3r.lib";
+	$needlibs = "${lib}clib3r.lib";
         $c_dllout = "option implib=src${dir}Mw.lib";
     }
 

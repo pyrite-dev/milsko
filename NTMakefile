@@ -11,13 +11,13 @@ clean:
 	del /f /q src\lowlevel.obj
 	del /f /q src\color.obj
 	del /f /q src\directory.obj
+	del /f /q src\core.obj
 	del /f /q src\text.obj
 	del /f /q src\error.obj
 	del /f /q src\unicode.obj
 	del /f /q src\messagebox.obj
 	del /f /q src\string.obj
 	del /f /q src\filechooser.obj
-	del /f /q src\core.obj
 	del /f /q src\draw.obj
 	del /f /q external\stb_ds.obj
 	del /f /q external\stb_image.obj
@@ -62,16 +62,16 @@ clean:
 	del /f /q src\font\font.obj
 	del /f /q src\font\ttf.obj
 	del /f /q src\math\mmx_guard.obj
-	del /f /q src\math\mmx.obj
 	del /f /q src\math\default.obj
 	del /f /q src\math\nbsd_pow.obj
+	del /f /q src\math\mmx.obj
 	del /f /q src\math\math.obj
 	del /f /q src\color_picker\color_picker.obj
 	del /f /q src\backend\gdi.obj
 	del /f /q src\Mw.dll
 
-src\Mw.dll:  src\default.obj src\lowlevel.obj src\color.obj src\directory.obj src\text.obj src\error.obj src\unicode.obj src\messagebox.obj src\string.obj src\filechooser.obj src\core.obj src\draw.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\icon\error.obj src\icon\info.obj src\icon\news.obj src\icon\note.obj src\icon\warning.obj src\icon\file.obj src\icon\directory.obj src\icon\back.obj src\icon\forward.obj src\icon\computer.obj src\icon\up.obj src\icon\search.obj src\icon\down.obj src\icon\left.obj src\icon\right.obj src\cursor\cross.obj src\cursor\default.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\window.obj src\widget\entry.obj src\widget\label.obj src\widget\opengl.obj src\widget\radiobox.obj src\widget\submenu.obj src\widget\menu.obj src\widget\image.obj src\widget\viewport.obj src\widget\listbox.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\numberentry.obj src\widget\progressbar.obj src\font\boldfont.obj src\font\boldttf.obj src\font\font.obj src\font\ttf.obj src\math\mmx_guard.obj src\math\mmx.obj src\math\default.obj src\math\nbsd_pow.obj src\math\math.obj src\color_picker\color_picker.obj src\backend\gdi.obj
-	$(LD) $(LDFLAGS)  /OUT:$@  src\default.obj src\lowlevel.obj src\color.obj src\directory.obj src\text.obj src\error.obj src\unicode.obj src\messagebox.obj src\string.obj src\filechooser.obj src\core.obj src\draw.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\icon\error.obj src\icon\info.obj src\icon\news.obj src\icon\note.obj src\icon\warning.obj src\icon\file.obj src\icon\directory.obj src\icon\back.obj src\icon\forward.obj src\icon\computer.obj src\icon\up.obj src\icon\search.obj src\icon\down.obj src\icon\left.obj src\icon\right.obj src\cursor\cross.obj src\cursor\default.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\window.obj src\widget\entry.obj src\widget\label.obj src\widget\opengl.obj src\widget\radiobox.obj src\widget\submenu.obj src\widget\menu.obj src\widget\image.obj src\widget\viewport.obj src\widget\listbox.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\numberentry.obj src\widget\progressbar.obj src\font\boldfont.obj src\font\boldttf.obj src\font\font.obj src\font\ttf.obj src\math\mmx_guard.obj src\math\mmx.obj src\math\default.obj src\math\nbsd_pow.obj src\math\math.obj src\color_picker\color_picker.obj src\backend\gdi.obj  opengl32.lib gdi32.lib user32.lib
+src\Mw.dll:  src\default.obj src\lowlevel.obj src\color.obj src\directory.obj src\core.obj src\text.obj src\error.obj src\unicode.obj src\messagebox.obj src\string.obj src\filechooser.obj src\draw.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\icon\error.obj src\icon\info.obj src\icon\news.obj src\icon\note.obj src\icon\warning.obj src\icon\file.obj src\icon\directory.obj src\icon\back.obj src\icon\forward.obj src\icon\computer.obj src\icon\up.obj src\icon\search.obj src\icon\down.obj src\icon\left.obj src\icon\right.obj src\cursor\cross.obj src\cursor\default.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\window.obj src\widget\entry.obj src\widget\label.obj src\widget\opengl.obj src\widget\radiobox.obj src\widget\submenu.obj src\widget\menu.obj src\widget\image.obj src\widget\viewport.obj src\widget\listbox.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\numberentry.obj src\widget\progressbar.obj src\font\boldfont.obj src\font\boldttf.obj src\font\font.obj src\font\ttf.obj src\math\mmx_guard.obj src\math\default.obj src\math\nbsd_pow.obj src\math\mmx.obj src\math\math.obj src\color_picker\color_picker.obj src\backend\gdi.obj
+	$(LD) $(LDFLAGS)  /OUT:$@  src\default.obj src\lowlevel.obj src\color.obj src\directory.obj src\core.obj src\text.obj src\error.obj src\unicode.obj src\messagebox.obj src\string.obj src\filechooser.obj src\draw.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\icon\error.obj src\icon\info.obj src\icon\news.obj src\icon\note.obj src\icon\warning.obj src\icon\file.obj src\icon\directory.obj src\icon\back.obj src\icon\forward.obj src\icon\computer.obj src\icon\up.obj src\icon\search.obj src\icon\down.obj src\icon\left.obj src\icon\right.obj src\cursor\cross.obj src\cursor\default.obj src\cursor\text.obj src\cursor\hidden.obj src\widget\button.obj src\widget\frame.obj src\widget\window.obj src\widget\entry.obj src\widget\label.obj src\widget\opengl.obj src\widget\radiobox.obj src\widget\submenu.obj src\widget\menu.obj src\widget\image.obj src\widget\viewport.obj src\widget\listbox.obj src\widget\scrollbar.obj src\widget\checkbox.obj src\widget\numberentry.obj src\widget\progressbar.obj src\font\boldfont.obj src\font\boldttf.obj src\font\font.obj src\font\ttf.obj src\math\mmx_guard.obj src\math\default.obj src\math\nbsd_pow.obj src\math\mmx.obj src\math\math.obj src\color_picker\color_picker.obj src\backend\gdi.obj  opengl32.lib gdi32.lib user32.lib
 	
 
 .c.obj:
