@@ -22,7 +22,7 @@ L_CFLAGS = $(DEPINC) $(CFLAGS) -fPIC -D_MILSKO
 L_LDFLAGS = $(LDFLAGS)
 L_LIBS = $(LIBS)
 
-L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/error.o src/unicode.o src/color.o src/messagebox.o src/directory.o src/string.o src/filechooser.o
+L_OBJS = src/core.o src/default.o src/draw.o src/lowlevel.o src/error.o src/unicode.o src/color.o src/messagebox.o src/directory.o src/string.o src/filechooser.o src/color_picker/color_picker.o
 L_OBJS += external/stb_ds.o external/stb_image.o external/stb_truetype.o
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o src/widget/checkbox.o src/widget/label.o src/widget/entry.o src/widget/numberentry.o src/widget/viewport.o src/widget/listbox.o src/widget/progressbar.o src/widget/radiobox.o
 L_OBJS += src/cursor/hidden.o src/cursor/default.o src/cursor/cross.o src/cursor/text.o
@@ -33,7 +33,7 @@ E_CFLAGS = $(CFLAGS)
 E_LDFLAGS = $(LDFLAGS) -Lsrc -Wl,-rpath,$(shell pwd)/src
 E_LIBS = $(LIBS) -lMw
 
-EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/basic/image$(EXEC) examples/basic/scrollbar$(EXEC) examples/basic/checkbox$(EXEC) examples/basic/radiobox$(EXEC) examples/basic/messagebox$(EXEC) examples/basic/viewport$(EXEC) examples/basic/listbox$(EXEC) examples/basic/progressbar$(EXEC) examples/color_picker$(EXEC)
+EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/basic/image$(EXEC) examples/basic/scrollbar$(EXEC) examples/basic/checkbox$(EXEC) examples/basic/radiobox$(EXEC) examples/basic/messagebox$(EXEC) examples/basic/viewport$(EXEC) examples/basic/listbox$(EXEC) examples/basic/progressbar$(EXEC) examples/basic/color_picker$(EXEC)
 
 include mk/platform.mk
 include mk/flags.mk
@@ -41,6 +41,7 @@ include mk/stb.mk
 include mk/freetype2.mk
 include mk/opengl.mk
 include mk/vulkan.mk
+include mk/math.mk
 
 .PHONY: all install format clean lib examples
 
