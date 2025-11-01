@@ -203,17 +203,6 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	MwWidget      window;
 	int	      ww, wh;
 
-	// remove later
-	MwLLVec test_1	 = MwLLVecU32x2(2, 5);
-	MwLLVec test_2	 = MwLLVecU32x2(2, 12);
-	MwLLVec test_out = MwLLVecU32x2(0, 0);
-
-	MwLLMathAdd(&test_1, &test_2, &test_out);
-
-	printf("simd result:\n");
-	printf("%d + %d = %d\n", test_1.un.u32.a, test_2.un.u32.a, test_out.un.u32.a);
-	printf("%d + %d = %d\n", test_1.un.u32.b, test_2.un.u32.b, test_out.un.u32.b);
-
 	ww  = MwGetInteger(handle, MwNwidth);
 	wh  = MwGetInteger(handle, MwNheight);
 	p.x = p.y = 0;
