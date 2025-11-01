@@ -76,6 +76,9 @@ examples/gldemos/%$(EXEC): examples/gldemos/%.o src/$(LIB)Mw$(SO)
 examples/%$(EXEC): examples/%.o src/$(LIB)Mw$(SO)
 	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS)
 
+src/math/mmx.o: src/math/mmx.c
+	$(CC) $(L_CFLAGS) -mmmx -c -o $@ $<
+
 src/%.o: src/%.c
 	$(CC) $(L_CFLAGS) -c -o $@ $<
 

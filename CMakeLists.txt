@@ -24,7 +24,7 @@ option(USE_FDLIBM "Use fdlibm" OFF)
 file(
 	GLOB
 	SOURCES
-	src/*.c src/cursor/*.c src/icon/*.c src/text/*.c src/widget/*.c external/*.c
+	src/*.c src/cursor/*.c src/icon/*.c src/text.c src/widget/*.c src/math/*.c src/font/*.c src/color_picker/*.c external/*.c
 )
 
 if(NOT OPENGL)
@@ -152,6 +152,12 @@ else()
 		endif()
 	endif()
 endif()
+
+set_source_files_properties(
+	src/math/mmx.c
+	PROPERTIES
+	COMPILE_FLAGS -mmmx
+)
 
 target_include_directories(
 	Mw

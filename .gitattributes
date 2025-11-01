@@ -14,3 +14,6 @@
 /resource/doxygen-theme/* linguist-generated
 /src/icon/*.c linguist-generated
 /src/font/*.c linguist-generated
+/BorMakefile linguist-generated
+/WatMakefile linguist-generated
+/NTMakefile linguist-generated
