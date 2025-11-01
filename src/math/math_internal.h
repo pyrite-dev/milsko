@@ -6,37 +6,41 @@
 #include <Mw/BaseTypes.h>
 #include <Mw/LowLevelMath.h>
 
+/* Bitfield of cpu features we get from x86's CPUID */
+#if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
+typedef struct _cpuFeatures cpuFeatures;
 struct _cpuFeatures {
-	MwBool fpu : 1;
-	MwBool vme : 1;
-	MwBool de : 1;
-	MwBool pse : 1;
-	MwBool tsc : 1;
-	MwBool msr : 1;
-	MwBool pae : 1;
-	MwBool mce : 1;
-	MwBool cx8 : 1;
-	MwBool apic : 1;
-	MwBool sep : 1;
-	MwBool mtrr : 1;
-	MwBool pge : 1;
-	MwBool mca : 1;
-	MwBool cmov : 1;
-	MwBool pat : 1;
-	MwBool pse36 : 1;
-	MwBool psn : 1;
-	MwBool clflush : 1;
-	MwBool ds : 1;
-	MwBool acpi : 1;
-	MwBool mmx : 1;
-	MwBool fxsr : 1;
-	MwBool sse : 1;
-	MwBool sse2 : 1;
-	MwBool ss : 1;
-	MwBool hit : 1;
-	MwBool tm : 1;
-	MwBool pbe : 1;
+	MwBool fpu : 1;	    /* x87 FPU on chip */
+	MwBool vme : 1;	    /* Virtual-8086 Mode Enhancement */
+	MwBool de : 1;	    /* Debugging Extensions */
+	MwBool pse : 1;	    /* Page Size Extensions */
+	MwBool tsc : 1;	    /* Time Stamp Counter */
+	MwBool msr : 1;	    /* RDMSR and WRMSR Support */
+	MwBool pae : 1;	    /* Physical Address Extensions */
+	MwBool mce : 1;	    /* Machine Check Exception */
+	MwBool cx8 : 1;	    /* CMPXCHG8B instr */
+	MwBool apic : 1;    /* APIC on Chip */
+	MwBool sep : 1;	    /* SYSENTER and SYSEXIT instrs */
+	MwBool mtrr : 1;    /* Memory Type Range Registers */
+	MwBool pge : 1;	    /* Page Global Bit */
+	MwBool mca : 1;	    /* Machine Check Architecture */
+	MwBool cmov : 1;    /* Conditional Move Instrs */
+	MwBool pat : 1;	    /* Page Attribute Table */
+	MwBool pse36 : 1;   /* 36-Bit Page Size Extension */
+	MwBool psn : 1;	    /* Processor Serial Number */
+	MwBool clflush : 1; /* CLFLUSH instr */
+	MwBool ds : 1;	    /* Debug Store */
+	MwBool acpi : 1;    /* Thermal Monitor and Software Controlled Clock Facilities */
+	MwBool mmx : 1;	    /* Intel MMX Technology */
+	MwBool fxsr : 1;    /* XSAVE and FXRSTOR Instrs */
+	MwBool sse : 1;	    /* SSE */
+	MwBool sse2 : 1;    /* SSE2 */
+	MwBool ss : 1;	    /* Self Snoop */
+	MwBool hit : 1;	    /* Max APIC IDs */
+	MwBool tm : 1;	    /* Thermal Monitor */
+	MwBool pbe : 1;	    /* Pending Break Enable */
 };
+#endif
 
 struct _MwLLMathVTable {
 	void (*Add)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
@@ -54,7 +58,6 @@ struct _MwLLMathVTable {
 };
 
 typedef struct _MwLLMathVTable MwLLMathVTable;
-typedef struct _cpuFeatures    cpuFeatures;
 
 MwLLMathVTable** default_multi_table(void);
 void		 mmx_apply(MwLLMathVTable**);

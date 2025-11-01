@@ -38,6 +38,7 @@ switch(ty) {
 	return vec;
 }
 
+#if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
 static cpuFeatures getCPUFeatures(void) {
 	MwU32	    _eax = 1;
 	cpuFeatures _edx;
@@ -56,6 +57,7 @@ static cpuFeatures getCPUFeatures(void) {
 
 	return _edx;
 }
+#endif
 
 static MwLLMathVTable** mwLLMultiTable;
 static MwLLMathVTable*	multiTableSetupAndGet(MwLLVecType ty);
@@ -68,12 +70,13 @@ static MwLLMathVTable* getMultiTable(MwLLVecType ty) {
 }
 
 static MwLLMathVTable* multiTableSetupAndGet(MwLLVecType ty) {
-#if defined(__i386__) || defined(__x86_64__)
+#if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
 	cpuFeatures features;
 #endif
+
 	mwLLMultiTable = default_multi_table();
 
-#if defined(__i386__) || defined(__x86_64__)
+#if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
 	features = getCPUFeatures();
 	printf("Avaliable x86_64 Features:\n");
 	printf("\tMMX: %s\n", features.mmx ? "true" : "false");
