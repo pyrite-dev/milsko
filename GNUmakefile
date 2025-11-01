@@ -43,7 +43,6 @@ include mk/freetype2.mk
 include mk/opengl.mk
 include mk/vulkan.mk
 include mk/math.mk
-include mk/fdlibm.mk
 
 .PHONY: all install format clean lib examples
 

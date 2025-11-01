@@ -6,7 +6,7 @@ SHARED = -shared
 ifeq ($(UNIX),1)
 L_CFLAGS += -DUSE_X11 -DUNIX
 L_OBJS += src/backend/x11.o
-L_LIBS += -lX11 -lXrender -lXcursor
+L_LIBS += -lm -lX11 -lXrender -lXcursor
 
 GL = -lGL -lGLU
 
