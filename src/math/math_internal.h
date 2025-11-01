@@ -33,6 +33,5 @@ typedef struct _MwLLMathVTable MwLLMathVTable;
 
 MwLLMathVTable** default_multi_table(void);
 void		 mmx_apply(MwLLMathVTable**);
-double		 nbsd_pow(double a, double b);
 
 #endif

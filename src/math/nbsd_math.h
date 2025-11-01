@@ -39,8 +39,13 @@ typedef union _ieee_double_shape_type {
 	do { \
 		ieee_double_shape_type ew_u; \
 		ew_u.value = (d); \
-		(ix0)	   = ew_u.parts.msw; \
-		(ix1)	   = ew_u.parts.lsw; \
+		if(nbsd_endian() == 'L') { \
+			(ix0) = ew_u.parts.msw; \
+			(ix1) = ew_u.parts.lsw; \
+		} else { \
+			(ix0) = ew_u.parts.lsw; \
+			(ix1) = ew_u.parts.msw; \
+		} \
 	} while(0)
 
 /* Get the more significant 32-bit integer from a double.  */
@@ -49,7 +54,7 @@ typedef union _ieee_double_shape_type {
 	do { \
 		ieee_double_shape_type gh_u; \
 		gh_u.value = (d); \
-		(i)	   = gh_u.parts.msw; \
+		(i)	   = nbsd_endian() == 'L' ? gh_u.parts.msw : gh_u.parts.lsw; \
 	} while(0)
 
 /* Get the less significant 32-bit integer from a double.  */
@@ -58,7 +63,7 @@ typedef union _ieee_double_shape_type {
 	do { \
 		ieee_double_shape_type gl_u; \
 		gl_u.value = (d); \
-		(i)	   = gl_u.parts.lsw; \
+		(i)	   = nbsd_endian() == 'L' ? gl_u.parts.lsw : gl_u.parts.msw; \
 	} while(0)
 
 /* Set the more significant 32 bits of a double from an integer.  */
@@ -66,9 +71,13 @@ typedef union _ieee_double_shape_type {
 #define SET_HIGH_WORD(d, v) \
 	do { \
 		ieee_double_shape_type sh_u; \
-		sh_u.value     = (d); \
-		sh_u.parts.msw = (v); \
-		(d)	       = sh_u.value; \
+		sh_u.value = (d); \
+		if(nbsd_endian() == 'L') { \
+			sh_u.parts.msw = (v); \
+		} else { \
+			sh_u.parts.lsw = (v); \
+		} \
+		(d) = sh_u.value; \
 	} while(0)
 
 /* Set the less significant 32 bits of a double from an integer.  */
@@ -76,9 +85,16 @@ typedef union _ieee_double_shape_type {
 #define SET_LOW_WORD(d, v) \
 	do { \
 		ieee_double_shape_type sl_u; \
-		sl_u.value     = (d); \
-		sl_u.parts.lsw = (v); \
-		(d)	       = sl_u.value; \
+		sl_u.value = (d); \
+		if(nbsd_endian() == 'L') { \
+			sl_u.parts.lsw = (v); \
+		} else { \
+			sl_u.parts.msw = (v); \
+		} \
+		(d) = sl_u.value; \
 	} while(0)
+
+double nbsd_pow(double a, double b);
+char   nbsd_endian(void);
 
 #endif
