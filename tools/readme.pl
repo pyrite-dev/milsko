@@ -135,6 +135,8 @@ c("USE_STB_TRUETYPE - Use stb_truetype or not.", 60);
 l("");
 c("USE_FREETYPE2    - Use FreeType2 or not.", 60);
 l("");
+c("USE_FDLIBM       - Use fdlibm or not.", 60);
+l("");
 c("PREFIX           - Installation destination directory.", 60);
 l("");
 

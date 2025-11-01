@@ -5,6 +5,7 @@ PREFIX = /usr/local
 USE_STB_IMAGE = 1
 USE_STB_TRUETYPE = 0
 USE_FREETYPE2 = 1
+USE_FDLIBM = 0
 
 CC = $(GCC)gcc
 

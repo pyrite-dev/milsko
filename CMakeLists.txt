@@ -19,6 +19,7 @@ option(BUILD_EXAMPLES "Build examples" OFF)
 option(USE_STB_IMAGE "Use stb_image" ON)
 option(USE_STB_TRUETYPE "Use stb_truetype" OFF)
 option(USE_FREETYPE2 "Use FreeType 2" ON)
+option(USE_FDLIBM "Use fdlibm" OFF)
 
 file(
 	GLOB
@@ -108,6 +109,24 @@ if(CLASSIC)
 	)
 endif()
 
+if(USE_FDLIBM)
+	file(
+		GLOB
+		FDLIBM_SOURCES
+		external/fdlibm/*.c
+	)
+	target_sources(
+		Mw
+		PRIVATE
+		${FDLIBM_SOURCES}
+	)
+	target_include_directories(
+		Mw
+		PRIVATE
+		external/fdlibm
+	)
+endif()
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	target_sources(
 		Mw
@@ -126,6 +145,10 @@ else()
 	pkg_check_modules(XRENDER REQUIRED xrender)
 	pkg_check_modules(XCURSOR REQUIRED xcursor)
 
+	if(NOT USE_FDLIBM)
+		list(APPEND LIBRARIES m)
+	endif()
+
 	target_sources(
 		Mw
 		PRIVATE
@@ -138,7 +161,7 @@ else()
 	)
 	list(APPEND INCLUDE_DIRS ${X11_INCLUDE_DIRS} ${XRENDER_INCLUDE_DIRS} ${XCURSOR_INCLUDE_DIRS})
 	list(APPEND LIBRARY_DIRS ${X11_LIBRARY_DIRS} ${XRENDER_LIBRARY_DIRS} ${XCURSOR_LIBRARY_DIRS})
-	list(APPEND LIBRARIES ${X11_LIBRARIES} ${XRENDER_LIBRARIES} ${XCURSOR_LIBRARIES} m)
+	list(APPEND LIBRARIES ${X11_LIBRARIES} ${XRENDER_LIBRARIES} ${XCURSOR_LIBRARIES})
 	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		list(APPEND LIBRARIES dl)
 	endif()
