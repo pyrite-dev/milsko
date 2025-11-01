@@ -56,7 +56,7 @@ struct _MwLLVec {
 	MwLLVecUnion un;
 };
 
-MwLLVec _MwLLVecCreateGeneric(int ty, ...);
+MWDECL MwLLVec _MwLLVecCreateGeneric(int ty, ...);
 
 #define MwLLVecU8x8(a, b, c, d, e, f, g, h) _MwLLVecCreateGeneric(_MwLLVecTypeU8x8, a, b, c, d, e, f, g, h)
 #define MwLLVecU16x4(a, b, c, d) _MwLLVecCreateGeneric(_MwLLVecTypeU16x4, a, b, c, d)
@@ -65,17 +65,17 @@ MwLLVec _MwLLVecCreateGeneric(int ty, ...);
 #define MwLLVecI16x4(a, b, c, d) _MwLLVecCreateGeneric(_MwLLVecTypeI16x4, a, b, c, d)
 #define MwLLVecI32x2(a, b) _MwLLVecCreateGeneric(_MwLLVecTypeI32x2, a, b)
 
-void MwLLMathAdd(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-void MwLLMathMultiply(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-void MwLLMathSub(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-void MwLLMathReciprocal(MwLLVec* a, MwLLVec* out);
-void MwLLMathSquareRoot(MwLLVec* a, MwLLVec* out);
-void MwLLMathAnd(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-void MwLLMathOr(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-void MwLLMathShiftRight(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-void MwLLMathShiftLeft(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-void MwLLMathEqual(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-void MwLLMathGreaterThen(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-void MwLLMathLesserThen(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+MWDECL void MwLLMathAdd(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+MWDECL void MwLLMathMultiply(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+MWDECL void MwLLMathSub(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+MWDECL void MwLLMathReciprocal(MwLLVec* a, MwLLVec* out);
+MWDECL void MwLLMathSquareRoot(MwLLVec* a, MwLLVec* out);
+MWDECL void MwLLMathAnd(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+MWDECL void MwLLMathOr(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+MWDECL void MwLLMathShiftRight(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+MWDECL void MwLLMathShiftLeft(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+MWDECL void MwLLMathEqual(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+MWDECL void MwLLMathGreaterThen(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+MWDECL void MwLLMathLesserThen(MwLLVec* a, MwLLVec* b, MwLLVec* out);
 
 #endif
