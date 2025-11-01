@@ -47,7 +47,7 @@ static cpuFeatures getCPUFeatures(void) {
 	__asm {
 		cpuid
 		mov _eax, eax
-		mov _edx, edx
+//		mov _edx, edx
 	}
 #else
 	__asm__ __volatile__(

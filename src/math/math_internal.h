@@ -29,6 +29,7 @@ struct _cpuFeatures {
 	MwBool pse36 : 1;   /* 36-Bit Page Size Extension */
 	MwBool psn : 1;	    /* Processor Serial Number */
 	MwBool clflush : 1; /* CLFLUSH instr */
+	MwBool pad1 : 1;
 	MwBool ds : 1;	    /* Debug Store */
 	MwBool acpi : 1;    /* Thermal Monitor and Software Controlled Clock Facilities */
 	MwBool mmx : 1;	    /* Intel MMX Technology */
@@ -38,6 +39,7 @@ struct _cpuFeatures {
 	MwBool ss : 1;	    /* Self Snoop */
 	MwBool hit : 1;	    /* Max APIC IDs */
 	MwBool tm : 1;	    /* Thermal Monitor */
+	MwBool pad2 : 1;
 	MwBool pbe : 1;	    /* Pending Break Enable */
 };
 #endif

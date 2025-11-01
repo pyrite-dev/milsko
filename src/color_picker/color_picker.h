@@ -32,6 +32,7 @@ struct _color_picker_inner {
 };
 
 struct _color_picker_vtable {
+	void* reserved;
 };
 
 struct _color_picker {
