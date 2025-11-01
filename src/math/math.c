@@ -38,13 +38,14 @@ switch(ty) {
 	return vec;
 }
 
-#if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
+#if defined(MwLLMathMMX)
 static MwU32 getCPUFeatures(void) {
 	MwU32 _eax = 1;
 	MwU32 _edx;
 
 #ifdef __WATCOMC__
 	__asm {
+		mov eax, _eax
 		cpuid
 		mov _eax, eax
 		mov _edx, edx
@@ -70,13 +71,13 @@ static MwLLMathVTable* getMultiTable(int ty) {
 }
 
 static MwLLMathVTable* multiTableSetupAndGet(int ty) {
-#if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
+#if defined(MwLLMathMMX)
 	MwU32 features;
 #endif
 
 	mwLLMultiTable = default_multi_table();
 
-#if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
+#if defined(MwLLMathMMX)
 	features = getCPUFeatures();
 	printf("Avaliable x86_64 Features:\n");
 	printf("\tMMX: %s\n", features & FEATX86_MMX ? "true" : "false");
