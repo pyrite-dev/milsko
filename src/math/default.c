@@ -173,8 +173,7 @@ static MwLLMathVTable table_u16 = {
     default_shiftLeft_u16,
     default_equal_u16,
     default_greaterThen_u16,
-    NULL
-};
+    NULL};
 
 static void default_add_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.u32.a = a->un.u32.a + b->un.u32.a;
@@ -225,8 +224,7 @@ static MwLLMathVTable table_u32 = {
     default_shiftLeft_u32,
     default_equal_u32,
     default_greaterThen_u32,
-    NULL
-};
+    NULL};
 
 static void default_add_i8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.i8.a = a->un.i8.a + b->un.i8.a;
@@ -311,8 +309,7 @@ static MwLLMathVTable table_i8 = {
     default_shiftLeft_u8,
     default_equal_i8,
     default_greaterThen_i8,
-    NULL
-};
+    NULL};
 static void default_add_i16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.i16.a = a->un.i16.a + b->un.i16.a;
 	out->un.i16.b = a->un.i16.b + b->un.i16.b;
@@ -368,8 +365,7 @@ static MwLLMathVTable table_i16 = {
     default_shiftLeft_u16,
     default_equal_i16,
     default_greaterThen_i16,
-    NULL
-};
+    NULL};
 
 static void default_add_i32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.i32.a = a->un.i32.a + b->un.i32.a;
@@ -412,8 +408,7 @@ static MwLLMathVTable table_i32 = {
     default_shiftLeft_u32,
     default_equal_i32,
     default_greaterThen_i32,
-    NULL
-};
+    NULL};
 
 static MwLLMathVTable* defaultMultiTable[_MwLLVecType_Max] = {
     &table_u8,	// _MwLLVecTypeU8x8

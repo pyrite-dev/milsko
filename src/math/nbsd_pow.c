@@ -133,7 +133,7 @@ nbsd_pow(double x, double y) {
 			k = (iy >> 20) - 0x3ff; /* exponent */
 			if(k > 20) {
 				j = ly >> (52 - k);
-				if((uint32_t)(j << (52 - k)) == ly) yisint = 2 - (j & 1);
+				if((MwU32)(j << (52 - k)) == ly) yisint = 2 - (j & 1);
 			} else if(ly == 0) {
 				j = iy >> (20 - k);
 				if((j << (20 - k)) == iy) yisint = 2 - (j & 1);
@@ -314,7 +314,7 @@ nbsd_pow(double x, double y) {
 	z  = one - (r - z);
 	GET_HIGH_WORD(j, z);
 	j += (n << 20);
-	if((j >> 20) <= 0) z = scalbn(z, n); /* subnormal output */
+	if((j >> 20) <= 0) z = nbsd_scalbn(z, n); /* subnormal output */
 	else
 		SET_HIGH_WORD(z, j);
 	return s * z;

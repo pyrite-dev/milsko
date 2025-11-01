@@ -1,5 +1,6 @@
 /* $Id$ */
-#include "nbsd_math.h"
+#include <Mw/BaseTypes.h>
+#include "math_internal.h"
 
 static char endian = 0;
 

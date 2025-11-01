@@ -16,7 +16,7 @@
 #endif
 
 #if !defined(MwLLMathMMX)
-//#warning LowLevelMath.h does not yet support this platform
+// #warning LowLevelMath.h does not yet support this platform
 #endif
 
 /*!

@@ -95,6 +95,9 @@ typedef union _ieee_double_shape_type {
 	} while(0)
 
 double nbsd_pow(double a, double b);
+double nbsd_scalbn(double x, int n);
+double nbsd_scalbln(double x, long n);
+double nbsd_copysign(double x, double y);
 char   nbsd_endian(void);
 
 #endif
