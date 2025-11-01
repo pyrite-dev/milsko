@@ -1,11 +1,7 @@
+/* $Id$ */
 #include <Mw/LowLevelMath.h>
-#include <assert.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <unistd.h>
-#include "math.h"
-#include "Mw/BaseTypes.h"
-#include "x86intrin.h"
+
+#include "math_internal.h"
 
 MwLLVec _MwLLVecCreateGeneric(MwLLVecType ty, ...) {
 	MwLLVecUnion un;
@@ -43,14 +39,23 @@ switch(ty) {
 }
 
 static MwBool hasMMX(void) {
-	MwU32 eax = 1;
-	MwU32 ebx, edx;
+	MwU32 _eax = 1;
+	MwU32 _ebx, _edx;
 
+#ifdef __WATCOMC__
+	__asm {
+		cpuid
+		mov _eax, eax
+		mov _ebx, ebx
+		mov _edx, edx
+	}
+#else
 	__asm__ __volatile__(
-	    "cpuid" : "=a"(eax), "=b"(ebx), "=d"(edx)
+	    "cpuid" : "=a"(_eax), "=b"(_ebx), "=d"(_edx)
 	    : "a"(1));
+#endif
 
-	return (edx & (1 << 23)) == (1 << 23);
+	return (_edx & (1 << 23)) == (1 << 23);
 }
 
 static MwLLMathVTable** mwLLMultiTable;

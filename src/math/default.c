@@ -1,7 +1,7 @@
+/* $Id$ */
 #include <Mw/LowLevelMath.h>
-#include "math.h"
-#include <assert.h>
-#include <math.h>
+
+#include "math_internal.h"
 
 static void default_add_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.u8.a = a->un.u8.a + b->un.u8.a;
@@ -407,6 +407,6 @@ static MwLLMathVTable* defaultMultiTable[_MwLLVecType_Max] = {
     &table_i32, // _MwLLVecTypeI32x2
 };
 
-MwLLMathVTable** default_multi_table() {
+MwLLMathVTable** default_multi_table(void) {
 	return defaultMultiTable;
 }

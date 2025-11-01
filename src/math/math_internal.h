@@ -22,7 +22,7 @@ struct _MwLLMathVTable {
 
 typedef struct _MwLLMathVTable MwLLMathVTable;
 
-MwLLMathVTable** default_multi_table();
+MwLLMathVTable** default_multi_table(void);
 void		 mmx_apply(MwLLMathVTable**);
 
 #endif

@@ -9,8 +9,9 @@
 #define __MW_LOWLEVEL_MATH_H__
 
 #include <Mw/BaseTypes.h>
+#include <Mw/MachDep.h>
 
-#if !defined(__i386__) && !defined(__x86_64__)
+#if !defined(__i386__) && !defined(__x86_64__) && !defined(__WATCOMC__)
 #warning LowLevelMath.h does not yet support non-X86 platforms
 #endif
 

@@ -1,13 +1,13 @@
+/* $Id$ */
 #include <Mw/LowLevelMath.h>
-#include "math.h"
-#include <assert.h>
+
+#include "math_internal.h"
 #include <mmintrin.h>
-#include <stdio.h>
-#include <x86intrin.h>
 
 #define DO_MMX_INTRINSIC(intrin, _ty, _rty, _tyn) \
 	__m64 m	     = intrin(*(__m64*)&a->un._ty, *(__m64*)&b->un._ty); \
-	out->un._rty = *(struct _tyn*)&m;
+	struct _tyn* t = (struct _tyn*)&m; \
+	out->un._rty = *t;
 
 static void mmx_add_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	DO_MMX_INTRINSIC(_m_paddusb, u8, u8, _MwLLVecDataU8x8);

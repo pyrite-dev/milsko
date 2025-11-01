@@ -10,5 +10,7 @@ int main() {
 
 	MwWidget cpicker = MwColorPicker(w, "cpicker");
 
+	(void)cpicker;
+
 	MwLoop(w);
 }
