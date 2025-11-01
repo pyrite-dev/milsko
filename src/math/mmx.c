@@ -1,4 +1,5 @@
 /* $Id$ */
+#ifdef GUARD
 #include <Mw/LowLevelMath.h>
 
 #include "math_internal.h"
@@ -101,3 +102,4 @@ void mmx_apply(MwLLMathVTable** t) {
 	t[_MwLLVecTypeI32x2]->ShiftLeft	 = mmx_shiftLeft_u32;
 	t[_MwLLVecTypeI32x2]->ShiftRight = mmx_shiftRight_u32;
 }
+#endif

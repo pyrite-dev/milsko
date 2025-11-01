@@ -19,9 +19,9 @@
  * @brief Generic vector type
  * @warning Do not try to instantiate this yourself, use the appropriate functions instead.
  */
+
 typedef struct _MwLLVec MwLLVec;
 
-typedef enum _MwLLVecType   MwLLVecType;
 typedef union _MwLLVecUnion MwLLVecUnion;
 
 // clang-format off
@@ -48,11 +48,11 @@ enum _MwLLVecType {
 	_MwLLVecType_Max,
 };
 struct _MwLLVec {
-	MwLLVecType  ty;
+	int  ty;
 	MwLLVecUnion un;
 };
 
-MwLLVec _MwLLVecCreateGeneric(MwLLVecType ty, ...);
+MwLLVec _MwLLVecCreateGeneric(int ty, ...);
 
 #define MwLLVecU8x8(a, b, c, d, e, f, g, h) _MwLLVecCreateGeneric(_MwLLVecTypeU8x8, a, b, c, d, e, f, g, h)
 #define MwLLVecU16x4(a, b, c, d) _MwLLVecCreateGeneric(_MwLLVecTypeU16x4, a, b, c, d)

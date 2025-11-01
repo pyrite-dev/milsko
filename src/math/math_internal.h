@@ -5,6 +5,8 @@
 
 #include <Mw/LowLevelMath.h>
 
+#include "nbsd_math.h"
+
 struct _MwLLMathVTable {
 	void (*Add)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
 	void (*Multiply)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
@@ -24,5 +26,6 @@ typedef struct _MwLLMathVTable MwLLMathVTable;
 
 MwLLMathVTable** default_multi_table(void);
 void		 mmx_apply(MwLLMathVTable**);
+double nbsd_pow(double a, double b);
 
 #endif
