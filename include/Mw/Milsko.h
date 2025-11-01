@@ -23,6 +23,7 @@
 #include <Mw/Directory.h>
 #include <Mw/String.h>
 #include <Mw/FileChooser.h>
+#include <Mw/ColorPicker.h>
 #include <Mw/Version.h>
 
 #include <Mw/Widget/Window.h>
