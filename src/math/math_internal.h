@@ -41,6 +41,7 @@ struct _cpuFeatures {
 	MwBool pbe : 1;	    /* Pending Break Enable */
 };
 #endif
+#include "nbsd_math.h"
 
 struct _MwLLMathVTable {
 	void (*Add)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
@@ -61,5 +62,6 @@ typedef struct _MwLLMathVTable MwLLMathVTable;
 
 MwLLMathVTable** default_multi_table(void);
 void		 mmx_apply(MwLLMathVTable**);
+double nbsd_pow(double a, double b);
 
 #endif

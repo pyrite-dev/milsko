@@ -34,14 +34,14 @@ static void default_multiply_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.u8.h = a->un.u8.h * b->un.u8.h;
 };
 static void default_reciprocal_u8(MwLLVec* a, MwLLVec* out) {
-	out->un.u8.a = powf(a->un.u8.a, -1);
-	out->un.u8.b = powf(a->un.u8.b, -1);
-	out->un.u8.c = powf(a->un.u8.c, -1);
-	out->un.u8.d = powf(a->un.u8.d, -1);
-	out->un.u8.e = powf(a->un.u8.e, -1);
-	out->un.u8.f = powf(a->un.u8.f, -1);
-	out->un.u8.g = powf(a->un.u8.g, -1);
-	out->un.u8.h = powf(a->un.u8.h, -1);
+	out->un.u8.a = nbsd_pow(a->un.u8.a, -1);
+	out->un.u8.b = nbsd_pow(a->un.u8.b, -1);
+	out->un.u8.c = nbsd_pow(a->un.u8.c, -1);
+	out->un.u8.d = nbsd_pow(a->un.u8.d, -1);
+	out->un.u8.e = nbsd_pow(a->un.u8.e, -1);
+	out->un.u8.f = nbsd_pow(a->un.u8.f, -1);
+	out->un.u8.g = nbsd_pow(a->un.u8.g, -1);
+	out->un.u8.h = nbsd_pow(a->un.u8.h, -1);
 };
 static void default_squareRoot_u8(MwLLVec* a, MwLLVec* out) {
 	out->un.u8.a = sqrt(a->un.u8.a);
@@ -123,10 +123,10 @@ static void default_multiply_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.u16.d = a->un.u16.d * b->un.u16.d;
 }
 static void default_reciprocal_u16(MwLLVec* a, MwLLVec* out) {
-	out->un.u16.a = powf(a->un.u16.a, -1);
-	out->un.u16.b = powf(a->un.u16.b, -1);
-	out->un.u16.c = powf(a->un.u16.c, -1);
-	out->un.u16.d = powf(a->un.u16.d, -1);
+	out->un.u16.a = nbsd_pow(a->un.u16.a, -1);
+	out->un.u16.b = nbsd_pow(a->un.u16.b, -1);
+	out->un.u16.c = nbsd_pow(a->un.u16.c, -1);
+	out->un.u16.d = nbsd_pow(a->un.u16.d, -1);
 };
 static void default_squareRoot_u16(MwLLVec* a, MwLLVec* out) {
 	out->un.u16.a = sqrt(a->un.u16.a);
@@ -184,8 +184,8 @@ static void default_multiply_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.u32.b = a->un.u32.b * b->un.u32.b;
 }
 static void default_reciprocal_u32(MwLLVec* a, MwLLVec* out) {
-	out->un.u32.a = powf(a->un.u32.a, -1);
-	out->un.u32.b = powf(a->un.u32.b, -1);
+	out->un.u32.a = nbsd_pow(a->un.u32.a, -1);
+	out->un.u32.b = nbsd_pow(a->un.u32.b, -1);
 };
 static void default_squareRoot_u32(MwLLVec* a, MwLLVec* out) {
 	out->un.u32.a = sqrt(a->un.u32.a);
@@ -251,14 +251,14 @@ static void default_multiply_i8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.i8.h = a->un.i8.h * b->un.i8.h;
 };
 static void default_reciprocal_i8(MwLLVec* a, MwLLVec* out) {
-	out->un.i8.a = powf(a->un.i8.a, -1);
-	out->un.i8.b = powf(a->un.i8.b, -1);
-	out->un.i8.c = powf(a->un.i8.c, -1);
-	out->un.i8.d = powf(a->un.i8.d, -1);
-	out->un.i8.e = powf(a->un.i8.e, -1);
-	out->un.i8.f = powf(a->un.i8.f, -1);
-	out->un.i8.g = powf(a->un.i8.g, -1);
-	out->un.i8.h = powf(a->un.i8.h, -1);
+	out->un.i8.a = nbsd_pow(a->un.i8.a, -1);
+	out->un.i8.b = nbsd_pow(a->un.i8.b, -1);
+	out->un.i8.c = nbsd_pow(a->un.i8.c, -1);
+	out->un.i8.d = nbsd_pow(a->un.i8.d, -1);
+	out->un.i8.e = nbsd_pow(a->un.i8.e, -1);
+	out->un.i8.f = nbsd_pow(a->un.i8.f, -1);
+	out->un.i8.g = nbsd_pow(a->un.i8.g, -1);
+	out->un.i8.h = nbsd_pow(a->un.i8.h, -1);
 };
 static void default_squareRoot_i8(MwLLVec* a, MwLLVec* out) {
 	out->un.i8.a = sqrt(a->un.i8.a);
@@ -321,10 +321,10 @@ static void default_multiply_i16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.i16.d = a->un.i16.d * b->un.i16.d;
 }
 static void default_reciprocal_i16(MwLLVec* a, MwLLVec* out) {
-	out->un.i16.a = powf(a->un.i16.a, -1);
-	out->un.i16.b = powf(a->un.i16.b, -1);
-	out->un.i16.c = powf(a->un.i16.c, -1);
-	out->un.i16.d = powf(a->un.i16.d, -1);
+	out->un.i16.a = nbsd_pow(a->un.i16.a, -1);
+	out->un.i16.b = nbsd_pow(a->un.i16.b, -1);
+	out->un.i16.c = nbsd_pow(a->un.i16.c, -1);
+	out->un.i16.d = nbsd_pow(a->un.i16.d, -1);
 };
 static void default_squareRoot_i16(MwLLVec* a, MwLLVec* out) {
 	out->un.i16.a = sqrt(a->un.i16.a);
@@ -370,8 +370,8 @@ static void default_multiply_i32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.i32.b = a->un.i32.b * b->un.i32.b;
 }
 static void default_reciprocal_i32(MwLLVec* a, MwLLVec* out) {
-	out->un.i32.a = powf(a->un.i32.a, -1);
-	out->un.i32.b = powf(a->un.i32.b, -1);
+	out->un.i32.a = nbsd_pow(a->un.i32.a, -1);
+	out->un.i32.b = nbsd_pow(a->un.i32.b, -1);
 };
 static void default_squareRoot_i32(MwLLVec* a, MwLLVec* out) {
 	out->un.i32.a = sqrt(a->un.i32.a);

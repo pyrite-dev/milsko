@@ -3,7 +3,7 @@
 
 #include "math_internal.h"
 
-MwLLVec _MwLLVecCreateGeneric(MwLLVecType ty, ...) {
+MwLLVec _MwLLVecCreateGeneric(int ty, ...) {
 	MwLLVecUnion un;
 	MwLLVec	     vec;
 	va_list	     va;
@@ -60,16 +60,16 @@ static cpuFeatures getCPUFeatures(void) {
 #endif
 
 static MwLLMathVTable** mwLLMultiTable;
-static MwLLMathVTable*	multiTableSetupAndGet(MwLLVecType ty);
-static MwLLMathVTable*	multiTableGet(MwLLVecType ty);
+static MwLLMathVTable*	multiTableSetupAndGet(int ty);
+static MwLLMathVTable*	multiTableGet(int ty);
 
-static MwLLMathVTable* (*mwLLmathFunc)(MwLLVecType ty) = multiTableSetupAndGet;
+static MwLLMathVTable* (*mwLLmathFunc)(int ty) = multiTableSetupAndGet;
 
-static MwLLMathVTable* getMultiTable(MwLLVecType ty) {
+static MwLLMathVTable* getMultiTable(int ty) {
 	return mwLLmathFunc(ty);
 }
 
-static MwLLMathVTable* multiTableSetupAndGet(MwLLVecType ty) {
+static MwLLMathVTable* multiTableSetupAndGet(int ty) {
 #if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
 	cpuFeatures features;
 #endif
@@ -92,50 +92,50 @@ static MwLLMathVTable* multiTableSetupAndGet(MwLLVecType ty) {
 
 	return mwLLMultiTable[ty];
 }
-static MwLLMathVTable* multiTableGet(MwLLVecType ty) {
+static MwLLMathVTable* multiTableGet(int ty) {
 	return mwLLMultiTable[ty];
 }
 
 void MwLLMathAdd(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	return getMultiTable(a->ty)->Add(a, b, out);
-};
+	getMultiTable(a->ty)->Add(a, b, out);
+}
 void MwLLMathSub(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	return getMultiTable(a->ty)->Sub(a, b, out);
-};
+	getMultiTable(a->ty)->Sub(a, b, out);
+}
 void MwLLMathMultiply(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	return getMultiTable(a->ty)->Multiply(a, b, out);
-};
+	getMultiTable(a->ty)->Multiply(a, b, out);
+}
 void MwLLMathReciprocal(MwLLVec* a, MwLLVec* out) {
 	assert(a->ty == out->ty);
-	return getMultiTable(a->ty)->Reciprocal(a, out);
-};
+	getMultiTable(a->ty)->Reciprocal(a, out);
+}
 void MwLLMathSquareRoot(MwLLVec* a, MwLLVec* out) {
 	assert(a->ty == out->ty);
-	return getMultiTable(a->ty)->SquareRoot(a, out);
-};
+	getMultiTable(a->ty)->SquareRoot(a, out);
+}
 
 void MwLLMathShiftRight(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	return getMultiTable(a->ty)->ShiftRight(a, b, out);
-};
+	getMultiTable(a->ty)->ShiftRight(a, b, out);
+}
 void MwLLMathShiftLeft(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	return getMultiTable(a->ty)->ShiftLeft(a, b, out);
-};
+	getMultiTable(a->ty)->ShiftLeft(a, b, out);
+}
 void MwLLMathEqual(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	return getMultiTable(a->ty)->Equal(a, b, out);
-};
+	getMultiTable(a->ty)->Equal(a, b, out);
+}
 void MwLLMathGreaterThen(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	return getMultiTable(a->ty)->GreaterThen(a, b, out);
-};
+	getMultiTable(a->ty)->GreaterThen(a, b, out);
+}
 void MwLLMathAnd(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.all = a->un.all & b->un.all;
-};
+}
 void MwLLMathOr(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.all = a->un.all | b->un.all;
-};
+}
