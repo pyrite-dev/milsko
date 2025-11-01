@@ -13,7 +13,7 @@ typedef struct ttf {
 
 #define TTF
 #elif defined(USE_STB_TRUETYPE)
-#include "../../external/stb_truetype.h"
+#include "../external/stb_truetype.h"
 
 typedef struct ttf {
 	stbtt_fontinfo font;
