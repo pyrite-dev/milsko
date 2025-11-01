@@ -111,13 +111,13 @@ static void color_picker_click(MwWidget handle, void* user, void* call) {
 
 	hexColor = malloc(8);
 	fgColor	 = malloc(8);
-	snprintf(hexColor, 8, "#%02X%02X%02X", r, g, b);
+	sprintf(hexColor, "#%02X%02X%02X", r, g, b);
 
 	fr = r > 128 ? 0 : 255;
 	fg = g > 128 ? 0 : 255;
 	fb = b > 128 ? 0 : 255;
 
-	snprintf(fgColor, 8, "#%02X%02X%02X", fr, fg, fb);
+	sprintf(fgColor, "#%02X%02X%02X", fr, fg, fb);
 	MwSetText(picker->inner.color_display, MwNbackground, hexColor);
 	MwSetText(picker->inner.color_display_text, MwNforeground, fgColor);
 
