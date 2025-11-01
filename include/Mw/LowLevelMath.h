@@ -11,8 +11,12 @@
 #include <Mw/BaseTypes.h>
 #include <Mw/MachDep.h>
 
-#if !defined(__i386__) && !defined(__x86_64__) && !defined(__WATCOMC__)
-#warning LowLevelMath.h does not yet support non-X86 platforms
+#if defined(__i386__) || defined(__x86_64__) || defined(__WATCOMC__)
+#define MwLLMathMMX
+#endif
+
+#if !defined(MwLLMathMMX)
+#warning LowLevelMath.h does not yet support this platform
 #endif
 
 /*!

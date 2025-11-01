@@ -72,7 +72,7 @@ sub generate {
         $dll    = "/DLL";
     }
     elsif ($type eq "Watcom") {
-        $cc     = "wcc386 -bt=nt -q";
+        $cc     = "wcc386 -bt=nt -q -bd";
         $link   = "wlink option quiet";
         $out    = "-fo=";
         $dllout = "name ";

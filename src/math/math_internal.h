@@ -7,42 +7,10 @@
 #include <Mw/LowLevelMath.h>
 
 /* Bitfield of cpu features we get from x86's CPUID */
-#if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
-typedef struct _cpuFeatures cpuFeatures;
-struct _cpuFeatures {
-	MwBool fpu : 1;	 /* x87 FPU on chip */
-	MwBool vme : 1;	 /* Virtual-8086 Mode Enhancement */
-	MwBool de : 1;	 /* Debugging Extensions */
-	MwBool pse : 1;	 /* Page Size Extensions */
-	MwBool tsc : 1;	 /* Time Stamp Counter */
-	MwBool msr : 1;	 /* RDMSR and WRMSR Support */
-	MwBool pae : 1;	 /* Physical Address Extensions */
-	MwBool mce : 1;	 /* Machine Check Exception */
-	MwBool cx8 : 1;	 /* CMPXCHG8B instr */
-	MwBool apic : 1; /* APIC on Chip */
-	MwBool pad1 : 1;
-	MwBool sep : 1;	    /* SYSENTER and SYSEXIT instrs */
-	MwBool mtrr : 1;    /* Memory Type Range Registers */
-	MwBool pge : 1;	    /* Page Global Bit */
-	MwBool mca : 1;	    /* Machine Check Architecture */
-	MwBool cmov : 1;    /* Conditional Move Instrs */
-	MwBool pat : 1;	    /* Page Attribute Table */
-	MwBool pse36 : 1;   /* 36-Bit Page Size Extension */
-	MwBool psn : 1;	    /* Processor Serial Number */
-	MwBool clflush : 1; /* CLFLUSH instr */
-	MwBool pad2 : 1;
-	MwBool ds : 1;	 /* Debug Store */
-	MwBool acpi : 1; /* Thermal Monitor and Software Controlled Clock Facilities */
-	MwBool mmx : 1;	 /* Intel MMX Technology */
-	MwBool fxsr : 1; /* XSAVE and FXRSTOR Instrs */
-	MwBool sse : 1;	 /* SSE */
-	MwBool sse2 : 1; /* SSE2 */
-	MwBool ss : 1;	 /* Self Snoop */
-	MwBool hit : 1;	 /* Max APIC IDs */
-	MwBool tm : 1;	 /* Thermal Monitor */
-	MwBool pad3 : 1;
-	MwBool pbe : 1; /* Pending Break Enable */
-};
+#if defined(MwLLMathMMX)
+#define FEATX86_MMX (1 << 23)
+#define FEATX86_SSE (1 << 25)
+#define FEATX86_SSE2 (1 << 26)
 #endif
 #include "nbsd_math.h"
 

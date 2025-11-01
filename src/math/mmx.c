@@ -1,7 +1,7 @@
 /* $Id$ */
-#ifdef GUARD
 #include <Mw/LowLevelMath.h>
 
+#ifdef MwLLMathMMX
 #include "math_internal.h"
 #include <mmintrin.h>
 
@@ -12,16 +12,16 @@
 
 static void mmx_add_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	DO_MMX_INTRINSIC(_m_paddusb, u8, u8, _MwLLVecDataU8x8);
-};
+}
 static void mmx_sub_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	DO_MMX_INTRINSIC(_m_psubusb, u8, u8, _MwLLVecDataU8x8);
-};
+}
 static void mmx_equal_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	DO_MMX_INTRINSIC(_m_pcmpeqb, u8, u8, _MwLLVecDataU8x8);
-};
+}
 static void mmx_greaterThen_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	DO_MMX_INTRINSIC(_m_pcmpgtb, u8, u8, _MwLLVecDataU8x8);
-};
+}
 
 static void mmx_add_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	DO_MMX_INTRINSIC(_m_paddusw, u16, u16, _MwLLVecDataU16x4);
@@ -31,7 +31,7 @@ static void mmx_sub_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 }
 static void mmx_shiftRight_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	DO_MMX_INTRINSIC(_m_psrlw, u16, u16, _MwLLVecDataU16x4);
-};
+}
 static void mmx_shiftLeft_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	DO_MMX_INTRINSIC(_m_psllw, u16, u16, _MwLLVecDataU16x4);
 }
@@ -50,7 +50,7 @@ static void mmx_sub_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 }
 static void mmx_shiftRight_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	DO_MMX_INTRINSIC(_m_psrld, u32, u32, _MwLLVecDataU32x2);
-};
+}
 static void mmx_shiftLeft_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	DO_MMX_INTRINSIC(_m_pslld, u32, u32, _MwLLVecDataU32x2);
 }
@@ -66,7 +66,7 @@ static void mmx_add_i8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 };
 static void mmx_sub_i8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	DO_MMX_INTRINSIC(_m_psubsb, i8, i8, _MwLLVecDataI8x8);
-};
+}
 
 static void mmx_add_i16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	DO_MMX_INTRINSIC(_m_paddsw, i16, i16, _MwLLVecDataI16x4);

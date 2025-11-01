@@ -39,20 +39,20 @@ switch(ty) {
 }
 
 #if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
-static cpuFeatures getCPUFeatures(void) {
+static MwU32 getCPUFeatures(void) {
 	MwU32	    _eax = 1;
-	cpuFeatures _edx;
+	MwU32 _edx;
 
 #ifdef __WATCOMC__
 	__asm {
 		cpuid
 		mov _eax, eax
-//		mov _edx, edx
+		mov _edx, edx
 	}
 #else
-	__asm__ __volatile__(
+	asm volatile (
 	    "cpuid" : "=a"(_eax), "=d"(_edx)
-	    : "a"(1));
+	    : "a"(1) : "ebx", "ecx");
 #endif
 
 	return _edx;
@@ -71,7 +71,7 @@ static MwLLMathVTable* getMultiTable(int ty) {
 
 static MwLLMathVTable* multiTableSetupAndGet(int ty) {
 #if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
-	cpuFeatures features;
+	MwU32 features;
 #endif
 
 	mwLLMultiTable = default_multi_table();
@@ -79,11 +79,11 @@ static MwLLMathVTable* multiTableSetupAndGet(int ty) {
 #if defined(__WATCOMC__) || defined(__i386__) || defined(__amd64__)
 	features = getCPUFeatures();
 	printf("Avaliable x86_64 Features:\n");
-	printf("\tMMX: %s\n", features.mmx ? "true" : "false");
-	printf("\tSSE: %s\n", features.sse ? "true" : "false");
-	printf("\tSSE2: %s\n", features.sse2 ? "true" : "false");
+	printf("\tMMX: %s\n", features & FEATX86_MMX ? "true" : "false");
+	printf("\tSSE: %s\n", features & FEATX86_SSE ? "true" : "false");
+	printf("\tSSE2: %s\n", features & FEATX86_SSE2 ? "true" : "false");
 
-	if(features.mmx) {
+	if(features & FEATX86_MMX) {
 		mmx_apply(mwLLMultiTable);
 	}
 #endif

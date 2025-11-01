@@ -27,6 +27,8 @@ FOUND_PLATFORM = 1
 endif
 
 ifeq ($(TARGET),Windows)
+CFLAGS += -mmmx
+
 WINDOWS = 1
 OPENGL = 1
 VULKAN = 1
