@@ -17,7 +17,9 @@
    but these catch some common cases. */
 
 #if defined(__WATCOMC__) || defined(_MSC_VER) || defined(i386) || defined(i486) || defined(intel) || defined(x86) || defined(i86pc) || defined(__alpha) || defined(__osf__) || __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#ifndef __LITTLE_ENDIAN
 #define __LITTLE_ENDIAN
+#endif
 #endif
 
 #ifdef __LITTLE_ENDIAN
