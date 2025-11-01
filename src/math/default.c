@@ -100,13 +100,12 @@ static MwLLMathVTable table_u8 = {
     default_reciprocal_u8,
     default_squareRoot_u8,
     NULL,
-   	NULL,
-   	default_shiftRight_u8,
+    NULL,
+    default_shiftRight_u8,
     default_shiftLeft_u8,
     default_equal_u8,
     default_greaterThen_u8,
-    NULL
-};
+    NULL};
 static void default_add_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.u16.a = a->un.u16.a + b->un.u16.a;
 	out->un.u16.b = a->un.u16.b + b->un.u16.b;
@@ -163,15 +162,18 @@ static void default_greaterThen_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.u16.d = a->un.u16.d >= b->un.u16.d;
 }
 static MwLLMathVTable table_u16 = {
-    .Add	 = default_add_u16,
-    .Sub	 = default_sub_u16,
-    .Multiply	 = default_multiply_u16,
-    .Reciprocal	 = default_reciprocal_u16,
-    .SquareRoot	 = default_squareRoot_u16,
-    .ShiftRight	 = default_shiftRight_u16,
-    .ShiftLeft	 = default_shiftLeft_u16,
-    .Equal	 = default_equal_u16,
-    .GreaterThen = default_greaterThen_u16,
+    default_add_u16,
+    default_multiply_u16,
+    default_sub_u16,
+    default_reciprocal_u16,
+    default_squareRoot_u16,
+    NULL,
+    NULL,
+    default_shiftRight_u16,
+    default_shiftLeft_u16,
+    default_equal_u16,
+    default_greaterThen_u16,
+    NULL
 };
 
 static void default_add_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
@@ -212,15 +214,18 @@ static void default_greaterThen_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.u32.b = a->un.u32.b >= b->un.u32.b;
 }
 static MwLLMathVTable table_u32 = {
-    .Add	 = default_add_u32,
-    .Sub	 = default_sub_u32,
-    .Multiply	 = default_multiply_u32,
-    .Reciprocal	 = default_reciprocal_u32,
-    .SquareRoot	 = default_squareRoot_u32,
-    .ShiftRight	 = default_shiftRight_u32,
-    .ShiftLeft	 = default_shiftLeft_u32,
-    .Equal	 = default_equal_u32,
-    .GreaterThen = default_greaterThen_u32,
+    default_add_u32,
+    default_multiply_u32,
+    default_sub_u32,
+    default_reciprocal_u32,
+    default_squareRoot_u32,
+    NULL,
+    NULL,
+    default_shiftRight_u32,
+    default_shiftLeft_u32,
+    default_equal_u32,
+    default_greaterThen_u32,
+    NULL
 };
 
 static void default_add_i8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
@@ -295,15 +300,18 @@ static void default_greaterThen_i8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.i8.h = a->un.i8.h >= b->un.i8.h;
 };
 static MwLLMathVTable table_i8 = {
-    .Add	 = default_add_i8,
-    .Sub	 = default_sub_i8,
-    .Multiply	 = default_multiply_i8,
-    .Reciprocal	 = default_reciprocal_i8,
-    .SquareRoot	 = default_squareRoot_i8,
-    .ShiftRight	 = default_shiftRight_u8,
-    .ShiftLeft	 = default_shiftLeft_u8,
-    .Equal	 = default_equal_i8,
-    .GreaterThen = default_greaterThen_i8,
+    default_add_i8,
+    default_multiply_i8,
+    default_sub_i8,
+    default_reciprocal_i8,
+    default_squareRoot_i8,
+    NULL,
+    NULL,
+    default_shiftRight_u8,
+    default_shiftLeft_u8,
+    default_equal_i8,
+    default_greaterThen_i8,
+    NULL
 };
 static void default_add_i16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.i16.a = a->un.i16.a + b->un.i16.a;
@@ -349,15 +357,18 @@ static void default_greaterThen_i16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.i16.d = a->un.i16.d >= b->un.i16.d;
 }
 static MwLLMathVTable table_i16 = {
-    .Add	 = default_add_i16,
-    .Sub	 = default_sub_i16,
-    .Multiply	 = default_multiply_i16,
-    .Reciprocal	 = default_reciprocal_i16,
-    .SquareRoot	 = default_squareRoot_i16,
-    .ShiftRight	 = default_shiftRight_u16,
-    .ShiftLeft	 = default_shiftLeft_u16,
-    .Equal	 = default_equal_i16,
-    .GreaterThen = default_greaterThen_i16,
+    default_add_i16,
+    default_multiply_i16,
+    default_sub_i16,
+    default_reciprocal_i16,
+    default_squareRoot_i16,
+    NULL,
+    NULL,
+    default_shiftRight_u16,
+    default_shiftLeft_u16,
+    default_equal_i16,
+    default_greaterThen_i16,
+    NULL
 };
 
 static void default_add_i32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
@@ -390,15 +401,18 @@ static void default_greaterThen_i32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
 	out->un.i32.b = a->un.i32.b >= b->un.i32.b;
 }
 static MwLLMathVTable table_i32 = {
-    .Add	 = default_add_i32,
-    .Sub	 = default_sub_i32,
-    .Multiply	 = default_multiply_i32,
-    .Reciprocal	 = default_reciprocal_i32,
-    .SquareRoot	 = default_squareRoot_i32,
-    .ShiftRight	 = default_shiftRight_u32,
-    .ShiftLeft	 = default_shiftLeft_u32,
-    .Equal	 = default_equal_i32,
-    .GreaterThen = default_greaterThen_i32,
+    default_add_i32,
+    default_multiply_i32,
+    default_sub_i32,
+    default_reciprocal_i32,
+    default_squareRoot_i32,
+    NULL,
+    NULL,
+    default_shiftRight_u32,
+    default_shiftLeft_u32,
+    default_equal_i32,
+    default_greaterThen_i32,
+    NULL
 };
 
 static MwLLMathVTable* defaultMultiTable[_MwLLVecType_Max] = {
