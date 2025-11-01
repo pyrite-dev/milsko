@@ -202,8 +202,20 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	MwPoint	      p;
 	color_picker* wheel;
 	MwWidget      window;
-	int	      ww = MwGetInteger(handle, MwNwidth);
-	int	      wh = MwGetInteger(handle, MwNheight);
+
+	// remove later
+	MwLLVec test_1	 = MwLLVecU32x2(2, 5);
+	MwLLVec test_2	 = MwLLVecU32x2(2, 12);
+	MwLLVec test_out = MwLLVecU32x2(0, 0);
+
+	MwLLMathAdd(&test_1, &test_2, &test_out);
+
+	printf("simd result:\n");
+	printf("%d + %d = %d\n", test_1.un.u32.a, test_2.un.u32.a, test_out.un.u32.a);
+	printf("%d + %d = %d\n", test_1.un.u32.b, test_2.un.u32.b, test_out.un.u32.b);
+
+	int ww = MwGetInteger(handle, MwNwidth);
+	int wh = MwGetInteger(handle, MwNheight);
 	p.x = p.y = 0;
 
 	window = MwVaCreateWidget(MwWindowClass, "main", handle, MwDEFAULT, MwDEFAULT,
@@ -213,8 +225,6 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 
 	MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
-
-	MwLLVec v = MwLLVecU8x8(0, 0, 0, 0, 0, 0, 0, 0);
 
 	return window;
 }
