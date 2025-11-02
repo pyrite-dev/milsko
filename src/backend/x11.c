@@ -233,6 +233,30 @@ MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b) {
 	return c;
 }
 
+void MwLLColorUpdate(MwLL handle, int r, int g, int b, MwLLColor c) {
+	XColor xc;
+
+	if(handle->red_mask == 0) {
+		if(r > 255) r = 255;
+		if(g > 255) g = 255;
+		if(b > 255) b = 255;
+		if(r < 0) r = 0;
+		if(g < 0) g = 0;
+		if(b < 0) b = 0;
+
+		xc.red	 = 256 * r;
+		xc.green = 256 * g;
+		xc.blue	 = 256 * b;
+		XAllocColor(handle->display, handle->colormap, &xc);
+
+		c->pixel = xc.pixel;
+	} else {
+		c->pixel = generate_color(handle, r, g, b);
+	}
+	c->red	 = r;
+	c->green = g;
+	c->blue	 = b;
+}
 void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
 	Window	     root;
 	unsigned int border, depth;
@@ -435,6 +459,9 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	int		  evbase, erbase;
 	XWindowAttributes attr;
 
+	r->data_buf = malloc(sizeof(unsigned long) * width * height);
+	memcpy(r->data_buf, data, sizeof(unsigned long) * width * height);
+
 	XGetWindowAttributes(handle->display, handle->window, &attr);
 
 	r->depth   = attr.depth;
@@ -448,29 +475,38 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->image = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), r->depth, ZPixmap, 0, di, width, height, 32, width * 4);
 	r->mask	 = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, dm, width, height, 32, width * 4);
 
-	for(y = 0; y < height; y++) {
-		for(x = 0; x < width; x++) {
-			unsigned char* px = &data[(y * width + x) * 4];
-			MwLLColor      c  = MwLLAllocColor(handle, px[0], px[1], px[2]);
-			unsigned long  p  = c->pixel;
+	MwLLPixmapUpdate(handle, r);
+	return r;
+}
 
-			MwLLFreeColor(c);
+void MwLLPixmapUpdate(MwLL handle, MwLLPixmap r) {
+	int	  y, x;
+	MwLLColor c = NULL;
+	for(y = 0; y < r->height; y++) {
+		for(x = 0; x < r->width; x++) {
+			unsigned char* px = &r->data_buf[(y * r->width + x) * 4];
+			if(c == NULL) {
+				c = MwLLAllocColor(handle, px[0], px[1], px[2]);
+			} else {
+				MwLLColorUpdate(handle, px[0], px[1], px[2], c);
+			}
+			unsigned long p = c->pixel;
 
 			XPutPixel(r->image, x, y, p);
-			*(unsigned long*)(&r->data[(y * width + x) * sizeof(unsigned long)]) = (px[3] << 24) | p;
+			*(unsigned long*)(&r->data[(y * r->width + x) * sizeof(unsigned long)]) = (px[3] << 24) | p;
 		}
 	}
-	for(y = 0; y < height; y++) {
-		for(x = 0; x < width; x++) {
-			if(data[(y * width + x) * 4 + 3]) {
+	MwLLFreeColor(c);
+
+	for(y = 0; y < r->height; y++) {
+		for(x = 0; x < r->width; x++) {
+			if(r->data_buf[(y * r->width + x) * 4 + 3]) {
 				XPutPixel(r->mask, x, y, 1);
 			} else {
 				XPutPixel(r->mask, x, y, 0);
 			}
 		}
 	}
-
-	return r;
 }
 
 void MwLLDestroyPixmap(MwLLPixmap pixmap) {

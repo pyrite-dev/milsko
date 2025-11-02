@@ -92,6 +92,7 @@ MWDECL void MwLLPolygon(MwLL handle, MwPoint* points, int points_count, MwLLColo
 MWDECL void MwLLLine(MwLL handle, MwPoint* points, MwLLColor color);
 
 MWDECL MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b);
+MWDECL void	 MwLLColorUpdate(MwLL handle, int r, int g, int b, MwLLColor c);
 MWDECL void	 MwLLFreeColor(MwLLColor color);
 
 MWDECL void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h);
@@ -105,6 +106,7 @@ MWDECL void MwLLNextEvent(MwLL handle);
 MWDECL void MwLLSleep(int ms);
 
 MWDECL MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int height);
+MWDECL void	  MwLLPixmapUpdate(MwLL handle, MwLLPixmap pixmap);
 MWDECL void	  MwLLDestroyPixmap(MwLLPixmap pixmap);
 MWDECL void	  MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap);
 MWDECL void	  MwLLSetIcon(MwLL handle, MwLLPixmap pixmap);

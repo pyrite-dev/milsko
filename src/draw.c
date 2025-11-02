@@ -666,6 +666,34 @@ MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height)
 	return px;
 }
 
+void MwReloadRaw(MwWidget handle, unsigned char* rgb, int width, int height, MwLLPixmap px) {
+	int	  i;
+	MwLLColor base = handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
+
+	memset(px->data_buf, 0, width * height * 4);
+	for(i = 0; i < width * height; i++) {
+		unsigned char* pin  = &rgb[i * 4];
+		unsigned char* pout = &px->data_buf[i * 4];
+		double	       a    = pin[3];
+
+		a /= 255;
+		if(a != 0) {
+			pout[0] = pin[0] * a;
+			pout[1] = pin[1] * a;
+			pout[2] = pin[2] * a;
+
+			pout[0] += base->red * (1 - a);
+			pout[1] += base->green * (1 - a);
+			pout[2] += base->blue * (1 - a);
+			pout[3] = 255;
+		}
+	}
+
+	if(handle->bgcolor == NULL) MwLLFreeColor(base);
+
+	MwLLPixmapUpdate(handle->lowlevel, px);
+}
+
 void MwGetColor(MwLLColor color, int* red, int* green, int* blue) {
 	*red   = color->red;
 	*green = color->green;

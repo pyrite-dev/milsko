@@ -78,11 +78,13 @@ static void color_picker_wheel_image_update(color_picker* picker) {
 			}
 		}
 	}
-	if(picker->inner.color_picker_pixmap != NULL) {
-		MwLLDestroyPixmap(picker->inner.color_picker_pixmap);
+	if(picker->inner.color_picker_pixmap == NULL) {
+		picker->inner.color_picker_pixmap = MwLoadRaw(
+		    picker->inner.parent, picker->inner.color_picker_image_data, PICKER_SIZE, PICKER_SIZE);
+	} else {
+		MwReloadRaw(
+		    picker->inner.parent, picker->inner.color_picker_image_data, PICKER_SIZE, PICKER_SIZE, picker->inner.color_picker_pixmap);
 	}
-	picker->inner.color_picker_pixmap = MwLoadRaw(
-	    picker->inner.parent, picker->inner.color_picker_image_data, PICKER_SIZE, PICKER_SIZE);
 	MwVaApply(picker->inner.color_picker_img, MwNpixmap, picker->inner.color_picker_pixmap, NULL);
 }
 
