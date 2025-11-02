@@ -1,5 +1,5 @@
 #declare BASE = 1;
-#include "resource/logo.pov"
+#include "resource/logo/logo.pov"
 
 object {
 	text {
