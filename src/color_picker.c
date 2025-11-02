@@ -1,7 +1,46 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-#include "color_picker.h"
+#define WIN_SIZE 512
+#define PICKER_SIZE 360
+#define IMG_POS_X(w) ((w - PICKER_SIZE) / 2)
+#define IMG_POS_Y(h) ((h - PICKER_SIZE) / 2)
+#define SCROLL_BAR_WIDTH 12
+#define MARGIN (PICKER_SIZE / 32)
+#define COLOR_DISPLAY_HEIGHT 12
+
+#define HSV_HUE_SEXTANT 256.
+#define HSV_HUE_STEPS (6. * HSV_HUE_SEXTANT)
+
+#define HSV_HUE_MIN 0.
+#define HSV_HUE_MAX (HSV_HUE_STEPS - 1.)
+#define HSV_SAT_MIN 0.
+#define HSV_SAT_MAX 255.
+#define HSV_VAL_MIN 0.
+#define HSV_VAL_MAX 255.
+
+typedef struct _MwHSV {
+	double h; /* angle in degrees */
+	double s; /* a fraction between 0 and 1 */
+	double v; /* a fraction between 0 and 1 */
+	MwBool generated;
+} MwHSV;
+
+typedef struct color_picker {
+	MwWidget       parent;
+	MwWidget       color_picker_img;
+	MwWidget       value_slider;
+	MwWidget       color_display;
+	MwWidget       color_display_text;
+	MwWidget       finish;
+	MwLLPixmap     color_picker_pixmap;
+	double	       value;
+	unsigned char* color_picker_image_data;
+	MwPoint	       point;
+	double	       dist_table[PICKER_SIZE][PICKER_SIZE];
+	MwHSV	       hue_table[PICKER_SIZE][PICKER_SIZE];
+	MwRGB	       chosen_color;
+} color_picker_t;
 
 static void hsv2rgb(MwU32 h, MwU32 s, MwU32 v, MwU32* r, MwU32* g, MwU32* b) {
 	MwU8  sextant = h >> 8;
@@ -32,34 +71,34 @@ static void hsv2rgb(MwU32 h, MwU32 s, MwU32 v, MwU32* r, MwU32* g, MwU32* b) {
 		}
 	}
 
-	*g = v; // Top level
+	*g = v; /* Top level */
 
-	// Perform actual calculations
+	/* Perform actual calculations */
 
-	/*
+	/**
 	 * Bottom level: v * (1.0 - s)
 	 * --> (v * (255 - s) + error_corr + 1) / 256
 	 */
-	ww = v * (255 - (s)); // We don't use ~s to prevent size-promotion side effects
-	ww += 1;	      // Error correction
-	ww += ww >> 8;	      // Error correction
+	ww = v * (255 - (s)); /* We don't use ~s to prevent size-promotion side effects */
+	ww += 1;	      /* Error correction */
+	ww += ww >> 8;	      /* Error correction */
 	*b = ww >> 8;
 
-	h_fraction = h & 0xff; // 0...255
+	h_fraction = h & 0xff; /* 0...255 */
 
 	if(!(sextant & 1)) {
-		// *r = ...slope_up...;
+		/* *r = ...slope_up...; */
 		d  = v * (MwU32)((0xff << 8) - (MwU16)(s * (0xff - h_fraction)));
 		*r = d >> 16;
 	} else {
-		// *r = ...slope_down...;
+		/* *r = ...slope_down...; */
 		d  = v * (MwU32)((0xff << 8) - (MwU16)(s * h_fraction));
 		*r = d >> 16;
 	}
 	return;
 }
 
-static void color_picker_image_update(color_picker* picker) {
+static void color_picker_image_update(color_picker_t* picker) {
 	int y, x;
 	for(y = 0; y < PICKER_SIZE; y++) {
 		for(x = 0; x < PICKER_SIZE; x++) {
@@ -121,12 +160,12 @@ static void color_picker_image_update(color_picker* picker) {
 }
 
 static void color_picker_click(MwWidget handle, void* user, void* call) {
-	color_picker* picker = (color_picker*)user;
-	MwLLMouse*    mouse  = (MwLLMouse*)call;
-	char	      hexColor[8];
-	int	      i;
-	char	      fgColor[8];
-	int	      fr, fg, fb;
+	color_picker_t* picker = user;
+	MwLLMouse*	mouse  = call;
+	char		hexColor[8];
+	int		i;
+	char		fgColor[8];
+	int		fr, fg, fb;
 
 	(void)handle;
 	(void)user;
@@ -155,7 +194,7 @@ static void color_picker_click(MwWidget handle, void* user, void* call) {
 }
 static void color_picker_on_change_value(MwWidget handle, void* user,
 					 void* call) {
-	color_picker* picker = (color_picker*)user;
+	color_picker_t* picker = user;
 
 	int value = MwGetInteger(handle, MwNvalue);
 	int diff  = MwGetInteger(handle, MwNchangedBy);
@@ -168,14 +207,14 @@ static void color_picker_on_change_value(MwWidget handle, void* user,
 	color_picker_image_update(picker);
 }
 
-static void color_picker_destroy(color_picker* picker) {
+static void color_picker_destroy(color_picker_t* picker) {
 	free(picker->color_picker_image_data);
 	MwLLDestroyPixmap(picker->color_picker_pixmap);
 }
 
 static void color_picker_close(MwWidget handle, void* user,
 			       void* call) {
-	color_picker* picker = (color_picker*)user;
+	color_picker_t* picker = user;
 
 	(void)call;
 
@@ -185,7 +224,7 @@ static void color_picker_close(MwWidget handle, void* user,
 
 static void color_picker_finish(MwWidget handle, void* user,
 				void* call) {
-	color_picker* picker = (color_picker*)user;
+	color_picker_t* picker = user;
 
 	(void)call;
 
@@ -195,9 +234,9 @@ static void color_picker_finish(MwWidget handle, void* user,
 	MwDestroyWidget(handle->parent);
 }
 
-color_picker* color_picker_setup(MwWidget parent, int w, int h) {
-	color_picker* picker = malloc(sizeof(color_picker));
-	memset(picker, 0, sizeof(color_picker));
+color_picker_t* color_picker_setup(MwWidget parent, int w, int h) {
+	color_picker_t* picker = malloc(sizeof(*picker));
+	memset(picker, 0, sizeof(*picker));
 
 	picker->parent = parent;
 
@@ -232,16 +271,16 @@ color_picker* color_picker_setup(MwWidget parent, int w, int h) {
 
 	picker->value_slider = MwVaCreateWidget(
 	    MwScrollBarClass, "value-slider", picker->parent,
-	    // x
+	    /* x */
 	    IMG_POS_X(w) + PICKER_SIZE + MARGIN,
 
-	    // y
+	    /* y */
 	    IMG_POS_Y(h),
 
-	    // width
+	    /* width */
 	    SCROLL_BAR_WIDTH,
 
-	    // height
+	    /* height */
 	    PICKER_SIZE,
 
 	    MwNorientation, MwVERTICAL, MwNminValue, 0, MwNmaxValue, 1024, NULL);
@@ -266,9 +305,9 @@ color_picker* color_picker_setup(MwWidget parent, int w, int h) {
 }
 
 MwWidget MwColorPicker(MwWidget handle, const char* title) {
-	MwPoint	      p;
-	color_picker* wheel;
-	MwWidget      window;
+	MwPoint		p;
+	color_picker_t* wheel;
+	MwWidget	window;
 
 	p.x = p.y = 0;
 

@@ -4,7 +4,7 @@
 
 #define MAX_ERROR_LEN 512
 
-// buffer for holding the error. +1 to ensure there's always a null terminator.
+/* buffer for holding the error. +1 to ensure there's always a null terminator. */
 char error[MAX_ERROR_LEN + 1] = {0};
 
 const char* MwGetLastError(void) {

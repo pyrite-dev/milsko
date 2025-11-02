@@ -13,6 +13,12 @@
 extern "C" {
 #endif
 
+/*!
+ * @brief Creates a file chooser
+ * @param handle Widget
+ * @param title Title text
+ * @return Widget
+ */
 MWDECL MwWidget MwFileChooser(MwWidget handle, const char* title);
 
 #ifdef __cplusplus

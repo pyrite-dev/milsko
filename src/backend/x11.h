@@ -56,13 +56,13 @@ struct _MwLLPixmap {
 	int	       height;
 	unsigned char* raw;
 
-	int depth;
+	int	       depth;
 	unsigned char* data;
-	MwLL	 handle;
-	int	 use_render;
-	Display* display;
-	XImage*	 image;
-	XImage*	 mask;
+	MwLL	       handle;
+	int	       use_render;
+	Display*       display;
+	XImage*	       image;
+	XImage*	       mask;
 };
 
 #endif

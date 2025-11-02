@@ -51,7 +51,7 @@ MwVulkanConfig vulkan_config = {
 #define LIB_CLOSE(a) FreeLibrary(a)
 #endif
 
-// convienence macro for handling vulkan errors
+/* convienence macro for handling vulkan errors */
 #ifdef HAS_VK_ENUM_STRING_HELPER
 #define VK_CMD(func) \
 	vk_res = func; \
@@ -68,12 +68,12 @@ MwVulkanConfig vulkan_config = {
 	}
 #endif
 
-// convienence macro for loading a vulkan function pointer into memory
+/* convienence macro for loading a vulkan function pointer into memory */
 #define LOAD_VK_FUNCTION(name) \
 	PFN_##name _##name = (PFN_##name)o->vkGetInstanceProcAddr(o->vkInstance, #name); \
 	VK_ASSERT(_##name);
 
-// convienence macro to return an error if an assert goes wrong
+/* convienence macro to return an error if an assert goes wrong */
 #define VK_ASSERT(val) \
 	if(!val) { \
 		setLastError("Vulkan error (%s:%d): Assertion Failed (%s != NULL)\n", __FILE__, __LINE__, #val); \
@@ -202,7 +202,7 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 
 	VkResult vk_res;
 
-	// Load Vulkan and any other function pointers we need.
+	/* Load Vulkan and any other function pointers we need. */
 	o->vulkanLibrary = vulkan_lib_load();
 	if(!o->vulkanLibrary) {
 		vulkan_supported = VULKAN_SUPPORTED_NO;
@@ -220,7 +220,7 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	_vkCreateInstance = LIB_SYM(o->vulkanLibrary, "vkCreateInstance");
 	VK_ASSERT(_vkCreateInstance);
 
-	// setup enabled extensions
+	/* setup enabled extensions */
 	arrput(enabledExtensions, VK_KHR_SURFACE_EXTENSION_NAME);
 #if defined(_WIN32)
 	arrput(enabledExtensions, VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
@@ -228,7 +228,7 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	arrput(enabledExtensions, VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
 #endif
 
-	// passing null gives us all the extensions provided by the current vulkan implementation
+	/* passing null gives us all the extensions provided by the current vulkan implementation */
 	VK_CMD(_vkEnumerateInstanceExtensionProperties(NULL, &extension_count, NULL));
 	ext_props = malloc(sizeof(VkExtensionProperties) * extension_count);
 	VK_CMD(_vkEnumerateInstanceExtensionProperties(NULL, &extension_count, ext_props));
@@ -346,7 +346,7 @@ static MwErrorEnum vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	LOAD_VK_FUNCTION(vkGetPhysicalDeviceSurfaceSupportKHR);
 	LOAD_VK_FUNCTION(vkEnumerateDeviceExtensionProperties);
 
-	// create the physical device
+	/* create the physical device */
 	VK_CMD(_vkEnumeratePhysicalDevices(o->vkInstance, &deviceCount, NULL));
 	devices = malloc(sizeof(VkPhysicalDevice) * deviceCount);
 	VK_CMD(_vkEnumeratePhysicalDevices(o->vkInstance, &deviceCount, devices));
@@ -376,12 +376,12 @@ static MwErrorEnum vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 		free(family_props);
 	}
 	if(!has_graphics && !has_present) {
-		// rare, yes, but idk maybe some shitty drivers will present this dillema idk.
+		/* rare, yes, but idk maybe some shitty drivers will present this dillema idk. */
 		setLastError("There were no devices with either a graphics or presentation queue.\n");
 		return MwEerror;
 	}
 
-	// create the logical device
+	/* create the logical device */
 	queueCreateInfos[queueCreateCount] = (VkDeviceQueueCreateInfo){
 	    .sType	      = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 	    .pNext	      = NULL,

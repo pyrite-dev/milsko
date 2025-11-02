@@ -1,5 +1,4 @@
 /* $Id$ */
-
 /*!
  * @file Mw/ColorPicker.h
  * @brief Color picker
