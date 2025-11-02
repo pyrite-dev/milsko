@@ -11,6 +11,7 @@ typedef struct _MwRect	    MwRect;
 typedef struct _MwSizeHints MwSizeHints;
 typedef struct _MwFont	    MwFont;
 typedef struct _MwCursor    MwCursor;
+typedef struct _MwRGB MwRGB;
 
 typedef unsigned char MwBool;
 #define MwTRUE ((MwBool)1)
@@ -102,6 +103,12 @@ struct _MwFont {
 	int	      left;
 	int	      top;
 	unsigned char data[16];
+};
+
+struct _MwRGB {
+	MwU32 red;
+	MwU32 green;
+	MwU32 blue;
 };
 
 #endif

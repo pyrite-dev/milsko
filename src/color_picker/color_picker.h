@@ -48,7 +48,6 @@ struct _color_picker {
 	MwPoint		      point;
 	double		      dist_table[PICKER_SIZE][PICKER_SIZE];
 	MwHSV		      hue_table[PICKER_SIZE][PICKER_SIZE];
-	MwColorPickerCallback cb;
 	MwRGB		      chosen_color;
 };
 

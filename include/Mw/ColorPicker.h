@@ -14,17 +14,13 @@
 extern "C" {
 #endif
 
-typedef struct _MwRGB MwRGB;
-
-struct _MwRGB {
-	MwU32 r;
-	MwU32 g;
-	MwU32 b;
-};
-
-typedef void (*MwColorPickerCallback)(MwRGB rgb);
-
-MWDECL MwWidget MwColorPicker(MwWidget handle, const char* title, MwColorPickerCallback cb);
+/*!
+ * @brief Creates a color picker
+ * @param handle Widget
+ * @param title Title text
+ * @return Widget
+ */
+MWDECL MwWidget MwColorPicker(MwWidget handle, const char* title);
 
 #ifdef __cplusplus
 }

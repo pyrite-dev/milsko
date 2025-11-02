@@ -53,5 +53,6 @@
 #define MwNfocusInHandler "CfocusIn"	   /* NULL */
 #define MwNfocusOutHandler "CfocusOut"	   /* NULL */
 #define MwNfileChosenHandler "CfileChosen" /* char* */
+#define MwNcolorChosenHandler "CcolorChosen" /* MwRGB* */
 
 #endif

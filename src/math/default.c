@@ -68,6 +68,7 @@ MAKE_DEFAULT_TABLE(i16, MwI16);
 MAKE_DEFAULT_TABLE(i32, MwI32);
 MAKE_DEFAULT_TABLE(i64, MwI64);
 
+#if 0
 static MwLLMathVTable* defaultMultiTable[MwLLVecType_Max] = {
     &table_u8,	/*MwLLVecTypeU8*/
     &table_u16, /*MwLLVecTypeU16*/
@@ -78,6 +79,7 @@ static MwLLMathVTable* defaultMultiTable[MwLLVecType_Max] = {
     &table_i32, /*MwLLVecTypeI32*/
     &table_i64, /*MwLLVecTypeI64*/
 };
+#endif
 void default_apply(MwLLVec* v) {
 	switch(v->ty) {
 	case MwLLVecTypeU8:

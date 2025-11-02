@@ -5,7 +5,9 @@
 #include <Mw/LowLevelMath.h>
 
 static void hsv2rgb(MwU32 h, MwU32 s, MwU32 v, MwU32* r, MwU32* g, MwU32* b) {
-	uint8_t sextant = h >> 8;
+	MwU8 sextant = h >> 8;
+	MwU16 ww;
+	MwU32 h_fraction, d;
 
 #define HSV_SWAPPTR(a, b) \
 	do { \
@@ -39,14 +41,12 @@ static void hsv2rgb(MwU32 h, MwU32 s, MwU32 v, MwU32* r, MwU32* g, MwU32* b) {
 	 * Bottom level: v * (1.0 - s)
 	 * --> (v * (255 - s) + error_corr + 1) / 256
 	 */
-	uint16_t ww;	      // Intermediate result
 	ww = v * (255 - (s)); // We don't use ~s to prevent size-promotion side effects
 	ww += 1;	      // Error correction
 	ww += ww >> 8;	      // Error correction
 	*b = ww >> 8;
 
-	MwU32 h_fraction = h & 0xff; // 0...255
-	MwU32 d;		     // Intermediate result
+	h_fraction = h & 0xff; // 0...255
 
 	if(!(sextant & 1)) {
 		// *r = ...slope_up...;
@@ -62,17 +62,17 @@ static void hsv2rgb(MwU32 h, MwU32 s, MwU32 v, MwU32* r, MwU32* g, MwU32* b) {
 
 static void color_picker_image_update(color_picker* picker) {
 	int    y, x;
-	double h;
 	for(y = 0; y < PICKER_SIZE; y++) {
 		for(x = 0; x < PICKER_SIZE; x++) {
 			int i  = ((y * PICKER_SIZE) + x) * 4;
 			int _x = x - (PICKER_SIZE / 2);
 			int _y = y - (PICKER_SIZE / 2);
+			double dist;
 
 			if(picker->dist_table[y][x] == 0) {
 				picker->dist_table[y][x] = sqrt(_x * _x + _y * _y);
 			}
-			double dist = picker->dist_table[y][x];
+			dist = picker->dist_table[y][x];
 
 			if(dist >= 180.) {
 				picker->color_picker_image_data[i]     = 0;
@@ -101,11 +101,11 @@ static void color_picker_image_update(color_picker* picker) {
 				hsv_v.v = HSV_VAL_MAX - (picker->value * HSV_VAL_MAX);
 
 				MwRGB color;
-				hsv2rgb(hsv_v.h, hsv_v.s, hsv_v.v, &color.r, &color.g, &color.b);
+				hsv2rgb(hsv_v.h, hsv_v.s, hsv_v.v, &color.red, &color.green, &color.blue);
 
-				picker->color_picker_image_data[i]     = color.r;
-				picker->color_picker_image_data[i + 1] = color.g;
-				picker->color_picker_image_data[i + 2] = color.b;
+				picker->color_picker_image_data[i]     = color.red;
+				picker->color_picker_image_data[i + 1] = color.green;
+				picker->color_picker_image_data[i + 2] = color.blue;
 
 				picker->color_picker_image_data[i + 3] = 255;
 			}
@@ -137,15 +137,15 @@ static void color_picker_click(MwWidget handle, void* user, void* call) {
 
 	i = ((mouse->point.y * PICKER_SIZE) + mouse->point.x) * 4;
 
-	picker->chosen_color.r = picker->color_picker_image_data[i];
-	picker->chosen_color.g = picker->color_picker_image_data[i + 1];
-	picker->chosen_color.b = picker->color_picker_image_data[i + 2];
+	picker->chosen_color.red = picker->color_picker_image_data[i];
+	picker->chosen_color.green = picker->color_picker_image_data[i + 1];
+	picker->chosen_color.blue = picker->color_picker_image_data[i + 2];
 
-	sprintf(hexColor, "#%02X%02X%02X", picker->chosen_color.r, picker->chosen_color.g, picker->chosen_color.b);
+	sprintf(hexColor, "#%02X%02X%02X", picker->chosen_color.red, picker->chosen_color.green, picker->chosen_color.blue);
 
-	fr = picker->chosen_color.r > 128 ? 0 : 255;
-	fg = picker->chosen_color.g > 128 ? 0 : 255;
-	fb = picker->chosen_color.b > 128 ? 0 : 255;
+	fr = picker->chosen_color.red > 128 ? 0 : 255;
+	fg = picker->chosen_color.green > 128 ? 0 : 255;
+	fb = picker->chosen_color.blue > 128 ? 0 : 255;
 
 	sprintf(fgColor, "#%02X%02X%02X", fr, fg, fb);
 	MwSetText(picker->color_display, MwNbackground, hexColor);
@@ -172,16 +172,14 @@ static void color_picker_on_change_value(MwWidget handle, void* user,
 static void color_picker_destroy(color_picker* picker) {
 	free(picker->color_picker_image_data);
 	MwLLDestroyPixmap(picker->color_picker_pixmap);
-
-	MwDestroyWidget(picker->color_display_text);
-	MwDestroyWidget(picker->color_display);
-	MwDestroyWidget(picker->value_slider);
-	MwDestroyWidget(picker->color_picker_img);
 }
 
 static void color_picker_close(MwWidget handle, void* user,
 			       void* call) {
 	color_picker* picker = (color_picker*)user;
+
+	(void)call;
+
 	color_picker_destroy(picker);
 	MwDestroyWidget(handle);
 }
@@ -190,7 +188,9 @@ static void color_picker_finish(MwWidget handle, void* user,
 				void* call) {
 	color_picker* picker = (color_picker*)user;
 
-	picker->cb(picker->chosen_color);
+	(void)call;
+
+	MwDispatchUserHandler(picker->parent, MwNcolorChosenHandler, &picker->chosen_color);
 
 	color_picker_destroy(picker);
 	MwDestroyWidget(handle->parent);
@@ -264,8 +264,9 @@ color_picker* color_picker_setup(MwWidget parent, int w, int h) {
 	memset(picker->hue_table, 0, sizeof(picker->hue_table));
 
 	return picker;
-};
-MwWidget MwColorPicker(MwWidget handle, const char* title, MwColorPickerCallback cb) {
+}
+
+MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	MwPoint	      p;
 	color_picker* wheel;
 	MwWidget      window;
@@ -281,8 +282,6 @@ MwWidget MwColorPicker(MwWidget handle, const char* title, MwColorPickerCallback
 
 	MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
-
-	wheel->cb = cb;
 
 	return window;
 }

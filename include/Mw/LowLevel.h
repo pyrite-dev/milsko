@@ -92,7 +92,7 @@ MWDECL void MwLLPolygon(MwLL handle, MwPoint* points, int points_count, MwLLColo
 MWDECL void MwLLLine(MwLL handle, MwPoint* points, MwLLColor color);
 
 MWDECL MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b);
-MWDECL void	 MwLLColorUpdate(MwLL handle, int r, int g, int b, MwLLColor c);
+MWDECL void	 MwLLColorUpdate(MwLL handle, MwLLColor c, int r, int g, int b);
 MWDECL void	 MwLLFreeColor(MwLLColor color);
 
 MWDECL void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h);

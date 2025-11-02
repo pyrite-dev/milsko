@@ -208,32 +208,11 @@ void MwLLLine(MwLL handle, MwPoint* points, MwLLColor color) {
 
 MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b) {
 	MwLLColor c = malloc(sizeof(*c));
-	XColor	  xc;
-
-	if(handle->red_mask == 0) {
-		if(r > 255) r = 255;
-		if(g > 255) g = 255;
-		if(b > 255) b = 255;
-		if(r < 0) r = 0;
-		if(g < 0) g = 0;
-		if(b < 0) b = 0;
-
-		xc.red	 = 256 * r;
-		xc.green = 256 * g;
-		xc.blue	 = 256 * b;
-		XAllocColor(handle->display, handle->colormap, &xc);
-
-		c->pixel = xc.pixel;
-	} else {
-		c->pixel = generate_color(handle, r, g, b);
-	}
-	c->red	 = r;
-	c->green = g;
-	c->blue	 = b;
+	MwLLColorUpdate(handle, c, r, g, b);
 	return c;
 }
 
-void MwLLColorUpdate(MwLL handle, int r, int g, int b, MwLLColor c) {
+void MwLLColorUpdate(MwLL handle, MwLLColor c, int r, int g, int b) {
 	XColor xc;
 
 	if(handle->red_mask == 0) {
@@ -455,7 +434,6 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	MwLLPixmap	  r  = malloc(sizeof(*r));
 	char*		  di = malloc(4 * width * height);
 	char*		  dm = malloc(4 * width * height);
-	int		  y, x;
 	int		  evbase, erbase;
 	XWindowAttributes attr;
 
@@ -481,22 +459,20 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 
 void MwLLPixmapUpdate(MwLL handle, MwLLPixmap r) {
 	int	  y, x;
-	MwLLColor c = NULL;
 	for(y = 0; y < r->height; y++) {
 		for(x = 0; x < r->width; x++) {
 			unsigned char* px = &r->data_buf[(y * r->width + x) * 4];
-			if(c == NULL) {
-				c = MwLLAllocColor(handle, px[0], px[1], px[2]);
-			} else {
-				MwLLColorUpdate(handle, px[0], px[1], px[2], c);
-			}
-			unsigned long p = c->pixel;
+			MwLLColor c = NULL;
+			unsigned long p;
+
+			c = MwLLAllocColor(handle, px[0], px[1], px[2]);
+			p = c->pixel;
+			MwLLFreeColor(c);
 
 			XPutPixel(r->image, x, y, p);
 			*(unsigned long*)(&r->data[(y * r->width + x) * sizeof(unsigned long)]) = (px[3] << 24) | p;
 		}
 	}
-	MwLLFreeColor(c);
 
 	for(y = 0; y < r->height; y++) {
 		for(x = 0; x < r->width; x++) {

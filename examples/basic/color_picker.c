@@ -6,15 +6,26 @@ MwWidget cpicker;
 MwWidget window;
 MwWidget button;
 
-void color_callback(MwRGB rgb) {
+void color_callback(MwWidget handle, void* user_data, void* call_data) {
 	char hexColor[8];
+	MwRGB* rgb = call_data;
 
-	sprintf(hexColor, "#%02X%02X%02X", rgb.r, rgb.g, rgb.b);
+	(void)handle;
+	(void)user_data;
+
+	sprintf(hexColor, "#%02X%02X%02X", rgb->red, rgb->green, rgb->blue);
 	MwSetText(window, MwNbackground, hexColor);
 }
 
 void color_picker(MwWidget handle, void* user_data, void* call_data) {
-	MwWidget cpicker = MwColorPicker(window, "cpicker", color_callback);
+	MwWidget cpicker = MwColorPicker(window, "cpicker");
+
+	(void)handle;
+	(void)user_data;
+	(void)call_data;
+
+	MwAddUserHandler(cpicker, MwNcolorChosenHandler, color_callback, NULL);
+
 	MwSetText(cpicker, MwNbackground, MwDefaultBackground);
 }
 

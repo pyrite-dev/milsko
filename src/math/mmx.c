@@ -8,7 +8,7 @@
 #define DO_MMX_INTRINSIC(intrin, _ty, _cty) \
 	int i = 0; \
 	for(; i < a->size; i += 8) { \
-		__m64 m = intrin(*(__m64*)&a->buffer[i], *(__m64*)&b->buffer[i]); \
+		__m64 m = intrin(((__m64*)a->buffer)[i], ((__m64*)b->buffer)[i]); \
 		memcpy(&((_cty*)out->buffer)[i], &m, sizeof(m)); \
 	}
 

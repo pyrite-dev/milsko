@@ -65,19 +65,4 @@ struct _MwLLPixmap {
 	XImage*	 mask;
 };
 
-#ifdef HAS_FREETYPE
-void print_ft_error(void* ftLib, FT_Error err);
-#define MwFreeTypeFontSize 181388
-extern FT_Byte MwFreeTypeFontData[MwFreeTypeFontSize];
-
-#define FT_WITH_FUNC(handle, func, block) \
-	{ \
-		_##func = dlsym(handle->ftLib, #func); \
-		if(_##func != NULL) { \
-			block \
-		} else \
-			printf("[WARNING] Unable to resolve function " #func ".\n"); \
-	}
-#endif
-
 #endif
