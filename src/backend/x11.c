@@ -710,6 +710,14 @@ void MwLLMakePopup(MwLL handle, MwLL parent) {
 	XSetTransientForHint(handle->display, handle->window, parent->window);
 	XChangeProperty(handle->display, handle->window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wnddlg, 1);
 	XChangeProperty(handle->display, handle->window, wndstate, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmodal, 1);
+
+	XUnmapWindow(handle->display, handle->window);
+	XMapWindow(handle->display, handle->window);
+
+	XFlush(handle->display);
+	XSync(handle->display, False);
+
+	wait_map(handle);
 }
 
 void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {

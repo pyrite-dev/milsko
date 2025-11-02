@@ -1,7 +1,7 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-#define WIN_SIZE 512
+#define WIN_SIZE 464
 #define PICKER_SIZE 360
 #define IMG_POS_X(w) ((w - PICKER_SIZE) / 2)
 #define IMG_POS_Y(h) ((h - PICKER_SIZE) / 2)
@@ -290,7 +290,7 @@ color_picker_t* color_picker_setup(MwWidget parent, int w, int h) {
 
 	picker->finish = MwCreateWidget(
 	    MwButtonClass, "colorPickerFinish", picker->parent, IMG_POS_X(w),
-	    IMG_POS_Y(h) + PICKER_SIZE + MARGIN, PICKER_SIZE, PICKER_SIZE / 8);
+	    IMG_POS_Y(h) + PICKER_SIZE + MARGIN, PICKER_SIZE, (WIN_SIZE - PICKER_SIZE - MARGIN * 4) / 2);
 	MwSetText(picker->finish, MwNtext, "Select");
 	MwSetInteger(picker->finish, MwnhasBorder, 1);
 	MwSetInteger(picker->finish, MwNinverted, 1);
@@ -308,11 +308,18 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	MwPoint		p;
 	color_picker_t* wheel;
 	MwWidget	window;
+	MwSizeHints	sh;
 
 	p.x = p.y = 0;
 
+	sh.min_width = sh.max_width = WIN_SIZE;
+	sh.min_height = sh.max_height = WIN_SIZE;
+
 	window = MwVaCreateWidget(MwWindowClass, "main", handle, MwDEFAULT, MwDEFAULT,
-				  WIN_SIZE, WIN_SIZE, MwNtitle, title, NULL);
+				  WIN_SIZE, WIN_SIZE,
+				  MwNtitle, title,
+				  MwNsizeHints, &sh,
+				  NULL);
 
 	wheel = color_picker_setup(window, WIN_SIZE, WIN_SIZE);
 
