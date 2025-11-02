@@ -670,10 +670,10 @@ void MwReloadRaw(MwWidget handle, unsigned char* rgb, int width, int height, MwL
 	int	  i;
 	MwLLColor base = handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
 
-	memset(px->data_buf, 0, width * height * 4);
+	memset(px->raw, 0, width * height * 4);
 	for(i = 0; i < width * height; i++) {
 		unsigned char* pin  = &rgb[i * 4];
-		unsigned char* pout = &px->data_buf[i * 4];
+		unsigned char* pout = &px->raw[i * 4];
 		double	       a    = pin[3];
 
 		a /= 255;

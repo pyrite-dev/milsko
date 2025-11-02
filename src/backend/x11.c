@@ -437,8 +437,8 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	int		  evbase, erbase;
 	XWindowAttributes attr;
 
-	r->data_buffer = malloc(4 * width * height);
-	memcpy(r->data_buffer, data, 4 * width * height);
+	r->raw = malloc(4 * width * height);
+	memcpy(r->raw, data, 4 * width * height);
 
 	XGetWindowAttributes(handle->display, handle->window, &attr);
 
@@ -462,7 +462,7 @@ void MwLLPixmapUpdate(MwLLPixmap r) {
 	int y, x;
 	for(y = 0; y < r->height; y++) {
 		for(x = 0; x < r->width; x++) {
-			unsigned char* px = &r->data_buffer[(y * r->width + x) * 4];
+			unsigned char* px = &r->raw[(y * r->width + x) * 4];
 			MwLLColor      c  = NULL;
 			unsigned long  p;
 

@@ -54,11 +54,10 @@ struct _MwLLColor {
 struct _MwLLPixmap {
 	int	       width;
 	int	       height;
-	unsigned char* data;
-	unsigned char* data_buffer;
+	unsigned char* raw;
 
 	int depth;
-
+	unsigned char* data;
 	MwLL	 handle;
 	int	 use_render;
 	Display* display;

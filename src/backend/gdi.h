@@ -45,7 +45,7 @@ struct _MwLLColor {
 struct _MwLLPixmap {
 	int	       width;
 	int	       height;
-	unsigned char* data_buffer;
+	unsigned char* raw;
 
 	RGBQUAD* quad;
 	HBITMAP	 hBitmap;

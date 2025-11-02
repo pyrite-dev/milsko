@@ -375,8 +375,8 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	HDC		 dc = GetDC(handle->hWnd);
 	BITMAPINFOHEADER bmih;
 
-	r->data_buffer = malloc(width * height * 4);
-	memcpy(r->data_buffer, data, 4 * width * height);
+	r->raw = malloc(width * height * 4);
+	memcpy(r->raw, data, 4 * width * height);
 
 	r->width  = width;
 	r->height = height;
@@ -422,7 +422,7 @@ void MwLLPixmapUpdate(MwLLPixmap r) {
 		BYTE* l2 = (BYTE*)&words2[y * (w / 2)];
 		for(x = 0; x < r->width; x++) {
 			RGBQUAD*       q  = &r->quad[y * r->width + x];
-			unsigned char* px = &r->data_buffer[(y * r->width + x) * 4];
+			unsigned char* px = &r->raw[(y * r->width + x) * 4];
 
 			q->rgbRed   = px[0];
 			q->rgbGreen = px[1];
@@ -447,7 +447,7 @@ void MwLLPixmapUpdate(MwLLPixmap r) {
 }
 
 void MwLLDestroyPixmap(MwLLPixmap pixmap) {
-	free(pixmap->data_buffer);
+	free(pixmap->raw);
 	DeleteObject(pixmap->hMask);
 	DeleteObject(pixmap->hMask2);
 	DeleteObject(pixmap->hBitmap);
