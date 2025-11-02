@@ -1,5 +1,5 @@
 # $Id$
-PROJECT_LOGO = "resource/logo64.png"
+PROJECT_LOGO = resource/logo/logo64.png
 PROJECT_NAME = Milsko
 PROJECT_BRIEF = "Lightweight and fast GUI toolkit"
 OUTPUT_DIRECTORY = doxygen
