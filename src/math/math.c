@@ -3,45 +3,17 @@
 
 #include "math_internal.h"
 
-MwLLVec _MwLLVecCreateGeneric(int ty, ...) {
-	MwLLVecUnion un;
-	MwLLVec	     vec;
-	va_list	     va;
+#if defined(MwLLMath_x86)
+struct x86Features {
+	MwBool mmx;
+	MwBool sse2;
+};
 
-	va_start(va, ty);
-
-	// clang-format off
-#define _A_B(ty) un.ty.a = va_arg(va, int); un.ty.b = va_arg(va, int);
-#define _C_D(ty) un.ty.c = va_arg(va, int); un.ty.d = va_arg(va, int);
-#define _E_F(ty) un.ty.e = va_arg(va, int); un.ty.f = va_arg(va, int);
-#define _G_H(ty) un.ty.g = va_arg(va, int); un.ty.h = va_arg(va, int);
-switch(ty) {
-	case _MwLLVecTypeU8x8:  _A_B(u8);   _C_D(u8);   _E_F(u8);   _G_H(u8);   break;
-	case _MwLLVecTypeU16x4: _A_B(u16);  _C_D(u16);                          break;
-	case _MwLLVecTypeU32x2: _A_B(u32);                                      break;
-	case _MwLLVecTypeI8x8:  _A_B(i8);   _C_D(i8);   _E_F(i8);   _G_H(i8);   break;
-	case _MwLLVecTypeI16x4: _A_B(i16);  _C_D(i16);                          break;
-	case _MwLLVecTypeI32x2: _A_B(i32);                                      break;
-	case _MwLLVecType_Max: break;
-}
-#undef _A_B
-#undef _C_D
-#undef _E_F
-#undef _G_H
-	// clang-format on
-
-	va_end(va);
-
-	vec.ty = ty;
-	vec.un = un;
-
-	return vec;
-}
-
-#if defined(MwLLMathMMX)
-static MwU32 getCPUFeatures(void) {
-	MwU32 _eax = 1;
-	MwU32 _edx;
+static struct x86Features
+getCPUFeatures(void) {
+	MwU32		   _eax = 1;
+	MwU32		   _edx;
+	struct x86Features features;
 
 #ifdef __WATCOMC__
 	__asm {
@@ -56,87 +28,159 @@ static MwU32 getCPUFeatures(void) {
 	    : "a"(1) : "ebx", "ecx");
 #endif
 
-	return _edx;
+	if(_edx & FEATX86_MMX) {
+		features.mmx = MwTRUE;
+	}
+	if(_edx & FEATX86_SSE2) {
+		features.sse2 = MwTRUE;
+	}
+	return features;
 }
 #endif
 
-static MwLLMathVTable** mwLLMultiTable;
-static MwLLMathVTable*	multiTableSetupAndGet(int ty);
-static MwLLMathVTable*	multiTableGet(int ty);
-
-static MwLLMathVTable* (*mwLLmathFunc)(int ty) = multiTableSetupAndGet;
-
-static MwLLMathVTable* getMultiTable(int ty) {
-	return mwLLmathFunc(ty);
+static int round_multiple(int num, int mul) {
+	return ((num + mul - 1) / mul) * mul;
 }
 
-static MwLLMathVTable* multiTableSetupAndGet(int ty) {
-#if defined(MwLLMathMMX)
-	MwU32 features;
-#endif
+MwLLVec* MwLLVaVecCreate(int ty, MwU64 size, ...) {
+	struct x86Features features = getCPUFeatures();
+	MwLLVec*	   vec	    = malloc(sizeof(MwLLVec));
+	va_list		   va;
+	int		   i		= 0;
+	int		   size_rounded = size;
 
-	mwLLMultiTable = default_multi_table();
+	memset(vec, 0, sizeof(MwLLVec));
 
-#if defined(MwLLMathMMX)
-	features = getCPUFeatures();
-	printf("Avaliable x86_64 Features:\n");
-	printf("\tMMX: %s\n", features & FEATX86_MMX ? "true" : "false");
-	printf("\tSSE: %s\n", features & FEATX86_SSE ? "true" : "false");
-	printf("\tSSE2: %s\n", features & FEATX86_SSE2 ? "true" : "false");
+	vec->size = size;
 
-	if(features & FEATX86_MMX) {
-		mmx_apply(mwLLMultiTable);
+#ifdef MwLLMath_x86
+	if(features.mmx) {
+		size_rounded = round_multiple(size, 64);
 	}
 #endif
 
-	mwLLmathFunc = multiTableGet;
+	va_start(va, size);
 
-	return mwLLMultiTable[ty];
+	switch(ty) {
+	case MwLLVecTypeU8:
+	case MwLLVecTypeI8:
+		vec->buffer = malloc(size_rounded * sizeof(MwU8));
+		memset(vec->buffer, 0, size_rounded);
+		for(; i < size; i++) {
+			((MwU8*)vec->buffer)[i] = va_arg(va, int);
+		}
+		break;
+	case MwLLVecTypeU16:
+	case MwLLVecTypeI16:
+		vec->buffer = malloc(size_rounded * sizeof(MwU16));
+		memset(vec->buffer, 0, size_rounded);
+		for(; i < size; i++) {
+			((MwU16*)vec->buffer)[i] = va_arg(va, int);
+		}
+		break;
+	case MwLLVecTypeU32:
+	case MwLLVecTypeI32:
+		vec->buffer = malloc(size_rounded * sizeof(MwU32));
+		memset(vec->buffer, 0, size_rounded);
+		for(; i < size; i++) {
+			((MwU32*)vec->buffer)[i] = va_arg(va, int);
+		}
+		break;
+	case MwLLVecTypeU64:
+	case MwLLVecTypeI64:
+		vec->buffer = malloc(size_rounded * sizeof(MwU64));
+		memset(vec->buffer, 0, size_rounded);
+		for(; i < size; i++) {
+			((MwU64*)vec->buffer)[i] = va_arg(va, int);
+		}
+		break;
+	default:
+		printf("Unknown MwLLVecType %d\n", ty);
+		break;
+	}
+
+	va_end(va);
+
+	default_apply(vec);
+
+#ifdef MwLLMath_x86
+	if(features.mmx) {
+		mmx_apply(vec);
+	}
+#endif
+
+	return vec;
 }
-static MwLLMathVTable* multiTableGet(int ty) {
-	return mwLLMultiTable[ty];
-}
+
+// TODO: Flag for telling debug builds so we can selectively take this out
+#define dbg_assert(a) assert(a)
 
 void MwLLMathAdd(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	getMultiTable(a->ty)->Add(a, b, out);
+	dbg_assert(a->size == b->size && a->size == out->size && b->size && out->size);
+	a->vtable.add(a, b, out);
 }
 void MwLLMathSub(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	getMultiTable(a->ty)->Sub(a, b, out);
+	dbg_assert(a->size == b->size && a->size == out->size && b->size && out->size);
+	a->vtable.sub(a, b, out);
 }
 void MwLLMathMultiply(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	getMultiTable(a->ty)->Multiply(a, b, out);
+	dbg_assert(a->size == b->size && a->size == out->size && b->size && out->size);
+	a->vtable.multiply(a, b, out);
 }
 void MwLLMathReciprocal(MwLLVec* a, MwLLVec* out) {
-	assert(a->ty == out->ty);
-	getMultiTable(a->ty)->Reciprocal(a, out);
+	dbg_assert(a->size == out->size);
+	a->vtable.reciprocal(a, out);
 }
 void MwLLMathSquareRoot(MwLLVec* a, MwLLVec* out) {
-	assert(a->ty == out->ty);
-	getMultiTable(a->ty)->SquareRoot(a, out);
+	dbg_assert(a->size == out->size);
+	a->vtable.squareRoot(a, out);
 }
 
 void MwLLMathShiftRight(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	getMultiTable(a->ty)->ShiftRight(a, b, out);
+	dbg_assert(a->size == b->size && a->size == out->size && b->size && out->size);
+	a->vtable.shiftRight(a, b, out);
 }
 void MwLLMathShiftLeft(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	getMultiTable(a->ty)->ShiftLeft(a, b, out);
+	dbg_assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
+	a->vtable.shiftLeft(a, b, out);
 }
 void MwLLMathEqual(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	getMultiTable(a->ty)->Equal(a, b, out);
+	dbg_assert(a->size == b->size && a->size == out->size && b->size && out->size);
 }
 void MwLLMathGreaterThen(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	assert(a->ty == b->ty && a->ty == out->ty && b->ty == out->ty);
-	getMultiTable(a->ty)->GreaterThen(a, b, out);
+	dbg_assert(a->size == b->size && a->size == out->size && b->size && out->size);
+	a->vtable.shiftRight(a, b, out);
 }
 void MwLLMathAnd(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.all = a->un.all & b->un.all;
+	dbg_assert(a->size == b->size && a->size == out->size && b->size && out->size);
+	a->vtable.and (a, b, out);
 }
 void MwLLMathOr(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.all = a->un.all | b->un.all;
+	dbg_assert(a->size == b->size && a->size == out->size && b->size && out->size);
+	a->vtable.or (a, b, out);
 }
+
+MWDECL MwU8 MwLLVecIndexU8(MwLLVec* vec, MwU64 index) {
+	return ((MwU8*)vec->buffer)[index];
+};
+MWDECL MwU16 MwLLVecIndexU16(MwLLVec* vec, MwU64 index) {
+	return ((MwU16*)vec->buffer)[index];
+};
+MWDECL MwU32 MwLLVecIndexU32(MwLLVec* vec, MwU64 index) {
+	return ((MwU32*)vec->buffer)[index];
+};
+MWDECL MwU64 MwLLVecIndexU64(MwLLVec* vec, MwU64 index) {
+	return ((MwU64*)vec->buffer)[index];
+};
+MWDECL MwI8 MwLLVecIndexI8(MwLLVec* vec, MwU64 index) {
+	return ((MwI8*)vec->buffer)[index];
+};
+MWDECL MwI16 MwLLVecIndexI16(MwLLVec* vec, MwU64 index) {
+	return ((MwI16*)vec->buffer)[index];
+};
+MWDECL MwI32 MwLLVecIndexI32(MwLLVec* vec, MwU64 index) {
+	return ((MwI32*)vec->buffer)[index];
+};
+MWDECL MwI64 MwLLVecIndexI64(MwLLVec* vec, MwU64 index) {
+	return ((MwI64*)vec->buffer)[index];
+};

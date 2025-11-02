@@ -55,6 +55,7 @@ struct _MwLLPixmap {
 	int	       width;
 	int	       height;
 	unsigned char* data;
+	unsigned char* data_buf;
 
 	int depth;
 

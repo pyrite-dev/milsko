@@ -1,424 +1,110 @@
 /* $Id$ */
 #include <Mw/LowLevelMath.h>
-
 #include "math_internal.h"
 
-static void default_add_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u8.a = a->un.u8.a + b->un.u8.a;
-	out->un.u8.b = a->un.u8.b + b->un.u8.b;
-	out->un.u8.c = a->un.u8.c + b->un.u8.c;
-	out->un.u8.d = a->un.u8.d + b->un.u8.d;
-	out->un.u8.e = a->un.u8.e + b->un.u8.e;
-	out->un.u8.f = a->un.u8.f + b->un.u8.f;
-	out->un.u8.g = a->un.u8.g + b->un.u8.g;
-	out->un.u8.h = a->un.u8.h + b->un.u8.h;
-};
-static void default_sub_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u8.a = a->un.u8.a - b->un.u8.a;
-	out->un.u8.b = a->un.u8.b - b->un.u8.b;
-	out->un.u8.c = a->un.u8.c - b->un.u8.c;
-	out->un.u8.d = a->un.u8.d - b->un.u8.d;
-	out->un.u8.e = a->un.u8.e - b->un.u8.e;
-	out->un.u8.f = a->un.u8.f - b->un.u8.f;
-	out->un.u8.g = a->un.u8.g - b->un.u8.g;
-	out->un.u8.h = a->un.u8.h - b->un.u8.h;
-};
-static void default_multiply_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u8.a = a->un.u8.a * b->un.u8.a;
-	out->un.u8.b = a->un.u8.b * b->un.u8.b;
-	out->un.u8.c = a->un.u8.c * b->un.u8.c;
-	out->un.u8.d = a->un.u8.d * b->un.u8.d;
-	out->un.u8.e = a->un.u8.e * b->un.u8.e;
-	out->un.u8.f = a->un.u8.f * b->un.u8.f;
-	out->un.u8.g = a->un.u8.g * b->un.u8.g;
-	out->un.u8.h = a->un.u8.h * b->un.u8.h;
-};
-static void default_reciprocal_u8(MwLLVec* a, MwLLVec* out) {
-	out->un.u8.a = pow(a->un.u8.a, -1);
-	out->un.u8.b = pow(a->un.u8.b, -1);
-	out->un.u8.c = pow(a->un.u8.c, -1);
-	out->un.u8.d = pow(a->un.u8.d, -1);
-	out->un.u8.e = pow(a->un.u8.e, -1);
-	out->un.u8.f = pow(a->un.u8.f, -1);
-	out->un.u8.g = pow(a->un.u8.g, -1);
-	out->un.u8.h = pow(a->un.u8.h, -1);
-};
-static void default_squareRoot_u8(MwLLVec* a, MwLLVec* out) {
-	out->un.u8.a = sqrt(a->un.u8.a);
-	out->un.u8.b = sqrt(a->un.u8.b);
-	out->un.u8.c = sqrt(a->un.u8.c);
-	out->un.u8.d = sqrt(a->un.u8.d);
-	out->un.u8.e = sqrt(a->un.u8.e);
-	out->un.u8.f = sqrt(a->un.u8.f);
-	out->un.u8.g = sqrt(a->un.u8.g);
-	out->un.u8.h = sqrt(a->un.u8.h);
-}
-static void default_shiftRight_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u8.a = a->un.u8.a >> b->un.u8.a;
-	out->un.u8.b = a->un.u8.b >> b->un.u8.b;
-	out->un.u8.c = a->un.u8.c >> b->un.u8.c;
-	out->un.u8.d = a->un.u8.d >> b->un.u8.d;
-	out->un.u8.e = a->un.u8.e >> b->un.u8.e;
-	out->un.u8.f = a->un.u8.f >> b->un.u8.f;
-	out->un.u8.g = a->un.u8.g >> b->un.u8.g;
-	out->un.u8.h = a->un.u8.h >> b->un.u8.h;
-};
-static void default_shiftLeft_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u8.a = a->un.u8.a << b->un.u8.a;
-	out->un.u8.b = a->un.u8.b << b->un.u8.b;
-	out->un.u8.c = a->un.u8.c << b->un.u8.c;
-	out->un.u8.d = a->un.u8.d << b->un.u8.d;
-	out->un.u8.e = a->un.u8.e << b->un.u8.e;
-	out->un.u8.f = a->un.u8.f << b->un.u8.f;
-	out->un.u8.g = a->un.u8.g << b->un.u8.g;
-	out->un.u8.h = a->un.u8.h << b->un.u8.h;
-}
-static void default_equal_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u8.a = a->un.u8.a == b->un.u8.a;
-	out->un.u8.b = a->un.u8.b == b->un.u8.b;
-	out->un.u8.c = a->un.u8.c == b->un.u8.c;
-	out->un.u8.d = a->un.u8.d == b->un.u8.d;
-	out->un.u8.e = a->un.u8.e == b->un.u8.e;
-	out->un.u8.f = a->un.u8.f == b->un.u8.f;
-	out->un.u8.g = a->un.u8.g == b->un.u8.g;
-	out->un.u8.h = a->un.u8.h == b->un.u8.h;
-};
-static void default_greaterThen_u8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u8.a = a->un.u8.a >= b->un.u8.a;
-	out->un.u8.b = a->un.u8.b >= b->un.u8.b;
-	out->un.u8.c = a->un.u8.c >= b->un.u8.c;
-	out->un.u8.d = a->un.u8.d >= b->un.u8.d;
-	out->un.u8.e = a->un.u8.e >= b->un.u8.e;
-	out->un.u8.f = a->un.u8.f >= b->un.u8.f;
-	out->un.u8.g = a->un.u8.g >= b->un.u8.g;
-	out->un.u8.h = a->un.u8.h >= b->un.u8.h;
-};
-static MwLLMathVTable table_u8 = {
-    default_add_u8,
-    default_multiply_u8,
-    default_sub_u8,
-    default_reciprocal_u8,
-    default_squareRoot_u8,
-    NULL,
-    NULL,
-    default_shiftRight_u8,
-    default_shiftLeft_u8,
-    default_equal_u8,
-    default_greaterThen_u8,
-    NULL};
-static void default_add_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u16.a = a->un.u16.a + b->un.u16.a;
-	out->un.u16.b = a->un.u16.b + b->un.u16.b;
-	out->un.u16.c = a->un.u16.c + b->un.u16.c;
-	out->un.u16.d = a->un.u16.d + b->un.u16.d;
-}
-static void default_sub_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u16.a = a->un.u16.a - b->un.u16.a;
-	out->un.u16.b = a->un.u16.b - b->un.u16.b;
-	out->un.u16.c = a->un.u16.c - b->un.u16.c;
-	out->un.u16.d = a->un.u16.d - b->un.u16.d;
-}
-static void default_multiply_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u16.a = a->un.u16.a * b->un.u16.a;
-	out->un.u16.b = a->un.u16.b * b->un.u16.b;
-	out->un.u16.c = a->un.u16.c * b->un.u16.c;
-	out->un.u16.d = a->un.u16.d * b->un.u16.d;
-}
-static void default_reciprocal_u16(MwLLVec* a, MwLLVec* out) {
-	out->un.u16.a = pow(a->un.u16.a, -1);
-	out->un.u16.b = pow(a->un.u16.b, -1);
-	out->un.u16.c = pow(a->un.u16.c, -1);
-	out->un.u16.d = pow(a->un.u16.d, -1);
-};
-static void default_squareRoot_u16(MwLLVec* a, MwLLVec* out) {
-	out->un.u16.a = sqrt(a->un.u16.a);
-	out->un.u16.b = sqrt(a->un.u16.b);
-	out->un.u16.c = sqrt(a->un.u16.c);
-	out->un.u16.d = sqrt(a->un.u16.d);
-};
+#define MAKE_DEFAULT_TABLE(suffix, ty) \
+	static void add_##suffix(MwLLVec* a, MwLLVec* b, MwLLVec* out) { \
+		int i = 0; \
+		for(; i < a->size; i++) { \
+			((ty*)out->buffer)[i] = ((ty*)a->buffer)[i] + ((ty*)b->buffer)[i]; \
+		} \
+	}; \
+	static void sub_##suffix(MwLLVec* a, MwLLVec* b, MwLLVec* out) { \
+		int i = 0; \
+		for(; i < a->size; i++) { \
+			((ty*)out->buffer)[i] = ((ty*)a->buffer)[i] - ((ty*)b->buffer)[i]; \
+		} \
+	}; \
+	static void multiply_##suffix(MwLLVec* a, MwLLVec* b, MwLLVec* out) { \
+		int i = 0; \
+		for(; i < a->size; i++) { \
+			((ty*)out->buffer)[i] = ((ty*)a->buffer)[i] * ((ty*)b->buffer)[i]; \
+		} \
+	}; \
+	static void reciprocal_##suffix(MwLLVec* a, MwLLVec* out) { \
+		int i = 0; \
+		for(; i < a->size; i++) { \
+			((ty*)out->buffer)[i] = pow(((ty*)a->buffer)[i], -1); \
+		} \
+	}; \
+	static void squareRoot_##suffix(MwLLVec* a, MwLLVec* out) { \
+		int i = 0; \
+		for(; i < a->size; i++) { \
+			((ty*)out->buffer)[i] = sqrt(((ty*)a->buffer)[i]); \
+		} \
+	} \
+	static void shiftRight_##suffix(MwLLVec* a, MwLLVec* b, MwLLVec* out) { \
+		int i = 0; \
+		for(; i < a->size; i++) { \
+			((ty*)out->buffer)[i] = ((ty*)a->buffer)[i] >> ((ty*)b->buffer)[i]; \
+		} \
+	}; \
+	static void shiftLeft_##suffix(MwLLVec* a, MwLLVec* b, MwLLVec* out) { \
+		int i = 0; \
+		for(; i < a->size; i++) { \
+			((ty*)out->buffer)[i] = ((ty*)a->buffer)[i] << ((ty*)b->buffer)[i]; \
+		} \
+	} \
+	static void equal_##suffix(MwLLVec* a, MwLLVec* b, MwLLVec* out) { \
+		int i = 0; \
+		for(; i < a->size; i++) { \
+			((ty*)out->buffer)[i] = ((ty*)a->buffer)[i] == ((ty*)b->buffer)[i]; \
+		} \
+	}; \
+	static void greaterThen_##suffix(MwLLVec* a, MwLLVec* b, MwLLVec* out) { \
+		int i = 0; \
+		for(; i < a->size; i++) { \
+			((ty*)out->buffer)[i] = ((ty*)a->buffer)[i] >= ((ty*)b->buffer)[i]; \
+		} \
+	}; \
+	static MwLLMathVTable table_##suffix = {add_##suffix, multiply_##suffix, sub_##suffix, reciprocal_##suffix, squareRoot_##suffix, NULL, NULL, shiftRight_##suffix, shiftLeft_##suffix, equal_##suffix, greaterThen_##suffix, NULL};
 
-static void default_shiftRight_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u16.a = a->un.u16.a >> b->un.u16.a;
-	out->un.u16.b = a->un.u16.b >> b->un.u16.b;
-	out->un.u16.c = a->un.u16.c >> b->un.u16.c;
-	out->un.u16.d = a->un.u16.d >> b->un.u16.d;
-};
-static void default_shiftLeft_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u16.a = a->un.u16.a << b->un.u16.a;
-	out->un.u16.b = a->un.u16.b << b->un.u16.b;
-	out->un.u16.c = a->un.u16.c << b->un.u16.c;
-	out->un.u16.d = a->un.u16.d << b->un.u16.d;
-}
-static void default_equal_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u16.a = a->un.u16.a == b->un.u16.a;
-	out->un.u16.b = a->un.u16.b == b->un.u16.b;
-	out->un.u16.c = a->un.u16.c == b->un.u16.c;
-	out->un.u16.d = a->un.u16.d == b->un.u16.d;
-}
-static void default_greaterThen_u16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u16.a = a->un.u16.a >= b->un.u16.a;
-	out->un.u16.b = a->un.u16.b >= b->un.u16.b;
-	out->un.u16.c = a->un.u16.c >= b->un.u16.c;
-	out->un.u16.d = a->un.u16.d >= b->un.u16.d;
-}
-static MwLLMathVTable table_u16 = {
-    default_add_u16,
-    default_multiply_u16,
-    default_sub_u16,
-    default_reciprocal_u16,
-    default_squareRoot_u16,
-    NULL,
-    NULL,
-    default_shiftRight_u16,
-    default_shiftLeft_u16,
-    default_equal_u16,
-    default_greaterThen_u16,
-    NULL};
+MAKE_DEFAULT_TABLE(u8, MwU8);
+MAKE_DEFAULT_TABLE(u16, MwU16);
+MAKE_DEFAULT_TABLE(u32, MwU32);
+MAKE_DEFAULT_TABLE(u64, MwU64);
+MAKE_DEFAULT_TABLE(i8, MwI8);
+MAKE_DEFAULT_TABLE(i16, MwI16);
+MAKE_DEFAULT_TABLE(i32, MwI32);
+MAKE_DEFAULT_TABLE(i64, MwI64);
 
-static void default_add_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u32.a = a->un.u32.a + b->un.u32.a;
-	out->un.u32.b = a->un.u32.b + b->un.u32.b;
-}
-static void default_sub_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u32.a = a->un.u32.a - b->un.u32.a;
-	out->un.u32.b = a->un.u32.b - b->un.u32.b;
-}
-static void default_multiply_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u32.a = a->un.u32.a * b->un.u32.a;
-	out->un.u32.b = a->un.u32.b * b->un.u32.b;
-}
-static void default_reciprocal_u32(MwLLVec* a, MwLLVec* out) {
-	out->un.u32.a = pow(a->un.u32.a, -1);
-	out->un.u32.b = pow(a->un.u32.b, -1);
+static MwLLMathVTable* defaultMultiTable[MwLLVecType_Max] = {
+    &table_u8,	/*MwLLVecTypeU8*/
+    &table_u16, /*MwLLVecTypeU16*/
+    &table_u32, /*MwLLVecTypeU32*/
+    &table_u64, /*MwLLVecTypeU64*/
+    &table_i8,	/*MwLLVecTypeI8*/
+    &table_i16, /*MwLLVecTypeI16*/
+    &table_i32, /*MwLLVecTypeI32*/
+    &table_i64, /*MwLLVecTypeI64*/
 };
-static void default_squareRoot_u32(MwLLVec* a, MwLLVec* out) {
-	out->un.u32.a = sqrt(a->un.u32.a);
-	out->un.u32.b = sqrt(a->un.u32.b);
-};
-
-static void default_shiftRight_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u32.a = a->un.u32.a >> b->un.u32.a;
-	out->un.u32.b = a->un.u32.b >> b->un.u32.b;
-};
-static void default_shiftLeft_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u32.a = a->un.u32.a << b->un.u32.a;
-	out->un.u32.b = a->un.u32.b << b->un.u32.b;
-}
-static void default_equal_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u32.a = a->un.u32.a == b->un.u32.a;
-	out->un.u32.b = a->un.u32.b == b->un.u32.b;
-}
-static void default_greaterThen_u32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.u32.a = a->un.u32.a >= b->un.u32.a;
-	out->un.u32.b = a->un.u32.b >= b->un.u32.b;
-}
-static MwLLMathVTable table_u32 = {
-    default_add_u32,
-    default_multiply_u32,
-    default_sub_u32,
-    default_reciprocal_u32,
-    default_squareRoot_u32,
-    NULL,
-    NULL,
-    default_shiftRight_u32,
-    default_shiftLeft_u32,
-    default_equal_u32,
-    default_greaterThen_u32,
-    NULL};
-
-static void default_add_i8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i8.a = a->un.i8.a + b->un.i8.a;
-	out->un.i8.b = a->un.i8.b + b->un.i8.b;
-	out->un.i8.c = a->un.i8.c + b->un.i8.c;
-	out->un.i8.d = a->un.i8.d + b->un.i8.d;
-	out->un.i8.e = a->un.i8.e + b->un.i8.e;
-	out->un.i8.f = a->un.i8.f + b->un.i8.f;
-	out->un.i8.g = a->un.i8.g + b->un.i8.g;
-	out->un.i8.h = a->un.i8.h + b->un.i8.h;
-};
-static void default_sub_i8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i8.a = a->un.i8.a - b->un.i8.a;
-	out->un.i8.b = a->un.i8.b - b->un.i8.b;
-	out->un.i8.c = a->un.i8.c - b->un.i8.c;
-	out->un.i8.d = a->un.i8.d - b->un.i8.d;
-	out->un.i8.e = a->un.i8.e - b->un.i8.e;
-	out->un.i8.f = a->un.i8.f - b->un.i8.f;
-	out->un.i8.g = a->un.i8.g - b->un.i8.g;
-	out->un.i8.h = a->un.i8.h - b->un.i8.h;
-};
-static void default_multiply_i8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i8.a = a->un.i8.a * b->un.i8.a;
-	out->un.i8.b = a->un.i8.b * b->un.i8.b;
-	out->un.i8.c = a->un.i8.c * b->un.i8.c;
-	out->un.i8.d = a->un.i8.d * b->un.i8.d;
-	out->un.i8.e = a->un.i8.e * b->un.i8.e;
-	out->un.i8.f = a->un.i8.f * b->un.i8.f;
-	out->un.i8.g = a->un.i8.g * b->un.i8.g;
-	out->un.i8.h = a->un.i8.h * b->un.i8.h;
-};
-static void default_reciprocal_i8(MwLLVec* a, MwLLVec* out) {
-	out->un.i8.a = pow(a->un.i8.a, -1);
-	out->un.i8.b = pow(a->un.i8.b, -1);
-	out->un.i8.c = pow(a->un.i8.c, -1);
-	out->un.i8.d = pow(a->un.i8.d, -1);
-	out->un.i8.e = pow(a->un.i8.e, -1);
-	out->un.i8.f = pow(a->un.i8.f, -1);
-	out->un.i8.g = pow(a->un.i8.g, -1);
-	out->un.i8.h = pow(a->un.i8.h, -1);
-};
-static void default_squareRoot_i8(MwLLVec* a, MwLLVec* out) {
-	out->un.i8.a = sqrt(a->un.i8.a);
-	out->un.i8.b = sqrt(a->un.i8.b);
-	out->un.i8.c = sqrt(a->un.i8.c);
-	out->un.i8.d = sqrt(a->un.i8.d);
-	out->un.i8.e = sqrt(a->un.i8.e);
-	out->un.i8.f = sqrt(a->un.i8.f);
-	out->un.i8.g = sqrt(a->un.i8.g);
-	out->un.i8.h = sqrt(a->un.i8.h);
-}
-
-static void default_equal_i8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i8.a = a->un.i8.a == b->un.i8.a;
-	out->un.i8.b = a->un.i8.b == b->un.i8.b;
-	out->un.i8.c = a->un.i8.c == b->un.i8.c;
-	out->un.i8.d = a->un.i8.d == b->un.i8.d;
-	out->un.i8.e = a->un.i8.e == b->un.i8.e;
-	out->un.i8.f = a->un.i8.f == b->un.i8.f;
-	out->un.i8.g = a->un.i8.g == b->un.i8.g;
-	out->un.i8.h = a->un.i8.h == b->un.i8.h;
-};
-static void default_greaterThen_i8(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i8.a = a->un.i8.a >= b->un.i8.a;
-	out->un.i8.b = a->un.i8.b >= b->un.i8.b;
-	out->un.i8.c = a->un.i8.c >= b->un.i8.c;
-	out->un.i8.d = a->un.i8.d >= b->un.i8.d;
-	out->un.i8.e = a->un.i8.e >= b->un.i8.e;
-	out->un.i8.f = a->un.i8.f >= b->un.i8.f;
-	out->un.i8.g = a->un.i8.g >= b->un.i8.g;
-	out->un.i8.h = a->un.i8.h >= b->un.i8.h;
-};
-static MwLLMathVTable table_i8 = {
-    default_add_i8,
-    default_multiply_i8,
-    default_sub_i8,
-    default_reciprocal_i8,
-    default_squareRoot_i8,
-    NULL,
-    NULL,
-    default_shiftRight_u8,
-    default_shiftLeft_u8,
-    default_equal_i8,
-    default_greaterThen_i8,
-    NULL};
-static void default_add_i16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i16.a = a->un.i16.a + b->un.i16.a;
-	out->un.i16.b = a->un.i16.b + b->un.i16.b;
-	out->un.i16.c = a->un.i16.c + b->un.i16.c;
-	out->un.i16.d = a->un.i16.d + b->un.i16.d;
-}
-static void default_sub_i16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i16.a = a->un.i16.a - b->un.i16.a;
-	out->un.i16.b = a->un.i16.b - b->un.i16.b;
-	out->un.i16.c = a->un.i16.c - b->un.i16.c;
-	out->un.i16.d = a->un.i16.d - b->un.i16.d;
-}
-static void default_multiply_i16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i16.a = a->un.i16.a * b->un.i16.a;
-	out->un.i16.b = a->un.i16.b * b->un.i16.b;
-	out->un.i16.c = a->un.i16.c * b->un.i16.c;
-	out->un.i16.d = a->un.i16.d * b->un.i16.d;
-}
-static void default_reciprocal_i16(MwLLVec* a, MwLLVec* out) {
-	out->un.i16.a = pow(a->un.i16.a, -1);
-	out->un.i16.b = pow(a->un.i16.b, -1);
-	out->un.i16.c = pow(a->un.i16.c, -1);
-	out->un.i16.d = pow(a->un.i16.d, -1);
-};
-static void default_squareRoot_i16(MwLLVec* a, MwLLVec* out) {
-	out->un.i16.a = sqrt(a->un.i16.a);
-	out->un.i16.b = sqrt(a->un.i16.b);
-	out->un.i16.c = sqrt(a->un.i16.c);
-	out->un.i16.d = sqrt(a->un.i16.d);
-};
-
-static void default_equal_i16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i16.a = a->un.i16.a == b->un.i16.a;
-	out->un.i16.b = a->un.i16.b == b->un.i16.b;
-	out->un.i16.c = a->un.i16.c == b->un.i16.c;
-	out->un.i16.d = a->un.i16.d == b->un.i16.d;
-}
-static void default_greaterThen_i16(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i16.a = a->un.i16.a >= b->un.i16.a;
-	out->un.i16.b = a->un.i16.b >= b->un.i16.b;
-	out->un.i16.c = a->un.i16.c >= b->un.i16.c;
-	out->un.i16.d = a->un.i16.d >= b->un.i16.d;
-}
-static MwLLMathVTable table_i16 = {
-    default_add_i16,
-    default_multiply_i16,
-    default_sub_i16,
-    default_reciprocal_i16,
-    default_squareRoot_i16,
-    NULL,
-    NULL,
-    default_shiftRight_u16,
-    default_shiftLeft_u16,
-    default_equal_i16,
-    default_greaterThen_i16,
-    NULL};
-
-static void default_add_i32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i32.a = a->un.i32.a + b->un.i32.a;
-	out->un.i32.b = a->un.i32.b + b->un.i32.b;
-}
-static void default_sub_i32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i32.a = a->un.i32.a - b->un.i32.a;
-	out->un.i32.b = a->un.i32.b - b->un.i32.b;
-}
-static void default_multiply_i32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i32.a = a->un.i32.a * b->un.i32.a;
-	out->un.i32.b = a->un.i32.b * b->un.i32.b;
-}
-static void default_reciprocal_i32(MwLLVec* a, MwLLVec* out) {
-	out->un.i32.a = pow(a->un.i32.a, -1);
-	out->un.i32.b = pow(a->un.i32.b, -1);
-};
-static void default_squareRoot_i32(MwLLVec* a, MwLLVec* out) {
-	out->un.i32.a = sqrt(a->un.i32.a);
-	out->un.i32.b = sqrt(a->un.i32.b);
-};
-
-static void default_equal_i32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i32.a = a->un.i32.a == b->un.i32.a;
-	out->un.i32.b = a->un.i32.b == b->un.i32.b;
-}
-static void default_greaterThen_i32(MwLLVec* a, MwLLVec* b, MwLLVec* out) {
-	out->un.i32.a = a->un.i32.a >= b->un.i32.a;
-	out->un.i32.b = a->un.i32.b >= b->un.i32.b;
-}
-static MwLLMathVTable table_i32 = {
-    default_add_i32,
-    default_multiply_i32,
-    default_sub_i32,
-    default_reciprocal_i32,
-    default_squareRoot_i32,
-    NULL,
-    NULL,
-    default_shiftRight_u32,
-    default_shiftLeft_u32,
-    default_equal_i32,
-    default_greaterThen_i32,
-    NULL};
-
-static MwLLMathVTable* defaultMultiTable[_MwLLVecType_Max] = {
-    &table_u8,	// _MwLLVecTypeU8x8
-    &table_u16, // _MwLLVecTypeU16x4
-    &table_u32, // _MwLLVecTypeU32x2
-    &table_i8,	// _MwLLVecTypeI8x8
-    &table_i16, // _MwLLVecTypeI16x4
-    &table_i32, // _MwLLVecTypeI32x2
-};
-
-MwLLMathVTable** default_multi_table(void) {
-	return defaultMultiTable;
+void default_apply(MwLLVec* v) {
+	switch(v->ty) {
+	case MwLLVecTypeU8:
+		v->vtable = table_u8;
+		break;
+	case MwLLVecTypeU16:
+		v->vtable = table_u16;
+		break;
+	case MwLLVecTypeU32:
+		v->vtable = table_u32;
+		break;
+	case MwLLVecTypeU64:
+		v->vtable = table_u64;
+		break;
+	case MwLLVecTypeI8:
+		v->vtable = table_i8;
+		break;
+	case MwLLVecTypeI16:
+		v->vtable = table_i16;
+		break;
+	case MwLLVecTypeI32:
+		v->vtable = table_i32;
+		break;
+	case MwLLVecTypeI64:
+		v->vtable = table_i64;
+		break;
+	case MwLLVecType_Max:
+		break;
+	}
 }

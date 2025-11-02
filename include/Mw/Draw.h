@@ -144,6 +144,16 @@ MWDECL void MwGetColor(MwLLColor color, int* red, int* green, int* blue);
 MWDECL MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height);
 
 /*!
+ * @brief Creates a pixmap from raw data
+ * @param handle Widget
+ * @param rgb RGBA data
+ * @param width Width
+ * @param height Height
+ * @return Pixmap
+ */
+MWDECL void MwReloadRaw(MwWidget handle, unsigned char* rgb, int width, int height, MwLLPixmap pixmap);
+
+/*!
  * @brief Creates a pixmap from XPM data
  * @param handle Widget
  * @param data Data

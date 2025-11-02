@@ -15,21 +15,16 @@ extern "C" {
 #endif
 
 typedef struct _MwRGB MwRGB;
-typedef struct _MwHSV MwHSV;
 
 struct _MwRGB {
-	double r;
-	double g;
-	double b;
+	MwU32 r;
+	MwU32 g;
+	MwU32 b;
 };
 
-struct _MwHSV {
-	double h; // angle in degrees
-	double s; // a fraction between 0 and 1
-	double v; // a fraction between 0 and 1
-};
+typedef void (*MwColorPickerCallback)(MwRGB rgb);
 
-MWDECL MwWidget MwColorPicker(MwWidget handle, const char* title);
+MWDECL MwWidget MwColorPicker(MwWidget handle, const char* title, MwColorPickerCallback cb);
 
 #ifdef __cplusplus
 }

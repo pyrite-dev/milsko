@@ -43,8 +43,9 @@ struct _MwLLColor {
 };
 
 struct _MwLLPixmap {
-	int width;
-	int height;
+	int	       width;
+	int	       height;
+	unsigned char* data_scratch_buf;
 
 	HBITMAP hBitmap;
 	HBITMAP hMask;

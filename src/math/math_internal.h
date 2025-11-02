@@ -6,31 +6,38 @@
 #include <Mw/BaseTypes.h>
 #include <Mw/LowLevelMath.h>
 
-/* Bitfield of cpu features we get from x86's CPUID */
-#if defined(MwLLMathMMX)
-#define FEATX86_MMX (1 << 23)
-#define FEATX86_SSE (1 << 25)
-#define FEATX86_SSE2 (1 << 26)
-#endif
-
-struct _MwLLMathVTable {
-	void (*Add)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-	void (*Multiply)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-	void (*Sub)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-	void (*Reciprocal)(MwLLVec* a, MwLLVec* out);
-	void (*SquareRoot)(MwLLVec* a, MwLLVec* out);
-	void (*And)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-	void (*Or)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-	void (*ShiftRight)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-	void (*ShiftLeft)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-	void (*Equal)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-	void (*GreaterThen)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-	void (*LesserThen)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
-};
-
 typedef struct _MwLLMathVTable MwLLMathVTable;
 
-MwLLMathVTable** default_multi_table(void);
-void		 mmx_apply(MwLLMathVTable**);
+struct _MwLLMathVTable {
+	void (*add)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+	void (*multiply)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+	void (*sub)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+	void (*reciprocal)(MwLLVec* a, MwLLVec* out);
+	void (*squareRoot)(MwLLVec* a, MwLLVec* out);
+	void (*and)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+	void (*or)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+	void (*shiftRight)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+	void (*shiftLeft)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+	void (*equal)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+	void (*greaterThen)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+	void (*lesserThen)(MwLLVec* a, MwLLVec* b, MwLLVec* out);
+};
+
+struct _MwLLVec {
+	void*	       buffer;
+	int	       ty;
+	MwU64	       size;
+	MwLLMathVTable vtable;
+};
+
+void default_apply(MwLLVec*);
+
+/* Bitfield of cpu features we get from x86's CPUID */
+#if defined(MwLLMath_x86)
+#define FEATX86_MMX (1 << 23)
+// #define FEATX86_SSE (1 << 25)
+#define FEATX86_SSE2 (1 << 26)
+void mmx_apply(MwLLVec*);
+#endif
 
 #endif
