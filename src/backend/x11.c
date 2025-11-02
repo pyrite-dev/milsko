@@ -477,7 +477,7 @@ void MwLLPixmapUpdate(MwLLPixmap r) {
 
 	for(y = 0; y < r->height; y++) {
 		for(x = 0; x < r->width; x++) {
-			if(r->data_buf[(y * r->width + x) * 4 + 3]) {
+			if(r->raw[(y * r->width + x) * 4 + 3]) {
 				XPutPixel(r->mask, x, y, 1);
 			} else {
 				XPutPixel(r->mask, x, y, 0);
@@ -487,7 +487,7 @@ void MwLLPixmapUpdate(MwLLPixmap r) {
 }
 
 void MwLLDestroyPixmap(MwLLPixmap pixmap) {
-	free(pixmap->data_buf);
+	free(pixmap->raw);
 	XDestroyImage(pixmap->image);
 	XDestroyImage(pixmap->mask);
 	free(pixmap->data);
