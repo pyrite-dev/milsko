@@ -19,7 +19,6 @@ option(BUILD_EXAMPLES "Build examples" OFF)
 option(USE_STB_IMAGE "Use stb_image" ON)
 option(USE_STB_TRUETYPE "Use stb_truetype" OFF)
 option(USE_FREETYPE2 "Use FreeType 2" ON)
-option(USE_FDLIBM "Use fdlibm" OFF)
 
 file(
 	GLOB

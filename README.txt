@@ -88,8 +88,6 @@ D. MinGW-w64/GCC/Clang
 
           USE_FREETYPE2    - Use FreeType2 or not.
 
-          USE_FDLIBM       - Use fdlibm or not.
-
           PREFIX           - Installation destination directory.
 
 

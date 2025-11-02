@@ -39,20 +39,20 @@
 #define MwNfont "Vfont"
 #define MwNboldFont "VboldFont"
 
-#define MwNactivateHandler "Cactivate"	   /* NULL/int* (MwListBox) */
-#define MwNresizeHandler "Cresize"	   /* NULL */
-#define MwNtickHandler "Ctick"		   /* NULL */
-#define MwNmenuHandler "Cmenu"		   /* MwMenu */
-#define MwNmouseDownHandler "CmouseDown"   /* MwLLMouse* */
-#define MwNmouseUpHandler "CmouseUp"	   /* same as MwNmouseDownHandler */
-#define MwNmouseMoveHandler "CmouseMove"   /* MwPoint* */
-#define MwNchangedHandler "Cchanged"	   /* NULL */
-#define MwNkeyHandler "Ckey"		   /* int* (MwLLKeyEnum or character code) */
-#define MwNkeyReleaseHandler "CkeyRelease" /* same as MwNkeyHandler */
-#define MwNcloseHandler "Cclose"	   /* NULL */
-#define MwNfocusInHandler "CfocusIn"	   /* NULL */
-#define MwNfocusOutHandler "CfocusOut"	   /* NULL */
-#define MwNfileChosenHandler "CfileChosen" /* char* */
+#define MwNactivateHandler "Cactivate"	     /* NULL/int* (MwListBox) */
+#define MwNresizeHandler "Cresize"	     /* NULL */
+#define MwNtickHandler "Ctick"		     /* NULL */
+#define MwNmenuHandler "Cmenu"		     /* MwMenu */
+#define MwNmouseDownHandler "CmouseDown"     /* MwLLMouse* */
+#define MwNmouseUpHandler "CmouseUp"	     /* same as MwNmouseDownHandler */
+#define MwNmouseMoveHandler "CmouseMove"     /* MwPoint* */
+#define MwNchangedHandler "Cchanged"	     /* NULL */
+#define MwNkeyHandler "Ckey"		     /* int* (MwLLKeyEnum or character code) */
+#define MwNkeyReleaseHandler "CkeyRelease"   /* same as MwNkeyHandler */
+#define MwNcloseHandler "Cclose"	     /* NULL */
+#define MwNfocusInHandler "CfocusIn"	     /* NULL */
+#define MwNfocusOutHandler "CfocusOut"	     /* NULL */
+#define MwNfileChosenHandler "CfileChosen"   /* char* */
 #define MwNcolorChosenHandler "CcolorChosen" /* MwRGB* */
 
 #endif

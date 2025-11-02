@@ -11,7 +11,7 @@ typedef struct _MwRect	    MwRect;
 typedef struct _MwSizeHints MwSizeHints;
 typedef struct _MwFont	    MwFont;
 typedef struct _MwCursor    MwCursor;
-typedef struct _MwRGB MwRGB;
+typedef struct _MwRGB	    MwRGB;
 
 typedef unsigned char MwBool;
 #define MwTRUE ((MwBool)1)

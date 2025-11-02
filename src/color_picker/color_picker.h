@@ -36,19 +36,19 @@ struct _MwHSV {
 };
 
 struct _color_picker {
-	MwWidget	      parent;
-	MwWidget	      color_picker_img;
-	MwWidget	      value_slider;
-	MwWidget	      color_display;
-	MwWidget	      color_display_text;
-	MwWidget	      finish;
-	MwLLPixmap	      color_picker_pixmap;
-	double		      value;
-	unsigned char*	      color_picker_image_data;
-	MwPoint		      point;
-	double		      dist_table[PICKER_SIZE][PICKER_SIZE];
-	MwHSV		      hue_table[PICKER_SIZE][PICKER_SIZE];
-	MwRGB		      chosen_color;
+	MwWidget       parent;
+	MwWidget       color_picker_img;
+	MwWidget       value_slider;
+	MwWidget       color_display;
+	MwWidget       color_display_text;
+	MwWidget       finish;
+	MwLLPixmap     color_picker_pixmap;
+	double	       value;
+	unsigned char* color_picker_image_data;
+	MwPoint	       point;
+	double	       dist_table[PICKER_SIZE][PICKER_SIZE];
+	MwHSV	       hue_table[PICKER_SIZE][PICKER_SIZE];
+	MwRGB	       chosen_color;
 };
 
 color_picker* color_picker_setup(MwWidget parent, int w, int h);

@@ -437,8 +437,8 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	int		  evbase, erbase;
 	XWindowAttributes attr;
 
-	r->data_buf = malloc(sizeof(unsigned long) * width * height);
-	memcpy(r->data_buf, data, sizeof(unsigned long) * width * height);
+	r->data_buffer = malloc(4 * width * height);
+	memcpy(r->data_buffer, data, 4 * width * height);
 
 	XGetWindowAttributes(handle->display, handle->window, &attr);
 
@@ -447,25 +447,26 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->height  = height;
 	r->display = handle->display;
 	r->data	   = malloc(sizeof(unsigned long) * width * height);
+	r->handle  = handle;
 
 	r->use_render = XRenderQueryExtension(handle->display, &evbase, &erbase) ? 1 : 0;
 
 	r->image = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), r->depth, ZPixmap, 0, di, width, height, 32, width * 4);
 	r->mask	 = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, dm, width, height, 32, width * 4);
 
-	MwLLPixmapUpdate(handle, r);
+	MwLLPixmapUpdate(r);
 	return r;
 }
 
-void MwLLPixmapUpdate(MwLL handle, MwLLPixmap r) {
-	int	  y, x;
+void MwLLPixmapUpdate(MwLLPixmap r) {
+	int y, x;
 	for(y = 0; y < r->height; y++) {
 		for(x = 0; x < r->width; x++) {
-			unsigned char* px = &r->data_buf[(y * r->width + x) * 4];
-			MwLLColor c = NULL;
-			unsigned long p;
+			unsigned char* px = &r->data_buffer[(y * r->width + x) * 4];
+			MwLLColor      c  = NULL;
+			unsigned long  p;
 
-			c = MwLLAllocColor(handle, px[0], px[1], px[2]);
+			c = MwLLAllocColor(r->handle, px[0], px[1], px[2]);
 			p = c->pixel;
 			MwLLFreeColor(c);
 
@@ -486,11 +487,10 @@ void MwLLPixmapUpdate(MwLL handle, MwLLPixmap r) {
 }
 
 void MwLLDestroyPixmap(MwLLPixmap pixmap) {
-	if(pixmap->image != NULL) {
-		XDestroyImage(pixmap->image);
-		XDestroyImage(pixmap->mask);
-		free(pixmap->data);
-	}
+	free(pixmap->data_buf);
+	XDestroyImage(pixmap->image);
+	XDestroyImage(pixmap->mask);
+	free(pixmap->data);
 
 	free(pixmap);
 }

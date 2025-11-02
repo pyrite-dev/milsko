@@ -691,7 +691,7 @@ void MwReloadRaw(MwWidget handle, unsigned char* rgb, int width, int height, MwL
 
 	if(handle->bgcolor == NULL) MwLLFreeColor(base);
 
-	MwLLPixmapUpdate(handle->lowlevel, px);
+	MwLLPixmapUpdate(px);
 }
 
 void MwGetColor(MwLLColor color, int* red, int* green, int* blue) {

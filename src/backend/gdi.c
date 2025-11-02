@@ -281,8 +281,17 @@ void MwLLLine(MwLL handle, MwPoint* points, MwLLColor color) {
 }
 
 MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b) {
-	MwLLColor c  = malloc(sizeof(*c));
-	HDC	  dc = GetDC(handle->hWnd);
+	MwLLColor c = malloc(sizeof(*c));
+
+	c->brush = NULL;
+
+	MwLLColorUpdate(handle, c, r, g, b);
+
+	return c;
+}
+
+void MwLLColorUpdate(MwLL handle, MwLLColor c, int r, int g, int b) {
+	HDC dc = GetDC(handle->hWnd);
 
 	if(r > 255) r = 255;
 	if(g > 255) g = 255;
@@ -291,14 +300,13 @@ MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b) {
 	if(g < 0) g = 0;
 	if(b < 0) b = 0;
 
+	if(c->brush != NULL) DeleteObject(c->brush);
 	c->brush = CreateSolidBrush(GetNearestColor(dc, RGB(r, g, b)));
 	c->red	 = r;
 	c->green = g;
 	c->blue	 = b;
 
 	ReleaseDC(handle->hWnd, dc);
-
-	return c;
 }
 
 void MwLLFreeColor(MwLLColor color) {
@@ -366,16 +374,9 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	MwLLPixmap	 r  = malloc(sizeof(*r));
 	HDC		 dc = GetDC(handle->hWnd);
 	BITMAPINFOHEADER bmih;
-	RGBQUAD*	 quad;
-	int		 y, x;
-	int		 w = (width + (16 - (width % 16))) / 8;
-	WORD*		 words;
-	WORD*		 words2;
 
-	if(16 * (width / 16) == width) w -= 2;
-
-	words  = malloc(w * height);
-	words2 = malloc(w * height);
+	r->data_buffer = malloc(width * height * 4);
+	memcpy(r->data_buffer, data, 4 * width * height);
 
 	r->width  = width;
 	r->height = height;
@@ -392,16 +393,36 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	bmih.biClrUsed	     = 0;
 	bmih.biClrImportant  = 0;
 
-	r->hBitmap = CreateDIBSection(dc, (BITMAPINFO*)&bmih, DIB_RGB_COLORS, (void**)&quad, NULL, (DWORD)0);
+	r->hBitmap = CreateDIBSection(dc, (BITMAPINFO*)&bmih, DIB_RGB_COLORS, (void**)&r->quad, NULL, (DWORD)0);
 
-	memset(words, 0, w * height);
-	memset(words2, 0, w * height);
-	for(y = 0; y < height; y++) {
+	r->hMask  = NULL;
+	r->hMask2 = NULL;
+
+	ReleaseDC(handle->hWnd, dc);
+
+	MwLLPixmapUpdate(r);
+
+	return r;
+}
+
+void MwLLPixmapUpdate(MwLLPixmap r) {
+	int   y, x;
+	int   w = (r->width + (16 - (r->width % 16))) / 8;
+	WORD* words;
+	WORD* words2;
+
+	if(16 * (r->width / 16) == r->width) w -= 2;
+
+	words  = malloc(w * r->height);
+	words2 = malloc(w * r->height);
+	memset(words, 0, w * r->height);
+	memset(words2, 0, w * r->height);
+	for(y = 0; y < r->height; y++) {
 		BYTE* l	 = (BYTE*)&words[y * (w / 2)];
 		BYTE* l2 = (BYTE*)&words2[y * (w / 2)];
-		for(x = 0; x < width; x++) {
-			RGBQUAD*       q  = &quad[y * width + x];
-			unsigned char* px = &data[(y * width + x) * 4];
+		for(x = 0; x < r->width; x++) {
+			RGBQUAD*       q  = &r->quad[y * r->width + x];
+			unsigned char* px = &r->data_buffer[(y * r->width + x) * 4];
 
 			q->rgbRed   = px[0];
 			q->rgbGreen = px[1];
@@ -415,18 +436,18 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 		}
 	}
 
-	r->hMask  = CreateBitmap(width, height, 1, 1, words);
-	r->hMask2 = CreateBitmap(width, height, 1, 1, words2);
+	if(r->hMask != NULL) DeleteObject(r->hMask);
+	if(r->hMask2 != NULL) DeleteObject(r->hMask2);
+
+	r->hMask  = CreateBitmap(r->width, r->height, 1, 1, words);
+	r->hMask2 = CreateBitmap(r->width, r->height, 1, 1, words2);
 
 	free(words);
 	free(words2);
-
-	ReleaseDC(handle->hWnd, dc);
-
-	return r;
 }
 
 void MwLLDestroyPixmap(MwLLPixmap pixmap) {
+	free(pixmap->data_buffer);
 	DeleteObject(pixmap->hMask);
 	DeleteObject(pixmap->hMask2);
 	DeleteObject(pixmap->hBitmap);

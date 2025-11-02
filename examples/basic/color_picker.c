@@ -7,7 +7,7 @@ MwWidget window;
 MwWidget button;
 
 void color_callback(MwWidget handle, void* user_data, void* call_data) {
-	char hexColor[8];
+	char   hexColor[8];
 	MwRGB* rgb = call_data;
 
 	(void)handle;
