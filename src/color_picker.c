@@ -210,6 +210,7 @@ static void color_picker_on_change_value(MwWidget handle, void* user,
 static void color_picker_destroy(color_picker_t* picker) {
 	free(picker->color_picker_image_data);
 	MwLLDestroyPixmap(picker->color_picker_pixmap);
+	free(picker);
 }
 
 static void color_picker_close(MwWidget handle, void* user,
