@@ -236,104 +236,18 @@ static void color_display_text_change(MwWidget handle, void* user,
 	color_picker_t* picker = user;
 	char		hexColor[9];
 	char		fgColor[9];
-	int		out  = 0;
-	int		mask = 28;
-	int		i    = 0;
-	int		r, g, b;
+	MwLLColor	color;
 	int		fr, fg, fb;
-	int		maskShift = 4;
-	int		numChars  = 8;
 
 	(void)call;
 
 	memcpy(&hexColor, MwGetText(handle, MwNtext), 8);
 
-	if(hexColor[4] == 0) {
-		numChars = 4;
+	color = MwParseColor(handle, hexColor);
 
-		mask -= 4;
-		maskShift = 12;
-	}
-
-	// if it doesn't start with #, shift everything over
-	if(hexColor[0] != '#') {
-		hexColor[6] = hexColor[5];
-		hexColor[5] = hexColor[4];
-		hexColor[4] = hexColor[3];
-		hexColor[3] = hexColor[2];
-		hexColor[2] = hexColor[1];
-		hexColor[1] = hexColor[0];
-		hexColor[0] = '#';
-	}
-
-	// i don't trust c's atoi but we can't use strtoll i think so fuck it we'll roll our own shit
-	// ~ ioi
-	for(i = 1; i < numChars; i++) {
-		char o;
-		switch(hexColor[i]) {
-		case '0':
-			o = 0;
-			break;
-		case '1':
-			o = 1;
-			break;
-		case '2':
-			o = 2;
-			break;
-		case '3':
-			o = 3;
-			break;
-		case '4':
-			o = 4;
-			break;
-		case '5':
-			o = 5;
-			break;
-		case '6':
-			o = 6;
-			break;
-		case '7':
-			o = 7;
-			break;
-		case '8':
-			o = 8;
-			break;
-		case '9':
-			o = 9;
-			break;
-		case 'A':
-			o = 10;
-			break;
-		case 'B':
-			o = 11;
-			break;
-		case 'C':
-			o = 12;
-			break;
-		case 'D':
-			o = 13;
-			break;
-		case 'E':
-			o = 14;
-			break;
-		case 'F':
-			o = 15;
-			break;
-		}
-		out |= (o << mask);
-		mask -= maskShift;
-	}
-
-	r = (out & 0xFF000000) >> 24;
-	g = (out & 0x00FF0000) >> 16;
-	b = (out & 0x0000FF00) >> 8;
-
-	fr = r > 128 ? 0 : 255;
-	fg = g > 128 ? 0 : 255;
-	fb = b > 128 ? 0 : 255;
-
-	hexColor[7] = 0;
-	fgColor[7]  = 0;
+	fr = color->red > 128 ? 0 : 255;
+	fg = color->green > 128 ? 0 : 255;
+	fb = color->blue > 128 ? 0 : 255;
 
 	sprintf(fgColor, "#%02X%02X%02X", fr, fg, fb);
 	MwSetText(picker->color_display, MwNbackground, hexColor);
@@ -342,9 +256,11 @@ static void color_display_text_change(MwWidget handle, void* user,
 	MwSetText(picker->color_display_text, MwNbackground, hexColor);
 	MwSetText(picker->color_display_text, MwNtext, hexColor);
 
-	picker->chosen_color.red   = r;
-	picker->chosen_color.green = g;
-	picker->chosen_color.blue  = b;
+	picker->chosen_color.red   = color->red;
+	picker->chosen_color.green = color->green;
+	picker->chosen_color.blue  = color->blue;
+
+	MwLLFreeColor(color);
 }
 
 static void color_picker_finish(MwWidget handle, void* user,
