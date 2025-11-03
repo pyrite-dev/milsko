@@ -106,9 +106,9 @@ struct _MwFont {
 };
 
 struct _MwRGB {
-	MwU32 red;
-	MwU32 green;
-	MwU32 blue;
+	MwU16 red;
+	MwU16 green;
+	MwU16 blue;
 };
 
 #endif
