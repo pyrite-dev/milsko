@@ -786,3 +786,17 @@ void MwLLGrabPointer(MwLL handle, int toggle) {
 		handle->grabbed = 0;
 	}
 }
+
+void MwLLSetClipboard(MwLL handle, const char* text) {
+	/* TODO */
+
+	(void)handle;
+	(void)text;
+}
+
+char* MwLLGetClipboard(MwLL handle) {
+	/* TODO */
+
+	(void)handle;
+	return NULL;
+}

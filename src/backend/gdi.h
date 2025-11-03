@@ -28,6 +28,7 @@ struct _MwLL {
 	HDC	  hDC;
 	void*	  user;
 	int	  copy_buffer;
+	HCURSOR	  cursor;
 
 	MwLLHandler handler;
 

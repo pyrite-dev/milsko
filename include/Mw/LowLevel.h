@@ -47,8 +47,13 @@ enum MwLLKeyEnum {
 	MwLLKeyEnter,
 	MwLLKeyEscape,
 	MwLLKeyLeftShift,
-	MwLLKeyRightShift
+	MwLLKeyRightShift,
+	MwLLKeyAlt,
+	MwLLKeyControl
 };
+
+#define MwLLControlMask MwLLKeyMask | (1 << 30)
+#define MwLLAltMask MwLLKeyMask | (1 << 29)
 
 enum MwLLMouseEnum {
 	MwLLMouseLeft = 1,
@@ -128,6 +133,9 @@ MWDECL void MwLLSetBackground(MwLL handle, MwLLColor color);
 
 MWDECL void MwLLFocus(MwLL handle);
 MWDECL void MwLLGrabPointer(MwLL handle, int toggle);
+
+MWDECL void  MwLLSetClipboard(MwLL handle, const char* text);
+MWDECL char* MwLLGetClipboard(MwLL handle);
 
 #ifdef __cplusplus
 }

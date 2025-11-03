@@ -126,16 +126,25 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		PostQuitMessage(0);
 	} else if(msg == WM_CLOSE) {
 		MwLLDispatch(u->ll, close, NULL);
-	} else if(msg == WM_CHAR) {
-		int n = wp;
+	} else if(msg == WM_CHAR || msg == WM_SYSCHAR) {
+		int	  n    = wp;
+		const int base = 'A' - 1;
 
-		MwLLDispatch(u->ll, key, &n);
+		if(0x00 <= n && n <= 0x1f) {
+			n = (n + base) | MwLLControlMask;
+			if(!(HIBYTE(VkKeyScan(wp)) & 1)) n += 0x20;
+		}
+		if(HIBYTE(VkKeyScan(wp)) & 2) n |= MwLLControlMask;
+		if(msg == WM_SYSCHAR) n |= MwLLAltMask;
+
+		if((0x20 <= n && n <= 0x7f) || (n & MwLLKeyMask)) MwLLDispatch(u->ll, key, &n);
 	} else if(msg == WM_SETFOCUS) {
 		MwLLDispatch(u->ll, focus_in, NULL);
 	} else if(msg == WM_KILLFOCUS) {
 		MwLLDispatch(u->ll, focus_out, NULL);
-	} else if(msg == WM_KEYDOWN || msg == WM_KEYUP) {
+	} else if(msg == WM_KEYDOWN || msg == WM_KEYUP || msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP) {
 		int n = -1;
+		if(wp == VK_MENU && msg == WM_KEYUP) return 0;
 		if(wp == VK_LEFT) n = MwLLKeyLeft;
 		if(wp == VK_RIGHT) n = MwLLKeyRight;
 		if(wp == VK_UP) n = MwLLKeyUp;
@@ -145,8 +154,14 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		if(wp == VK_ESCAPE) n = MwLLKeyEscape;
 		if(wp == VK_LSHIFT) n = MwLLKeyLeftShift;
 		if(wp == VK_RSHIFT) n = MwLLKeyRightShift;
+		if(wp == VK_MENU) n = MwLLKeyAlt;
+		if(wp == VK_CONTROL) n = MwLLKeyControl;
+
+		if((msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP) && n != -1 && wp != VK_MENU) {
+			n |= MwLLAltMask;
+		}
 		if(n != -1) {
-			if(msg == WM_KEYDOWN) {
+			if(msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN) {
 				MwLLDispatch(u->ll, key, &n);
 			} else {
 				MwLLDispatch(u->ll, key_released, &n);
@@ -183,6 +198,9 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		} else {
 			return DefWindowProc(hWnd, msg, wp, lp);
 		}
+	} else if(msg == WM_SETCURSOR) {
+		if(LOWORD(lp) != HTCLIENT) return DefWindowProc(hWnd, msg, wp, lp);
+		if(u->ll->cursor != NULL) SetCursor(u->ll->cursor);
 	} else {
 		return DefWindowProc(hWnd, msg, wp, lp);
 	}
@@ -216,6 +234,7 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	r->copy_buffer = 1;
 	r->hWnd	       = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->hWnd, 0, wc.hInstance, NULL);
 	r->hInstance   = wc.hInstance;
+	r->cursor      = NULL;
 
 	u->ll	   = r;
 	u->min_set = 0;
@@ -247,6 +266,8 @@ void MwLLDestroy(MwLL handle) {
 	/* for safety */
 	SetWindowLongPtr(handle->hWnd, GWLP_USERDATA, (LPARAM)NULL);
 	DestroyWindow(handle->hWnd);
+
+	if(handle->cursor != NULL) DestroyCursor(handle->cursor);
 
 	free(handle);
 }
@@ -539,10 +560,8 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 
 	cursor = CreateCursor(GetModuleHandle(NULL), xs, ys, MwCursorDataHeight, MwCursorDataHeight, dmask, dimage);
 
-	SetClassLongPtr(handle->hWnd, GCLP_HCURSOR, (LPARAM)cursor);
-	SetCursor(cursor);
-
-	DestroyCursor(cursor);
+	if(handle->cursor != NULL) DestroyCursor(handle->cursor);
+	handle->cursor = cursor;
 
 	free(dimage);
 	free(dmask);
@@ -641,4 +660,39 @@ void MwLLGrabPointer(MwLL handle, int toggle) {
 		handle->grabbed = 0;
 		ClipCursor(NULL);
 	}
+}
+
+void MwLLSetClipboard(MwLL handle, const char* text) {
+	HGLOBAL hg;
+	if(OpenClipboard(handle->hWnd) != 0) {
+		char* lock;
+
+		EmptyClipboard();
+		hg = GlobalAlloc(GHND | GMEM_SHARE, strlen(text) + 1);
+
+		lock = GlobalLock(hg);
+		strcpy(lock, text);
+		GlobalUnlock(hg);
+
+		SetClipboardData(CF_TEXT, hg);
+
+		CloseClipboard();
+	}
+}
+
+char* MwLLGetClipboard(MwLL handle) {
+	HGLOBAL hg;
+	char*	r = NULL;
+	if(OpenClipboard(handle->hWnd) != 0 && (hg = GetClipboardData(CF_TEXT)) != NULL) {
+		char* lock;
+
+		r = malloc(GlobalSize(hg));
+
+		lock = GlobalLock(hg);
+		strcpy(r, lock);
+		GlobalUnlock(hg);
+
+		CloseClipboard();
+	}
+	return r;
 }
