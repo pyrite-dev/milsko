@@ -38,6 +38,7 @@ typedef struct color_picker {
 	MwRGB	      chosen_color;
 	unsigned char color_picker_image_data[PICKER_SIZE * PICKER_SIZE * 4];
 	MwHSV	      hue_table[101753];
+	MwU8	      doUpdate;
 } color_picker_t;
 
 static void hsv2rgb(MwU32 h, MwU32 s, MwU32 v, MwU16* r, MwU16* g, MwU16* b) {
@@ -56,7 +57,6 @@ static void hsv2rgb(MwU32 h, MwU32 s, MwU32 v, MwU16* r, MwU16* g, MwU16* b) {
 		HSV_SWAPPTR(r, b);
 	}
 	if(sextant & 4) {
-
 		HSV_SWAPPTR(g, b);
 	}
 	if(!(sextant & 6)) {
@@ -167,7 +167,7 @@ static void color_picker_click(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	color_picker_image_update(picker);
+	// color_picker_image_update(picker);
 
 	i = ((mouse->point.y * PICKER_SIZE) + mouse->point.x) * 4;
 
@@ -200,7 +200,20 @@ static void color_picker_on_change_value(MwWidget handle, void* user,
 
 	picker->value = ((double)value / 1024.);
 
-	color_picker_image_update(picker);
+	picker->doUpdate = 1;
+	// color_picker_image_update(picker);
+}
+
+static void color_picker_tick(MwWidget handle, void* user,
+			      void* call) {
+	color_picker_t* picker = user;
+
+	(void)call;
+
+	if(picker->doUpdate == 1) {
+		color_picker_image_update(picker);
+		picker->doUpdate = 0;
+	}
 }
 
 static void color_picker_destroy(color_picker_t* picker) {
@@ -216,6 +229,122 @@ static void color_picker_close(MwWidget handle, void* user,
 
 	color_picker_destroy(picker);
 	MwDestroyWidget(handle);
+}
+
+static void color_display_text_change(MwWidget handle, void* user,
+				      void* call) {
+	color_picker_t* picker = user;
+	char		hexColor[9];
+	char		fgColor[9];
+	int		out  = 0;
+	int		mask = 28;
+	int		i    = 0;
+	int		r, g, b;
+	int		fr, fg, fb;
+	int		maskShift = 4;
+	int		numChars  = 8;
+
+	(void)call;
+
+	memcpy(&hexColor, MwGetText(handle, MwNtext), 8);
+
+	if(hexColor[4] == 0) {
+		numChars = 4;
+
+		mask -= 4;
+		maskShift = 12;
+	}
+
+	// if it doesn't start with #, shift everything over
+	if(hexColor[0] != '#') {
+		hexColor[6] = hexColor[5];
+		hexColor[5] = hexColor[4];
+		hexColor[4] = hexColor[3];
+		hexColor[3] = hexColor[2];
+		hexColor[2] = hexColor[1];
+		hexColor[1] = hexColor[0];
+		hexColor[0] = '#';
+	}
+
+	// i don't trust c's atoi but we can't use strtoll i think so fuck it we'll roll our own shit
+	// ~ ioi
+	for(i = 1; i < numChars; i++) {
+		char o;
+		switch(hexColor[i]) {
+		case '0':
+			o = 0;
+			break;
+		case '1':
+			o = 1;
+			break;
+		case '2':
+			o = 2;
+			break;
+		case '3':
+			o = 3;
+			break;
+		case '4':
+			o = 4;
+			break;
+		case '5':
+			o = 5;
+			break;
+		case '6':
+			o = 6;
+			break;
+		case '7':
+			o = 7;
+			break;
+		case '8':
+			o = 8;
+			break;
+		case '9':
+			o = 9;
+			break;
+		case 'A':
+			o = 10;
+			break;
+		case 'B':
+			o = 11;
+			break;
+		case 'C':
+			o = 12;
+			break;
+		case 'D':
+			o = 13;
+			break;
+		case 'E':
+			o = 14;
+			break;
+		case 'F':
+			o = 15;
+			break;
+		}
+		out |= (o << mask);
+		mask -= maskShift;
+	}
+
+	r = (out & 0xFF000000) >> 24;
+	g = (out & 0x00FF0000) >> 16;
+	b = (out & 0x0000FF00) >> 8;
+
+	fr = r > 128 ? 0 : 255;
+	fg = g > 128 ? 0 : 255;
+	fb = b > 128 ? 0 : 255;
+
+	hexColor[7] = 0;
+	fgColor[7]  = 0;
+
+	sprintf(fgColor, "#%02X%02X%02X", fr, fg, fb);
+	MwSetText(picker->color_display, MwNbackground, hexColor);
+	MwSetText(picker->color_display_text, MwNforeground, fgColor);
+
+	MwSetText(picker->color_display_text, MwNbackground, hexColor);
+	MwSetText(picker->color_display_text, MwNtext, hexColor);
+
+	picker->chosen_color.red   = r;
+	picker->chosen_color.green = g;
+	picker->chosen_color.blue  = b;
 }
 
 static void color_picker_finish(MwWidget handle, void* user,
@@ -245,26 +374,30 @@ color_picker_t* color_picker_setup(MwWidget parent, int w, int h) {
 	picker->color_picker_pixmap = NULL;
 	picker->value		    = 0;
 
-	color_picker_image_update(picker);
+	// color_picker_image_update(picker);
+	picker->doUpdate = 1;
 
 	MwAddUserHandler(picker->color_picker_img, MwNmouseDownHandler,
 			 color_picker_click, picker);
 
 	picker->color_display = MwCreateWidget(
-	    MwFrameClass, "colorDisplayFrame", picker->parent, IMG_POS_X(w),
-	    IMG_POS_Y(h) - (PICKER_SIZE / 16) - MARGIN, PICKER_SIZE, PICKER_SIZE / 16);
+	    MwFrameClass, "colorDisplayFrame", picker->parent, IMG_POS_X(w) + (PICKER_SIZE / 2) - ((PICKER_SIZE / 4) / 2),
+	    IMG_POS_Y(h) - (PICKER_SIZE / 16) - MARGIN, (PICKER_SIZE / 4), PICKER_SIZE / 16);
 	MwSetText(picker->color_display, MwNbackground, "#FFFFFF");
 	MwSetInteger(picker->color_display, MwnhasBorder, 1);
 	MwSetInteger(picker->color_display, MwNinverted, 1);
 
 	picker->color_display_text = MwCreateWidget(
-	    MwLabelClass, "colorDisplayFrameText", picker->color_display,
+	    MwEntryClass, "colorDisplayFrameText", picker->color_display,
 	    MwDefaultBorderWidth(parent), MwDefaultBorderWidth(parent),
-	    PICKER_SIZE - MwDefaultBorderWidth(parent),
+	    (PICKER_SIZE / 4) - MwDefaultBorderWidth(parent),
 	    (PICKER_SIZE / 16) - (MwDefaultBorderWidth(parent) * 2));
 
 	MwSetText(picker->color_display_text, MwNtext, "#FFFFFF");
+	// MwSetInteger(picker->color_display_text, Mwnali, MwALIGNMENT_CENTER);
 
+	MwAddUserHandler(picker->color_display_text, MwNactivateHandler,
+			 color_display_text_change, picker);
 	picker->value_slider = MwVaCreateWidget(
 	    MwScrollBarClass, "value-slider", picker->parent,
 	    /* x */
@@ -319,6 +452,8 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	wheel = color_picker_setup(window, WIN_SIZE, WIN_SIZE);
 
 	MwAddUserHandler(window, MwNcloseHandler, color_picker_close, wheel);
+	MwAddUserHandler(window, MwNtickHandler, color_picker_tick, wheel);
+	MwAddTickList(window);
 
 	MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
