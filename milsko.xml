@@ -89,6 +89,7 @@
 		<handler name="focusIn" />
 		<handler name="focusOut" />
 		<handler name="fileChosen" />
+		<handler name="colorChosen" />
 	</properties>
 	<enumerations>
 		<enumeration name="MwDIRECTION">
@@ -125,6 +126,19 @@
 		<integer name="MwMB_BUTTONNO">0x80</integer>
 	</constants>
 	<headers>
+		<header name="ColorChooser">
+			<functions>
+				<function name="MwColorChooser">
+					<return>
+						<widget />
+					</return>
+					<arguments>
+						<widget name="handle" />
+						<string name="title" />
+					</arguments>
+				</function>
+			</functions>
+		</header>
 		<header name="Core">
 			<functions>
 				<function name="MwCreateWidget">
