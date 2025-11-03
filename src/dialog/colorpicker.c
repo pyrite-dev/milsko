@@ -38,6 +38,7 @@ typedef struct color_picker {
 	MwRGB	      chosen_color;
 	unsigned char color_picker_image_data[PICKER_SIZE * PICKER_SIZE * 4];
 	MwHSV	      hue_table[101753];
+	MwU8	      doUpdate;
 } color_picker_t;
 
 static void hsv2rgb(MwU32 h, MwU32 s, MwU32 v, MwU16* r, MwU16* g, MwU16* b) {
@@ -56,7 +57,6 @@ static void hsv2rgb(MwU32 h, MwU32 s, MwU32 v, MwU16* r, MwU16* g, MwU16* b) {
 		HSV_SWAPPTR(r, b);
 	}
 	if(sextant & 4) {
-
 		HSV_SWAPPTR(g, b);
 	}
 	if(!(sextant & 6)) {
@@ -167,7 +167,7 @@ static void color_picker_click(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	color_picker_image_update(picker);
+	// color_picker_image_update(picker);
 
 	i = ((mouse->point.y * PICKER_SIZE) + mouse->point.x) * 4;
 
@@ -200,7 +200,20 @@ static void color_picker_on_change_value(MwWidget handle, void* user,
 
 	picker->value = ((double)value / 1024.);
 
-	color_picker_image_update(picker);
+	picker->doUpdate = 1;
+	// color_picker_image_update(picker);
+}
+
+static void color_picker_tick(MwWidget handle, void* user,
+			      void* call) {
+	color_picker_t* picker = user;
+
+	(void)call;
+
+	if(picker->doUpdate == 1) {
+		color_picker_image_update(picker);
+		picker->doUpdate = 0;
+	}
 }
 
 static void color_picker_destroy(color_picker_t* picker) {
@@ -216,6 +229,38 @@ static void color_picker_close(MwWidget handle, void* user,
 
 	color_picker_destroy(picker);
 	MwDestroyWidget(handle);
+}
+
+static void color_display_text_change(MwWidget handle, void* user,
+				      void* call) {
+	color_picker_t* picker = user;
+	char		hexColor[9];
+	char		fgColor[9];
+	MwLLColor	color;
+	int		fr, fg, fb;
+
+	(void)call;
+
+	memcpy(&hexColor, MwGetText(handle, MwNtext), 8);
+
+	color = MwParseColor(handle, hexColor);
+
+	fr = color->red > 128 ? 0 : 255;
+	fg = color->green > 128 ? 0 : 255;
+	fb = color->blue > 128 ? 0 : 255;
+
+	sprintf(fgColor, "#%02X%02X%02X", fr, fg, fb);
+	MwSetText(picker->color_display, MwNbackground, hexColor);
+	MwSetText(picker->color_display_text, MwNforeground, fgColor);
+
+	MwSetText(picker->color_display_text, MwNbackground, hexColor);
+	MwSetText(picker->color_display_text, MwNtext, hexColor);
+
+	picker->chosen_color.red   = color->red;
+	picker->chosen_color.green = color->green;
+	picker->chosen_color.blue  = color->blue;
+
+	MwLLFreeColor(color);
 }
 
 static void color_picker_finish(MwWidget handle, void* user,
@@ -245,26 +290,30 @@ color_picker_t* color_picker_setup(MwWidget parent, int w, int h) {
 	picker->color_picker_pixmap = NULL;
 	picker->value		    = 0;
 
-	color_picker_image_update(picker);
+	// color_picker_image_update(picker);
+	picker->doUpdate = 1;
 
 	MwAddUserHandler(picker->color_picker_img, MwNmouseDownHandler,
 			 color_picker_click, picker);
 
 	picker->color_display = MwCreateWidget(
-	    MwFrameClass, "colorDisplayFrame", picker->parent, IMG_POS_X(w),
-	    IMG_POS_Y(h) - (PICKER_SIZE / 16) - MARGIN, PICKER_SIZE, PICKER_SIZE / 16);
+	    MwFrameClass, "colorDisplayFrame", picker->parent, IMG_POS_X(w) + (PICKER_SIZE / 2) - ((PICKER_SIZE / 4) / 2),
+	    IMG_POS_Y(h) - (PICKER_SIZE / 16) - MARGIN, (PICKER_SIZE / 4), PICKER_SIZE / 16);
 	MwSetText(picker->color_display, MwNbackground, "#FFFFFF");
 	MwSetInteger(picker->color_display, MwnhasBorder, 1);
 	MwSetInteger(picker->color_display, MwNinverted, 1);
 
 	picker->color_display_text = MwCreateWidget(
-	    MwLabelClass, "colorDisplayFrameText", picker->color_display,
+	    MwEntryClass, "colorDisplayFrameText", picker->color_display,
 	    MwDefaultBorderWidth(parent), MwDefaultBorderWidth(parent),
-	    PICKER_SIZE - MwDefaultBorderWidth(parent),
+	    (PICKER_SIZE / 4) - MwDefaultBorderWidth(parent),
 	    (PICKER_SIZE / 16) - (MwDefaultBorderWidth(parent) * 2));
 
 	MwSetText(picker->color_display_text, MwNtext, "#FFFFFF");
+	// MwSetInteger(picker->color_display_text, Mwnali, MwALIGNMENT_CENTER);
 
+	MwAddUserHandler(picker->color_display_text, MwNactivateHandler,
+			 color_display_text_change, picker);
 	picker->value_slider = MwVaCreateWidget(
 	    MwScrollBarClass, "value-slider", picker->parent,
 	    /* x */
@@ -319,6 +368,8 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	wheel = color_picker_setup(window, WIN_SIZE, WIN_SIZE);
 
 	MwAddUserHandler(window, MwNcloseHandler, color_picker_close, wheel);
+	MwAddUserHandler(window, MwNtickHandler, color_picker_tick, wheel);
+	MwAddTickList(window);
 
 	MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
