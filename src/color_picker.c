@@ -35,20 +35,19 @@ typedef struct color_picker {
 	MwWidget      finish;
 	MwLLPixmap    color_picker_pixmap;
 	double	      value;
-	MwPoint	      point;
 	MwRGB	      chosen_color;
 	unsigned char color_picker_image_data[PICKER_SIZE * PICKER_SIZE * 4];
 	MwHSV	      hue_table[101753];
 } color_picker_t;
 
-static void hsv2rgb(MwU32 h, MwU32 s, MwU32 v, MwU32* r, MwU32* g, MwU32* b) {
+static void hsv2rgb(MwU32 h, MwU32 s, MwU32 v, MwU16* r, MwU16* g, MwU16* b) {
 	MwU8  sextant = h >> 8;
 	MwU16 ww;
 	MwU32 h_fraction, d;
 
 #define HSV_SWAPPTR(a, b) \
 	do { \
-		MwU32* tmp = a; \
+		MwU16* tmp = a; \
 		a	   = b; \
 		b	   = tmp; \
 	} while(0)
