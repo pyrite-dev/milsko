@@ -10,11 +10,11 @@ int main() {
 	MwWidget   image3 = MwCreateWidget(MwImageClass, "image", window, 250, 250, 200, 200);
 	MwLLPixmap px	  = MwLoadImage(window, "examples/picture.png");
 	MwLLPixmap px2	  = MwLoadImage(window, "examples/picture.jpg");
-	MwLLPixmap px3	  = MwLoadImage(window, "resource/logo.png");
+	MwLLPixmap px3	  = MwLoadImage(window, "resource/logo/logo.png");
 
 	if(px == NULL) px = MwLoadImage(window, "../examples/picture.png");
 	if(px2 == NULL) px2 = MwLoadImage(window, "../examples/picture.jpg");
-	if(px3 == NULL) px3 = MwLoadImage(window, "../resource/logo.png");
+	if(px3 == NULL) px3 = MwLoadImage(window, "../resource/logo/logo.png");
 
 	MwVaApply(window,
 		  MwNiconPixmap, px,

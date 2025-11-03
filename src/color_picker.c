@@ -5,7 +5,7 @@
 #define PICKER_SIZE 360
 #define IMG_POS_X(w) ((w - PICKER_SIZE) / 2)
 #define IMG_POS_Y(h) ((h - PICKER_SIZE) / 2)
-#define SCROLL_BAR_WIDTH 12
+#define SCROLL_BAR_WIDTH 16
 #define MARGIN (PICKER_SIZE / 32)
 #define COLOR_DISPLAY_HEIGHT 12
 
