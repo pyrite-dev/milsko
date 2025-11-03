@@ -19,12 +19,13 @@
 #include <Mw/Constants.h>
 #include <Mw/Unicode.h>
 #include <Mw/Icon.h>
-#include <Mw/MessageBox.h>
 #include <Mw/Directory.h>
 #include <Mw/String.h>
-#include <Mw/FileChooser.h>
-#include <Mw/ColorPicker.h>
 #include <Mw/Version.h>
+
+#include <Mw/Dialog/MessageBox.h>
+#include <Mw/Dialog/FileChooser.h>
+#include <Mw/Dialog/ColorPicker.h>
 
 #include <Mw/Widget/Window.h>
 #include <Mw/Widget/Menu.h>

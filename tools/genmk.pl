@@ -150,6 +150,7 @@ scan("src/cursor");
 scan("src/widget");
 scan("src/text");
 scan("src/font");
+scan("src/dialog");
 push(@cfiles, "src/backend/gdi.c");
 
 generate("BorMakefile", "Borland");
