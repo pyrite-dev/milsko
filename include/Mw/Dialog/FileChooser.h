@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * @file Mw/FileChooser.h
+ * @file Mw/Dialog/FileChooser.h
  * @brief File chooser
  */
 #ifndef __MW_FILECHOOSER_H__

@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * @file Mw/ColorPicker.h
+ * @file Mw/Dialog/ColorPicker.h
  * @brief Color picker
  */
 #ifndef __MW_COLORPICKER_H__

@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * @file Mw/MessageBox.h
+ * @file Mw/Dialog/MessageBox.h
  * @brief Message box
  */
 #ifndef __MW_MESSAGEBOX_H__
