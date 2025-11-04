@@ -1,11 +1,11 @@
 /* $Id$ */
 /*!
- * @file Mw/Cursor.h
+ * @file Mw/Resource/Cursor.h
  * @brief Cursor externs
  */
 
-#ifndef __MW_CURSOR_H__
-#define __MW_CURSOR_H__
+#ifndef __MW_RESOURCE_CURSOR_H__
+#define __MW_RESOURCE_CURSOR_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>

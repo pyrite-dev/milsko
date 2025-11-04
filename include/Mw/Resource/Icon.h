@@ -1,10 +1,10 @@
 /* $Id$ */
 /*!
- * @file Mw/Icon.h
+ * @file Mw/Resource/Icon.h
  * @brief Icon
  */
-#ifndef __MW_ICON_H__
-#define __MW_ICON_H__
+#ifndef __MW_RESOURCE_ICON_H__
+#define __MW_RESOURCE_ICON_H__
 
 #include <Mw/MachDep.h>
 

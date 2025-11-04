@@ -15,13 +15,14 @@
 #include <Mw/Draw.h>
 #include <Mw/Font.h>
 #include <Mw/Error.h>
-#include <Mw/Cursor.h>
 #include <Mw/Constants.h>
 #include <Mw/Unicode.h>
-#include <Mw/Icon.h>
 #include <Mw/Directory.h>
 #include <Mw/String.h>
 #include <Mw/Version.h>
+
+#include <Mw/Resource/Icon.h>
+#include <Mw/Resource/Cursor.h>
 
 #include <Mw/Dialog/MessageBox.h>
 #include <Mw/Dialog/FileChooser.h>

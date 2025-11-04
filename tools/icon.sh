@@ -1,20 +1,20 @@
 #!/bin/sh
 # $Id$
 
-echo '/* $Id$ */' > include/Mw/Icon.h
-echo '/*!' >> include/Mw/Icon.h
-echo ' * @file Mw/Icon.h' >> include/Mw/Icon.h
-echo ' * @brief Icon' >> include/Mw/Icon.h
-echo ' */' >> include/Mw/Icon.h
-echo '#ifndef __MW_ICON_H__' >> include/Mw/Icon.h
-echo '#define __MW_ICON_H__' >> include/Mw/Icon.h
-echo '' >> include/Mw/Icon.h
-echo '#include <Mw/MachDep.h>' >> include/Mw/Icon.h
-echo '' >> include/Mw/Icon.h
-echo '#ifdef __cplusplus' >> include/Mw/Icon.h
-echo 'extern "C" {' >> include/Mw/Icon.h
-echo '#endif' >> include/Mw/Icon.h
-echo '' >> include/Mw/Icon.h
+echo '/* $Id$ */' > include/Mw/Resource/Icon.h
+echo '/*!' >> include/Mw/Resource/Icon.h
+echo ' * @file Mw/Resource/Icon.h' >> include/Mw/Resource/Icon.h
+echo ' * @brief Icon' >> include/Mw/Resource/Icon.h
+echo ' */' >> include/Mw/Resource/Icon.h
+echo '#ifndef __MW_RESOURCE_ICON_H__' >> include/Mw/Resource/Icon.h
+echo '#define __MW_RESOURCE_ICON_H__' >> include/Mw/Resource/Icon.h
+echo '' >> include/Mw/Resource/Icon.h
+echo '#include <Mw/MachDep.h>' >> include/Mw/Resource/Icon.h
+echo '' >> include/Mw/Resource/Icon.h
+echo '#ifdef __cplusplus' >> include/Mw/Resource/Icon.h
+echo 'extern "C" {' >> include/Mw/Resource/Icon.h
+echo '#endif' >> include/Mw/Resource/Icon.h
+echo '' >> include/Mw/Resource/Icon.h
 for i in resource/icon/*.png; do
 	LOWER=`echo $i | rev | cut -d"/" -f1 | rev | cut -d"." -f1`
 	if [ "$LOWER" = "unsure" ]; then
@@ -37,15 +37,15 @@ for i in resource/icon/*.png; do
 	echo $NAME
 done | while read a; do
 	echo $a
-	echo '/*!' >> include/Mw/Icon.h
-	echo " * @brief `echo $a | sed s/MwIcon//` icon" >> include/Mw/Icon.h
-	echo ' */' >> include/Mw/Icon.h
-	echo "MWDECL unsigned int $a[];" >> include/Mw/Icon.h
-	echo '' >> include/Mw/Icon.h
+	echo '/*!' >> include/Mw/Resource/Icon.h
+	echo " * @brief `echo $a | sed s/MwIcon//` icon" >> include/Mw/Resource/Icon.h
+	echo ' */' >> include/Mw/Resource/Icon.h
+	echo "MWDECL unsigned int $a[];" >> include/Mw/Resource/Icon.h
+	echo '' >> include/Mw/Resource/Icon.h
 done
-echo '' >> include/Mw/Icon.h
-echo '#ifdef __cplusplus' >> include/Mw/Icon.h
-echo '}' >> include/Mw/Icon.h
-echo '#endif' >> include/Mw/Icon.h
-echo '' >> include/Mw/Icon.h
-echo '#endif' >> include/Mw/Icon.h
+echo '' >> include/Mw/Resource/Icon.h
+echo '#ifdef __cplusplus' >> include/Mw/Resource/Icon.h
+echo '}' >> include/Mw/Resource/Icon.h
+echo '#endif' >> include/Mw/Resource/Icon.h
+echo '' >> include/Mw/Resource/Icon.h
+echo '#endif' >> include/Mw/Resource/Icon.h
