@@ -295,7 +295,6 @@ int MwPending(MwWidget handle) {
 void MwLoop(MwWidget handle) {
 	long tick = MwLLGetTick();
 	int  i;
-	int  skipsleep = 0;
 	long wait      = MwGetInteger(handle, MwNwaitMS);
 	if(wait == MwDEFAULT) wait = MwWaitMS;
 	while(!handle->close) {
@@ -312,16 +311,11 @@ void MwLoop(MwWidget handle) {
 		}
 
 		t = (tick + wait) - (t2 = MwLLGetTick());
-		if(t > 0 && skipsleep == 0) {
+		if(t > 0) {
 			MwLLSleep(t);
 			tick += wait;
 		} else {
-			tick = t2;
-			if(skipsleep) {
-				skipsleep--;
-			} else {
-				skipsleep = 10;
-			}
+			tick = t2;}
 		}
 	}
 }
