@@ -31,7 +31,7 @@ for i in resource/icon/*.png; do
 	echo >> $OUT
 	echo "unsigned int $NAME[] = {" >> $OUT
 	echo "	($WIDTH << 16) | $HEIGHT," >> $OUT
-	convert $i txt:- 2>/dev/null | grep -oE '[0-9a-fA-F]{8}' | xargs printf '	0x%s,\n' >> $OUT
+	convert $i txt:- 2>/dev/null | grep -oE '#[0-9a-fA-F]{8}' | sed 's/^#/	0x/' | sed -E 's/$/,/' >> $OUT
 	echo "	0" >> $OUT
 	echo "};" >> $OUT
 	echo $NAME

@@ -410,11 +410,8 @@ void MwLLNextEvent(MwLL handle) {
 
 			MwLLDispatch(handle, draw, NULL);
 			if(handle->copy_buffer) {
-#if 0
 				XCopyArea(handle->display, handle->pixmap, handle->window, handle->gc, 0, 0, w, h, 0, 0);
-#endif
 				XSetWindowBackgroundPixmap(handle->display, handle->window, handle->pixmap);
-				XClearWindow(handle->display, handle->window);
 			}
 		}
 	}
