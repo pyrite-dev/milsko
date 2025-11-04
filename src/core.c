@@ -312,7 +312,7 @@ void MwLoop(MwWidget handle) {
 			MwDispatchUserHandler(handle->tick_list[i], MwNtickHandler, NULL);
 		}
 
-		more = over % wait;
+		more = over % (wait / 2);
 		t = (tick + wait - more) - (t2 = MwLLGetTick());
 		if(t > 0) {
 			MwLLSleep(t);
@@ -321,7 +321,6 @@ void MwLoop(MwWidget handle) {
 		} else {
 			tick = t2;
 			over += -t;
-			printf("%d\n", over);
 		}
 	}
 }
