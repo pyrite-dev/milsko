@@ -315,7 +315,7 @@ void MwLoop(MwWidget handle) {
 			MwLLSleep(t);
 			tick += wait;
 		} else {
-			tick = t2;}
+			tick = t2;
 		}
 	}
 }
