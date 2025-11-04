@@ -208,6 +208,7 @@ static void color_picker_tick(MwWidget handle, void* user,
 			      void* call) {
 	color_picker_t* picker = user;
 
+	(void)handle;
 	(void)call;
 
 	if(picker->doUpdate == 1) {

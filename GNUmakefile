@@ -9,7 +9,8 @@ USE_FDLIBM = 0
 
 CC = $(GCC)gcc
 
-CFLAGS = -Wall -Wextra -Wno-implicit-fallthrough -Wno-sign-compare -Iinclude
+WARN = -Wall -Wextra -Wno-implicit-fallthrough -Wno-sign-compare
+CFLAGS = -Iinclude
 LDFLAGS =
 LIBS =
 
@@ -35,7 +36,7 @@ E_CFLAGS = $(CFLAGS)
 E_LDFLAGS = $(LDFLAGS) -Lsrc -Wl,-rpath,./src
 E_LIBS = $(LIBS) -lMw
 
-EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/basic/image$(EXEC) examples/basic/scrollbar$(EXEC) examples/basic/checkbox$(EXEC) examples/basic/radiobox$(EXEC) examples/basic/messagebox$(EXEC) examples/basic/viewport$(EXEC) examples/basic/listbox$(EXEC) examples/basic/progressbar$(EXEC) examples/basic/color_picker$(EXEC)
+EXAMPLES = examples/basic/example$(EXEC) examples/basic/rotate$(EXEC) examples/basic/image$(EXEC) examples/basic/scrollbar$(EXEC) examples/basic/checkbox$(EXEC) examples/basic/radiobox$(EXEC) examples/basic/messagebox$(EXEC) examples/basic/viewport$(EXEC) examples/basic/listbox$(EXEC) examples/basic/progressbar$(EXEC) examples/basic/colorpicker$(EXEC)
 
 include mk/platform.mk
 include mk/flags.mk
@@ -77,13 +78,13 @@ examples/%$(EXEC): examples/%.o src/$(LIB)Mw$(SO)
 	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS)
 
 src/%.o: src/%.c
-	$(CC) $(L_CFLAGS) -c -o $@ $<
+	$(CC) $(L_CFLAGS) $(WARN) -c -o $@ $<
 
 external/%.o: external/%.c
-	$(CC) $(L_CFLAGS) -Wno-unknown-warning-option -Wno-maybe-uninitialized -Wno-parentheses -Wno-unused-but-set-variable -Wno-unused-const-variable -Wno-sometimes-uninitialized -Wno-strict-aliasing -Wno-unused-value -Wno-unused-parameter -Wno-unused-function -Wno-stringop-overflow -c -o $@ $<
+	$(CC) $(L_CFLAGS) -c -o $@ $<
 
 examples/%.o: examples/%.c
-	$(CC) $(E_CFLAGS) -c -o $@ $<
+	$(CC) $(E_CFLAGS) $(WARN) -c -o $@ $<
 
 clean:
 	rm -f */*.dll */*.so */*.lib */*.a */*.o */*/*.o external/*/src/*.o examples/*.exe examples/*/*.exe $(EXAMPLES)
