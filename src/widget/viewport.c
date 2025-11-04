@@ -141,34 +141,34 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 	}
 }
 
-static void tick(MwWidget handle){
+static void tick(MwWidget handle) {
 	MwViewport vp = handle->internal;
 
-	if(vp->vchanged){
+	if(vp->vchanged) {
 		vp->vchanged = 0;
 
-	int	   v  = MwGetInteger(vp->vscroll, MwNvalue);
-	int	   mv = MwGetInteger(vp->vscroll, MwNmaxValue);
-	int	   l  = MwGetInteger(vp->frame, MwNheight);
-	v	      = (mv - l) * (double)v / mv;
+		int v  = MwGetInteger(vp->vscroll, MwNvalue);
+		int mv = MwGetInteger(vp->vscroll, MwNmaxValue);
+		int l  = MwGetInteger(vp->frame, MwNheight);
+		v      = (mv - l) * (double)v / mv;
 
-	if(v < 0) v = 0;
-	MwVaApply(vp->inframe,
-		  MwNy, -v,
-		  NULL);
+		if(v < 0) v = 0;
+		MwVaApply(vp->inframe,
+			  MwNy, -v,
+			  NULL);
 	}
-	if(vp->hchanged){
+	if(vp->hchanged) {
 		vp->vchanged = 0;
 
-	int	   v  = MwGetInteger(vp->hscroll, MwNvalue);
-	int	   mv = MwGetInteger(vp->hscroll, MwNmaxValue);
-	int	   l  = MwGetInteger(vp->frame, MwNwidth);
-	v	      = (mv - l) * (double)v / mv;
+		int v  = MwGetInteger(vp->hscroll, MwNvalue);
+		int mv = MwGetInteger(vp->hscroll, MwNmaxValue);
+		int l  = MwGetInteger(vp->frame, MwNwidth);
+		v      = (mv - l) * (double)v / mv;
 
-	if(v < 0) v = 0;
-	MwVaApply(vp->inframe,
-		  MwNx, -v,
-		  NULL);
+		if(v < 0) v = 0;
+		MwVaApply(vp->inframe,
+			  MwNx, -v,
+			  NULL);
 	}
 }
 
@@ -184,7 +184,7 @@ MwClassRec MwViewportClassRec = {
     NULL,	  /* mouse_down */
     NULL,	  /* key */
     func_handler, /* execute */
-    tick, /* tick */
+    tick,	  /* tick */
     NULL,
     NULL,
     NULL};

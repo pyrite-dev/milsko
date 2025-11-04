@@ -57,7 +57,7 @@ MwClassRec MwRadioBoxClassRec = {
     MwForceRender2, /* mouse_down */
     NULL,	    /* key */
     NULL,	    /* execute */
-    NULL, /* tick */
+    NULL,	    /* tick */
     NULL,
     NULL,
     NULL};

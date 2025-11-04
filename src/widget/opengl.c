@@ -180,7 +180,7 @@ MwClassRec MwOpenGLClassRec = {
     NULL,	  /* mouse_down */
     NULL,	  /* key */
     func_handler, /* execute */
-    NULL, /* tick */
+    NULL,	  /* tick */
     NULL,
     NULL,
     NULL};

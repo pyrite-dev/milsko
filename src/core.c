@@ -166,7 +166,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	}
 	h->prop_event = 1;
 
-	if(h->widget_class != NULL && h->widget_class->tick != NULL){
+	if(h->widget_class != NULL && h->widget_class->tick != NULL) {
 		MwAddTickList(h);
 	}
 
@@ -295,7 +295,8 @@ int MwPending(MwWidget handle) {
 void MwLoop(MwWidget handle) {
 	long tick = MwLLGetTick();
 	int  i;
-	long wait = MwGetInteger(handle, MwNwaitMS);
+	int  skipsleep = 0;
+	long wait      = MwGetInteger(handle, MwNwaitMS);
 	if(wait == MwDEFAULT) wait = MwWaitMS;
 	while(!handle->close) {
 		int  v = 0;
@@ -311,11 +312,16 @@ void MwLoop(MwWidget handle) {
 		}
 
 		t = (tick + wait) - (t2 = MwLLGetTick());
-		if(t > 0) {
+		if(t > 0 && skipsleep == 0) {
 			MwLLSleep(t);
 			tick += wait;
 		} else {
 			tick = t2;
+			if(skipsleep) {
+				skipsleep--;
+			} else {
+				skipsleep = 10;
+			}
 		}
 	}
 }

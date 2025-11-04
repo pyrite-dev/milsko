@@ -109,8 +109,8 @@ struct _MwViewport {
 	MwWidget hscroll;
 	MwWidget frame;
 	MwWidget inframe;
-	int vchanged;
-	int hchanged;
+	int	 vchanged;
+	int	 hchanged;
 };
 
 struct _MwListBoxEntry {
@@ -126,7 +126,7 @@ struct _MwListBox {
 	unsigned long	click_time;
 	int		pressed;
 	int*		width;
-	int changed;
+	int		changed;
 };
 
 struct _MwDirectoryEntry {

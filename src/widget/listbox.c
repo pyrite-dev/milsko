@@ -312,7 +312,7 @@ static int create(MwWidget handle) {
 	lb->selected   = -1;
 	lb->click_time = 0;
 	lb->width      = NULL;
-	lb->changed = 0;
+	lb->changed    = 0;
 
 	MwSetInteger(handle, MwNleftPadding, 0);
 	MwSetInteger(handle, MwNhasHeading, 0);
@@ -506,10 +506,10 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 	}
 }
 
-static void tick(MwWidget handle){
+static void tick(MwWidget handle) {
 	MwListBox lb = handle->internal;
 
-	if(lb->changed){
+	if(lb->changed) {
 		lb->changed = 0;
 		MwForceRender(lb->frame);
 	}
@@ -527,7 +527,7 @@ MwClassRec MwListBoxClassRec = {
     NULL,	  /* mouse_down */
     NULL,	  /* key */
     func_handler, /* execute */
-    tick, /* tick */
+    tick,	  /* tick */
     NULL,
     NULL,
     NULL};
