@@ -55,14 +55,12 @@ install: lib
 	mkdir -p $(PREFIX)/lib
 	mkdir -p $(PREFIX)/bin
 	mkdir -p $(PREFIX)/include
-	mkdir -p $(PREFIX)/share/doc/milsko
 	for i in src; do \
 		cp $$i/*.so $(PREFIX)/lib/ ; \
 		cp $$i/*.a $(PREFIX)/lib/ ; \
 		cp $$i/*.dll $(PREFIX)/bin/ ; \
 	done ; true
 	cp -rf include/Mw $(PREFIX)/include/
-	cp -rf doc/* $(PREFIX)/share/doc/milsko/
 
 format:
 	clang-format --verbose -i `find src include examples tools "(" -name "*.c" -or -name "*.h" ")" -and -not -name "stb_*.h" -and -not -name "ttf.c" -and -not -name "boldttf.c" -and -not -name "font.c" -and -not -name "boldfont.c"`
