@@ -3,28 +3,20 @@
 
 static void vscroll_changed(MwWidget handle, void* user, void* call) {
 	MwViewport vp = user;
-	int	   v  = MwGetInteger(handle, MwNvalue);
-	int	   mv = MwGetInteger(handle, MwNmaxValue);
-	int	   l  = MwGetInteger(vp->frame, MwNheight);
-	v	      = (mv - l) * (double)v / mv;
+
+	(void)handle;
 	(void)call;
-	if(v < 0) v = 0;
-	MwVaApply(vp->inframe,
-		  MwNy, -v,
-		  NULL);
+
+	vp->vchanged = 1;
 }
 
 static void hscroll_changed(MwWidget handle, void* user, void* call) {
 	MwViewport vp = user;
-	int	   v  = MwGetInteger(handle, MwNvalue);
-	int	   mv = MwGetInteger(handle, MwNmaxValue);
-	int	   l  = MwGetInteger(vp->frame, MwNwidth);
-	v	      = (mv - l) * (double)v / mv;
+
+	(void)handle;
 	(void)call;
-	if(v < 0) v = 0;
-	MwVaApply(vp->inframe,
-		  MwNx, -v,
-		  NULL);
+
+	vp->hchanged = 1;
 }
 
 static void resize(MwWidget handle) {
@@ -91,6 +83,9 @@ static int create(MwWidget handle) {
 
 	MwSetDefault(handle);
 
+	vp->vchanged = 0;
+	vp->hchanged = 0;
+
 	resize(handle);
 
 	return 0;
@@ -146,6 +141,37 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 	}
 }
 
+static void tick(MwWidget handle){
+	MwViewport vp = handle->internal;
+
+	if(vp->vchanged){
+		vp->vchanged = 0;
+
+	int	   v  = MwGetInteger(vp->vscroll, MwNvalue);
+	int	   mv = MwGetInteger(vp->vscroll, MwNmaxValue);
+	int	   l  = MwGetInteger(vp->frame, MwNheight);
+	v	      = (mv - l) * (double)v / mv;
+
+	if(v < 0) v = 0;
+	MwVaApply(vp->inframe,
+		  MwNy, -v,
+		  NULL);
+	}
+	if(vp->hchanged){
+		vp->vchanged = 0;
+
+	int	   v  = MwGetInteger(vp->hscroll, MwNvalue);
+	int	   mv = MwGetInteger(vp->hscroll, MwNmaxValue);
+	int	   l  = MwGetInteger(vp->frame, MwNwidth);
+	v	      = (mv - l) * (double)v / mv;
+
+	if(v < 0) v = 0;
+	MwVaApply(vp->inframe,
+		  MwNx, -v,
+		  NULL);
+	}
+}
+
 MwClassRec MwViewportClassRec = {
     create,	  /* create */
     destroy,	  /* destroy */
@@ -158,7 +184,7 @@ MwClassRec MwViewportClassRec = {
     NULL,	  /* mouse_down */
     NULL,	  /* key */
     func_handler, /* execute */
-    NULL,
+    tick, /* tick */
     NULL,
     NULL,
     NULL};

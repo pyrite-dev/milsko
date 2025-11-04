@@ -112,7 +112,7 @@ static void vscroll_changed(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	MwForceRender(lb->frame);
+	lb->changed = 1;
 }
 
 static void frame_mouse_down(MwWidget handle, void* user, void* call) {
@@ -312,6 +312,7 @@ static int create(MwWidget handle) {
 	lb->selected   = -1;
 	lb->click_time = 0;
 	lb->width      = NULL;
+	lb->changed = 0;
 
 	MwSetInteger(handle, MwNleftPadding, 0);
 	MwSetInteger(handle, MwNhasHeading, 0);
@@ -505,6 +506,15 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 	}
 }
 
+static void tick(MwWidget handle){
+	MwListBox lb = handle->internal;
+
+	if(lb->changed){
+		lb->changed = 0;
+		MwForceRender(lb->frame);
+	}
+}
+
 MwClassRec MwListBoxClassRec = {
     create,	  /* create */
     destroy,	  /* destroy */
@@ -517,7 +527,7 @@ MwClassRec MwListBoxClassRec = {
     NULL,	  /* mouse_down */
     NULL,	  /* key */
     func_handler, /* execute */
-    NULL,
+    tick, /* tick */
     NULL,
     NULL,
     NULL};

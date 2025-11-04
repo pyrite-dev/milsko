@@ -208,7 +208,7 @@ MwClassRec MwSubMenuClassRec = {
     MwForceRender2, /* mouse_down */
     NULL,	    /* key */
     func_handler,   /* execute */
-    NULL,
+    NULL, /* tick */
     NULL,
     NULL,
     NULL};

@@ -76,7 +76,7 @@ MwClassRec MwButtonClassRec = {
     MwForceRender2, /* mouse_down */
     NULL,	    /* key */
     NULL,	    /* execute */
-    NULL,
+    NULL, /* tick */
     NULL,
     NULL,
     NULL};

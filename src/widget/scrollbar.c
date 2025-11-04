@@ -254,7 +254,7 @@ MwClassRec MwScrollBarClassRec = {
     mouse_down,	    /* mouse_down */
     NULL,	    /* key */
     func_handler,   /* execute */
-    NULL,
+    NULL, /* tick */
     NULL,
     NULL,
     NULL};

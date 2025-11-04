@@ -140,7 +140,7 @@ MwClassRec MwNumberEntryClassRec = {
     mouse_down,	 /* mouse_down */
     key,	 /* key */
     NULL,	 /* execute */
-    NULL,
+    NULL, /* tick */
     NULL,
     NULL,
     NULL};

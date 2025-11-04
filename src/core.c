@@ -166,6 +166,10 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	}
 	h->prop_event = 1;
 
+	if(h->widget_class != NULL && h->widget_class->tick != NULL){
+		MwAddTickList(h);
+	}
+
 	return h;
 }
 
@@ -302,6 +306,7 @@ void MwLoop(MwWidget handle) {
 		if(v != 0) break;
 
 		for(i = 0; i < arrlen(handle->tick_list); i++) {
+			MwDispatch(handle->tick_list[i], tick);
 			MwDispatchUserHandler(handle->tick_list[i], MwNtickHandler, NULL);
 		}
 
