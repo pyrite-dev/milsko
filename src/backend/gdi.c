@@ -201,6 +201,9 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	} else if(msg == WM_SETCURSOR) {
 		if(LOWORD(lp) != HTCLIENT) return DefWindowProc(hWnd, msg, wp, lp);
 		if(u->ll->cursor != NULL) SetCursor(u->ll->cursor);
+	}else if(msg == WM_USER){
+		InvalidateRect(hWnd, NULL, FALSE);
+		UpdateWindow(hWnd);
 	} else {
 		return DefWindowProc(hWnd, msg, wp, lp);
 	}
@@ -516,8 +519,7 @@ void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 }
 
 void MwLLForceRender(MwLL handle) {
-	InvalidateRect(handle->hWnd, NULL, FALSE);
-	UpdateWindow(handle->hWnd); /* Windows 11 wants this */
+	PostMessage(handle->hWnd, WM_USER, 0, 0);
 }
 
 void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
