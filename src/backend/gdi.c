@@ -1,6 +1,8 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
+#include <windows.h>
+
 typedef struct userdata {
 	MwLL  ll;
 	POINT min;
@@ -201,7 +203,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	} else if(msg == WM_SETCURSOR) {
 		if(LOWORD(lp) != HTCLIENT) return DefWindowProc(hWnd, msg, wp, lp);
 		if(u->ll->cursor != NULL) SetCursor(u->ll->cursor);
-	}else if(msg == WM_USER){
+	} else if(msg == WM_USER) {
 		InvalidateRect(hWnd, NULL, FALSE);
 		UpdateWindow(hWnd);
 	} else {
@@ -388,10 +390,6 @@ void MwLLNextEvent(MwLL handle) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-}
-
-void MwLLSleep(int ms) {
-	Sleep(ms);
 }
 
 MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int height) {
@@ -626,10 +624,6 @@ void MwLLMakeBorderless(MwLL handle, int toggle) {
 	SetWindowLongPtr(handle->hWnd, GWL_STYLE, lp);
 
 	SetWindowPos(handle->hWnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
-}
-
-long MwLLGetTick(void) {
-	return GetTickCount();
 }
 
 void MwLLFocus(MwLL handle) {

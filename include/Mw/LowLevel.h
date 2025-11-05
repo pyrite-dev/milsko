@@ -108,7 +108,6 @@ MWDECL void MwLLSetTitle(MwLL handle, const char* title);
 
 MWDECL int  MwLLPending(MwLL handle);
 MWDECL void MwLLNextEvent(MwLL handle);
-MWDECL void MwLLSleep(int ms);
 
 MWDECL MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int height);
 MWDECL void	  MwLLPixmapUpdate(MwLLPixmap pixmap);
@@ -126,8 +125,6 @@ MWDECL void MwLLMakePopup(MwLL handle, MwLL parent);
 
 MWDECL void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy);
 MWDECL void MwLLMakeBorderless(MwLL handle, int toggle);
-
-MWDECL long MwLLGetTick(void);
 
 MWDECL void MwLLSetBackground(MwLL handle, MwLLColor color);
 

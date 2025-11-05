@@ -417,15 +417,6 @@ void MwLLNextEvent(MwLL handle) {
 	}
 }
 
-void MwLLSleep(int ms) {
-	struct timespec ts;
-
-	ts.tv_sec  = ms / 1000;
-	ts.tv_nsec = (ms % 1000) * 1000 * 1000;
-
-	nanosleep(&ts, NULL);
-}
-
 void MwLLSetTitle(MwLL handle, const char* title) {
 	XSetStandardProperties(handle->display, handle->window, title, title, None, (char**)NULL, 0, NULL);
 }
@@ -755,18 +746,6 @@ void MwLLMakeBorderless(MwLL handle, int toggle) {
 	XSync(handle->display, False);
 
 	wait_map(handle);
-}
-
-long MwLLGetTick(void) {
-	struct timespec ts;
-	long		n = 0;
-
-	clock_gettime(CLOCK_MONOTONIC, &ts);
-
-	n += ts.tv_nsec / 1000 / 1000;
-	n += ts.tv_sec * 1000;
-
-	return n;
 }
 
 void MwLLFocus(MwLL handle) {

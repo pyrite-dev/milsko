@@ -29,7 +29,8 @@ L_OBJS += external/stb_ds.o external/stb_image.o external/stb_truetype.o
 
 L_OBJS += src/widget/window.o src/widget/button.o src/widget/frame.o src/widget/menu.o src/widget/submenu.o src/widget/image.o src/widget/scrollbar.o src/widget/checkbox.o src/widget/label.o src/widget/entry.o src/widget/numberentry.o src/widget/viewport.o src/widget/listbox.o src/widget/progressbar.o src/widget/radiobox.o
 L_OBJS += src/dialog/filechooser.o src/dialog/colorpicker.o src/dialog/messagebox.o
-L_OBJS += src/abstract/directory.o
+
+L_OBJS += src/abstract/directory.o src/abstract/time.o
 
 L_OBJS += src/cursor/hidden.o src/cursor/default.o src/cursor/cross.o src/cursor/text.o
 L_OBJS += src/icon/warning.o src/icon/note.o src/icon/info.o src/icon/news.o src/icon/error.o src/icon/file.o src/icon/directory.o src/icon/back.o src/icon/forward.o src/icon/up.o src/icon/down.o src/icon/left.o src/icon/right.o src/icon/computer.o src/icon/search.o

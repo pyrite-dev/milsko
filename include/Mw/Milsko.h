@@ -21,6 +21,7 @@
 #include <Mw/Version.h>
 
 #include <Mw/Abstract/Directory.h>
+#include <Mw/Abstract/Time.h>
 
 #include <Mw/Resource/Icon.h>
 #include <Mw/Resource/Cursor.h>

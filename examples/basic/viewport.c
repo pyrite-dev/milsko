@@ -17,7 +17,7 @@ static void resize(MwWidget handle, void* user, void* call) {
 }
 
 int main() {
-	MwWidget w = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480, MwNtitle, "test", NULL);
+	MwWidget   w = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480, MwNtitle, "test", NULL);
 	MwLLPixmap px;
 
 	vp = MwCreateWidget(MwViewportClass, "vp", w, 5, 5, 630, 470);
