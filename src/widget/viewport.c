@@ -145,11 +145,13 @@ static void tick(MwWidget handle) {
 	MwViewport vp = handle->internal;
 
 	if(vp->vchanged) {
+		int v, mv, l;
+
 		vp->vchanged = 0;
 
-		int v  = MwGetInteger(vp->vscroll, MwNvalue);
-		int mv = MwGetInteger(vp->vscroll, MwNmaxValue);
-		int l  = MwGetInteger(vp->frame, MwNheight);
+		v  = MwGetInteger(vp->vscroll, MwNvalue);
+		mv = MwGetInteger(vp->vscroll, MwNmaxValue);
+		l  = MwGetInteger(vp->frame, MwNheight);
 		v      = (mv - l) * (double)v / mv;
 
 		if(v < 0) v = 0;
@@ -158,11 +160,13 @@ static void tick(MwWidget handle) {
 			  NULL);
 	}
 	if(vp->hchanged) {
+		int v, mv, l;
+
 		vp->vchanged = 0;
 
-		int v  = MwGetInteger(vp->hscroll, MwNvalue);
-		int mv = MwGetInteger(vp->hscroll, MwNmaxValue);
-		int l  = MwGetInteger(vp->frame, MwNwidth);
+		v  = MwGetInteger(vp->hscroll, MwNvalue);
+		mv = MwGetInteger(vp->hscroll, MwNmaxValue);
+		l  = MwGetInteger(vp->frame, MwNwidth);
 		v      = (mv - l) * (double)v / mv;
 
 		if(v < 0) v = 0;
