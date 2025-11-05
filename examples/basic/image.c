@@ -16,6 +16,10 @@ int main() {
 	if(px2 == NULL) px2 = MwLoadImage(window, "../examples/picture.jpg");
 	if(px3 == NULL) px3 = MwLoadImage(window, "../resource/logo/logo.png");
 
+	if(px == NULL) px = MwLoadImage(window, "picture.png");
+	if(px2 == NULL) px2 = MwLoadImage(window, "picture.jpg");
+	if(px3 == NULL) px3 = MwLoadImage(window, "logo.png");
+
 	MwVaApply(window,
 		  MwNiconPixmap, px,
 		  NULL);
