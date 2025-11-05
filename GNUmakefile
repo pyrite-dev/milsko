@@ -1,6 +1,7 @@
 # $Id$
 
 PREFIX = /usr/local
+VERBOSE = 
 
 USE_STB_IMAGE = 1
 USE_STB_TRUETYPE = 0
@@ -67,26 +68,36 @@ install: lib
 	cp -rf include/Mw $(PREFIX)/include/
 
 format:
+	@echo clang-format
 	clang-format --verbose -i `find src include examples tools "(" -name "*.c" -or -name "*.h" ")" -and -not -name "stb_*.h" -and -not -name "ttf.c" -and -not -name "boldttf.c" -and -not -name "font.c" -and -not -name "boldfont.c"`
+	@echo perltidy
 	perltidy -b -bext='/' --paren-tightness=2 `find tools -name "*.pl"`
-
-src/$(LIB)Mw$(SO): $(L_OBJS)
-	$(CC) $(L_LDFLAGS) $(SHARED) -o $@ $^ $(L_LIBS)
-
-examples/gldemos/%$(EXEC): examples/gldemos/%.o src/$(LIB)Mw$(SO)
-	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS) $(GL)
-
-examples/%$(EXEC): examples/%.o src/$(LIB)Mw$(SO)
-	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS)
-
-src/%.o: src/%.c
-	$(CC) $(L_CFLAGS) $(WARN) -c -o $@ $<
-
-external/%.o: external/%.c
-	$(CC) $(L_CFLAGS) -c -o $@ $<
-
-examples/%.o: examples/%.c
-	$(CC) $(E_CFLAGS) $(WARN) -c -o $@ $<
 
 clean:
 	rm -f */*.dll */*.so */*.lib */*.a */*.o */*/*.o external/*/src/*.o examples/*.exe examples/*/*.exe $(EXAMPLES)
+
+$(VERBOSE).SILENT:
+
+src/$(LIB)Mw$(SO): $(L_OBJS)
+	@echo LD $@
+	$(CC) $(L_LDFLAGS) $(SHARED) -o $@ $^ $(L_LIBS)
+
+examples/gldemos/%$(EXEC): examples/gldemos/%.o src/$(LIB)Mw$(SO)
+	@echo LD $@
+	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS) $(GL)
+
+examples/%$(EXEC): examples/%.o src/$(LIB)Mw$(SO)
+	@echo LD $@
+	$(CC) $(E_LDFLAGS) -o $@ $< $(E_LIBS)
+
+src/%.o: src/%.c
+	@echo CC $@
+	$(CC) $(L_CFLAGS) $(WARN) -c -o $@ $<
+
+external/%.o: external/%.c
+	@echo CC $@
+	$(CC) $(L_CFLAGS) -c -o $@ $<
+
+examples/%.o: examples/%.c
+	@echo CC $@
+	$(CC) $(E_CFLAGS) $(WARN) -c -o $@ $<
