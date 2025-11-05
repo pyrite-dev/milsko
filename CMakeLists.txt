@@ -23,7 +23,7 @@ option(USE_FREETYPE2 "Use FreeType 2" ON)
 file(
 	GLOB
 	SOURCES
-	src/*.c src/cursor/*.c src/icon/*.c src/text.c src/widget/*.c src/math/*.c src/font/*.c src/dialog/*.c external/*.c
+	src/*.c src/cursor/*.c src/icon/*.c src/text.c src/widget/*.c src/math/*.c src/font/*.c src/dialog/*.c src/abstract/*.c external/*.c
 )
 
 if(NOT OPENGL)
