@@ -2,8 +2,6 @@
 #include <Mw/Milsko.h>
 
 #ifdef _WIN32
-#include <windows.h>
-
 long MwTimeGetTick(void) {
 	return GetTickCount();
 }

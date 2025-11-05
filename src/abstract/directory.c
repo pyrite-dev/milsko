@@ -2,10 +2,6 @@
 #include <Mw/Milsko.h>
 
 #ifdef _WIN32
-#include <windows.h>
-#endif
-
-#ifdef _WIN32
 typedef struct dir {
 	HANDLE		hFind;
 	WIN32_FIND_DATA ffd;

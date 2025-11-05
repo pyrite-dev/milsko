@@ -1,8 +1,6 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-#include <windows.h>
-
 typedef struct userdata {
 	MwLL  ll;
 	POINT min;
