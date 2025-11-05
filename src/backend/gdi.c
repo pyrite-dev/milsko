@@ -517,6 +517,7 @@ void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 
 void MwLLForceRender(MwLL handle) {
 	InvalidateRect(handle->hWnd, NULL, FALSE);
+	UpdateWindow(handle->hWnd); /* Windows 11 wants this */
 }
 
 void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
