@@ -25,6 +25,7 @@
 
 #include <Mw/Resource/Icon.h>
 #include <Mw/Resource/Cursor.h>
+#include <Mw/Resource/Font.h>
 
 #include <Mw/Dialog/MessageBox.h>
 #include <Mw/Dialog/FileChooser.h>
