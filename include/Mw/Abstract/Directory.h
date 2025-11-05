@@ -1,10 +1,10 @@
 /* $Id$ */
 /*!
- * @file Mw/Directory.h
+ * @file Mw/Abstract/Directory.h
  * @brief Directory functions
  */
-#ifndef __MW_DIRECTORY_H__
-#define __MW_DIRECTORY_H__
+#ifndef __MW_ABSTRACT_DIRECTORY_H__
+#define __MW_ABSTRACT_DIRECTORY_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>

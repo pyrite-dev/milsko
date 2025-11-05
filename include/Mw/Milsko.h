@@ -12,14 +12,15 @@
 #include <Mw/TypeDefs.h>
 #include <Mw/Core.h>
 #include <Mw/Default.h>
-#include <Mw/Draw.h>
 #include <Mw/Font.h>
 #include <Mw/Error.h>
 #include <Mw/Constants.h>
 #include <Mw/Unicode.h>
-#include <Mw/Directory.h>
 #include <Mw/String.h>
+#include <Mw/Draw.h>
 #include <Mw/Version.h>
+
+#include <Mw/Abstract/Directory.h>
 
 #include <Mw/Resource/Icon.h>
 #include <Mw/Resource/Cursor.h>

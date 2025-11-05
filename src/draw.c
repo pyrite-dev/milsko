@@ -94,6 +94,7 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 
 	MwLLPolygon(handle->lowlevel, p, 4, color);
 }
+
 void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	MwLLPixmap     pixmap;
 	int	       y;

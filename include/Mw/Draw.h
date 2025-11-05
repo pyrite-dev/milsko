@@ -90,39 +90,12 @@ MWDECL void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int i
 MWDECL void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border);
 
 /*!
- * @brief Draws a text
- * @param handle Widget
- * @param point Center point of the text
- * @param text Text
- * @param bold Bold
- * @param align Align
- * @param color Color
- */
-MWDECL void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color);
-
-/*!
  * @brief Creates a pixmap from image
  * @param handle Widget
  * @param path Path
  * @return Pixmap
  */
 MWDECL MwLLPixmap MwLoadImage(MwWidget handle, const char* path);
-
-/*!
- * @brief Calculates a text width
- * @param handle Widget
- * @param text Text
- * @return Text width
- */
-MWDECL int MwTextWidth(MwWidget handle, const char* text);
-
-/*!
- * @brief Calculates a text height
- * @param handle Widget
- * @param text Text
- * @return Text height
- */
-MWDECL int MwTextHeight(MwWidget handle, const char* text);
 
 /*!
  * @brief Get color components
@@ -177,6 +150,35 @@ MWDECL MwLLPixmap MwLoadIcon(MwWidget handle, unsigned int* data);
  * @param invert Invert the 3D border color or not
  */
 MWDECL void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
+
+/* text.c */
+
+/*!
+ * @brief Draws a text
+ * @param handle Widget
+ * @param point Center point of the text
+ * @param text Text
+ * @param bold Bold
+ * @param align Align
+ * @param color Color
+ */
+MWDECL void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color);
+
+/*!
+ * @brief Calculates a text width
+ * @param handle Widget
+ * @param text Text
+ * @return Text width
+ */
+MWDECL int MwTextWidth(MwWidget handle, const char* text);
+
+/*!
+ * @brief Calculates a text height
+ * @param handle Widget
+ * @param text Text
+ * @return Text height
+ */
+MWDECL int MwTextHeight(MwWidget handle, const char* text);
 
 /* color.c */
 
