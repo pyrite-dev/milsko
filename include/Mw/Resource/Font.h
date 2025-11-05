@@ -3,7 +3,7 @@
  * @file Mw/Resource/Font.h
  * @brief Default font resources
  */
-#ifndef __MW_RESOURCE__FONT_H__
+#ifndef __MW_RESOURCE_FONT_H__
 #define __MW_RESOURCE_FONT_H__
 
 #include <Mw/MachDep.h>
