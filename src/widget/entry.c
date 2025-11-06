@@ -106,6 +106,7 @@ static void key(MwWidget handle, int code) {
 		t->cursor++;
 	} else if(code == MwLLKeyEnter) {
 		MwDispatchUserHandler(handle, MwNactivateHandler, NULL);
+	} else if(code == (MwLLControlMask | 'v')){
 	} else if(!(code & MwLLKeyMask)) {
 		int incr = 0;
 		out	 = malloc(strlen(str) + 5 + 1);

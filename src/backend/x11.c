@@ -369,7 +369,7 @@ void MwLLNextEvent(MwLL handle) {
 			if(strlen(str) == 1) {
 				char s = str[0];
 
-				if(ev.xkey.state & (ShiftMask | LockMask)) {
+				if(ev.xkey.state & (ShiftMask | LockMask) && !(ev.xkey.state & (ControlMask | Mod1Mask))) {
 					n = toupper((int)s);
 				} else {
 					n = s;
@@ -392,6 +392,17 @@ void MwLLNextEvent(MwLL handle) {
 				n = MwLLKeyLeftShift;
 			} else if(strcmp(str, "Shift_R") == 0) {
 				n = MwLLKeyRightShift;
+			} else if(strcmp(str, "Alt_L") == 0 || strcmp(str, "Alt_R") == 0){
+				n = MwLLKeyAlt;
+			} else if(strcmp(str, "Control_R") == 0 || strcmp(str, "Control_R") == 0){
+				n = MwLLKeyControl;
+			}
+
+			if(n != MwLLKeyControl && ev.xkey.state & ControlMask){
+				n |= MwLLControlMask;
+			}
+			if(n != MwLLKeyAlt && ev.xkey.state & Mod1Mask){
+				n |= MwLLAltMask;
 			}
 
 			if(n != -1) {
