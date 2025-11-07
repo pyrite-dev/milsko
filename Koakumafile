@@ -18,6 +18,7 @@ proc run {project_name} {
 			} elseif { "$target" == "Win64" } {
 				RunCommand "./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross CC=x86_64-w64-mingw32-gcc"
 			}
+			RunCommand "make clean"
 			RunCommand "make -j4"
 		}
 	}
