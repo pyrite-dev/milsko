@@ -61,46 +61,9 @@ D. MinGW-w64/GCC/Clang
 
 1) Determine if you need Vulkan and/or OpenGL. 
 
-2) Run `make'. 
+2) Run `./configure'. 
+   For help, run `./configure --help'. 
 
-
-                               Makefile settings
-
-          This section exists for people who chose D.
-
-          TARGET           - Target environment, chosen by Makefile in
-                             default settings.
-
-          GCC              - Prefix for GCC toolchains. This does not
-                             matter if you set CC manually.
-
-          CC               - C compiler.
-
-          DEBUG            - Debug build or not, 0 in default settings.
-
-          VULKAN           - Build Vulkan widget or not.
-
-          OPENGL           - Build OpenGL widget or not.
-
-          USE_STB_IMAGE    - Use stb_image or not.
-
-          USE_STB_TRUETYPE - Use stb_truetype or not.
-
-          USE_FREETYPE2    - Use FreeType2 or not.
-
-          PREFIX           - Installation destination directory.
-
-
-                                Makefile targets
-
-          This section exists for people who chose D.
-
-          lib      - Builds Milsko library
-
-          examples - Builds examples
-
-          all      - Builds lib and examples
-
-          install  - Installs Milsko to PREFIX
+3) Run `make'. 
 
  -- Nishi  (nishi@nishi.boats) 

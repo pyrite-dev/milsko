@@ -4,6 +4,7 @@ FLAGS=""
 
 target=""
 
+feat_classic_theme=false
 feat_cross=false
 feat_stb_image=true
 feat_stb_truetype=false
@@ -29,6 +30,7 @@ for i in $@; do
 			echo "  --enable-freetype2               Use FreeType2"
 			echo "  --enable-opengl                  Build OpenGL widget"
 			echo "  --enable-vulkan                  Build Vulkan widget"
+			echo "  --enable-classic-theme           Use classic theme"
 			echo "  --disable-FEATURE                Do not use FEATURE"
 			echo ""
 			echo "  --without-vulkan-string-helper   Do not use Vulkan string helper"
@@ -41,15 +43,9 @@ for i in $@; do
 		--target=*)
 			target="`echo $i | cut -d= -f2`"
 			;;
-		--enable-*|--disable-*)
-			if [ "`echo $i | cut -d- -f3`" = "enable" ]; then
-				eval feat_`echo $i | cut -d- -f4- | tr - _`=true
-			else
-				eval feat_`echo $i | cut -d- -f4- | tr - _`=false
-			fi
-			;;
-		--with-*|--without-*)
-			if [ "`echo $i | cut -d- -f3`" = "with" ]; then
+		--enable-*|--disable-*|--with-*|--without-*)
+			opt="`echo $i | cut -d- -f3`"
+			if [ "$opt" = "enable" -o "$opt" = "with" ]; then
 				eval feat_`echo $i | cut -d- -f4- | tr - _`=true
 			else
 				eval feat_`echo $i | cut -d- -f4- | tr - _`=false
@@ -97,6 +93,10 @@ if $feat_vulkan; then
 	FLAGS="$FLAGS -Dbuild_vulkan"
 fi
 
+if $feat_classic_theme; then
+	FLAGS="$FLAGS -Duse_classic_theme"
+fi
+
 echo "Generating Makefile... "
 
 if ! m4 $FLAGS Makefile.m4 > Makefile; then
@@ -114,3 +114,4 @@ echo "  Vulkan              : $feat_vulkan"
 if $feat_vulkan; then
 echo "  Vulkan String Helper: $feat_vulkan_string_helper"
 fi
+echo "  Classic theme       : $feat_classic_theme"

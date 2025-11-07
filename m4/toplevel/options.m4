@@ -2,6 +2,7 @@ dnl $Id$
 include(m4/options/backend.m4)dnl
 include(m4/options/opengl.m4)dnl
 include(m4/options/vulkan.m4)dnl
+include(m4/options/classic.m4)dnl
 dnl
 ifdef([use_stb_image],[add_cflag([-DUSE_STB_IMAGE])],[new_object([external/libz/src/*.c])dnl
 new_object([external/libjpeg/src/*.c])dnl
