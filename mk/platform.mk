@@ -34,7 +34,6 @@ FOUND_PLATFORM = 1
 endif
 
 ifeq ($(TARGET),SunOS)
-CC = gcc
 UNIX = 1
 L_LIBS += -lsocket -lnsl
 OPENGL = 1
@@ -42,7 +41,6 @@ FOUND_PLATFORM = 1
 endif
 
 ifeq ($(TARGET),Darwin)
-CC = gcc
 DARWIN = 1
 L_LIBS += -framework Carbon
 FOUND_PLATFORM = 1
