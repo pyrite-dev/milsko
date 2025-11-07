@@ -22,7 +22,7 @@ define([executable_suffix],[])dnl
 dnl
 define([library_targets],[])dnl
 define([library_objects],[])dnl
-define([new_object],[pushdef([source])define([source],patsubst(patsubst(patsubst(esyscmd([ls -d $1]),[\..+$],object_suffix),[
+define([new_object],[pushdef([source])define([source],patsubst(patsubst(patsubst(esyscmd([sh -c "ls -d $1"]),[\..+$],object_suffix),[
 ],[ ]),[ $],[]))define([library_targets],ifelse(library_targets,[],[source],[library_targets source]))popdef([source])])dnl
 define([print_library_targets],[foreach(x,space_to_comma(library_targets),[pushdef([source])define([source],[patsubst(x,[\]object_suffix[$],[.c])])dnl
 x: source
