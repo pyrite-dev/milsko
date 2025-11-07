@@ -3,7 +3,7 @@
 FLAGS="-Duse_freetype2 -Duse_stb_image -Dbuild_opengl -Dbuild_vulkan"
 
 for i in $@; do
-	case "$i")
+	case "$i" in
 		--help|-h)
 			echo "Configuration utility for Milsko Toolkit"
 			;;
