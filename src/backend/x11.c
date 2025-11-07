@@ -785,8 +785,42 @@ void MwLLSetClipboard(MwLL handle, const char* text) {
 }
 
 char* MwLLGetClipboard(MwLL handle) {
-	/* TODO */
+	Atom clip, target, prop;
+	XEvent ev;
+	XEvent* queue = NULL;
+	char* r = NULL;
 
-	(void)handle;
-	return NULL;
+	clip = XInternAtom(handle->display, "CLIPBOARD", 0);
+	target = XA_STRING;
+	prop = XInternAtom(handle->display, "XSEL_DATA", 0);
+
+	XConvertSelection(handle->display, clip, target, prop, handle->window, CurrentTime);
+
+	while(1){
+		XNextEvent(handle->display, &ev);
+		if(ev.type == SelectionNotify){
+			if(ev.xselection.selection == clip && ev.xselection.property != 0){
+				Atom t;
+				unsigned long size, N;
+				char* data;
+				int format;
+
+				XGetWindowProperty(ev.xselection.display, ev.xselection.requestor, ev.xselection.property, 0L, (~0L), 0, AnyPropertyType, &t, &format, &size, &N, (unsigned char**)&data);
+				if(t == target){
+					r = MwStringDupliacte(data);
+					XFree(data);
+				}
+				XDeleteProperty(ev.xselection.display, ev.xselection.requestor, ev.xselection.property);
+			}
+			break;
+		}
+	}
+
+	while(arrlen(queue) > 0){
+		XPutBackEvent(handle->display, &queue[0]);
+		arrdel(queue, 0);
+	}
+	arrfree(queue);
+
+	return r;
 }
