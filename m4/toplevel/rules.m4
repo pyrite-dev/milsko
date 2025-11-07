@@ -5,6 +5,7 @@ include(m4/util/arg.m4)dnl
 include(m4/util/foreach.m4)dnl
 include(m4/util/comma.m4)dnl
 include(m4/util/default.m4)dnl
+include(m4/util/afterdot.m4)dnl
 include(m4/util/my_syscmd.m4)dnl
 dnl
 default_define([cc],[gcc])dnl
@@ -23,9 +24,8 @@ define([executable_suffix],[])dnl
 dnl
 define([library_targets],[])dnl
 define([library_objects],[])dnl
-define([new_object],[pushdef([source])define([source],patsubst(patsubst(patsubst(my_syscmd([sh -c "ls -d $1"]),[\..+$],object_suffix),[
-],[ ]),[ $],[]))define([library_targets],ifelse(library_targets,[],[source],[library_targets source]))popdef([source])])dnl
-define([print_library_targets],[foreach(x,space_to_comma(library_targets),[pushdef([source])define([source],[patsubst(x,[\]object_suffix[$],[.c])])dnl
+define([new_object],[pushdef([object])define([object],afterdots(my_syscmd([sh -c "ls -d $1"]),[object_suffix]))define([library_targets],ifelse(library_targets,[],[object],[library_targets object]))popdef([object])])dnl
+define([print_library_targets],[foreach([x],space_to_comma(library_targets),[pushdef([source])define([source],afterdot(x,[.c]))dnl
 x: source
 	$(CC) -c -fPIC $(CFLAGS) $(INCDIR) -o x source
 popdef([source])])])dnl
@@ -35,12 +35,12 @@ define([new_example],[define($1[]_cflag,[$2])dnl
 define($1[]_ldflag,[$3])dnl
 define($1[]_lib,[$4])dnl
 define([examples_targets],ifelse(examples_targets,[],[$1[]executable_suffix],[examples_targets $1[]executable_suffix]))])dnl
-define([print_examples_targets],[foreach(x,space_to_comma(examples_targets),[pushdef(base)dnl
-define([base],patsubst(x,[\..+$],[]))dnl			
+define([print_examples_targets],[foreach([x],space_to_comma(examples_targets),[pushdef([base])dnl
+define([base],afterdot(x,[]))dnl
 x: base[]object_suffix library
-	$(CC) -L src -Wl,-R./src $(LIBDIR) indir(base[]_ldflag) -o x base[]object_suffix -lMw $(MATH) indir(base[]_lib)
+	$(CC) -L src -Wl,-R./src $(LIBDIR) defn(base[]_ldflag) -o x base[]object_suffix -lMw $(MATH) defn(base[]_lib)
 base[]object_suffix: base.c
-	$(CC) -c $(INCDIR) -o base[]object_suffix indir(base[]_cflag) base.c
+	$(CC) -c $(INCDIR) -o base[]object_suffix defn(base[]_cflag) base.c
 
 popdef([base])])])dnl
 dnl
