@@ -87,7 +87,8 @@ static int create(MwWidget handle) {
 	attribs[3] = 24;
 	attribs[4] = None;
 
-	while(glpath[glincr] != NULL && (o->lib = dlopen(glpath[glincr++], RTLD_LAZY)) == NULL);
+	while(glpath[glincr] != NULL && (o->lib = dlopen(glpath[glincr++], RTLD_LAZY)) == NULL)
+		;
 
 	o->glXChooseVisual   = (MWglXChooseVisual)dlsym(o->lib, "glXChooseVisual");
 	o->glXCreateContext  = (MWglXCreateContext)dlsym(o->lib, "glXCreateContext");
