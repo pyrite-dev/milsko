@@ -137,8 +137,6 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		if(HIBYTE(VkKeyScan(wp)) & 2) n |= MwLLControlMask;
 		if(msg == WM_SYSCHAR) n |= MwLLAltMask;
 
-		printf("%c\n", n & 0xff);
-
 		if((0x20 <= n && n <= 0x7f) || (n & MwLLKeyMask)) MwLLDispatch(u->ll, key, &n);
 	} else if(msg == WM_SETFOCUS) {
 		MwLLDispatch(u->ll, focus_in, NULL);
