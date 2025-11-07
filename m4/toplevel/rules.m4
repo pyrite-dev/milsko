@@ -26,7 +26,7 @@ define([new_object],[pushdef([source])define([source],patsubst(patsubst(patsubst
 ],[ ]),[ $],[]))define([library_targets],ifelse(library_targets,[],[source],[library_targets source]))popdef([source])])dnl
 define([print_library_targets],[foreach(x,space_to_comma(library_targets),[pushdef([source])define([source],[patsubst(x,[\]object_suffix[$],[.c])])dnl
 x: source
-	$(CC) -c -fPIC $(INCDIR) $(CFLAGS) -o x source
+	$(CC) -c -fPIC $(CFLAGS) $(INCDIR) -o x source
 popdef([source])])])dnl
 dnl
 define([examples_targets],[])dnl

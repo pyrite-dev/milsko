@@ -39,7 +39,8 @@ dnl
 ifdef([target],[],[define([target],esyscmd([uname -s | xargs printf '%s']))])dnl
 syscmd([test -f ]m4/ostype/target.m4)dnl
 ifelse(sysval,[0],[include(m4/ostype/target.m4)],[errprint([M4 for your target (]m4/ostype/target.m4[) was not found, please make one
-])m4exit(1)])dnl
+])m4exit(1)dnl
+])dnl
 dnl
 include(m4/toplevel/options.m4)dnl
 dnl
@@ -86,4 +87,4 @@ distclean: clean
 	rm -f Makefile
 
 clean:
-	rm -f examples_targets */*.o */*/*.o */*/*/*.o
+	rm -f examples_targets */*.o */*/*.o */*/*/*.o src/*.dll src/*.so src/*.a

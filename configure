@@ -1,17 +1,108 @@
 #!/bin/sh
 # $Id$
-FLAGS="-Duse_freetype2 -Duse_stb_image -Dbuild_opengl -Dbuild_vulkan"
+FLAGS=""
+
+feat_cross=false
+feat_stb_image=true
+feat_stb_truetype=false
+feat_freetype2=true
+feat_opengl=false
+feat_vulkan=false
+feat_vulkan_string_helper=true
 
 for i in $@; do
 	case "$i" in
 		--help|-h)
 			echo "Configuration utility for Milsko Toolkit"
+			echo ""
+			echo "Usage: $0 [options]"
+			echo ""
+			echo "Options:"
+			echo "  -h --help    Display this help and exit"
+			echo "     --cross   Indicate cross-compilation"
+			echo ""
+			echo "Features:"
+			echo "  --enable-stb-image               Build and use stb_image instead of libjpeg/libpng"
+			echo "  --enable-stb-truetype            Build stb_truetype"
+			echo "  --enable-freetype2               Use FreeType2"
+			echo "  --enable-opengl                  Build OpenGL widget"
+			echo "  --enable-vulkan                  Build Vulkan widget"
+			echo "  --disable-FEATURE                Do not use FEATURE"
+			echo ""
+			echo "  --without-vulkan-string-helper   Do not use Vulkan string helper"
+			echo "  --without-FEATURE                Do not use FEATURE"
+			exit 0
+			;;
+		--cross)
+			feat_cross=true
+			;;
+		--enable-*|--disable-*)
+			if [ "`echo $i | cut -d- -f3`" = "enable" ]; then
+				eval feat_`echo $i | cut -d- -f4- | tr - _`=true
+			else
+				eval feat_`echo $i | cut -d- -f4- | tr - _`=false
+			fi
+			;;
+		--with-*|--without-*)
+			if [ "`echo $i | cut -d- -f3`" = "with" ]; then
+				eval feat_`echo $i | cut -d- -f4- | tr - _`=true
+			else
+				eval feat_`echo $i | cut -d- -f4- | tr - _`=false
+			fi
+			;;
+		*=*)
+			eval $i
 			;;
 	esac
 done
+
+if $feat_cross; then
+	FLAGS="$FLAGS -Dcross_build"
+fi
+
+if [ ! "x$CC" = "x" ]; then
+	FLAGS="$FLAGS -Dcc=$CC"
+fi
+
+if $feat_vulkan_string_helper; then
+	FLAGS="$FLAGS -Duse_vulkan_string_helper"
+fi
+
+if $feat_stb_image; then
+	FLAGS="$FLAGS -Duse_stb_image"
+fi
+
+if $feat_stb_image; then
+	FLAGS="$FLAGS -Duse_stb_image"
+fi
+
+if $feat_stb_truetype; then
+	FLAGS="$FLAGS -Duse_stb_truetype"
+fi
+
+if $feat_opengl; then
+	FLAGS="$FLAGS -Dbuild_opengl"
+fi
+
+if $feat_vulkan; then
+	FLAGS="$FLAGS -Dbuild_vulkan"
+fi
+
+printf "Generating Makefile... "
 
 if ! m4 $FLAGS Makefile.m4 > Makefile; then
 	echo "(M4 exited with non-zero status)"
 	rm -f Makefile
 	exit 1
+fi
+echo "Done"
+
+echo "Features:"
+echo "  stb_image           : $feat_stb_image"
+echo "  stb_truetype        : $feat_stb_truetype"
+echo "  FreeType2           : $feat_freetype2"
+echo "  OpenGL              : $feat_opengl"
+echo "  Vulkan              : $feat_vulkan"
+if $feat_vulkan; then
+echo "  Vulkan String Helper: $feat_vulkan_string_helper"
 fi

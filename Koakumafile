@@ -8,14 +8,15 @@ proc run {project_name} {
 		RunCommand "mv doxygen/html /var/www/milsko-doxygen"
 	} else {
 		foreach target {"Linux" "Win32" "Win64"} {
-			RunCommand "make clean"
+			RunCommand "make distclean || true"
 			if { "$target" == "Linux" } {
-				RunCommand "make -j4 VULKAN_NO_STRING_HELPER=1"
+				RunCommand "./configure --enable-opengl --enable-vulkan --without-vulkan-string-helper"
 			} elseif { "$target" == "Win32" } {
-				RunCommand "make -j4 VULKAN=0 USE_FREETYPE2=0 USE_STB_TRUETYPE=1 TARGET=Windows GCC=i686-w64-mingw32-"
+				RunCommand "./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross CC=i686-w64-mingw32-gcc"
 			} elseif { "$target" == "Win64" } {
-				RunCommand "make -j4 VULKAN=0 USE_FREETYPE2=0 USE_STB_TRUETYPE=1 TARGET=Windows GCC=x86_64-w64-mingw32-"
+				RunCommand "./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross CC=x86_64-w64-mingw32-gcc"
 			}
+			RunCommand "make -j4"
 		}
 	}
 }
