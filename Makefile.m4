@@ -1,4 +1,11 @@
 dnl $Id$
+dnl
+dnl This is toplevel Makefile.m4.
+dnl
+dnl Notes:
+dnl  1. add_cflag/add_ldflag/add_libs only affects Milsko library
+dnl  2. add_incdir/add_libdir affects globally
+dnl
 include(m4/toplevel/rules.m4)dnl
 dnl
 new_object([src/*.c])dnl
