@@ -14,9 +14,9 @@ proc run {project_name} {
 			if { "$target" == "Linux" } {
 				RunCommand "./configure --enable-opengl --enable-vulkan --without-vulkan-string-helper"
 			} elseif { "$target" == "Win32" } {
-				RunCommand "./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross CC=i686-w64-mingw32-gcc"
+				RunCommand "./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross --target=Windows CC=i686-w64-mingw32-gcc"
 			} elseif { "$target" == "Win64" } {
-				RunCommand "./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross CC=x86_64-w64-mingw32-gcc"
+				RunCommand "./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross --target=Windows CC=x86_64-w64-mingw32-gcc"
 			}
 			RunCommand "make clean"
 			RunCommand "make -j4"

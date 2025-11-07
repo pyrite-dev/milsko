@@ -2,6 +2,8 @@
 # $Id$
 FLAGS=""
 
+target=""
+
 feat_cross=false
 feat_stb_image=true
 feat_stb_truetype=false
@@ -36,6 +38,9 @@ for i in $@; do
 		--cross)
 			feat_cross=true
 			;;
+		--target=)
+			target="`echo $i | cut -d= -f2`"
+			;;
 		--enable-*|--disable-*)
 			if [ "`echo $i | cut -d- -f3`" = "enable" ]; then
 				eval feat_`echo $i | cut -d- -f4- | tr - _`=true
@@ -58,6 +63,10 @@ done
 
 if $feat_cross; then
 	FLAGS="$FLAGS -Dcross_build"
+fi
+
+if [ ! "x$target" = "x" ]; then
+	FLAGS="$FLAGS -Dtarget=$target"
 fi
 
 if [ ! "x$CC" = "x" ]; then
