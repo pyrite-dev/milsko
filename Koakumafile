@@ -8,7 +8,9 @@ proc run {project_name} {
 		RunCommand "mv doxygen/html /var/www/milsko-doxygen"
 	} else {
 		foreach target {"Linux" "Win32" "Win64"} {
-			RunCommand "make distclean || true"
+			if { [file exists "Makefile"] == 1 } {
+				RunCommand "make distclean"
+			}
 			if { "$target" == "Linux" } {
 				RunCommand "./configure --enable-opengl --enable-vulkan --without-vulkan-string-helper"
 			} elseif { "$target" == "Win32" } {
