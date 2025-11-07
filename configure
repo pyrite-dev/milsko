@@ -1,5 +1,14 @@
 #!/bin/sh
+# $Id$
 FLAGS="-Duse_freetype2 -Duse_stb_image -Dbuild_opengl -Dbuild_vulkan"
+
+for i in $@; do
+	case "$i")
+		--help|-h)
+			echo "Configuration utility for Milsko Toolkit"
+			;;
+	esac
+done
 
 if ! m4 $FLAGS Makefile.m4 > Makefile; then
 	echo "(M4 exited with non-zero status)"
