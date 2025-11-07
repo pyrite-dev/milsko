@@ -88,14 +88,13 @@ if $feat_vulkan; then
 	FLAGS="$FLAGS -Dbuild_vulkan"
 fi
 
-printf "Generating Makefile... "
+echo "Generating Makefile... "
 
 if ! m4 $FLAGS Makefile.m4 > Makefile; then
 	echo "(M4 exited with non-zero status)"
 	rm -f Makefile
 	exit 1
 fi
-echo "Done"
 
 echo "Features:"
 echo "  stb_image           : $feat_stb_image"
