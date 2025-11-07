@@ -8,11 +8,11 @@ project(
 
 include(CheckIncludeFiles)
 
-option(OPENGL "Compile OpenGL widget or not" ON)
+option(BUILD_OPENGL "Compile OpenGL widget or not" ON)
 if(CMAKE_SYSTEM_NAME STREQUAL "SunOS")
-	option(VULKAN "Compile Vulkan widget or not" OFF)
+	option(BUILD_VULKAN "Compile Vulkan widget or not" OFF)
 else()
-	option(VULKAN "Compile Vulkan widget or not" ON)
+	option(BUILD_VULKAN "Compile Vulkan widget or not" ON)
 endif()
 option(CLASSIC "Use classic theme" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
@@ -26,11 +26,11 @@ file(
 	src/*.c src/cursor/*.c src/icon/*.c src/text.c src/widget/*.c src/math/*.c src/font/*.c src/dialog/*.c src/abstract/*.c external/*.c
 )
 
-if(NOT OPENGL)
+if(NOT BUILD_OPENGL)
 	list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl.c")
 endif()
 
-if(NOT VULKAN)
+if(NOT BUILD_VULKAN)
 	list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/vulkan.c")
 endif()
 
@@ -142,7 +142,7 @@ else()
 	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		list(APPEND LIBRARIES dl)
 	endif()
-	if(VULKAN)
+	if(BUILD_VULKAN)
 		if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
 			list(APPEND INCLUDE_DIRS /usr/pkg/include)
 		else()
@@ -174,7 +174,7 @@ target_link_libraries(
 	${LIBRARIES}
 )
 
-if(VULKAN)
+if(BUILD_VULKAN)
 	check_include_files(vulkan/vk_enum_string_helper.h HAS_VK_ENUM_STRING_HELPER)
 	if(HAS_VK_ENUM_STRING_HELPER)
 		target_compile_definitions(
