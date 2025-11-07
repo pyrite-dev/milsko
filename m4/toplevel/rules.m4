@@ -25,7 +25,7 @@ define([library_targets],[])dnl
 define([library_objects],[])dnl
 define([new_object],[pushdef([source])define([source],patsubst(patsubst(patsubst(my_syscmd([sh -c "ls -d $1"]),[\..+$],object_suffix),[
 ],[ ]),[ $],[]))define([library_targets],ifelse(library_targets,[],[source],[library_targets source]))popdef([source])])dnl
-define([print_library_targets],[foreach(x,space_to_comma(library_targets),[pushdef([source])define([source],[patsubst(x,[\]object_suffix[$],[.c])])dnl
+define([print_library_targets],[foreach([x],space_to_comma(library_targets),[pushdef([source])define([source],[patsubst(x,[\]object_suffix[$],[.c])])dnl
 x: source
 	$(CC) -c -fPIC $(CFLAGS) $(INCDIR) -o x source
 popdef([source])])])dnl
@@ -35,7 +35,7 @@ define([new_example],[define($1[]_cflag,[$2])dnl
 define($1[]_ldflag,[$3])dnl
 define($1[]_lib,[$4])dnl
 define([examples_targets],ifelse(examples_targets,[],[$1[]executable_suffix],[examples_targets $1[]executable_suffix]))])dnl
-define([print_examples_targets],[foreach(x,space_to_comma(examples_targets),[pushdef(base)dnl
+define([print_examples_targets],[foreach([x],space_to_comma(examples_targets),[pushdef(base)dnl
 define([base],patsubst(x,[\..+$],[]))dnl			
 x: base[]object_suffix library
 	$(CC) -L src -Wl,-R./src $(LIBDIR) indir(base[]_ldflag) -o x base[]object_suffix -lMw $(MATH) indir(base[]_lib)
