@@ -130,6 +130,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		int	  n    = wp;
 		const int base = 'A' - 1;
 
+		/* FIXME: this catches escape key (!?!?!?) */
 		if(n <= 0x1f) {
 			n = (n + base) | MwLLControlMask;
 			if(!(GetKeyState(VK_LSHIFT) || GetKeyState(VK_RSHIFT))) n += 0x20;
