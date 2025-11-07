@@ -38,7 +38,7 @@ for i in $@; do
 		--cross)
 			feat_cross=true
 			;;
-		--target=)
+		--target=*)
 			target="`echo $i | cut -d= -f2`"
 			;;
 		--enable-*|--disable-*)
