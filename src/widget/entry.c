@@ -106,9 +106,9 @@ static void key(MwWidget handle, int code) {
 		t->cursor++;
 	} else if(code == MwLLKeyEnter) {
 		MwDispatchUserHandler(handle, MwNactivateHandler, NULL);
-	} else if(code == (MwLLControlMask | 'v')){
+	} else if(code == (MwLLControlMask | 'v')) {
 		char* c = MwLLGetClipboard(handle->lowlevel);
-		if(c != NULL){
+		if(c != NULL) {
 			char* out = malloc(strlen(str) + strlen(c) + 1);
 
 			MwUTF8Copy(str, 0, out, 0, t->cursor);

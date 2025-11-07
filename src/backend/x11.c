@@ -392,16 +392,16 @@ void MwLLNextEvent(MwLL handle) {
 				n = MwLLKeyLeftShift;
 			} else if(strcmp(str, "Shift_R") == 0) {
 				n = MwLLKeyRightShift;
-			} else if(strcmp(str, "Alt_L") == 0 || strcmp(str, "Alt_R") == 0){
+			} else if(strcmp(str, "Alt_L") == 0 || strcmp(str, "Alt_R") == 0) {
 				n = MwLLKeyAlt;
-			} else if(strcmp(str, "Control_R") == 0 || strcmp(str, "Control_R") == 0){
+			} else if(strcmp(str, "Control_R") == 0 || strcmp(str, "Control_R") == 0) {
 				n = MwLLKeyControl;
 			}
 
-			if(n != MwLLKeyControl && ev.xkey.state & ControlMask){
+			if(n != MwLLKeyControl && ev.xkey.state & ControlMask) {
 				n |= MwLLControlMask;
 			}
-			if(n != MwLLKeyAlt && ev.xkey.state & Mod1Mask){
+			if(n != MwLLKeyAlt && ev.xkey.state & Mod1Mask) {
 				n |= MwLLAltMask;
 			}
 
@@ -785,28 +785,28 @@ void MwLLSetClipboard(MwLL handle, const char* text) {
 }
 
 char* MwLLGetClipboard(MwLL handle) {
-	Atom clip, target, prop;
-	XEvent ev;
+	Atom	clip, target, prop;
+	XEvent	ev;
 	XEvent* queue = NULL;
-	char* r = NULL;
+	char*	r     = NULL;
 
-	clip = XInternAtom(handle->display, "CLIPBOARD", 0);
+	clip   = XInternAtom(handle->display, "CLIPBOARD", 0);
 	target = XA_STRING;
-	prop = XInternAtom(handle->display, "XSEL_DATA", 0);
+	prop   = XInternAtom(handle->display, "XSEL_DATA", 0);
 
 	XConvertSelection(handle->display, clip, target, prop, handle->window, CurrentTime);
 
-	while(1){
+	while(1) {
 		XNextEvent(handle->display, &ev);
-		if(ev.type == SelectionNotify){
-			if(ev.xselection.selection == clip && ev.xselection.property != 0){
-				Atom t;
+		if(ev.type == SelectionNotify) {
+			if(ev.xselection.selection == clip && ev.xselection.property != 0) {
+				Atom	      t;
 				unsigned long size, N;
-				char* data;
-				int format;
+				char*	      data;
+				int	      format;
 
-				XGetWindowProperty(ev.xselection.display, ev.xselection.requestor, ev.xselection.property, 0L, (~0L), 0, AnyPropertyType, &t, &format, &size, &N, (unsigned char**)&data);
-				if(t == target){
+				XGetWindowProperty(ev.xselection.display, ev.xselection.requestor, ev.xselection.property, 0, (~0L), 0, AnyPropertyType, &t, &format, &size, &N, (unsigned char**)&data);
+				if(t == target) {
 					r = MwStringDupliacte(data);
 					XFree(data);
 				}
@@ -816,7 +816,7 @@ char* MwLLGetClipboard(MwLL handle) {
 		}
 	}
 
-	while(arrlen(queue) > 0){
+	while(arrlen(queue) > 0) {
 		XPutBackEvent(handle->display, &queue[0]);
 		arrdel(queue, 0);
 	}
