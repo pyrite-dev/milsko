@@ -77,12 +77,12 @@ if $feat_stb_image; then
 	FLAGS="$FLAGS -Duse_stb_image"
 fi
 
-if $feat_stb_image; then
-	FLAGS="$FLAGS -Duse_stb_image"
-fi
-
 if $feat_stb_truetype; then
 	FLAGS="$FLAGS -Duse_stb_truetype"
+fi
+
+if $feat_freetype2; then
+	FLAGS="$FLAGS -Duse_freetype2"
 fi
 
 if $feat_opengl; then
