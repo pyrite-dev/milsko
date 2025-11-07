@@ -5,6 +5,7 @@ include(m4/util/arg.m4)dnl
 include(m4/util/foreach.m4)dnl
 include(m4/util/comma.m4)dnl
 include(m4/util/default.m4)dnl
+include(m4/util/my_syscmd.m4)dnl
 dnl
 default_define([cc],[gcc])dnl
 default_define([cflags],[-D_MILSKO])dnl
@@ -22,7 +23,7 @@ define([executable_suffix],[])dnl
 dnl
 define([library_targets],[])dnl
 define([library_objects],[])dnl
-define([new_object],[pushdef([source])define([source],patsubst(patsubst(patsubst(esyscmd([sh -c "ls -d $1"]),[\..+$],object_suffix),[
+define([new_object],[pushdef([source])define([source],patsubst(patsubst(patsubst(my_syscmd([sh -c "ls -d $1"]),[\..+$],object_suffix),[
 ],[ ]),[ $],[]))define([library_targets],ifelse(library_targets,[],[source],[library_targets source]))popdef([source])])dnl
 define([print_library_targets],[foreach(x,space_to_comma(library_targets),[pushdef([source])define([source],[patsubst(x,[\]object_suffix[$],[.c])])dnl
 x: source
