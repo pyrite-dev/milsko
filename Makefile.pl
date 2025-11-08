@@ -95,7 +95,17 @@ if(-f "./pl/ostype/${target}.pl"){
 
 require("./pl/rules.pl");
 
-print("Target: " . $target . "\n");
+print("Target : " . $target . "\n");
+
+my @l = ();
+foreach my $e (param_list()){
+	if(($e eq "vulkan-string-helper") and param_get("vulkan")){
+		push(@l, $e);
+	}elsif(not($e eq "vulkan-string-helper") and param_get($e)){
+		push(@l, $e);
+	}
+}
+print("Enabled: " . join(" ", @l) . "\n");
 
 open(OUT, ">", "Makefile");
 print(OUT "CC = ${cc}\n");

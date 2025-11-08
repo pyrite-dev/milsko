@@ -66,4 +66,8 @@ sub param_get {
 	}
 }
 
+sub param_list {
+	return sort(keys(%params));
+}
+
 1;
