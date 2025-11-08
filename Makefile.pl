@@ -119,13 +119,16 @@ print("Target : " . $target . "\n");
 
 my @l = ();
 foreach my $e (param_list()) {
+    if (not(param_get($e))) {
+        next;
+    }
     if (($e eq "vulkan-string-helper") and param_get("vulkan")) {
         push(@l, $e);
     }
     elsif (($e eq "xrender") and ($backend eq "x11")) {
         push(@l, $e);
     }
-    elsif (not($e eq "vulkan-string-helper") and not($e eq "xrender") and param_get($e)) {
+    elsif (not($e eq "vulkan-string-helper") and not($e eq "xrender")) {
         push(@l, $e);
     }
 }

@@ -3,39 +3,41 @@ new_object("src/*.c");
 
 my $gl_libs = "";
 
-if($backend eq "x11"){
-	add_cflags("-DUSE_X11");
-	new_object("src/backend/x11.c");
-	add_libs("-lX11 -lXrender -lXcursor");
+if ($backend eq "x11") {
+    add_cflags("-DUSE_X11");
+    new_object("src/backend/x11.c");
+    add_libs("-lX11 -lXrender -lXcursor");
 
-	$gl_libs = "-lGL -lGLU";
-}elsif($backend eq "gdi"){
-	add_cflags("-DUSE_GDI");
-	new_object("src/backend/gdi.c");
-	add_libs("-lgdi32");
+    $gl_libs = "-lGL -lGLU";
+}
+elsif ($backend eq "gdi") {
+    add_cflags("-DUSE_GDI");
+    new_object("src/backend/gdi.c");
+    add_libs("-lgdi32");
 
-	$gl_libs = "-lopengl32 -lglu32";
-}elsif($backend eq "darwin"){
-	add_cflags("-DUSE_DARWIN");
-	new_object("src/backend/mac/*.c");
-	add_ldflags("-framework Carbon");
+    $gl_libs = "-lopengl32 -lglu32";
+}
+elsif ($backend eq "darwin") {
+    add_cflags("-DUSE_DARWIN");
+    new_object("src/backend/mac/*.c");
+    add_ldflags("-framework Carbon");
 }
 
-if(param_get("stb-image")){
-	add_cflags("-DUSE_STB_IMAGE");
+if (param_get("stb-image")) {
+    add_cflags("-DUSE_STB_IMAGE");
 }
-if(param_get("stb-truetype")){
-	add_cflags("-DUSE_STB_TRUETYPE");
+if (param_get("stb-truetype")) {
+    add_cflags("-DUSE_STB_TRUETYPE");
 }
-if(param_get("freetype2")){
-	add_cflags("-DUSE_FREETYPE2");
-	if(not($cross)){
-		add_cflags(`pkg-config --cflags freetype2`);
-		add_libs(`pkg-config --libs freetype2`);
-	}
+if (param_get("freetype2")) {
+    add_cflags("-DUSE_FREETYPE2");
+    if (not($cross)) {
+        add_cflags(`pkg-config --cflags freetype2`);
+        add_libs(`pkg-config --libs freetype2`);
+    }
 }
-if(param_get("xrender")){
-	add_cflags("-DUSE_XRENDER");
+if (param_get("xrender")) {
+    add_cflags("-DUSE_XRENDER");
 }
 
 new_object("src/icon/*.c");
@@ -57,11 +59,12 @@ new_object("src/widget/scrollbar.c");
 new_object("src/widget/submenu.c");
 new_object("src/widget/viewport.c");
 new_object("src/widget/window.c");
-if(param_get("opengl")){
-	new_object("src/widget/opengl.c");
+
+if (param_get("opengl")) {
+    new_object("src/widget/opengl.c");
 }
-if(param_get("vulkan")){
-	new_object("src/widget/vulkan.c");
+if (param_get("vulkan")) {
+    new_object("src/widget/vulkan.c");
 }
 
 new_object("src/dialog/*.c");
@@ -69,7 +72,6 @@ new_object("src/dialog/*.c");
 new_object("src/abstract/*.c");
 
 new_object("external/*.c");
-
 
 new_example("examples/basic/example");
 new_example("examples/basic/rotate");
@@ -83,17 +85,17 @@ new_example("examples/basic/listbox");
 new_example("examples/basic/progressbar");
 new_example("examples/basic/colorpicker");
 
-if(param_get("opengl")){
-	new_example("examples/gldemos/boing", $gl_libs);
-	new_example("examples/gldemos/clock", $gl_libs);
-	new_example("examples/gldemos/cube", $gl_libs);
-	new_example("examples/gldemos/gears", $gl_libs);
-	new_example("examples/gldemos/triangle", $gl_libs);
-	new_example("examples/gldemos/tripaint", $gl_libs);
+if (param_get("opengl")) {
+    new_example("examples/gldemos/boing",    $gl_libs);
+    new_example("examples/gldemos/clock",    $gl_libs);
+    new_example("examples/gldemos/cube",     $gl_libs);
+    new_example("examples/gldemos/gears",    $gl_libs);
+    new_example("examples/gldemos/triangle", $gl_libs);
+    new_example("examples/gldemos/tripaint", $gl_libs);
 }
 
-if(param_get("vulkan")){
-	new_example("examples/vkdemos/vulkan");
+if (param_get("vulkan")) {
+    new_example("examples/vkdemos/vulkan");
 }
 
 1;
