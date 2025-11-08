@@ -61,8 +61,8 @@ D. MinGW-w64/GCC/Clang
 
 1) Determine if you need Vulkan and/or OpenGL. 
 
-2) Run `./configure'. 
-   For help, run `./configure --help'. 
+2) Run `./Makefile.pl'. 
+   For help, run `./Makefile.pl --help'. 
 
 3) Run `make'. 
 
