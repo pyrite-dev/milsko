@@ -6,9 +6,14 @@ my $gl_libs = "";
 if ($backend eq "x11") {
     add_cflags("-DUSE_X11");
     new_object("src/backend/x11.c");
-    add_libs("-lX11 -lXrender -lXcursor");
+    add_libs("-lX11");
 
     $gl_libs = "-lGL -lGLU";
+
+    if (param_get("xrender")) {
+        add_cflags("-DUSE_XRENDER");
+        add_libs("-lXrender");
+    }
 }
 elsif ($backend eq "gdi") {
     add_cflags("-DUSE_GDI");
@@ -35,9 +40,6 @@ if (param_get("freetype2")) {
         add_cflags(`pkg-config --cflags freetype2`);
         add_libs(`pkg-config --libs freetype2`);
     }
-}
-if (param_get("xrender")) {
-    add_cflags("-DUSE_XRENDER");
 }
 
 new_object("src/icon/*.c");
