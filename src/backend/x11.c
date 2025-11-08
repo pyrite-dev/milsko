@@ -451,7 +451,9 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	r->data	   = malloc(sizeof(unsigned long) * width * height);
 	r->handle  = handle;
 
-	r->use_render = XRenderQueryExtension(handle->display, &evbase, &erbase) ? 1 : 0;
+#ifdef USE_XRENDER
+	r->use_xrender = XRenderQueryExtension(handle->display, &evbase, &erbase) ? 1 : 0;
+#endif
 
 	r->image = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), r->depth, ZPixmap, 0, di, width, height, 32, width * 4);
 	r->mask	 = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, dm, width, height, 32, width * 4);
@@ -499,6 +501,7 @@ void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 
 void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	if(rect->width == 0 || rect->height == 0) return;
+#ifdef USE_XRENDER
 	if(pixmap->image != NULL && pixmap->use_render) {
 		Pixmap			 px	= XCreatePixmap(handle->display, handle->window, pixmap->width, pixmap->height, pixmap->depth);
 		Pixmap			 mask	= XCreatePixmap(handle->display, handle->window, rect->width, rect->height, 1);
@@ -565,7 +568,9 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 		XFreePixmap(handle->display, mask);
 		XFreePixmap(handle->display, px);
 		XFreePixmap(handle->display, pxsrc);
-	} else if(pixmap->image != NULL) {
+	} else
+#endif
+	    if(pixmap->image != NULL) {
 		XImage* dest;
 		XImage* destmask;
 		Pixmap	mask   = XCreatePixmap(handle->display, handle->window, rect->width, rect->height, 1);

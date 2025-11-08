@@ -36,6 +36,7 @@ require("./pl/utils.pl");
 param_set("stb-image",            1);
 param_set("stb-truetype",         0);
 param_set("freetype2",            1);
+param_set("xrender",              1);
 param_set("opengl",               0);
 param_set("vulkan",               0);
 param_set("vulkan-string-helper", 1);
@@ -44,6 +45,7 @@ my %features = (
     "stb-image"            => "use stb_image instead of libjpeg/libpng",
     "stb-truetype"         => "use stb_truetype",
     "freetype2"            => "use FreeType2",
+    "xrender"              => "use XRender",
     "opengl"               => "build OpenGL widget",
     "vulkan"               => "build Vulkan widget",
     "vulkan-string-helper" => "use Vulkan string helper"
@@ -51,7 +53,8 @@ my %features = (
 my @features_keys = (
     "1stb-image", "1stb-truetype",
     "1freetype2", "1opengl",
-    "1vulkan",    "2vulkan-string-helper"
+    "2xrender",   "1vulkan",
+    "2vulkan-string-helper"
 );
 
 foreach my $l (@ARGV) {
@@ -84,11 +87,11 @@ foreach my $l (@ARGV) {
         print("  --without-FEATURE               Do not use FEATURE\n");
 
         foreach my $l (@features_keys) {
-            my $flag =
-              (   (substr($l, 0, 1) eq '1')
+            my $flag = (
+                  (substr($l, 0, 1) eq '1')
                 ? (param_get(substr($l, 1)) ? "--disable-" : "--enable-")
-                : (param_get(substr($l, 1)) ? "--without-" : "--with-"))
-              . substr($l, 1);
+                : (param_get(substr($l, 1)) ? "--without-" : "--with-")
+            ) . substr($l, 1);
             my $do   = param_get(substr($l, 1)) ? "Do not " : "";
             my $feat = $features{ substr($l, 1) };
             if (not(param_get($l))) {
@@ -119,7 +122,10 @@ foreach my $e (param_list()) {
     if (($e eq "vulkan-string-helper") and param_get("vulkan")) {
         push(@l, $e);
     }
-    elsif (not($e eq "vulkan-string-helper") and param_get($e)) {
+    elsif (($e eq "xrender") and ($backend eq "x11")) {
+        push(@l, $e);
+    }
+    elsif (not($e eq "vulkan-string-helper") and not($e eq "xrender") and param_get($e)) {
         push(@l, $e);
     }
 }
@@ -144,7 +150,7 @@ print(OUT
 "	clang-format --verbose -i `find src include -name \"*.c\" -or -name \"*.h\"`\n"
 );
 print(OUT
-"	perltidy -b -bext=\"/\" --paren-tightness=2 `find tools Makefile.pl -name \"*.pl\"`\n"
+"	perltidy -b -bext=\"/\" --paren-tightness=2 `find tools pl Makefile.pl -name \"*.pl\"`\n"
 );
 print(OUT "\n");
 print(OUT "lib: src/${library_prefix}Mw${library_suffix}\n");

@@ -34,6 +34,9 @@ if(param_get("freetype2")){
 		add_libs(`pkg-config --libs freetype2`);
 	}
 }
+if(param_get("xrender")){
+	add_cflags("-DUSE_XRENDER");
+}
 
 new_object("src/icon/*.c");
 new_object("src/font/*.c");

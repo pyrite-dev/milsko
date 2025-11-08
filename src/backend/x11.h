@@ -9,7 +9,9 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#ifdef USE_XRENDER
 #include <X11/extensions/Xrender.h>
+#endif
 
 struct _MwLL {
 	Display* display;
@@ -58,7 +60,7 @@ struct _MwLLPixmap {
 	int	       depth;
 	unsigned char* data;
 	MwLL	       handle;
-	int	       use_render;
+	int	       use_xrender;
 	Display*       display;
 	XImage*	       image;
 	XImage*	       mask;
