@@ -15,6 +15,10 @@ if($backend eq "x11"){
 	add_libs("-lgdi32");
 
 	$gl_libs = "-lopengl32 -lglu32";
+}elsif($backend eq "darwin"){
+	add_cflags("-DUSE_DARWIN");
+	new_object("src/backend/mac/*.c");
+	add_ldflags("-framework Carbon");
 }
 
 if(param_get("stb-image")){
