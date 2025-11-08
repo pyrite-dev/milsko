@@ -3,94 +3,111 @@
 our $target = `uname -s`;
 $target =~ s/\r?\n$//;
 
-foreach my $l (@ARGV){
-	if($l =~ /^--.+$/){
-	}elsif($l =~ /^(.+)=(.+)$/){
-		$ENV{$1} = $2;
-	}
+foreach my $l (@ARGV) {
+    if ($l =~ /^--.+$/) {
+    }
+    elsif ($l =~ /^(.+)=(.+)$/) {
+        $ENV{$1} = $2;
+    }
 }
 
-our $cc = defined($ENV{CC}) ? $ENV{CC} : "gcc";
-our $incdir = "-I include";
-our $cflags = "-fPIC -D_MILSKO";
-our $libdir = "";
+our $cc      = defined($ENV{CC}) ? $ENV{CC} : "gcc";
+our $incdir  = "-I include";
+our $cflags  = "-fPIC -D_MILSKO";
+our $libdir  = "";
 our $ldflags = "";
-our $math = "-lm";
-our $shared = "-shared";
+our $math    = "-lm";
+our $shared  = "-shared";
 our $backend = "";
 
-our $library_prefix = "lib";
-our $library_suffix = ".so";
-our $object_suffix = ".o";
+our $library_prefix    = "lib";
+our $library_suffix    = ".so";
+our $object_suffix     = ".o";
 our $executable_suffix = "";
 
-our @library_targets = ();
+our @library_targets  = ();
 our @examples_targets = ();
-our %examples_libs = ();
+our %examples_libs    = ();
 
 our $cross = 0;
 
 require("./pl/utils.pl");
 
-param_set("stb-image", 1);
-param_set("stb-truetype", 0);
-param_set("freetype2", 1);
-param_set("opengl", 0);
-param_set("vulkan", 0);
+param_set("stb-image",            1);
+param_set("stb-truetype",         0);
+param_set("freetype2",            1);
+param_set("opengl",               0);
+param_set("vulkan",               0);
 param_set("vulkan-string-helper", 1);
 
 my %features = (
-	"stb-image" => "use stb_image instead of libjpeg/libpng",
-	"stb-truetype" => "use stb_truetype",
-	"freetype2" => "use FreeType2",
-	"opengl" => "build OpenGL widget",
-	"vulkan" => "build Vulkan widget",
-	"vulkan-string-helper" => "use Vulkan string helper"
+    "stb-image"            => "use stb_image instead of libjpeg/libpng",
+    "stb-truetype"         => "use stb_truetype",
+    "freetype2"            => "use FreeType2",
+    "opengl"               => "build OpenGL widget",
+    "vulkan"               => "build Vulkan widget",
+    "vulkan-string-helper" => "use Vulkan string helper"
 );
-my @features_keys = ("1stb-image", "1stb-truetype", "1freetype2", "1opengl", "1vulkan", "2vulkan-string-helper");
+my @features_keys = (
+    "1stb-image", "1stb-truetype",
+    "1freetype2", "1opengl",
+    "1vulkan",    "2vulkan-string-helper"
+);
 
-foreach my $l (@ARGV){
-	if($l =~ /^--(with|enable)-(.+)$/){
-		param_set($2, 1);
-	}elsif($l =~ /^--(without|disable)-(.+)$/){
-		param_set($2, 0);
-	}elsif($l =~ /^--target=(.+)$/){
-		$target = $1;
-	}elsif($l eq "--cross"){
-		$cross = 1;
-	}elsif(($l eq "-h") or ($l eq "--help")){
-		print("Milsko Toolkit Configuration Utility\n");
-		print("\n");
-		print("Usage: $0 [options]\n");
-		print("\n");
-		print("Options:\n");
-		print("  -h --help                       Display this help\n");
-		print("  --target=TARGET                 Specify target\n");
-		print("  --cross                         Indicate cross compilation\n");
-		print("\n");
-		print("Features:\n");
-		print("  --enable-FEATURE                Use FEATURE\n");
-		print("  --with-FEATURE                  Use FEATURE\n");
-		print("  --disable-FEATURE               Do not use FEATURE\n");
-		print("  --without-FEATURE               Do not use FEATURE\n");
-		foreach my $l (@features_keys){
-			my $flag = ((substr($l, 0, 1) eq '1') ? (param_get(substr($l, 1)) ? "--disable-" : "--enable-") : (param_get(substr($l, 1)) ? "--without-" : "--with-")) . substr($l, 1);
-			my $do = param_get(substr($l, 1)) ? "Do not " : "";
-			my $feat = $features{substr($l, 1)};
-			if(not(param_get($l))){
-				$feat = uc(substr($feat, 0, 1)) . substr($feat, 1);
-			}
-			print("  $flag" . (" " x (32 - length($flag))) . "${do}${feat}\n");
-		}
-		exit(0);
-	}
+foreach my $l (@ARGV) {
+    if ($l =~ /^--(with|enable)-(.+)$/) {
+        param_set($2, 1);
+    }
+    elsif ($l =~ /^--(without|disable)-(.+)$/) {
+        param_set($2, 0);
+    }
+    elsif ($l =~ /^--target=(.+)$/) {
+        $target = $1;
+    }
+    elsif ($l eq "--cross") {
+        $cross = 1;
+    }
+    elsif (($l eq "-h") or ($l eq "--help")) {
+        print("Milsko Toolkit Configuration Utility\n");
+        print("\n");
+        print("Usage: $0 [options]\n");
+        print("\n");
+        print("Options:\n");
+        print("  -h --help                       Display this help\n");
+        print("  --target=TARGET                 Specify target\n");
+        print("  --cross                         Indicate cross compilation\n");
+        print("\n");
+        print("Features:\n");
+        print("  --enable-FEATURE                Use FEATURE\n");
+        print("  --with-FEATURE                  Use FEATURE\n");
+        print("  --disable-FEATURE               Do not use FEATURE\n");
+        print("  --without-FEATURE               Do not use FEATURE\n");
+
+        foreach my $l (@features_keys) {
+            my $flag =
+              (   (substr($l, 0, 1) eq '1')
+                ? (param_get(substr($l, 1)) ? "--disable-" : "--enable-")
+                : (param_get(substr($l, 1)) ? "--without-" : "--with-"))
+              . substr($l, 1);
+            my $do   = param_get(substr($l, 1)) ? "Do not " : "";
+            my $feat = $features{ substr($l, 1) };
+            if (not(param_get($l))) {
+                $feat = uc(substr($feat, 0, 1)) . substr($feat, 1);
+            }
+            print("  $flag" . (" " x (32 - length($flag))) . "${do}${feat}\n");
+        }
+        exit(0);
+    }
 }
 
-if(-f "./pl/ostype/${target}.pl"){
-	require("./pl/ostype/${target}.pl");
-}else{
-	print("Perl file (pl/ostype/${target}.pl) was not found for your target. Please add one.\n");
-	exit(1);
+if (-f "./pl/ostype/${target}.pl") {
+    require("./pl/ostype/${target}.pl");
+}
+else {
+    print(
+"Perl file (pl/ostype/${target}.pl) was not found for your target. Please add one.\n"
+    );
+    exit(1);
 }
 
 require("./pl/rules.pl");
@@ -98,12 +115,13 @@ require("./pl/rules.pl");
 print("Target : " . $target . "\n");
 
 my @l = ();
-foreach my $e (param_list()){
-	if(($e eq "vulkan-string-helper") and param_get("vulkan")){
-		push(@l, $e);
-	}elsif(not($e eq "vulkan-string-helper") and param_get($e)){
-		push(@l, $e);
-	}
+foreach my $e (param_list()) {
+    if (($e eq "vulkan-string-helper") and param_get("vulkan")) {
+        push(@l, $e);
+    }
+    elsif (not($e eq "vulkan-string-helper") and param_get($e)) {
+        push(@l, $e);
+    }
 }
 print("Enabled: " . join(" ", @l) . "\n");
 
@@ -117,46 +135,68 @@ print(OUT "LIBS = ${libs}\n");
 print(OUT "MATH = ${math}\n");
 print(OUT "SHARED = ${shared}\n");
 print(OUT "\n");
-print(OUT ".PHONY: all clean distclean lib examples\n");
+print(OUT ".PHONY: all format clean distclean lib examples\n");
 print(OUT "\n");
 print(OUT "all: lib examples\n");
 print(OUT "\n");
+print(OUT "format:\n");
+print(OUT
+"	clang-format --verbose -i `find src include -name \"*.c\" -or -name \"*.h\"`\n"
+);
+print(OUT
+"	perltidy -b -bext=\"/\" --paren-tightness=2 `find tools Makefile.pl -name \"*.pl\"`\n"
+);
+print(OUT "\n");
 print(OUT "lib: src/${library_prefix}Mw${library_suffix}\n");
 print(OUT "\n");
-print(OUT "src/${library_prefix}Mw${library_suffix}: " . join(" ", @library_targets) . "\n");
-print(OUT "	\$(CC) \$(SHARED) \$(LDFLAGS\) \$(LIBDIR) -o src/${library_prefix}Mw${library_suffix} " . join(" ", @library_targets) . " \$(LIBS)\n");
-foreach my $l (@library_targets){
-	my $s = $l;
-	my $o = $object_suffix;
-	$o =~ s/\./\\\./g;
-	$s =~ s/$o$/.c/;
+print(  OUT "src/${library_prefix}Mw${library_suffix}: "
+      . join(" ", @library_targets)
+      . "\n");
+print(OUT
+"	\$(CC) \$(SHARED) \$(LDFLAGS\) \$(LIBDIR) -o src/${library_prefix}Mw${library_suffix} "
+      . join(" ", @library_targets)
+      . " \$(LIBS)\n");
 
-	print(OUT "${l}: ${s}\n");
-	print(OUT "	\$(CC) \$(CFLAGS\) \$\(INCDIR) -c -o ${l} ${s}\n");
+foreach my $l (@library_targets) {
+    my $s = $l;
+    my $o = $object_suffix;
+    $o =~ s/\./\\\./g;
+    $s =~ s/$o$/.c/;
+
+    print(OUT "${l}: ${s}\n");
+    print(OUT "	\$(CC) \$(CFLAGS\) \$\(INCDIR) -c -o ${l} ${s}\n");
 }
 print(OUT "\n");
 print(OUT "\n");
 print(OUT "examples: " . join(" ", @examples_targets) . "\n");
 print(OUT "\n");
-foreach my $l (@examples_targets){
-	my $libs = "";
-	my $s = $l;
-	my $o = $executable_suffix;
-	$o =~ s/\./\\\./g;
-	$s =~ s/$o$//;
+foreach my $l (@examples_targets) {
+    my $libs = "";
+    my $s    = $l;
+    my $o    = $executable_suffix;
+    $o =~ s/\./\\\./g;
+    $s =~ s/$o$//;
 
-	if(defined($examples_libs{$l})){
-		$libs = $examples_libs{$l};
-	}
+    if (defined($examples_libs{$l})) {
+        $libs = $examples_libs{$l};
+    }
 
-	print(OUT "${l}: ${s}${object_suffix} src/${library_prefix}Mw${library_suffix}\n");
-	print(OUT "	\$(CC) -L src -Wl,-R./src \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n");
-	print(OUT "${s}${object_suffix}: ${s}.c\n");
-	print(OUT "	\$(CC) -c \$\(INCDIR) -o ${s}${object_suffix} ${s}.c -lMw ${math}\n");
+    print(OUT
+"${l}: ${s}${object_suffix} src/${library_prefix}Mw${library_suffix}\n"
+    );
+    print(OUT
+"	\$(CC) -L src -Wl,-R./src \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n"
+    );
+    print(OUT "${s}${object_suffix}: ${s}.c\n");
+    print(OUT
+          "	\$(CC) -c \$\(INCDIR) -o ${s}${object_suffix} ${s}.c -lMw ${math}\n"
+    );
 }
 print(OUT "\n");
 print(OUT "clean:\n");
-print(OUT "	rm -f */*.o */*/*.o */*/*/*.o src/*.so src/*.dll src/*.a " . join(" ", @examples_targets) . "\n");
+print(  OUT "	rm -f */*.o */*/*.o */*/*/*.o src/*.so src/*.dll src/*.a "
+      . join(" ", @examples_targets)
+      . "\n");
 print(OUT "\n");
 print(OUT "distclean: clean\n");
 print(OUT "	rm -f Makefile\n");

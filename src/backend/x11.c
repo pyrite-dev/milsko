@@ -636,23 +636,29 @@ void MwLLForceRender(MwLL handle) {
 }
 
 void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
-	XcursorImage* img = XcursorImageCreate(MwCursorDataHeight, MwCursorDataHeight);
-	Cursor	      cur;
-	int	      y, x, ys, xs;
+	Cursor	cur;
+	int	y, x, ys, xs;
+	char*	di	= malloc(MwCursorDataHeight * MwCursorDataHeight * 4);
+	char*	dm	= malloc(MwCursorDataHeight * MwCursorDataHeight * 4);
+	XImage* cimage	= XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, di, MwCursorDataHeight, MwCursorDataHeight, 32, MwCursorDataHeight * 4);
+	XImage* cmask	= XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, dm, MwCursorDataHeight, MwCursorDataHeight, 32, MwCursorDataHeight * 4);
+	Pixmap	pimage	= XCreatePixmap(handle->display, handle->window, MwCursorDataHeight, MwCursorDataHeight, 1);
+	Pixmap	pmask	= XCreatePixmap(handle->display, handle->window, MwCursorDataHeight, MwCursorDataHeight, 1);
+	GC	imagegc = XCreateGC(handle->display, pimage, 0, NULL);
+	GC	maskgc	= XCreateGC(handle->display, pmask, 0, NULL);
+	XColor	cfg, cbg;
 
 	xs = -mask->x + image->x;
 	ys = MwCursorDataHeight + mask->y;
 	ys = MwCursorDataHeight + image->y - ys;
 
-	img->xhot = xs;
-	img->yhot = ys;
-
-	memset(img->pixels, 0, MwCursorDataHeight * MwCursorDataHeight * sizeof(XcursorPixel));
+	memset(cimage->data, 0, cimage->bytes_per_line * cimage->height);
+	memset(cmask->data, 0, cmask->bytes_per_line * cmask->height);
 	for(y = 0; y < mask->height; y++) {
 		unsigned int l = mask->data[y];
 		for(x = mask->width - 1; x >= 0; x--) {
 			if(l & 1) {
-				img->pixels[y * MwCursorDataHeight + x] = 0xff000000;
+				XPutPixel(cmask, x, y, 1);
 			}
 			l = l >> 1;
 		}
@@ -661,18 +667,35 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 		unsigned int l = image->data[y];
 		for(x = image->width - 1; x >= 0; x--) {
 			int px = 0;
-			if(l & 1) px = 255;
-			img->pixels[(ys + y) * MwCursorDataHeight + (xs + x)] |= (px << 16) | (px << 8) | (px);
+			if(l & 1) px = 1;
+			XPutPixel(cimage, xs + x, ys + y, px);
 
 			l = l >> 1;
 		}
 	}
 
-	cur = XcursorImageLoadCursor(handle->display, img);
+	cfg.red	  = 65535;
+	cfg.green = 65535;
+	cfg.blue  = 65535;
+	XAllocColor(handle->display, handle->colormap, &cfg);
+
+	cbg.red	  = 0;
+	cbg.green = 0;
+	cbg.blue  = 0;
+	XAllocColor(handle->display, handle->colormap, &cbg);
+
+	XPutImage(handle->display, pimage, imagegc, cimage, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
+	XPutImage(handle->display, pmask, maskgc, cmask, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
+
+	cur = XCreatePixmapCursor(handle->display, pimage, pmask, &cfg, &cbg, xs, ys);
 	XDefineCursor(handle->display, handle->window, cur);
 	XFreeCursor(handle->display, cur);
 
-	XcursorImageDestroy(img);
+	XFreePixmap(handle->display, pimage);
+	XFreePixmap(handle->display, pmask);
+
+	XDestroyImage(cimage);
+	XDestroyImage(cmask);
 }
 
 void MwLLDetach(MwLL handle, MwPoint* point) {
