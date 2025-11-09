@@ -106,8 +106,8 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 
 	if(px == MwDEFAULT) px = 0;
 	if(py == MwDEFAULT) py = 0;
-	if(width < 1) width = 1;
-	if(height < 1) height = 1;
+	if(width < 2) width = 2;
+	if(height < 2) height = 2;
 
 	if(parent == NULL) {
 		r->display = XOpenDisplay(NULL);
@@ -292,8 +292,8 @@ void MwLLSetXY(MwLL handle, int x, int y) {
 }
 
 void MwLLSetWH(MwLL handle, int w, int h) {
-	if(w < 1) w = 1;
-	if(h < 1) h = 1;
+	if(w < 2) w = 2;
+	if(h < 2) h = 2;
 
 	XResizeWindow(handle->display, handle->window, w, h);
 

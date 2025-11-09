@@ -208,6 +208,7 @@ static void frame_draw(MwWidget handle) {
 	area = r.height - MwDefaultBorderWidth(handle) * 2;
 	ent  = area / MwTextHeight(handle, "M");
 
+
 	for(i = st; i < arrlen(lb->list) && i < st + ent; i++) {
 		int selected = lb->selected == i ? 1 : 0;
 		int j;
