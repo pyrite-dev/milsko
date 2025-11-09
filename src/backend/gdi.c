@@ -130,14 +130,12 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		int	  n    = wp;
 		const int base = 'A' - 1;
 
-		if(n <= 0x1f) {
+		if(n != 0x1b && n <= 0x1f) {
 			n = (n + base) | MwLLControlMask;
 			if(!(GetKeyState(VK_LSHIFT) || GetKeyState(VK_RSHIFT))) n += 0x20;
 		}
 		if(HIBYTE(VkKeyScan(wp)) & 2) n |= MwLLControlMask;
 		if(msg == WM_SYSCHAR) n |= MwLLAltMask;
-
-		printf("%c\n", n & 0xff);
 
 		if((0x20 <= n && n <= 0x7f) || (n & MwLLKeyMask)) MwLLDispatch(u->ll, key, &n);
 	} else if(msg == WM_SETFOCUS) {

@@ -255,9 +255,8 @@ void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) 
 
 	XGetGeometry(handle->display, handle->window, &root, x, y, w, h, &border, &depth);
 	if(handle->top) {
-		int		  rx, ry;
-		Window		  child;
-		XWindowAttributes xwa;
+		int    rx, ry;
+		Window child;
 
 		XTranslateCoordinates(handle->display, handle->window, root, 0, 0, &rx, &ry, &child);
 
