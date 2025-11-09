@@ -87,24 +87,27 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	XVisualInfo*  xvi;
 	unsigned long n = 1;
 	int	      i;
+	int	      px = x, py = y;
 
 	r = malloc(sizeof(*r));
 
 	MwLLCreateCommon(r);
 
-	if(x == MwDEFAULT) x = 0;
-	if(y == MwDEFAULT) y = 0;
+	if(px == MwDEFAULT) px = 0;
+	if(py == MwDEFAULT) py = 0;
 	if(width < 1) width = 1;
 	if(height < 1) height = 1;
 
 	if(parent == NULL) {
 		r->display = XOpenDisplay(NULL);
 		p	   = XRootWindow(r->display, XDefaultScreen(r->display));
+		r->top	   = 1;
 	} else {
 		r->display = parent->display;
 		p	   = parent->window;
+		r->top	   = 0;
 	}
-	r->window = XCreateSimpleWindow(r->display, p, x, y, width, height, 0, 0, WhitePixel(r->display, DefaultScreen(r->display)));
+	r->window = XCreateSimpleWindow(r->display, p, px, py, width, height, 0, 0, WhitePixel(r->display, DefaultScreen(r->display)));
 
 	xvi = get_visual_info(r->display);
 
@@ -166,6 +169,15 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	XFlush(r->display);
 	XSync(r->display, False);
 	wait_map(r);
+
+	if(x != MwDEFAULT || y != MwDEFAULT) {
+		MwLLGetXYWH(r, &px, &py, &width, &height);
+
+		if(x == MwDEFAULT) x = px;
+		if(y == MwDEFAULT) y = py;
+
+		MwLLSetXY(r, x, y);
+	}
 
 	return r;
 }
@@ -237,10 +249,21 @@ void MwLLColorUpdate(MwLL handle, MwLLColor c, int r, int g, int b) {
 	c->blue	 = b;
 }
 void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
-	Window	     root;
+	Window	     root, parent;
+	Window	     child;
 	unsigned int border, depth;
 
 	XGetGeometry(handle->display, handle->window, &root, x, y, w, h, &border, &depth);
+	if(handle->top) {
+		int		  rx, ry;
+		Window		  child;
+		XWindowAttributes xwa;
+
+		XTranslateCoordinates(handle->display, handle->window, root, 0, 0, &rx, &ry, &child);
+
+		*x += rx;
+		*y += ry;
+	}
 }
 
 void MwLLSetXY(MwLL handle, int x, int y) {
@@ -708,6 +731,8 @@ void MwLLDetach(MwLL handle, MwPoint* point) {
 	Window	     child, root, parent;
 	Window*	     children;
 	unsigned int nchild;
+
+	handle->top = 1;
 
 	XQueryTree(handle->display, handle->window, &root, &parent, &children, &nchild);
 	if(children != NULL) XFree(children);

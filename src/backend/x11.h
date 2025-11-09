@@ -30,6 +30,7 @@ struct _MwLL {
 
 	MwLLHandler handler;
 
+	int top;
 	int grabbed;
 
 	unsigned long red_mask;

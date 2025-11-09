@@ -203,7 +203,8 @@ foreach my $l (@examples_targets) {
 }
 print(OUT "\n");
 print(OUT "clean:\n");
-print(  OUT "	rm -f */*.o */*/*.o */*/*/*.o */*.exe */*/*.exe */*/*/*.exe src/*.so src/*.dll src/*.a "
+print(OUT
+"	rm -f */*.o */*/*.o */*/*/*.o */*.exe */*/*.exe */*/*/*.exe src/*.so src/*.dll src/*.a "
       . join(" ", @examples_targets)
       . "\n");
 print(OUT "\n");
