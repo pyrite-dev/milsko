@@ -87,6 +87,8 @@ int main() {
 	MwAddUserHandler(button3, MwNactivateHandler, handler, NULL);
 	MwAddUserHandler(button4, MwNactivateHandler, handler, NULL);
 
+	resize(window, NULL, NULL);
+
 	m  = MwMenuAdd(menu, NULL, "test 1");
 	m2 = MwMenuAdd(menu, m, "test 2");
 	MwMenuAdd(menu, m2, "test 3");
