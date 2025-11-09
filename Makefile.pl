@@ -140,7 +140,7 @@ print(OUT "INCDIR = ${incdir}\n");
 print(OUT "CFLAGS = ${cflags}\n");
 print(OUT "LIBDIR = ${libdir}\n");
 print(OUT "LDFLAGS = ${ldflags}\n");
-print(OUT "LIBS = ${libs}\n");
+print(OUT "LIBS = ${math} ${libs}\n");
 print(OUT "MATH = ${math}\n");
 print(OUT "SHARED = ${shared}\n");
 print(OUT "\n");
