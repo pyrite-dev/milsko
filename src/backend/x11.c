@@ -40,9 +40,20 @@ static void destroy_pixmap(MwLL handle) {
 	XFreePixmap(handle->display, handle->pixmap);
 }
 
-static void wait_map(MwLL handle) {
-	XEvent* queue = NULL;
-	XEvent	ev;
+static void wait_map(MwLL handle, int move_back, int nomap) {
+	XEvent*	     queue = NULL;
+	XEvent	     ev;
+	int	     x, y;
+	unsigned int w, h;
+
+	MwLLGetXYWH(handle, &x, &y, &w, &h);
+
+	if(move_back) MwLLSetXY(handle, x, y);
+
+	if(!nomap) XMapWindow(handle->display, handle->window);
+
+	XSync(handle->display, False);
+
 	while(1) {
 		XNextEvent(handle->display, &ev);
 		if(ev.type == MapNotify && ev.xmap.window == handle->window) {
@@ -164,11 +175,6 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	XSetGraphicsExposures(r->display, r->gc, False);
 
 	XSelectInput(r->display, r->window, mask);
-	XMapWindow(r->display, r->window);
-
-	XFlush(r->display);
-	XSync(r->display, False);
-	wait_map(r);
 
 	if(x != MwDEFAULT || y != MwDEFAULT) {
 		MwLLGetXYWH(r, &px, &py, &width, &height);
@@ -177,7 +183,10 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 		if(y == MwDEFAULT) y = py;
 
 		MwLLSetXY(r, x, y);
+		XSync(r->display, False);
 	}
+
+	wait_map(r, 0, 0);
 
 	return r;
 }
@@ -193,7 +202,8 @@ void MwLLDestroy(MwLL handle) {
 	XUnmapWindow(handle->display, handle->window);
 	XDestroyWindow(handle->display, handle->window);
 
-	XFlush(handle->display);
+	XSync(handle->display, False);
+
 	free(handle);
 }
 
@@ -266,7 +276,19 @@ void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) 
 }
 
 void MwLLSetXY(MwLL handle, int x, int y) {
+	XSizeHints sh;
+	long	   r;
+
+	XGetWMNormalHints(handle->display, handle->window, &sh, &r);
+
+	sh.flags |= PPosition;
+	sh.x = x;
+	sh.y = y;
+
 	XMoveWindow(handle->display, handle->window, x, y);
+	XSetWMNormalHints(handle->display, handle->window, &sh);
+
+	XSync(handle->display, False);
 }
 
 void MwLLSetWH(MwLL handle, int w, int h) {
@@ -274,6 +296,11 @@ void MwLLSetWH(MwLL handle, int w, int h) {
 	if(h < 1) h = 1;
 
 	XResizeWindow(handle->display, handle->window, w, h);
+
+	handle->width  = w;
+	handle->height = h;
+
+	XSync(handle->display, False);
 }
 
 void MwLLFreeColor(MwLLColor color) {
@@ -336,9 +363,8 @@ void MwLLNextEvent(MwLL handle) {
 
 			MwLLDispatch(handle, up, &p);
 		} else if(ev.type == ConfigureNotify) {
-			MwLLDispatch(handle, resize, NULL);
-
 			if(handle->width != (unsigned int)ev.xconfigure.width || handle->height != (unsigned int)ev.xconfigure.height) {
+				MwLLDispatch(handle, resize, NULL);
 				destroy_pixmap(handle);
 				create_pixmap(handle);
 				render = 1;
@@ -738,16 +764,16 @@ void MwLLDetach(MwLL handle, MwPoint* point) {
 
 	XTranslateCoordinates(handle->display, parent, RootWindow(handle->display, DefaultScreen(handle->display)), 0, 0, &x, &y, &child);
 
+	XUnmapWindow(handle->display, handle->window);
+
 	XReparentWindow(handle->display, handle->window, RootWindow(handle->display, DefaultScreen(handle->display)), x + point->x, y + point->y);
 
-	XFlush(handle->display);
-	XSync(handle->display, False);
+	wait_map(handle, 0, 0);
 }
 
 void MwLLShow(MwLL handle, int show) {
 	if(show) {
-		XMapWindow(handle->display, handle->window);
-		wait_map(handle);
+		wait_map(handle, 0, 0);
 
 		XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
 	} else {
@@ -766,18 +792,17 @@ void MwLLMakePopup(MwLL handle, MwLL parent) {
 	XChangeProperty(handle->display, handle->window, wndstate, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmodal, 1);
 
 	XUnmapWindow(handle->display, handle->window);
-	XMapWindow(handle->display, handle->window);
 
-	XFlush(handle->display);
-	XSync(handle->display, False);
-
-	wait_map(handle);
+	wait_map(handle, 1, 0);
 }
 
 void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
 	XSizeHints* hints = XAllocSizeHints();
+	long	    ret;
 
-	hints->flags	  = PMinSize | PMaxSize;
+	XGetWMSizeHints(handle->display, handle->window, hints, &ret, XA_WM_NORMAL_HINTS);
+
+	hints->flags |= PMinSize | PMaxSize;
 	hints->min_width  = minx;
 	hints->min_height = miny;
 	hints->max_width  = maxx;
@@ -786,12 +811,8 @@ void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
 	XFree(hints);
 
 	XUnmapWindow(handle->display, handle->window);
-	XMapWindow(handle->display, handle->window);
 
-	XFlush(handle->display);
-	XSync(handle->display, False);
-
-	wait_map(handle);
+	wait_map(handle, 1, 0);
 }
 
 void MwLLMakeBorderless(MwLL handle, int toggle) {
@@ -803,12 +824,8 @@ void MwLLMakeBorderless(MwLL handle, int toggle) {
 	XChangeProperty(handle->display, handle->window, atom, atom, 32, PropModeReplace, (unsigned char*)&hints, 5);
 
 	XUnmapWindow(handle->display, handle->window);
-	XMapWindow(handle->display, handle->window);
 
-	XFlush(handle->display);
-	XSync(handle->display, False);
-
-	wait_map(handle);
+	wait_map(handle, 1, 0);
 }
 
 void MwLLFocus(MwLL handle) {

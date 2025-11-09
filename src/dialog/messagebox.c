@@ -35,10 +35,12 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	int	 ww = MwGetInteger(handle, MwNwidth);
 	int	 wh = MwGetInteger(handle, MwNheight);
 
-	p.x = 0;
-	p.y = 0;
+	w = 512;
+	h = 32 * 4;
 
-	window = MwVaCreateWidget(MwWindowClass, "messagebox", handle, ww, wh, (w = 512), (h = 32 * 4),
+	p.x    = (ww - w) / 2;
+	p.y    = (wh - h) / 2;
+	window = MwVaCreateWidget(MwWindowClass, "messagebox", handle, p.x, p.y, w, h,
 				  MwNtitle, title,
 				  NULL);
 

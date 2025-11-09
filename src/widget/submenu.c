@@ -160,14 +160,14 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
 
 	handle->internal = menu;
 
-	MwLLDetach(handle->lowlevel, point);
-
 #ifdef USE_GDI
 	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_STYLE, (LPARAM)0);
 	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_EXSTYLE, (LPARAM)WS_EX_TOOLWINDOW);
 #endif
 
 	MwLLShow(handle->lowlevel, 1);
+
+	MwLLDetach(handle->lowlevel, point);
 
 	for(i = 0; i < arrlen(menu->sub); i++) {
 		int tw = MwTextWidth(handle, menu->sub[i]->name);
