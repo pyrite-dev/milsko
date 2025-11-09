@@ -21,7 +21,7 @@ MWDECL MwClass MwSubMenuClass;
 
 MwInline void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
 	MwVaWidgetExecute(handle, "mwSubMenuAppear", NULL, menu, point);
-};
+}
 
 #ifdef __cplusplus
 }

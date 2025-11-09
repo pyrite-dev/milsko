@@ -36,7 +36,7 @@ MWDECL MwClass MwOpenGLClass;
  */
 MwInline void MwOpenGLMakeCurrent(MwWidget handle) {
 	MwVaWidgetExecute(handle, "mwOpenGLMakeCurrent", NULL);
-};
+}
 
 /*!
  * @brief Get a procedure from OpenGL
@@ -48,7 +48,7 @@ MwInline void* MwOpenGLGetProcAddress(MwWidget handle, const char* name) {
 	void* out;
 	MwVaWidgetExecute(handle, "mwOpenGLGetProcAddress", &out, name);
 	return out;
-};
+}
 
 /*!
  * @brief Swaps the buffer of OpenGL context
@@ -56,7 +56,7 @@ MwInline void* MwOpenGLGetProcAddress(MwWidget handle, const char* name) {
  */
 MwInline void MwOpenGLSwapBuffer(MwWidget handle) {
 	MwVaWidgetExecute(handle, "mwOpenGLSwapBuffer", NULL);
-};
+}
 
 #ifdef __cplusplus
 }

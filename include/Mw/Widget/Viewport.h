@@ -28,7 +28,7 @@ MwInline MwWidget MwViewportGetViewport(MwWidget handle) {
 	MwWidget out;
 	MwVaWidgetExecute(handle, "mwViewportGetViewport", &out);
 	return out;
-};
+}
 
 /*!
  * @brief Set viewport size
@@ -38,7 +38,7 @@ MwInline MwWidget MwViewportGetViewport(MwWidget handle) {
  */
 MwInline void MwViewportSetSize(MwWidget handle, int w, int h) {
 	MwVaWidgetExecute(handle, "mwViewportSetSize", NULL, w, h);
-};
+}
 
 #ifdef __cplusplus
 }

@@ -73,7 +73,7 @@ MwInline void MwListBoxInsert(MwWidget handle, int index, void* packet) {
  */
 MwInline void MwListBoxDelete(MwWidget handle, int index) {
 	MwVaWidgetExecute(handle, "mwListboxDelete", NULL, index);
-};
+}
 
 /*!
  * @brief Gets item from the listbox
@@ -85,7 +85,7 @@ MwInline const char* MwListBoxGet(MwWidget handle, int index) {
 	const char* out;
 	MwVaWidgetExecute(handle, "mwListBoxGet", (void*)&out, index);
 	return out;
-};
+}
 
 /*!
  * @brief Sets an item width of the listbox
@@ -95,7 +95,7 @@ MwInline const char* MwListBoxGet(MwWidget handle, int index) {
  */
 MwInline void MwListBoxSetWidth(MwWidget handle, int index, int width) {
 	MwVaWidgetExecute(handle, "mwListBoxSetWidth", NULL, index, width);
-};
+}
 
 /*!
  * @brief Resets the listbox
@@ -103,7 +103,7 @@ MwInline void MwListBoxSetWidth(MwWidget handle, int index, int width) {
  */
 MwInline void MwListBoxReset(MwWidget handle) {
 	MwVaWidgetExecute(handle, "mwListBoxReset", NULL);
-};
+}
 
 #ifdef __cplusplus
 }

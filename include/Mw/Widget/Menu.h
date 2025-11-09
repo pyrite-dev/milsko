@@ -30,7 +30,7 @@ MwInline MwMenu MwMenuAdd(MwWidget handle, MwMenu menu, const char* name) {
 	MwMenu out;
 	MwVaWidgetExecute(handle, "mwMenuAdd", &out, menu, name);
 	return out;
-};
+}
 
 #ifdef __cplusplus
 }

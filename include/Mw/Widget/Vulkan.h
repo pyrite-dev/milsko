@@ -117,7 +117,7 @@ MwInline void* MwVulkanGetField(MwWidget handle, MwVulkanField field, MwErrorEnu
 	void* field_out;
 	MwVaWidgetExecute(handle, "mwVulkanGetField", &field_out, field, out);
 	return field_out;
-};
+}
 
 /*!
  * @brief Return whether Vulkan is installed on the target platform.

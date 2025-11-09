@@ -28,7 +28,7 @@ MwInline int MwScrollBarGetVisibleLength(MwWidget handle) {
 	int out;
 	MwVaWidgetExecute(handle, "mwScrollBarGetVisibleLength", &out, NULL);
 	return out;
-};
+}
 
 #ifdef __cplusplus
 }
