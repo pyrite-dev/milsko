@@ -292,15 +292,30 @@ void MwLLSetXY(MwLL handle, int x, int y) {
 }
 
 void MwLLSetWH(MwLL handle, int w, int h) {
+	XSizeHints sh;
+	long	   r;
+
+	XGetWMNormalHints(handle->display, handle->window, &sh, &r);
+
 	if(w < 2) w = 2;
 	if(h < 2) h = 2;
 
+	sh.flags |= PSize;
+	sh.width  = w;
+	sh.height = h;
+
 	XResizeWindow(handle->display, handle->window, w, h);
+	XSetWMNormalHints(handle->display, handle->window, &sh);
+
+	destroy_pixmap(handle);
+	create_pixmap(handle);
 
 	handle->width  = w;
 	handle->height = h;
 
 	XSync(handle->display, False);
+
+	MwLLForceRender(handle);
 }
 
 void MwLLFreeColor(MwLLColor color) {
