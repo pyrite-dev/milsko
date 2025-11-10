@@ -80,6 +80,10 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 			data = MwIconError;
 			break;
 		}
+		case MwMB_ICONCLOCK: {
+			data = MwIconClock;
+			break;
+		}
 		}
 
 		px = MwLoadIcon(icon, data);

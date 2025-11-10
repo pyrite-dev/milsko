@@ -18,6 +18,11 @@ extern "C" {
 MWDECL unsigned int MwIconBack[];
 
 /*!
+ * @brief Clock icon
+ */
+MWDECL unsigned int MwIconClock[];
+
+/*!
  * @brief Computer icon
  */
 MWDECL unsigned int MwIconComputer[];
