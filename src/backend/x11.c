@@ -279,6 +279,7 @@ void MwLLSetXY(MwLL handle, int x, int y) {
 	XSizeHints sh;
 	long	   r;
 
+	sh.flags = 0;
 	XGetWMNormalHints(handle->display, handle->window, &sh, &r);
 
 	sh.flags |= PPosition;
@@ -295,6 +296,7 @@ void MwLLSetWH(MwLL handle, int w, int h) {
 	XSizeHints sh;
 	long	   r;
 
+	sh.flags = 0;
 	XGetWMNormalHints(handle->display, handle->window, &sh, &r);
 
 	if(w < 2) w = 2;
