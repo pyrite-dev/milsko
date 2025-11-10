@@ -1,6 +1,22 @@
 // $Id$
 #include "shapes.inc"
 #include "colors.inc"
+#include "textures.inc"
+#include "skies.inc"
+
+object {
+	O_Cloud1
+}
+
+sky_sphere {
+	pigment {
+		gradient y
+		color_map {
+			[0.0 White*0.8]
+			[0.2 rgb<0.2 0.2 0.7>]
+		}
+	}
+}
 
 object {
 	Cube
