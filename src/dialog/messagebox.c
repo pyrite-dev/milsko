@@ -40,7 +40,7 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 
 	p.x    = (ww - w) / 2;
 	p.y    = (wh - h) / 2;
-	window = MwVaCreateWidget(MwWindowClass, "messagebox", handle, p.x, p.y, w, h,
+	window = MwVaCreateWidget(MwWindowClass, "messagebox", handle, 0, 0, w, h,
 				  MwNtitle, title,
 				  NULL);
 

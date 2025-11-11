@@ -798,10 +798,11 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 }
 
 void MwLLDetach(MwLL handle, MwPoint* point) {
-	int	     x = 0, y = 0;
-	Window	     child, root, parent;
-	Window*	     children;
-	unsigned int nchild;
+	int		  x = 0, y = 0;
+	Window		  child, root, parent;
+	Window*		  children;
+	unsigned int	  nchild;
+	XWindowAttributes xwa;
 
 	handle->top = 1;
 
@@ -810,9 +811,13 @@ void MwLLDetach(MwLL handle, MwPoint* point) {
 
 	XTranslateCoordinates(handle->display, parent, RootWindow(handle->display, DefaultScreen(handle->display)), 0, 0, &x, &y, &child);
 
-	wait_unmap(handle);
+	XGetWindowAttributes(handle->display, handle->window, &xwa);
+
+	if(xwa.map_state == IsViewable) wait_unmap(handle);
 
 	XReparentWindow(handle->display, handle->window, RootWindow(handle->display, DefaultScreen(handle->display)), x + point->x, y + point->y);
+
+	if(xwa.map_state == IsViewable) wait_map(handle, 0, 0);
 }
 
 void MwLLShow(MwLL handle, int show) {

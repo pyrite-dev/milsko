@@ -93,7 +93,7 @@ static void destroy(MwWidget handle) {
 		in_area = (r.x <= handle->mouse_point.x && r.y <= handle->mouse_point.y && handle->mouse_point.x <= (int)(r.x + r.width) && handle->mouse_point.y <= (int)(r.y + r.height)) ? 1 : 0;
 
 #define END_MENU_LOOP \
-	p.x += tw / 2 + 20; \
+	p.x += tw / 2 + 30; \
 	if(incr) p.x = oldx; \
 	}
 
