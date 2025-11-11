@@ -307,15 +307,15 @@ static int create(MwWidget handle) {
 
 	MwSetDefault(handle);
 
+	MwSetInteger(handle, MwNleftPadding, 0);
+	MwSetInteger(handle, MwNhasHeading, 0);
+
 	resize(handle);
 	lb->list       = NULL;
 	lb->selected   = -1;
 	lb->click_time = 0;
 	lb->width      = NULL;
 	lb->changed    = 0;
-
-	MwSetInteger(handle, MwNleftPadding, 0);
-	MwSetInteger(handle, MwNhasHeading, 0);
 
 	return 0;
 }
