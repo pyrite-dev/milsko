@@ -128,6 +128,7 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	unsigned long n = 1;
 	int	      i;
 	int	      px = x, py = y;
+	XSizeHints    sh;
 
 	r = malloc(sizeof(*r));
 
@@ -147,7 +148,10 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 		p	   = parent->window;
 		r->top	   = 0;
 	}
-	r->window = XCreateSimpleWindow(r->display, p, px, py, width, height, 0, 0, WhitePixel(r->display, DefaultScreen(r->display)));
+	r->window      = XCreateSimpleWindow(r->display, p, px, py, width, height, 0, 0, WhitePixel(r->display, DefaultScreen(r->display)));
+	sh.flags       = PWinGravity;
+	sh.win_gravity = StaticGravity;
+	XSetWMNormalHints(r->display, r->window, &sh);
 
 	xvi = get_visual_info(r->display);
 
