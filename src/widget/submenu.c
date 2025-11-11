@@ -142,7 +142,7 @@ static void click(MwWidget handle) {
 					MwForceRender(w->parent);
 
 					MwForceRender(handle);
-				} else if(arrlen(menu->sub[i]->sub) == 0) {
+				} else if(strcmp(menu->sub[i]->name, "----") != 0 && arrlen(menu->sub[i]->sub) == 0) {
 					while(w->parent->widget_class != MwMenuClass) w = w->parent;
 					MwGetBeforeStep(w, &jmp);
 

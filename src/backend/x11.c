@@ -830,7 +830,7 @@ void MwLLShow(MwLL handle, int show) {
 
 		XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
 	} else {
-		XUnmapWindow(handle->display, handle->window);
+		wait_unmap(handle);
 	}
 }
 
