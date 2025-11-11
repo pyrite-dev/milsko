@@ -64,6 +64,7 @@ static void destroy(MwWidget handle) {
 	MwMenu	m = handle->internal; \
 	MwPoint p; \
 	MwRect	r; \
+	int	rx; \
 \
 	p.x = 10; \
 	p.y = MwGetInteger(handle, MwNheight) / 2; \
@@ -71,18 +72,20 @@ static void destroy(MwWidget handle) {
 	r.x	 = 0; \
 	r.y	 = 0; \
 	r.width	 = MwGetInteger(handle, MwNwidth); \
-	r.height = MwGetInteger(handle, MwNheight);
+	r.height = MwGetInteger(handle, MwNheight); \
+\
+	rx = r.width - 10;
 
 #define BEGIN_MENU_LOOP \
 	for(i = 0; i < arrlen(m->sub); i++) { \
 		int incr = m->sub[i]->name[0] == '?' ? 1 : 0; \
 		int tw	 = MwTextWidth(handle, m->sub[i]->name + incr); \
 		int th	 = MwTextHeight(handle, m->sub[i]->name + incr); \
-		int oldx = p.x; \
 		int in_area; \
 \
 		if(incr) { \
-			p.x = MwGetInteger(handle, MwNwidth) - tw - 10; \
+			p.x = rx -= tw; \
+			rx -= 20; \
 		} \
 \
 		r.x	 = p.x - 5; \
@@ -93,8 +96,7 @@ static void destroy(MwWidget handle) {
 		in_area = (r.x <= handle->mouse_point.x && r.y <= handle->mouse_point.y && handle->mouse_point.x <= (int)(r.x + r.width) && handle->mouse_point.y <= (int)(r.y + r.height)) ? 1 : 0;
 
 #define END_MENU_LOOP \
-	p.x += tw / 2 + 30; \
-	if(incr) p.x = oldx; \
+	p.x += tw + 20; \
 	}
 
 static void draw(MwWidget handle) {
