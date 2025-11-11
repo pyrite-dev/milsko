@@ -41,22 +41,51 @@ static void destroy_pixmap(MwLL handle) {
 }
 
 static void wait_map(MwLL handle, int move_back, int nomap) {
-	XEvent*	     queue = NULL;
-	XEvent	     ev;
-	int	     x, y;
-	unsigned int w, h;
+	XEvent*		  queue = NULL;
+	XEvent		  ev;
+	int		  x, y;
+	unsigned int	  w, h;
+	XWindowAttributes xwa;
 
 	MwLLGetXYWH(handle, &x, &y, &w, &h);
 
 	if(move_back) MwLLSetXY(handle, x, y);
 
-	if(!nomap) XMapWindow(handle->display, handle->window);
+	XGetWindowAttributes(handle->display, handle->window, &xwa);
+	if(xwa.map_state != IsViewable) {
+		if(!nomap) XMapWindow(handle->display, handle->window);
 
+		XSync(handle->display, False);
+
+		while(1) {
+			XNextEvent(handle->display, &ev);
+			if(ev.type == MapNotify && ev.xmap.window == handle->window) {
+				break;
+			} else {
+				arrput(queue, ev);
+			}
+		}
+
+		while(arrlen(queue) > 0) {
+			XPutBackEvent(handle->display, &queue[0]);
+			arrdel(queue, 0);
+		}
+		arrfree(queue);
+	}
+
+	if(move_back) MwLLSetXY(handle, x, y);
+}
+
+static void wait_unmap(MwLL handle) {
+	XEvent* queue = NULL;
+	XEvent	ev;
+
+	XUnmapWindow(handle->display, handle->window);
 	XSync(handle->display, False);
 
 	while(1) {
 		XNextEvent(handle->display, &ev);
-		if(ev.type == MapNotify && ev.xmap.window == handle->window) {
+		if(ev.type == UnmapNotify && ev.xunmap.window == handle->window) {
 			break;
 		} else {
 			arrput(queue, ev);
@@ -781,11 +810,9 @@ void MwLLDetach(MwLL handle, MwPoint* point) {
 
 	XTranslateCoordinates(handle->display, parent, RootWindow(handle->display, DefaultScreen(handle->display)), 0, 0, &x, &y, &child);
 
-	XUnmapWindow(handle->display, handle->window);
+	wait_unmap(handle);
 
 	XReparentWindow(handle->display, handle->window, RootWindow(handle->display, DefaultScreen(handle->display)), x + point->x, y + point->y);
-
-	wait_map(handle, 0, 0);
 }
 
 void MwLLShow(MwLL handle, int show) {
