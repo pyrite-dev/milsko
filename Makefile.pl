@@ -33,6 +33,7 @@ our $cross = 0;
 
 require("./pl/utils.pl");
 
+param_set("classic-theme",        0);
 param_set("stb-image",            1);
 param_set("stb-truetype",         0);
 param_set("freetype2",            1);
@@ -42,6 +43,7 @@ param_set("vulkan",               0);
 param_set("vulkan-string-helper", 1);
 
 my %features = (
+    "classic-theme"        => "use classic theme",
     "stb-image"            => "use stb_image instead of libjpeg/libpng",
     "stb-truetype"         => "use stb_truetype",
     "freetype2"            => "use FreeType2",
@@ -51,10 +53,10 @@ my %features = (
     "vulkan-string-helper" => "use Vulkan string helper"
 );
 my @features_keys = (
-    "1stb-image", "1stb-truetype",
-    "1freetype2", "1opengl",
-    "2xrender",   "1vulkan",
-    "2vulkan-string-helper"
+    "1classic-theme", "1stb-image",
+    "1stb-truetype",  "1freetype2",
+    "1opengl",        "2xrender",
+    "1vulkan",        "2vulkan-string-helper"
 );
 
 foreach my $l (@ARGV) {

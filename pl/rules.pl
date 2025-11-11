@@ -3,6 +3,9 @@ new_object("src/*.c");
 
 my $gl_libs = "";
 
+if (param_get("classic-theme")) {
+    add_cflags("-DUSE_CLASSIC_THEME");
+}
 if ($backend eq "x11") {
     add_cflags("-DUSE_X11");
     new_object("src/backend/x11.c");

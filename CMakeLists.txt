@@ -14,7 +14,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "SunOS")
 else()
 	option(BUILD_VULKAN "Compile Vulkan widget or not" ON)
 endif()
-option(CLASSIC "Use classic theme" OFF)
+option(CLASSIC_THEME "Use classic theme" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(USE_STB_IMAGE "Use stb_image" ON)
 option(USE_STB_TRUETYPE "Use stb_truetype" OFF)
@@ -100,11 +100,11 @@ target_include_directories(
 	include
 )
 
-if(CLASSIC)
+if(CLASSIC_THEME)
 	target_compile_definitions(
 		Mw
 		PRIVATE
-		MW_CLASSIC_THEME
+		USE_CLASSIC_THEME
 	)
 endif()
 

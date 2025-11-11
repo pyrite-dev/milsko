@@ -500,7 +500,7 @@ static void set_boldfont(MwWidget handle) {
 void MwSetDefault(MwWidget handle) {
 	MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
 
-#ifdef MW_CLASSIC_THEME
+#ifdef USE_CLASSIC_THEME
 	inherit_integer(handle, MwNmodernLook, 0);
 #else
 	inherit_integer(handle, MwNmodernLook, 1);

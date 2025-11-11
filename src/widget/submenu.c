@@ -47,33 +47,48 @@ static void draw(MwWidget handle) {
 		p.y = 3;
 
 		for(i = 0; i < arrlen(menu->sub); i++) {
-			int tw = MwTextWidth(handle, menu->sub[i]->name);
-			int th = MwTextHeight(handle, menu->sub[i]->name);
+			if(strcmp(menu->sub[i]->name, "----") == 0) {
+				MwRect rc;
 
-			if(menu->sub[i]->wsub != NULL) {
-				r.x	 = 0;
-				r.y	 = p.y - 3;
-				r.width	 = tw + 15 + 5 * 2;
-				r.height = th + 3 * 2;
-				MwDrawWidgetBack(handle, &r, base, 0, MwTRUE);
+				p.y += 1;
+
+				rc.x	  = MwDefaultBorderWidth(handle) * 2;
+				rc.y	  = p.y;
+				rc.width  = r.width - (rc.x * 2);
+				rc.height = MwDefaultBorderWidth(handle) * 2;
+
+				MwDrawFrame(handle, &rc, base, 1);
+
+				p.y += MwDefaultBorderWidth(handle) * 2 + 1;
+			} else {
+				int tw = MwTextWidth(handle, menu->sub[i]->name);
+				int th = MwTextHeight(handle, menu->sub[i]->name);
+
+				if(menu->sub[i]->wsub != NULL) {
+					r.x	 = 0;
+					r.y	 = p.y - 3;
+					r.width	 = tw + 15 + 5 * 2;
+					r.height = th + 3 * 2;
+					MwDrawWidgetBack(handle, &r, base, 0, MwTRUE);
+				}
+
+				p.x = 5 + tw / 2;
+
+				p.y += th / 2;
+				MwDrawText(handle, &p, menu->sub[i]->name, 1, MwALIGNMENT_CENTER, text);
+
+				if(arrlen(menu->sub[i]->sub) > 0) {
+					MwRect tr;
+
+					tr.x	 = p.x + tw / 2 + 5;
+					tr.y	 = p.y - th / 2 + 2;
+					tr.width = tr.height = 11;
+
+					MwDrawTriangle(handle, &tr, base, menu->sub[i]->wsub != NULL ? 1 : 0, MwEAST);
+				}
+
+				p.y += th / 2 + 3;
 			}
-
-			p.x = 5 + tw / 2;
-
-			p.y += th / 2;
-			MwDrawText(handle, &p, menu->sub[i]->name, 1, MwALIGNMENT_CENTER, text);
-
-			if(arrlen(menu->sub[i]->sub) > 0) {
-				MwRect tr;
-
-				tr.x	 = p.x + tw / 2 + 5;
-				tr.y	 = p.y - th / 2 + 2;
-				tr.width = tr.height = 11;
-
-				MwDrawTriangle(handle, &tr, base, menu->sub[i]->wsub != NULL ? 1 : 0, MwEAST);
-			}
-
-			p.y += th / 2 + 3;
 		}
 	}
 
@@ -170,10 +185,14 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
 	MwLLShow(handle->lowlevel, 1);
 
 	for(i = 0; i < arrlen(menu->sub); i++) {
-		int tw = MwTextWidth(handle, menu->sub[i]->name);
-		h += MwTextHeight(handle, menu->sub[i]->name) + 3;
-		if(tw > w) {
-			w = tw;
+		if(strcmp(menu->sub[i]->name, "----") == 0) {
+			h += MwDefaultBorderWidth(handle) * 2 + 2;
+		} else {
+			int tw = MwTextWidth(handle, menu->sub[i]->name);
+			h += MwTextHeight(handle, menu->sub[i]->name) + 3;
+			if(tw > w) {
+				w = tw;
+			}
 		}
 	}
 
