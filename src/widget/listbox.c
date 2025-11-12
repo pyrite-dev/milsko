@@ -231,7 +231,7 @@ static void frame_draw(MwWidget handle) {
 			MwLLDrawPixmap(handle->lowlevel, &r2, lb->list[i].pixmap);
 		}
 		p.y += MwTextHeight(handle, "M") / 2;
-		p.x = MwGetInteger(handle->parent, MwNleftPadding);
+		p.x = MwGetInteger(handle->parent, MwNleftPadding) + MwDefaultBorderWidth(handle);
 		for(j = 0; j < arrlen(lb->list[i].name); j++) {
 			char* t = lb->list[i].name[j];
 
