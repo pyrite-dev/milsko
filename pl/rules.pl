@@ -45,6 +45,10 @@ if (param_get("freetype2")) {
     }
 }
 
+if (param_get("vulkan") && param_get("vulkan-string-helper")) {
+    add_cflags("-DHAS_VK_ENUM_STRING_HELPER");
+}
+
 new_object("src/icon/*.c");
 new_object("src/font/*.c");
 new_object("src/cursor/*.c");

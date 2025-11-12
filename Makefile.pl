@@ -170,13 +170,13 @@ print(OUT
 
 foreach my $l (@library_targets) {
     my $warn = "-Wall -Wextra -Wno-sign-compare";
-    my $s = $l;
-    my $o = $object_suffix;
+    my $s    = $l;
+    my $o    = $object_suffix;
     $o =~ s/\./\\\./g;
     $s =~ s/$o$/.c/;
 
-    if($l =~ /^external\//){
-	    $warn = "";
+    if ($l =~ /^external\//) {
+        $warn = "";
     }
 
     print(OUT "${l}: ${s}\n");
