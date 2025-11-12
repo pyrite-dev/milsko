@@ -175,7 +175,7 @@ static void color_picker_click(MwWidget handle, void* user, void* call) {
 	picker->chosen_color.green = picker->color_picker_image_data[i + 1];
 	picker->chosen_color.blue  = picker->color_picker_image_data[i + 2];
 
-	sprintf(hexColor, "#%02X%02X%02X", picker->chosen_color.red, picker->chosen_color.green, picker->chosen_color.blue);
+	sprintf(hexColor, "#%02X%02X%02X", picker->chosen_color.red & 0xff, picker->chosen_color.green & 0xff, picker->chosen_color.blue & 0xff);
 
 	fr = picker->chosen_color.red > 128 ? 0 : 255;
 	fg = picker->chosen_color.green > 128 ? 0 : 255;
