@@ -18,6 +18,16 @@ extern "C" {
  */
 MWDECL MwClass MwComboBoxClass;
 
+/*!
+ * @brief Adds the entry to ComboBox
+ * @param handle Widget
+ * @param index Index
+ * @param text Text
+ */
+MwInline void MwComboBoxAdd(MwWidget handle, int index, const char* text) {
+	MwVaWidgetExecute(handle, "mwComboBoxAdd", NULL, index, text);
+}
+
 #ifdef __cplusplus
 }
 #endif

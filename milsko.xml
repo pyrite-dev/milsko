@@ -585,5 +585,13 @@
 				<property name="checked" />
 			</properties>
 		</widget>
+		<widget name="ComboBox">
+			<functions>
+				<function name="Add">
+					<integer name="index" />
+					<string name="text" />
+				</function>
+			</functions>
+		</widget>
 	</widgets>
 </milsko>

@@ -25,6 +25,16 @@ MWDECL MwCursor MwCursorDefault;
 MWDECL MwCursor MwCursorDefaultMask;
 
 /*!
+ * @brief Arrow cursor
+ */
+MWDECL MwCursor MwCursorArrow;
+
+/*!
+ * @brief Arrow cursor mask
+ */
+MWDECL MwCursor MwCursorArrowMask;
+
+/*!
  * @brief Cross cursor
  */
 MWDECL MwCursor MwCursorCross;
