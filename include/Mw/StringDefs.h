@@ -27,6 +27,7 @@
 #define MwNmodernLook "ImodernLook"
 #define MwNwaitMS "IwaitMS"
 #define MwNhideInput "IhideInput"
+#define MwNsingleClickSelectable "IsingleClickSelectable"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
@@ -46,7 +47,7 @@
 #define MwNmouseDownHandler "CmouseDown"     /* MwLLMouse* */
 #define MwNmouseUpHandler "CmouseUp"	     /* same as MwNmouseDownHandler */
 #define MwNmouseMoveHandler "CmouseMove"     /* MwPoint* */
-#define MwNchangedHandler "Cchanged"	     /* NULL */
+#define MwNchangedHandler "Cchanged"	     /* NULL/int* (MwComboBox) */
 #define MwNkeyHandler "Ckey"		     /* int* (MwLLKeyEnum or character code) */
 #define MwNkeyReleaseHandler "CkeyRelease"   /* same as MwNkeyHandler */
 #define MwNcloseHandler "Cclose"	     /* NULL */

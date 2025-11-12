@@ -131,9 +131,10 @@ struct _MwListBox {
 };
 
 struct _MwComboBox {
-	char** list;
-	int    opened;
-	int    selected;
+	char**	 list;
+	int	 opened;
+	int	 selected;
+	MwWidget listbox;
 };
 
 struct _MwDirectoryEntry {

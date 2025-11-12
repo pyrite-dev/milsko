@@ -9,6 +9,7 @@ static int create(MwWidget handle) {
 	cb->list	 = NULL;
 	cb->opened	 = 0;
 	cb->selected	 = 0;
+	cb->listbox	 = NULL;
 	handle->internal = cb;
 
 	MwSetDefault(handle);
@@ -49,7 +50,7 @@ static void draw(MwWidget handle) {
 		p.x = MwDefaultBorderWidth(handle) * 2;
 		p.y = MwGetInteger(handle, MwNheight) / 2;
 
-		MwDrawText(handle, &p, cb->list[0], 0, MwALIGNMENT_BEGINNING, text);
+		MwDrawText(handle, &p, cb->list[cb->selected], 0, MwALIGNMENT_BEGINNING, text);
 	}
 
 	r = rc;
@@ -76,14 +77,66 @@ static void draw(MwWidget handle) {
 	MwLLFreeColor(base);
 }
 
+static void listbox_activate(MwWidget handle, void* user, void* client) {
+	MwComboBox cb = handle->parent->internal;
+
+	(void)user;
+
+	cb->selected = *(int*)client;
+	cb->opened   = 0;
+	cb->listbox  = NULL;
+
+	MwForceRender(handle->parent);
+
+	MwDispatchUserHandler(handle->parent, MwNchangedHandler, client);
+
+	MwDestroyWidget(handle);
+}
+
 static void click(MwWidget handle) {
 	MwComboBox cb = handle->internal;
 
 	cb->opened = cb->opened ? 0 : 1;
 	if(cb->opened) {
+		MwPoint p;
+		int	i;
+		void*	packet;
+		int	width = MwGetInteger(handle, MwNwidth);
+
 		MwLLSetCursor(handle->lowlevel, &MwCursorArrow, &MwCursorArrowMask);
+
+		for(i = 0; i < arrlen(cb->list); i++) {
+			int l = MwTextWidth(handle, cb->list[i]) + MwDefaultBorderWidth(handle) * 2;
+			if(l > width) width = l;
+		}
+
+		cb->listbox = MwVaCreateWidget(MwListBoxClass, "listbox", handle, 0, 0, width, MwTextHeight(handle, "M") * 6 + MwDefaultBorderWidth(handle) * 2,
+					       MwNsingleClickSelectable, 1,
+					       NULL);
+		MwLLShow(cb->listbox->lowlevel, 0);
+
+		packet = MwListBoxCreatePacket();
+		for(i = 0; i < arrlen(cb->list); i++) {
+			int index = MwListBoxPacketInsert(packet, -1);
+			MwListBoxPacketSet(packet, index, 0, cb->list[i]);
+		}
+		MwListBoxInsert(cb->listbox, -1, packet);
+		MwListBoxDestroyPacket(packet);
+
+		MwAddUserHandler(cb->listbox, MwNactivateHandler, listbox_activate, NULL);
+
+		p.x = 0;
+		p.y = MwGetInteger(handle, MwNheight);
+		MwLLDetach(cb->listbox->lowlevel, &p);
+		MwLLMakeToolWindow(cb->listbox->lowlevel);
+		MwLLShow(cb->listbox->lowlevel, 1);
 	} else {
 		MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
+
+		if(cb->listbox != NULL) {
+			MwDestroyWidget(cb->listbox);
+			cb->listbox = NULL;
+		}
 	}
 
 	MwForceRender(handle);
@@ -100,12 +153,21 @@ static void mwComboBoxAddImpl(MwWidget handle, int index, const char* text) {
 	if(index <= cb->selected) MwForceRender(handle);
 }
 
+static const char* mwComboBoxGetImpl(MwWidget handle, int index) {
+	MwComboBox cb = handle->internal;
+
+	return cb->list[index];
+}
+
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
-	(void)out;
 	if(strcmp(name, "mwComboBoxAdd") == 0) {
 		int	    index = va_arg(va, int);
 		const char* text  = va_arg(va, const char*);
 		mwComboBoxAddImpl(handle, index, text);
+	}
+	if(strcmp(name, "mwComboBoxGet") == 0) {
+		int index	   = va_arg(va, int);
+		*(const char**)out = mwComboBoxGetImpl(handle, index);
 	}
 }
 

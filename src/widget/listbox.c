@@ -135,7 +135,7 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 
 				lb->selected = st + i;
 
-				if(((t = MwTimeGetTick()) - lb->click_time) < 250 && old == st + i) {
+				if((((t = MwTimeGetTick()) - lb->click_time) < 250 && old == st + i) || MwGetInteger(handle->parent, MwNsingleClickSelectable)) {
 					MwDispatchUserHandler(handle->parent, MwNactivateHandler, &lb->selected);
 				}
 
@@ -307,7 +307,8 @@ static int create(MwWidget handle) {
 
 	MwSetDefault(handle);
 
-	MwSetInteger(handle, MwNleftPadding, 0);
+	MwSetInteger(handle, MwNsingleClickSelectable, 0);
+	MwSetInteger(handle, MwNhasHeading, 0);
 	MwSetInteger(handle, MwNhasHeading, 0);
 
 	resize(handle);

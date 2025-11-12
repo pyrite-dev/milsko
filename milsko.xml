@@ -63,6 +63,7 @@
 		<integer name="modernLook" />
 		<integer name="waitMS" />
 		<integer name="hideInput" />
+		<integer name="singleClickSelectable" />
 
 		<string name="title" />
 		<string name="text" />
@@ -459,6 +460,8 @@
 		<widget name="ListBox">
 			<properties>
 				<property name="leftPadding" />
+				<property name="hasHeading" />
+				<property name="singleClickSelectable" />
 			</properties>
 			<functions>
 				<function name="Insert">
