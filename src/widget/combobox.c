@@ -110,7 +110,7 @@ static void click(MwWidget handle) {
 			if(l > width) width = l;
 		}
 
-		cb->listbox = MwVaCreateWidget(MwListBoxClass, "listbox", handle, 0, 0, width, MwTextHeight(handle, "M") * 6 + MwDefaultBorderWidth(handle) * 2,
+		cb->listbox = MwVaCreateWidget(MwListBoxClass, "listbox", handle, 0, MwGetInteger(handle, MwNheight), width, MwTextHeight(handle, "M") * 6 + MwDefaultBorderWidth(handle) * 2,
 					       MwNsingleClickSelectable, 1,
 					       NULL);
 		MwLLShow(cb->listbox->lowlevel, 0);
