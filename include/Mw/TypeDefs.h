@@ -18,6 +18,7 @@ typedef struct _MwMenu*		      MwMenu;
 typedef struct _MwEntry*	      MwEntry;
 typedef struct _MwViewport*	      MwViewport;
 typedef struct _MwListBox*	      MwListBox;
+typedef struct _MwComboBox*	      MwComboBox;
 typedef struct _MwListBoxEntry	      MwListBoxEntry;
 typedef struct _MwDirectoryEntry      MwDirectoryEntry;
 typedef struct _MwListBoxPacket	      MwListBoxPacket;
@@ -127,6 +128,10 @@ struct _MwListBox {
 	int		pressed;
 	int*		width;
 	int		changed;
+};
+
+struct _MwComboBox {
+	int opened;
 };
 
 struct _MwDirectoryEntry {

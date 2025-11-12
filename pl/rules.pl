@@ -55,6 +55,7 @@ new_object("src/cursor/*.c");
 
 new_object("src/widget/button.c");
 new_object("src/widget/checkbox.c");
+new_object("src/widget/combobox.c");
 new_object("src/widget/entry.c");
 new_object("src/widget/frame.c");
 new_object("src/widget/image.c");
