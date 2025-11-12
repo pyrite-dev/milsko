@@ -210,7 +210,8 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	XSelectInput(r->display, r->window, mask);
 
 	if(x != MwDEFAULT || y != MwDEFAULT) {
-		MwLLGetXYWH(r, &px, &py, &width, &height);
+		unsigned int dummy;
+		MwLLGetXYWH(r, &px, &py, &dummy, &dummy);
 
 		if(x == MwDEFAULT) x = px;
 		if(y == MwDEFAULT) y = py;
@@ -292,8 +293,7 @@ void MwLLColorUpdate(MwLL handle, MwLLColor c, int r, int g, int b) {
 	c->blue	 = b;
 }
 void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
-	Window	     root, parent;
-	Window	     child;
+	Window	     root;
 	unsigned int border, depth;
 
 	XGetGeometry(handle->display, handle->window, &root, x, y, w, h, &border, &depth);
