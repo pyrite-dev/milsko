@@ -691,3 +691,10 @@ char* MwLLGetClipboard(MwLL handle) {
 	}
 	return r;
 }
+
+void MwLLMakeToolWindow(MwLL handle) {
+	LPARAM lp = GetWindowLongPtr(handle->hWnd, GWL_STYLE) & WS_VISIBLE;
+
+	SetWindowLongPtr(handle->hWnd, GWL_STYLE, (LPARAM)lp);
+	SetWindowLongPtr(handle->hWnd, GWL_EXSTYLE, (LPARAM)WS_EX_TOOLWINDOW);
+}

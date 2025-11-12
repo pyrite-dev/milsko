@@ -6,9 +6,9 @@
 static int create(MwWidget handle) {
 	MwComboBox cb = malloc(sizeof(*cb));
 
-	cb->list = NULL;
+	cb->list	 = NULL;
 	cb->opened	 = 0;
-	cb->selected = 0;
+	cb->selected	 = 0;
 	handle->internal = cb;
 
 	MwSetDefault(handle);
@@ -18,9 +18,9 @@ static int create(MwWidget handle) {
 
 static void destroy(MwWidget handle) {
 	MwComboBox cb = handle->internal;
-	int i;
+	int	   i;
 
-	for(i = 0; i < arrlen(cb->list); i++){
+	for(i = 0; i < arrlen(cb->list); i++) {
 		free(cb->list[i]);
 	}
 	arrfree(cb->list);
@@ -43,7 +43,7 @@ static void draw(MwWidget handle) {
 	rc = r;
 
 	/* draw text */
-	if(arrlen(cb->list) > cb->selected){
+	if(arrlen(cb->list) > cb->selected) {
 		MwPoint p;
 
 		p.x = MwDefaultBorderWidth(handle) * 2;
@@ -80,13 +80,18 @@ static void click(MwWidget handle) {
 	MwComboBox cb = handle->internal;
 
 	cb->opened = cb->opened ? 0 : 1;
+	if(cb->opened) {
+		MwLLSetCursor(handle->lowlevel, &MwCursorArrow, &MwCursorArrowMask);
+	} else {
+		MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
+	}
 
 	MwForceRender(handle);
 }
 
-static void mwComboBoxAddImpl(MwWidget handle, int index, const char* text){
+static void mwComboBoxAddImpl(MwWidget handle, int index, const char* text) {
 	MwComboBox cb = handle->internal;
-	char* t = MwStringDupliacte(text);
+	char*	   t  = MwStringDupliacte(text);
 
 	if(index == -1) index = arrlen(cb->list);
 
@@ -98,8 +103,8 @@ static void mwComboBoxAddImpl(MwWidget handle, int index, const char* text){
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	(void)out;
 	if(strcmp(name, "mwComboBoxAdd") == 0) {
-		int index = va_arg(va, int);
-		const char* text = va_arg(va, const char*);
+		int	    index = va_arg(va, int);
+		const char* text  = va_arg(va, const char*);
 		mwComboBoxAddImpl(handle, index, text);
 	}
 }

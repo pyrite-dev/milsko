@@ -162,25 +162,12 @@ static void click(MwWidget handle) {
 
 static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
 	int i, w = 0, h = 0;
-#ifdef USE_X11
-	XSetWindowAttributes xswa;
-	Atom		     wndtype = XInternAtom(handle->lowlevel->display, "_NET_WM_WINDOW_TYPE", False);
-	Atom		     wndmenu = XInternAtom(handle->lowlevel->display, "_NET_WM_WINDOW_TYPE_MENU", False);
-
-	xswa.override_redirect = True;
-
-	XChangeWindowAttributes(handle->lowlevel->display, handle->lowlevel->window, CWOverrideRedirect, &xswa);
-	XChangeProperty(handle->lowlevel->display, handle->lowlevel->window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
-#endif
 
 	handle->internal = menu;
 
 	MwLLDetach(handle->lowlevel, point);
 
-#ifdef USE_GDI
-	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_STYLE, (LPARAM)0);
-	SetWindowLongPtr(handle->lowlevel->hWnd, GWL_EXSTYLE, (LPARAM)WS_EX_TOOLWINDOW);
-#endif
+	MwLLMakeToolWindow(handle->lowlevel);
 
 	MwLLShow(handle->lowlevel, 1);
 

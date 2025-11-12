@@ -946,3 +946,14 @@ char* MwLLGetClipboard(MwLL handle) {
 
 	return r;
 }
+
+void MwLLMakeToolWindow(MwLL handle) {
+	XSetWindowAttributes xswa;
+	Atom		     wndtype = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE", False);
+	Atom		     wndmenu = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE_MENU", False);
+
+	xswa.override_redirect = True;
+
+	XChangeWindowAttributes(handle->display, handle->window, CWOverrideRedirect, &xswa);
+	XChangeProperty(handle->display, handle->window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
+}
