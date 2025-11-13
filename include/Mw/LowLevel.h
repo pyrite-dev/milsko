@@ -9,8 +9,11 @@
 
 #include <Mw/MachDep.h>
 
-typedef struct _MwLLHandler* MwLLHandler;
-typedef struct _MwLLMouse    MwLLMouse;
+typedef struct _MwLLHandler*	  MwLLHandler;
+typedef struct _MwLLMouse	  MwLLMouse;
+typedef struct _MwLLCommon*	  MwLLCommon;
+typedef struct _MwLLCommonColor*  MwLLCommonColor;
+typedef struct _MwLLCommonPixmap* MwLLCommonPixmap;
 #ifdef _MILSKO
 typedef union _MwLL*	   MwLL;
 typedef union _MwLLColor*  MwLLColor;
