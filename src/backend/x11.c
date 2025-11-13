@@ -191,6 +191,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	XSetICFocus(r->x11.xic);
 
 	r->common.copy_buffer = 1;
+	r->common.type	      = MwLLBackendX11;
 
 	r->x11.width  = width;
 	r->x11.height = height;

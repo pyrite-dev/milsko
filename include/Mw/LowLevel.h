@@ -24,9 +24,15 @@ typedef void* MwLLColor;
 typedef void* MwLLPixmap;
 #endif
 
+enum MwLLBackends {
+	MwLLBackendX11 = 0,
+	MwLLBackendGDI
+};
+
 struct _MwLLCommon {
 	void* user;
 	int   copy_buffer;
+	int   type;
 
 	MwLLHandler handler;
 };

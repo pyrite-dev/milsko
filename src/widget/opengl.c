@@ -2,13 +2,13 @@
 #include <Mw/Milsko.h>
 #include <Mw/Widget/OpenGL.h>
 
-#ifdef _WIN32
+#ifdef USE_GDI
 typedef HGLRC(WINAPI* MWwglCreateContext)(HDC);
 typedef BOOL(WINAPI* MWwglMakeCurrent)(HDC, HGLRC);
 typedef PROC(WINAPI* MWwglGetProcAddress)(LPCSTR);
 typedef BOOL(WINAPI* MWwglDeleteContext)(HGLRC);
 
-typedef struct opengl {
+typedef struct gdiopengl {
 	HDC   dc;
 	HGLRC gl;
 
@@ -18,8 +18,9 @@ typedef struct opengl {
 	MWwglMakeCurrent    wglMakeCurrent;
 	MWwglDeleteContext  wglDeleteContext;
 	MWwglGetProcAddress wglGetProcAddress;
-} opengl_t;
-#else
+} gdiopengl_t;
+#endif
+#ifdef USE_X11
 typedef XVisualInfo* (*MWglXChooseVisual)(Display* dpy, int screen, int* attribList);
 typedef GLXContext (*MWglXCreateContext)(Display* dpy, XVisualInfo* vis, GLXContext shareList, Bool direct);
 typedef void (*MWglXDestroyContext)(Display* dpy, GLXContext ctx);
@@ -27,7 +28,7 @@ typedef Bool (*MWglXMakeCurrent)(Display* dpy, GLXDrawable drawable, GLXContext 
 typedef void (*MWglXSwapBuffers)(Display* dpy, GLXDrawable drawable);
 typedef void* (*MWglXGetProcAddress)(const GLubyte* procname);
 
-typedef struct opengl {
+typedef struct x11opengl {
 	XVisualInfo* visual;
 	GLXContext   gl;
 
@@ -39,64 +40,71 @@ typedef struct opengl {
 	MWglXMakeCurrent    glXMakeCurrent;
 	MWglXSwapBuffers    glXSwapBuffers;
 	MWglXGetProcAddress glXGetProcAddress;
-} opengl_t;
+} x11opengl_t;
 #endif
 
 static int create(MwWidget handle) {
-	opengl_t* o = malloc(sizeof(*o));
-#ifdef _WIN32
-	PIXELFORMATDESCRIPTOR pfd;
-	int		      pf;
+	void* r = NULL;
+#ifdef USE_GDI
+	if(handle->lowlevel->common.type == MwLLBackendGDI) {
+		PIXELFORMATDESCRIPTOR pfd;
+		int		      pf;
+		gdiopengl_t*	      o = r = malloc(sizeof(*o));
 
-	memset(&pfd, 0, sizeof(pfd));
-	pfd.nSize      = sizeof(pfd);
-	pfd.nVersion   = 1;
-	pfd.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	pfd.cDepthBits = 32;
-	pfd.cColorBits = 32;
+		memset(&pfd, 0, sizeof(pfd));
+		pfd.nSize      = sizeof(pfd);
+		pfd.nVersion   = 1;
+		pfd.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+		pfd.cDepthBits = 32;
+		pfd.cColorBits = 32;
 
-	o->dc = GetDC(handle->lowlevel->gdi.hWnd);
+		o->dc = GetDC(handle->lowlevel->gdi.hWnd);
 
-	pf = ChoosePixelFormat(o->dc, &pfd);
-	SetPixelFormat(o->dc, pf, &pfd);
+		pf = ChoosePixelFormat(o->dc, &pfd);
+		SetPixelFormat(o->dc, pf, &pfd);
 
-	o->lib = LoadLibrary("opengl32.dll");
+		o->lib = MwDynamicOpen("opengl32.dll");
 
-	o->wglCreateContext  = (MWwglCreateContext)(void*)GetProcAddress(o->lib, "wglCreateContext");
-	o->wglMakeCurrent    = (MWwglMakeCurrent)(void*)GetProcAddress(o->lib, "wglMakeCurrent");
-	o->wglDeleteContext  = (MWwglDeleteContext)(void*)GetProcAddress(o->lib, "wglDeleteContext");
-	o->wglGetProcAddress = (MWwglGetProcAddress)(void*)GetProcAddress(o->lib, "wglGetProcAddress");
+		o->wglCreateContext  = (MWwglCreateContext)(void*)MwDynamicSymbol(o->lib, "wglCreateContext");
+		o->wglMakeCurrent    = (MWwglMakeCurrent)(void*)MwDynamicSymbol(o->lib, "wglMakeCurrent");
+		o->wglDeleteContext  = (MWwglDeleteContext)(void*)MwDynamicSymbol(o->lib, "wglDeleteContext");
+		o->wglGetProcAddress = (MWwglGetProcAddress)(void*)MwDynamicSymbol(o->lib, "wglGetProcAddress");
 
-	o->gl = o->wglCreateContext(o->dc);
-#else
-	int	    attribs[5];
-	const char* glpath[] = {
-	    "libGL.so",
-	    "/usr/local/lib/libGL.so",
-	    "/usr/X11R7/lib/libGL.so",
-	    "/usr/pkg/lib/libGL.so"};
-	int glincr = 0;
-
-	attribs[0] = GLX_RGBA;
-	attribs[1] = GLX_DOUBLEBUFFER;
-	attribs[2] = GLX_DEPTH_SIZE;
-	attribs[3] = 24;
-	attribs[4] = None;
-
-	while(glpath[glincr] != NULL && (o->lib = dlopen(glpath[glincr++], RTLD_LAZY)) == NULL);
-
-	o->glXChooseVisual   = (MWglXChooseVisual)dlsym(o->lib, "glXChooseVisual");
-	o->glXCreateContext  = (MWglXCreateContext)dlsym(o->lib, "glXCreateContext");
-	o->glXDestroyContext = (MWglXDestroyContext)dlsym(o->lib, "glXDestroyContext");
-	o->glXMakeCurrent    = (MWglXMakeCurrent)dlsym(o->lib, "glXMakeCurrent");
-	o->glXSwapBuffers    = (MWglXSwapBuffers)dlsym(o->lib, "glXSwapBuffers");
-	o->glXGetProcAddress = (MWglXGetProcAddress)dlsym(o->lib, "glXGetProcAddress");
-
-	/* XXX: fix this */
-	o->visual = o->glXChooseVisual(handle->lowlevel->x11.display, DefaultScreen(handle->lowlevel->x11.display), attribs);
-	o->gl	  = o->glXCreateContext(handle->lowlevel->x11.display, o->visual, NULL, GL_TRUE);
+		o->gl = o->wglCreateContext(o->dc);
+	}
 #endif
-	handle->internal		     = o;
+#ifdef USE_X11
+	if(handle->lowlevel->common.type == MwLLBackendX11) {
+		int	    attribs[5];
+		const char* glpath[] = {
+		    "libGL.so",
+		    "/usr/local/lib/libGL.so",
+		    "/usr/X11R7/lib/libGL.so",
+		    "/usr/pkg/lib/libGL.so"};
+		int	     glincr = 0;
+		x11opengl_t* o = r = malloc(sizeof(*o));
+
+		attribs[0] = GLX_RGBA;
+		attribs[1] = GLX_DOUBLEBUFFER;
+		attribs[2] = GLX_DEPTH_SIZE;
+		attribs[3] = 24;
+		attribs[4] = None;
+
+		while(glpath[glincr] != NULL && (o->lib = MwDynamicOpen(glpath[glincr++])) == NULL);
+
+		o->glXChooseVisual   = (MWglXChooseVisual)MwDynamicSymbol(o->lib, "glXChooseVisual");
+		o->glXCreateContext  = (MWglXCreateContext)MwDynamicSymbol(o->lib, "glXCreateContext");
+		o->glXDestroyContext = (MWglXDestroyContext)MwDynamicSymbol(o->lib, "glXDestroyContext");
+		o->glXMakeCurrent    = (MWglXMakeCurrent)MwDynamicSymbol(o->lib, "glXMakeCurrent");
+		o->glXSwapBuffers    = (MWglXSwapBuffers)MwDynamicSymbol(o->lib, "glXSwapBuffers");
+		o->glXGetProcAddress = (MWglXGetProcAddress)MwDynamicSymbol(o->lib, "glXGetProcAddress");
+
+		/* XXX: fix this */
+		o->visual = o->glXChooseVisual(handle->lowlevel->x11.display, DefaultScreen(handle->lowlevel->x11.display), attribs);
+		o->gl	  = o->glXCreateContext(handle->lowlevel->x11.display, o->visual, NULL, GL_TRUE);
+	}
+#endif
+	handle->internal		     = r;
 	handle->lowlevel->common.copy_buffer = 0;
 
 	MwSetDefault(handle);
@@ -105,49 +113,80 @@ static int create(MwWidget handle) {
 }
 
 static void destroy(MwWidget handle) {
-	opengl_t* o = (opengl_t*)handle->internal;
-#ifdef _WIN32
-	o->wglMakeCurrent(NULL, NULL);
-	DeleteDC(o->dc);
-	o->wglDeleteContext(o->gl);
+#ifdef USE_GDI
+	if(handle->lowlevel->common.type == MwLLBackendGDI) {
+		gdiopengl_t* o = handle->internal;
 
-	FreeLibrary(o->lib);
-#else
-	o->glXMakeCurrent(handle->lowlevel->x11.display, None, NULL);
-	o->glXDestroyContext(handle->lowlevel->x11.display, o->gl);
+		o->wglMakeCurrent(NULL, NULL);
+		DeleteDC(o->dc);
+		o->wglDeleteContext(o->gl);
 
-	dlclose(o->lib);
+		MwDynamicClose(o->lib);
+	}
 #endif
-	free(o);
+#ifdef USE_X11
+	if(handle->lowlevel->common.type == MwLLBackendX11) {
+		x11opengl_t* o = handle->internal;
+
+		o->glXMakeCurrent(handle->lowlevel->x11.display, None, NULL);
+		o->glXDestroyContext(handle->lowlevel->x11.display, o->gl);
+
+		MwDynamicClose(o->lib);
+	}
+#endif
+	free(handle->internal);
 }
 
 static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
-	opengl_t* o = (opengl_t*)handle->internal;
-#ifdef _WIN32
-	o->wglMakeCurrent(o->dc, o->gl);
-#else
-	o->glXMakeCurrent(handle->lowlevel->x11.display, handle->lowlevel->x11.window, o->gl);
+#ifdef USE_GDI
+	if(handle->lowlevel->common.type == MwLLBackendGDI) {
+		gdiopengl_t* o = handle->internal;
+
+		o->wglMakeCurrent(o->dc, o->gl);
+	}
+#endif
+#ifdef USE_X11
+	if(handle->lowlevel->common.type == MwLLBackendX11) {
+		x11opengl_t* o = handle->internal;
+
+		o->glXMakeCurrent(handle->lowlevel->x11.display, handle->lowlevel->x11.window, o->gl);
+	}
 #endif
 }
 
 static void mwOpenGLSwapBufferImpl(MwWidget handle) {
-	opengl_t* o = (opengl_t*)handle->internal;
-#ifdef _WIN32
-	SwapBuffers(o->dc);
-#else
-	(void)o;
+#ifdef USE_GDI
+	if(handle->lowlevel->common.type == MwLLBackendGDI) {
+		gdiopengl_t* o = handle->internal;
 
-	o->glXSwapBuffers(handle->lowlevel->x11.display, handle->lowlevel->x11.window);
+		SwapBuffers(o->dc);
+	}
+#endif
+#ifdef USE_X11
+	if(handle->lowlevel->common.type == MwLLBackendX11) {
+		x11opengl_t* o = handle->internal;
+
+		o->glXSwapBuffers(handle->lowlevel->x11.display, handle->lowlevel->x11.window);
+	}
 #endif
 }
 
 static void* mwOpenGLGetProcAddressImpl(MwWidget handle, const char* name) {
-	opengl_t* o = (opengl_t*)handle->internal;
-#ifdef _WIN32
-	return o->wglGetProcAddress(name);
-#else
-	return o->glXGetProcAddress((const GLubyte*)name);
+#ifdef USE_GDI
+	if(handle->lowlevel->common.type == MwLLBackendGDI) {
+		gdiopengl_t* o = handle->internal;
+
+		return o->wglGetProcAddress(name);
+	}
 #endif
+#ifdef USE_X11
+	if(handle->lowlevel->common.type == MwLLBackendX11) {
+		x11opengl_t* o = handle->internal;
+
+		return o->glXGetProcAddress((const GLubyte*)name);
+	}
+#endif
+	return NULL;
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
