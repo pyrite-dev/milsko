@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * @file Mw/Abstract/iDynamic.h
+ * @file Mw/Abstract/Dynamic.h
  * @brief Time
  */
 #ifndef __MW_ABSTRACT_DYNAMIC_H__
