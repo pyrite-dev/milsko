@@ -55,10 +55,14 @@ void resize(MwWidget w, void* user, void* client) {
 }
 
 int main() {
-	MwWidget window = MwVaCreateWidget(MwWindowClass, "window", NULL, MwDEFAULT, MwDEFAULT, (ww = 500), (wh = 500),
+	MwWidget window;
+	int i;
+
+	MwLibraryInit();
+
+	window = MwVaCreateWidget(MwWindowClass, "window", NULL, MwDEFAULT, MwDEFAULT, (ww = 500), (wh = 500),
 					   MwNtitle, "rotate",
 					   NULL);
-	int	 i;
 
 	for(i = 0; i < (int)(sizeof(buttons) / sizeof(buttons[0])); i++) {
 		const char* color = "";

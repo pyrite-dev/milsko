@@ -58,6 +58,8 @@ void resize(MwWidget handle, void* user_data, void* call_data) {
 int main() {
 	MwMenu m, m2;
 
+	MwLibraryInit();
+
 	window	= MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 400, 400,
 				   MwNtitle, "hello world",
 				   NULL);

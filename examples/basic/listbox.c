@@ -29,6 +29,9 @@ int main() {
 	int		 i;
 	MwListBoxPacket* packet;
 	int		 index;
+
+	MwLibraryInit();
+
 	wmain = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480,
 				 MwNtitle, "listbox",
 				 NULL);

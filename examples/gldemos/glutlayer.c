@@ -47,6 +47,8 @@ static void key_pressed(MwWidget handle, void* user, void* client) {
 int main() {
 	MwWidget window;
 
+	MwLibraryInit();
+
 	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 500, 500,
 				  MwNtitle, TITLE,
 				  NULL);

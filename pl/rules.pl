@@ -25,11 +25,6 @@ elsif ($backend eq "gdi") {
 
     $gl_libs = "-lopengl32 -lglu32";
 }
-elsif ($backend eq "darwin") {
-    add_cflags("-DUSE_DARWIN");
-    new_object("src/backend/mac/*.c");
-    add_ldflags("-framework Carbon");
-}
 
 if (param_get("stb-image")) {
     add_cflags("-DUSE_STB_IMAGE");

@@ -33,6 +33,8 @@ void color_picker(MwWidget handle, void* user_data, void* call_data) {
 }
 
 int main() {
+	MwLibraryInit();
+
 	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT,
 				  MwDEFAULT, 640, 480, MwNtitle, "color picker", NULL);
 	MwSetText(window, MwNbackground, "#000000");

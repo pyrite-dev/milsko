@@ -45,6 +45,12 @@ extern "C" {
 #endif
 
 /*!
+ * @brief Initializes the Milsko Toolkit
+ * @return `0` if successful
+ */
+MWDECL int MwLibraryInit(void);
+
+/*!
  * @brief Creates a widget
  * @param widget_class Widget class
  * @param name Widget name

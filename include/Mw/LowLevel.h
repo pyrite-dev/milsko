@@ -89,52 +89,52 @@ extern "C" {
 MWDECL void MwLLCreateCommon(MwLL handle);
 MWDECL void MwLLDestroyCommon(MwLL handle);
 
-/* driver-specific */
-MWDECL MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height);
-MWDECL void MwLLDestroy(MwLL handle);
+/* driver-specific, these get assigned by backend */
+MWDECL MwLL (*MwLLCreate)(MwLL parent, int x, int y, int width, int height);
+MWDECL void (*MwLLDestroy)(MwLL handle);
 
-MWDECL void MwLLPolygon(MwLL handle, MwPoint* points, int points_count, MwLLColor color);
-MWDECL void MwLLLine(MwLL handle, MwPoint* points, MwLLColor color);
+MWDECL void (*MwLLPolygon)(MwLL handle, MwPoint* points, int points_count, MwLLColor color);
+MWDECL void (*MwLLLine)(MwLL handle, MwPoint* points, MwLLColor color);
 
-MWDECL MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b);
-MWDECL void	 MwLLColorUpdate(MwLL handle, MwLLColor c, int r, int g, int b);
-MWDECL void	 MwLLFreeColor(MwLLColor color);
+MWDECL MwLLColor (*MwLLAllocColor)(MwLL handle, int r, int g, int b);
+MWDECL void (*MwLLColorUpdate)(MwLL handle, MwLLColor c, int r, int g, int b);
+MWDECL void (*MwLLFreeColor)(MwLLColor color);
 
-MWDECL void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h);
-MWDECL void MwLLSetXY(MwLL handle, int x, int y);
-MWDECL void MwLLSetWH(MwLL handle, int w, int h);
+MWDECL void (*MwLLGetXYWH)(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h);
+MWDECL void (*MwLLSetXY)(MwLL handle, int x, int y);
+MWDECL void (*MwLLSetWH)(MwLL handle, int w, int h);
 
-MWDECL void MwLLSetTitle(MwLL handle, const char* title);
+MWDECL void (*MwLLSetTitle)(MwLL handle, const char* title);
 
-MWDECL int  MwLLPending(MwLL handle);
-MWDECL void MwLLNextEvent(MwLL handle);
+MWDECL int (*MwLLPending)(MwLL handle);
+MWDECL void (*MwLLNextEvent)(MwLL handle);
 
-MWDECL MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int height);
-MWDECL void	  MwLLPixmapUpdate(MwLLPixmap pixmap);
-MWDECL void	  MwLLDestroyPixmap(MwLLPixmap pixmap);
-MWDECL void	  MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap);
-MWDECL void	  MwLLSetIcon(MwLL handle, MwLLPixmap pixmap);
+MWDECL MwLLPixmap (*MwLLCreatePixmap)(MwLL handle, unsigned char* data, int width, int height);
+MWDECL void (*MwLLPixmapUpdate)(MwLLPixmap pixmap);
+MWDECL void (*MwLLDestroyPixmap)(MwLLPixmap pixmap);
+MWDECL void (*MwLLDrawPixmap)(MwLL handle, MwRect* rect, MwLLPixmap pixmap);
+MWDECL void (*MwLLSetIcon)(MwLL handle, MwLLPixmap pixmap);
 
-MWDECL void MwLLForceRender(MwLL handle);
+MWDECL void (*MwLLForceRender)(MwLL handle);
 
-MWDECL void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask);
-MWDECL void MwLLDetach(MwLL handle, MwPoint* point);
-MWDECL void MwLLShow(MwLL handle, int show);
+MWDECL void (*MwLLSetCursor)(MwLL handle, MwCursor* image, MwCursor* mask);
+MWDECL void (*MwLLDetach)(MwLL handle, MwPoint* point);
+MWDECL void (*MwLLShow)(MwLL handle, int show);
 
-MWDECL void MwLLMakePopup(MwLL handle, MwLL parent);
+MWDECL void (*MwLLMakePopup)(MwLL handle, MwLL parent);
 
-MWDECL void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy);
-MWDECL void MwLLMakeBorderless(MwLL handle, int toggle);
+MWDECL void (*MwLLSetSizeHints)(MwLL handle, int minx, int miny, int maxx, int maxy);
+MWDECL void (*MwLLMakeBorderless)(MwLL handle, int toggle);
 
-MWDECL void MwLLSetBackground(MwLL handle, MwLLColor color);
+MWDECL void (*MwLLSetBackground)(MwLL handle, MwLLColor color);
 
-MWDECL void MwLLFocus(MwLL handle);
-MWDECL void MwLLGrabPointer(MwLL handle, int toggle);
+MWDECL void (*MwLLFocus)(MwLL handle);
+MWDECL void (*MwLLGrabPointer)(MwLL handle, int toggle);
 
-MWDECL void  MwLLSetClipboard(MwLL handle, const char* text);
-MWDECL char* MwLLGetClipboard(MwLL handle);
+MWDECL void (*MwLLSetClipboard)(MwLL handle, const char* text);
+MWDECL char* (*MwLLGetClipboard)(MwLL handle);
 
-MWDECL void MwLLMakeToolWindow(MwLL handle);
+MWDECL void (*MwLLMakeToolWindow)(MwLL handle);
 
 #ifdef __cplusplus
 }

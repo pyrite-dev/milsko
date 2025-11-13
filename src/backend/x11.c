@@ -121,7 +121,7 @@ static XVisualInfo* get_visual_info(Display* display) {
 	return XGetVisualInfo(display, VisualIDMask, &xvi, &n);
 }
 
-MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
+static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL	      r;
 	Window	      p;
 	XVisualInfo*  xvi;
@@ -225,7 +225,7 @@ MwLL MwLLCreate(MwLL parent, int x, int y, int width, int height) {
 	return r;
 }
 
-void MwLLDestroy(MwLL handle) {
+static void MwLLDestroyImpl(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
 	if(handle->xic) XDestroyIC(handle->xic);
@@ -241,7 +241,7 @@ void MwLLDestroy(MwLL handle) {
 	free(handle);
 }
 
-void MwLLPolygon(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
+static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
 	int	i;
 	XPoint* p = malloc(sizeof(*p) * points_count);
 
@@ -256,19 +256,19 @@ void MwLLPolygon(MwLL handle, MwPoint* points, int points_count, MwLLColor color
 	free(p);
 }
 
-void MwLLLine(MwLL handle, MwPoint* points, MwLLColor color) {
+static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	XSetForeground(handle->display, handle->gc, color->pixel);
 
 	XDrawLine(handle->display, handle->pixmap, handle->gc, points[0].x, points[0].y, points[1].x, points[1].y);
 }
 
-MwLLColor MwLLAllocColor(MwLL handle, int r, int g, int b) {
+static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 	MwLLColor c = malloc(sizeof(*c));
 	MwLLColorUpdate(handle, c, r, g, b);
 	return c;
 }
 
-void MwLLColorUpdate(MwLL handle, MwLLColor c, int r, int g, int b) {
+static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 	XColor xc;
 
 	if(handle->red_mask == 0) {
@@ -292,7 +292,8 @@ void MwLLColorUpdate(MwLL handle, MwLLColor c, int r, int g, int b) {
 	c->green = g;
 	c->blue	 = b;
 }
-void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
+
+static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
 	Window	     root;
 	unsigned int border, depth;
 
@@ -308,7 +309,7 @@ void MwLLGetXYWH(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) 
 	}
 }
 
-void MwLLSetXY(MwLL handle, int x, int y) {
+static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	XSizeHints sh;
 	long	   r;
 
@@ -325,7 +326,7 @@ void MwLLSetXY(MwLL handle, int x, int y) {
 	XSync(handle->display, False);
 }
 
-void MwLLSetWH(MwLL handle, int w, int h) {
+static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	XSizeHints sh;
 	long	   r;
 
@@ -353,15 +354,15 @@ void MwLLSetWH(MwLL handle, int w, int h) {
 	MwLLForceRender(handle);
 }
 
-void MwLLFreeColor(MwLLColor color) {
+static void MwLLFreeColorImpl(MwLLColor color) {
 	free(color);
 }
 
-void MwLLSetBackground(MwLL handle, MwLLColor color) {
+static void MwLLSetBackgroundImpl(MwLL handle, MwLLColor color) {
 	XSetWindowBackground(handle->display, handle->window, color->pixel);
 }
 
-int MwLLPending(MwLL handle) {
+static int MwLLPendingImpl(MwLL handle) {
 	XEvent ev;
 	if(XCheckTypedWindowEvent(handle->display, handle->window, ClientMessage, &ev) || XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 		XPutBackEvent(handle->display, &ev);
@@ -370,7 +371,7 @@ int MwLLPending(MwLL handle) {
 	return 0;
 }
 
-void MwLLNextEvent(MwLL handle) {
+static void MwLLNextEventImpl(MwLL handle) {
 	XEvent ev;
 	while(XCheckTypedWindowEvent(handle->display, handle->window, ClientMessage, &ev) || XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
 		int render = 0;
@@ -526,11 +527,11 @@ void MwLLNextEvent(MwLL handle) {
 	}
 }
 
-void MwLLSetTitle(MwLL handle, const char* title) {
+static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 	XSetStandardProperties(handle->display, handle->window, title, title, None, (char**)NULL, 0, NULL);
 }
 
-MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int height) {
+static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
 	MwLLPixmap	  r  = malloc(sizeof(*r));
 	char*		  di = malloc(4 * width * height);
 	char*		  dm = malloc(4 * width * height);
@@ -560,7 +561,7 @@ MwLLPixmap MwLLCreatePixmap(MwLL handle, unsigned char* data, int width, int hei
 	return r;
 }
 
-void MwLLPixmapUpdate(MwLLPixmap r) {
+static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
 	int y, x;
 	for(y = 0; y < r->height; y++) {
 		for(x = 0; x < r->width; x++) {
@@ -588,7 +589,7 @@ void MwLLPixmapUpdate(MwLLPixmap r) {
 	}
 }
 
-void MwLLDestroyPixmap(MwLLPixmap pixmap) {
+static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 	free(pixmap->raw);
 	XDestroyImage(pixmap->image);
 	XDestroyImage(pixmap->mask);
@@ -597,7 +598,7 @@ void MwLLDestroyPixmap(MwLLPixmap pixmap) {
 	free(pixmap);
 }
 
-void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
+static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	if(rect->width == 0 || rect->height == 0) return;
 #ifdef USE_XRENDER
 	if(pixmap->image != NULL && pixmap->use_xrender) {
@@ -712,7 +713,7 @@ void MwLLDrawPixmap(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	}
 }
 
-void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
+static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	unsigned long* icon = malloc((2 + pixmap->width * pixmap->height) * sizeof(*icon));
 	int	       i;
 	Atom	       atom = XInternAtom(handle->display, "_NET_WM_ICON", False);
@@ -729,7 +730,7 @@ void MwLLSetIcon(MwLL handle, MwLLPixmap pixmap) {
 	free(icon);
 }
 
-void MwLLForceRender(MwLL handle) {
+static void MwLLForceRenderImpl(MwLL handle) {
 	XEvent ev;
 	memset(&ev, 0, sizeof(ev));
 
@@ -738,7 +739,7 @@ void MwLLForceRender(MwLL handle) {
 	XSendEvent(handle->display, handle->window, False, ExposureMask, &ev);
 }
 
-void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
+static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	Cursor	cur;
 	int	y, x, ys, xs;
 	char*	di	= malloc(MwCursorDataHeight * MwCursorDataHeight * 4);
@@ -801,7 +802,7 @@ void MwLLSetCursor(MwLL handle, MwCursor* image, MwCursor* mask) {
 	XDestroyImage(cmask);
 }
 
-void MwLLDetach(MwLL handle, MwPoint* point) {
+static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	int		  x = 0, y = 0;
 	Window		  child, root, parent;
 	Window*		  children;
@@ -824,7 +825,7 @@ void MwLLDetach(MwLL handle, MwPoint* point) {
 	if(xwa.map_state == IsViewable) wait_map(handle, 0, 0);
 }
 
-void MwLLShow(MwLL handle, int show) {
+static void MwLLShowImpl(MwLL handle, int show) {
 	if(show) {
 		wait_map(handle, 0, 0);
 
@@ -834,7 +835,7 @@ void MwLLShow(MwLL handle, int show) {
 	}
 }
 
-void MwLLMakePopup(MwLL handle, MwLL parent) {
+static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 	Atom wndtype  = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE", False);
 	Atom wnddlg   = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
 	Atom wndstate = XInternAtom(handle->display, "_NET_WM_STATE", False);
@@ -849,7 +850,7 @@ void MwLLMakePopup(MwLL handle, MwLL parent) {
 	wait_map(handle, 1, 0);
 }
 
-void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
+static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
 	XSizeHints* hints = XAllocSizeHints();
 	long	    ret;
 
@@ -868,7 +869,7 @@ void MwLLSetSizeHints(MwLL handle, int minx, int miny, int maxx, int maxy) {
 	wait_map(handle, 1, 0);
 }
 
-void MwLLMakeBorderless(MwLL handle, int toggle) {
+static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
 	Atom	    atom = XInternAtom(handle->display, "_MOTIF_WM_HINTS", 0);
 	mwm_hints_t hints;
 
@@ -881,11 +882,11 @@ void MwLLMakeBorderless(MwLL handle, int toggle) {
 	wait_map(handle, 1, 0);
 }
 
-void MwLLFocus(MwLL handle) {
+static void MwLLFocusImpl(MwLL handle) {
 	XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
 }
 
-void MwLLGrabPointer(MwLL handle, int toggle) {
+static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	XWindowAttributes attr;
 
 	XGetWindowAttributes(handle->display, handle->window, &attr);
@@ -899,14 +900,14 @@ void MwLLGrabPointer(MwLL handle, int toggle) {
 	}
 }
 
-void MwLLSetClipboard(MwLL handle, const char* text) {
+static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
 	/* TODO */
 
 	(void)handle;
 	(void)text;
 }
 
-char* MwLLGetClipboard(MwLL handle) {
+static char* MwLLGetClipboardImpl(MwLL handle) {
 	Atom	clip, target, prop;
 	XEvent	ev;
 	XEvent* queue = NULL;
@@ -947,7 +948,7 @@ char* MwLLGetClipboard(MwLL handle) {
 	return r;
 }
 
-void MwLLMakeToolWindow(MwLL handle) {
+static void MwLLMakeToolWindowImpl(MwLL handle) {
 	XSetWindowAttributes xswa;
 	Atom		     wndtype = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE", False);
 	Atom		     wndmenu = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE_MENU", False);
@@ -957,3 +958,11 @@ void MwLLMakeToolWindow(MwLL handle) {
 	XChangeWindowAttributes(handle->display, handle->window, CWOverrideRedirect, &xswa);
 	XChangeProperty(handle->display, handle->window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
 }
+
+static int MwLLX11CallInitImpl(void) {
+	/* TODO: check properly */
+	return 0;
+}
+
+#include "call.c"
+CALL(X11);

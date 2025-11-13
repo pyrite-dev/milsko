@@ -604,3 +604,29 @@ void MwToggleDarkTheme(MwWidget handle, int toggle) {
 MwWidget MwGetParent(MwWidget handle) {
 	return handle->parent;
 }
+
+typedef int (*call_t)(void);
+int MwLibraryInit(void) {
+#ifdef USE_X11
+	extern call_t MwLLX11CallInit;
+#endif
+#ifdef USE_GDI
+	extern call_t MwLLGDICallInit;
+#endif
+
+	call_t calls[] = {
+#ifdef USE_X11
+	    MwLLX11CallInit,
+#endif
+#ifdef USE_GDI
+	    MwLLGDICallInit,
+#endif
+	    NULL};
+	int i;
+
+	for(i = 0; calls[i] != NULL; i++) {
+		if(calls[i]() == 0) return 0;
+	}
+
+	return 1;
+}

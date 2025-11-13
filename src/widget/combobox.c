@@ -47,7 +47,7 @@ static void draw(MwWidget handle) {
 	if(arrlen(cb->list) > cb->selected) {
 		MwPoint p;
 
-		p.x = MwDefaultBorderWidth(handle) * 2;
+		p.x = MwDefaultBorderWidth(handle) * 2 + 4;
 		p.y = MwGetInteger(handle, MwNheight) / 2;
 
 		MwDrawText(handle, &p, cb->list[cb->selected], 0, MwALIGNMENT_BEGINNING, text);
@@ -110,7 +110,7 @@ static void click(MwWidget handle) {
 			if(l > width) width = l;
 		}
 
-		cb->listbox = MwVaCreateWidget(MwListBoxClass, "listbox", handle, 0, MwGetInteger(handle, MwNheight), width, MwTextHeight(handle, "M") * 6 + MwDefaultBorderWidth(handle) * 2,
+		cb->listbox = MwVaCreateWidget(MwListBoxClass, "listbox", handle, 0, MwGetInteger(handle, MwNheight), width, MwTextHeight(handle, "M") * 6 + MwDefaultBorderWidth(handle) * 2 + MwTextHeight(handle, "M") / 4,
 					       MwNsingleClickSelectable, 1,
 					       NULL);
 		MwLLShow(cb->listbox->lowlevel, 0);

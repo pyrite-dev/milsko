@@ -71,6 +71,8 @@ void activate(MwWidget handle, void* user_data, void* call_data) {
 }
 
 int main() {
+	MwLibraryInit();
+
 	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 450,
 				  MwNtitle, "hello world",
 				  NULL);
