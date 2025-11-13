@@ -20,6 +20,7 @@
 #include <Mw/Draw.h>
 #include <Mw/Version.h>
 
+#include <Mw/Abstract/Dynamic.h>
 #include <Mw/Abstract/Directory.h>
 #include <Mw/Abstract/Time.h>
 
