@@ -18,6 +18,25 @@
 #include <time.h>
 #ifdef _WIN32
 #include <direct.h>
+
+#ifdef _MILSKO
+#include <windows.h>
+#ifndef GWLP_USERDATA
+#define GWLP_USERDATA GWL_USERDATA
+#define GWLP_WNDPROC GWL_WNDPROC
+#define GCLP_HICON GCL_HICON
+#define GCLP_HCURSOR GCL_HCURSOR
+#define SetWindowLongPtr SetWindowLong
+#define GetWindowLongPtr GetWindowLong
+#define SetClassLongPtr SetClassLong
+#define GetClassLongPtr GetClassLong
+#endif
+#ifndef WM_MOUSEWHEEL
+#define WM_MOUSEWHEEL 0x020a
+#define GET_WHEEL_DELTA_WPARAM(x) ((short)HIWORD(x))
+#endif
+#endif
+
 #else
 #include <unistd.h>
 #include <pwd.h>
