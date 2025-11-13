@@ -299,8 +299,8 @@ static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
 	    .sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
 	    .pNext     = NULL,
 	    .flags     = 0,
-	    .hinstance = handle->lowlevel->hInstance,
-	    .hwnd      = handle->lowlevel->hWnd,
+	    .hinstance = handle->lowlevel->gdi.hInstance,
+	    .hwnd      = handle->lowlevel->gdi.hWnd,
 	};
 
 	VK_CMD(_vkCreateWin32SurfaceKHR(o->vkInstance, &createInfo, NULL,
