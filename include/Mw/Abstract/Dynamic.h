@@ -1,7 +1,7 @@
 /* $Id$ */
 /*!
  * @file Mw/Abstract/Dynamic.h
- * @brief Time
+ * @brief Dynamic library
  */
 #ifndef __MW_ABSTRACT_DYNAMIC_H__
 #define __MW_ABSTRACT_DYNAMIC_H__
