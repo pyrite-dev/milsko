@@ -136,7 +136,7 @@ static int create(MwWidget handle) {
 		return 1;
 	}
 
-	handle->lowlevel->copy_buffer = 0;
+	handle->lowlevel->common.copy_buffer = 0;
 
 	handle->internal = o;
 	MwSetDefault(handle);
@@ -313,8 +313,8 @@ static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
 	    .sType  = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
 	    .pNext  = NULL,
 	    .flags  = 0,
-	    .dpy    = handle->lowlevel->display,
-	    .window = handle->lowlevel->window,
+	    .dpy    = handle->lowlevel->x11.display,
+	    .window = handle->lowlevel->x11.window,
 	};
 	VK_CMD(_vkCreateXlibSurfaceKHR(o->vkInstance, &createInfo, NULL, &o->vkSurface));
 #endif

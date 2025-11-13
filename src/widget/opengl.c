@@ -55,7 +55,7 @@ static int create(MwWidget handle) {
 	pfd.cDepthBits = 32;
 	pfd.cColorBits = 32;
 
-	o->dc = GetDC(handle->lowlevel->hWnd);
+	o->dc = GetDC(handle->lowlevel->gdi.hWnd);
 
 	pf = ChoosePixelFormat(o->dc, &pfd);
 	SetPixelFormat(o->dc, pf, &pfd);
@@ -93,11 +93,11 @@ static int create(MwWidget handle) {
 	o->glXGetProcAddress = (MWglXGetProcAddress)dlsym(o->lib, "glXGetProcAddress");
 
 	/* XXX: fix this */
-	o->visual = o->glXChooseVisual(handle->lowlevel->display, DefaultScreen(handle->lowlevel->display), attribs);
-	o->gl	  = o->glXCreateContext(handle->lowlevel->display, o->visual, NULL, GL_TRUE);
+	o->visual = o->glXChooseVisual(handle->lowlevel->x11.display, DefaultScreen(handle->lowlevel->x11.display), attribs);
+	o->gl	  = o->glXCreateContext(handle->lowlevel->x11.display, o->visual, NULL, GL_TRUE);
 #endif
-	handle->internal	      = o;
-	handle->lowlevel->copy_buffer = 0;
+	handle->internal		     = o;
+	handle->lowlevel->common.copy_buffer = 0;
 
 	MwSetDefault(handle);
 
@@ -113,8 +113,8 @@ static void destroy(MwWidget handle) {
 
 	FreeLibrary(o->lib);
 #else
-	o->glXMakeCurrent(handle->lowlevel->display, None, NULL);
-	o->glXDestroyContext(handle->lowlevel->display, o->gl);
+	o->glXMakeCurrent(handle->lowlevel->x11.display, None, NULL);
+	o->glXDestroyContext(handle->lowlevel->x11.display, o->gl);
 
 	dlclose(o->lib);
 #endif
@@ -126,7 +126,7 @@ static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 #ifdef _WIN32
 	o->wglMakeCurrent(o->dc, o->gl);
 #else
-	o->glXMakeCurrent(handle->lowlevel->display, handle->lowlevel->window, o->gl);
+	o->glXMakeCurrent(handle->lowlevel->x11.display, handle->lowlevel->x11.window, o->gl);
 #endif
 }
 
@@ -137,7 +137,7 @@ static void mwOpenGLSwapBufferImpl(MwWidget handle) {
 #else
 	(void)o;
 
-	o->glXSwapBuffers(handle->lowlevel->display, handle->lowlevel->window);
+	o->glXSwapBuffers(handle->lowlevel->x11.display, handle->lowlevel->x11.window);
 #endif
 }
 

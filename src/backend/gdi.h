@@ -22,31 +22,25 @@
 #define GET_WHEEL_DELTA_WPARAM(x) ((short)HIWORD(x))
 #endif
 
-struct _MwLL {
+struct _MwLLGDI {
+	struct _MwLLCommon common;
+
 	HINSTANCE hInstance;
 	HWND	  hWnd;
 	HDC	  hDC;
-	void*	  user;
-	int	  copy_buffer;
 	HCURSOR	  cursor;
-
-	MwLLHandler handler;
 
 	int grabbed;
 };
 
-struct _MwLLColor {
-	HBRUSH brush;
+struct _MwLLGDIColor {
+	struct _MwLLCommonColor common;
 
-	int red;
-	int green;
-	int blue;
+	HBRUSH brush;
 };
 
-struct _MwLLPixmap {
-	int	       width;
-	int	       height;
-	unsigned char* raw;
+struct _MwLLGDIPixmap {
+	struct _MwLLCommonPixmap common;
 
 	RGBQUAD* quad;
 	HBITMAP	 hBitmap;

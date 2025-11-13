@@ -28,15 +28,15 @@ static void draw(MwWidget handle) {
 		int ow = r.width;
 		int oh = r.height;
 
-		double sw = (double)ow / px->width;
-		double sh = (double)oh / px->height;
+		double sw = (double)ow / px->common.width;
+		double sh = (double)oh / px->common.height;
 
 		if(sw < sh) {
-			r.width	 = px->width * sw;
-			r.height = px->height * sw;
+			r.width	 = px->common.width * sw;
+			r.height = px->common.height * sw;
 		} else {
-			r.width	 = px->width * sh;
-			r.height = px->height * sh;
+			r.width	 = px->common.width * sh;
+			r.height = px->common.height * sh;
 		}
 		r.width -= MwDefaultBorderWidth(handle) * 2;
 		r.height -= MwDefaultBorderWidth(handle) * 2;

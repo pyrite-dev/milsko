@@ -246,9 +246,9 @@ static void color_display_text_change(MwWidget handle, void* user,
 
 	color = MwParseColor(handle, hexColor);
 
-	fr = color->red > 128 ? 0 : 255;
-	fg = color->green > 128 ? 0 : 255;
-	fb = color->blue > 128 ? 0 : 255;
+	fr = color->common.red > 128 ? 0 : 255;
+	fg = color->common.green > 128 ? 0 : 255;
+	fb = color->common.blue > 128 ? 0 : 255;
 
 	sprintf(fgColor, "#%02X%02X%02X", fr, fg, fb);
 	MwSetText(picker->color_display, MwNbackground, hexColor);
@@ -257,9 +257,9 @@ static void color_display_text_change(MwWidget handle, void* user,
 	MwSetText(picker->color_display_text, MwNbackground, hexColor);
 	MwSetText(picker->color_display_text, MwNtext, hexColor);
 
-	picker->chosen_color.red   = color->red;
-	picker->chosen_color.green = color->green;
-	picker->chosen_color.blue  = color->blue;
+	picker->chosen_color.red   = color->common.red;
+	picker->chosen_color.green = color->common.green;
+	picker->chosen_color.blue  = color->common.blue;
 
 	MwLLFreeColor(color);
 }

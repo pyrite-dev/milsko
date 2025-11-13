@@ -223,10 +223,10 @@ static void frame_draw(MwWidget handle) {
 		}
 		if(lb->list[i].pixmap != NULL) {
 			MwRect r2;
-			int    h  = (lb->list[i].pixmap->height > MwTextHeight(handle, "M")) ? MwTextHeight(handle, "M") : lb->list[i].pixmap->height;
+			int    h  = (lb->list[i].pixmap->common.height > MwTextHeight(handle, "M")) ? MwTextHeight(handle, "M") : lb->list[i].pixmap->common.height;
 			r2.x	  = MwDefaultBorderWidth(handle);
 			r2.y	  = p.y + (MwTextHeight(handle, "M") - h) / 2;
-			r2.width  = h * lb->list[i].pixmap->width / lb->list[i].pixmap->height;
+			r2.width  = h * lb->list[i].pixmap->common.width / lb->list[i].pixmap->common.height;
 			r2.height = h;
 			MwLLDrawPixmap(handle->lowlevel, &r2, lb->list[i].pixmap);
 		}

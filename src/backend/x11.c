@@ -31,13 +31,13 @@ static void create_pixmap(MwLL handle) {
 
 	MwLLGetXYWH(handle, &x, &y, &w, &h);
 
-	XGetWindowAttributes(handle->display, handle->window, &attr);
+	XGetWindowAttributes(handle->x11.display, handle->x11.window, &attr);
 
-	handle->pixmap = XCreatePixmap(handle->display, handle->window, w, h, attr.depth);
+	handle->x11.pixmap = XCreatePixmap(handle->x11.display, handle->x11.window, w, h, attr.depth);
 }
 
 static void destroy_pixmap(MwLL handle) {
-	XFreePixmap(handle->display, handle->pixmap);
+	XFreePixmap(handle->x11.display, handle->x11.pixmap);
 }
 
 static void wait_map(MwLL handle, int move_back, int nomap) {
@@ -51,15 +51,15 @@ static void wait_map(MwLL handle, int move_back, int nomap) {
 
 	if(move_back) MwLLSetXY(handle, x, y);
 
-	XGetWindowAttributes(handle->display, handle->window, &xwa);
+	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
 	if(xwa.map_state != IsViewable) {
-		if(!nomap) XMapWindow(handle->display, handle->window);
+		if(!nomap) XMapWindow(handle->x11.display, handle->x11.window);
 
-		XSync(handle->display, False);
+		XSync(handle->x11.display, False);
 
 		while(1) {
-			XNextEvent(handle->display, &ev);
-			if(ev.type == MapNotify && ev.xmap.window == handle->window) {
+			XNextEvent(handle->x11.display, &ev);
+			if(ev.type == MapNotify && ev.xmap.window == handle->x11.window) {
 				break;
 			} else {
 				arrput(queue, ev);
@@ -67,7 +67,7 @@ static void wait_map(MwLL handle, int move_back, int nomap) {
 		}
 
 		while(arrlen(queue) > 0) {
-			XPutBackEvent(handle->display, &queue[0]);
+			XPutBackEvent(handle->x11.display, &queue[0]);
 			arrdel(queue, 0);
 		}
 		arrfree(queue);
@@ -80,12 +80,12 @@ static void wait_unmap(MwLL handle) {
 	XEvent* queue = NULL;
 	XEvent	ev;
 
-	XUnmapWindow(handle->display, handle->window);
-	XSync(handle->display, False);
+	XUnmapWindow(handle->x11.display, handle->x11.window);
+	XSync(handle->x11.display, False);
 
 	while(1) {
-		XNextEvent(handle->display, &ev);
-		if(ev.type == UnmapNotify && ev.xunmap.window == handle->window) {
+		XNextEvent(handle->x11.display, &ev);
+		if(ev.type == UnmapNotify && ev.xunmap.window == handle->x11.window) {
 			break;
 		} else {
 			arrput(queue, ev);
@@ -93,7 +93,7 @@ static void wait_unmap(MwLL handle) {
 	}
 
 	while(arrlen(queue) > 0) {
-		XPutBackEvent(handle->display, &queue[0]);
+		XPutBackEvent(handle->x11.display, &queue[0]);
 		arrdel(queue, 0);
 	}
 	arrfree(queue);
@@ -102,11 +102,11 @@ static void wait_unmap(MwLL handle) {
 static unsigned long generate_color(MwLL handle, unsigned long r, unsigned long g, unsigned long b) {
 	unsigned long c = 0;
 
-	c |= (r * handle->red_max / 255) << handle->red_shift;
+	c |= (r * handle->x11.red_max / 255) << handle->x11.red_shift;
 
-	c |= (g * handle->green_max / 255) << handle->green_shift;
+	c |= (g * handle->x11.green_max / 255) << handle->x11.green_shift;
 
-	c |= (b * handle->blue_max / 255) << handle->blue_shift;
+	c |= (b * handle->x11.blue_max / 255) << handle->x11.blue_shift;
 
 	return c;
 }
@@ -140,74 +140,74 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	if(height < 2) height = 2;
 
 	if(parent == NULL) {
-		r->display = XOpenDisplay(NULL);
-		p	   = XRootWindow(r->display, XDefaultScreen(r->display));
-		r->top	   = 1;
+		r->x11.display = XOpenDisplay(NULL);
+		p	       = XRootWindow(r->x11.display, XDefaultScreen(r->x11.display));
+		r->x11.top     = 1;
 	} else {
-		r->display = parent->display;
-		p	   = parent->window;
-		r->top	   = 0;
+		r->x11.display = parent->x11.display;
+		p	       = parent->x11.window;
+		r->x11.top     = 0;
 	}
-	r->window      = XCreateSimpleWindow(r->display, p, px, py, width, height, 0, 0, WhitePixel(r->display, DefaultScreen(r->display)));
+	r->x11.window  = XCreateSimpleWindow(r->x11.display, p, px, py, width, height, 0, 0, WhitePixel(r->x11.display, DefaultScreen(r->x11.display)));
 	sh.flags       = PWinGravity;
 	sh.win_gravity = StaticGravity;
-	XSetWMNormalHints(r->display, r->window, &sh);
+	XSetWMNormalHints(r->x11.display, r->x11.window, &sh);
 
-	xvi = get_visual_info(r->display);
+	xvi = get_visual_info(r->x11.display);
 
 	if(xvi->red_mask != 0) {
 		i = 0;
 		while(!((n << i) & xvi->red_mask)) i++;
-		r->red_mask  = xvi->red_mask;
-		r->red_max   = xvi->red_mask >> i;
-		r->red_shift = i;
+		r->x11.red_mask	 = xvi->red_mask;
+		r->x11.red_max	 = xvi->red_mask >> i;
+		r->x11.red_shift = i;
 
 		i = 0;
 		while(!((n << i) & xvi->green_mask)) i++;
-		r->green_mask  = xvi->green_mask;
-		r->green_max   = xvi->green_mask >> i;
-		r->green_shift = i;
+		r->x11.green_mask  = xvi->green_mask;
+		r->x11.green_max   = xvi->green_mask >> i;
+		r->x11.green_shift = i;
 
 		i = 0;
 		while(!((n << i) & xvi->blue_mask)) i++;
-		r->blue_mask  = xvi->blue_mask;
-		r->blue_max   = xvi->blue_mask >> i;
-		r->blue_shift = i;
+		r->x11.blue_mask  = xvi->blue_mask;
+		r->x11.blue_max	  = xvi->blue_mask >> i;
+		r->x11.blue_shift = i;
 	}
 
 	XFree(xvi);
 
 	XSetLocaleModifiers("");
-	if((r->xim = XOpenIM(r->display, 0, 0, 0)) == NULL) {
+	if((r->x11.xim = XOpenIM(r->x11.display, 0, 0, 0)) == NULL) {
 		XSetLocaleModifiers("@im=none");
-		r->xim = XOpenIM(r->display, 0, 0, 0);
+		r->x11.xim = XOpenIM(r->x11.display, 0, 0, 0);
 	}
 
-	r->xic = XCreateIC(r->xim,
-			   XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
-			   XNClientWindow, r->window,
-			   XNFocusWindow, r->window,
-			   NULL);
-	XSetICFocus(r->xic);
+	r->x11.xic = XCreateIC(r->x11.xim,
+			       XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
+			       XNClientWindow, r->x11.window,
+			       XNFocusWindow, r->x11.window,
+			       NULL);
+	XSetICFocus(r->x11.xic);
 
-	r->copy_buffer = 1;
+	r->common.copy_buffer = 1;
 
-	r->width  = width;
-	r->height = height;
+	r->x11.width  = width;
+	r->x11.height = height;
 
-	r->grabbed = 0;
+	r->x11.grabbed = 0;
 
-	r->colormap  = DefaultColormap(r->display, XDefaultScreen(r->display));
-	r->wm_delete = XInternAtom(r->display, "WM_DELETE_WINDOW", False);
-	XSetWMProtocols(r->display, r->window, &r->wm_delete, 1);
+	r->x11.colormap	 = DefaultColormap(r->x11.display, XDefaultScreen(r->x11.display));
+	r->x11.wm_delete = XInternAtom(r->x11.display, "WM_DELETE_WINDOW", False);
+	XSetWMProtocols(r->x11.display, r->x11.window, &r->x11.wm_delete, 1);
 
-	r->gc = XCreateGC(r->display, r->window, 0, NULL);
+	r->x11.gc = XCreateGC(r->x11.display, r->x11.window, 0, NULL);
 
 	create_pixmap(r);
 
-	XSetGraphicsExposures(r->display, r->gc, False);
+	XSetGraphicsExposures(r->x11.display, r->x11.gc, False);
 
-	XSelectInput(r->display, r->window, mask);
+	XSelectInput(r->x11.display, r->x11.window, mask);
 
 	if(x != MwDEFAULT || y != MwDEFAULT) {
 		unsigned int dummy;
@@ -217,7 +217,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		if(y == MwDEFAULT) y = py;
 
 		MwLLSetXY(r, x, y);
-		XSync(r->display, False);
+		XSync(r->x11.display, False);
 	}
 
 	wait_map(r, 0, 0);
@@ -228,15 +228,15 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 static void MwLLDestroyImpl(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
-	if(handle->xic) XDestroyIC(handle->xic);
-	if(handle->xim) XCloseIM(handle->xim);
+	if(handle->x11.xic) XDestroyIC(handle->x11.xic);
+	if(handle->x11.xim) XCloseIM(handle->x11.xim);
 
 	destroy_pixmap(handle);
-	XFreeGC(handle->display, handle->gc);
-	XUnmapWindow(handle->display, handle->window);
-	XDestroyWindow(handle->display, handle->window);
+	XFreeGC(handle->x11.display, handle->x11.gc);
+	XUnmapWindow(handle->x11.display, handle->x11.window);
+	XDestroyWindow(handle->x11.display, handle->x11.window);
 
-	XSync(handle->display, False);
+	XSync(handle->x11.display, False);
 
 	free(handle);
 }
@@ -245,21 +245,21 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 	int	i;
 	XPoint* p = malloc(sizeof(*p) * points_count);
 
-	XSetForeground(handle->display, handle->gc, color->pixel);
+	XSetForeground(handle->x11.display, handle->x11.gc, color->x11.pixel);
 
 	for(i = 0; i < points_count; i++) {
 		p[i].x = points[i].x;
 		p[i].y = points[i].y;
 	}
-	XFillPolygon(handle->display, handle->pixmap, handle->gc, p, points_count, Nonconvex, CoordModeOrigin);
+	XFillPolygon(handle->x11.display, handle->x11.pixmap, handle->x11.gc, p, points_count, Nonconvex, CoordModeOrigin);
 
 	free(p);
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
-	XSetForeground(handle->display, handle->gc, color->pixel);
+	XSetForeground(handle->x11.display, handle->x11.gc, color->x11.pixel);
 
-	XDrawLine(handle->display, handle->pixmap, handle->gc, points[0].x, points[0].y, points[1].x, points[1].y);
+	XDrawLine(handle->x11.display, handle->x11.pixmap, handle->x11.gc, points[0].x, points[0].y, points[1].x, points[1].y);
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
@@ -271,7 +271,7 @@ static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 	XColor xc;
 
-	if(handle->red_mask == 0) {
+	if(handle->x11.red_mask == 0) {
 		if(r > 255) r = 255;
 		if(g > 255) g = 255;
 		if(b > 255) b = 255;
@@ -282,27 +282,27 @@ static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 		xc.red	 = 256 * r;
 		xc.green = 256 * g;
 		xc.blue	 = 256 * b;
-		XAllocColor(handle->display, handle->colormap, &xc);
+		XAllocColor(handle->x11.display, handle->x11.colormap, &xc);
 
-		c->pixel = xc.pixel;
+		c->x11.pixel = xc.pixel;
 	} else {
-		c->pixel = generate_color(handle, r, g, b);
+		c->x11.pixel = generate_color(handle, r, g, b);
 	}
-	c->red	 = r;
-	c->green = g;
-	c->blue	 = b;
+	c->common.red	= r;
+	c->common.green = g;
+	c->common.blue	= b;
 }
 
 static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
 	Window	     root;
 	unsigned int border, depth;
 
-	XGetGeometry(handle->display, handle->window, &root, x, y, w, h, &border, &depth);
-	if(handle->top) {
+	XGetGeometry(handle->x11.display, handle->x11.window, &root, x, y, w, h, &border, &depth);
+	if(handle->x11.top) {
 		int    rx, ry;
 		Window child;
 
-		XTranslateCoordinates(handle->display, handle->window, root, 0, 0, &rx, &ry, &child);
+		XTranslateCoordinates(handle->x11.display, handle->x11.window, root, 0, 0, &rx, &ry, &child);
 
 		*x += rx;
 		*y += ry;
@@ -314,16 +314,16 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	long	   r;
 
 	sh.flags = 0;
-	XGetWMNormalHints(handle->display, handle->window, &sh, &r);
+	XGetWMNormalHints(handle->x11.display, handle->x11.window, &sh, &r);
 
 	sh.flags |= PPosition;
 	sh.x = x;
 	sh.y = y;
 
-	XMoveWindow(handle->display, handle->window, x, y);
-	XSetWMNormalHints(handle->display, handle->window, &sh);
+	XMoveWindow(handle->x11.display, handle->x11.window, x, y);
+	XSetWMNormalHints(handle->x11.display, handle->x11.window, &sh);
 
-	XSync(handle->display, False);
+	XSync(handle->x11.display, False);
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
@@ -331,7 +331,7 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	long	   r;
 
 	sh.flags = 0;
-	XGetWMNormalHints(handle->display, handle->window, &sh, &r);
+	XGetWMNormalHints(handle->x11.display, handle->x11.window, &sh, &r);
 
 	if(w < 2) w = 2;
 	if(h < 2) h = 2;
@@ -340,16 +340,16 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	sh.width  = w;
 	sh.height = h;
 
-	XResizeWindow(handle->display, handle->window, w, h);
-	XSetWMNormalHints(handle->display, handle->window, &sh);
+	XResizeWindow(handle->x11.display, handle->x11.window, w, h);
+	XSetWMNormalHints(handle->x11.display, handle->x11.window, &sh);
 
 	destroy_pixmap(handle);
 	create_pixmap(handle);
 
-	handle->width  = w;
-	handle->height = h;
+	handle->x11.width  = w;
+	handle->x11.height = h;
 
-	XSync(handle->display, False);
+	XSync(handle->x11.display, False);
 
 	MwLLForceRender(handle);
 }
@@ -359,13 +359,13 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 }
 
 static void MwLLSetBackgroundImpl(MwLL handle, MwLLColor color) {
-	XSetWindowBackground(handle->display, handle->window, color->pixel);
+	XSetWindowBackground(handle->x11.display, handle->x11.window, color->x11.pixel);
 }
 
 static int MwLLPendingImpl(MwLL handle) {
 	XEvent ev;
-	if(XCheckTypedWindowEvent(handle->display, handle->window, ClientMessage, &ev) || XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
-		XPutBackEvent(handle->display, &ev);
+	if(XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, ClientMessage, &ev) || XCheckWindowEvent(handle->x11.display, handle->x11.window, mask, &ev)) {
+		XPutBackEvent(handle->x11.display, &ev);
 		return 1;
 	}
 	return 0;
@@ -373,7 +373,7 @@ static int MwLLPendingImpl(MwLL handle) {
 
 static void MwLLNextEventImpl(MwLL handle) {
 	XEvent ev;
-	while(XCheckTypedWindowEvent(handle->display, handle->window, ClientMessage, &ev) || XCheckWindowEvent(handle->display, handle->window, mask, &ev)) {
+	while(XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, ClientMessage, &ev) || XCheckWindowEvent(handle->x11.display, handle->x11.window, mask, &ev)) {
 		int render = 0;
 		if(ev.type == Expose) {
 			render = 1;
@@ -393,7 +393,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 				p.button = MwLLMouseWheelDown;
 			}
 
-			XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
+			XSetInputFocus(handle->x11.display, handle->x11.window, RevertToNone, CurrentTime);
 
 			MwLLDispatch(handle, down, &p);
 		} else if(ev.type == ButtonRelease) {
@@ -414,16 +414,16 @@ static void MwLLNextEventImpl(MwLL handle) {
 
 			MwLLDispatch(handle, up, &p);
 		} else if(ev.type == ConfigureNotify) {
-			if(handle->width != (unsigned int)ev.xconfigure.width || handle->height != (unsigned int)ev.xconfigure.height) {
+			if(handle->x11.width != (unsigned int)ev.xconfigure.width || handle->x11.height != (unsigned int)ev.xconfigure.height) {
 				MwLLDispatch(handle, resize, NULL);
 				destroy_pixmap(handle);
 				create_pixmap(handle);
 				render = 1;
 			}
-			handle->width  = ev.xconfigure.width;
-			handle->height = ev.xconfigure.height;
+			handle->x11.width  = ev.xconfigure.width;
+			handle->x11.height = ev.xconfigure.height;
 		} else if(ev.type == ClientMessage) {
-			if(ev.xclient.data.l[0] == (long)handle->wm_delete) {
+			if(ev.xclient.data.l[0] == (long)handle->x11.wm_delete) {
 				MwLLDispatch(handle, close, NULL);
 			}
 		} else if(ev.type == FocusIn) {
@@ -434,19 +434,19 @@ static void MwLLNextEventImpl(MwLL handle) {
 			MwPoint		  p;
 			XWindowAttributes attr;
 
-			XGetWindowAttributes(handle->display, handle->window, &attr);
+			XGetWindowAttributes(handle->x11.display, handle->x11.window, &attr);
 
 			p.x = ev.xmotion.x;
 			p.y = ev.xmotion.y;
 
-			if(handle->grabbed) {
+			if(handle->x11.grabbed) {
 				p.x -= attr.width / 2;
 				p.y -= attr.height / 2;
 			}
 
 			MwLLDispatch(handle, move, &p);
-			if(handle->grabbed && (p.x != 0 || p.y != 0)) {
-				XWarpPointer(handle->display, None, handle->window, 0, 0, 0, 0, attr.width / 2, attr.height / 2);
+			if(handle->x11.grabbed && (p.x != 0 || p.y != 0)) {
+				XWarpPointer(handle->x11.display, None, handle->x11.window, 0, 0, 0, 0, attr.width / 2, attr.height / 2);
 			}
 		} else if(ev.type == KeyPress || ev.type == KeyRelease) {
 			int    n = -1;
@@ -519,16 +519,16 @@ static void MwLLNextEventImpl(MwLL handle) {
 			MwLLGetXYWH(handle, &x, &y, &w, &h);
 
 			MwLLDispatch(handle, draw, NULL);
-			if(handle->copy_buffer) {
-				XCopyArea(handle->display, handle->pixmap, handle->window, handle->gc, 0, 0, w, h, 0, 0);
-				XSetWindowBackgroundPixmap(handle->display, handle->window, handle->pixmap);
+			if(handle->common.copy_buffer) {
+				XCopyArea(handle->x11.display, handle->x11.pixmap, handle->x11.window, handle->x11.gc, 0, 0, w, h, 0, 0);
+				XSetWindowBackgroundPixmap(handle->x11.display, handle->x11.window, handle->x11.pixmap);
 			}
 		}
 	}
 }
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
-	XSetStandardProperties(handle->display, handle->window, title, title, None, (char**)NULL, 0, NULL);
+	XSetStandardProperties(handle->x11.display, handle->x11.window, title, title, None, (char**)NULL, 0, NULL);
 }
 
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
@@ -538,24 +538,25 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 	int		  evbase, erbase;
 	XWindowAttributes attr;
 
-	r->raw = malloc(4 * width * height);
-	memcpy(r->raw, data, 4 * width * height);
+	r->common.raw = malloc(4 * width * height);
+	memcpy(r->common.raw, data, 4 * width * height);
 
-	XGetWindowAttributes(handle->display, handle->window, &attr);
+	XGetWindowAttributes(handle->x11.display, handle->x11.window, &attr);
 
-	r->depth   = attr.depth;
-	r->width   = width;
-	r->height  = height;
-	r->display = handle->display;
-	r->data	   = malloc(sizeof(unsigned long) * width * height);
-	r->handle  = handle;
+	r->common.width	 = width;
+	r->common.height = height;
+
+	r->x11.depth   = attr.depth;
+	r->x11.display = handle->x11.display;
+	r->x11.data    = malloc(sizeof(unsigned long) * width * height);
+	r->x11.handle  = handle;
 
 #ifdef USE_XRENDER
-	r->use_xrender = XRenderQueryExtension(handle->display, &evbase, &erbase) ? 1 : 0;
+	r->x11.use_xrender = XRenderQueryExtension(handle->x11.display, &evbase, &erbase) ? 1 : 0;
 #endif
 
-	r->image = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), r->depth, ZPixmap, 0, di, width, height, 32, width * 4);
-	r->mask	 = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, dm, width, height, 32, width * 4);
+	r->x11.image = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), r->x11.depth, ZPixmap, 0, di, width, height, 32, width * 4);
+	r->x11.mask  = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, dm, width, height, 32, width * 4);
 
 	MwLLPixmapUpdate(r);
 	return r;
@@ -563,37 +564,37 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 
 static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
 	int y, x;
-	for(y = 0; y < r->height; y++) {
-		for(x = 0; x < r->width; x++) {
-			unsigned char* px = &r->raw[(y * r->width + x) * 4];
+	for(y = 0; y < r->common.height; y++) {
+		for(x = 0; x < r->common.width; x++) {
+			unsigned char* px = &r->common.raw[(y * r->common.width + x) * 4];
 			MwLLColor      c  = NULL;
 			unsigned long  p;
 
-			c = MwLLAllocColor(r->handle, px[0], px[1], px[2]);
-			p = c->pixel;
+			c = MwLLAllocColor(r->x11.handle, px[0], px[1], px[2]);
+			p = c->x11.pixel;
 			MwLLFreeColor(c);
 
-			XPutPixel(r->image, x, y, p);
-			*(unsigned long*)(&r->data[(y * r->width + x) * sizeof(unsigned long)]) = (px[3] << 24) | p;
+			XPutPixel(r->x11.image, x, y, p);
+			*(unsigned long*)(&r->x11.data[(y * r->common.width + x) * sizeof(unsigned long)]) = (px[3] << 24) | p;
 		}
 	}
 
-	for(y = 0; y < r->height; y++) {
-		for(x = 0; x < r->width; x++) {
-			if(r->raw[(y * r->width + x) * 4 + 3]) {
-				XPutPixel(r->mask, x, y, 1);
+	for(y = 0; y < r->common.height; y++) {
+		for(x = 0; x < r->common.width; x++) {
+			if(r->common.raw[(y * r->common.width + x) * 4 + 3]) {
+				XPutPixel(r->x11.mask, x, y, 1);
 			} else {
-				XPutPixel(r->mask, x, y, 0);
+				XPutPixel(r->x11.mask, x, y, 0);
 			}
 		}
 	}
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
-	free(pixmap->raw);
-	XDestroyImage(pixmap->image);
-	XDestroyImage(pixmap->mask);
-	free(pixmap->data);
+	free(pixmap->common.raw);
+	XDestroyImage(pixmap->x11.image);
+	XDestroyImage(pixmap->x11.mask);
+	free(pixmap->x11.data);
 
 	free(pixmap);
 }
@@ -601,35 +602,35 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	if(rect->width == 0 || rect->height == 0) return;
 #ifdef USE_XRENDER
-	if(pixmap->image != NULL && pixmap->use_xrender) {
-		Pixmap			 px	= XCreatePixmap(handle->display, handle->window, pixmap->width, pixmap->height, pixmap->depth);
-		Pixmap			 mask	= XCreatePixmap(handle->display, handle->window, rect->width, rect->height, 1);
-		Pixmap			 pxsrc	= XCreatePixmap(handle->display, handle->window, rect->width, rect->height, pixmap->depth);
-		GC			 maskgc = XCreateGC(handle->display, mask, 0, NULL);
-		XRenderPictFormat*	 format = XRenderFindStandardFormat(handle->display, PictStandardRGB24);
+	if(pixmap->x11.image != NULL && pixmap->x11.use_xrender) {
+		Pixmap			 px	= XCreatePixmap(handle->x11.display, handle->x11.window, pixmap->common.width, pixmap->common.height, pixmap->x11.depth);
+		Pixmap			 mask	= XCreatePixmap(handle->x11.display, handle->x11.window, rect->width, rect->height, 1);
+		Pixmap			 pxsrc	= XCreatePixmap(handle->x11.display, handle->x11.window, rect->width, rect->height, pixmap->x11.depth);
+		GC			 maskgc = XCreateGC(handle->x11.display, mask, 0, NULL);
+		XRenderPictFormat*	 format = XRenderFindStandardFormat(handle->x11.display, PictStandardRGB24);
 		XRenderPictureAttributes attr;
 		Picture			 src, dest;
 		XTransform		 m;
-		double			 xsc = (double)pixmap->width / rect->width;
-		double			 ysc = (double)pixmap->height / rect->height;
+		double			 xsc = (double)pixmap->common.width / rect->width;
+		double			 ysc = (double)pixmap->common.height / rect->height;
 		char*			 dm  = malloc(rect->width * rect->height * 4);
 		XImage*			 destmask;
 		int			 y, x;
 
-		destmask = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, dm, rect->width, rect->height, 32, rect->width * 4);
+		destmask = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, dm, rect->width, rect->height, 32, rect->width * 4);
 
 		for(y = 0; y < (int)rect->height; y++) {
 			for(x = 0; x < (int)rect->width; x++) {
-				int sy = y * pixmap->height / rect->height;
-				int sx = x * pixmap->width / rect->width;
+				int sy = y * pixmap->common.height / rect->height;
+				int sx = x * pixmap->common.width / rect->width;
 				sy     = (int)sy;
 				sx     = (int)sx;
 
-				XPutPixel(destmask, x, y, XGetPixel(pixmap->mask, sx, sy));
+				XPutPixel(destmask, x, y, XGetPixel(pixmap->x11.mask, sx, sy));
 			}
 		}
 
-		XPutImage(handle->display, mask, maskgc, destmask, 0, 0, 0, 0, rect->width, rect->height);
+		XPutImage(handle->x11.display, mask, maskgc, destmask, 0, 0, 0, 0, rect->width, rect->height);
 
 		m.matrix[0][0] = XDoubleToFixed(xsc);
 		m.matrix[0][1] = XDoubleToFixed(0);
@@ -645,87 +646,87 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 		memset(&attr, 0, sizeof(attr));
 
-		XPutImage(handle->display, px, handle->gc, pixmap->image, 0, 0, 0, 0, pixmap->width, pixmap->height);
+		XPutImage(handle->x11.display, px, handle->x11.gc, pixmap->x11.image, 0, 0, 0, 0, pixmap->common.width, pixmap->common.height);
 
-		src  = XRenderCreatePicture(handle->display, px, format, 0, &attr);
-		dest = XRenderCreatePicture(handle->display, pxsrc, format, 0, &attr);
+		src  = XRenderCreatePicture(handle->x11.display, px, format, 0, &attr);
+		dest = XRenderCreatePicture(handle->x11.display, pxsrc, format, 0, &attr);
 
-		XRenderSetPictureTransform(handle->display, src, &m);
-		XRenderComposite(handle->display, PictOpSrc, src, 0, dest, 0, 0, 0, 0, 0, 0, rect->width, rect->height);
+		XRenderSetPictureTransform(handle->x11.display, src, &m);
+		XRenderComposite(handle->x11.display, PictOpSrc, src, 0, dest, 0, 0, 0, 0, 0, 0, rect->width, rect->height);
 
-		XRenderFreePicture(handle->display, src);
-		XRenderFreePicture(handle->display, dest);
+		XRenderFreePicture(handle->x11.display, src);
+		XRenderFreePicture(handle->x11.display, dest);
 
-		XSetClipMask(handle->display, handle->gc, mask);
-		XSetClipOrigin(handle->display, handle->gc, rect->x, rect->y);
-		XCopyArea(handle->display, pxsrc, handle->pixmap, handle->gc, 0, 0, rect->width, rect->height, rect->x, rect->y);
-		XSetClipMask(handle->display, handle->gc, None);
+		XSetClipMask(handle->x11.display, handle->x11.gc, mask);
+		XSetClipOrigin(handle->x11.display, handle->x11.gc, rect->x, rect->y);
+		XCopyArea(handle->x11.display, pxsrc, handle->x11.pixmap, handle->x11.gc, 0, 0, rect->width, rect->height, rect->x, rect->y);
+		XSetClipMask(handle->x11.display, handle->x11.gc, None);
 
 		XDestroyImage(destmask);
 
-		XFreeGC(handle->display, maskgc);
-		XFreePixmap(handle->display, mask);
-		XFreePixmap(handle->display, px);
-		XFreePixmap(handle->display, pxsrc);
+		XFreeGC(handle->x11.display, maskgc);
+		XFreePixmap(handle->x11.display, mask);
+		XFreePixmap(handle->x11.display, px);
+		XFreePixmap(handle->x11.display, pxsrc);
 	} else
 #endif
-	    if(pixmap->image != NULL) {
+	    if(pixmap->x11.image != NULL) {
 		XImage* dest;
 		XImage* destmask;
-		Pixmap	mask   = XCreatePixmap(handle->display, handle->window, rect->width, rect->height, 1);
-		GC	maskgc = XCreateGC(handle->display, mask, 0, NULL);
+		Pixmap	mask   = XCreatePixmap(handle->x11.display, handle->x11.window, rect->width, rect->height, 1);
+		GC	maskgc = XCreateGC(handle->x11.display, mask, 0, NULL);
 		char*	di     = malloc(rect->width * rect->height * 4);
 		char*	dm     = malloc(rect->width * rect->height * 4);
 		int	y, x;
 
-		dest	 = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), pixmap->depth, ZPixmap, 0, di, rect->width, rect->height, 32, rect->width * 4);
-		destmask = XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, dm, rect->width, rect->height, 32, rect->width * 4);
+		dest	 = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), pixmap->x11.depth, ZPixmap, 0, di, rect->width, rect->height, 32, rect->width * 4);
+		destmask = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, dm, rect->width, rect->height, 32, rect->width * 4);
 
 		for(y = 0; y < (int)rect->height; y++) {
 			for(x = 0; x < (int)rect->width; x++) {
-				int   sy = y * pixmap->height / rect->height;
-				int   sx = x * pixmap->width / rect->width;
+				int   sy = y * pixmap->common.height / rect->height;
+				int   sx = x * pixmap->common.width / rect->width;
 				char* ipx;
 				char* opx;
 				sy = (int)sy;
 				sx = (int)sx;
 
-				ipx = &pixmap->image->data[(pixmap->width * sy + sx) * (pixmap->image->bitmap_unit / 8)];
-				opx = &di[(rect->width * y + x) * (pixmap->image->bitmap_unit / 8)];
-				memcpy(opx, ipx, pixmap->image->bitmap_unit / 8);
+				ipx = &pixmap->x11.image->data[(pixmap->common.width * sy + sx) * (pixmap->x11.image->bitmap_unit / 8)];
+				opx = &di[(rect->width * y + x) * (pixmap->x11.image->bitmap_unit / 8)];
+				memcpy(opx, ipx, pixmap->x11.image->bitmap_unit / 8);
 
-				XPutPixel(destmask, x, y, XGetPixel(pixmap->mask, sx, sy));
+				XPutPixel(destmask, x, y, XGetPixel(pixmap->x11.mask, sx, sy));
 			}
 		}
 
-		XPutImage(handle->display, mask, maskgc, destmask, 0, 0, 0, 0, rect->width, rect->height);
+		XPutImage(handle->x11.display, mask, maskgc, destmask, 0, 0, 0, 0, rect->width, rect->height);
 
-		XSetClipMask(handle->display, handle->gc, mask);
-		XSetClipOrigin(handle->display, handle->gc, rect->x, rect->y);
-		XPutImage(handle->display, handle->pixmap, handle->gc, dest, 0, 0, rect->x, rect->y, rect->width, rect->height);
-		XSetClipMask(handle->display, handle->gc, None);
+		XSetClipMask(handle->x11.display, handle->x11.gc, mask);
+		XSetClipOrigin(handle->x11.display, handle->x11.gc, rect->x, rect->y);
+		XPutImage(handle->x11.display, handle->x11.pixmap, handle->x11.gc, dest, 0, 0, rect->x, rect->y, rect->width, rect->height);
+		XSetClipMask(handle->x11.display, handle->x11.gc, None);
 
 		XDestroyImage(dest);
 		XDestroyImage(destmask);
 
-		XFreeGC(handle->display, maskgc);
-		XFreePixmap(handle->display, mask);
+		XFreeGC(handle->x11.display, maskgc);
+		XFreePixmap(handle->x11.display, mask);
 	}
 }
 
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
-	unsigned long* icon = malloc((2 + pixmap->width * pixmap->height) * sizeof(*icon));
+	unsigned long* icon = malloc((2 + pixmap->common.width * pixmap->common.height) * sizeof(*icon));
 	int	       i;
-	Atom	       atom = XInternAtom(handle->display, "_NET_WM_ICON", False);
+	Atom	       atom = XInternAtom(handle->x11.display, "_NET_WM_ICON", False);
 
-	icon[0] = pixmap->width;
-	icon[1] = pixmap->height;
+	icon[0] = pixmap->common.width;
+	icon[1] = pixmap->common.height;
 
-	for(i = 0; i < pixmap->width * pixmap->height; i++) {
-		icon[2 + i] = *(unsigned long*)(&pixmap->data[i * sizeof(unsigned long)]);
+	for(i = 0; i < pixmap->common.width * pixmap->common.height; i++) {
+		icon[2 + i] = *(unsigned long*)(&pixmap->x11.data[i * sizeof(unsigned long)]);
 	}
 
-	XChangeProperty(handle->display, handle->window, atom, 6, 32, PropModeReplace, (unsigned char*)icon, 2 + pixmap->width * pixmap->height);
+	XChangeProperty(handle->x11.display, handle->x11.window, atom, 6, 32, PropModeReplace, (unsigned char*)icon, 2 + pixmap->common.width * pixmap->common.height);
 
 	free(icon);
 }
@@ -735,8 +736,8 @@ static void MwLLForceRenderImpl(MwLL handle) {
 	memset(&ev, 0, sizeof(ev));
 
 	ev.type		  = Expose;
-	ev.xexpose.window = handle->window;
-	XSendEvent(handle->display, handle->window, False, ExposureMask, &ev);
+	ev.xexpose.window = handle->x11.window;
+	XSendEvent(handle->x11.display, handle->x11.window, False, ExposureMask, &ev);
 }
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
@@ -744,12 +745,12 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	int	y, x, ys, xs;
 	char*	di	= malloc(MwCursorDataHeight * MwCursorDataHeight * 4);
 	char*	dm	= malloc(MwCursorDataHeight * MwCursorDataHeight * 4);
-	XImage* cimage	= XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, di, MwCursorDataHeight, MwCursorDataHeight, 32, MwCursorDataHeight * 4);
-	XImage* cmask	= XCreateImage(handle->display, DefaultVisual(handle->display, DefaultScreen(handle->display)), 1, ZPixmap, 0, dm, MwCursorDataHeight, MwCursorDataHeight, 32, MwCursorDataHeight * 4);
-	Pixmap	pimage	= XCreatePixmap(handle->display, handle->window, MwCursorDataHeight, MwCursorDataHeight, 1);
-	Pixmap	pmask	= XCreatePixmap(handle->display, handle->window, MwCursorDataHeight, MwCursorDataHeight, 1);
-	GC	imagegc = XCreateGC(handle->display, pimage, 0, NULL);
-	GC	maskgc	= XCreateGC(handle->display, pmask, 0, NULL);
+	XImage* cimage	= XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, di, MwCursorDataHeight, MwCursorDataHeight, 32, MwCursorDataHeight * 4);
+	XImage* cmask	= XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, dm, MwCursorDataHeight, MwCursorDataHeight, 32, MwCursorDataHeight * 4);
+	Pixmap	pimage	= XCreatePixmap(handle->x11.display, handle->x11.window, MwCursorDataHeight, MwCursorDataHeight, 1);
+	Pixmap	pmask	= XCreatePixmap(handle->x11.display, handle->x11.window, MwCursorDataHeight, MwCursorDataHeight, 1);
+	GC	imagegc = XCreateGC(handle->x11.display, pimage, 0, NULL);
+	GC	maskgc	= XCreateGC(handle->x11.display, pmask, 0, NULL);
 	XColor	cfg, cbg;
 
 	xs = -mask->x + image->x;
@@ -781,22 +782,22 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	cfg.red	  = 65535;
 	cfg.green = 65535;
 	cfg.blue  = 65535;
-	XAllocColor(handle->display, handle->colormap, &cfg);
+	XAllocColor(handle->x11.display, handle->x11.colormap, &cfg);
 
 	cbg.red	  = 0;
 	cbg.green = 0;
 	cbg.blue  = 0;
-	XAllocColor(handle->display, handle->colormap, &cbg);
+	XAllocColor(handle->x11.display, handle->x11.colormap, &cbg);
 
-	XPutImage(handle->display, pimage, imagegc, cimage, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
-	XPutImage(handle->display, pmask, maskgc, cmask, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
+	XPutImage(handle->x11.display, pimage, imagegc, cimage, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
+	XPutImage(handle->x11.display, pmask, maskgc, cmask, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
 
-	cur = XCreatePixmapCursor(handle->display, pimage, pmask, &cfg, &cbg, xs, ys);
-	XDefineCursor(handle->display, handle->window, cur);
-	XFreeCursor(handle->display, cur);
+	cur = XCreatePixmapCursor(handle->x11.display, pimage, pmask, &cfg, &cbg, xs, ys);
+	XDefineCursor(handle->x11.display, handle->x11.window, cur);
+	XFreeCursor(handle->x11.display, cur);
 
-	XFreePixmap(handle->display, pimage);
-	XFreePixmap(handle->display, pmask);
+	XFreePixmap(handle->x11.display, pimage);
+	XFreePixmap(handle->x11.display, pmask);
 
 	XDestroyImage(cimage);
 	XDestroyImage(cmask);
@@ -809,18 +810,18 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	unsigned int	  nchild;
 	XWindowAttributes xwa;
 
-	handle->top = 1;
+	handle->x11.top = 1;
 
-	XQueryTree(handle->display, handle->window, &root, &parent, &children, &nchild);
+	XQueryTree(handle->x11.display, handle->x11.window, &root, &parent, &children, &nchild);
 	if(children != NULL) XFree(children);
 
-	XTranslateCoordinates(handle->display, parent, RootWindow(handle->display, DefaultScreen(handle->display)), 0, 0, &x, &y, &child);
+	XTranslateCoordinates(handle->x11.display, parent, RootWindow(handle->x11.display, DefaultScreen(handle->x11.display)), 0, 0, &x, &y, &child);
 
-	XGetWindowAttributes(handle->display, handle->window, &xwa);
+	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
 
 	if(xwa.map_state == IsViewable) wait_unmap(handle);
 
-	XReparentWindow(handle->display, handle->window, RootWindow(handle->display, DefaultScreen(handle->display)), x + point->x, y + point->y);
+	XReparentWindow(handle->x11.display, handle->x11.window, RootWindow(handle->x11.display, DefaultScreen(handle->x11.display)), x + point->x, y + point->y);
 
 	if(xwa.map_state == IsViewable) wait_map(handle, 0, 0);
 }
@@ -829,23 +830,23 @@ static void MwLLShowImpl(MwLL handle, int show) {
 	if(show) {
 		wait_map(handle, 0, 0);
 
-		XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
+		XSetInputFocus(handle->x11.display, handle->x11.window, RevertToNone, CurrentTime);
 	} else {
 		wait_unmap(handle);
 	}
 }
 
 static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
-	Atom wndtype  = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE", False);
-	Atom wnddlg   = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
-	Atom wndstate = XInternAtom(handle->display, "_NET_WM_STATE", False);
-	Atom wndmodal = XInternAtom(handle->display, "_NET_WM_STATE_MODAL", False);
+	Atom wndtype  = XInternAtom(handle->x11.display, "_NET_WM_WINDOW_TYPE", False);
+	Atom wnddlg   = XInternAtom(handle->x11.display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
+	Atom wndstate = XInternAtom(handle->x11.display, "_NET_WM_STATE", False);
+	Atom wndmodal = XInternAtom(handle->x11.display, "_NET_WM_STATE_MODAL", False);
 
-	XSetTransientForHint(handle->display, handle->window, parent->window);
-	XChangeProperty(handle->display, handle->window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wnddlg, 1);
-	XChangeProperty(handle->display, handle->window, wndstate, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmodal, 1);
+	XSetTransientForHint(handle->x11.display, handle->x11.window, parent->x11.window);
+	XChangeProperty(handle->x11.display, handle->x11.window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wnddlg, 1);
+	XChangeProperty(handle->x11.display, handle->x11.window, wndstate, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmodal, 1);
 
-	XUnmapWindow(handle->display, handle->window);
+	XUnmapWindow(handle->x11.display, handle->x11.window);
 
 	wait_map(handle, 1, 0);
 }
@@ -854,49 +855,49 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 	XSizeHints* hints = XAllocSizeHints();
 	long	    ret;
 
-	XGetWMSizeHints(handle->display, handle->window, hints, &ret, XA_WM_NORMAL_HINTS);
+	XGetWMSizeHints(handle->x11.display, handle->x11.window, hints, &ret, XA_WM_NORMAL_HINTS);
 
 	hints->flags |= PMinSize | PMaxSize;
 	hints->min_width  = minx;
 	hints->min_height = miny;
 	hints->max_width  = maxx;
 	hints->max_height = maxy;
-	XSetWMSizeHints(handle->display, handle->window, hints, XA_WM_NORMAL_HINTS);
+	XSetWMSizeHints(handle->x11.display, handle->x11.window, hints, XA_WM_NORMAL_HINTS);
 	XFree(hints);
 
-	XUnmapWindow(handle->display, handle->window);
+	XUnmapWindow(handle->x11.display, handle->x11.window);
 
 	wait_map(handle, 1, 0);
 }
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
-	Atom	    atom = XInternAtom(handle->display, "_MOTIF_WM_HINTS", 0);
+	Atom	    atom = XInternAtom(handle->x11.display, "_MOTIF_WM_HINTS", 0);
 	mwm_hints_t hints;
 
 	hints.flags	  = MWM_HINTS_DECORATIONS;
 	hints.decorations = toggle ? 0 : 1;
-	XChangeProperty(handle->display, handle->window, atom, atom, 32, PropModeReplace, (unsigned char*)&hints, 5);
+	XChangeProperty(handle->x11.display, handle->x11.window, atom, atom, 32, PropModeReplace, (unsigned char*)&hints, 5);
 
-	XUnmapWindow(handle->display, handle->window);
+	XUnmapWindow(handle->x11.display, handle->x11.window);
 
 	wait_map(handle, 1, 0);
 }
 
 static void MwLLFocusImpl(MwLL handle) {
-	XSetInputFocus(handle->display, handle->window, RevertToNone, CurrentTime);
+	XSetInputFocus(handle->x11.display, handle->x11.window, RevertToNone, CurrentTime);
 }
 
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	XWindowAttributes attr;
 
-	XGetWindowAttributes(handle->display, handle->window, &attr);
+	XGetWindowAttributes(handle->x11.display, handle->x11.window, &attr);
 
 	if(toggle) {
-		handle->grabbed = 1;
+		handle->x11.grabbed = 1;
 
-		XWarpPointer(handle->display, None, handle->window, 0, 0, 0, 0, attr.width / 2, attr.height / 2);
+		XWarpPointer(handle->x11.display, None, handle->x11.window, 0, 0, 0, 0, attr.width / 2, attr.height / 2);
 	} else {
-		handle->grabbed = 0;
+		handle->x11.grabbed = 0;
 	}
 }
 
@@ -913,14 +914,14 @@ static char* MwLLGetClipboardImpl(MwLL handle) {
 	XEvent* queue = NULL;
 	char*	r     = NULL;
 
-	clip   = XInternAtom(handle->display, "CLIPBOARD", 0);
+	clip   = XInternAtom(handle->x11.display, "CLIPBOARD", 0);
 	target = XA_STRING;
-	prop   = XInternAtom(handle->display, "XSEL_DATA", 0);
+	prop   = XInternAtom(handle->x11.display, "XSEL_DATA", 0);
 
-	XConvertSelection(handle->display, clip, target, prop, handle->window, CurrentTime);
+	XConvertSelection(handle->x11.display, clip, target, prop, handle->x11.window, CurrentTime);
 
 	while(1) {
-		XNextEvent(handle->display, &ev);
+		XNextEvent(handle->x11.display, &ev);
 		if(ev.type == SelectionNotify) {
 			if(ev.xselection.selection == clip && ev.xselection.property != 0) {
 				Atom	      t;
@@ -940,7 +941,7 @@ static char* MwLLGetClipboardImpl(MwLL handle) {
 	}
 
 	while(arrlen(queue) > 0) {
-		XPutBackEvent(handle->display, &queue[0]);
+		XPutBackEvent(handle->x11.display, &queue[0]);
 		arrdel(queue, 0);
 	}
 	arrfree(queue);
@@ -950,13 +951,13 @@ static char* MwLLGetClipboardImpl(MwLL handle) {
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {
 	XSetWindowAttributes xswa;
-	Atom		     wndtype = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE", False);
-	Atom		     wndmenu = XInternAtom(handle->display, "_NET_WM_WINDOW_TYPE_MENU", False);
+	Atom		     wndtype = XInternAtom(handle->x11.display, "_NET_WM_WINDOW_TYPE", False);
+	Atom		     wndmenu = XInternAtom(handle->x11.display, "_NET_WM_WINDOW_TYPE_MENU", False);
 
 	xswa.override_redirect = True;
 
-	XChangeWindowAttributes(handle->display, handle->window, CWOverrideRedirect, &xswa);
-	XChangeProperty(handle->display, handle->window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
+	XChangeWindowAttributes(handle->x11.display, handle->x11.window, CWOverrideRedirect, &xswa);
+	XChangeProperty(handle->x11.display, handle->x11.window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
 }
 
 static int MwLLX11CallInitImpl(void) {

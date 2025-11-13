@@ -20,7 +20,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		HBITMAP	    hbmp;
 		HDC	    dc, hbdc;
 
-		if(u->ll->copy_buffer) {
+		if(u->ll->common.copy_buffer) {
 			GetClientRect(hWnd, &rc);
 
 			dc   = GetDC(hWnd);
@@ -29,7 +29,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 			SelectObject(hbdc, hbmp);
 			ReleaseDC(hWnd, dc);
 
-			u->ll->hDC = hbdc;
+			u->ll->gdi.hDC = hbdc;
 			MwLLDispatch(u->ll, draw, NULL);
 
 			dc = BeginPaint(hWnd, &ps);
@@ -39,7 +39,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 			DeleteDC(hbdc);
 			DeleteObject(hbmp);
 		} else {
-			u->ll->hDC = BeginPaint(hWnd, &ps);
+			u->ll->gdi.hDC = BeginPaint(hWnd, &ps);
 			MwLLDispatch(u->ll, draw, NULL);
 			EndPaint(hWnd, &ps);
 		}
@@ -91,7 +91,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		p.x = LOWORD(lp);
 		p.y = HIWORD(lp);
 
-		if(u->ll->grabbed) {
+		if(u->ll->gdi.grabbed) {
 			RECT rc;
 
 			GetClientRect(hWnd, &rc);
@@ -101,7 +101,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 		MwLLDispatch(u->ll, move, &p);
 
-		if(u->ll->grabbed && (p.x != 0 || p.y != 0)) {
+		if(u->ll->gdi.grabbed && (p.x != 0 || p.y != 0)) {
 			RECT  rc;
 			POINT p;
 
@@ -200,7 +200,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		}
 	} else if(msg == WM_SETCURSOR) {
 		if(LOWORD(lp) != HTCLIENT) return DefWindowProc(hWnd, msg, wp, lp);
-		if(u->ll->cursor != NULL) SetCursor(u->ll->cursor);
+		if(u->ll->gdi.cursor != NULL) SetCursor(u->ll->gdi.cursor);
 	} else if(msg == WM_USER) {
 		InvalidateRect(hWnd, NULL, FALSE);
 		UpdateWindow(hWnd);
@@ -233,16 +233,17 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	RegisterClassEx(&wc);
 
-	r->grabbed     = 0;
-	r->copy_buffer = 1;
-	r->hWnd	       = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->hWnd, 0, wc.hInstance, NULL);
-	r->hInstance   = wc.hInstance;
-	r->cursor      = NULL;
+	r->common.copy_buffer = 1;
+
+	r->gdi.grabbed	 = 0;
+	r->gdi.hWnd	 = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->gdi.hWnd, 0, wc.hInstance, NULL);
+	r->gdi.hInstance = wc.hInstance;
+	r->gdi.cursor	 = NULL;
 
 	u->ll	   = r;
 	u->min_set = 0;
 	u->max_set = 0;
-	SetWindowLongPtr(r->hWnd, GWLP_USERDATA, (LPARAM)u);
+	SetWindowLongPtr(r->gdi.hWnd, GWLP_USERDATA, (LPARAM)u);
 
 	if(parent == NULL) {
 		RECT rc;
@@ -251,13 +252,13 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		rc.top	  = 0;
 		rc.right  = width;
 		rc.bottom = height;
-		AdjustWindowRect(&rc, GetWindowLongPtr(r->hWnd, GWL_STYLE), FALSE);
-		SetWindowPos(r->hWnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE);
+		AdjustWindowRect(&rc, GetWindowLongPtr(r->gdi.hWnd, GWL_STYLE), FALSE);
+		SetWindowPos(r->gdi.hWnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE);
 
-		ShowWindow(r->hWnd, SW_NORMAL);
-		UpdateWindow(r->hWnd);
+		ShowWindow(r->gdi.hWnd, SW_NORMAL);
+		UpdateWindow(r->gdi.hWnd);
 
-		InvalidateRect(r->hWnd, NULL, FALSE);
+		InvalidateRect(r->gdi.hWnd, NULL, FALSE);
 	}
 
 	return r;
@@ -267,10 +268,10 @@ static void MwLLDestroyImpl(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
 	/* for safety */
-	SetWindowLongPtr(handle->hWnd, GWLP_USERDATA, (LPARAM)NULL);
-	DestroyWindow(handle->hWnd);
+	SetWindowLongPtr(handle->gdi.hWnd, GWLP_USERDATA, (LPARAM)NULL);
+	DestroyWindow(handle->gdi.hWnd);
 
-	if(handle->cursor != NULL) DestroyCursor(handle->cursor);
+	if(handle->gdi.cursor != NULL) DestroyCursor(handle->gdi.cursor);
 
 	free(handle);
 }
@@ -284,10 +285,10 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 		p[i].x = points[i].x;
 		p[i].y = points[i].y;
 	}
-	SelectObject(handle->hDC, color->brush);
-	SelectObject(handle->hDC, pen);
-	SetPolyFillMode(handle->hDC, ALTERNATE);
-	Polygon(handle->hDC, p, points_count);
+	SelectObject(handle->gdi.hDC, color->gdi.brush);
+	SelectObject(handle->gdi.hDC, pen);
+	SetPolyFillMode(handle->gdi.hDC, ALTERNATE);
+	Polygon(handle->gdi.hDC, p, points_count);
 
 	DeleteObject(pen);
 
@@ -295,11 +296,11 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
-	HPEN pen = CreatePen(PS_SOLID, 1, RGB(color->red, color->green, color->blue));
+	HPEN pen = CreatePen(PS_SOLID, 1, RGB(color->common.red, color->common.green, color->common.blue));
 
-	SelectObject(handle->hDC, pen);
-	MoveToEx(handle->hDC, points[0].x, points[0].y, NULL);
-	LineTo(handle->hDC, points[1].x, points[1].y);
+	SelectObject(handle->gdi.hDC, pen);
+	MoveToEx(handle->gdi.hDC, points[0].x, points[0].y, NULL);
+	LineTo(handle->gdi.hDC, points[1].x, points[1].y);
 
 	DeleteObject(pen);
 }
@@ -307,7 +308,7 @@ static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 	MwLLColor c = malloc(sizeof(*c));
 
-	c->brush = NULL;
+	c->gdi.brush = NULL;
 
 	MwLLColorUpdate(handle, c, r, g, b);
 
@@ -315,7 +316,7 @@ static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 }
 
 static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
-	HDC dc = GetDC(handle->hWnd);
+	HDC dc = GetDC(handle->gdi.hWnd);
 
 	if(r > 255) r = 255;
 	if(g > 255) g = 255;
@@ -324,17 +325,17 @@ static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 	if(g < 0) g = 0;
 	if(b < 0) b = 0;
 
-	if(c->brush != NULL) DeleteObject(c->brush);
-	c->brush = CreateSolidBrush(GetNearestColor(dc, RGB(r, g, b)));
-	c->red	 = r;
-	c->green = g;
-	c->blue	 = b;
+	if(c->gdi.brush != NULL) DeleteObject(c->gdi.brush);
+	c->gdi.brush	= CreateSolidBrush(GetNearestColor(dc, RGB(r, g, b)));
+	c->common.red	= r;
+	c->common.green = g;
+	c->common.blue	= b;
 
-	ReleaseDC(handle->hWnd, dc);
+	ReleaseDC(handle->gdi.hWnd, dc);
 }
 
 static void MwLLFreeColorImpl(MwLLColor color) {
-	DeleteObject(color->brush);
+	DeleteObject(color->gdi.brush);
 
 	free(color);
 }
@@ -347,8 +348,8 @@ static void MwLLSetBackgroundImpl(MwLL handle, MwLLColor color) {
 static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
 	RECT rc;
 
-	GetClientRect(handle->hWnd, &rc);
-	MapWindowPoints(handle->hWnd, GetParent(handle->hWnd), (LPPOINT)&rc, 2);
+	GetClientRect(handle->gdi.hWnd, &rc);
+	MapWindowPoints(handle->gdi.hWnd, GetParent(handle->gdi.hWnd), (LPPOINT)&rc, 2);
 
 	*x = rc.left;
 	*y = rc.top;
@@ -357,17 +358,17 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 }
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
-	SetWindowPos(handle->hWnd, NULL, x, y, 0, 0, SWP_NOSIZE);
-	InvalidateRect(handle->hWnd, NULL, FALSE);
+	SetWindowPos(handle->gdi.hWnd, NULL, x, y, 0, 0, SWP_NOSIZE);
+	InvalidateRect(handle->gdi.hWnd, NULL, FALSE);
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
-	SetWindowPos(handle->hWnd, NULL, 0, 0, w, h, SWP_NOMOVE);
-	InvalidateRect(handle->hWnd, NULL, FALSE);
+	SetWindowPos(handle->gdi.hWnd, NULL, 0, 0, w, h, SWP_NOMOVE);
+	InvalidateRect(handle->gdi.hWnd, NULL, FALSE);
 }
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
-	SetWindowText(handle->hWnd, title);
+	SetWindowText(handle->gdi.hWnd, title);
 }
 
 static int MwLLPendingImpl(MwLL handle) {
@@ -375,7 +376,7 @@ static int MwLLPendingImpl(MwLL handle) {
 
 	(void)handle;
 
-	return PeekMessage(&msg, handle->hWnd, 0, 0, PM_NOREMOVE) ? 1 : 0;
+	return PeekMessage(&msg, handle->gdi.hWnd, 0, 0, PM_NOREMOVE) ? 1 : 0;
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
@@ -383,8 +384,8 @@ static void MwLLNextEventImpl(MwLL handle) {
 
 	(void)handle;
 
-	while(PeekMessage(&msg, handle->hWnd, 0, 0, PM_NOREMOVE)) {
-		GetMessage(&msg, handle->hWnd, 0, 0);
+	while(PeekMessage(&msg, handle->gdi.hWnd, 0, 0, PM_NOREMOVE)) {
+		GetMessage(&msg, handle->gdi.hWnd, 0, 0);
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
@@ -392,14 +393,14 @@ static void MwLLNextEventImpl(MwLL handle) {
 
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
 	MwLLPixmap	 r  = malloc(sizeof(*r));
-	HDC		 dc = GetDC(handle->hWnd);
+	HDC		 dc = GetDC(handle->gdi.hWnd);
 	BITMAPINFOHEADER bmih;
 
-	r->raw = malloc(width * height * 4);
-	memcpy(r->raw, data, 4 * width * height);
+	r->common.raw = malloc(width * height * 4);
+	memcpy(r->common.raw, data, 4 * width * height);
 
-	r->width  = width;
-	r->height = height;
+	r->common.width	 = width;
+	r->common.height = height;
 
 	bmih.biSize	     = sizeof(bmih);
 	bmih.biWidth	     = width;
@@ -413,12 +414,12 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 	bmih.biClrUsed	     = 0;
 	bmih.biClrImportant  = 0;
 
-	r->hBitmap = CreateDIBSection(dc, (BITMAPINFO*)&bmih, DIB_RGB_COLORS, (void**)&r->quad, NULL, (DWORD)0);
+	r->gdi.hBitmap = CreateDIBSection(dc, (BITMAPINFO*)&bmih, DIB_RGB_COLORS, (void**)&r->gdi.quad, NULL, (DWORD)0);
 
-	r->hMask  = NULL;
-	r->hMask2 = NULL;
+	r->gdi.hMask  = NULL;
+	r->gdi.hMask2 = NULL;
 
-	ReleaseDC(handle->hWnd, dc);
+	ReleaseDC(handle->gdi.hWnd, dc);
 
 	MwLLPixmapUpdate(r);
 
@@ -427,22 +428,22 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 
 static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
 	int   y, x;
-	int   w = (r->width + (16 - (r->width % 16))) / 8;
+	int   w = (r->common.width + (16 - (r->common.width % 16))) / 8;
 	WORD* words;
 	WORD* words2;
 
-	if(16 * (r->width / 16) == r->width) w -= 2;
+	if(16 * (r->common.width / 16) == r->common.width) w -= 2;
 
-	words  = malloc(w * r->height);
-	words2 = malloc(w * r->height);
-	memset(words, 0, w * r->height);
-	memset(words2, 0, w * r->height);
-	for(y = 0; y < r->height; y++) {
+	words  = malloc(w * r->common.height);
+	words2 = malloc(w * r->common.height);
+	memset(words, 0, w * r->common.height);
+	memset(words2, 0, w * r->common.height);
+	for(y = 0; y < r->common.height; y++) {
 		BYTE* l	 = (BYTE*)&words[y * (w / 2)];
 		BYTE* l2 = (BYTE*)&words2[y * (w / 2)];
-		for(x = 0; x < r->width; x++) {
-			RGBQUAD*       q  = &r->quad[y * r->width + x];
-			unsigned char* px = &r->raw[(y * r->width + x) * 4];
+		for(x = 0; x < r->common.width; x++) {
+			RGBQUAD*       q  = &r->gdi.quad[y * r->common.width + x];
+			unsigned char* px = &r->common.raw[(y * r->common.width + x) * 4];
 
 			q->rgbRed   = px[0];
 			q->rgbGreen = px[1];
@@ -456,27 +457,27 @@ static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
 		}
 	}
 
-	if(r->hMask != NULL) DeleteObject(r->hMask);
-	if(r->hMask2 != NULL) DeleteObject(r->hMask2);
+	if(r->gdi.hMask != NULL) DeleteObject(r->gdi.hMask);
+	if(r->gdi.hMask2 != NULL) DeleteObject(r->gdi.hMask2);
 
-	r->hMask  = CreateBitmap(r->width, r->height, 1, 1, words);
-	r->hMask2 = CreateBitmap(r->width, r->height, 1, 1, words2);
+	r->gdi.hMask  = CreateBitmap(r->common.width, r->common.height, 1, 1, words);
+	r->gdi.hMask2 = CreateBitmap(r->common.width, r->common.height, 1, 1, words2);
 
 	free(words);
 	free(words2);
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
-	free(pixmap->raw);
-	DeleteObject(pixmap->hMask);
-	DeleteObject(pixmap->hMask2);
-	DeleteObject(pixmap->hBitmap);
+	free(pixmap->common.raw);
+	DeleteObject(pixmap->gdi.hMask);
+	DeleteObject(pixmap->gdi.hMask2);
+	DeleteObject(pixmap->gdi.hBitmap);
 
 	free(pixmap);
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	HDC   hmdc = CreateCompatibleDC(handle->hDC);
+	HDC   hmdc = CreateCompatibleDC(handle->gdi.hDC);
 	POINT p[3];
 
 	p[0].x = rect->x;
@@ -488,10 +489,10 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	p[2].x = rect->x;
 	p[2].y = rect->y + rect->height;
 
-	SelectObject(hmdc, pixmap->hBitmap);
+	SelectObject(hmdc, pixmap->gdi.hBitmap);
 
-	SetStretchBltMode(handle->hDC, HALFTONE);
-	PlgBlt(handle->hDC, p, hmdc, 0, 0, pixmap->width, pixmap->height, pixmap->hMask, 0, 0);
+	SetStretchBltMode(handle->gdi.hDC, HALFTONE);
+	PlgBlt(handle->gdi.hDC, p, hmdc, 0, 0, pixmap->common.width, pixmap->common.height, pixmap->gdi.hMask, 0, 0);
 
 	DeleteDC(hmdc);
 }
@@ -504,18 +505,18 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	ii.fIcon    = TRUE;
 	ii.xHotspot = 0;
 	ii.yHotspot = 0;
-	ii.hbmMask  = pixmap->hMask2;
-	ii.hbmColor = pixmap->hBitmap;
+	ii.hbmMask  = pixmap->gdi.hMask2;
+	ii.hbmColor = pixmap->gdi.hBitmap;
 
 	ico = CreateIconIndirect(&ii);
 
-	SetClassLongPtr(handle->hWnd, GCLP_HICON, (LPARAM)ico);
+	SetClassLongPtr(handle->gdi.hWnd, GCLP_HICON, (LPARAM)ico);
 
 	DestroyIcon(ico);
 }
 
 static void MwLLForceRenderImpl(MwLL handle) {
-	PostMessage(handle->hWnd, WM_USER, 0, 0);
+	PostMessage(handle->gdi.hWnd, WM_USER, 0, 0);
 }
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
@@ -559,8 +560,8 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 
 	cursor = CreateCursor(GetModuleHandle(NULL), xs, ys, MwCursorDataHeight, MwCursorDataHeight, dmask, dimage);
 
-	if(handle->cursor != NULL) DestroyCursor(handle->cursor);
-	handle->cursor = cursor;
+	if(handle->gdi.cursor != NULL) DestroyCursor(handle->gdi.cursor);
+	handle->gdi.cursor = cursor;
 
 	free(dimage);
 	free(dmask);
@@ -568,16 +569,16 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	RECT   rc, rc2;
-	LPARAM lp = GetWindowLongPtr(handle->hWnd, GWL_STYLE);
+	LPARAM lp = GetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE);
 
 	lp &= WS_VISIBLE;
 
-	GetWindowRect(GetParent(handle->hWnd), &rc);
+	GetWindowRect(GetParent(handle->gdi.hWnd), &rc);
 
-	GetClientRect(handle->hWnd, &rc2);
+	GetClientRect(handle->gdi.hWnd, &rc2);
 
-	SetWindowLongPtr(handle->hWnd, GWL_STYLE, (LPARAM)WS_OVERLAPPEDWINDOW | lp);
-	SetParent(handle->hWnd, NULL);
+	SetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE, (LPARAM)WS_OVERLAPPEDWINDOW | lp);
+	SetParent(handle->gdi.hWnd, NULL);
 
 	rc.left += point->x;
 	rc.top += point->y;
@@ -586,12 +587,12 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	rc2.right -= rc2.left;
 	rc2.bottom -= rc2.top;
 
-	SetWindowPos(handle->hWnd, HWND_TOPMOST, rc.left, rc.top, rc2.right == 0 ? 1 : rc2.right, rc2.bottom == 0 ? 1 : rc2.bottom, SWP_FRAMECHANGED | SWP_NOACTIVATE);
+	SetWindowPos(handle->gdi.hWnd, HWND_TOPMOST, rc.left, rc.top, rc2.right == 0 ? 1 : rc2.right, rc2.bottom == 0 ? 1 : rc2.bottom, SWP_FRAMECHANGED | SWP_NOACTIVATE);
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
-	ShowWindow(handle->hWnd, show ? SW_NORMAL : SW_HIDE);
-	if(show) SetFocus(handle->hWnd);
+	ShowWindow(handle->gdi.hWnd, show ? SW_NORMAL : SW_HIDE);
+	if(show) SetFocus(handle->gdi.hWnd);
 }
 
 static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
@@ -601,7 +602,7 @@ static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
-	userdata_t* u = (userdata_t*)GetWindowLongPtr(handle->hWnd, GWLP_USERDATA);
+	userdata_t* u = (userdata_t*)GetWindowLongPtr(handle->gdi.hWnd, GWLP_USERDATA);
 
 	u->min_set = u->max_set = 1;
 	u->min.x		= minx;
@@ -611,7 +612,7 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 }
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
-	LPARAM lp = GetWindowLongPtr(handle->hWnd, GWL_STYLE);
+	LPARAM lp = GetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE);
 
 	if(toggle) {
 		lp &= ~WS_CAPTION;
@@ -619,13 +620,13 @@ static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
 		lp |= WS_CAPTION;
 	}
 
-	SetWindowLongPtr(handle->hWnd, GWL_STYLE, lp);
+	SetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE, lp);
 
-	SetWindowPos(handle->hWnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
+	SetWindowPos(handle->gdi.hWnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
 }
 
 static void MwLLFocusImpl(MwLL handle) {
-	SetFocus(handle->hWnd);
+	SetFocus(handle->gdi.hWnd);
 }
 
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
@@ -633,7 +634,7 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 		POINT p;
 		RECT  rc;
 
-		GetClientRect(handle->hWnd, &rc);
+		GetClientRect(handle->gdi.hWnd, &rc);
 
 		rc.right -= rc.left;
 		rc.bottom -= rc.top;
@@ -641,25 +642,25 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 		p.x = (rc.right - rc.left) / 2;
 		p.y = (rc.bottom - rc.top) / 2;
 
-		MapWindowPoints(handle->hWnd, HWND_DESKTOP, &p, 1);
+		MapWindowPoints(handle->gdi.hWnd, HWND_DESKTOP, &p, 1);
 
-		handle->grabbed = 1;
+		handle->gdi.grabbed = 1;
 
-		SetFocus(handle->hWnd);
+		SetFocus(handle->gdi.hWnd);
 
-		GetWindowRect(handle->hWnd, &rc);
+		GetWindowRect(handle->gdi.hWnd, &rc);
 		ClipCursor(&rc);
 
 		SetCursorPos(p.x, p.y);
 	} else {
-		handle->grabbed = 0;
+		handle->gdi.grabbed = 0;
 		ClipCursor(NULL);
 	}
 }
 
 static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
 	HGLOBAL hg;
-	if(OpenClipboard(handle->hWnd) != 0) {
+	if(OpenClipboard(handle->gdi.hWnd) != 0) {
 		char* lock;
 
 		EmptyClipboard();
@@ -678,7 +679,7 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
 static char* MwLLGetClipboardImpl(MwLL handle) {
 	HGLOBAL hg;
 	char*	r = NULL;
-	if(OpenClipboard(handle->hWnd) != 0 && (hg = GetClipboardData(CF_TEXT)) != NULL) {
+	if(OpenClipboard(handle->gdi.hWnd) != 0 && (hg = GetClipboardData(CF_TEXT)) != NULL) {
 		char* lock;
 
 		r = malloc(GlobalSize(hg));
@@ -693,15 +694,15 @@ static char* MwLLGetClipboardImpl(MwLL handle) {
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {
-	LPARAM lp = GetWindowLongPtr(handle->hWnd, GWL_STYLE) & WS_VISIBLE;
+	LPARAM lp = GetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE) & WS_VISIBLE;
 	RECT   rc;
 
-	SetWindowLongPtr(handle->hWnd, GWL_STYLE, (LPARAM)lp);
-	SetWindowLongPtr(handle->hWnd, GWL_EXSTYLE, (LPARAM)WS_EX_TOOLWINDOW);
+	SetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE, (LPARAM)lp);
+	SetWindowLongPtr(handle->gdi.hWnd, GWL_EXSTYLE, (LPARAM)WS_EX_TOOLWINDOW);
 
-	GetClientRect(handle->hWnd, &rc);
+	GetClientRect(handle->gdi.hWnd, &rc);
 
-	SetWindowPos(handle->hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
+	SetWindowPos(handle->gdi.hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
 }
 
 static int MwLLGDICallInitImpl(void) {

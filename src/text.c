@@ -60,9 +60,9 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 				for(x = 0; x < FontWidth; x++) {
 					unsigned char* ppx = &px[((sy + y) * tw + sx + x) * 4];
 					if((bold ? MwBoldFontData : MwFontData)[out].data[y] & (1 << ((FontWidth - 1) - x))) {
-						ppx[0] = color->red;
-						ppx[1] = color->green;
-						ppx[2] = color->blue;
+						ppx[0] = color->common.red;
+						ppx[1] = color->common.green;
+						ppx[2] = color->common.blue;
 						ppx[3] = 255;
 					} else {
 						ppx[0] = 0;
@@ -131,9 +131,9 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 				int	       oy  = (ttf->ascent * ttf->scale) + y0 + cy;
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
 
-				opx[0] = color->red;
-				opx[1] = color->green;
-				opx[2] = color->blue;
+				opx[0] = color->common.red;
+				opx[1] = color->common.green;
+				opx[2] = color->common.blue;
 				opx[3] = out[cy * ow + cx];
 			}
 		}
@@ -216,9 +216,9 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 				int	       oy  = th - ttf->face->glyph->bitmap_top + cy + (ttf->face->descender * 14 / ttf->face->units_per_EM);
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
 
-				opx[0] = color->red;
-				opx[1] = color->green;
-				opx[2] = color->blue;
+				opx[0] = color->common.red;
+				opx[1] = color->common.green;
+				opx[2] = color->common.blue;
 				opx[3] = bmp->buffer[cy * bmp->pitch + cx];
 			}
 		}

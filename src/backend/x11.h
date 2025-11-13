@@ -13,22 +13,20 @@
 #include <X11/extensions/Xrender.h>
 #endif
 
-struct _MwLL {
+struct _MwLLX11 {
+	struct _MwLLCommon common;
+
+	unsigned int width;
+	unsigned int height;
+
 	Display* display;
 	Window	 window;
 	Pixmap	 pixmap;
 	GC	 gc;
 	Colormap colormap;
-	void*	 user;
 	Atom	 wm_delete;
-	int	 copy_buffer;
 	XIM	 xim;
 	XIC	 xic;
-
-	unsigned int width;
-	unsigned int height;
-
-	MwLLHandler handler;
 
 	int top;
 	int grabbed;
@@ -46,17 +44,14 @@ struct _MwLL {
 	unsigned long blue_shift;
 };
 
-struct _MwLLColor {
+struct _MwLLX11Color {
+	struct _MwLLCommonColor common;
+
 	unsigned long pixel;
-	int	      red;
-	int	      green;
-	int	      blue;
 };
 
-struct _MwLLPixmap {
-	int	       width;
-	int	       height;
-	unsigned char* raw;
+struct _MwLLX11Pixmap {
+	struct _MwLLCommonPixmap common;
 
 	int	       depth;
 	unsigned char* data;

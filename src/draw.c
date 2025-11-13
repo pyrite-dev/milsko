@@ -63,9 +63,9 @@ MwLLColor MwParseColor(MwWidget handle, const char* text) {
 }
 
 MwLLColor MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, int b) {
-	int cr = color->red + r;
-	int cg = color->green + g;
-	int cb = color->blue + b;
+	int cr = color->common.red + r;
+	int cg = color->common.green + g;
+	int cb = color->common.blue + b;
 
 	if(cr < 0) cr = 0;
 	if(cg < 0) cg = 0;
@@ -110,9 +110,9 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 		MwLLColor col = MwLightenColor(handle, color, -darken, -darken, -darken);
 		for(x = 0; x < rect->width; x++) {
 			int idx	      = ((y * rect->width) + x) * 4;
-			data[idx]     = col->red;
-			data[idx + 1] = col->green;
-			data[idx + 2] = col->blue;
+			data[idx]     = col->common.red;
+			data[idx + 1] = col->common.green;
+			data[idx + 2] = col->common.blue;
 			data[idx + 3] = 255;
 		}
 		MwLLFreeColor(col);
@@ -651,9 +651,9 @@ MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height)
 			pout[1] = pin[1] * a;
 			pout[2] = pin[2] * a;
 
-			pout[0] += base->red * (1 - a);
-			pout[1] += base->green * (1 - a);
-			pout[2] += base->blue * (1 - a);
+			pout[0] += base->common.red * (1 - a);
+			pout[1] += base->common.green * (1 - a);
+			pout[2] += base->common.blue * (1 - a);
 			pout[3] = 255;
 		}
 	}
@@ -671,10 +671,10 @@ void MwReloadRaw(MwWidget handle, unsigned char* rgb, int width, int height, MwL
 	int	  i;
 	MwLLColor base = handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
 
-	memset(px->raw, 0, width * height * 4);
+	memset(px->common.raw, 0, width * height * 4);
 	for(i = 0; i < width * height; i++) {
 		unsigned char* pin  = &rgb[i * 4];
-		unsigned char* pout = &px->raw[i * 4];
+		unsigned char* pout = &px->common.raw[i * 4];
 		double	       a    = pin[3];
 
 		a /= 255;
@@ -683,9 +683,9 @@ void MwReloadRaw(MwWidget handle, unsigned char* rgb, int width, int height, MwL
 			pout[1] = pin[1] * a;
 			pout[2] = pin[2] * a;
 
-			pout[0] += base->red * (1 - a);
-			pout[1] += base->green * (1 - a);
-			pout[2] += base->blue * (1 - a);
+			pout[0] += base->common.red * (1 - a);
+			pout[1] += base->common.green * (1 - a);
+			pout[2] += base->common.blue * (1 - a);
 			pout[3] = 255;
 		}
 	}
@@ -696,9 +696,9 @@ void MwReloadRaw(MwWidget handle, unsigned char* rgb, int width, int height, MwL
 }
 
 void MwGetColor(MwLLColor color, int* red, int* green, int* blue) {
-	*red   = color->red;
-	*green = color->green;
-	*blue  = color->blue;
+	*red   = color->common.red;
+	*green = color->common.green;
+	*blue  = color->common.blue;
 }
 
 MwLLPixmap MwLoadIcon(MwWidget handle, unsigned int* data) {
@@ -771,9 +771,9 @@ MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
 			shput(c, k, v);
 			ind = shgeti(c, k);
 
-			c[ind].r = color->red;
-			c[ind].g = color->green;
-			c[ind].b = color->blue;
+			c[ind].r = color->common.red;
+			c[ind].g = color->common.green;
+			c[ind].b = color->common.blue;
 			c[ind].a = 255;
 
 			MwLLFreeColor(color);

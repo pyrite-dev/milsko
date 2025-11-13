@@ -12,14 +12,33 @@
 typedef struct _MwLLHandler* MwLLHandler;
 typedef struct _MwLLMouse    MwLLMouse;
 #ifdef _MILSKO
-typedef struct _MwLL*	    MwLL;
-typedef struct _MwLLColor*  MwLLColor;
-typedef struct _MwLLPixmap* MwLLPixmap;
+typedef union _MwLL*	   MwLL;
+typedef union _MwLLColor*  MwLLColor;
+typedef union _MwLLPixmap* MwLLPixmap;
 #else
 typedef void* MwLL;
 typedef void* MwLLColor;
 typedef void* MwLLPixmap;
 #endif
+
+struct _MwLLCommon {
+	void* user;
+	int   copy_buffer;
+
+	MwLLHandler handler;
+};
+
+struct _MwLLCommonColor {
+	int red;
+	int green;
+	int blue;
+};
+
+struct _MwLLCommonPixmap {
+	int	       width;
+	int	       height;
+	unsigned char* raw;
+};
 
 #ifdef _MILSKO
 #ifdef USE_X11
@@ -28,14 +47,41 @@ typedef void* MwLLPixmap;
 #ifdef USE_GDI
 #include "../../src/backend/gdi.h"
 #endif
-#ifdef USE_DARWIN
-#include "../../src/backend/mac/mac.h"
+
+union _MwLL {
+	struct _MwLLCommon common;
+#ifdef USE_X11
+	struct _MwLLX11 x11;
 #endif
+#ifdef USE_GDI
+	struct _MwLLGDI gdi;
+#endif
+};
+
+union _MwLLColor {
+	struct _MwLLCommonColor common;
+#ifdef USE_X11
+	struct _MwLLX11Color x11;
+#endif
+#ifdef USE_GDI
+	struct _MwLLGDIColor gdi;
+#endif
+};
+
+union _MwLLPixmap {
+	struct _MwLLCommonPixmap common;
+#ifdef USE_X11
+	struct _MwLLX11Pixmap x11;
+#endif
+#ifdef USE_GDI
+	struct _MwLLGDIPixmap gdi;
+#endif
+};
 #endif
 #include <Mw/TypeDefs.h>
 
 #define MwLLDispatch(x, y, z) \
-	if(x->handler != NULL && x->handler->y != NULL) x->handler->y(x, z)
+	if(x->common.handler != NULL && x->common.handler->y != NULL) x->common.handler->y(x, z)
 
 #define MwLLKeyMask (1 << 31)
 enum MwLLKeyEnum {

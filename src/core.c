@@ -4,7 +4,7 @@
 #include "../external/stb_ds.h"
 
 static void lldrawhandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->user;
+	MwWidget h = (MwWidget)handle->common.user;
 
 	(void)data;
 
@@ -14,7 +14,7 @@ static void lldrawhandler(MwLL handle, void* data) {
 }
 
 static void lluphandler(MwLL handle, void* data) {
-	MwWidget   h = (MwWidget)handle->user;
+	MwWidget   h = (MwWidget)handle->common.user;
 	MwLLMouse* p = data;
 
 	if(p->button == MwLLMouseLeft) h->pressed = 0;
@@ -27,7 +27,7 @@ static void lluphandler(MwLL handle, void* data) {
 }
 
 static void lldownhandler(MwLL handle, void* data) {
-	MwWidget   h = (MwWidget)handle->user;
+	MwWidget   h = (MwWidget)handle->common.user;
 	MwLLMouse* p = data;
 	if(p->button == MwLLMouseLeft) h->pressed = 1;
 	h->mouse_point.x = p->point.x;
@@ -38,7 +38,7 @@ static void lldownhandler(MwLL handle, void* data) {
 }
 
 static void llresizehandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->user;
+	MwWidget h = (MwWidget)handle->common.user;
 	int	 i;
 
 	(void)data;
@@ -50,7 +50,7 @@ static void llresizehandler(MwLL handle, void* data) {
 }
 
 static void llclosehandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->user;
+	MwWidget h = (MwWidget)handle->common.user;
 	int	 n;
 
 	(void)data;
@@ -68,7 +68,7 @@ static void llclosehandler(MwLL handle, void* data) {
 }
 
 static void llmovehandler(MwLL handle, void* data) {
-	MwWidget h	 = (MwWidget)handle->user;
+	MwWidget h	 = (MwWidget)handle->common.user;
 	MwPoint* p	 = data;
 	h->mouse_point.x = p->x;
 	h->mouse_point.y = p->y;
@@ -78,7 +78,7 @@ static void llmovehandler(MwLL handle, void* data) {
 }
 
 static void llkeyhandler(MwLL handle, void* data) {
-	MwWidget h   = (MwWidget)handle->user;
+	MwWidget h   = (MwWidget)handle->common.user;
 	int	 key = *(int*)data;
 
 	MwDispatch3(h, key, key);
@@ -86,19 +86,19 @@ static void llkeyhandler(MwLL handle, void* data) {
 }
 
 static void llkeyrelhandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->user;
+	MwWidget h = (MwWidget)handle->common.user;
 
 	MwDispatchUserHandler(h, MwNkeyReleaseHandler, data);
 }
 
 static void llfocusinhandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->user;
+	MwWidget h = (MwWidget)handle->common.user;
 
 	MwDispatchUserHandler(h, MwNfocusInHandler, data);
 }
 
 static void llfocusouthandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->user;
+	MwWidget h = (MwWidget)handle->common.user;
 
 	MwDispatchUserHandler(h, MwNfocusOutHandler, data);
 }
@@ -133,17 +133,17 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	if(parent == NULL) arrput(h->tick_list, h);
 
 	if(h->lowlevel != NULL) {
-		h->lowlevel->user		   = h;
-		h->lowlevel->handler->draw	   = lldrawhandler;
-		h->lowlevel->handler->up	   = lluphandler;
-		h->lowlevel->handler->down	   = lldownhandler;
-		h->lowlevel->handler->resize	   = llresizehandler;
-		h->lowlevel->handler->close	   = llclosehandler;
-		h->lowlevel->handler->move	   = llmovehandler;
-		h->lowlevel->handler->key	   = llkeyhandler;
-		h->lowlevel->handler->key_released = llkeyrelhandler;
-		h->lowlevel->handler->focus_in	   = llfocusinhandler;
-		h->lowlevel->handler->focus_out	   = llfocusouthandler;
+		h->lowlevel->common.user		  = h;
+		h->lowlevel->common.handler->draw	  = lldrawhandler;
+		h->lowlevel->common.handler->up		  = lluphandler;
+		h->lowlevel->common.handler->down	  = lldownhandler;
+		h->lowlevel->common.handler->resize	  = llresizehandler;
+		h->lowlevel->common.handler->close	  = llclosehandler;
+		h->lowlevel->common.handler->move	  = llmovehandler;
+		h->lowlevel->common.handler->key	  = llkeyhandler;
+		h->lowlevel->common.handler->key_released = llkeyrelhandler;
+		h->lowlevel->common.handler->focus_in	  = llfocusinhandler;
+		h->lowlevel->common.handler->focus_out	  = llfocusouthandler;
 	}
 
 	if(parent != NULL) arrput(parent->children, h);

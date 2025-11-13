@@ -48,10 +48,10 @@ char* (*MwLLGetClipboard)(MwLL handle);
 void (*MwLLMakeToolWindow)(MwLL handle);
 
 void MwLLCreateCommon(MwLL handle) {
-	handle->handler = malloc(sizeof(*handle->handler));
-	memset(handle->handler, 0, sizeof(*handle->handler));
+	handle->common.handler = malloc(sizeof(*handle->common.handler));
+	memset(handle->common.handler, 0, sizeof(*handle->common.handler));
 }
 
 void MwLLDestroyCommon(MwLL handle) {
-	free(handle->handler);
+	free(handle->common.handler);
 }
