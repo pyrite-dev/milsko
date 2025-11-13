@@ -8,27 +8,27 @@
  * ioixd maintains this file. nishi doesn't know vulkan at all
  */
 
-#ifdef _WIN32
+#ifdef USE_GDI
 #define VK_USE_PLATFORM_WIN32_KHR 1
 #endif
-#ifdef __unix__
+#ifdef USE_X11
 #define VK_USE_PLATFORM_XLIB_KHR 1
 #endif
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
-#ifdef __unix__
-#include <vulkan/vulkan_xlib.h>
-#endif
-
-#ifdef _WIN32
+#ifdef USE_GDI
 #include <vulkan/vulkan_win32.h>
+#endif
+#ifdef USE_X11
+#include <vulkan/vulkan_xlib.h>
 #endif
 
 #ifdef HAS_VK_ENUM_STRING_HELPER
 #include <vulkan/vk_enum_string_helper.h>
 #endif
 
+#include <stdint.h>
 #include <stdbool.h>
 
 #include "../../external/stb_ds.h"
@@ -38,18 +38,6 @@ MwVulkanConfig vulkan_config = {
     .vk_version	       = VK_VERSION_1_0,
     .validation_layers = VK_FALSE,
 };
-
-#ifndef _WIN32
-#define LIB_TYPE void*
-#define LIB_OPEN(a, b) dlopen(a, b)
-#define LIB_SYM(a, b) dlsym(a, b)
-#define LIB_CLOSE(a) dlclose(a)
-#else
-#define LIB_TYPE HINSTANCE
-#define LIB_OPEN(a, b) LoadLibrary(a)
-#define LIB_SYM(a, b) (void*)GetProcAddress(a, b)
-#define LIB_CLOSE(a) FreeLibrary(a)
-#endif
 
 /* convienence macro for handling vulkan errors */
 #ifdef HAS_VK_ENUM_STRING_HELPER
@@ -92,7 +80,7 @@ typedef enum vulkan_supported_state_t {
 vulkan_supported_state vulkan_supported = VULKAN_SUPPORTED_UNKNOWN;
 
 typedef struct vulkan {
-	LIB_TYPE		  vulkanLibrary;
+	void*			  vulkanLibrary;
 	PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
 	VkInstance		  vkInstance;
 	VkSurfaceKHR		  vkSurface;
@@ -157,7 +145,7 @@ static MwErrorEnum _destroy(MwWidget handle) {
 	_vkDestroyDevice(o->vkLogicalDevice, NULL);
 	_vkDestroySurfaceKHR(o->vkInstance, o->vkSurface, NULL);
 	_vkDestroyInstance(o->vkInstance, NULL);
-	LIB_CLOSE(o->vulkanLibrary);
+	MwDynamicClose(o->vulkanLibrary);
 
 	free(o);
 
@@ -171,11 +159,11 @@ static void destroy(MwWidget handle) {
 	}
 }
 
-static LIB_TYPE vulkan_lib_load() {
+static void* vulkan_lib_load() {
 #ifdef _WIN32
-	return LIB_OPEN("vulkan-1.dll", RTLD_LAZY | RTLD_GLOBAL);
+	return MwDynamicOpen("vulkan-1.dll");
 #else
-	return LIB_OPEN("libvulkan.so", RTLD_LAZY | RTLD_GLOBAL);
+	return MwDynamicOpen("libvulkan.so");
 #endif
 }
 
@@ -211,20 +199,20 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 		vulkan_supported = VULKAN_SUPPORTED_YES;
 	}
 
-	o->vkGetInstanceProcAddr = LIB_SYM(o->vulkanLibrary, "vkGetInstanceProcAddr");
+	o->vkGetInstanceProcAddr = MwDynamicSymbol(o->vulkanLibrary, "vkGetInstanceProcAddr");
 	VK_ASSERT(o->vkGetInstanceProcAddr);
-	_vkEnumerateInstanceExtensionProperties = LIB_SYM(o->vulkanLibrary, "vkEnumerateInstanceExtensionProperties");
+	_vkEnumerateInstanceExtensionProperties = MwDynamicSymbol(o->vulkanLibrary, "vkEnumerateInstanceExtensionProperties");
 	VK_ASSERT(_vkEnumerateInstanceExtensionProperties);
-	_vkEnumerateInstanceLayerProperties = LIB_SYM(o->vulkanLibrary, "vkEnumerateInstanceLayerProperties");
+	_vkEnumerateInstanceLayerProperties = MwDynamicSymbol(o->vulkanLibrary, "vkEnumerateInstanceLayerProperties");
 	VK_ASSERT(_vkEnumerateInstanceLayerProperties);
-	_vkCreateInstance = LIB_SYM(o->vulkanLibrary, "vkCreateInstance");
+	_vkCreateInstance = MwDynamicSymbol(o->vulkanLibrary, "vkCreateInstance");
 	VK_ASSERT(_vkCreateInstance);
 
 	/* setup enabled extensions */
 	arrput(enabledExtensions, VK_KHR_SURFACE_EXTENSION_NAME);
 #if defined(_WIN32)
 	arrput(enabledExtensions, VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-#elif defined(__linux__) || defined(__FreeBSD__)
+#elif defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__)
 	arrput(enabledExtensions, VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
 #endif
 
@@ -292,31 +280,35 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 
 static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
 	int vk_res;
-#ifdef _WIN32
-	LOAD_VK_FUNCTION(vkCreateWin32SurfaceKHR);
+#ifdef USE_GDI
+	if(handle->lowlevel->common.type == MwLLBackendGDI) {
+		LOAD_VK_FUNCTION(vkCreateWin32SurfaceKHR);
 
-	VkWin32SurfaceCreateInfoKHR createInfo = {
-	    .sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
-	    .pNext     = NULL,
-	    .flags     = 0,
-	    .hinstance = handle->lowlevel->gdi.hInstance,
-	    .hwnd      = handle->lowlevel->gdi.hWnd,
-	};
+		VkWin32SurfaceCreateInfoKHR createInfo = {
+		    .sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+		    .pNext     = NULL,
+		    .flags     = 0,
+		    .hinstance = handle->lowlevel->gdi.hInstance,
+		    .hwnd      = handle->lowlevel->gdi.hWnd,
+		};
 
-	VK_CMD(_vkCreateWin32SurfaceKHR(o->vkInstance, &createInfo, NULL,
-					&o->vkSurface));
+		VK_CMD(_vkCreateWin32SurfaceKHR(o->vkInstance, &createInfo, NULL,
+						&o->vkSurface));
+	}
 #endif
-#ifdef __unix__
-	LOAD_VK_FUNCTION(vkCreateXlibSurfaceKHR);
+#ifdef USE_X11
+	if(handle->lowlevel->common.type == MwLLBackendX11) {
+		LOAD_VK_FUNCTION(vkCreateXlibSurfaceKHR);
 
-	VkXlibSurfaceCreateInfoKHR createInfo = {
-	    .sType  = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
-	    .pNext  = NULL,
-	    .flags  = 0,
-	    .dpy    = handle->lowlevel->x11.display,
-	    .window = handle->lowlevel->x11.window,
-	};
-	VK_CMD(_vkCreateXlibSurfaceKHR(o->vkInstance, &createInfo, NULL, &o->vkSurface));
+		VkXlibSurfaceCreateInfoKHR createInfo = {
+		    .sType  = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
+		    .pNext  = NULL,
+		    .flags  = 0,
+		    .dpy    = handle->lowlevel->x11.display,
+		    .window = handle->lowlevel->x11.window,
+		};
+		VK_CMD(_vkCreateXlibSurfaceKHR(o->vkInstance, &createInfo, NULL, &o->vkSurface));
+	}
 #endif
 	return MwEsuccess;
 }
@@ -455,12 +447,12 @@ void MwVulkanEnableLayer(const char* name) {
 
 VkBool32 MwVulkanSupported(void) {
 	if(vulkan_supported == VULKAN_SUPPORTED_UNKNOWN) {
-		LIB_TYPE lib = vulkan_lib_load();
+		void* lib = vulkan_lib_load();
 		if(lib == NULL) {
 			vulkan_supported = VULKAN_SUPPORTED_NO;
 		} else {
 			vulkan_supported = VULKAN_SUPPORTED_YES;
-			LIB_CLOSE(lib);
+			MwDynamicClose(lib);
 		}
 	}
 	if(vulkan_supported == VULKAN_SUPPORTED_YES) {
