@@ -168,8 +168,6 @@ static void* vulkan_lib_load() {
 }
 
 static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
-	(void)(handle);
-
 	uint32_t      vulkan_version  = vulkan_config.vk_version;
 	uint32_t      api_version     = vulkan_config.api_version;
 	uint32_t      extension_count = 0;
@@ -210,10 +208,15 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 
 	/* setup enabled extensions */
 	arrput(enabledExtensions, VK_KHR_SURFACE_EXTENSION_NAME);
-#if defined(_WIN32)
-	arrput(enabledExtensions, VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-#elif defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__)
-	arrput(enabledExtensions, VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+#ifdef USE_GDI
+	if(handle->lowlevel->common.type == MwLLBackendGDI) {
+		arrput(enabledExtensions, VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+	}
+#endif
+#ifdef USE_X11
+	if(handle->lowlevel->common.type == MwLLBackendX11) {
+		arrput(enabledExtensions, VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+	}
 #endif
 
 	/* passing null gives us all the extensions provided by the current vulkan implementation */
