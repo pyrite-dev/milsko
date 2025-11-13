@@ -1,7 +1,7 @@
 /* $Id$ */
 /* This file gets included by backend */
 #define CALL(NAME) \
-	static int _MwLL##NAME##CallInit(void) { \
+	int MwLL##NAME##CallInit(void) { \
 		int st; \
 \
 		if((st = MwLL##NAME##CallInitImpl()) != 0) return st; \
@@ -53,5 +53,4 @@
 		MwLLMakeToolWindow = MwLLMakeToolWindowImpl; \
 \
 		return 0; \
-	} \
-	int (*MwLL##NAME##CallInit)(void) = _MwLL##NAME##CallInit;
+	}
