@@ -23,6 +23,7 @@
 #include <Mw/Abstract/Dynamic.h>
 #include <Mw/Abstract/Directory.h>
 #include <Mw/Abstract/Time.h>
+#include <Mw/Abstract/Mutex.h>
 
 #include <Mw/Resource/Icon.h>
 #include <Mw/Resource/Cursor.h>

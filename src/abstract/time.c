@@ -1,7 +1,7 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 long MwTimeGetTick(void) {
 	return GetTickCount();
 }
@@ -9,7 +9,7 @@ long MwTimeGetTick(void) {
 void MwTimeSleep(int ms) {
 	Sleep(ms);
 }
-#else
+#elif defined(__unix__)
 long MwTimeGetTick(void) {
 	struct timespec ts;
 	long		n = 0;
