@@ -140,7 +140,7 @@ MWDECL MwLLPixmap MwLoadXPM(MwWidget handle, char** data);
  * @param data Data
  * @return Pixmap
  */
-MWDECL MwLLPixmap MwLoadIcon(MwWidget handle, unsigned int* data);
+MWDECL MwLLPixmap MwLoadIcon(MwWidget handle, MwU32* data);
 
 /*!
  * @brief Draws a diamond

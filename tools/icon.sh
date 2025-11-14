@@ -29,7 +29,7 @@ for i in resource/icon/*.png; do
 	echo '/* $Id$ */' > $OUT
 	echo '#include <Mw/Milsko.h>' >> $OUT
 	echo >> $OUT
-	echo "unsigned int $NAME[] = {" >> $OUT
+	echo "MwU32 $NAME[] = {" >> $OUT
 	echo "	($WIDTH << 16) | $HEIGHT," >> $OUT
 	convert $i txt:- 2>/dev/null | grep -oE '#[0-9a-fA-F]{8}' | sed 's/^#/	0x/' | sed -E 's/$/,/' >> $OUT
 	echo "	0" >> $OUT
@@ -40,7 +40,7 @@ done | while read a; do
 	echo '/*!' >> include/Mw/Resource/Icon.h
 	echo " * @brief `echo $a | sed s/MwIcon//` icon" >> include/Mw/Resource/Icon.h
 	echo ' */' >> include/Mw/Resource/Icon.h
-	echo "MWDECL unsigned int $a[];" >> include/Mw/Resource/Icon.h
+	echo "MWDECL MwU32 $a[];" >> include/Mw/Resource/Icon.h
 	echo '' >> include/Mw/Resource/Icon.h
 done
 echo '' >> include/Mw/Resource/Icon.h

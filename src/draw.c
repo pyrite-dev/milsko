@@ -701,7 +701,7 @@ void MwGetColor(MwLLColor color, int* red, int* green, int* blue) {
 	*blue  = color->common.blue;
 }
 
-MwLLPixmap MwLoadIcon(MwWidget handle, unsigned int* data) {
+MwLLPixmap MwLoadIcon(MwWidget handle, MwU32* data) {
 	int	       width  = (data[0] >> 16) & 0xffff;
 	int	       height = (data[0]) & 0xffff;
 	unsigned char* rgba   = malloc(width * height * 4);

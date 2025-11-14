@@ -15,82 +15,83 @@ extern "C" {
 /*!
  * @brief Back icon
  */
-MWDECL unsigned int MwIconBack[];
+MWDECL MwU32 MwIconBack[];
 
 /*!
  * @brief Clock icon
  */
-MWDECL unsigned int MwIconClock[];
+MWDECL MwU32 MwIconClock[];
 
 /*!
  * @brief Computer icon
  */
-MWDECL unsigned int MwIconComputer[];
+MWDECL MwU32 MwIconComputer[];
 
 /*!
  * @brief Directory icon
  */
-MWDECL unsigned int MwIconDirectory[];
+MWDECL MwU32 MwIconDirectory[];
 
 /*!
  * @brief Down icon
  */
-MWDECL unsigned int MwIconDown[];
+MWDECL MwU32 MwIconDown[];
 
 /*!
  * @brief Error icon
  */
-MWDECL unsigned int MwIconError[];
+MWDECL MwU32 MwIconError[];
 
 /*!
  * @brief File icon
  */
-MWDECL unsigned int MwIconFile[];
+MWDECL MwU32 MwIconFile[];
 
 /*!
  * @brief Forward icon
  */
-MWDECL unsigned int MwIconForward[];
+MWDECL MwU32 MwIconForward[];
 
 /*!
  * @brief Info icon
  */
-MWDECL unsigned int MwIconInfo[];
+MWDECL MwU32 MwIconInfo[];
 
 /*!
  * @brief Left icon
  */
-MWDECL unsigned int MwIconLeft[];
+MWDECL MwU32 MwIconLeft[];
 
 /*!
  * @brief News icon
  */
-MWDECL unsigned int MwIconNews[];
+MWDECL MwU32 MwIconNews[];
 
 /*!
  * @brief Note icon
  */
-MWDECL unsigned int MwIconNote[];
+MWDECL MwU32 MwIconNote[];
 
 /*!
  * @brief Right icon
  */
-MWDECL unsigned int MwIconRight[];
+MWDECL MwU32 MwIconRight[];
 
 /*!
  * @brief Search icon
  */
-MWDECL unsigned int MwIconSearch[];
+MWDECL MwU32 MwIconSearch[];
 
 /*!
  * @brief Up icon
  */
-MWDECL unsigned int MwIconUp[];
+MWDECL MwU32 MwIconUp[];
 
 /*!
  * @brief Warning icon
  */
-MWDECL unsigned int MwIconWarning[];
+MWDECL MwU32 MwIconWarning[];
+
 
 #ifdef __cplusplus
 }
