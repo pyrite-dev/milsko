@@ -1,3 +1,4 @@
+/* $Id$ */
 #declare BASE = 1;
 #include "resource/logo/logo.pov"
 

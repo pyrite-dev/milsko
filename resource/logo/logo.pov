@@ -75,12 +75,20 @@ light_source {
 	parallel point_at <0, 0, 0>
 }
 
+#ifndef(FAR)
+#declare FAR = 1;
+#end
+
+#ifndef(Y)
+#declare Y = 0;
+#end
+
 #ifndef(BASE)
 camera {
-	location <1.5, 2.5, -10>
-	look_at <0, 0.75, 0>
+	location <1.5 * FAR, 2.5 + Y, -10 * FAR>
+	look_at <0, 0.75 + Y, 0>
 	angle 35
 	up <0, 1, 0>
-	right <1, 0, 0>
+	right image_width / image_height * x
 }
 #end
