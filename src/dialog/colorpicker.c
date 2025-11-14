@@ -354,13 +354,16 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	color_picker_t* wheel;
 	MwWidget	window;
 	MwSizeHints	sh;
+	int		ww = MwGetInteger(handle, MwNwidth);
+	int		wh = MwGetInteger(handle, MwNheight);
 
-	p.x = p.y = 0;
+	p.x = (ww - WIN_SIZE) / 2;
+	p.y = (wh - WIN_SIZE) / 2;
 
 	sh.min_width = sh.max_width = WIN_SIZE;
 	sh.min_height = sh.max_height = WIN_SIZE;
 
-	window = MwVaCreateWidget(MwWindowClass, "main", handle, MwDEFAULT, MwDEFAULT,
+	window = MwVaCreateWidget(MwWindowClass, "main", handle, 0, 0,
 				  WIN_SIZE, WIN_SIZE,
 				  MwNtitle, title,
 				  MwNsizeHints, &sh,
@@ -372,8 +375,10 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	MwAddUserHandler(window, MwNtickHandler, color_picker_tick, wheel);
 	MwAddTickList(window);
 
+	MwLLShow(window->lowlevel, 0);
 	MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
+	MwLLShow(window->lowlevel, 1);
 
 	return window;
 }

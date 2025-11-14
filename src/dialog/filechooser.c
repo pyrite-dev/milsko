@@ -468,14 +468,14 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 
 	memset(fc, 0, sizeof(*fc));
 
-	p.x = 0;
-	p.y = 0;
-
 	w      = 700;
 	h      = w * 2 / 3;
-	window = MwVaCreateWidget(MwWindowClass, "filechooser", handle, ww, wh, w, h,
+	window = MwVaCreateWidget(MwWindowClass, "filechooser", handle, 0, 0, w, h,
 				  MwNtitle, title,
 				  NULL);
+
+	p.x = (ww - w) / 2;
+	p.y = (wh - h) / 2;
 
 	fc->history_seek = 0;
 
@@ -501,8 +501,10 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	scan(window, path, 1);
 	free(path);
 
+	MwLLShow(handle->lowlevel, 0);
 	MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
+	MwLLShow(handle->lowlevel, 1);
 
 	return window;
 }

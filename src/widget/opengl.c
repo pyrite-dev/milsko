@@ -90,7 +90,8 @@ static int create(MwWidget handle) {
 		attribs[3] = 24;
 		attribs[4] = None;
 
-		while(glpath[glincr] != NULL && (o->lib = MwDynamicOpen(glpath[glincr++])) == NULL);
+		while(glpath[glincr] != NULL && (o->lib = MwDynamicOpen(glpath[glincr++])) == NULL)
+			;
 
 		o->glXChooseVisual   = (MWglXChooseVisual)MwDynamicSymbol(o->lib, "glXChooseVisual");
 		o->glXCreateContext  = (MWglXCreateContext)MwDynamicSymbol(o->lib, "glXCreateContext");

@@ -43,8 +43,8 @@ static void destroy_pixmap(MwLL handle) {
 static void sync_move(MwLL handle, int x, int y) {
 	XEvent*		  queue = NULL;
 	XEvent		  ev;
-	unsigned long n = MwTimeGetTick() + 100;
-	int t = 0;
+	unsigned long	  n = MwTimeGetTick() + 100;
+	int		  t = 0;
 	XWindowAttributes xwa;
 
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
@@ -57,7 +57,7 @@ static void sync_move(MwLL handle, int x, int y) {
 		XNextEvent(handle->x11.display, &ev);
 		if(t == 0 && ev.type == ReparentNotify && ev.xreparent.window == handle->x11.window && ev.xreparent.window != RootWindow(handle->x11.display, DefaultScreen(handle->x11.display))) {
 			t = 1;
-		}else if(t == 1 && ev.type == ConfigureNotify && ev.xconfigure.window == handle->x11.window){
+		} else if(t == 1 && ev.type == ConfigureNotify && ev.xconfigure.window == handle->x11.window) {
 			break;
 		} else {
 			arrput(queue, ev);
@@ -255,9 +255,9 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		if(x == MwDEFAULT) x = px;
 		if(y == MwDEFAULT) y = py;
 
-		if(parent == NULL){
+		if(parent == NULL) {
 			sync_move(r, x, y);
-		}else{
+		} else {
 			MwLLSetXY(r, x, y);
 		}
 	}
@@ -350,8 +350,8 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 }
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
-	XSizeHints sh;
-	long	   r;
+	XSizeHints     sh;
+	long	       r;
 	XWindowChanges xwc;
 
 	sh.flags = 0;
@@ -374,8 +374,8 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
-	XSizeHints sh;
-	long	   r;
+	XSizeHints     sh;
+	long	       r;
 	XWindowChanges xwc;
 
 	sh.flags = 0;
@@ -389,7 +389,7 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	sh.height = h;
 
 #if 1
-	xwc.width = w;
+	xwc.width  = w;
 	xwc.height = h;
 	XConfigureWindow(handle->x11.display, handle->x11.window, CWWidth | CWHeight, &xwc);
 #else
@@ -874,8 +874,8 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
 
 	XReparentWindow(handle->x11.display, handle->x11.window, RootWindow(handle->x11.display, DefaultScreen(handle->x11.display)), x + point->x, y + point->y);
-	
-	if(xwa.map_state == IsViewable){
+
+	if(xwa.map_state == IsViewable) {
 		sync_move(handle, x + point->x, y + point->y);
 	}
 }
@@ -902,8 +902,8 @@ static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
-	XSizeHints* hints = XAllocSizeHints();
-	long	    ret;
+	XSizeHints*	  hints = XAllocSizeHints();
+	long		  ret;
 	XWindowAttributes xwa;
 
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
@@ -918,7 +918,7 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 	XSetWMSizeHints(handle->x11.display, handle->x11.window, hints, XA_WM_NORMAL_HINTS);
 	XFree(hints);
 
-	if(xwa.map_state == IsViewable){
+	if(xwa.map_state == IsViewable) {
 		wait_unmap(handle);
 		wait_map(handle, 1, 0);
 	}

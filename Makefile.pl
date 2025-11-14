@@ -67,8 +67,8 @@ my @features_keys = (
 );
 
 foreach my $l (@ARGV) {
-    if($l =~ /^--with-([^=]+)=(.+)$/){
-	    param_set($1, $2);
+    if ($l =~ /^--with-([^=]+)=(.+)$/) {
+        param_set($1, $2);
     }
     elsif ($l =~ /^--(?:with|enable)-(.+)$/) {
         param_set($1, 1);
