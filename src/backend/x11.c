@@ -73,22 +73,17 @@ static void sync_move(MwLL handle, int x, int y) {
 	MwLLSetXY(handle, x, y);
 }
 
-static void wait_map(MwLL handle, int move_back, int nomap) {
+static void wait_map(MwLL handle) {
 	XEvent*		  queue = NULL;
 	XEvent		  ev;
-	int		  x, y;
-	unsigned int	  w, h;
 	XWindowAttributes xwa;
-
-	MwLLGetXYWH(handle, &x, &y, &w, &h);
 
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
 	if(xwa.map_state != IsViewable) {
-		if(move_back) MwLLSetXY(handle, x, y);
 
 		XSync(handle->x11.display, False);
 
-		if(!nomap) XMapWindow(handle->x11.display, handle->x11.window);
+		XMapWindow(handle->x11.display, handle->x11.window);
 
 		XSync(handle->x11.display, False);
 
@@ -107,31 +102,6 @@ static void wait_map(MwLL handle, int move_back, int nomap) {
 		}
 		arrfree(queue);
 	}
-
-	if(move_back) MwLLSetXY(handle, x, y);
-}
-
-static void wait_unmap(MwLL handle) {
-	XEvent* queue = NULL;
-	XEvent	ev;
-
-	XUnmapWindow(handle->x11.display, handle->x11.window);
-	XSync(handle->x11.display, False);
-
-	while(1) {
-		XNextEvent(handle->x11.display, &ev);
-		if(ev.type == UnmapNotify && ev.xunmap.window == handle->x11.window) {
-			break;
-		} else {
-			arrput(queue, ev);
-		}
-	}
-
-	while(arrlen(queue) > 0) {
-		XPutBackEvent(handle->x11.display, &queue[0]);
-		arrdel(queue, 0);
-	}
-	arrfree(queue);
 }
 
 static unsigned long generate_color(MwLL handle, unsigned long r, unsigned long g, unsigned long b) {
@@ -245,7 +215,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	XSelectInput(r->x11.display, r->x11.window, mask);
 
-	wait_map(r, 0, 0);
+	wait_map(r);
 
 	if(x != MwDEFAULT || y != MwDEFAULT) {
 		unsigned int dummy;
@@ -882,11 +852,11 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 
 static void MwLLShowImpl(MwLL handle, int show) {
 	if(show) {
-		wait_map(handle, 0, 0);
+		wait_map(handle);
 
 		XSetInputFocus(handle->x11.display, handle->x11.window, RevertToNone, CurrentTime);
 	} else {
-		wait_unmap(handle);
+		XUnmapWindow(handle->x11.display, handle->x11.window);
 	}
 }
 
@@ -902,11 +872,8 @@ static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
-	XSizeHints*	  hints = XAllocSizeHints();
-	long		  ret;
-	XWindowAttributes xwa;
-
-	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
+	XSizeHints* hints = XAllocSizeHints();
+	long	    ret;
 
 	XGetWMSizeHints(handle->x11.display, handle->x11.window, hints, &ret, XA_WM_NORMAL_HINTS);
 
@@ -917,11 +884,6 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 	hints->max_height = maxy;
 	XSetWMSizeHints(handle->x11.display, handle->x11.window, hints, XA_WM_NORMAL_HINTS);
 	XFree(hints);
-
-	if(xwa.map_state == IsViewable) {
-		wait_unmap(handle);
-		wait_map(handle, 1, 0);
-	}
 }
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {

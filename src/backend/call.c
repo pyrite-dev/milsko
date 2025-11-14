@@ -40,7 +40,7 @@
 		MwLLSetSizeHints   = MwLLSetSizeHintsImpl; \
 		MwLLMakeBorderless = MwLLMakeBorderlessImpl; \
 		MwLLMakeToolWindow = MwLLMakeToolWindowImpl; \
-		MwLLMakePopup = MwLLMakePopupImpl; \
+		MwLLMakePopup	   = MwLLMakePopupImpl; \
 \
 		MwLLSetBackground = MwLLSetBackgroundImpl; \
 \

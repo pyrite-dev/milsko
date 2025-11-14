@@ -59,8 +59,8 @@ typedef unsigned long MwU64;
 #ifdef OTHER_TYPES_DEFINED
 #undef OTHER_TYPES_DEFINED
 #else
-typedef int		   MwI32;
-typedef unsigned int	   MwU32;
+typedef int	     MwI32;
+typedef unsigned int MwU32;
 
 typedef short	       MwI16;
 typedef unsigned short MwU16;
