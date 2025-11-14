@@ -32,7 +32,7 @@ static void draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth) - t->right;
 	r.height = MwGetInteger(handle, MwNheight);
 
-	MwDrawWidgetBack(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0, MwTRUE);
+	MwDrawWidgetBack(handle, &r, base, 1, 1);
 	if(str != NULL) {
 		int	w = MwTextWidth(handle, "M");
 		int	h = MwTextHeight(handle, "M");

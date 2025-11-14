@@ -30,7 +30,6 @@ typedef struct color_picker {
 	MwWidget      parent;
 	MwWidget      color_picker_img;
 	MwWidget      value_slider;
-	MwWidget      color_display;
 	MwWidget      color_display_text;
 	MwWidget      finish;
 	MwLLPixmap    color_picker_pixmap;
@@ -182,7 +181,6 @@ static void color_picker_click(MwWidget handle, void* user, void* call) {
 	fb = picker->chosen_color.blue > 128 ? 0 : 255;
 
 	sprintf(fgColor, "#%02X%02X%02X", fr, fg, fb);
-	MwSetText(picker->color_display, MwNbackground, hexColor);
 	MwSetText(picker->color_display_text, MwNforeground, fgColor);
 
 	MwSetText(picker->color_display_text, MwNbackground, hexColor);
@@ -251,7 +249,6 @@ static void color_display_text_change(MwWidget handle, void* user,
 	fb = color->common.blue > 128 ? 0 : 255;
 
 	sprintf(fgColor, "#%02X%02X%02X", fr, fg, fb);
-	MwSetText(picker->color_display, MwNbackground, hexColor);
 	MwSetText(picker->color_display_text, MwNforeground, fgColor);
 
 	MwSetText(picker->color_display_text, MwNbackground, hexColor);
@@ -297,19 +294,11 @@ color_picker_t* color_picker_setup(MwWidget parent, int w, int h) {
 	MwAddUserHandler(picker->color_picker_img, MwNmouseDownHandler,
 			 color_picker_click, picker);
 
-	picker->color_display = MwCreateWidget(
-	    MwFrameClass, "colorDisplayFrame", picker->parent, IMG_POS_X(w) + (PICKER_SIZE / 2) - ((PICKER_SIZE / 4) / 2),
-	    IMG_POS_Y(h) - (PICKER_SIZE / 16) - MARGIN, (PICKER_SIZE / 4), PICKER_SIZE / 16);
-	MwSetText(picker->color_display, MwNbackground, "#FFFFFF");
-	MwSetInteger(picker->color_display, MwnhasBorder, 1);
-	MwSetInteger(picker->color_display, MwNinverted, 1);
-
 	picker->color_display_text = MwCreateWidget(
-	    MwEntryClass, "colorDisplayFrameText", picker->color_display,
-	    MwDefaultBorderWidth(parent), MwDefaultBorderWidth(parent),
-	    (PICKER_SIZE / 4) - MwDefaultBorderWidth(parent),
-	    (PICKER_SIZE / 16) - (MwDefaultBorderWidth(parent) * 2));
+	    MwEntryClass, "colorDisplayText", picker->parent, IMG_POS_X(w) + (PICKER_SIZE / 2) - ((PICKER_SIZE / 4) / 2),
+	    IMG_POS_Y(h) - (PICKER_SIZE / 16) - MARGIN, (PICKER_SIZE / 4), PICKER_SIZE / 16);
 
+	MwSetText(picker->color_display_text, MwNbackground, "#FFFFFF");
 	MwSetText(picker->color_display_text, MwNtext, "#FFFFFF");
 	// MwSetInteger(picker->color_display_text, Mwnali, MwALIGNMENT_CENTER);
 
@@ -338,7 +327,7 @@ color_picker_t* color_picker_setup(MwWidget parent, int w, int h) {
 	    MwButtonClass, "colorPickerFinish", picker->parent, IMG_POS_X(w),
 	    IMG_POS_Y(h) + PICKER_SIZE + MARGIN, PICKER_SIZE, (WIN_SIZE - PICKER_SIZE - MARGIN * 4) / 2);
 	MwSetText(picker->finish, MwNtext, "Select");
-	MwSetInteger(picker->finish, MwnhasBorder, 1);
+	MwSetInteger(picker->finish, MwNhasBorder, 1);
 	MwSetInteger(picker->finish, MwNinverted, 1);
 
 	MwAddUserHandler(picker->finish, MwNactivateHandler,
