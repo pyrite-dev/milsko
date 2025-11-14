@@ -17,7 +17,6 @@ our $cflags  = "-fPIC -D_MILSKO";
 our $libdir  = "";
 our $ldflags = "";
 our $math    = "-lm";
-our $thread  = "-lpthread";
 our $shared  = "-shared";
 our $backend = "";
 
@@ -143,7 +142,7 @@ print(OUT "INCDIR = ${incdir}\n");
 print(OUT "CFLAGS = ${cflags}\n");
 print(OUT "LIBDIR = ${libdir}\n");
 print(OUT "LDFLAGS = ${ldflags}\n");
-print(OUT "LIBS = ${math} ${thread} ${libs}\n");
+print(OUT "LIBS = ${math} ${libs}\n");
 print(OUT "MATH = ${math}\n");
 print(OUT "SHARED = ${shared}\n");
 print(OUT "\n");
