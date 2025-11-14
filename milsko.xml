@@ -444,7 +444,11 @@
 				<property name="hideInput" />
 			</properties>
 		</widget>
-		<widget name="Frame" />
+		<widget name="Frame">
+			<properties>
+				<property name="hasBorder" />
+			</properties>
+		</widget>
 		<widget name="Image">
 			<properties>
 				<property name="pixmap" />

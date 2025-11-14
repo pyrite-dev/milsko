@@ -22,7 +22,7 @@
 #define MwNmain "Imain"
 #define MwNleftPadding "IleftPadding"
 #define MwNhasHeading "IhasHeading"
-#define MwnhasBorder "IhasBorder"
+#define MwNhasBorder "IhasBorder"
 #define MwNinverted "Iinverted"
 #define MwNmodernLook "ImodernLook"
 #define MwNwaitMS "IwaitMS"

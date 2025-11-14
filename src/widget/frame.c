@@ -4,6 +4,8 @@
 static int create(MwWidget handle) {
 	MwSetDefault(handle);
 
+	MwSetInteger(handle, MwNhasBorder, 0);
+
 	return 0;
 }
 
@@ -11,11 +13,9 @@ static void draw(MwWidget handle) {
 	MwRect	  fr;
 	MwRect	  rr;
 	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-
-	int hasBorder = MwGetInteger(handle, MwnhasBorder);
 	int inverted;
 
-	if(hasBorder) {
+	if(MwGetInteger(handle, MwNhasBorder)) {
 		inverted  = MwGetInteger(handle, MwNinverted);
 		fr.x	  = 0;
 		fr.y	  = 0;
