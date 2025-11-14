@@ -11,7 +11,8 @@ foreach my $l (@ARGV) {
     }
 }
 
-our $cc      = defined($ENV{CC}) ? $ENV{CC} : "gcc";
+our $cc      = defined($ENV{CC}) ? $ENV{CC} : "*host*gcc";
+our $ar      = defined($ENV{AR}) ? $ENV{AR} : "*host*ar";
 our $incdir  = "-I include";
 our $cflags  = "-fPIC -D_MILSKO";
 our $libdir  = "";
@@ -30,6 +31,7 @@ our @examples_targets = ();
 our %examples_libs    = ();
 
 our $cross = 0;
+our $host  = "";
 
 require("./pl/utils.pl");
 
@@ -41,6 +43,8 @@ param_set("xrender",              1);
 param_set("opengl",               0);
 param_set("vulkan",               0);
 param_set("vulkan-string-helper", 1);
+param_set("shared",               1);
+param_set("static",               1);
 
 my %features = (
     "classic-theme"        => "use classic theme",
@@ -50,13 +54,16 @@ my %features = (
     "xrender"              => "use XRender",
     "opengl"               => "build OpenGL widget",
     "vulkan"               => "build Vulkan widget",
-    "vulkan-string-helper" => "use Vulkan string helper"
+    "vulkan-string-helper" => "use Vulkan string helper",
+    "shared"               => "build shared library",
+    "static"               => "build static library"
 );
 my @features_keys = (
     "1classic-theme", "1stb-image",
     "1stb-truetype",  "1freetype2",
     "1opengl",        "2xrender",
-    "1vulkan",        "2vulkan-string-helper"
+    "1vulkan",        "2vulkan-string-helper",
+    "1shared",        "1static"
 );
 
 foreach my $l (@ARGV) {
@@ -69,6 +76,9 @@ foreach my $l (@ARGV) {
     elsif ($l =~ /^--target=(.+)$/) {
         $target = $1;
     }
+    elsif ($l =~ /^--host=(.+)$/) {
+        $host = $1 . "-";
+    }
     elsif ($l eq "--cross") {
         $cross = 1;
     }
@@ -79,6 +89,7 @@ foreach my $l (@ARGV) {
         print("\n");
         print("Options:\n");
         print("  -h --help                       Display this help\n");
+        print("  --host=TARGET                   Host for compiler/archiver\n");
         print("  --target=TARGET                 Specify target\n");
         print("  --cross                         Indicate cross compilation\n");
         print("\n");
@@ -96,7 +107,7 @@ foreach my $l (@ARGV) {
             ) . substr($l, 1);
             my $do   = param_get(substr($l, 1)) ? "Do not " : "";
             my $feat = $features{ substr($l, 1) };
-            if (not(param_get($l))) {
+            if (not(param_get(substr($l, 1)))) {
                 $feat = uc(substr($feat, 0, 1)) . substr($feat, 1);
             }
             print("  $flag" . (" " x (32 - length($flag))) . "${do}${feat}\n");
@@ -136,7 +147,11 @@ foreach my $e (param_list()) {
 }
 print("Enabled: " . join(" ", @l) . "\n");
 
+$cc =~ s/\*host\*/$host/;
+$ar =~ s/\*host\*/$host/;
+
 open(OUT, ">", "Makefile");
+print(OUT "AR = ${ar}\n");
 print(OUT "CC = ${cc}\n");
 print(OUT "INCDIR = ${incdir}\n");
 print(OUT "CFLAGS = ${cflags}\n");
@@ -158,15 +173,30 @@ print(OUT
 "	perltidy -b -bext=\"/\" --paren-tightness=2 `find tools pl Makefile.pl -name \"*.pl\"`\n"
 );
 print(OUT "\n");
-print(OUT "lib: src/${library_prefix}Mw${library_suffix}\n");
+print(OUT "lib:");
+
+if (param_get("shared")) {
+    print(OUT " src/${library_prefix}Mw${library_suffix}");
+}
+if (param_get("static")) {
+    print(OUT " src/libMw.a");
+}
 print(OUT "\n");
-print(  OUT "src/${library_prefix}Mw${library_suffix}: "
-      . join(" ", @library_targets)
-      . "\n");
-print(OUT
+print(OUT "\n");
+if (param_get("shared")) {
+    print(  OUT "src/${library_prefix}Mw${library_suffix}: "
+          . join(" ", @library_targets)
+          . "\n");
+    print(OUT
 "	\$(CC) \$(SHARED) \$(LDFLAGS\) \$(LIBDIR) -o src/${library_prefix}Mw${library_suffix} "
-      . join(" ", @library_targets)
-      . " \$(LIBS)\n");
+          . join(" ", @library_targets)
+          . " \$(LIBS)\n");
+    print(OUT "\n");
+}
+if (param_get("static")) {
+    print(OUT "src/libMw.a: " . join(" ", @library_targets) . "\n");
+    print(OUT "	\$(AR) rcs src/libMw.a " . join(" ", @library_targets) . "\n");
+}
 
 foreach my $l (@library_targets) {
     my $warn = "-Wall -Wextra -Wno-sign-compare";
