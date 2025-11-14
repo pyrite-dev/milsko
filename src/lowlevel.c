@@ -32,10 +32,10 @@ void (*MwLLSetCursor)(MwLL handle, MwCursor* image, MwCursor* mask);
 void (*MwLLDetach)(MwLL handle, MwPoint* point);
 void (*MwLLShow)(MwLL handle, int show);
 
-void (*MwLLMakePopup)(MwLL handle, MwLL parent);
-
 void (*MwLLSetSizeHints)(MwLL handle, int minx, int miny, int maxx, int maxy);
 void (*MwLLMakeBorderless)(MwLL handle, int toggle);
+void (*MwLLMakeToolWindow)(MwLL handle);
+void (*MwLLMakePopup)(MwLL handle, MwLL parent);
 
 void (*MwLLSetBackground)(MwLL handle, MwLLColor color);
 
@@ -44,8 +44,6 @@ void (*MwLLGrabPointer)(MwLL handle, int toggle);
 
 void (*MwLLSetClipboard)(MwLL handle, const char* text);
 char* (*MwLLGetClipboard)(MwLL handle);
-
-void (*MwLLMakeToolWindow)(MwLL handle);
 
 void MwLLCreateCommon(MwLL handle) {
 	handle->common.handler = malloc(sizeof(*handle->common.handler));

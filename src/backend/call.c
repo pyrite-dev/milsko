@@ -37,10 +37,10 @@
 		MwLLDetach    = MwLLDetachImpl; \
 		MwLLShow      = MwLLShowImpl; \
 \
-		MwLLMakePopup = MwLLMakePopupImpl; \
-\
 		MwLLSetSizeHints   = MwLLSetSizeHintsImpl; \
 		MwLLMakeBorderless = MwLLMakeBorderlessImpl; \
+		MwLLMakeToolWindow = MwLLMakeToolWindowImpl; \
+		MwLLMakePopup = MwLLMakePopupImpl; \
 \
 		MwLLSetBackground = MwLLSetBackgroundImpl; \
 \
@@ -49,8 +49,6 @@
 \
 		MwLLSetClipboard = MwLLSetClipboardImpl; \
 		MwLLGetClipboard = MwLLGetClipboardImpl; \
-\
-		MwLLMakeToolWindow = MwLLMakeToolWindowImpl; \
 \
 		return 0; \
 	}

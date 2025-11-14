@@ -176,10 +176,10 @@ MWDECL void (*MwLLSetCursor)(MwLL handle, MwCursor* image, MwCursor* mask);
 MWDECL void (*MwLLDetach)(MwLL handle, MwPoint* point);
 MWDECL void (*MwLLShow)(MwLL handle, int show);
 
-MWDECL void (*MwLLMakePopup)(MwLL handle, MwLL parent);
-
 MWDECL void (*MwLLSetSizeHints)(MwLL handle, int minx, int miny, int maxx, int maxy);
 MWDECL void (*MwLLMakeBorderless)(MwLL handle, int toggle);
+MWDECL void (*MwLLMakeToolWindow)(MwLL handle);
+MWDECL void (*MwLLMakePopup)(MwLL handle, MwLL parent);
 
 MWDECL void (*MwLLSetBackground)(MwLL handle, MwLLColor color);
 
@@ -188,8 +188,6 @@ MWDECL void (*MwLLGrabPointer)(MwLL handle, int toggle);
 
 MWDECL void (*MwLLSetClipboard)(MwLL handle, const char* text);
 MWDECL char* (*MwLLGetClipboard)(MwLL handle);
-
-MWDECL void (*MwLLMakeToolWindow)(MwLL handle);
 
 #ifdef __cplusplus
 }
