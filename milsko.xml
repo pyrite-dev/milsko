@@ -64,6 +64,7 @@
 		<integer name="waitMS" />
 		<integer name="hideInput" />
 		<integer name="singleClickSelectable" />
+		<integer name="flat" />
 
 		<string name="title" />
 		<string name="text" />
@@ -438,6 +439,7 @@
 			<properties>
 				<property name="pixmap" />
 				<property name="text" />
+				<property name="flat" />
 			</properties>
 		</widget>
 		<widget name="CheckBox">

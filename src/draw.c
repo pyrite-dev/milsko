@@ -15,7 +15,7 @@ static int get_color_diff(MwWidget handle) {
 	if(MwGetInteger(handle, MwNmodernLook)) {
 		return 46;
 	} else {
-		return 96;
+		return 80;
 	}
 }
 
@@ -128,20 +128,17 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	if(MwGetInteger(handle, MwNmodernLook)) {
-		MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle));
+		MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle), 0);
 	} else {
-		int	  diff = get_color_diff(handle) / 2;
-		MwLLColor col  = MwLightenColor(handle, color, diff, diff, diff);
+		int diff = get_color_diff(handle) / 3 * 2;
 
 		if(invert) {
-			MwDrawFrameEx(handle, rect, col, invert, MwDefaultBorderWidth(handle) / 2);
-			MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2);
+			MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2, -diff);
+			MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2, diff);
 		} else {
-			MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2);
-			MwDrawFrameEx(handle, rect, col, invert, MwDefaultBorderWidth(handle) / 2);
+			MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2, -diff);
+			MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2, diff);
 		}
-
-		MwLLFreeColor(col);
 	}
 }
 
@@ -227,11 +224,11 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	MwLLFreeColor(darker);
 }
 
-void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
+void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff) {
 	MwPoint	  p[6];
 	int	  ColorDiff = get_color_diff(handle);
-	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2, -ColorDiff * 3 / 2, -ColorDiff * 3 / 2);
-	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
+	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
+	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff - diff, ColorDiff - diff, ColorDiff - diff);
 
 	p[0].x = rect->x;
 	p[0].y = rect->y;

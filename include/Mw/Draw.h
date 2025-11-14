@@ -85,9 +85,10 @@ MWDECL void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int i
  * @param color Color
  * @param invert Invert the 3D border color or not
  * @param border Border width
+ * @param diff Difference
  * @warning `rect` gets changed to the area of rectangle inside
  */
-MWDECL void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border);
+MWDECL void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff);
 
 /*!
  * @brief Creates a pixmap from image

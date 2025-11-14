@@ -28,6 +28,7 @@
 #define MwNwaitMS "IwaitMS"
 #define MwNhideInput "IhideInput"
 #define MwNsingleClickSelectable "IsingleClickSelectable"
+#define MwNflat "Iflat"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
