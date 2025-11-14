@@ -571,6 +571,7 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	RECT   rc, rc2;
 	LPARAM lp = GetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE);
+	LPARAM lp2 = GetWindowLongPtr(handle->gdi.hWnd, GWL_EXSTYLE);
 
 	lp &= WS_VISIBLE;
 
@@ -578,13 +579,17 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 
 	GetClientRect(handle->gdi.hWnd, &rc2);
 
-	SetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE, (LPARAM)WS_OVERLAPPEDWINDOW | lp);
+	if(lp2 & WS_EX_TOOLWINDOW){
+		SetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE, (LPARAM)lp);
+	}else{
+		SetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE, (LPARAM)WS_OVERLAPPEDWINDOW | lp);
+	}
 	SetParent(handle->gdi.hWnd, NULL);
 
 	rc.left += point->x;
 	rc.top += point->y;
 
-	AdjustWindowRect(&rc2, WS_OVERLAPPEDWINDOW | lp, FALSE);
+	AdjustWindowRect(&rc2, GetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE), FALSE);
 	rc2.right -= rc2.left;
 	rc2.bottom -= rc2.top;
 
@@ -695,15 +700,19 @@ static char* MwLLGetClipboardImpl(MwLL handle) {
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {
-	LPARAM lp = GetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE) & WS_VISIBLE;
+	LPARAM lp = GetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE) & (WS_VISIBLE | WS_CHILD);
 	RECT   rc;
+	int w, h;
 
 	SetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE, (LPARAM)lp);
 	SetWindowLongPtr(handle->gdi.hWnd, GWL_EXSTYLE, (LPARAM)WS_EX_TOOLWINDOW);
 
 	GetClientRect(handle->gdi.hWnd, &rc);
 
-	SetWindowPos(handle->gdi.hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
+	w = rc.right - rc.left;
+	h = rc.bottom - rc.top;
+
+	SetWindowPos(handle->gdi.hWnd, NULL, 0, 0, w, h, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
 }
 
 static void MwLLBeginStateChangeImpl(MwLL handle){
@@ -711,7 +720,7 @@ static void MwLLBeginStateChangeImpl(MwLL handle){
 }
 
 static void MwLLEndStateChangeImpl(MwLL handle){
-	(void)handle;
+	(void)handle;;
 }
 
 static int MwLLGDICallInitImpl(void) {
