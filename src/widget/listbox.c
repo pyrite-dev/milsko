@@ -240,6 +240,7 @@ static void frame_draw(MwWidget handle) {
 			p.x += MwDefaultBorderWidth(handle);
 			MwDrawText(handle, &p, t, 0, MwALIGNMENT_BEGINNING, selected ? base : text);
 			p.x += get_col_width(lb, j) - MwDefaultBorderWidth(handle);
+			if(j == 0) p.x -= 4;
 
 			if(j == 0) p.x -= MwGetInteger(handle->parent, MwNleftPadding);
 		}
@@ -344,7 +345,7 @@ static void draw(MwWidget handle) {
 	if(MwGetInteger(handle, MwNhasHeading) && arrlen(lb->list) > 0) {
 		MwPoint p;
 		int	i;
-		int	x = 4;
+		int	x = 0;
 
 		r.width -= 16;
 
@@ -357,7 +358,7 @@ static void draw(MwWidget handle) {
 
 			x += MwDefaultBorderWidth(handle);
 
-			p.x = x;
+			p.x = 4 + x;
 			p.y = r.y + r.height / 2;
 			MwDrawText(handle, &p, lb->list[0].name[i], 0, MwALIGNMENT_BEGINNING, text);
 
