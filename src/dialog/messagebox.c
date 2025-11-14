@@ -31,16 +31,21 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	int	 w, h;
 	int	 left = 8;
 	int	 th;
-	int	 x  = 0;
-	int	 ww = MwGetInteger(handle, MwNwidth);
-	int	 wh = MwGetInteger(handle, MwNheight);
+	int	 x = 0;
+	int	 wx;
+	int	 wy;
+	int	 ww = handle == NULL ? 0 : MwGetInteger(handle, MwNwidth);
+	int	 wh = handle == NULL ? 0 : MwGetInteger(handle, MwNheight);
 
 	w = 512;
 	h = 32 * 4;
 
+	wx = wy = 0;
+	if(handle == NULL) wx = wy = MwDEFAULT;
+
 	p.x    = (ww - w) / 2;
 	p.y    = (wh - h) / 2;
-	window = MwVaCreateWidget(MwWindowClass, "messagebox", handle, 0, 0, w, h,
+	window = MwVaCreateWidget(MwWindowClass, "messagebox", handle, wx, wy, w, h,
 				  MwNtitle, title,
 				  NULL);
 
@@ -100,7 +105,7 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 			       NULL);
 
 	MwLLBeginStateChange(window->lowlevel);
-	MwLLDetach(window->lowlevel, &p);
+	if(handle != NULL) MwLLDetach(window->lowlevel, &p);
 	MwLLSetSizeHints(window->lowlevel, w, h, w, h);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
 	MwLLEndStateChange(window->lowlevel);

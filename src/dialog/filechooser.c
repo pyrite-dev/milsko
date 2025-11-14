@@ -465,17 +465,23 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	filechooser_t* fc = malloc(sizeof(*fc));
 	char*	       path;
 	MwLLPixmap     icon;
+	int	       wx;
+	int	       wy;
 
 	memset(fc, 0, sizeof(*fc));
 
-	w      = 700;
-	h      = w * 2 / 3;
-	window = MwVaCreateWidget(MwWindowClass, "filechooser", handle, 0, 0, w, h,
-				  MwNtitle, title,
-				  NULL);
+	w = 700;
+	h = w * 2 / 3;
 
 	p.x = (ww - w) / 2;
 	p.y = (wh - h) / 2;
+
+	wx = wy = 0;
+	if(handle == NULL) wx = wy = MwDEFAULT;
+
+	window = MwVaCreateWidget(MwWindowClass, "filechooser", handle, wx, wy, w, h,
+				  MwNtitle, title,
+				  NULL);
 
 	fc->history_seek = 0;
 
@@ -502,7 +508,7 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	free(path);
 
 	MwLLBeginStateChange(window->lowlevel);
-	MwLLDetach(window->lowlevel, &p);
+	if(handle != NULL) MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
 	MwLLEndStateChange(window->lowlevel);
 

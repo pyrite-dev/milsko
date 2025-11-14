@@ -345,14 +345,19 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	MwSizeHints	sh;
 	int		ww = MwGetInteger(handle, MwNwidth);
 	int		wh = MwGetInteger(handle, MwNheight);
+	int		wx;
+	int		wy;
 
 	p.x = (ww - WIN_SIZE) / 2;
 	p.y = (wh - WIN_SIZE) / 2;
 
+	wx = wy = 0;
+	if(handle == NULL) wx = wy = MwDEFAULT;
+
 	sh.min_width = sh.max_width = WIN_SIZE;
 	sh.min_height = sh.max_height = WIN_SIZE;
 
-	window = MwVaCreateWidget(MwWindowClass, "main", handle, 0, 0,
+	window = MwVaCreateWidget(MwWindowClass, "main", handle, wx, wy,
 				  WIN_SIZE, WIN_SIZE,
 				  MwNtitle, title,
 				  MwNsizeHints, &sh,
@@ -365,7 +370,7 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	MwAddTickList(window);
 
 	MwLLBeginStateChange(window->lowlevel);
-	MwLLDetach(window->lowlevel, &p);
+	if(handle != NULL) MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
 	MwLLEndStateChange(window->lowlevel);
 
