@@ -931,10 +931,6 @@ static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
 	hints.flags	  = MWM_HINTS_DECORATIONS;
 	hints.decorations = toggle ? 0 : 1;
 	XChangeProperty(handle->x11.display, handle->x11.window, atom, atom, 32, PropModeReplace, (unsigned char*)&hints, 5);
-
-	XUnmapWindow(handle->x11.display, handle->x11.window);
-
-	wait_map(handle, 1, 0);
 }
 
 static void MwLLFocusImpl(MwLL handle) {
