@@ -219,6 +219,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	if(x != MwDEFAULT || y != MwDEFAULT) {
 		unsigned int dummy;
 
+		XUnmapWindow(r->x11.display, r->x11.window);
+
 		MwLLGetXYWH(r, &px, &py, &dummy, &dummy);
 
 		if(x == MwDEFAULT) x = px;
@@ -229,6 +231,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		} else {
 			MwLLSetXY(r, x, y);
 		}
+
+		wait_map(r);
 	}
 
 	return r;
