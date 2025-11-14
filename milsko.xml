@@ -334,6 +334,13 @@
 						<widget name="handle" />
 					</arguments>
 				</function>
+				<function name="MwLibraryInit" />
+				<function name="MwShow">
+					<arguments>
+						<widget name="handle" />
+						<integer name="toggle" />
+					</arguments>
+				</function>
 			</functions>
 		</header>
 		<header name="Error">

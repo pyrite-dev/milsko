@@ -43,7 +43,7 @@
 		MwLLMakePopup	   = MwLLMakePopupImpl; \
 \
 		MwLLBeginStateChange = MwLLBeginStateChangeImpl; \
-		MwLLEndStateChange = MwLLEndStateChangeImpl; \
+		MwLLEndStateChange   = MwLLEndStateChangeImpl; \
 \
 		MwLLSetBackground = MwLLSetBackgroundImpl; \
 \

@@ -293,6 +293,13 @@ MWDECL void MwToggleDarkTheme(MwWidget handle, int toggle);
  */
 MWDECL MwWidget MwGetParent(MwWidget handle);
 
+/*!
+ * @brief Show widget
+ * @param handle Widget
+ * @param toggle Toggle
+ */
+MWDECL void MwShow(MwWidget handle, int toggle);
+
 #ifdef __cplusplus
 }
 #endif

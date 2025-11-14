@@ -629,3 +629,7 @@ int MwLibraryInit(void) {
 
 	return 1;
 }
+
+void MwShow(MwWidget handle, int toggle) {
+	MwLLShow(handle->lowlevel, toggle);
+}

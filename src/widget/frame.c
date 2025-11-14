@@ -14,7 +14,7 @@ static void draw(MwWidget handle) {
 	MwRect	  fr;
 	MwRect	  rr;
 	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	int inverted;
+	int	  inverted;
 
 	if(MwGetInteger(handle, MwNhasBorder)) {
 		inverted  = MwGetInteger(handle, MwNinverted);

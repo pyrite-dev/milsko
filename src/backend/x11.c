@@ -971,11 +971,11 @@ static void MwLLMakeToolWindowImpl(MwLL handle) {
 	XChangeProperty(handle->x11.display, handle->x11.window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
 }
 
-static void MwLLBeginStateChangeImpl(MwLL handle){
+static void MwLLBeginStateChangeImpl(MwLL handle) {
 	MwLLShow(handle, 0);
 }
 
-static void MwLLEndStateChangeImpl(MwLL handle){
+static void MwLLEndStateChangeImpl(MwLL handle) {
 	MwLLShow(handle, 1);
 }
 
