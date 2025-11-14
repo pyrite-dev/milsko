@@ -26,16 +26,16 @@ static void messagebox_close(MwWidget handle, void* user, void* call) {
 }
 
 MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsigned int flag) {
-	MwWidget window;
-	MwPoint	 p;
-	int	 w, h;
-	int	 left = 8;
-	int	 th;
-	int	 x = 0;
-	int	 wx;
-	int	 wy;
-	int	 ww = handle == NULL ? 0 : MwGetInteger(handle, MwNwidth);
-	int	 wh = handle == NULL ? 0 : MwGetInteger(handle, MwNheight);
+	MwWidget    window;
+	MwPoint	    p;
+	int	    w, h;
+	int	    left = 8;
+	int	    th;
+	int	    x = 0;
+	int	    wx;
+	int	    wy;
+	int	    ww = handle == NULL ? 0 : MwGetInteger(handle, MwNwidth);
+	int	    wh = handle == NULL ? 0 : MwGetInteger(handle, MwNheight);
 	MwSizeHints sh;
 
 	w = 512;

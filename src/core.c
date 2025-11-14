@@ -280,7 +280,7 @@ int MwStep(MwWidget handle) {
 	handle->prop_event = 1;
 
 	clean_destroy_queue(handle);
-	if(handle->parent == NULL && handle->destroyed){
+	if(handle->parent == NULL && handle->destroyed) {
 		MwFreeWidget(handle);
 		return 1;
 	}

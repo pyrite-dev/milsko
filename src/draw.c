@@ -13,9 +13,9 @@
 
 static int get_color_diff(MwWidget handle) {
 	if(MwGetInteger(handle, MwNmodernLook)) {
-		return 48;
+		return 46;
 	} else {
-		return 128;
+		return 96;
 	}
 }
 
@@ -127,7 +127,22 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
-	MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle));
+	if(MwGetInteger(handle, MwNmodernLook)) {
+		MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle));
+	} else {
+		int	  diff = get_color_diff(handle) / 2;
+		MwLLColor col  = MwLightenColor(handle, color, diff, diff, diff);
+
+		if(invert) {
+			MwDrawFrameEx(handle, rect, col, invert, MwDefaultBorderWidth(handle) / 2);
+			MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2);
+		} else {
+			MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2);
+			MwDrawFrameEx(handle, rect, col, invert, MwDefaultBorderWidth(handle) / 2);
+		}
+
+		MwLLFreeColor(col);
+	}
 }
 
 void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
@@ -215,7 +230,7 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
 	MwPoint	  p[6];
 	int	  ColorDiff = get_color_diff(handle);
-	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
+	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2, -ColorDiff * 3 / 2, -ColorDiff * 3 / 2);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 
 	p[0].x = rect->x;

@@ -46,18 +46,18 @@ static void prop_change(MwWidget handle, const char* key) {
 }
 
 MwClassRec MwFrameClassRec = {
-    create, /* create */
-    NULL,   /* destroy */
-    draw,   /* draw */
-    NULL,   /* click */
-    NULL,   /* parent_resize */
-    prop_change,   /* prop_change */
-    NULL,   /* mouse_move */
-    NULL,   /* mouse_up */
-    NULL,   /* mouse_down */
-    NULL,   /* key */
-    NULL,   /* execute */
-    NULL,   /* tick */
+    create,	 /* create */
+    NULL,	 /* destroy */
+    draw,	 /* draw */
+    NULL,	 /* click */
+    NULL,	 /* parent_resize */
+    prop_change, /* prop_change */
+    NULL,	 /* mouse_move */
+    NULL,	 /* mouse_up */
+    NULL,	 /* mouse_down */
+    NULL,	 /* key */
+    NULL,	 /* execute */
+    NULL,	 /* tick */
     NULL,
     NULL,
     NULL};
