@@ -371,7 +371,7 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 
 	MwLLBeginStateChange(window->lowlevel);
 	if(handle != NULL) MwLLDetach(window->lowlevel, &p);
-	MwLLMakePopup(window->lowlevel, handle->lowlevel);
+	MwLLMakePopup(window->lowlevel, handle == NULL ? NULL : handle->lowlevel);
 	MwLLEndStateChange(window->lowlevel);
 
 	return window;

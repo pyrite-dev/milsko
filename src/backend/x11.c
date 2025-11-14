@@ -869,7 +869,7 @@ static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 	Atom wndstate = XInternAtom(handle->x11.display, "_NET_WM_STATE", False);
 	Atom wndmodal = XInternAtom(handle->x11.display, "_NET_WM_STATE_MODAL", False);
 
-	XSetTransientForHint(handle->x11.display, handle->x11.window, parent->x11.window);
+	if(parent != NULL) XSetTransientForHint(handle->x11.display, handle->x11.window, parent->x11.window);
 	XChangeProperty(handle->x11.display, handle->x11.window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wnddlg, 1);
 	XChangeProperty(handle->x11.display, handle->x11.window, wndstate, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmodal, 1);
 }

@@ -8,7 +8,7 @@ void ok(MwWidget handle, void* user, void* call) {
 }
 
 void spawn(MwWidget handle, void* user, void* call) {
-	MwWidget mb = MwMessageBox(user, "news has arrived!", "title", MwMB_ICONNEWS | MwMB_BUTTONOK);
+	MwWidget mb = MwMessageBox(handle, "news has arrived!", "title", MwMB_ICONNEWS | MwMB_BUTTONOK);
 
 	(void)handle;
 	(void)call;

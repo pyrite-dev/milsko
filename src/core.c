@@ -280,7 +280,10 @@ int MwStep(MwWidget handle) {
 	handle->prop_event = 1;
 
 	clean_destroy_queue(handle);
-	if(handle->parent == NULL && handle->destroyed) return 1;
+	if(handle->parent == NULL && handle->destroyed){
+		MwFreeWidget(handle);
+		return 1;
+	}
 	return 0;
 }
 
@@ -371,7 +374,10 @@ void MwSetVoid(MwWidget handle, const char* key, void* value) {
 		MwLLSetIcon(handle->lowlevel, value);
 	} else if(strcmp(key, MwNsizeHints) == 0) {
 		MwSizeHints* sz = value;
+
+		MwLLBeginStateChange(handle->lowlevel);
 		MwLLSetSizeHints(handle->lowlevel, sz->min_width, sz->min_height, sz->max_width, sz->max_height);
+		MwLLEndStateChange(handle->lowlevel);
 	} else {
 		shput(handle->data, key, value);
 	}

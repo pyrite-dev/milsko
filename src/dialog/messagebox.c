@@ -36,6 +36,7 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	int	 wy;
 	int	 ww = handle == NULL ? 0 : MwGetInteger(handle, MwNwidth);
 	int	 wh = handle == NULL ? 0 : MwGetInteger(handle, MwNheight);
+	MwSizeHints sh;
 
 	w = 512;
 	h = 32 * 4;
@@ -43,10 +44,14 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	wx = wy = 0;
 	if(handle == NULL) wx = wy = MwDEFAULT;
 
+	sh.min_width = sh.max_width = w;
+	sh.min_height = sh.max_height = h;
+
 	p.x    = (ww - w) / 2;
 	p.y    = (wh - h) / 2;
 	window = MwVaCreateWidget(MwWindowClass, "messagebox", handle, wx, wy, w, h,
 				  MwNtitle, title,
+				  MwNsizeHints, &sh,
 				  NULL);
 
 	window->opaque = NULL;
@@ -106,8 +111,7 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 
 	MwLLBeginStateChange(window->lowlevel);
 	if(handle != NULL) MwLLDetach(window->lowlevel, &p);
-	MwLLSetSizeHints(window->lowlevel, w, h, w, h);
-	MwLLMakePopup(window->lowlevel, handle->lowlevel);
+	MwLLMakePopup(window->lowlevel, handle == NULL ? NULL : handle->lowlevel);
 	MwLLEndStateChange(window->lowlevel);
 
 	MwAddUserHandler(window, MwNcloseHandler, messagebox_close, NULL);
