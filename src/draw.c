@@ -132,13 +132,8 @@ void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	} else {
 		int diff = get_color_diff(handle) / 3 * 2;
 
-		if(invert) {
-			MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2, -diff);
-			MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2, diff);
-		} else {
-			MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2, -diff);
-			MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2, diff);
-		}
+		MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2, -diff);
+		MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) / 2, diff);
 	}
 }
 
