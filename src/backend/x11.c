@@ -210,6 +210,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	XSelectInput(r->x11.display, r->x11.window, mask);
 
+	wait_map(r, 0, 0);
+
 	if(x != MwDEFAULT || y != MwDEFAULT) {
 		unsigned int dummy;
 		MwLLGetXYWH(r, &px, &py, &dummy, &dummy);
@@ -218,10 +220,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		if(y == MwDEFAULT) y = py;
 
 		MwLLSetXY(r, x, y);
-		XSync(r->x11.display, False);
 	}
-
-	wait_map(r, 0, 0);
 
 	return r;
 }
@@ -313,6 +312,7 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	XSizeHints sh;
 	long	   r;
+	XWindowChanges xwc;
 
 	sh.flags = 0;
 	XGetWMNormalHints(handle->x11.display, handle->x11.window, &sh, &r);
@@ -321,7 +321,13 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	sh.x = x;
 	sh.y = y;
 
+#if 1
+	xwc.x = x;
+	xwc.y = y;
+	XConfigureWindow(handle->x11.display, handle->x11.window, CWX | CWY, &xwc);
+#else
 	XMoveWindow(handle->x11.display, handle->x11.window, x, y);
+#endif
 	XSetWMNormalHints(handle->x11.display, handle->x11.window, &sh);
 
 	XSync(handle->x11.display, False);
@@ -330,6 +336,7 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	XSizeHints sh;
 	long	   r;
+	XWindowChanges xwc;
 
 	sh.flags = 0;
 	XGetWMNormalHints(handle->x11.display, handle->x11.window, &sh, &r);
@@ -341,7 +348,13 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	sh.width  = w;
 	sh.height = h;
 
+#if 1
+	xwc.width = w;
+	xwc.height = h;
+	XConfigureWindow(handle->x11.display, handle->x11.window, CWWidth | CWHeight, &xwc);
+#else
 	XResizeWindow(handle->x11.display, handle->x11.window, w, h);
+#endif
 	XSetWMNormalHints(handle->x11.display, handle->x11.window, &sh);
 
 	destroy_pixmap(handle);
