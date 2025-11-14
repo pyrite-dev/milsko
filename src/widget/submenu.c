@@ -165,8 +165,8 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
 
 	handle->internal = menu;
 
-	MwLLDetach(handle->lowlevel, point);
 	MwLLMakeToolWindow(handle->lowlevel);
+	MwLLDetach(handle->lowlevel, point);
 	MwLLShow(handle->lowlevel, 1);
 
 	for(i = 0; i < arrlen(menu->sub); i++) {

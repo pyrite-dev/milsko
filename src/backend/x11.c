@@ -40,6 +40,39 @@ static void destroy_pixmap(MwLL handle) {
 	XFreePixmap(handle->x11.display, handle->x11.pixmap);
 }
 
+static void sync_move(MwLL handle, int x, int y) {
+	XEvent*		  queue = NULL;
+	XEvent		  ev;
+	unsigned long n = MwTimeGetTick() + 100;
+	int t = 0;
+	XWindowAttributes xwa;
+
+	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
+
+	XSync(handle->x11.display, False);
+
+	while(!xwa.override_redirect && n > MwTimeGetTick()) {
+		XSync(handle->x11.display, False);
+		if(!XPending(handle->x11.display)) continue;
+		XNextEvent(handle->x11.display, &ev);
+		if(t == 0 && ev.type == ReparentNotify && ev.xreparent.window == handle->x11.window && ev.xreparent.window != RootWindow(handle->x11.display, DefaultScreen(handle->x11.display))) {
+			t = 1;
+		}else if(t == 1 && ev.type == ConfigureNotify && ev.xconfigure.window == handle->x11.window){
+			break;
+		} else {
+			arrput(queue, ev);
+		}
+	}
+
+	while(arrlen(queue) > 0) {
+		XPutBackEvent(handle->x11.display, &queue[0]);
+		arrdel(queue, 0);
+	}
+	arrfree(queue);
+
+	MwLLSetXY(handle, x, y);
+}
+
 static void wait_map(MwLL handle, int move_back, int nomap) {
 	XEvent*		  queue = NULL;
 	XEvent		  ev;
@@ -49,10 +82,12 @@ static void wait_map(MwLL handle, int move_back, int nomap) {
 
 	MwLLGetXYWH(handle, &x, &y, &w, &h);
 
-	if(move_back) MwLLSetXY(handle, x, y);
-
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
 	if(xwa.map_state != IsViewable) {
+		if(move_back) MwLLSetXY(handle, x, y);
+
+		XSync(handle->x11.display, False);
+
 		if(!nomap) XMapWindow(handle->x11.display, handle->x11.window);
 
 		XSync(handle->x11.display, False);
@@ -214,12 +249,17 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	if(x != MwDEFAULT || y != MwDEFAULT) {
 		unsigned int dummy;
+
 		MwLLGetXYWH(r, &px, &py, &dummy, &dummy);
 
 		if(x == MwDEFAULT) x = px;
 		if(y == MwDEFAULT) y = py;
 
-		MwLLSetXY(r, x, y);
+		if(parent == NULL){
+			sync_move(r, x, y);
+		}else{
+			MwLLSetXY(r, x, y);
+		}
 	}
 
 	return r;
@@ -317,7 +357,7 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	sh.flags = 0;
 	XGetWMNormalHints(handle->x11.display, handle->x11.window, &sh, &r);
 
-	sh.flags |= PPosition;
+	sh.flags |= USPosition;
 	sh.x = x;
 	sh.y = y;
 
@@ -833,11 +873,11 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
 
-	if(xwa.map_state == IsViewable) wait_unmap(handle);
-
 	XReparentWindow(handle->x11.display, handle->x11.window, RootWindow(handle->x11.display, DefaultScreen(handle->x11.display)), x + point->x, y + point->y);
-
-	if(xwa.map_state == IsViewable) wait_map(handle, 0, 0);
+	
+	if(xwa.map_state == IsViewable){
+		sync_move(handle, x + point->x, y + point->y);
+	}
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
@@ -859,15 +899,14 @@ static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 	XSetTransientForHint(handle->x11.display, handle->x11.window, parent->x11.window);
 	XChangeProperty(handle->x11.display, handle->x11.window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wnddlg, 1);
 	XChangeProperty(handle->x11.display, handle->x11.window, wndstate, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmodal, 1);
-
-	XUnmapWindow(handle->x11.display, handle->x11.window);
-
-	wait_map(handle, 1, 0);
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
 	XSizeHints* hints = XAllocSizeHints();
 	long	    ret;
+	XWindowAttributes xwa;
+
+	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
 
 	XGetWMSizeHints(handle->x11.display, handle->x11.window, hints, &ret, XA_WM_NORMAL_HINTS);
 
@@ -879,9 +918,10 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 	XSetWMSizeHints(handle->x11.display, handle->x11.window, hints, XA_WM_NORMAL_HINTS);
 	XFree(hints);
 
-	XUnmapWindow(handle->x11.display, handle->x11.window);
-
-	wait_map(handle, 1, 0);
+	if(xwa.map_state == IsViewable){
+		wait_unmap(handle);
+		wait_map(handle, 1, 0);
+	}
 }
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
