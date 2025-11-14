@@ -6,6 +6,7 @@ static int create(MwWidget handle) {
 
 	t->cursor	 = 0;
 	t->right	 = 0;
+	t->length	 = 0;
 	handle->internal = t;
 
 	MwSetDefault(handle);
@@ -135,11 +136,24 @@ static void key(MwWidget handle, int code) {
 		free(out);
 	}
 
+	t->length = MwUTF8Length(MwGetText(handle, MwNtext));
+
 	MwForceRender(handle);
 }
 
 static void prop_change(MwWidget handle, const char* prop) {
 	if(strcmp(prop, MwNtext) == 0 || strcmp(prop, MwNhideInput) == 0) MwForceRender(handle);
+
+	if(strcmp(prop, MwNtext) == 0) {
+		MwEntry t   = handle->internal;
+		int	len = MwUTF8Length(MwGetText(handle, MwNtext));
+		if(len < t->cursor) {
+			t->cursor = len;
+		} else if(t->length == t->cursor) {
+			t->cursor = len;
+		}
+		t->length = len;
+	}
 }
 
 MwClassRec MwEntryClassRec = {

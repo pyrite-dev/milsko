@@ -102,6 +102,7 @@ struct _MwMenu {
 struct _MwEntry {
 	int	cursor;
 	int	right;
+	int	length;
 	MwPoint mouse;
 };
 

@@ -459,8 +459,8 @@ static void scan(MwWidget handle, const char* path, int record) {
 MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	MwWidget       window;
 	MwPoint	       p;
-	int	       ww = MwGetInteger(handle, MwNwidth);
-	int	       wh = MwGetInteger(handle, MwNheight);
+	int	       ww = handle == NULL ? 0 : MwGetInteger(handle, MwNwidth);
+	int	       wh = handle == NULL ? 0 : MwGetInteger(handle, MwNheight);
 	int	       w, h;
 	filechooser_t* fc = malloc(sizeof(*fc));
 	char*	       path;

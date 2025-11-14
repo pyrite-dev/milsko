@@ -458,6 +458,8 @@ static void mwListBoxResetImpl(MwWidget handle) {
 
 	lb->selected = -1;
 
+	MwSetInteger(lb->vscroll, MwNvalue, 0);
+
 	resize(handle);
 	MwForceRender(lb->frame);
 }

@@ -343,8 +343,8 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	color_picker_t* wheel;
 	MwWidget	window;
 	MwSizeHints	sh;
-	int		ww = MwGetInteger(handle, MwNwidth);
-	int		wh = MwGetInteger(handle, MwNheight);
+	int		ww = handle == NULL ? 0 : MwGetInteger(handle, MwNwidth);
+	int		wh = handle == NULL ? 0 : MwGetInteger(handle, MwNheight);
 	int		wx;
 	int		wy;
 
