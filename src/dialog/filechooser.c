@@ -501,10 +501,10 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	scan(window, path, 1);
 	free(path);
 
-	MwLLShow(handle->lowlevel, 0);
+	MwLLBeginStateChange(window->lowlevel);
 	MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
-	MwLLShow(handle->lowlevel, 1);
+	MwLLEndStateChange(window->lowlevel);
 
 	return window;
 }

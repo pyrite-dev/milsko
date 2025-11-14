@@ -21,9 +21,9 @@ static void draw(MwWidget handle) {
 	MwLLFreeColor(c);
 }
 static void mwWindowMakeBorderlessImpl(MwWidget handle, int toggle) {
-	MwLLShow(handle->lowlevel, 0);
+	MwLLBeginStateChange(handle->lowlevel);
 	MwLLMakeBorderless(handle->lowlevel, toggle);
-	MwLLShow(handle->lowlevel, 1);
+	MwLLEndStateChange(handle->lowlevel);
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {

@@ -4,7 +4,7 @@
 #include "../../external/stb_ds.h"
 
 static int create(MwWidget handle) {
-	MwLLShow(handle->lowlevel, 0);
+	MwLLBeginStateChange(handle->lowlevel);
 
 	MwSetDefault(handle);
 
@@ -167,7 +167,7 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
 
 	MwLLMakeToolWindow(handle->lowlevel);
 	MwLLDetach(handle->lowlevel, point);
-	MwLLShow(handle->lowlevel, 1);
+	MwLLEndStateChange(handle->lowlevel);
 
 	for(i = 0; i < arrlen(menu->sub); i++) {
 		if(strcmp(menu->sub[i]->name, "----") == 0) {

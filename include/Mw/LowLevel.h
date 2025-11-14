@@ -181,6 +181,9 @@ MWDECL void (*MwLLMakeBorderless)(MwLL handle, int toggle);
 MWDECL void (*MwLLMakeToolWindow)(MwLL handle);
 MWDECL void (*MwLLMakePopup)(MwLL handle, MwLL parent);
 
+MWDECL void (*MwLLBeginStateChange)(MwLL handle);
+MWDECL void (*MwLLEndStateChange)(MwLL handle);
+
 MWDECL void (*MwLLSetBackground)(MwLL handle, MwLLColor color);
 
 MWDECL void (*MwLLFocus)(MwLL handle);

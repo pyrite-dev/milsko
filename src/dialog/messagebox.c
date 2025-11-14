@@ -99,11 +99,11 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 			       MwNalignment, MwALIGNMENT_BEGINNING,
 			       NULL);
 
-	MwLLShow(window->lowlevel, 0);
+	MwLLBeginStateChange(window->lowlevel);
 	MwLLDetach(window->lowlevel, &p);
 	MwLLSetSizeHints(window->lowlevel, w, h, w, h);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
-	MwLLShow(window->lowlevel, 1);
+	MwLLEndStateChange(window->lowlevel);
 
 	MwAddUserHandler(window, MwNcloseHandler, messagebox_close, NULL);
 

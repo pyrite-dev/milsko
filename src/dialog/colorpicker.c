@@ -375,10 +375,10 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	MwAddUserHandler(window, MwNtickHandler, color_picker_tick, wheel);
 	MwAddTickList(window);
 
-	MwLLShow(window->lowlevel, 0);
+	MwLLBeginStateChange(window->lowlevel);
 	MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle->lowlevel);
-	MwLLShow(window->lowlevel, 1);
+	MwLLEndStateChange(window->lowlevel);
 
 	return window;
 }

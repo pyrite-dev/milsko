@@ -80,7 +80,6 @@ static void wait_map(MwLL handle) {
 
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
 	if(xwa.map_state != IsViewable) {
-
 		XSync(handle->x11.display, False);
 
 		XMapWindow(handle->x11.display, handle->x11.window);
@@ -970,6 +969,14 @@ static void MwLLMakeToolWindowImpl(MwLL handle) {
 
 	XChangeWindowAttributes(handle->x11.display, handle->x11.window, CWOverrideRedirect, &xswa);
 	XChangeProperty(handle->x11.display, handle->x11.window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
+}
+
+static void MwLLBeginStateChangeImpl(MwLL handle){
+	MwLLShow(handle, 0);
+}
+
+static void MwLLEndStateChangeImpl(MwLL handle){
+	MwLLShow(handle, 1);
 }
 
 static int MwLLX11CallInitImpl(void) {

@@ -706,6 +706,14 @@ static void MwLLMakeToolWindowImpl(MwLL handle) {
 	SetWindowPos(handle->gdi.hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
 }
 
+static void MwLLBeginStateChangeImpl(MwLL handle){
+	(void)handle;
+}
+
+static void MwLLEndStateChangeImpl(MwLL handle){
+	(void)handle;
+}
+
 static int MwLLGDICallInitImpl(void) {
 	/* TODO: check properly */
 	return 0;
