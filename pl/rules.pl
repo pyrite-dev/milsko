@@ -89,6 +89,7 @@ new_example("examples/basic/viewport");
 new_example("examples/basic/listbox");
 new_example("examples/basic/progressbar");
 new_example("examples/basic/colorpicker");
+new_example("examples/basic/combobox");
 
 if (param_get("opengl")) {
     new_example("examples/gldemos/boing",    $gl_libs);

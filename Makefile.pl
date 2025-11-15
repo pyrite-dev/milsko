@@ -11,7 +11,7 @@ foreach my $l (@ARGV) {
     }
 }
 
-our $prefix = "/usr/local";
+our $prefix  = "/usr/local";
 our $cc      = defined($ENV{CC}) ? $ENV{CC} : "*host*gcc";
 our $ar      = defined($ENV{AR}) ? $ENV{AR} : "*host*ar";
 our $incdir  = "-I include";
@@ -93,7 +93,7 @@ foreach my $l (@ARGV) {
         print("\n");
         print("Options:\n");
         print("  -h --help                       Display this help\n");
-	print("  --prefix=PREFIX                 Installation prefix\n");
+        print("  --prefix=PREFIX                 Installation prefix\n");
         print("  --host=TARGET                   Host for compiler/archiver\n");
         print("  --target=TARGET                 Specify target\n");
         print("  --cross                         Indicate cross compilation\n");
