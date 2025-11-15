@@ -4,6 +4,9 @@
 static int create(MwWidget handle) {
 	MwSetDefault(handle);
 
+	MwSetInteger(handle, MwNhasBorder, 0);
+	MwSetInteger(handle, MwNinverted, 1);
+
 	return 0;
 }
 
@@ -16,10 +19,17 @@ static void draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 
+	if(MwGetInteger(handle, MwNhasBorder)) MwDrawFrame(handle, &r, base, MwGetInteger(handle, MwNinverted));
+
 	MwDrawRect(handle, &r, c);
 
 	MwLLFreeColor(c);
 }
+
+static void prop_change(MwWidget handle, const char* key) {
+	if(strcmp(key, MwNhasBorder) == 0 || strcmp(key, MwNinverted) == 0) MwForceRender(handle);
+}
+
 static void mwWindowMakeBorderlessImpl(MwWidget handle, int toggle) {
 	MwLLBeginStateChange(handle->lowlevel);
 	MwLLMakeBorderless(handle->lowlevel, toggle);
@@ -40,7 +50,7 @@ MwClassRec MwWindowClassRec = {
     draw,	  /* draw */
     NULL,	  /* click */
     NULL,	  /* parent_resize */
-    NULL,	  /* prop_change */
+    prop_change,  /* prop_change */
     NULL,	  /* mouse_move */
     NULL,	  /* mouse_up */
     NULL,	  /* mouse_down */

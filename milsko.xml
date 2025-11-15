@@ -462,6 +462,8 @@
 		<widget name="Image">
 			<properties>
 				<property name="pixmap" />
+				<property name="hasBorder" />
+				<property name="inverted" />
 			</properties>
 		</widget>
 		<widget name="Label">
@@ -585,6 +587,8 @@
 				<property name="main" />
 				<property name="iconPixmap" />
 				<property name="sizeHints" />
+				<property name="hasBorder" />
+				<property name="inverted" />
 			</properties>
 			<functions>
 				<function name="MakeBorderless" />

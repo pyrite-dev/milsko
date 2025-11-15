@@ -4,6 +4,9 @@
 static int create(MwWidget handle) {
 	MwSetDefault(handle);
 
+	MwSetInteger(handle, MwNhasBorder, 0);
+	MwSetInteger(handle, MwNinverted, 1);
+
 	return 0;
 }
 
@@ -16,6 +19,9 @@ static void draw(MwWidget handle) {
 	r.y	 = 0;
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
+
+	if(MwGetInteger(handle, MwNhasBorder)) MwDrawFrame(handle, &r, base, MwGetInteger(handle, MwNinverted));
+
 	MwDrawRect(handle, &r, base);
 	if(px != NULL) {
 		MwLLDrawPixmap(handle->lowlevel, &r, px);
@@ -25,7 +31,7 @@ static void draw(MwWidget handle) {
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNpixmap) == 0) MwForceRender(handle);
+	if(strcmp(key, MwNpixmap) == 0 || strcmp(key, MwNhasBorder) == 0 || strcmp(key, MwNinverted) == 0) MwForceRender(handle);
 }
 
 MwClassRec MwImageClassRec = {
