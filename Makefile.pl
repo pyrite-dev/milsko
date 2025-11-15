@@ -11,6 +11,7 @@ foreach my $l (@ARGV) {
     }
 }
 
+our $prefix = "/usr/local";
 our $cc      = defined($ENV{CC}) ? $ENV{CC} : "*host*gcc";
 our $ar      = defined($ENV{AR}) ? $ENV{AR} : "*host*ar";
 our $incdir  = "-I include";
@@ -92,6 +93,7 @@ foreach my $l (@ARGV) {
         print("\n");
         print("Options:\n");
         print("  -h --help                       Display this help\n");
+	print("  --prefix=PREFIX                 Installation prefix\n");
         print("  --host=TARGET                   Host for compiler/archiver\n");
         print("  --target=TARGET                 Specify target\n");
         print("  --cross                         Indicate cross compilation\n");
@@ -154,6 +156,7 @@ $cc =~ s/\*host\*/$host/;
 $ar =~ s/\*host\*/$host/;
 
 open(OUT, ">", "Makefile");
+print(OUT "PREFIX = ${prefix}\n");
 print(OUT "AR = ${ar}\n");
 print(OUT "CC = ${cc}\n");
 print(OUT "INCDIR = ${incdir}\n");
@@ -164,9 +167,15 @@ print(OUT "LIBS = ${math} ${libs}\n");
 print(OUT "MATH = ${math}\n");
 print(OUT "SHARED = ${shared}\n");
 print(OUT "\n");
-print(OUT ".PHONY: all format clean distclean lib examples\n");
+print(OUT ".PHONY: all format clean distclean lib examples install\n");
 print(OUT "\n");
 print(OUT "all: lib examples\n");
+print(OUT "\n");
+print(OUT "install: lib\n");
+print(OUT "	mkdir -p \$(PREFIX)/lib \$(PREFIX)/include\n");
+print(OUT "	-cp src/${library_prefix}Mw${library_suffix} \$(PREFIX)/lib/\n");
+print(OUT "	-cp src/libMw.a \$(PREFIX)/lib/\n");
+print(OUT "	cp -rf include \$(PREFIX)/\n");
 print(OUT "\n");
 print(OUT "format:\n");
 print(OUT
