@@ -27,32 +27,32 @@ static void messagebox_close(MwWidget handle, void* user, void* call) {
 
 MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsigned int flag) {
 	MwWidget    window;
-	MwPoint	    p;
 	int	    w, h;
 	int	    left = 8;
 	int	    th;
 	int	    x = 0;
 	int	    wx;
 	int	    wy;
-	int	    ww = handle == NULL ? 0 : MwGetInteger(handle, MwNwidth);
-	int	    wh = handle == NULL ? 0 : MwGetInteger(handle, MwNheight);
 	MwSizeHints sh;
 
 	w = 512;
 	h = 32 * 4;
 
-	wx = wy = 0;
-	if(handle == NULL) wx = wy = MwDEFAULT;
+	if(handle == NULL) {
+		wx = wy = MwDEFAULT;
+	} else {
+		wx = MwGetInteger(handle, MwNx) + (MwGetInteger(handle, MwNwidth) - w) / 2;
+		wy = MwGetInteger(handle, MwNy) + (MwGetInteger(handle, MwNheight) - h) / 2;
+	}
 
 	sh.min_width = sh.max_width = w;
 	sh.min_height = sh.max_height = h;
 
-	p.x    = (ww - w) / 2;
-	p.y    = (wh - h) / 2;
-	window = MwVaCreateWidget(MwWindowClass, "messagebox", handle, wx, wy, w, h,
+	window = MwVaCreateWidget(MwWindowClass, "messagebox", NULL, wx, wy, w, h,
 				  MwNtitle, title,
 				  MwNsizeHints, &sh,
 				  NULL);
+	if(handle != NULL) MwReparent(window, handle);
 
 	window->opaque = NULL;
 
@@ -110,7 +110,6 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 			       NULL);
 
 	MwLLBeginStateChange(window->lowlevel);
-	if(handle != NULL) MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle == NULL ? NULL : handle->lowlevel);
 	MwLLEndStateChange(window->lowlevel);
 

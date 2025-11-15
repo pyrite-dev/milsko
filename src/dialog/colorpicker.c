@@ -339,29 +339,28 @@ color_picker_t* color_picker_setup(MwWidget parent, int w, int h) {
 }
 
 MwWidget MwColorPicker(MwWidget handle, const char* title) {
-	MwPoint		p;
 	color_picker_t* wheel;
 	MwWidget	window;
 	MwSizeHints	sh;
-	int		ww = handle == NULL ? 0 : MwGetInteger(handle, MwNwidth);
-	int		wh = handle == NULL ? 0 : MwGetInteger(handle, MwNheight);
 	int		wx;
 	int		wy;
 
-	p.x = (ww - WIN_SIZE) / 2;
-	p.y = (wh - WIN_SIZE) / 2;
-
-	wx = wy = 0;
-	if(handle == NULL) wx = wy = MwDEFAULT;
+	if(handle == NULL) {
+		wx = wy = MwDEFAULT;
+	} else {
+		wx = MwGetInteger(handle, MwNx) + (MwGetInteger(handle, MwNwidth) - WIN_SIZE) / 2;
+		wy = MwGetInteger(handle, MwNy) + (MwGetInteger(handle, MwNheight) - WIN_SIZE) / 2;
+	}
 
 	sh.min_width = sh.max_width = WIN_SIZE;
 	sh.min_height = sh.max_height = WIN_SIZE;
 
-	window = MwVaCreateWidget(MwWindowClass, "main", handle, wx, wy,
+	window = MwVaCreateWidget(MwWindowClass, "main", NULL, wx, wy,
 				  WIN_SIZE, WIN_SIZE,
 				  MwNtitle, title,
 				  MwNsizeHints, &sh,
 				  NULL);
+	if(handle != NULL) MwReparent(window, handle);
 
 	wheel = color_picker_setup(window, WIN_SIZE, WIN_SIZE);
 
@@ -370,7 +369,6 @@ MwWidget MwColorPicker(MwWidget handle, const char* title) {
 	MwAddTickList(window);
 
 	MwLLBeginStateChange(window->lowlevel);
-	if(handle != NULL) MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle == NULL ? NULL : handle->lowlevel);
 	MwLLEndStateChange(window->lowlevel);
 

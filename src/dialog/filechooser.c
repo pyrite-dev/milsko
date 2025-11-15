@@ -458,9 +458,6 @@ static void scan(MwWidget handle, const char* path, int record) {
 
 MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	MwWidget       window;
-	MwPoint	       p;
-	int	       ww = handle == NULL ? 0 : MwGetInteger(handle, MwNwidth);
-	int	       wh = handle == NULL ? 0 : MwGetInteger(handle, MwNheight);
 	int	       w, h;
 	filechooser_t* fc = malloc(sizeof(*fc));
 	char*	       path;
@@ -473,15 +470,17 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	w = 700;
 	h = w * 2 / 3;
 
-	p.x = (ww - w) / 2;
-	p.y = (wh - h) / 2;
+	if(handle == NULL) {
+		wx = wy = MwDEFAULT;
+	} else {
+		wx = MwGetInteger(handle, MwNx) + (MwGetInteger(handle, MwNwidth) - w) / 2;
+		wy = MwGetInteger(handle, MwNy) + (MwGetInteger(handle, MwNheight) - h) / 2;
+	}
 
-	wx = wy = 0;
-	if(handle == NULL) wx = wy = MwDEFAULT;
-
-	window = MwVaCreateWidget(MwWindowClass, "filechooser", handle, wx, wy, w, h,
+	window = MwVaCreateWidget(MwWindowClass, "filechooser", NULL, wx, wy, w, h,
 				  MwNtitle, title,
 				  NULL);
+	if(handle != NULL) MwReparent(window, handle);
 
 	fc->history_seek = 0;
 
@@ -508,7 +507,6 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	free(path);
 
 	MwLLBeginStateChange(window->lowlevel);
-	if(handle != NULL) MwLLDetach(window->lowlevel, &p);
 	MwLLMakePopup(window->lowlevel, handle == NULL ? NULL : handle->lowlevel);
 	MwLLEndStateChange(window->lowlevel);
 

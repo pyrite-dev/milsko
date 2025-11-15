@@ -300,6 +300,13 @@ MWDECL MwWidget MwGetParent(MwWidget handle);
  */
 MWDECL void MwShow(MwWidget handle, int toggle);
 
+/*!
+ * @brief Reparents widget
+ * @param handle Widget
+ * @param new_parent New parent
+ */
+MWDECL void MwReparent(MwWidget handle, MwWidget new_parent);
+
 #ifdef __cplusplus
 }
 #endif

@@ -271,9 +271,15 @@ static void clean_destroy_queue(MwWidget handle) {
 }
 
 int MwStep(MwWidget handle) {
-	int i;
+	int	  i;
+	MwWidget* widgets = NULL;
 	if(setjmp(handle->before_step)) return 0;
-	for(i = 0; i < arrlen(handle->children); i++) MwStep(handle->children[i]);
+	for(i = 0; i < arrlen(handle->children); i++) {
+		arrput(widgets, handle->children[i]);
+	}
+	for(i = 0; i < arrlen(widgets); i++) MwStep(widgets[i]);
+
+	arrfree(widgets);
 
 	handle->prop_event = 0;
 	if(handle->lowlevel != NULL && MwLLPending(handle->lowlevel)) MwLLNextEvent(handle->lowlevel);
@@ -638,4 +644,19 @@ int MwLibraryInit(void) {
 
 void MwShow(MwWidget handle, int toggle) {
 	MwLLShow(handle->lowlevel, toggle);
+}
+
+void MwReparent(MwWidget handle, MwWidget new_parent) {
+	if(handle->parent != NULL) {
+		int i;
+		for(i = 0; i < arrlen(handle->parent->children); i++) {
+			if(handle->parent->children[i] == handle) {
+				arrdel(handle->parent->children, i);
+				break;
+			}
+		}
+	}
+
+	handle->parent = new_parent;
+	arrput(new_parent->children, handle);
 }
