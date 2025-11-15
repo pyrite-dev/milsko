@@ -2,8 +2,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(
 	milsko
-	VERSION 0.0
-	DESCRIPTION "Milsko GUI Toolkit"
 )
 
 include(CheckIncludeFiles)
