@@ -513,7 +513,7 @@ static void set_boldfont(MwWidget handle) {
 #endif
 
 void MwSetDefault(MwWidget handle) {
-	MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
+	if(handle->lowlevel != NULL) MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
 
 #ifdef USE_CLASSIC_THEME
 	inherit_integer(handle, MwNmodernLook, 0);
@@ -521,10 +521,8 @@ void MwSetDefault(MwWidget handle) {
 	inherit_integer(handle, MwNmodernLook, 1);
 #endif
 #if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
-	if(handle->widget_class != NULL){
-		set_font(handle);
-		set_boldfont(handle);
-	}
+	set_font(handle);
+	set_boldfont(handle);
 #endif
 }
 
