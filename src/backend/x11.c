@@ -44,7 +44,6 @@ static void sync_move(MwLL handle, int x, int y) {
 	XEvent*		  queue = NULL;
 	XEvent		  ev;
 	unsigned long	  n = MwTimeGetTick() + 100;
-	int		  t = 0;
 	XWindowAttributes xwa;
 
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
@@ -55,9 +54,7 @@ static void sync_move(MwLL handle, int x, int y) {
 		XSync(handle->x11.display, False);
 		if(!XPending(handle->x11.display)) continue;
 		XNextEvent(handle->x11.display, &ev);
-		if(t == 0 && ev.type == ReparentNotify && ev.xreparent.window == handle->x11.window && ev.xreparent.window != RootWindow(handle->x11.display, DefaultScreen(handle->x11.display))) {
-			t = 1;
-		} else if(t == 1 && ev.type == ConfigureNotify && ev.xconfigure.window == handle->x11.window) {
+		if(ev.type == ReparentNotify && ev.xreparent.window == handle->x11.window && ev.xreparent.window != RootWindow(handle->x11.display, DefaultScreen(handle->x11.display))) {
 			break;
 		} else {
 			arrput(queue, ev);
