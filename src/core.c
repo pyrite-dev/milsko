@@ -536,9 +536,9 @@ void MwDispatchUserHandler(MwWidget handle, const char* key, void* handler_data)
 	if(ind == -1) return;
 	if(handle->destroyed) return;
 
-	if(p) handle->prop_event = 0;
+	if(!p) handle->prop_event = 1;
 	handle->handler[ind].value(handle, handle->handler[ind].user_data, handler_data);
-	if(p) handle->prop_event = 1;
+	if(!p) handle->prop_event = 0;
 }
 
 void MwAddUserHandler(MwWidget handle, const char* key, MwUserHandler handler, void* user_data) {
