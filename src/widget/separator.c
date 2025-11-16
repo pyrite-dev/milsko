@@ -20,11 +20,11 @@ static void draw(MwWidget handle) {
 	MwDrawRect(handle, &r, base);
 
 	if(MwGetInteger(handle, MwNorientation) == MwVERTICAL) {
-		r.x	= (r.width - MwDefaultBorderWidth(handle) * 2) / 2;
-		r.width = MwDefaultBorderWidth(handle) * 2;
+		r.x	= (r.width - 2) / 2;
+		r.width = 2;
 	} else if(MwGetInteger(handle, MwNorientation) == MwHORIZONTAL) {
-		r.y	 = (r.height - MwDefaultBorderWidth(handle) * 2) / 2;
-		r.height = MwDefaultBorderWidth(handle) * 2;
+		r.y	 = (r.height - 2) / 2;
+		r.height = 2;
 	}
 	MwDrawFrameEx(handle, &r, base, 1, 1, 0);
 
