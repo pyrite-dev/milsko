@@ -70,9 +70,7 @@ static void sync_move(MwLL handle, int x, int y) {
 	MwLLSetXY(handle, x, y);
 }
 
-static void wait_map(MwLL handle) {
-	XEvent*		  queue = NULL;
-	XEvent		  ev;
+static void wait_map(MwLL handle, int sync) {
 	XWindowAttributes xwa;
 
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
@@ -81,22 +79,28 @@ static void wait_map(MwLL handle) {
 
 		XMapWindow(handle->x11.display, handle->x11.window);
 
+		if(!sync) return;
+		do {
+			XSync(handle->x11.display, False);
+			XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
+		} while(xwa.map_state != IsViewable);
+	}
+}
+
+static void wait_unmap(MwLL handle, int sync) {
+	XWindowAttributes xwa;
+
+	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
+	if(xwa.map_state == IsViewable) {
 		XSync(handle->x11.display, False);
 
-		while(1) {
-			XNextEvent(handle->x11.display, &ev);
-			if(ev.type == MapNotify && ev.xmap.window == handle->x11.window) {
-				break;
-			} else {
-				arrput(queue, ev);
-			}
-		}
+		XUnmapWindow(handle->x11.display, handle->x11.window);
 
-		while(arrlen(queue) > 0) {
-			XPutBackEvent(handle->x11.display, &queue[0]);
-			arrdel(queue, 0);
-		}
-		arrfree(queue);
+		if(!sync) return;
+		do {
+			XSync(handle->x11.display, False);
+			XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
+		} while(xwa.map_state == IsViewable);
 	}
 }
 
@@ -211,12 +215,10 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	XSelectInput(r->x11.display, r->x11.window, mask);
 
-	wait_map(r);
+	wait_map(r, 0);
 
 	if(x != MwDEFAULT || y != MwDEFAULT) {
 		unsigned int dummy;
-
-		XUnmapWindow(r->x11.display, r->x11.window);
 
 		MwLLGetXYWH(r, &px, &py, &dummy, &dummy);
 
@@ -228,8 +230,6 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		} else {
 			MwLLSetXY(r, x, y);
 		}
-
-		wait_map(r);
 	}
 
 	return r;
@@ -852,11 +852,11 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 
 static void MwLLShowImpl(MwLL handle, int show) {
 	if(show) {
-		wait_map(handle);
+		wait_map(handle, 1);
 
 		XSetInputFocus(handle->x11.display, handle->x11.window, RevertToNone, CurrentTime);
 	} else {
-		XUnmapWindow(handle->x11.display, handle->x11.window);
+		wait_unmap(handle, 1);
 	}
 }
 
