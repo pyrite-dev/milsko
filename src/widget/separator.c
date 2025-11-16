@@ -26,7 +26,7 @@ static void draw(MwWidget handle) {
 		r.y	 = (r.height - MwDefaultBorderWidth(handle) * 2) / 2;
 		r.height = MwDefaultBorderWidth(handle) * 2;
 	}
-	MwDrawWidgetBack(handle, &r, base, 1, 1);
+	MwDrawFrameEx(handle, &r, base, 1, 1, 0);
 
 	MwLLFreeColor(base);
 }
