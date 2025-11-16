@@ -14,6 +14,8 @@ static int create(MwWidget handle) {
 
 	MwSetDefault(handle);
 
+	MwSetInteger(handle, MwNareaShown, 6);
+
 	return 0;
 }
 
@@ -102,6 +104,14 @@ static void click(MwWidget handle) {
 		int	i;
 		void*	packet;
 		int	width = MwGetInteger(handle, MwNwidth);
+		int	ent   = MwGetInteger(handle, MwNareaShown);
+
+		if(arrlen(cb->list) == 0) {
+			cb->opened = 0;
+			return;
+		}
+
+		if(ent > arrlen(cb->list)) ent = arrlen(cb->list);
 
 		MwLLSetCursor(handle->lowlevel, &MwCursorArrow, &MwCursorArrowMask);
 
@@ -110,10 +120,11 @@ static void click(MwWidget handle) {
 			if(l > width) width = l;
 		}
 
-		cb->listbox = MwVaCreateWidget(MwListBoxClass, "listbox", handle, 0, MwGetInteger(handle, MwNheight), width, MwTextHeight(handle, "M") * 6 + MwDefaultBorderWidth(handle) * 2 + MwTextHeight(handle, "M") / 4,
+		cb->listbox = MwVaCreateWidget(MwListBoxClass, "listbox", handle, 0, MwGetInteger(handle, MwNheight), width, MwTextHeight(handle, "M") * ent + MwDefaultBorderWidth(handle) * 2 + MwTextHeight(handle, "M") / 4,
 					       MwNsingleClickSelectable, 1,
 					       NULL);
-		MwLLShow(cb->listbox->lowlevel, 0);
+
+		MwLLSetCursor(((MwListBox)cb->listbox->internal)->frame->lowlevel, &MwCursorArrow, &MwCursorArrowMask);
 
 		packet = MwListBoxCreatePacket();
 		for(i = 0; i < arrlen(cb->list); i++) {
@@ -127,9 +138,10 @@ static void click(MwWidget handle) {
 
 		p.x = 0;
 		p.y = MwGetInteger(handle, MwNheight);
+		MwLLBeginStateChange(cb->listbox->lowlevel);
 		MwLLDetach(cb->listbox->lowlevel, &p);
 		MwLLMakeToolWindow(cb->listbox->lowlevel);
-		MwLLShow(cb->listbox->lowlevel, 1);
+		MwLLEndStateChange(cb->listbox->lowlevel);
 	} else {
 		MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
 

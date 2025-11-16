@@ -164,7 +164,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 		MwDestroyWidget(h);
 		return NULL;
 	}
-	if(h->widget_class == NULL){
+	if(h->widget_class == NULL) {
 		MwSetDefault(h);
 	}
 	h->prop_event = 1;

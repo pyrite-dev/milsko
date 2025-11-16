@@ -607,6 +607,9 @@
 			</properties>
 		</widget>
 		<widget name="ComboBox">
+			<properties>
+				<property name="areaShown" />
+			</properties>
 			<functions>
 				<function name="Add">
 					<integer name="index" />

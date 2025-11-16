@@ -259,6 +259,7 @@ static void resize(MwWidget handle) {
 	int	  w  = MwGetInteger(handle, MwNwidth);
 	int	  h  = MwGetInteger(handle, MwNheight);
 	int	  ih, y;
+	int	  aw;
 
 	y = MwGetInteger(handle, MwNhasHeading) ? (MwTextHeight(handle, "M") + MwDefaultBorderWidth(handle) * 2) : 0;
 
@@ -289,6 +290,7 @@ static void resize(MwWidget handle) {
 			  MwNheight, h,
 			  NULL);
 	}
+	aw = w;
 	h -= MwDefaultBorderWidth(handle) * 2;
 
 	ih = arrlen(lb->list);
@@ -298,6 +300,13 @@ static void resize(MwWidget handle) {
 		  MwNareaShown, h / MwTextHeight(handle, "M"),
 		  MwNmaxValue, ih,
 		  NULL);
+
+	if(ih <= (h / MwTextHeight(handle, "M"))) {
+		MwLLShow(lb->vscroll->lowlevel, 0);
+		MwSetInteger(lb->frame, MwNwidth, aw);
+	} else {
+		MwLLShow(lb->vscroll->lowlevel, 1);
+	}
 }
 
 static int create(MwWidget handle) {
