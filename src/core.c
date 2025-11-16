@@ -532,10 +532,13 @@ void MwHideCursor(MwWidget handle) {
 
 void MwDispatchUserHandler(MwWidget handle, const char* key, void* handler_data) {
 	int ind = shgeti(handle->handler, key);
+	int p = handle->prop_event;
 	if(ind == -1) return;
 	if(handle->destroyed) return;
 
+	if(p) handle->prop_event = 0;
 	handle->handler[ind].value(handle, handle->handler[ind].user_data, handler_data);
+	if(p) handle->prop_event = 1;
 }
 
 void MwAddUserHandler(MwWidget handle, const char* key, MwUserHandler handler, void* user_data) {
