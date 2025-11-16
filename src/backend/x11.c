@@ -624,7 +624,7 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	if(rect->width == 0 || rect->height == 0) return;
+	if(rect->width == 0 || rect->height == 0 || pixmap->common.width == 0 || pixmap->common.height == 0) return;
 #ifdef USE_XRENDER
 	if(pixmap->x11.image != NULL && pixmap->x11.use_xrender) {
 		Pixmap			 px	= XCreatePixmap(handle->x11.display, handle->x11.window, pixmap->common.width, pixmap->common.height, pixmap->x11.depth);
