@@ -8,13 +8,13 @@ static int create(MwWidget handle) {
 
 	cb->list	 = NULL;
 	cb->opened	 = 0;
-	cb->selected	 = 0;
 	cb->listbox	 = NULL;
 	handle->internal = cb;
 
 	MwSetDefault(handle);
 
 	MwSetInteger(handle, MwNareaShown, 6);
+	MwSetInteger(handle, MwNvalue, 0);
 
 	return 0;
 }
@@ -46,13 +46,13 @@ static void draw(MwWidget handle) {
 	rc = r;
 
 	/* draw text */
-	if(arrlen(cb->list) > cb->selected) {
+	if(arrlen(cb->list) > MwGetInteger(handle, MwNvalue)) {
 		MwPoint p;
 
 		p.x = MwDefaultBorderWidth(handle) * 2 + 4;
 		p.y = MwGetInteger(handle, MwNheight) / 2;
 
-		MwDrawText(handle, &p, cb->list[cb->selected], 0, MwALIGNMENT_BEGINNING, text);
+		MwDrawText(handle, &p, cb->list[MwGetInteger(handle, MwNvalue)], 0, MwALIGNMENT_BEGINNING, text);
 	}
 
 	r = rc;
@@ -84,7 +84,7 @@ static void listbox_activate(MwWidget handle, void* user, void* client) {
 
 	(void)user;
 
-	cb->selected = *(int*)client;
+	MwSetInteger(handle->parent, MwNvalue, *(int*)client);
 	cb->opened   = 0;
 	cb->listbox  = NULL;
 
@@ -154,6 +154,12 @@ static void click(MwWidget handle) {
 	MwForceRender(handle);
 }
 
+static void prop_change(MwWidget handle, const char* prop) {
+	if(strcmp(prop, MwNvalue) == 0) {
+		MwForceRender(handle);
+	}
+}
+
 static void mwComboBoxAddImpl(MwWidget handle, int index, const char* text) {
 	MwComboBox cb = handle->internal;
 	char*	   t  = MwStringDupliacte(text);
@@ -162,7 +168,7 @@ static void mwComboBoxAddImpl(MwWidget handle, int index, const char* text) {
 
 	arrins(cb->list, index, t);
 
-	if(index <= cb->selected) MwForceRender(handle);
+	if(index <= MwGetInteger(handle, MwNvalue)) MwForceRender(handle);
 }
 
 static const char* mwComboBoxGetImpl(MwWidget handle, int index) {
@@ -189,7 +195,7 @@ MwClassRec MwComboBoxClassRec = {
     draw,	    /* draw */
     click,	    /* click */
     NULL,	    /* parent_resize */
-    NULL,	    /* prop_change */
+    prop_change,	    /* prop_change */
     NULL,	    /* mouse_move */
     MwForceRender2, /* mouse_up */
     MwForceRender2, /* mouse_down */

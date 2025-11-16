@@ -124,7 +124,7 @@ struct _MwListBox {
 	MwWidget	vscroll;
 	MwWidget	frame;
 	MwListBoxEntry* list;
-	int		selected;
+	int selected;
 	unsigned long	click_time;
 	int		pressed;
 	int*		width;
@@ -134,7 +134,6 @@ struct _MwListBox {
 struct _MwComboBox {
 	char**	 list;
 	int	 opened;
-	int	 selected;
 	MwWidget listbox;
 };
 
