@@ -609,6 +609,7 @@
 		<widget name="ComboBox">
 			<properties>
 				<property name="areaShown" />
+				<property name="value" />
 			</properties>
 			<functions>
 				<function name="Add">
