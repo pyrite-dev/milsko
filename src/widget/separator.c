@@ -4,7 +4,7 @@
 static int create(MwWidget handle) {
 	MwSetDefault(handle);
 
-	MwSetInteger(handle, MwNorientation, MwVERTICAL);
+	MwSetInteger(handle, MwNorientation, MwHORIZONTAL);
 
 	return 0;
 }
