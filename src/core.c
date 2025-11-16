@@ -521,8 +521,10 @@ void MwSetDefault(MwWidget handle) {
 	inherit_integer(handle, MwNmodernLook, 1);
 #endif
 #if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
-	set_font(handle);
-	set_boldfont(handle);
+	if(handle->widget_class != NULL){
+		set_font(handle);
+		set_boldfont(handle);
+	}
 #endif
 }
 
