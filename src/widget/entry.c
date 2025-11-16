@@ -136,7 +136,7 @@ static void key(MwWidget handle, int code) {
 		free(out);
 	}
 
-	t->length = MwUTF8Length(MwGetText(handle, MwNtext));
+	if(MwGetText(handle, MwNtext) != NULL) t->length = MwUTF8Length(MwGetText(handle, MwNtext));
 
 	MwForceRender(handle);
 }
