@@ -217,7 +217,7 @@ static void MwFreeWidget(MwWidget handle) {
 
 	free(handle->name);
 
-	MwLLDestroy(handle->lowlevel);
+	if(handle->lowlevel != NULL) MwLLDestroy(handle->lowlevel);
 
 	shfree(handle->integer);
 
