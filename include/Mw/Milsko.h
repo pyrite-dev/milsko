@@ -47,6 +47,7 @@
 #include <Mw/Widget/ListBox.h>
 #include <Mw/Widget/ProgressBar.h>
 #include <Mw/Widget/RadioBox.h>
+#include <Mw/Widget/Separator.h>
 #include <Mw/Widget/ComboBox.h>
 
 #endif

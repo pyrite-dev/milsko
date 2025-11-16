@@ -61,6 +61,7 @@ new_object("src/widget/numberentry.c");
 new_object("src/widget/progressbar.c");
 new_object("src/widget/radiobox.c");
 new_object("src/widget/scrollbar.c");
+new_object("src/widget/separator.c");
 new_object("src/widget/submenu.c");
 new_object("src/widget/viewport.c");
 new_object("src/widget/window.c");
