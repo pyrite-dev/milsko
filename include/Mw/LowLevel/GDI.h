@@ -1,6 +1,11 @@
 /* $Id$ */
-#ifndef __GDI_H__
-#define __GDI_H__
+/*!
+ * @file Mw/LowLevel/GDI.h
+ * @brief GDI Backend
+ * @warning This is used internally
+ */
+#ifndef __MW_LOWLEVEL_GDI_H__
+#define __MW_LOWLEVEL_GDI_H__
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>

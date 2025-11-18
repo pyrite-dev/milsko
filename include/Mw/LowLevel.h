@@ -51,10 +51,10 @@ struct _MwLLCommonPixmap {
 
 #ifdef _MILSKO
 #ifdef USE_X11
-#include "../../src/backend/x11.h"
+#include <Mw/LowLevel/X11.h>
 #endif
 #ifdef USE_GDI
-#include "../../src/backend/gdi.h"
+#include <Mw/LowLevel/GDI.h>
 #endif
 
 union _MwLL {
