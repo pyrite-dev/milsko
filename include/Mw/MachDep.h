@@ -46,6 +46,13 @@
 #include <sys/stat.h>
 #endif
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <GL/glx.h>
+#endif
+#include <GL/gl.h>
+
 #ifndef M_PI
 #define M_PI 3.14159265
 #endif

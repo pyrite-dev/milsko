@@ -153,6 +153,7 @@ scan("src/font");
 scan("src/dialog");
 scan("src/abstract");
 push(@cfiles, "src/backend/gdi.c");
+push(@cfiles, "src/backend/render/gdi.c");
 
 generate("BorMakefile", "Borland");
 generate("NTMakefile",  "MSVC");

@@ -18,10 +18,16 @@ typedef struct _MwLLCommonPixmap* MwLLCommonPixmap;
 typedef union _MwLL*	   MwLL;
 typedef union _MwLLColor*  MwLLColor;
 typedef union _MwLLPixmap* MwLLPixmap;
+#ifdef BUILD_OPENGL
+typedef union _MwLLGL* MwLLGL;
+#endif
 #else
 typedef void* MwLL;
 typedef void* MwLLColor;
 typedef void* MwLLPixmap;
+#ifdef BUILD_OPENGL
+typedef void* MwLLGL;
+#endif
 #endif
 
 enum MwLLBackends {
@@ -47,6 +53,9 @@ struct _MwLLCommonPixmap {
 	int	       width;
 	int	       height;
 	unsigned char* raw;
+};
+
+struct _MwLLCommonGL {
 };
 
 #ifdef _MILSKO
@@ -87,6 +96,19 @@ union _MwLLPixmap {
 #endif
 };
 #endif
+
+#ifdef BUILD_OPENGL
+union _MwLLGL {
+	struct _MwLLCommonGL common;
+#ifdef USE_X11
+	struct _MwLLX11GL x11;
+#endif
+#ifdef USE_GDI
+	struct _MwLLGDIGL gdi;
+#endif
+};
+#endif
+
 #include <Mw/TypeDefs.h>
 
 #define MwLLDispatch(x, y, z) \
@@ -192,6 +214,13 @@ MWDECL void (*MwLLGrabPointer)(MwLL handle, int toggle);
 MWDECL void (*MwLLSetClipboard)(MwLL handle, const char* text);
 MWDECL char* (*MwLLGetClipboard)(MwLL handle);
 
+#ifdef BUILD_OPENGL
+MWDECL MwLLGL (*MwLLGLCreate)(MwLL handle);
+MWDECL void (*MwLLGLDestroy)(MwLL ll, MwLLGL gl);
+MWDECL void (*MwLLGLMakeCurrent)(MwLL ll, MwLLGL gl);
+MWDECL void (*MwLLGLSwapBuffer)(MwLL ll, MwLLGL gl);
+MWDECL void* (*MwLLGLGetProcAddress)(MwLL ll, MwLLGL gl, const char* name);
+#endif
 #ifdef __cplusplus
 }
 #endif

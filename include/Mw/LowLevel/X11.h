@@ -8,8 +8,6 @@
 #define __MW_LOWLEVEL_X11_H__
 
 #include <Mw/MachDep.h>
-#include <Mw/TypeDefs.h>
-#include <Mw/LowLevel.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -67,4 +65,24 @@ struct _MwLLX11Pixmap {
 	XImage*	       mask;
 };
 
+typedef XVisualInfo* (*MWglXChooseVisual)(Display* dpy, int screen, int* attribList);
+typedef GLXContext (*MWglXCreateContext)(Display* dpy, XVisualInfo* vis, GLXContext shareList, Bool direct);
+typedef void (*MWglXDestroyContext)(Display* dpy, GLXContext ctx);
+typedef Bool (*MWglXMakeCurrent)(Display* dpy, GLXDrawable drawable, GLXContext ctx);
+typedef void (*MWglXSwapBuffers)(Display* dpy, GLXDrawable drawable);
+typedef void* (*MWglXGetProcAddress)(const GLubyte* procname);
+
+typedef struct _MwLLX11GL {
+	XVisualInfo* visual;
+	GLXContext   gl;
+
+	void* lib;
+
+	MWglXChooseVisual   glXChooseVisual;
+	MWglXCreateContext  glXCreateContext;
+	MWglXDestroyContext glXDestroyContext;
+	MWglXMakeCurrent    glXMakeCurrent;
+	MWglXSwapBuffers    glXSwapBuffers;
+	MWglXGetProcAddress glXGetProcAddress;
+} x11opengl_t;
 #endif

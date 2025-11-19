@@ -9,6 +9,7 @@ if (param_get("classic-theme")) {
 if ($backend eq "x11") {
     add_cflags("-DUSE_X11");
     new_object("src/backend/x11.c");
+    new_object("src/backend/render/x11.c");
     add_libs("-lX11");
 
     $gl_libs = "-lGL -lGLU";
@@ -21,6 +22,7 @@ if ($backend eq "x11") {
 elsif ($backend eq "gdi") {
     add_cflags("-DUSE_GDI");
     new_object("src/backend/gdi.c");
+    new_object("src/backend/render/gdi.c");
     add_libs("-lgdi32");
 
     $gl_libs = "-lopengl32 -lglu32";
@@ -68,6 +70,7 @@ new_object("src/widget/viewport.c");
 new_object("src/widget/window.c");
 
 if (param_get("opengl")) {
+    add_cflags("-DBUILD_OPENGL");
     new_object("src/widget/opengl.c");
 }
 if (param_get("vulkan")) {

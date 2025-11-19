@@ -1,10 +1,11 @@
 *.o
 *.so
+*.a
+Makefile
 examples/*
+examples/*.o
 examples/*.exe
 examples/*/*
+examples/*/*.o
 examples/*/*.exe
-!examples/*/
-!examples/*.*
-!examples/*/*.*
 compile_flags.txt

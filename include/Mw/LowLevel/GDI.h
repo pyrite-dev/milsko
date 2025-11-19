@@ -37,4 +37,21 @@ struct _MwLLGDIPixmap {
 	HBITMAP	 hMask2;
 };
 
+typedef HGLRC(WINAPI* MWwglCreateContext)(HDC);
+typedef BOOL(WINAPI* MWwglMakeCurrent)(HDC, HGLRC);
+typedef PROC(WINAPI* MWwglGetProcAddress)(LPCSTR);
+typedef BOOL(WINAPI* MWwglDeleteContext)(HGLRC);
+
+typedef struct _MwLLGDIGL {
+	HDC   dc;
+	HGLRC gl;
+
+	void* lib;
+
+	MWwglCreateContext  wglCreateContext;
+	MWwglMakeCurrent    wglMakeCurrent;
+	MWwglDeleteContext  wglDeleteContext;
+	MWwglGetProcAddress wglGetProcAddress;
+} gdiopengl_t;
+
 #endif

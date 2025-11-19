@@ -10,13 +10,6 @@
 #include <Mw/TypeDefs.h>
 #include <Mw/Core.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <GL/glx.h>
-#endif
-#include <GL/gl.h>
-
 #ifndef GLAPIENTRY
 #define GLAPIENTRY APIENTRY
 #endif

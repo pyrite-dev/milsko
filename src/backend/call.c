@@ -1,5 +1,24 @@
 /* $Id$ */
 /* This file gets included by backend */
+
+#ifdef USE_X11
+#include "render/x11.c"
+#endif
+#ifdef USE_GDI
+#include "render/gdi.c"
+#endif
+
+#ifdef BUILD_OPENGL
+#define GL_FUNCS \
+	MwLLGLCreate	     = MwLLGLCreateImpl; \
+	MwLLGLDestroy	     = MwLLGLDestroyImpl; \
+	MwLLGLMakeCurrent    = MwLLGLMakeCurrentImpl; \
+	MwLLGLSwapBuffer     = MwLLGLSwapBufferImpl; \
+	MwLLGLGetProcAddress = MwLLGLGetProcAddressImpl;
+#else
+#define GL_FUNCS
+#endif
+
 #define CALL(NAME) \
 	int MwLL##NAME##CallInit(void) { \
 		int st; \
@@ -9,12 +28,12 @@
 		MwLLCreate  = MwLLCreateImpl; \
 		MwLLDestroy = MwLLDestroyImpl; \
 \
-		MwLLPolygon = MwLLPolygonImpl; \
-		MwLLLine    = MwLLLineImpl; \
+		MwLLPolygon = MwLLPolygonImplNative; \
+		MwLLLine    = MwLLLineImplNative; \
 \
-		MwLLAllocColor	= MwLLAllocColorImpl; \
-		MwLLColorUpdate = MwLLColorUpdateImpl; \
-		MwLLFreeColor	= MwLLFreeColorImpl; \
+		MwLLAllocColor	= MwLLAllocColorImplNative; \
+		MwLLColorUpdate = MwLLColorUpdateImplNative; \
+		MwLLFreeColor	= MwLLFreeColorImplNative; \
 \
 		MwLLGetXYWH = MwLLGetXYWHImpl; \
 		MwLLSetXY   = MwLLSetXYImpl; \
@@ -25,10 +44,10 @@
 		MwLLPending   = MwLLPendingImpl; \
 		MwLLNextEvent = MwLLNextEventImpl; \
 \
-		MwLLCreatePixmap  = MwLLCreatePixmapImpl; \
-		MwLLPixmapUpdate  = MwLLPixmapUpdateImpl; \
-		MwLLDestroyPixmap = MwLLDestroyPixmapImpl; \
-		MwLLDrawPixmap	  = MwLLDrawPixmapImpl; \
+		MwLLCreatePixmap  = MwLLCreatePixmapImplNative; \
+		MwLLPixmapUpdate  = MwLLPixmapUpdateImplNative; \
+		MwLLDestroyPixmap = MwLLDestroyPixmapImplNative; \
+		MwLLDrawPixmap	  = MwLLDrawPixmapImplNative; \
 		MwLLSetIcon	  = MwLLSetIconImpl; \
 \
 		MwLLForceRender = MwLLForceRenderImpl; \
@@ -52,6 +71,8 @@
 \
 		MwLLSetClipboard = MwLLSetClipboardImpl; \
 		MwLLGetClipboard = MwLLGetClipboardImpl; \
+\
+		GL_FUNCS \
 \
 		return 0; \
 	}

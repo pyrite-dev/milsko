@@ -48,6 +48,14 @@ void (*MwLLGrabPointer)(MwLL handle, int toggle);
 void (*MwLLSetClipboard)(MwLL handle, const char* text);
 char* (*MwLLGetClipboard)(MwLL handle);
 
+#ifdef BUILD_OPENGL
+MwLLGL (*MwLLGLCreate)(MwLL handle);
+void (*MwLLGLDestroy)(MwLL ll, MwLLGL gl);
+void (*MwLLGLMakeCurrent)(MwLL ll, MwLLGL gl);
+void (*MwLLGLSwapBuffer)(MwLL ll, MwLLGL gl);
+void* (*MwLLGLGetProcAddress)(MwLL ll, MwLLGL gl, const char* name);
+#endif
+
 void MwLLCreateCommon(MwLL handle) {
 	handle->common.handler = malloc(sizeof(*handle->common.handler));
 	memset(handle->common.handler, 0, sizeof(*handle->common.handler));
