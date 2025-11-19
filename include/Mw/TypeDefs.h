@@ -81,6 +81,9 @@ struct _MwWidget {
 	void* internal;
 	void* opaque;
 	void (*draw_inject)(MwWidget handle);
+#ifdef BUILD_OPENGL
+	MwLLGL gl;
+#endif
 
 	MwIntegerKeyValue*     integer;
 	MwTextKeyValue*	       text;

@@ -7,6 +7,7 @@
 #ifndef __MW_LOWLEVEL_H__
 #define __MW_LOWLEVEL_H__
 
+#include "Mw/BaseTypes.h"
 #include <Mw/MachDep.h>
 
 typedef struct _MwLLHandler*	  MwLLHandler;
@@ -40,6 +41,10 @@ struct _MwLLCommon {
 	int   copy_buffer;
 	int   type;
 
+#ifdef BUILD_OPENGL
+	MwLLGL gl;
+#endif
+
 	MwLLHandler handler;
 };
 
@@ -56,6 +61,7 @@ struct _MwLLCommonPixmap {
 };
 
 struct _MwLLCommonGL {
+	void* lib;
 };
 
 #ifdef _MILSKO
@@ -107,6 +113,7 @@ union _MwLLGL {
 	struct _MwLLGDIGL gdi;
 #endif
 };
+extern MwBool _MwLLHasOpenGL;
 #endif
 
 #include <Mw/TypeDefs.h>
@@ -164,6 +171,7 @@ extern "C" {
 
 /* lowlevel.c, common part */
 MWDECL void MwLLCreateCommon(MwLL handle);
+MWDECL void MwLLCreateCommonGL(MwLL handle);
 MWDECL void MwLLDestroyCommon(MwLL handle);
 
 /* driver-specific, these get assigned by backend */
@@ -215,11 +223,13 @@ MWDECL void (*MwLLSetClipboard)(MwLL handle, const char* text);
 MWDECL char* (*MwLLGetClipboard)(MwLL handle);
 
 #ifdef BUILD_OPENGL
+MWDECL void* (*MwLLGLLibGet)();
 MWDECL MwLLGL (*MwLLGLCreate)(MwLL handle);
 MWDECL void (*MwLLGLDestroy)(MwLL ll, MwLLGL gl);
 MWDECL void (*MwLLGLMakeCurrent)(MwLL ll, MwLLGL gl);
 MWDECL void (*MwLLGLSwapBuffer)(MwLL ll, MwLLGL gl);
 MWDECL void* (*MwLLGLGetProcAddress)(MwLL ll, MwLLGL gl, const char* name);
+MWDECL void (*MwLLGLValid)(MwLL ll);
 #endif
 #ifdef __cplusplus
 }

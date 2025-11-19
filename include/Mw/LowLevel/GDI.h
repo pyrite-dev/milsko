@@ -43,10 +43,10 @@ typedef PROC(WINAPI* MWwglGetProcAddress)(LPCSTR);
 typedef BOOL(WINAPI* MWwglDeleteContext)(HGLRC);
 
 typedef struct _MwLLGDIGL {
+	struct _MwLLCommonGL common;
+
 	HDC   dc;
 	HGLRC gl;
-
-	void* lib;
 
 	MWwglCreateContext  wglCreateContext;
 	MWwglMakeCurrent    wglMakeCurrent;

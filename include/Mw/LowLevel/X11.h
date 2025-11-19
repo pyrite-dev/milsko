@@ -73,10 +73,10 @@ typedef void (*MWglXSwapBuffers)(Display* dpy, GLXDrawable drawable);
 typedef void* (*MWglXGetProcAddress)(const GLubyte* procname);
 
 typedef struct _MwLLX11GL {
+	struct _MwLLCommonGL common;
+
 	XVisualInfo* visual;
 	GLXContext   gl;
-
-	void* lib;
 
 	MWglXChooseVisual   glXChooseVisual;
 	MWglXCreateContext  glXCreateContext;

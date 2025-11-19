@@ -86,6 +86,9 @@ foreach my $l (@ARGV) {
     elsif ($l eq "--cross") {
         $cross = 1;
     }
+    elsif ($l eq "--debug") {
+        $cflags = $cflags . " -g";
+    }
     elsif (($l eq "-h") or ($l eq "--help")) {
         print("Milsko Toolkit Configuration Utility\n");
         print("\n");
@@ -97,6 +100,7 @@ foreach my $l (@ARGV) {
         print("  --host=TARGET                   Host for compiler/archiver\n");
         print("  --target=TARGET                 Specify target\n");
         print("  --cross                         Indicate cross compilation\n");
+        print("  --debug                         Compile with debug symbols\n");
         print("\n");
         print("Features:\n");
         print("  --enable-FEATURE                Use FEATURE\n");

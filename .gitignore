@@ -2,10 +2,9 @@
 *.so
 *.a
 Makefile
-examples/*
-examples/*.o
-examples/*.exe
-examples/*/*
-examples/*/*.o
-examples/*/*.exe
+examples/**/*
+!examples/**/
+!examples/**/*.*
+examples/**/*.o
+examples/**/*.exe
 compile_flags.txt

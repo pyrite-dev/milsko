@@ -1,5 +1,6 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
+#include <assert.h>
 
 #include "../../external/stb_ds.h"
 #include "Mw/LowLevel.h"
@@ -220,6 +221,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 			MwLLSetXY(r, x, y);
 		}
 	}
+
+	MwLLCreateCommonGL(r);
 
 	return r;
 }
@@ -736,15 +739,22 @@ static int MwLLX11CallInitImpl(void) {
 }
 
 #ifdef BUILD_OPENGL
-static MwLLGL MwLLGLCreateImpl(MwLL handle) {
-	MwLLGL	    r = malloc(sizeof(struct _MwLLX11GL));
-	int	    attribs[5];
+static void* MwLLGLLibGetImpl() {
+	void*	    lib	     = NULL;
 	const char* glpath[] = {
 	    "libGL.so",
 	    "/usr/local/lib/libGL.so",
 	    "/usr/X11R7/lib/libGL.so",
 	    "/usr/pkg/lib/libGL.so"};
 	int glincr = 0;
+	while(glpath[glincr] != NULL && (lib = MwDynamicOpen(glpath[glincr++])) == NULL);
+	return lib;
+};
+static MwLLGL MwLLGLCreateImpl(MwLL handle) {
+	MwLLGL r = malloc(sizeof(*r));
+	int    attribs[5];
+
+	r->common.lib = MwLLGLLibGetImpl();
 
 	attribs[0] = GLX_RGBA;
 	attribs[1] = GLX_DOUBLEBUFFER;
@@ -752,14 +762,12 @@ static MwLLGL MwLLGLCreateImpl(MwLL handle) {
 	attribs[3] = 24;
 	attribs[4] = None;
 
-	while(glpath[glincr] != NULL && (r->x11.lib = MwDynamicOpen(glpath[glincr++])) == NULL);
-
-	r->x11.glXChooseVisual	 = (MWglXChooseVisual)MwDynamicSymbol(r->x11.lib, "glXChooseVisual");
-	r->x11.glXCreateContext	 = (MWglXCreateContext)MwDynamicSymbol(r->x11.lib, "glXCreateContext");
-	r->x11.glXDestroyContext = (MWglXDestroyContext)MwDynamicSymbol(r->x11.lib, "glXDestroyContext");
-	r->x11.glXMakeCurrent	 = (MWglXMakeCurrent)MwDynamicSymbol(r->x11.lib, "glXMakeCurrent");
-	r->x11.glXSwapBuffers	 = (MWglXSwapBuffers)MwDynamicSymbol(r->x11.lib, "glXSwapBuffers");
-	r->x11.glXGetProcAddress = (MWglXGetProcAddress)MwDynamicSymbol(r->x11.lib, "glXGetProcAddress");
+	r->x11.glXChooseVisual	 = (MWglXChooseVisual)MwDynamicSymbol(r->common.lib, "glXChooseVisual");
+	r->x11.glXCreateContext	 = (MWglXCreateContext)MwDynamicSymbol(r->common.lib, "glXCreateContext");
+	r->x11.glXDestroyContext = (MWglXDestroyContext)MwDynamicSymbol(r->common.lib, "glXDestroyContext");
+	r->x11.glXMakeCurrent	 = (MWglXMakeCurrent)MwDynamicSymbol(r->common.lib, "glXMakeCurrent");
+	r->x11.glXSwapBuffers	 = (MWglXSwapBuffers)MwDynamicSymbol(r->common.lib, "glXSwapBuffers");
+	r->x11.glXGetProcAddress = (MWglXGetProcAddress)MwDynamicSymbol(r->common.lib, "glXGetProcAddress");
 
 	/* XXX: fix this */
 	r->x11.visual = r->x11.glXChooseVisual(handle->x11.display, DefaultScreen(handle->x11.display), attribs);
@@ -771,7 +779,7 @@ static void MwLLGLDestroyImpl(MwLL ll, MwLLGL gl) {
 	gl->x11.glXMakeCurrent(ll->x11.display, None, NULL);
 	gl->x11.glXDestroyContext(ll->x11.display, gl->x11.gl);
 
-	MwDynamicClose(gl->x11.lib);
+	MwDynamicClose(gl->common.lib);
 	free(gl);
 }
 

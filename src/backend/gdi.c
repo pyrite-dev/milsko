@@ -556,9 +556,11 @@ static int MwLLGDICallInitImpl(void) {
 }
 
 #ifdef BUILD_OPENGL
+static void* MwLLGLLibGetImpl() {
+	return MwDynamicOpen("opengl32.dll");
+};
 static MwLLGL MwLLGLCreateImpl(MwLL handle) {
 	MwLLGL		      r = malloc(sizeof(struct _MwLLGDIGL));
-	MwLLGL		      r = NULL;
 	PIXELFORMATDESCRIPTOR pfd;
 	int		      pf;
 
@@ -574,14 +576,16 @@ static MwLLGL MwLLGLCreateImpl(MwLL handle) {
 	pf = ChoosePixelFormat(r->gdi.dc, &pfd);
 	SetPixelFormat(r->gdi.dc, pf, &pfd);
 
-	r->gdi.lib = MwDynamicOpen("opengl32.dll");
+	r->common.lib = MwLLGLLibGetImpl();
 
-	r->gdi.wglCreateContext	 = (MWwglCreateContext)(void*)MwDynamicSymbol(r->gdi.lib, "wglCreateContext");
-	r->gdi.wglMakeCurrent	 = (MWwglMakeCurrent)(void*)MwDynamicSymbol(r->gdi.lib, "wglMakeCurrent");
-	r->gdi.wglDeleteContext	 = (MWwglDeleteContext)(void*)MwDynamicSymbol(r->gdi.lib, "wglDeleteContext");
-	r->gdi.wglGetProcAddress = (MWwglGetProcAddress)(void*)MwDynamicSymbol(r->gdi.lib, "wglGetProcAddress");
+	r->gdi.wglCreateContext	 = (MWwglCreateContext)(void*)MwDynamicSymbol(r->common.lib, "wglCreateContext");
+	r->gdi.wglMakeCurrent	 = (MWwglMakeCurrent)(void*)MwDynamicSymbol(r->common.lib, "wglMakeCurrent");
+	r->gdi.wglDeleteContext	 = (MWwglDeleteContext)(void*)MwDynamicSymbol(r->common.lib, "wglDeleteContext");
+	r->gdi.wglGetProcAddress = (MWwglGetProcAddress)(void*)MwDynamicSymbol(r->common.lib, "wglGetProcAddress");
 
 	r->gdi.gl = r->gdi.wglCreateContext(r->gdi.dc);
+
+	MwLLCreateCommonGL(r);
 
 	return r;
 }
@@ -591,7 +595,7 @@ static void MwLLGLDestroyImpl(MwLL ll, MwLLGL gl) {
 	DeleteDC(gl->gdi.dc);
 	gl->gdi.wglDeleteContext(gl->gdi.gl);
 
-	MwDynamicClose(gl->gdi.lib);
+	MwDynamicClose(gl->common.lib);
 
 	free(gl);
 }

@@ -1,4 +1,5 @@
 /* $Id$ */
+#include "Mw/LowLevel.h"
 #include <Mw/Milsko.h>
 
 MwLL (*MwLLCreate)(MwLL parent, int x, int y, int width, int height);
@@ -49,11 +50,13 @@ void (*MwLLSetClipboard)(MwLL handle, const char* text);
 char* (*MwLLGetClipboard)(MwLL handle);
 
 #ifdef BUILD_OPENGL
+void* (*MwLLGLLibGet)();
 MwLLGL (*MwLLGLCreate)(MwLL handle);
 void (*MwLLGLDestroy)(MwLL ll, MwLLGL gl);
 void (*MwLLGLMakeCurrent)(MwLL ll, MwLLGL gl);
 void (*MwLLGLSwapBuffer)(MwLL ll, MwLLGL gl);
 void* (*MwLLGLGetProcAddress)(MwLL ll, MwLLGL gl, const char* name);
+void (*MwLLGLValid)(MwLL ll);
 #endif
 
 void MwLLCreateCommon(MwLL handle) {
@@ -61,6 +64,19 @@ void MwLLCreateCommon(MwLL handle) {
 	memset(handle->common.handler, 0, sizeof(*handle->common.handler));
 }
 
+void MwLLCreateCommonGL(MwLL handle) {
+#ifdef BUILD_OPENGL
+	if(_MwLLHasOpenGL) {
+		handle->common.gl = MwLLGLCreate(handle);
+	}
+#endif
+}
+
 void MwLLDestroyCommon(MwLL handle) {
 	free(handle->common.handler);
+#ifdef BUILD_OPENGL
+	if(_MwLLHasOpenGL) {
+		MwLLGLDestroy(handle, handle->common.gl);
+	}
+#endif
 }
