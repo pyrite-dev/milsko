@@ -4,7 +4,7 @@
 #include "../../external/stb_ds.h"
 
 #define OpenerSize 10
-#define LineSpace 24
+#define LineSpace 16
 
 static void vscroll_changed(MwWidget handle, void* user, void* call) {
 	MwTreeView tv = handle->parent->internal;
@@ -22,7 +22,8 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor base, Mw
 	if((*skip) > 0){
 		(*skip)--;
 		skipped = 1;
-	}else if((*shared) < (MwGetInteger(handle, MwNheight) / MwTextHeight(handle, "M"))){
+		if(p->y == MwDefaultBorderWidth(handle)) p->y -= MwTextHeight(handle, "M");
+	}else if((*shared) < (MwGetInteger(handle, MwNheight) / MwTextHeight(handle, "M") + 2)){
 			MwRect r;
 		p->x += shift;
 		p->y += MwTextHeight(handle, "M") / 2;
@@ -42,7 +43,6 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor base, Mw
 			}
 			MwLLLine(handle->lowlevel, &l[0], text);
 		}
-
 		if(tree->tree != NULL){
 			r.width = OpenerSize;
 			r.height = OpenerSize;
@@ -50,7 +50,6 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor base, Mw
 			r.y = p->y - MwTextHeight(handle, "M") / 2 + (MwTextHeight(handle, "M") - r.height) / 2;
 			MwDrawWidgetBack(handle, &r, base, tree->opened, 1);
 		}
-
 		if(tree->pixmap != NULL){
 
 			r.height = MwTextHeight(handle, "M");
@@ -81,10 +80,10 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor base, Mw
 		l[1].x += shift + LineSpace / 2;
 
 		if(skipped && p->y > l[0].y){
-			l[0].y -= MwTextHeight(handle, "M");
 			skipped = 0;
 		}
 		if(!skipped && i != (arrlen(tree->tree) - 1)) MwLLLine(handle->lowlevel, &l[0], text);
+
 	}
 }
 

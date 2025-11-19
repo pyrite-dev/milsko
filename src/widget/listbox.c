@@ -128,7 +128,7 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 		int h = MwGetInteger(handle, MwNheight);
 
 		st = get_first_entry(handle->parent, lb);
-		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / MwTextHeight(handle, "M"); i++) {
+		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / MwTextHeight(handle, "M") + 2; i++) {
 			if(y <= m->point.y && m->point.y <= (y + MwTextHeight(handle, "M"))) {
 				unsigned long t;
 				int	      old = lb->selected;
@@ -173,7 +173,7 @@ static void frame_mouse_move(MwWidget handle, void* user, void* call) {
 		int h = MwGetInteger(handle, MwNheight);
 
 		st = get_first_entry(handle->parent, lb);
-		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / MwTextHeight(handle, "M"); i++) {
+		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / MwTextHeight(handle, "M") + 2; i++) {
 			if(y <= p->y && p->y <= (y + MwTextHeight(handle, "M"))) {
 				lb->selected = st + i;
 			}
@@ -206,7 +206,7 @@ static void frame_draw(MwWidget handle) {
 	st = get_first_entry(handle->parent, lb);
 
 	area = r.height - MwDefaultBorderWidth(handle) * 2;
-	ent  = area / MwTextHeight(handle, "M");
+	ent  = area / MwTextHeight(handle, "M") + 2;
 
 	for(i = st; i < arrlen(lb->list) && i < st + ent; i++) {
 		int selected = lb->selected == i ? 1 : 0;
