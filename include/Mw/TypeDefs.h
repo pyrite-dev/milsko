@@ -143,6 +143,7 @@ struct _MwTreeViewEntry {
 	char* label;
 	MwLLPixmap pixmap;
 	MwTreeViewEntry* tree;
+	int opened;
 };
 
 struct _MwTreeView {

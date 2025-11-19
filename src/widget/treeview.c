@@ -3,6 +3,9 @@
 
 #include "../../external/stb_ds.h"
 
+#define OpenerSize 10
+#define LineSpace 24
+
 static void vscroll_changed(MwWidget handle, void* user, void* call) {
 	MwTreeView tv = handle->parent->internal;
 
@@ -12,23 +15,26 @@ static void vscroll_changed(MwWidget handle, void* user, void* call) {
 	tv->changed = 1;
 }
 
-static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor text, MwPoint* p, int next, int shift, int* skip, int* shared){
+static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor base, MwLLColor text, MwPoint* p, int next, int shift, int* skip, int* shared){
 	int i;
 	MwPoint l[2];
+	int skipped = 0;
 	if((*skip) > 0){
 		(*skip)--;
+		skipped = 1;
 	}else if((*shared) < (MwGetInteger(handle, MwNheight) / MwTextHeight(handle, "M"))){
+			MwRect r;
 		p->x += shift;
 		p->y += MwTextHeight(handle, "M") / 2;
 
 		if(shift > 0){
 			l[0] = *p;
-			l[0].x -= 16 / 2;
+			l[0].x -= LineSpace / 2;
 			l[1] = *p;
 			MwLLLine(handle->lowlevel, &l[0], text);
 	
 			l[0] = *p;
-			l[0].x -= 16 / 2;
+			l[0].x -= LineSpace / 2;
 			l[1] = l[0];
 			l[0].y -= MwTextHeight(handle, "M") / 2;
 			if(next){
@@ -37,8 +43,15 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor text, Mw
 			MwLLLine(handle->lowlevel, &l[0], text);
 		}
 
+		if(tree->tree != NULL){
+			r.width = OpenerSize;
+			r.height = OpenerSize;
+			r.x = p->x - LineSpace + (LineSpace - r.width) / 2;
+			r.y = p->y - MwTextHeight(handle, "M") / 2 + (MwTextHeight(handle, "M") - r.height) / 2;
+			MwDrawWidgetBack(handle, &r, base, tree->opened, 1);
+		}
+
 		if(tree->pixmap != NULL){
-			MwRect r;
 
 			r.height = MwTextHeight(handle, "M");
 			r.width = r.height * tree->pixmap->common.width / tree->pixmap->common.height;
@@ -56,17 +69,22 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor text, Mw
 
 		(*shared)++;
 	}
+	if(!tree->opened) return;
 	for(i = 0; i < arrlen(tree->tree); i++){
 		l[0] = *p;
-		l[0].x += shift + 16 / 2;
-		l[0].y += MwTextHeight(handle, "M") / 2;
+		l[0].x += shift + LineSpace / 2;
+		l[0].y += MwTextHeight(handle, "M") - (MwTextHeight(handle, "M") - OpenerSize) / 2;
 
-		recursion(handle, &tree->tree[i], text, p, i != (arrlen(tree->tree) - 1) ? 1 : 0, shift+16, skip, shared);
+		recursion(handle, &tree->tree[i], base, text, p, i != (arrlen(tree->tree) - 1) ? 1 : 0, shift + LineSpace, skip, shared);
 
 		l[1] = *p;
-		l[1].x += shift + 16 / 2;
+		l[1].x += shift + LineSpace / 2;
 
-		if(i != (arrlen(tree->tree) - 1)) MwLLLine(handle->lowlevel, &l[0], text);
+		if(skipped && p->y > l[0].y){
+			l[0].y -= MwTextHeight(handle, "M");
+			skipped = 0;
+		}
+		if(!skipped && i != (arrlen(tree->tree) - 1)) MwLLLine(handle->lowlevel, &l[0], text);
 	}
 }
 
@@ -90,7 +108,7 @@ static void frame_draw(MwWidget handle) {
 
 	for(i = 0; i < arrlen(tv->tree); i++){
 		if(shared > (r.height / MwTextHeight(handle, "M"))) break;
-		recursion(handle, &tv->tree[i], text, &p, 0, 0, &skip, &shared);
+		recursion(handle, &tv->tree[i], base, text, &p, 0, 0, &skip, &shared);
 	}
 
         MwDrawFrame(handle, &r, base, 1);
@@ -103,7 +121,7 @@ static int recursive_length(MwTreeViewEntry* e){
 	int l = 0;
 	int i;
 	for(i = 0; i < arrlen(e); i++){
-		l += recursive_length(e->tree);
+		if(e[i].opened && e[i].tree != NULL) l += recursive_length(e[i].tree);
 		l++;
 	}
 	return l;
@@ -118,6 +136,7 @@ static void resize(MwWidget handle) {
 	if(tv->vscroll == NULL) {
 		tv->vscroll = MwCreateWidget(MwScrollBarClass, "vscroll", handle, w - 16, 0, 16, h);
 		MwAddUserHandler(tv->vscroll, MwNchangedHandler, vscroll_changed, NULL);
+		MwSetInteger(tv->vscroll, MwNvalue, 7);
 	} else {
 		MwVaApply(tv->vscroll,
 			  MwNx, w - 16,
@@ -149,6 +168,13 @@ static void resize(MwWidget handle) {
 		  MwNareaShown, h / MwTextHeight(handle, "M"),
 		  MwNmaxValue, ih,
 		  NULL);
+
+	if(ih <= (h / MwTextHeight(handle, "M"))){
+		MwLLShow(tv->vscroll->lowlevel, 0);
+		MwSetInteger(tv->frame, MwNwidth, w);
+	}else{
+		MwLLShow(tv->vscroll->lowlevel, 1);
+	}
 }
 
 static int create(MwWidget handle) {
@@ -166,24 +192,28 @@ static int create(MwWidget handle) {
 		e.label = MwStringDupliacte(str);
 		e.pixmap = p;
 		e.tree = NULL;
+		e.opened = 1;
 		for(j = 0; j < 3; j++){
 			MwTreeViewEntry e2;
 			sprintf(str, "hello %d", ++c);
 			e2.label = MwStringDupliacte(str);
 			e2.pixmap = p;
 			e2.tree = NULL;
+			e2.opened = j == 1 ? 0 : 1;
 			for(k = 0; k < 3; k++){
 				MwTreeViewEntry e3;
 				sprintf(str, "hello %d", ++c);
 				e3.label = MwStringDupliacte(str);
 				e3.pixmap = p;
 				e3.tree = NULL;
+				e3.opened = 1;
 				for(l = 0; l < 3; l++){
 					MwTreeViewEntry e4;
 					sprintf(str, "hello %d", ++c);
 					e4.label = MwStringDupliacte(str);
 					e4.pixmap = p;
 					e4.tree = NULL;
+					e4.opened = 1;
 					arrput(e3.tree, e4);
 				}
 				arrput(e2.tree, e3);
