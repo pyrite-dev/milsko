@@ -48,7 +48,7 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	sh.min_width = sh.max_width = w;
 	sh.min_height = sh.max_height = h;
 
-	window = MwVaCreateWidget(MwWindowClass, "messagebox", window, wx, wy, w, h,
+	window = MwVaCreateWidget(MwWindowClass, "messagebox", NULL, wx, wy, w, h,
 				  MwNtitle, title,
 				  MwNsizeHints, &sh,
 				  NULL);
