@@ -19,7 +19,9 @@ typedef struct _MwEntry*	      MwEntry;
 typedef struct _MwViewport*	      MwViewport;
 typedef struct _MwListBox*	      MwListBox;
 typedef struct _MwComboBox*	      MwComboBox;
+typedef struct _MwTreeView*	      MwTreeView;
 typedef struct _MwListBoxEntry	      MwListBoxEntry;
+typedef struct _MwTreeViewEntry MwTreeViewEntry;
 typedef struct _MwDirectoryEntry      MwDirectoryEntry;
 typedef struct _MwListBoxPacket	      MwListBoxPacket;
 #ifdef _MILSKO
@@ -124,7 +126,7 @@ struct _MwListBox {
 	MwWidget	vscroll;
 	MwWidget	frame;
 	MwListBoxEntry* list;
-	int selected;
+	int		selected;
 	unsigned long	click_time;
 	int		pressed;
 	int*		width;
@@ -135,6 +137,19 @@ struct _MwComboBox {
 	char**	 list;
 	int	 opened;
 	MwWidget listbox;
+};
+
+struct _MwTreeViewEntry {
+	char* label;
+	MwLLPixmap pixmap;
+	MwTreeViewEntry* tree;
+};
+
+struct _MwTreeView {
+	MwWidget frame;
+	MwWidget vscroll;
+	int	 changed;
+	MwTreeViewEntry* tree;
 };
 
 struct _MwDirectoryEntry {

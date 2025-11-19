@@ -85,8 +85,8 @@ static void listbox_activate(MwWidget handle, void* user, void* client) {
 	(void)user;
 
 	MwSetInteger(handle->parent, MwNvalue, *(int*)client);
-	cb->opened   = 0;
-	cb->listbox  = NULL;
+	cb->opened  = 0;
+	cb->listbox = NULL;
 
 	MwForceRender(handle->parent);
 
@@ -195,7 +195,7 @@ MwClassRec MwComboBoxClassRec = {
     draw,	    /* draw */
     click,	    /* click */
     NULL,	    /* parent_resize */
-    prop_change,	    /* prop_change */
+    prop_change,    /* prop_change */
     NULL,	    /* mouse_move */
     MwForceRender2, /* mouse_up */
     MwForceRender2, /* mouse_down */

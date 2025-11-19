@@ -319,7 +319,7 @@ static int create(MwWidget handle) {
 
 	MwSetInteger(handle, MwNsingleClickSelectable, 0);
 	MwSetInteger(handle, MwNhasHeading, 0);
-	MwSetInteger(handle, MwNvalue, 0);
+	MwSetInteger(handle, MwNleftPadding, 0);
 
 	resize(handle);
 	lb->list       = NULL;

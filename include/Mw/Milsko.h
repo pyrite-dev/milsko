@@ -49,5 +49,6 @@
 #include <Mw/Widget/RadioBox.h>
 #include <Mw/Widget/Separator.h>
 #include <Mw/Widget/ComboBox.h>
+#include <Mw/Widget/TreeView.h>
 
 #endif
