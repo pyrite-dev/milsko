@@ -4,7 +4,7 @@
 #include "../../external/stb_ds.h"
 
 #define OpenerSize 10
-#define LineSpace 16
+#define LineSpace 24
 
 static void vscroll_changed(MwWidget handle, void* user, void* call) {
 	MwTreeView tv = handle->parent->internal;
@@ -49,7 +49,41 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor base, Mw
 			r.x	 = p->x - LineSpace + (LineSpace - r.width) / 2;
 			r.y	 = p->y - MwTextHeight(handle, "M") / 2 + (MwTextHeight(handle, "M") - r.height) / 2;
 			if(draw) {
-				MwDrawWidgetBack(handle, &r, base, tree->opened, 1);
+				MwLLColor col = tree->opened ? MwLightenColor(handle, base, -8, -8, -8) : base;
+				MwRect r2 = r;
+				const int len = 4;
+
+				MwDrawRect(handle, &r, col);
+				MwDrawFrame(handle, &r, base, tree->opened);
+				if(tree->opened){
+					l[0].x = r.x + (r.width - len) / 2;
+					l[0].y = r.y + r.height / 2;
+
+					l[1].x = l[0].x + len;
+					l[1].y = l[0].y;
+
+					MwLLLine(handle->lowlevel, &l[0], text);
+				}else{
+					l[0].x = r.x + (r.width - len) / 2;
+					l[0].y = r.y + r.height / 2;
+
+					l[1].x = l[0].x + len;
+					l[1].y = l[0].y;
+
+					MwLLLine(handle->lowlevel, &l[0], text);
+
+					l[0].x = r.x + r.width / 2;
+					l[0].y = r.y + (r.height - len) / 2;
+
+					l[1].x = l[0].x;
+					l[1].y = l[0].y + len;
+
+					MwLLLine(handle->lowlevel, &l[0], text);
+				}
+				r = r2;
+				MwDrawFrame(handle, &r, base, tree->opened);
+
+				if(col != base) MwLLFreeColor(col);
 			} else if(shift != 0) {
 				if(r.x <= mouse->x && mouse->x <= (r.x + r.width) && r.y <= mouse->y && mouse->y <= (r.y + r.height)) {
 					tree->opened = tree->opened ? 0 : 1;
@@ -57,16 +91,25 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor base, Mw
 			}
 		}
 		if(tree->pixmap != NULL) {
-
 			r.height = MwTextHeight(handle, "M");
 			r.width	 = r.height * tree->pixmap->common.width / tree->pixmap->common.height;
+
 			r.x	 = p->x;
 			r.y	 = p->y - MwTextHeight(handle, "M") / 2;
 
 			if(draw) MwLLDrawPixmap(handle->lowlevel, &r, tree->pixmap);
 		}
 		p->x += MwGetInteger(handle->parent, MwNleftPadding);
-		if(draw) MwDrawText(handle, p, tree->label, 0, MwALIGNMENT_BEGINNING, text);
+		if(draw){
+			if(tree->selected){
+				r.x = p->x;
+				r.y = p->y - MwTextHeight(handle, "M") / 2;
+				r.width = MwTextWidth(handle, tree->label);
+				r.height = MwTextHeight(handle, "M");
+				MwDrawRect(handle, &r, text);
+			}
+			MwDrawText(handle, p, tree->label, 0, MwALIGNMENT_BEGINNING, tree->selected ? base : text);
+		}
 		p->x -= MwGetInteger(handle->parent, MwNleftPadding);
 
 		p->y += MwTextHeight(handle, "M") / 2;
@@ -217,56 +260,36 @@ static void resize(MwWidget handle) {
 
 static int create(MwWidget handle) {
 	MwTreeView	tv = malloc(sizeof(*tv));
-	MwTreeViewEntry e;
-	int		i, j, k, l, c = 0;
-	MwLLPixmap	p = MwLoadIcon(handle, MwIconFile);
+	MwTreeViewEntry e, e2, e3;
 	memset(tv, 0, sizeof(*tv));
-
-	for(i = 0; i < 10; i++) {
-		char str[32];
-
-		sprintf(str, "hello %d", ++c);
-
-		e.label	 = MwStringDupliacte(str);
-		e.pixmap = p;
-		e.tree	 = NULL;
-		e.opened = 1;
-		for(j = 0; j < 3; j++) {
-			MwTreeViewEntry e2;
-			sprintf(str, "hello %d", ++c);
-			e2.label  = MwStringDupliacte(str);
-			e2.pixmap = p;
-			e2.tree	  = NULL;
-			e2.opened = j == 1 ? 0 : 1;
-			for(k = 0; k < 3; k++) {
-				MwTreeViewEntry e3;
-				sprintf(str, "hello %d", ++c);
-				e3.label  = MwStringDupliacte(str);
-				e3.pixmap = p;
-				e3.tree	  = NULL;
-				e3.opened = 1;
-				for(l = 0; l < 3; l++) {
-					MwTreeViewEntry e4;
-					sprintf(str, "hello %d", ++c);
-					e4.label  = MwStringDupliacte(str);
-					e4.pixmap = p;
-					e4.tree	  = NULL;
-					e4.opened = 1;
-					arrput(e3.tree, e4);
-				}
-				arrput(e2.tree, e3);
-			}
-			arrput(e.tree, e2);
-		}
-		arrput(tv->tree, e);
-	}
 
 	handle->internal = tv;
 
 	MwSetDefault(handle);
 
+	e3.label = MwStringDupliacte("hello");
+	e3.pixmap = NULL;
+	e3.tree = NULL;
+	e3.opened = 1;
+	e3.selected = 0;
+
+	e2.label = MwStringDupliacte("hello");
+	e2.pixmap = NULL;
+	e2.tree = NULL;
+	e2.opened = 1;
+	e2.selected = 0;
+	arrput(e2.tree, e3);
+
+	e.label = MwStringDupliacte("hello");
+	e.pixmap = NULL;
+	e.tree = NULL;
+	e.opened = 1;
+	e.selected = 1;
+	arrput(e.tree, e2);
+	arrput(tv->tree, e);
+
 	MwSetInteger(handle, MwNsingleClickSelectable, 0);
-	MwSetInteger(handle, MwNleftPadding, 16);
+	MwSetInteger(handle, MwNleftPadding, 0);
 
 	resize(handle);
 	tv->changed = 0;

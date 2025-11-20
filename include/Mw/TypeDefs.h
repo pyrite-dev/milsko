@@ -144,6 +144,7 @@ struct _MwTreeViewEntry {
 	MwLLPixmap	 pixmap;
 	MwTreeViewEntry* tree;
 	int		 opened;
+	int selected;
 };
 
 struct _MwTreeView {
