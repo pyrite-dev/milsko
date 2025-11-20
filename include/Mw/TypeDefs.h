@@ -145,6 +145,7 @@ struct _MwTreeViewEntry {
 	MwTreeViewEntry* tree;
 	int		 opened;
 	int selected;
+	unsigned long click_time;
 };
 
 struct _MwTreeView {

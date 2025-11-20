@@ -40,6 +40,8 @@
 
 #define MwWaitMS 30
 
+#define MwDoubleClickTimeout 250
+
 #ifdef __cplusplus
 extern "C" {
 #endif

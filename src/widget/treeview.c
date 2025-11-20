@@ -15,7 +15,15 @@ static void vscroll_changed(MwWidget handle, void* user, void* call) {
 	tv->changed = 1;
 }
 
-static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor base, MwLLColor text, MwPoint* p, int next, int shift, int* skip, int* shared, int draw, MwPoint* mouse) {
+static void set_all(MwTreeViewEntry* root, int v){
+	int i;
+	for(i = 0; i < arrlen(root); i++){
+		root[i].selected = v;
+		set_all(root[i].tree, v);
+	}
+}
+
+static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry* root, MwLLColor base, MwLLColor text, MwPoint* p, int next, int shift, int* skip, int* shared, int draw, MwPoint* mouse) {
 	int	i;
 	MwPoint l[2];
 	int	skipped = 0;
@@ -108,7 +116,21 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor base, Mw
 				r.height = MwTextHeight(handle, "M");
 				MwDrawRect(handle, &r, text);
 			}
+			handle->bgcolor = tree->selected ? text : base;
 			MwDrawText(handle, p, tree->label, 0, MwALIGNMENT_BEGINNING, tree->selected ? base : text);
+			handle->bgcolor = NULL;
+		}else{
+			if(p->x <= mouse->x && mouse->x <= (p->x + MwTextWidth(handle, tree->label)) && (p->y - MwTextHeight(handle, "M") / 2) <= mouse->y && mouse->y <= (p->y + MwTextHeight(handle, "M") / 2)){
+				unsigned long t;
+
+				set_all(root, 0);
+				tree->selected = 1;
+				if(((t = MwTimeGetTick()) - tree->click_time) < MwDoubleClickTimeout || MwGetInteger(handle->parent, MwNsingleClickSelectable)){
+					/* TODO: dispatch event */
+				}
+
+				tree->click_time = t;
+			}
 		}
 		p->x -= MwGetInteger(handle->parent, MwNleftPadding);
 
@@ -123,7 +145,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwLLColor base, Mw
 		l[0].x += shift + LineSpace / 2;
 		l[0].y += MwTextHeight(handle, "M") - (MwTextHeight(handle, "M") - OpenerSize) / 2;
 
-		recursion(handle, &tree->tree[i], base, text, p, i != (arrlen(tree->tree) - 1) ? 1 : 0, shift + LineSpace, skip, shared, draw, mouse);
+		recursion(handle, &tree->tree[i], root, base, text, p, i != (arrlen(tree->tree) - 1) ? 1 : 0, shift + LineSpace, skip, shared, draw, mouse);
 
 		l[1] = *p;
 		l[1].x += shift + LineSpace / 2;
@@ -155,7 +177,7 @@ static void frame_draw(MwWidget handle) {
 
 	for(i = 0; i < arrlen(tv->tree); i++) {
 		if(shared > (r.height / MwTextHeight(handle, "M"))) break;
-		recursion(handle, &tv->tree[i], base, text, &p, 0, 0, &skip, &shared, 1, NULL);
+		recursion(handle, &tv->tree[i], tv->tree, base, text, &p, 0, 0, &skip, &shared, 1, NULL);
 	}
 
 	MwDrawFrame(handle, &r, base, 1);
@@ -200,7 +222,7 @@ static void frame_mouse_up(MwWidget handle, void* user, void* call) {
 		p.y = MwDefaultBorderWidth(tv->frame);
 		for(i = 0; i < arrlen(tv->tree); i++) {
 			if(shared > (MwGetInteger(tv->frame, MwNheight) / MwTextHeight(tv->frame, "M"))) break;
-			recursion(tv->frame, &tv->tree[i], NULL, NULL, &p, 0, 0, &skip, &shared, 0, &tv->pressed);
+			recursion(tv->frame, &tv->tree[i], tv->tree, NULL, NULL, &p, 0, 0, &skip, &shared, 0, &tv->pressed);
 		}
 		resize(handle->parent);
 	}
@@ -272,19 +294,22 @@ static int create(MwWidget handle) {
 	e3.tree = NULL;
 	e3.opened = 1;
 	e3.selected = 0;
+	e3.click_time = 0;
 
 	e2.label = MwStringDupliacte("hello");
 	e2.pixmap = NULL;
 	e2.tree = NULL;
 	e2.opened = 1;
 	e2.selected = 0;
+	e2.click_time = 0;
 	arrput(e2.tree, e3);
 
 	e.label = MwStringDupliacte("hello");
 	e.pixmap = NULL;
 	e.tree = NULL;
 	e.opened = 1;
-	e.selected = 1;
+	e.selected = 0;
+	e.click_time = 0;
 	arrput(e.tree, e2);
 	arrput(tv->tree, e);
 
