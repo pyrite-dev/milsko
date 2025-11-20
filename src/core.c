@@ -106,7 +106,7 @@ static void llfocusouthandler(MwLL handle, void* data) {
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	MwWidget h = malloc(sizeof(*h));
 
-	h->name = MwStringDupliacte(name);
+	h->name = MwStringDuplicate(name);
 
 	h->parent   = parent;
 	h->children = NULL;
@@ -361,7 +361,7 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 	if(strcmp(key, MwNtitle) == 0) {
 		MwLLSetTitle(handle->lowlevel, value);
 	} else {
-		char* v = MwStringDupliacte(value);
+		char* v = MwStringDuplicate(value);
 
 		if(shgeti(handle->text, key) != -1) free(shget(handle->text, key));
 

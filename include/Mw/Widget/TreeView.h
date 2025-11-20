@@ -19,6 +19,36 @@ extern "C" {
  */
 MWDECL MwClass MwTreeViewClass;
 
+/*!
+ * @brief Adds item to the treeview
+ * @param handle Widget
+ * @parma parent Parent
+ * @parma pixmap Pixmap
+ * @param item Item
+ */
+MwInline void* MwTreeViewAdd(MwWidget handle, void* parent, MwLLPixmap pixmap, const char* item) {
+	void* out;
+	MwVaWidgetExecute(handle, "mwTreeViewAdd", &out, parent, pixmap, item);
+	return out;
+}
+
+/*!
+ * @brief Deletes item from the treeview
+ * @param handle Widget
+ * @param item Item
+ */
+MwInline void MwTreeViewDelete(MwWidget handle, void* item) {
+	MwVaWidgetExecute(handle, "mwTreeViewDelete", NULL, item);
+}
+
+/*!
+ * @brief Resets the treeview
+ * @param handle Widget
+ */
+MwInline void MwTreeViewReset(MwWidget handle) {
+	MwVaWidgetExecute(handle, "mwTreeViewReset", NULL);
+}
+
 #ifdef __cplusplus
 }
 #endif

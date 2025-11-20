@@ -179,7 +179,7 @@ static void mouse_up(MwWidget handle, void* ptr) {
 static MwMenu mwMenuAddImpl(MwWidget handle, MwMenu menu, const char* name) {
 	MwMenu m   = menu == NULL ? handle->internal : menu;
 	MwMenu new = malloc(sizeof(*new));
-	new->name  = MwStringDupliacte(name);
+	new->name  = MwStringDuplicate(name);
 	new->sub   = NULL;
 	new->wsub  = NULL;
 	new->keep  = 0;

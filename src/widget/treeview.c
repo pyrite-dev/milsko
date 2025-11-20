@@ -282,36 +282,11 @@ static void resize(MwWidget handle) {
 
 static int create(MwWidget handle) {
 	MwTreeView	tv = malloc(sizeof(*tv));
-	MwTreeViewEntry e, e2, e3;
 	memset(tv, 0, sizeof(*tv));
 
 	handle->internal = tv;
 
 	MwSetDefault(handle);
-
-	e3.label = MwStringDupliacte("hello");
-	e3.pixmap = NULL;
-	e3.tree = NULL;
-	e3.opened = 1;
-	e3.selected = 0;
-	e3.click_time = 0;
-
-	e2.label = MwStringDupliacte("hello");
-	e2.pixmap = NULL;
-	e2.tree = NULL;
-	e2.opened = 1;
-	e2.selected = 0;
-	e2.click_time = 0;
-	arrput(e2.tree, e3);
-
-	e.label = MwStringDupliacte("hello");
-	e.pixmap = NULL;
-	e.tree = NULL;
-	e.opened = 1;
-	e.selected = 0;
-	e.click_time = 0;
-	arrput(e.tree, e2);
-	arrput(tv->tree, e);
 
 	MwSetInteger(handle, MwNsingleClickSelectable, 0);
 	MwSetInteger(handle, MwNleftPadding, 0);
@@ -343,6 +318,44 @@ static void prop_change(MwWidget handle, const char* prop) {
 	if(strcmp(prop, MwNwidth) == 0 || strcmp(prop, MwNheight) == 0) resize(handle);
 }
 
+static void* mwTreeViewAddImpl(MwWidget handle, void* parent, MwLLPixmap pixmap, const char* item){
+	MwTreeView tv = handle->internal;
+	MwTreeViewEntry t;
+
+	t.label = MwStringDuplicate(item);
+	t.pixmap = pixmap;
+	t.selected = 0;
+	t.opened = 1;
+	t.click_time = 0;
+
+	if(parent == NULL){
+		arrput(tv->tree, t);
+	}
+	resize(handle);
+}
+
+static void mwTreeViewDeleteImpl(MwWidget handle, void* item){
+}
+
+static void mwTreeViewResetImpl(MwWidget handle){
+}
+
+static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	if(strcmp(name, "mwTreeViewAdd") == 0){
+		void* parent = va_arg(va, void*);
+		MwLLPixmap pixmap = va_arg(va, MwLLPixmap);
+		const char* item = va_arg(va, const char*);
+		*(void**)out = mwTreeViewAddImpl(handle, parent, pixmap, item);
+	}
+	if(strcmp(name, "mwTreeViewDelete") == 0){
+		void* item = va_arg(va, void*);
+		mwTreeViewDeleteImpl(handle, item);
+	}
+	if(strcmp(name, "mwTreeViewReset") == 0){
+		mwTreeViewResetImpl(handle);
+	}
+}
+
 static void tick(MwWidget handle) {
 	MwTreeView tv = handle->internal;
 
@@ -363,7 +376,7 @@ MwClassRec MwTreeViewClassRec = {
     NULL,	 /* mouse_up */
     NULL,	 /* mouse_down */
     NULL,	 /* key */
-    NULL,	 /* execute */
+    func_handler,	 /* execute */
     tick,	 /* tick */
     NULL,
     NULL,

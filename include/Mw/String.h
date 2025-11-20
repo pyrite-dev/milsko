@@ -18,7 +18,7 @@ extern "C" {
  * @param str String
  * @return String
  */
-MWDECL char* MwStringDupliacte(const char* str);
+MWDECL char* MwStringDuplicate(const char* str);
 
 /*!
  * @brief Concatenates 2 strings

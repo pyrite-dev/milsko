@@ -385,7 +385,7 @@ static void scan(MwWidget handle, const char* path, int record) {
 		qsort(fc->entries, arrlen(fc->entries), sizeof(MwDirectoryEntry*), qsort_files);
 
 		if(record) {
-			char* str = MwStringDupliacte(path);
+			char* str = MwStringDuplicate(path);
 
 			while(arrlen(fc->history) > fc->history_seek) {
 				free(fc->history[fc->history_seek]);
@@ -403,7 +403,7 @@ static void scan(MwWidget handle, const char* path, int record) {
 	}
 
 	if(fc->path != NULL) free(fc->path);
-	fc->path = MwStringDupliacte(path);
+	fc->path = MwStringDuplicate(path);
 
 	MwVaApply(fc->addr,
 		  MwNtext, path,

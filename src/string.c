@@ -1,7 +1,7 @@
 /* $Id$ */
 #include <Mw/Milsko.h>
 
-char* MwStringDupliacte(const char* str) {
+char* MwStringDuplicate(const char* str) {
 	char* r = malloc(strlen(str) + 1);
 	strcpy(r, str);
 

@@ -43,7 +43,7 @@ int MwListBoxPacketInsert(MwListBoxPacket* packet, int index) {
 }
 
 void MwListBoxPacketSet(MwListBoxPacket* packet, int index, int col, const char* text) {
-	char* t = text == NULL ? NULL : MwStringDupliacte(text);
+	char* t = text == NULL ? NULL : MwStringDuplicate(text);
 	int   i;
 
 	if(col == -1) col = arrlen(packet->names[index]);
@@ -410,7 +410,7 @@ static void mwListBoxInsertImpl(MwWidget handle, int index, MwListBoxPacket* pac
 		entry.name = NULL;
 		for(j = 0; j < max; j++) {
 			if(arrlen(packet->names[i]) > j && packet->names[i][j] != NULL) {
-				name = MwStringDupliacte(packet->names[i][j]);
+				name = MwStringDuplicate(packet->names[i][j]);
 				arrput(entry.name, name);
 			} else {
 				arrput(entry.name, NULL);
@@ -494,8 +494,6 @@ static void mwListBoxSetWidthImpl(MwWidget handle, int index, int width) {
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
-	(void)out;
-
 	if(strcmp(name, "mwListBoxDelete") == 0) {
 		int index = va_arg(va, int);
 		mwListBoxDeleteImpl(handle, index);

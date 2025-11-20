@@ -72,7 +72,7 @@ MwInline void MwListBoxInsert(MwWidget handle, int index, void* packet) {
  * @param index Index
  */
 MwInline void MwListBoxDelete(MwWidget handle, int index) {
-	MwVaWidgetExecute(handle, "mwListboxDelete", NULL, index);
+	MwVaWidgetExecute(handle, "mwListBoxDelete", NULL, index);
 }
 
 /*!

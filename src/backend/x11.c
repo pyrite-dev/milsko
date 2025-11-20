@@ -943,7 +943,7 @@ static char* MwLLGetClipboardImpl(MwLL handle) {
 
 				XGetWindowProperty(ev.xselection.display, ev.xselection.requestor, ev.xselection.property, 0, (~0L), 0, AnyPropertyType, &t, &format, &size, &N, (unsigned char**)&data);
 				if(t == target) {
-					r = MwStringDupliacte(data);
+					r = MwStringDuplicate(data);
 					XFree(data);
 				}
 				XDeleteProperty(ev.xselection.display, ev.xselection.requestor, ev.xselection.property);

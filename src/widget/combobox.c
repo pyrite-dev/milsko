@@ -162,7 +162,7 @@ static void prop_change(MwWidget handle, const char* prop) {
 
 static void mwComboBoxAddImpl(MwWidget handle, int index, const char* text) {
 	MwComboBox cb = handle->internal;
-	char*	   t  = MwStringDupliacte(text);
+	char*	   t  = MwStringDuplicate(text);
 
 	if(index == -1) index = arrlen(cb->list);
 
