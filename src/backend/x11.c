@@ -201,7 +201,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->x11.width  = width;
 	r->x11.height = height;
 
-	r->x11.grabbed = 0;
+	r->x11.grabbed	    = 0;
+	r->x11.force_render = 0;
 
 	r->x11.colormap	 = DefaultColormap(r->x11.display, XDefaultScreen(r->x11.display));
 	r->x11.wm_delete = XInternAtom(r->x11.display, "WM_DELETE_WINDOW", False);
@@ -400,7 +401,8 @@ static void MwLLNextEventImpl(MwLL handle) {
 	while(XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, ClientMessage, &ev) || XCheckWindowEvent(handle->x11.display, handle->x11.window, mask, &ev)) {
 		int render = 0;
 		if(ev.type == Expose) {
-			render = 1;
+			handle->x11.force_render = 0;
+			render			 = 1;
 		} else if(ev.type == ButtonPress) {
 			MwLLMouse p;
 			p.point.x = ev.xbutton.x;
@@ -759,9 +761,13 @@ static void MwLLForceRenderImpl(MwLL handle) {
 	XEvent ev;
 	memset(&ev, 0, sizeof(ev));
 
-	ev.type		  = Expose;
-	ev.xexpose.window = handle->x11.window;
-	XSendEvent(handle->x11.display, handle->x11.window, False, ExposureMask, &ev);
+	if(!handle->x11.force_render) {
+		ev.type		  = Expose;
+		ev.xexpose.window = handle->x11.window;
+		XSendEvent(handle->x11.display, handle->x11.window, False, ExposureMask, &ev);
+
+		handle->x11.force_render = 1;
+	}
 }
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {

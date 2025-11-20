@@ -618,5 +618,22 @@
 				</function>
 			</functions>
 		</widget>
+		<widget name="TreeView">
+			<properties>
+				<property name="leftPadding" />
+				<property name="singleClickSelectable" />
+			</properties>
+			<functions>
+				<function name="Add">
+					<pointer name="parent" />
+					<pixmap name="pixmap" />
+					<string name="item" />
+				</function>
+				<function name="Delete">
+					<pointer name="item" />
+				</function>
+				<function name="Reset" />
+			</functions>
+		</widget>
 	</widgets>
 </milsko>

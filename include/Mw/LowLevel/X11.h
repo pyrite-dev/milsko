@@ -35,6 +35,7 @@ struct _MwLLX11 {
 
 	int top;
 	int grabbed;
+	int force_render;
 
 	unsigned long red_mask;
 	unsigned long red_max;

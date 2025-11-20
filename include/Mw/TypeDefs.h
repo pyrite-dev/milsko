@@ -140,19 +140,20 @@ struct _MwComboBox {
 };
 
 struct _MwTreeViewEntry {
-	char*		 label;
-	MwLLPixmap	 pixmap;
-	MwTreeViewEntry* tree;
-	int		 opened;
-	int selected;
-	unsigned long click_time;
+	char*		  label;
+	MwLLPixmap	  pixmap;
+	MwTreeViewEntry** tree;
+	int		  opened;
+	int		  selected;
+	unsigned long	  click_time;
+	MwTreeViewEntry*  parent;
 };
 
 struct _MwTreeView {
-	MwWidget	 frame;
-	MwWidget	 vscroll;
-	int		 changed;
-	MwTreeViewEntry* tree;
+	MwWidget	  frame;
+	MwWidget	  vscroll;
+	int		  changed;
+	MwTreeViewEntry** tree;
 
 	MwPoint pressed;
 };
