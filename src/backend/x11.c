@@ -92,7 +92,7 @@ static void wait_unmap(MwLL handle, int sync) {
 	XWindowAttributes xwa;
 
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
-	if(xwa.map_state == IsViewable) {
+	if(xwa.map_state != IsUnmapped) {
 		XSync(handle->x11.display, False);
 
 		XUnmapWindow(handle->x11.display, handle->x11.window);
@@ -102,7 +102,7 @@ static void wait_unmap(MwLL handle, int sync) {
 		do {
 			XSync(handle->x11.display, False);
 			XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
-		} while(xwa.map_state == IsViewable);
+		} while(xwa.map_state != IsUnmapped);
 	}
 }
 
