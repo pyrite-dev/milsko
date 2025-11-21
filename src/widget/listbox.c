@@ -222,9 +222,9 @@ static void frame_draw(MwWidget handle) {
 
 		if(selected) {
 			MwRect r2;
-			r2.x	  = 0;
+			r2.x	  = MwGetInteger(handle->parent, MwNleftPadding);
 			r2.y	  = p.y;
-			r2.width  = r.width;
+			r2.width  = r.width - r2.x;
 			r2.height = MwTextHeight(handle, "M");
 			MwDrawRect(handle, &r2, text2);
 			handle->bgcolor = text2;
@@ -239,7 +239,7 @@ static void frame_draw(MwWidget handle) {
 			MwLLDrawPixmap(handle->lowlevel, &r2, lb->list[i].pixmap);
 		}
 		p.y += MwTextHeight(handle, "M") / 2;
-		p.x = MwGetInteger(handle->parent, MwNleftPadding) - MwDefaultBorderWidth(handle);
+		p.x = MwGetInteger(handle->parent, MwNleftPadding);
 		for(j = 0; j < arrlen(lb->list[i].name); j++) {
 			char* t = lb->list[i].name[j];
 

@@ -40,7 +40,7 @@ int main() {
 
 	px = MwLoadIcon(lb, MwIconInfo);
 
-	MwSetInteger(lb, MwNleftPadding, 16);
+	MwSetInteger(lb, MwNleftPadding, 20);
 
 	packet = MwListBoxCreatePacket();
 	index  = MwListBoxPacketInsert(packet, -1);
