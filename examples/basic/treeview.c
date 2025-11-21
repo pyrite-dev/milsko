@@ -1,0 +1,41 @@
+#include <Mw/Milsko.h>
+
+MwWidget wmain;
+
+void destroy(MwWidget handle, void* user, void* call) {
+	(void)handle;
+	(void)call;
+	MwMessageBoxDestroy(user);
+}
+
+void activate(MwWidget handle, void* user, void* call) {
+	char	 msg[256];
+	MwWidget msgbox;
+
+	(void)user;
+
+	sprintf(msg, "You pressed: %s", MwTreeViewGet(handle, call));
+
+	msgbox = MwMessageBox(wmain, msg, "wow", MwMB_ICONINFO | MwMB_BUTTONOK);
+	MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, destroy, msgbox);
+}
+
+int main(){
+	MwWidget tv;
+	int i;
+	void* p = NULL, *r;
+
+	MwLibraryInit();
+	
+	wmain = MwCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 5 + 640 + 5, 5 + 480 + 5);
+	tv = MwCreateWidget(MwTreeViewClass, "tree", wmain, 5, 5, 640, 480);
+
+	MwAddUserHandler(tv, MwNactivateHandler, activate, NULL);
+
+	for(i = 0; i < 10; i++){
+		p = MwTreeViewAdd(tv, p, NULL, "Hello");
+		if(i == 5) r = p;
+	}
+
+	MwLoop(wmain);
+}
