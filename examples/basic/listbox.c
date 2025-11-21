@@ -29,6 +29,7 @@ int main() {
 	int		 i;
 	MwListBoxPacket* packet;
 	int		 index;
+	MwLLPixmap px;
 
 	MwLibraryInit();
 
@@ -36,6 +37,10 @@ int main() {
 				 MwNtitle, "listbox",
 				 NULL);
 	lb    = MwCreateWidget(MwListBoxClass, "listbox", wmain, 5, 5, 630, 470);
+
+	px = MwLoadIcon(lb, MwIconInfo);
+
+	MwSetInteger(lb, MwNleftPadding, 16);
 
 	packet = MwListBoxCreatePacket();
 	index  = MwListBoxPacketInsert(packet, -1);
@@ -46,6 +51,7 @@ int main() {
 		char sz[16];
 		sprintf(sz, "%d", (int)strlen(harvard[i]));
 		index = MwListBoxPacketInsert(packet, -1);
+		MwListBoxPacketSetIcon(packet, index, px);
 		MwListBoxPacketSet(packet, index, 0, harvard[i]);
 		MwListBoxPacketSet(packet, index, 1, sz);
 	}
