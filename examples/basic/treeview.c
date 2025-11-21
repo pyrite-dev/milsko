@@ -22,6 +22,7 @@ void activate(MwWidget handle, void* user, void* call) {
 
 int main(){
 	MwWidget tv;
+	MwLLPixmap px;
 	int i;
 	void* p = NULL, *r;
 
@@ -30,11 +31,19 @@ int main(){
 	wmain = MwCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 5 + 640 + 5, 5 + 480 + 5);
 	tv = MwCreateWidget(MwTreeViewClass, "tree", wmain, 5, 5, 640, 480);
 
+	px = MwLoadIcon(tv, MwIconInfo);
+
+	MwSetInteger(tv, MwNleftPadding, 16);
+
 	MwAddUserHandler(tv, MwNactivateHandler, activate, NULL);
 
 	for(i = 0; i < 10; i++){
-		p = MwTreeViewAdd(tv, p, NULL, "Hello");
+		void* old = p;
+
+		MwTreeViewAdd(tv, old, px, "World");
+		p = MwTreeViewAdd(tv, old, px, "Hello");
 		if(i == 5) r = p;
+		MwTreeViewAdd(tv, old, px, "Goodbye");
 	}
 
 	MwLoop(wmain);

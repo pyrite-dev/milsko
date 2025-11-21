@@ -61,6 +61,26 @@ MwInline const char* MwTreeViewGet(MwWidget handle, void* item) {
 	return out;
 }
 
+/*!
+ * @brief Sets the label of ithe item
+ * @param handle Widget
+ * @param item Item
+ * @param label Label
+ */
+MwInline void MwTreeViewSetLabel(MwWidget handle, void* item, const char* label) {
+	MwVaWidgetExecute(handle, "mwTreeViewSetLabel", NULL, item, label);
+}
+
+/*!
+ * @brief Sets the pixmap of ithe item
+ * @param handle Widget
+ * @param item Item
+ * @param pixmap Pixmap
+ */
+MwInline void MwTreeViewSetPixmap(MwWidget handle, void* item, MwLLPixmap pixmap) {
+	MwVaWidgetExecute(handle, "mwTreeViewSetPixmap", NULL, item, pixmap);
+}
+
 #ifdef __cplusplus
 }
 #endif
