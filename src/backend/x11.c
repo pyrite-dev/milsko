@@ -78,6 +78,7 @@ static void wait_map(MwLL handle, int sync) {
 		XSync(handle->x11.display, False);
 
 		XMapWindow(handle->x11.display, handle->x11.window);
+		XSync(handle->x11.display, False);
 
 		if(!sync) return;
 		do {
@@ -95,6 +96,7 @@ static void wait_unmap(MwLL handle, int sync) {
 		XSync(handle->x11.display, False);
 
 		XUnmapWindow(handle->x11.display, handle->x11.window);
+		XSync(handle->x11.display, False);
 
 		if(!sync) return;
 		do {
