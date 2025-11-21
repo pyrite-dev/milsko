@@ -12,7 +12,7 @@ static void set_xywh(MwWidget handle) {
 	MwVaApply(handle,
 		  MwNx, -MwDefaultBorderWidth(handle),
 		  MwNy, -MwDefaultBorderWidth(handle),
-		  MwNwidth, MwGetInteger(handle->parent, MwNwidth) + MwDefaultBorderWidth(handle),
+		  MwNwidth, MwGetInteger(handle->parent, MwNwidth) + MwDefaultBorderWidth(handle) * 2,
 		  MwNheight, height + MwDefaultBorderWidth(handle),
 		  NULL);
 }
