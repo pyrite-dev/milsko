@@ -33,7 +33,9 @@
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
 #define MwNbackground "Sbackground"
+#define MwNsubBackground "SsubBackground"
 #define MwNforeground "Sforeground"
+#define MwNsubForeground "SsubForeground"
 
 #define MwNpixmap "Vpixmap"
 #define MwNiconPixmap "ViconPixmap"
@@ -41,7 +43,7 @@
 #define MwNfont "Vfont"
 #define MwNboldFont "VboldFont"
 
-#define MwNactivateHandler "Cactivate"	     /* NULL/int* (MwListBox) */
+#define MwNactivateHandler "Cactivate"	     /* NULL/int* (MwListBox)/void* (MwTreeView) */
 #define MwNresizeHandler "Cresize"	     /* NULL */
 #define MwNtickHandler "Ctick"		     /* NULL */
 #define MwNmenuHandler "Cmenu"		     /* MwMenu */

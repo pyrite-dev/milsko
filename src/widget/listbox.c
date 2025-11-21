@@ -185,10 +185,12 @@ static void frame_mouse_move(MwWidget handle, void* user, void* call) {
 }
 
 static void frame_draw(MwWidget handle) {
-	MwRect	  r;
-	MwListBox lb   = handle->parent->internal;
-	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwRect	  r, r2;
+	MwListBox lb	= handle->parent->internal;
+	MwLLColor base	= MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor base2 = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
+	MwLLColor text	= MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwLLColor text2 = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
 	int	  i;
 	MwPoint	  p;
 	int	  st = 0;
@@ -199,9 +201,15 @@ static void frame_draw(MwWidget handle) {
 	r.y	 = 0;
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
+	r2	 = r;
 
 	p.x = MwDefaultBorderWidth(handle);
 	p.y = MwDefaultBorderWidth(handle);
+
+	MwDrawFrame(handle, &r, base, 1);
+	MwDrawRect(handle, &r, base2);
+
+	r = r2;
 
 	st = get_first_entry(handle->parent, lb);
 
@@ -218,8 +226,8 @@ static void frame_draw(MwWidget handle) {
 			r2.y	  = p.y;
 			r2.width  = r.width;
 			r2.height = MwTextHeight(handle, "M");
-			MwDrawRect(handle, &r2, text);
-			handle->bgcolor = text;
+			MwDrawRect(handle, &r2, text2);
+			handle->bgcolor = text2;
 		}
 		if(lb->list[i].pixmap != NULL) {
 			MwRect r2;
@@ -238,7 +246,7 @@ static void frame_draw(MwWidget handle) {
 			if(t == NULL) t = "";
 
 			p.x += MwDefaultBorderWidth(handle);
-			MwDrawText(handle, &p, t, 0, MwALIGNMENT_BEGINNING, selected ? base : text);
+			MwDrawText(handle, &p, t, 0, MwALIGNMENT_BEGINNING, selected ? base2 : text2);
 			p.x += get_col_width(lb, j) - MwDefaultBorderWidth(handle);
 			if(j == 0) p.x -= 4;
 
@@ -250,7 +258,9 @@ static void frame_draw(MwWidget handle) {
 
 	MwDrawFrame(handle, &r, base, 1);
 
+	MwLLFreeColor(text2);
 	MwLLFreeColor(text);
+	MwLLFreeColor(base2);
 	MwLLFreeColor(base);
 }
 

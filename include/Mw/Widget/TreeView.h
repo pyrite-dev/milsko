@@ -49,6 +49,18 @@ MwInline void MwTreeViewReset(MwWidget handle) {
 	MwVaWidgetExecute(handle, "mwTreeViewReset", NULL);
 }
 
+/*!
+ * @brief Gets item from the treeview
+ * @param handle Widget
+ * @param item Item
+ * @return Item
+ */
+MwInline const char* MwTreeViewGet(MwWidget handle, void* item) {
+	const char* out;
+	MwVaWidgetExecute(handle, "mwTreeViewGet", (void*)&out, item);
+	return out;
+}
+
 #ifdef __cplusplus
 }
 #endif

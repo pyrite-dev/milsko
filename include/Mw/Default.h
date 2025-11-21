@@ -24,6 +24,16 @@ MWDECL const char* MwDefaultBackground;
 MWDECL const char* MwDefaultForeground;
 
 /*!
+ * @brief Default sub background color
+ */
+MWDECL const char* MwDefaultSubBackground;
+
+/*!
+ * @brief Default sub foreground color
+ */
+MWDECL const char* MwDefaultSubForeground;
+
+/*!
  * @brief Default dark theme background color
  */
 MWDECL const char* MwDefaultDarkBackground;
@@ -32,6 +42,16 @@ MWDECL const char* MwDefaultDarkBackground;
  * @brief Default dark theme foreground color
  */
 MWDECL const char* MwDefaultDarkForeground;
+
+/*!
+ * @brief Default dark theme sub background color
+ */
+MWDECL const char* MwDefaultDarkSubBackground;
+
+/*!
+ * @brief Default dark theme sub foreground color
+ */
+MWDECL const char* MwDefaultDarkSubForeground;
 
 /*!
  * @brief Gets default border width

@@ -373,7 +373,7 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 		MwLLSetBackground(handle->lowlevel, c);
 		MwLLFreeColor(c);
 	}
-	if(strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0) {
+	if(strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0) {
 		MwForceRender(handle);
 	}
 }
@@ -411,7 +411,7 @@ int MwGetInteger(MwWidget handle, const char* key) {
 }
 
 const char* MwGetText(MwWidget handle, const char* key) {
-	if(shgeti(handle->text, key) == -1 && (strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0)) {
+	if(shgeti(handle->text, key) == -1 && (strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0)) {
 		const char* v = NULL;
 		MwWidget    h = handle->parent;
 		while(h != NULL) {
@@ -422,9 +422,13 @@ const char* MwGetText(MwWidget handle, const char* key) {
 			if(handle->dark_theme) {
 				if(strcmp(key, MwNbackground) == 0) return MwDefaultDarkBackground;
 				if(strcmp(key, MwNforeground) == 0) return MwDefaultDarkForeground;
+				if(strcmp(key, MwNsubBackground) == 0) return MwDefaultDarkSubBackground;
+				if(strcmp(key, MwNsubForeground) == 0) return MwDefaultDarkSubForeground;
 			} else {
 				if(strcmp(key, MwNbackground) == 0) return MwDefaultBackground;
 				if(strcmp(key, MwNforeground) == 0) return MwDefaultForeground;
+				if(strcmp(key, MwNsubBackground) == 0) return MwDefaultSubBackground;
+				if(strcmp(key, MwNsubForeground) == 0) return MwDefaultSubForeground;
 			}
 		}
 		return v;
