@@ -98,6 +98,16 @@ MwInline void MwListBoxSetWidth(MwWidget handle, int index, int width) {
 }
 
 /*!
+ * @brief Sets an item alignment of the listbox
+ * @param handle Widget
+ * @param index Column index
+ * @param alignment Alignment
+ */
+MwInline void MwListBoxSetAlignment(MwWidget handle, int index, int alignment) {
+	MwVaWidgetExecute(handle, "mwListBoxSetAlignment", NULL, index, alignment);
+}
+
+/*!
  * @brief Resets the listbox
  * @param handle Widget
  */

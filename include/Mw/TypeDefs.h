@@ -130,6 +130,7 @@ struct _MwListBox {
 	unsigned long	click_time;
 	int		pressed;
 	int*		width;
+	int*		alignment;
 	int		changed;
 };
 

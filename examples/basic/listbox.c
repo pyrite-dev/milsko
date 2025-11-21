@@ -54,7 +54,7 @@ int main() {
 	MwVaApply(lb,
 		  MwNhasHeading, 1,
 		  NULL);
-	MwListBoxSetWidth(lb, 0, -64);
+	MwListBoxSetWidth(lb, 0, -128);
 	MwListBoxInsert(lb, -1, packet);
 
 	MwListBoxDestroyPacket(packet);

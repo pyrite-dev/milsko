@@ -239,16 +239,28 @@ static void frame_draw(MwWidget handle) {
 			MwLLDrawPixmap(handle->lowlevel, &r2, lb->list[i].pixmap);
 		}
 		p.y += MwTextHeight(handle, "M") / 2;
-		p.x = MwGetInteger(handle->parent, MwNleftPadding) + MwDefaultBorderWidth(handle) + 4;
+		p.x = MwGetInteger(handle->parent, MwNleftPadding) - MwDefaultBorderWidth(handle);
 		for(j = 0; j < arrlen(lb->list[i].name); j++) {
 			char* t = lb->list[i].name[j];
 
 			if(t == NULL) t = "";
 
-			p.x += MwDefaultBorderWidth(handle);
-			MwDrawText(handle, &p, t, 0, MwALIGNMENT_BEGINNING, selected ? base2 : text2);
-			p.x += get_col_width(lb, j) - MwDefaultBorderWidth(handle);
-			if(j == 0) p.x -= 4;
+			if(j == (arrlen(lb->list[i].name) - 1)) p.x -= MwDefaultBorderWidth(handle);
+			if(arrlen(lb->alignment) <= j || lb->alignment[j] == MwALIGNMENT_BEGINNING) {
+				p.x += 4;
+				MwDrawText(handle, &p, t, 0, MwALIGNMENT_BEGINNING, selected ? base2 : text2);
+				p.x -= 4;
+				p.x += get_col_width(lb, j);
+			} else if(lb->alignment[j] == MwALIGNMENT_CENTER) {
+				p.x += get_col_width(lb, j) / 2;
+				MwDrawText(handle, &p, t, 0, MwALIGNMENT_CENTER, selected ? base2 : text2);
+				p.x += get_col_width(lb, j) / 2;
+			} else if(lb->alignment[j] == MwALIGNMENT_END) {
+				p.x += get_col_width(lb, j);
+				p.x -= 4;
+				MwDrawText(handle, &p, t, 0, MwALIGNMENT_END, selected ? base2 : text2);
+				p.x += 4;
+			}
 
 			if(j == 0) p.x -= MwGetInteger(handle->parent, MwNleftPadding);
 		}
@@ -336,6 +348,7 @@ static int create(MwWidget handle) {
 	lb->selected   = -1;
 	lb->click_time = 0;
 	lb->width      = NULL;
+	lb->alignment  = NULL;
 	lb->changed    = 0;
 
 	return 0;
@@ -346,6 +359,7 @@ static void destroy(MwWidget handle) {
 	MwListBoxReset(handle);
 	arrfree(lb->list);
 	arrfree(lb->width);
+	arrfree(lb->alignment);
 	free(handle->internal);
 }
 
@@ -377,11 +391,23 @@ static void draw(MwWidget handle) {
 
 			x += MwDefaultBorderWidth(handle);
 
-			p.x = 4 + x;
-			p.y = r.y + r.height / 2;
-			MwDrawText(handle, &p, lb->list[0].name[i], 0, MwALIGNMENT_BEGINNING, text);
+			if(arrlen(lb->alignment) <= i || lb->alignment[i] == MwALIGNMENT_BEGINNING) {
+				p.x = 4 + x;
+				p.y = r.y + r.height / 2;
+				MwDrawText(handle, &p, lb->list[0].name[i], 0, MwALIGNMENT_BEGINNING, text);
+			} else if(lb->alignment[i] == MwALIGNMENT_CENTER) {
+				p.x = x + r.width / 2;
+				p.y = r.y + r.height / 2;
+				MwDrawText(handle, &p, lb->list[0].name[i], 0, MwALIGNMENT_CENTER, text);
+			} else if(lb->alignment[i] == MwALIGNMENT_END) {
+				p.x = x + r.width - 4;
+				p.y = r.y + r.height / 2;
+				MwDrawText(handle, &p, lb->list[0].name[i], 0, MwALIGNMENT_END, text);
+			}
 
-			x += r.width + MwDefaultBorderWidth(handle);
+			x += r.width;
+
+			x += MwDefaultBorderWidth(handle);
 		}
 	}
 
@@ -503,6 +529,17 @@ static void mwListBoxSetWidthImpl(MwWidget handle, int index, int width) {
 	MwForceRender(lb->frame);
 }
 
+static void mwListBoxSetAlignmentImpl(MwWidget handle, int index, int alignment) {
+	MwListBox lb = handle->internal;
+
+	while(((index + 1) - arrlen(lb->alignment)) > 0) arrput(lb->alignment, MwALIGNMENT_BEGINNING);
+
+	lb->alignment[index] = alignment;
+
+	MwForceRender(handle);
+	MwForceRender(lb->frame);
+}
+
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	if(strcmp(name, "mwListBoxDelete") == 0) {
 		int index = va_arg(va, int);
@@ -519,6 +556,11 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		int index = va_arg(va, int);
 		int width = va_arg(va, int);
 		mwListBoxSetWidthImpl(handle, index, width);
+	}
+	if(strcmp(name, "mwListBoxSetAlignment") == 0) {
+		int index     = va_arg(va, int);
+		int alignment = va_arg(va, int);
+		mwListBoxSetAlignmentImpl(handle, index, alignment);
 	}
 	if(strcmp(name, "mwListBoxInsert") == 0) {
 		int		 index	= va_arg(va, int);
