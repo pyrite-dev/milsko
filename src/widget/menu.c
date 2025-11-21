@@ -6,23 +6,14 @@
 
 static void set_xywh(MwWidget handle) {
 	int    height = 0;
-	int    i;
-	MwMenu m = handle->internal;
 
-	for(i = 0; i < arrlen(m->sub); i++) {
-		int h = MwTextHeight(handle, m->sub[i]->name);
-		if(height < h) {
-			height = h;
-		}
-	}
-
-	height += 20;
+	height = MwTextHeight(handle, "M") + 10;
 
 	MwVaApply(handle,
-		  MwNx, 0,
-		  MwNy, 0,
-		  MwNwidth, MwGetInteger(handle->parent, MwNwidth),
-		  MwNheight, height,
+		  MwNx, -MwDefaultBorderWidth(handle),
+		  MwNy, -MwDefaultBorderWidth(handle),
+		  MwNwidth, MwGetInteger(handle->parent, MwNwidth) + MwDefaultBorderWidth(handle),
+		  MwNheight, height + MwDefaultBorderWidth(handle),
 		  NULL);
 }
 
@@ -66,15 +57,15 @@ static void destroy(MwWidget handle) {
 	MwRect	r; \
 	int	rx; \
 \
-	p.x = 10; \
-	p.y = MwGetInteger(handle, MwNheight) / 2; \
+	p.x = 5; \
+	p.y = (MwGetInteger(handle, MwNheight) - MwDefaultBorderWidth(handle)) / 2 + MwDefaultBorderWidth(handle); \
 \
 	r.x	 = 0; \
 	r.y	 = 0; \
 	r.width	 = MwGetInteger(handle, MwNwidth); \
 	r.height = MwGetInteger(handle, MwNheight); \
 \
-	rx = r.width - 10;
+	rx = r.width - 5;
 
 #define BEGIN_MENU_LOOP \
 	for(i = 0; i < arrlen(m->sub); i++) { \
@@ -85,7 +76,7 @@ static void destroy(MwWidget handle) {
 \
 		if(incr) { \
 			p.x = rx -= tw; \
-			rx -= 20; \
+			rx -= 10; \
 		} \
 \
 		r.x	 = p.x - 5; \
@@ -115,7 +106,7 @@ static void draw(MwWidget handle) {
 		MwDrawWidgetBack(handle, &r, base, 0, MwFALSE);
 	}
 
-	MwDrawText(handle, &p, m->sub[i]->name + incr, 1, MwALIGNMENT_BEGINNING, text);
+	MwDrawText(handle, &p, m->sub[i]->name + incr, m->sub[i]->wsub != NULL || (in_area && handle->pressed) ? 1 : 0, MwALIGNMENT_BEGINNING, text);
 	END_MENU_LOOP;
 
 	MwLLFreeColor(text);
