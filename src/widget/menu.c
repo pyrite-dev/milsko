@@ -6,14 +6,16 @@
 
 static void set_xywh(MwWidget handle) {
 	int height = 0;
+	int diff = MwDefaultBorderWidth(handle);
+	diff = 0;
 
 	height = MwTextHeight(handle, "M") + 10;
 
 	MwVaApply(handle,
-		  MwNx, -MwDefaultBorderWidth(handle),
-		  MwNy, -MwDefaultBorderWidth(handle),
-		  MwNwidth, MwGetInteger(handle->parent, MwNwidth) + MwDefaultBorderWidth(handle) * 2,
-		  MwNheight, height + MwDefaultBorderWidth(handle),
+		  MwNx, -diff,
+		  MwNy, -diff,
+		  MwNwidth, MwGetInteger(handle->parent, MwNwidth) + diff * 2,
+		  MwNheight, height + diff,
 		  NULL);
 }
 
