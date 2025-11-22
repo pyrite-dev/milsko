@@ -54,8 +54,6 @@ static void draw(MwWidget handle) {
 			r.width	 = px->common.width * sh;
 			r.height = px->common.height * sh;
 		}
-		r.width -= MwDefaultBorderWidth(handle) * 2;
-		r.height -= MwDefaultBorderWidth(handle) * 2;
 
 		r.x += (double)(ow - r.width) / 2;
 		r.y += (double)(oh - r.height) / 2;
