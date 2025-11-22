@@ -108,6 +108,8 @@ static int create(MwWidget handle) {
 	vulkan_t*   o = malloc(sizeof(*o));
 	MwErrorEnum err;
 
+	memset(o, 0, sizeof(*o));
+
 	err = vulkan_instance_setup(handle, o);
 	if(err != MwEsuccess) {
 		printf("%s", MwGetLastError());
