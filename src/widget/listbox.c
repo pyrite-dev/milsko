@@ -281,7 +281,7 @@ static void resize(MwWidget handle) {
 	int	  w  = MwGetInteger(handle, MwNwidth);
 	int	  h  = MwGetInteger(handle, MwNheight);
 	int	  ih, y;
-	int	  aw;
+	int	  m = 0;
 
 	y = MwGetInteger(handle, MwNhasHeading) ? (MwTextHeight(handle, "M") + MwDefaultBorderWidth(handle) * 2) : 0;
 
@@ -297,9 +297,20 @@ static void resize(MwWidget handle) {
 			  NULL);
 	}
 
+	ih = arrlen(lb->list);
+	if(ih == 0) ih = 1;
+
 	h -= y;
+
+	if(ih <= (h / MwTextHeight(handle, "M"))) {
+		MwLLShow(lb->vscroll->lowlevel, 0);
+	} else {
+		MwLLShow(lb->vscroll->lowlevel, 1);
+		m = 16;
+	}
+
 	if(lb->frame == NULL) {
-		lb->frame	       = MwVaCreateWidget(MwFrameClass, "frame", handle, 0, y, w - 16, h, NULL);
+		lb->frame	       = MwVaCreateWidget(MwFrameClass, "frame", handle, 0, y, w - m, h, NULL);
 		lb->frame->draw_inject = frame_draw;
 		MwAddUserHandler(lb->frame, MwNmouseDownHandler, frame_mouse_down, NULL);
 		MwAddUserHandler(lb->frame, MwNmouseUpHandler, frame_mouse_up, NULL);
@@ -308,27 +319,16 @@ static void resize(MwWidget handle) {
 		MwVaApply(lb->frame,
 			  MwNx, 0,
 			  MwNy, y,
-			  MwNwidth, w - 16,
+			  MwNwidth, w - m,
 			  MwNheight, h,
 			  NULL);
 	}
-	aw = w;
 	h -= MwDefaultBorderWidth(handle) * 2;
-
-	ih = arrlen(lb->list);
-	if(ih == 0) ih = 1;
 
 	MwVaApply(lb->vscroll,
 		  MwNareaShown, h / MwTextHeight(handle, "M"),
 		  MwNmaxValue, ih,
 		  NULL);
-
-	if(ih <= (h / MwTextHeight(handle, "M"))) {
-		MwLLShow(lb->vscroll->lowlevel, 0);
-		MwSetInteger(lb->frame, MwNwidth, aw);
-	} else {
-		MwLLShow(lb->vscroll->lowlevel, 1);
-	}
 }
 
 static int create(MwWidget handle) {

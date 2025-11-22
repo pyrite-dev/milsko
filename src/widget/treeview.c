@@ -269,9 +269,9 @@ static void resize(MwWidget handle) {
 
 	if(ih <= (h / (LinePadding + MwTextHeight(handle, "M")))) {
 		MwLLShow(tv->vscroll->lowlevel, 0);
-		m = 16;
 	} else {
 		MwLLShow(tv->vscroll->lowlevel, 1);
+		m = 16;
 	}
 
 	if(tv->frame == NULL) {
