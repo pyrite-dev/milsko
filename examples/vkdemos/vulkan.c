@@ -639,6 +639,8 @@ void vulkan_setup(MwWidget handle) {
 }
 
 int main() {
+	MwLibraryInit();
+
 	if(!MwVulkanSupported()) {
 		printf("Vulkan not found or unsupported on target platform.\n");
 		return 1;
