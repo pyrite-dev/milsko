@@ -154,6 +154,8 @@ scan("src/dialog");
 scan("src/abstract");
 push(@cfiles, "src/backend/gdi.c");
 
+@cfiles = sort(@cfiles);
+
 generate("BorMakefile", "Borland");
 generate("NTMakefile",  "MSVC");
 generate("WatMakefile", "Watcom");
