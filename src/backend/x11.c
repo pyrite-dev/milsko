@@ -325,9 +325,13 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 }
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
-	XSizeHints     sh;
-	long	       r;
-	XWindowChanges xwc;
+	XSizeHints	  sh;
+	long		  r;
+	XWindowChanges	  xwc;
+	XWindowAttributes xwa;
+
+	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
+	if(xwa.x == x && xwa.y == y) return;
 
 	sh.flags = 0;
 	XGetWMNormalHints(handle->x11.display, handle->x11.window, &sh, &r);
@@ -349,9 +353,14 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
-	XSizeHints     sh;
-	long	       r;
-	XWindowChanges xwc;
+	XSizeHints	  sh;
+	long		  r;
+	XWindowChanges	  xwc;
+	XWindowAttributes xwa;
+
+	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
+	if(xwa.width == w && xwa.height == h) return;
+	printf("%d %d %d %d\n", xwa.width, xwa.height, w, h);
 
 	sh.flags = 0;
 	XGetWMNormalHints(handle->x11.display, handle->x11.window, &sh, &r);

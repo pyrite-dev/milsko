@@ -6,8 +6,8 @@
 
 static void set_xywh(MwWidget handle) {
 	int height = 0;
-	int diff = MwDefaultBorderWidth(handle);
-	diff = 0;
+	int diff   = MwDefaultBorderWidth(handle);
+	diff	   = 0;
 
 	height = MwTextHeight(handle, "M") + 10;
 

@@ -249,6 +249,7 @@ static void resize(MwWidget handle) {
 	int	   w  = MwGetInteger(handle, MwNwidth);
 	int	   h  = MwGetInteger(handle, MwNheight);
 	int	   ih = 0;
+	int	   m  = 0;
 
 	if(tv->vscroll == NULL) {
 		tv->vscroll = MwCreateWidget(MwScrollBarClass, "vscroll", handle, w - 16, 0, 16, h);
@@ -263,8 +264,18 @@ static void resize(MwWidget handle) {
 			  NULL);
 	}
 
+	ih = recursive_length(tv->tree);
+	if(ih == 0) ih = 1;
+
+	if(ih <= (h / (LinePadding + MwTextHeight(handle, "M")))) {
+		MwLLShow(tv->vscroll->lowlevel, 0);
+		m = 16;
+	} else {
+		MwLLShow(tv->vscroll->lowlevel, 1);
+	}
+
 	if(tv->frame == NULL) {
-		tv->frame	       = MwVaCreateWidget(MwFrameClass, "frame", handle, 0, 0, w - 16, h,
+		tv->frame	       = MwVaCreateWidget(MwFrameClass, "frame", handle, 0, 0, w - m, h,
 							  MwNhasBorder, 1,
 							  MwNinverted, 1,
 							  NULL);
@@ -275,25 +286,15 @@ static void resize(MwWidget handle) {
 		MwVaApply(tv->frame,
 			  MwNx, 0,
 			  MwNy, 0,
-			  MwNwidth, w - 16,
+			  MwNwidth, w - m,
 			  MwNheight, h,
 			  NULL);
 	}
-
-	ih = recursive_length(tv->tree);
-	if(ih == 0) ih = 1;
 
 	MwVaApply(tv->vscroll,
 		  MwNareaShown, h / (LinePadding + MwTextHeight(handle, "M")),
 		  MwNmaxValue, ih,
 		  NULL);
-
-	if(ih <= (h / (LinePadding + MwTextHeight(handle, "M")))) {
-		MwLLShow(tv->vscroll->lowlevel, 0);
-		MwSetInteger(tv->frame, MwNwidth, w);
-	} else {
-		MwLLShow(tv->vscroll->lowlevel, 1);
-	}
 }
 
 static int create(MwWidget handle) {
