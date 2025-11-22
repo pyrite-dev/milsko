@@ -360,7 +360,6 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
 	if(xwa.width == w && xwa.height == h) return;
-	printf("%d %d %d %d\n", xwa.width, xwa.height, w, h);
 
 	sh.flags = 0;
 	XGetWMNormalHints(handle->x11.display, handle->x11.window, &sh, &r);

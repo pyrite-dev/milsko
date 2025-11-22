@@ -119,6 +119,7 @@ sub generate {
         print(OUT "	$del $b\n");
     }
     print(OUT "	$del src${dir}Mw.dll\n");
+    print(OUT "	$del src${dir}Mw.lib\n");
     print(OUT "\n");
     print(OUT "src${dir}Mw.dll: " . cobjs($dir) . "\n");
     print(  OUT "	\$(LD) \$(LDFLAGS) $c_dllout $dllout\$@ "
