@@ -81,6 +81,16 @@ MwInline void MwTreeViewSetPixmap(MwWidget handle, void* item, MwLLPixmap pixmap
 	MwVaWidgetExecute(handle, "mwTreeViewSetPixmap", NULL, item, pixmap);
 }
 
+/*!
+ * @brief Sets the opened state of ithe item
+ * @param handle Widget
+ * @param item Item
+ * @param opened Opened or not
+ */
+MwInline void MwTreeViewSetOpened(MwWidget handle, void* item, int opened) {
+	MwVaWidgetExecute(handle, "mwTreeViewSetOpened", NULL, item, opened);
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -410,7 +410,17 @@ static void mwTreeViewSetPixmapImpl(MwWidget handle, void* item, MwLLPixmap pixm
 
 	e->pixmap = pixmap;
 
-	if(e->parent != NULL && e->parent->opened) {
+	if(e->parent == NULL || (e->parent != NULL && e->parent->opened)) {
+		resize(handle);
+	}
+}
+
+static void mwTreeViewSetOpenedImpl(MwWidget handle, void* item, int opened) {
+	MwTreeViewEntry* e = item;
+
+	e->opened = opened;
+
+	if(e->parent == NULL || (e->parent != NULL && e->parent->opened)) {
 		resize(handle);
 	}
 }
@@ -442,6 +452,11 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		void*	   item	  = va_arg(va, void*);
 		MwLLPixmap pixmap = va_arg(va, MwLLPixmap);
 		mwTreeViewSetPixmapImpl(handle, item, pixmap);
+	}
+	if(strcmp(name, "mwTreeViewSetOpened") == 0) {
+		void* item   = va_arg(va, void*);
+		int   opened = va_arg(va, int);
+		mwTreeViewSetOpenedImpl(handle, item, opened);
 	}
 }
 

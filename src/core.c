@@ -238,10 +238,10 @@ static void MwFreeWidget(MwWidget handle) {
 void MwDestroyWidget(MwWidget handle) {
 	if(handle->parent != NULL) {
 		int i;
-		for(i = 0; i < arrlen(handle->parent->destroy_queue); i++){
+		for(i = 0; i < arrlen(handle->parent->destroy_queue); i++) {
 			if(handle->parent->destroy_queue[i] == handle) break;
 		}
-		if(i == arrlen(handle->parent->destroy_queue)){
+		if(i == arrlen(handle->parent->destroy_queue)) {
 			arrput(handle->parent->destroy_queue, handle);
 		}
 	}
