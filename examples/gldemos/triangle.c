@@ -73,7 +73,7 @@ void activate(MwWidget handle, void* user_data, void* call_data) {
 int main() {
 	MwLibraryInit();
 
-	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 400, 450,
+	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 400, 450,
 				  MwNtitle, "hello world",
 				  NULL);
 	opengl = MwCreateWidget(MwOpenGLClass, "opengl", window, 50, 50, (ow = 300), (oh = 300));

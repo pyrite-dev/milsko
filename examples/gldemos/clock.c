@@ -136,7 +136,9 @@ void resize(MwWidget handle, void* user, void* call) {
 int main() {
 	MwLLColor bgcolor, fgcolor;
 
-	window = MwVaCreateWidget(MwWindowClass, "main", NULL, 0, 0, 250, 100,
+	MwLibraryInit();
+
+	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 250, 100,
 				  MwNtitle, "clock",
 				  NULL);
 
