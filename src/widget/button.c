@@ -24,7 +24,15 @@ static void draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 
-	MwDrawWidgetBack(handle, &r, base, handle->pressed, MwGetInteger(handle, MwNflat) ? handle->pressed : 1);
+	if(MwGetInteger(handle, MwNflat)){
+		if(handle->pressed){
+			MwDrawWidgetBack(handle, &r, base, handle->pressed, 1);
+		}else{
+			MwDrawRect(handle, &r, base);
+		}
+	}else{
+		MwDrawWidgetBack(handle, &r, base, handle->pressed, 1);
+	}
 	if(MwGetInteger(handle, MwNflat) && !handle->pressed) {
 		r.x += MwDefaultBorderWidth(handle);
 		r.y += MwDefaultBorderWidth(handle);
