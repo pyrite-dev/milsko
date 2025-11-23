@@ -101,7 +101,7 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 	MwRect	       r;
 	MwLLPixmap     p;
 	int	       ax, lsb;
-	int	       x = 0;
+	int	       x = 0, y = 0;
 	if(ttf == NULL) return 1;
 
 	tw = MwTextWidth(handle, text);
@@ -116,6 +116,11 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 		unsigned char* out;
 
 		text += MwUTF8ToUTF32(text, &c);
+		if(c == '\n') {
+			x = 0;
+			y += (ttf->ascent - ttf->descent) * ttf->scale;
+			continue;
+		}
 
 		stbtt_GetCodepointHMetrics(&ttf->font, c, &ax, &lsb);
 
@@ -128,7 +133,7 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 		for(cy = 0; cy < oh; cy++) {
 			for(cx = 0; cx < ow; cx++) {
 				int	       ox  = x + (lsb * ttf->scale) + cx;
-				int	       oy  = (ttf->ascent * ttf->scale) + y0 + cy;
+				int	       oy  = y + (ttf->ascent * ttf->scale) + y0 + cy;
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
 
 				opx[0] = color->common.red;
@@ -193,7 +198,7 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 	unsigned char* px;
 	MwLLPixmap     p;
 	MwRect	       r;
-	int	       x = 0;
+	int	       x = 0, y = 0;
 	if(ttf == NULL) return 1;
 
 	tw = MwTextWidth(handle, text);
@@ -207,13 +212,19 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 		int	   cy, cx;
 		text += MwUTF8ToUTF32(text, &c);
 
+		if(c == '\n') {
+			x = 0;
+			y += ttf->face->height * 14 / ttf->face->units_per_EM;
+			continue;
+		}
+
 		FT_Load_Char(ttf->face, c, FT_LOAD_RENDER);
 		bmp = &ttf->face->glyph->bitmap;
 
 		for(cy = 0; cy < bmp->rows; cy++) {
 			for(cx = 0; cx < bmp->width; cx++) {
 				int	       ox  = x + cx + ttf->face->glyph->bitmap_left;
-				int	       oy  = th - ttf->face->glyph->bitmap_top + cy + (ttf->face->descender * 14 / ttf->face->units_per_EM);
+				int	       oy  = y + (ttf->face->height * 14 / ttf->face->units_per_EM) - ttf->face->glyph->bitmap_top + cy + (ttf->face->descender * 14 / ttf->face->units_per_EM);
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
 
 				opx[0] = color->common.red;
@@ -247,19 +258,24 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 
 static int ttf_MwTextWidth(MwWidget handle, const char* text) {
 	ttf_t* ttf = MwGetVoid(handle, MwNfont);
-	int    tw  = 0;
+	int    tw = 0, mtw = 0;
 	if(ttf == NULL) return -1;
 
 	while(text[0] != 0) {
 		int c;
 		text += MwUTF8ToUTF32(text, &c);
+		if(c == '\n') {
+			tw = 0;
+			continue;
+		}
 
 		FT_Load_Char(ttf->face, c, FT_LOAD_RENDER);
 
 		tw += ttf->face->glyph->metrics.horiAdvance / 64;
+		if(tw > mtw) mtw = tw;
 	}
 
-	return tw;
+	return mtw;
 }
 
 static int ttf_MwTextHeight(MwWidget handle, int count) {

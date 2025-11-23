@@ -24,13 +24,13 @@ static void draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 
-	if(MwGetInteger(handle, MwNflat)){
-		if(handle->pressed){
+	if(MwGetInteger(handle, MwNflat)) {
+		if(handle->pressed) {
 			MwDrawWidgetBack(handle, &r, base, handle->pressed, 1);
-		}else{
+		} else {
 			MwDrawRect(handle, &r, base);
 		}
-	}else{
+	} else {
 		MwDrawWidgetBack(handle, &r, base, handle->pressed, 1);
 	}
 	if(MwGetInteger(handle, MwNflat) && !handle->pressed) {
