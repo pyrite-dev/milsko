@@ -241,6 +241,7 @@ static void frame_mouse_up(MwWidget handle, void* user, void* call) {
 			recursion(tv->frame, tv->tree[i], tv->tree, NULL, NULL, NULL, NULL, &p, 0, LineSpace, &skip, &shared, 0, &tv->pressed);
 		}
 		resize(handle->parent);
+		MwForceRender(tv->frame);
 	}
 }
 
@@ -355,6 +356,7 @@ static void* mwTreeViewAddImpl(MwWidget handle, void* parent, MwLLPixmap pixmap,
 		arrput(e->tree, t);
 	}
 	resize(handle);
+	MwForceRender(tv->frame);
 
 	return t;
 }
@@ -370,6 +372,7 @@ static void free_all(MwTreeViewEntry** tree) {
 }
 
 static void mwTreeViewDeleteImpl(MwWidget handle, void* item) {
+	MwTreeView	 tv = handle->internal;
 	MwTreeViewEntry* e = item;
 	MwTreeViewEntry* p = e->parent;
 
@@ -377,6 +380,7 @@ static void mwTreeViewDeleteImpl(MwWidget handle, void* item) {
 
 	free_all(p->tree);
 	p->tree = NULL;
+	MwForceRender(tv->frame);
 }
 
 static void mwTreeViewResetImpl(MwWidget handle) {
@@ -385,6 +389,7 @@ static void mwTreeViewResetImpl(MwWidget handle) {
 	free_all(tv->tree);
 	tv->tree = NULL;
 	resize(handle);
+	MwForceRender(tv->frame);
 }
 
 static const char* mwTreeViewGetImpl(MwWidget handle, void* item) {
@@ -396,6 +401,7 @@ static const char* mwTreeViewGetImpl(MwWidget handle, void* item) {
 }
 
 static void mwTreeViewSetLabelImpl(MwWidget handle, void* item, const char* label) {
+	MwTreeView	 tv = handle->internal;
 	MwTreeViewEntry* e = item;
 
 	free(e->label);
@@ -403,26 +409,31 @@ static void mwTreeViewSetLabelImpl(MwWidget handle, void* item, const char* labe
 
 	if(e->parent == NULL || (e->parent != NULL && e->parent->opened)) {
 		resize(handle);
+		MwForceRender(tv->frame);
 	}
 }
 
 static void mwTreeViewSetPixmapImpl(MwWidget handle, void* item, MwLLPixmap pixmap) {
+	MwTreeView	 tv = handle->internal;
 	MwTreeViewEntry* e = item;
 
 	e->pixmap = pixmap;
 
 	if(e->parent == NULL || (e->parent != NULL && e->parent->opened)) {
 		resize(handle);
+		MwForceRender(tv->frame);
 	}
 }
 
 static void mwTreeViewSetOpenedImpl(MwWidget handle, void* item, int opened) {
+	MwTreeView	 tv = handle->internal;
 	MwTreeViewEntry* e = item;
 
 	e->opened = opened;
 
 	if(e->parent == NULL || (e->parent != NULL && e->parent->opened)) {
 		resize(handle);
+		MwForceRender(tv->frame);
 	}
 }
 
