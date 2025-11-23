@@ -29,6 +29,7 @@
 #define MwNhideInput "IhideInput"
 #define MwNsingleClickSelectable "IsingleClickSelectable"
 #define MwNflat "Iflat"
+#define MwNshowArrows "IshowArrows"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
