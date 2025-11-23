@@ -401,7 +401,7 @@ static void mwTreeViewSetLabelImpl(MwWidget handle, void* item, const char* labe
 	free(e->label);
 	e->label = MwStringDuplicate(label);
 
-	if(e->parent != NULL && e->parent->opened) {
+	if(e->parent == NULL || (e->parent != NULL && e->parent->opened)) {
 		resize(handle);
 	}
 }
