@@ -542,6 +542,7 @@
 		</widget>
 		<widget name="ScrollBar">
 			<properties>
+				<property name="showArrows" />
 				<property name="areaShown" />
 				<property name="value" />
 				<property name="minValue" />

@@ -19,6 +19,7 @@ static int create(MwWidget handle) {
 		  MwNvalue, 0,
 		  MwNareaShown, 50,
 		  MwNorientation, MwVERTICAL,
+		  MwNshowArrows, 1,
 		  NULL);
 
 	return 0;
@@ -37,7 +38,7 @@ static int calc_length(MwWidget handle) {
 	return max * (double)area / len;
 }
 
-static int calc_positition(MwWidget handle) {
+static int calc_position(MwWidget handle) {
 	int max = MwScrollBarGetVisibleLength(handle);
 	int len = MwGetInteger(handle, MwNmaxValue) - MwGetInteger(handle, MwNminValue);
 	int val = MwGetInteger(handle, MwNvalue);
@@ -87,39 +88,51 @@ static void draw(MwWidget handle) {
 		rt.height = rt.width;
 
 		rt.y = r.y;
-		MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.y <= uy) ? 1 : 0, MwNORTH);
-		if(handle->pressed && scr->point.y <= uy) {
-			add_value(handle, -1);
+		if(MwGetInteger(handle, MwNshowArrows)){
+			MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.y <= uy) ? 1 : 0, MwNORTH);
+			if(handle->pressed && scr->point.y <= uy) {
+				add_value(handle, -1);
+			}
+		}else{
+			rt.height = 0;
 		}
 
 		rbar.width  = r.width;
 		rbar.height = calc_length(handle);
 		rbar.x	    = r.x;
-		rbar.y	    = r.y + rt.height + calc_positition(handle);
+		rbar.y	    = r.y + rt.height + calc_position(handle);
 
 		rt.y = r.y + r.height - rt.height;
-		MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.y >= dy) ? 1 : 0, MwSOUTH);
-		if(handle->pressed && scr->point.y >= dy) {
-			add_value(handle, 1);
+		if(MwGetInteger(handle, MwNshowArrows)){
+			MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.y >= dy) ? 1 : 0, MwSOUTH);
+			if(handle->pressed && scr->point.y >= dy) {
+				add_value(handle, 1);
+			}
 		}
 	} else if(or == MwHORIZONTAL) {
 		rt.width = rt.height;
 
 		rt.x = r.x;
-		MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.x <= ux) ? 1 : 0, MwWEST);
-		if(handle->pressed && scr->point.x <= ux) {
-			add_value(handle, -1);
+		if(MwGetInteger(handle, MwNshowArrows)){
+			MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.x <= ux) ? 1 : 0, MwWEST);
+			if(handle->pressed && scr->point.x <= ux) {
+				add_value(handle, -1);
+			}
+		}else{
+			rt.width = 0;
 		}
 
 		rbar.width  = calc_length(handle);
 		rbar.height = r.height;
-		rbar.x	    = r.x + rt.width + calc_positition(handle);
+		rbar.x	    = r.x + rt.width + calc_position(handle);
 		rbar.y	    = r.y;
 
 		rt.x = r.x + r.width - rt.width;
-		MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.x >= dx) ? 1 : 0, MwEAST);
-		if(handle->pressed && scr->point.x >= dx) {
-			add_value(handle, 1);
+		if(MwGetInteger(handle, MwNshowArrows)){
+			MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.x >= dx) ? 1 : 0, MwEAST);
+			if(handle->pressed && scr->point.x >= dx) {
+				add_value(handle, 1);
+			}
 		}
 	}
 
@@ -195,15 +208,17 @@ static void mouse_down(MwWidget handle, void* ptr) {
 	scr->drag  = 0;
 	if(or == MwVERTICAL) {
 		int tri = (ww - MwDefaultBorderWidth(handle) * 2) + MwDefaultBorderWidth(handle);
+		if(!MwGetInteger(handle, MwNshowArrows)) tri = 0;
 		if(tri <= scr->point.y && scr->point.y <= (wh - tri)) {
 			scr->drag = 1;
-			scr->pos  = calc_positition(handle) - scr->point.y;
+			scr->pos  = calc_position(handle) - scr->point.y;
 		}
 	} else if(or == MwHORIZONTAL) {
 		int tri = (wh - MwDefaultBorderWidth(handle) * 2) + MwDefaultBorderWidth(handle);
+		if(!MwGetInteger(handle, MwNshowArrows)) tri = 0;
 		if(tri <= scr->point.x && scr->point.x <= (ww - tri)) {
 			scr->drag = 1;
-			scr->pos  = calc_positition(handle) - scr->point.x;
+			scr->pos  = calc_position(handle) - scr->point.x;
 		}
 	}
 
@@ -211,9 +226,12 @@ static void mouse_down(MwWidget handle, void* ptr) {
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNminValue) == 0 || strcmp(key, MwNvalue) == 0 || strcmp(key, MwNmaxValue) == 0 || strcmp(key, MwNareaShown) == 0) {
+	if(strcmp(key, MwNminValue) == 0 || strcmp(key, MwNvalue) == 0 || strcmp(key, MwNmaxValue) == 0) {
 		if(MwGetInteger(handle, MwNvalue) > MwGetInteger(handle, MwNmaxValue)) MwSetInteger(handle, MwNvalue, MwGetInteger(handle, MwNmaxValue));
 		if(handle->prop_event) MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
+		MwForceRender(handle);
+	}
+	if(strcmp(key, MwNshowArrows) == 0 || strcmp(key, MwNareaShown) == 0){
 		MwForceRender(handle);
 	}
 }
@@ -232,6 +250,7 @@ static int mwScrollBarGetVisibleLengthImpl(MwWidget handle) {
 		tri = (wh - MwDefaultBorderWidth(handle) * 2) * 2;
 		s   = ww;
 	}
+	if(!MwGetInteger(handle, MwNshowArrows)) tri = 0;
 	return s - tri - MwDefaultBorderWidth(handle) * 2;
 }
 
