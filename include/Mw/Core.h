@@ -309,6 +309,20 @@ MWDECL void MwShow(MwWidget handle, int toggle);
  */
 MWDECL void MwReparent(MwWidget handle, MwWidget new_parent);
 
+/*!
+ * @brief Gets class of widget
+ * @param handle Widget
+ * @return Class
+ */
+MWDECL MwClass MwGetClass(MwWidget handle);
+
+/*!
+ * @brief Gets children of widget
+ * @param handle Widget
+ * @return Children (NULL-terminated array)
+ */
+MWDECL MwWidget* MwGetChildren(MwWidget handle);
+
 #ifdef __cplusplus
 }
 #endif

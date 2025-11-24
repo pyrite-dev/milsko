@@ -495,7 +495,7 @@ static void mwListBoxDeleteImpl(MwWidget handle, int index) {
 	if(MwGetInteger(handle, MwNvalue) >= arrlen(lb->list)) {
 		MwSetInteger(handle, MwNvalue, arrlen(lb->list) - 1);
 	}
-	if(MwGetInteger(handle, MwNvalue) < 0) {
+	if(MwGetInteger(handle, MwNvalue) < (MwGetInteger(handle, MwNhasHeading) ? 1 : 0)) {
 		MwSetInteger(handle, MwNvalue, -1);
 	}
 

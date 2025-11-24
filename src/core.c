@@ -676,3 +676,19 @@ void MwReparent(MwWidget handle, MwWidget new_parent) {
 	handle->parent = new_parent;
 	arrput(new_parent->children, handle);
 }
+
+MwClass MwGetClass(MwWidget handle) {
+	return handle->widget_class;
+}
+
+MwWidget* MwGetChildren(MwWidget handle) {
+	MwWidget* c = malloc(sizeof(*c) * (arrlen(handle->children) + 1));
+	int	  i;
+
+	for(i = 0; i < arrlen(handle->children); i++) {
+		c[i] = handle->children[i];
+	}
+	c[arrlen(handle->children)] = 0;
+
+	return c;
+}
