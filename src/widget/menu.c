@@ -82,7 +82,7 @@ static void destroy(MwWidget handle) {
 		} \
 \
 		r.x	 = p.x - 5; \
-		r.y	 = p.y - th / 2 - 5; \
+		r.y	 = p.y + ((MwGetInteger(handle, MwNheight) - p.y * 2) - (th + 10)) / 2; \
 		r.width	 = tw + 10; \
 		r.height = th + 10; \
 \
@@ -100,10 +100,7 @@ static void draw(MwWidget handle) {
 	MwDrawWidgetBack(handle, &r, base, 0, MwTRUE);
 
 	BEGIN_MENU_LOOP;
-	if(m->sub[i]->wsub != NULL) {
-		MwDrawFrame(handle, &r, base, MwFALSE);
-		MwDrawWidgetBack(handle, &r, base, 0, MwFALSE);
-	} else if(in_area && handle->pressed) {
+	if(m->sub[i]->wsub != NULL || (in_area && handle->pressed)) {
 		MwDrawFrame(handle, &r, base, MwFALSE);
 		MwDrawWidgetBack(handle, &r, base, 0, MwFALSE);
 	}
