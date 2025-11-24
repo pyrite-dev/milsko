@@ -252,9 +252,11 @@ static void frame_draw(MwWidget handle) {
 				p.x -= 4;
 				p.x += get_col_width(lb, j);
 			} else if(lb->alignment[j] == MwALIGNMENT_CENTER) {
-				p.x += get_col_width(lb, j) / 2;
+				int l = (j == 0 ? MwGetInteger(handle->parent, MwNleftPadding) : 0);
+				p.x += (get_col_width(lb, j) - l) / 2;
 				MwDrawText(handle, &p, t, 0, MwALIGNMENT_CENTER, selected ? base2 : text2);
-				p.x += get_col_width(lb, j) / 2;
+				p.x += (get_col_width(lb, j) - l) / 2;
+				p.x += l;
 			} else if(lb->alignment[j] == MwALIGNMENT_END) {
 				p.x += get_col_width(lb, j);
 				p.x -= 4;
