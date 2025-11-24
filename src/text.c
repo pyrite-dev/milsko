@@ -303,7 +303,7 @@ int MwTextWidth(MwWidget handle, const char* text) {
 	(void)handle;
 
 #endif
-	return strlen(text) * FontWidth;
+	return MwUTF8Length(text) * FontWidth;
 }
 
 int MwTextHeight(MwWidget handle, const char* text) {

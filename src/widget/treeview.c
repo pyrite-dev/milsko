@@ -373,8 +373,8 @@ static void free_all(MwTreeViewEntry** tree) {
 
 static void mwTreeViewDeleteImpl(MwWidget handle, void* item) {
 	MwTreeView	 tv = handle->internal;
-	MwTreeViewEntry* e = item;
-	MwTreeViewEntry* p = e->parent;
+	MwTreeViewEntry* e  = item;
+	MwTreeViewEntry* p  = e->parent;
 
 	(void)handle;
 
@@ -402,7 +402,7 @@ static const char* mwTreeViewGetImpl(MwWidget handle, void* item) {
 
 static void mwTreeViewSetLabelImpl(MwWidget handle, void* item, const char* label) {
 	MwTreeView	 tv = handle->internal;
-	MwTreeViewEntry* e = item;
+	MwTreeViewEntry* e  = item;
 
 	free(e->label);
 	e->label = MwStringDuplicate(label);
@@ -415,7 +415,7 @@ static void mwTreeViewSetLabelImpl(MwWidget handle, void* item, const char* labe
 
 static void mwTreeViewSetPixmapImpl(MwWidget handle, void* item, MwLLPixmap pixmap) {
 	MwTreeView	 tv = handle->internal;
-	MwTreeViewEntry* e = item;
+	MwTreeViewEntry* e  = item;
 
 	e->pixmap = pixmap;
 
@@ -427,7 +427,7 @@ static void mwTreeViewSetPixmapImpl(MwWidget handle, void* item, MwLLPixmap pixm
 
 static void mwTreeViewSetOpenedImpl(MwWidget handle, void* item, int opened) {
 	MwTreeView	 tv = handle->internal;
-	MwTreeViewEntry* e = item;
+	MwTreeViewEntry* e  = item;
 
 	e->opened = opened;
 

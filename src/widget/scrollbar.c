@@ -88,12 +88,12 @@ static void draw(MwWidget handle) {
 		rt.height = rt.width;
 
 		rt.y = r.y;
-		if(MwGetInteger(handle, MwNshowArrows)){
+		if(MwGetInteger(handle, MwNshowArrows)) {
 			MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.y <= uy) ? 1 : 0, MwNORTH);
 			if(handle->pressed && scr->point.y <= uy) {
 				add_value(handle, -1);
 			}
-		}else{
+		} else {
 			rt.height = 0;
 		}
 
@@ -103,7 +103,7 @@ static void draw(MwWidget handle) {
 		rbar.y	    = r.y + rt.height + calc_position(handle);
 
 		rt.y = r.y + r.height - rt.height;
-		if(MwGetInteger(handle, MwNshowArrows)){
+		if(MwGetInteger(handle, MwNshowArrows)) {
 			MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.y >= dy) ? 1 : 0, MwSOUTH);
 			if(handle->pressed && scr->point.y >= dy) {
 				add_value(handle, 1);
@@ -113,12 +113,12 @@ static void draw(MwWidget handle) {
 		rt.width = rt.height;
 
 		rt.x = r.x;
-		if(MwGetInteger(handle, MwNshowArrows)){
+		if(MwGetInteger(handle, MwNshowArrows)) {
 			MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.x <= ux) ? 1 : 0, MwWEST);
 			if(handle->pressed && scr->point.x <= ux) {
 				add_value(handle, -1);
 			}
-		}else{
+		} else {
 			rt.width = 0;
 		}
 
@@ -128,7 +128,7 @@ static void draw(MwWidget handle) {
 		rbar.y	    = r.y;
 
 		rt.x = r.x + r.width - rt.width;
-		if(MwGetInteger(handle, MwNshowArrows)){
+		if(MwGetInteger(handle, MwNshowArrows)) {
 			MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.x >= dx) ? 1 : 0, MwEAST);
 			if(handle->pressed && scr->point.x >= dx) {
 				add_value(handle, 1);
@@ -230,7 +230,7 @@ static void prop_change(MwWidget handle, const char* key) {
 		if(MwGetInteger(handle, MwNvalue) > MwGetInteger(handle, MwNmaxValue)) MwSetInteger(handle, MwNvalue, MwGetInteger(handle, MwNmaxValue));
 		MwForceRender(handle);
 	}
-	if(strcmp(key, MwNshowArrows) == 0 || strcmp(key, MwNareaShown) == 0){
+	if(strcmp(key, MwNshowArrows) == 0 || strcmp(key, MwNareaShown) == 0) {
 		MwForceRender(handle);
 	}
 }
