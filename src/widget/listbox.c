@@ -3,6 +3,8 @@
 
 #include "../../external/stb_ds.h"
 
+#define Padding 2
+
 MwListBoxPacket* MwListBoxCreatePacket(void) {
 	MwListBoxPacket* packet = malloc(sizeof(*packet));
 	memset(packet, 0, sizeof(*packet));
@@ -128,8 +130,8 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 		int h = MwGetInteger(handle, MwNheight);
 
 		st = get_first_entry(handle->parent, lb);
-		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / MwTextHeight(handle, "M") + 2; i++) {
-			if(y <= m->point.y && m->point.y <= (y + MwTextHeight(handle, "M"))) {
+		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / (MwTextHeight(handle, "M") + Padding) + 2; i++) {
+			if(y <= m->point.y && m->point.y <= (y + MwTextHeight(handle, "M") + Padding)) {
 				unsigned long t;
 				int	      old = lb->selected;
 
@@ -141,7 +143,7 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 
 				lb->click_time = t;
 			}
-			y += MwTextHeight(handle, "M");
+			y += MwTextHeight(handle, "M") + Padding;
 		}
 
 		MwForceRender(lb->frame);
@@ -173,11 +175,11 @@ static void frame_mouse_move(MwWidget handle, void* user, void* call) {
 		int h = MwGetInteger(handle, MwNheight);
 
 		st = get_first_entry(handle->parent, lb);
-		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / MwTextHeight(handle, "M") + 2; i++) {
-			if(y <= p->y && p->y <= (y + MwTextHeight(handle, "M"))) {
+		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / (MwTextHeight(handle, "M") + Padding) + 2; i++) {
+			if(y <= p->y && p->y <= (y + MwTextHeight(handle, "M") + Padding)) {
 				lb->selected = st + i;
 			}
-			y += MwTextHeight(handle, "M");
+			y += MwTextHeight(handle, "M") + Padding;
 		}
 
 		MwForceRender(lb->frame);
@@ -222,24 +224,24 @@ static void frame_draw(MwWidget handle) {
 
 		if(selected) {
 			MwRect r2;
-			r2.x	  = MwGetInteger(handle->parent, MwNleftPadding);
+			r2.x	  = MwDefaultBorderWidth(handle) + MwGetInteger(handle->parent, MwNleftPadding);
 			r2.y	  = p.y;
 			r2.width  = r.width - r2.x;
-			r2.height = MwTextHeight(handle, "M");
+			r2.height = MwTextHeight(handle, "M") + Padding;
 			MwDrawRect(handle, &r2, text2);
 			handle->bgcolor = text2;
 		}
 		if(lb->list[i].pixmap != NULL) {
 			MwRect r2;
-			int    h  = (lb->list[i].pixmap->common.height > MwTextHeight(handle, "M")) ? MwTextHeight(handle, "M") : lb->list[i].pixmap->common.height;
+			int    h  = (lb->list[i].pixmap->common.height > (MwTextHeight(handle, "M") + Padding)) ? (MwTextHeight(handle, "M") + Padding) : lb->list[i].pixmap->common.height;
 			r2.x	  = MwDefaultBorderWidth(handle);
-			r2.y	  = p.y + (MwTextHeight(handle, "M") - h) / 2;
+			r2.y	  = p.y + (MwTextHeight(handle, "M") + Padding - h) / 2;
 			r2.width  = h * lb->list[i].pixmap->common.width / lb->list[i].pixmap->common.height;
 			r2.height = h;
 			MwLLDrawPixmap(handle->lowlevel, &r2, lb->list[i].pixmap);
 		}
-		p.y += MwTextHeight(handle, "M") / 2;
-		p.x = MwGetInteger(handle->parent, MwNleftPadding);
+		p.y += (MwTextHeight(handle, "M") + Padding) / 2;
+		p.x = MwDefaultBorderWidth(handle) + MwGetInteger(handle->parent, MwNleftPadding);
 		for(j = 0; j < arrlen(lb->list[i].name); j++) {
 			char* t = lb->list[i].name[j];
 
@@ -266,7 +268,7 @@ static void frame_draw(MwWidget handle) {
 
 			if(j == 0) p.x -= MwGetInteger(handle->parent, MwNleftPadding);
 		}
-		p.y += MwTextHeight(handle, "M") / 2;
+		p.y += (MwTextHeight(handle, "M") + Padding) / 2;
 		handle->bgcolor = NULL;
 	}
 
