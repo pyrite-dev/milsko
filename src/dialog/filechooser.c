@@ -68,8 +68,8 @@ static void cancel_window(MwWidget handle, void* user, void* call) {
 }
 
 static void okay(MwWidget handle, void* user, void* call) {
-	filechooser_t* fc    = handle->parent->opaque;
-	char* p;
+	filechooser_t* fc = handle->parent->opaque;
+	char*	       p;
 
 	(void)user;
 	(void)call;
