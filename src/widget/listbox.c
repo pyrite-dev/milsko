@@ -133,12 +133,13 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / (MwTextHeight(handle, "M") + Padding) + 2; i++) {
 			if(y <= m->point.y && m->point.y <= (y + MwTextHeight(handle, "M") + Padding)) {
 				unsigned long t;
-				int	      old = lb->selected;
+				int	      old = MwGetInteger(handle->parent, MwNvalue);
 
-				lb->selected = st + i;
+				MwSetInteger(handle->parent, MwNvalue, st + i);
 
 				if((((t = MwTimeGetTick()) - lb->click_time) < MwDoubleClickTimeout && old == st + i) || MwGetInteger(handle->parent, MwNsingleClickSelectable)) {
-					MwDispatchUserHandler(handle->parent, MwNactivateHandler, &lb->selected);
+					int n = MwGetInteger(handle->parent, MwNvalue);
+					MwDispatchUserHandler(handle->parent, MwNactivateHandler, &n);
 				}
 
 				lb->click_time = t;
@@ -177,7 +178,7 @@ static void frame_mouse_move(MwWidget handle, void* user, void* call) {
 		st = get_first_entry(handle->parent, lb);
 		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / (MwTextHeight(handle, "M") + Padding) + 2; i++) {
 			if(y <= p->y && p->y <= (y + MwTextHeight(handle, "M") + Padding)) {
-				lb->selected = st + i;
+				MwSetInteger(handle->parent, MwNvalue, st + i);
 			}
 			y += MwTextHeight(handle, "M") + Padding;
 		}
@@ -219,7 +220,7 @@ static void frame_draw(MwWidget handle) {
 	ent  = area / MwTextHeight(handle, "M") + 2;
 
 	for(i = st; i < arrlen(lb->list) && i < st + ent; i++) {
-		int selected = lb->selected == i ? 1 : 0;
+		int selected = MwGetInteger(handle->parent, MwNvalue) == i ? 1 : 0;
 		int j;
 
 		if(selected) {
@@ -346,10 +347,10 @@ static int create(MwWidget handle) {
 	MwSetInteger(handle, MwNsingleClickSelectable, 0);
 	MwSetInteger(handle, MwNhasHeading, 0);
 	MwSetInteger(handle, MwNleftPadding, 0);
+	MwSetInteger(handle, MwNvalue, -1);
 
 	resize(handle);
 	lb->list       = NULL;
-	lb->selected   = -1;
 	lb->click_time = 0;
 	lb->width      = NULL;
 	lb->alignment  = NULL;
@@ -480,11 +481,11 @@ static void mwListBoxDeleteImpl(MwWidget handle, int index) {
 	arrfree(lb->list[index].name);
 	arrdel(lb->list, index);
 
-	if(lb->selected >= arrlen(lb->list)) {
-		lb->selected = arrlen(lb->list) - 1;
+	if(MwGetInteger(handle, MwNvalue) >= arrlen(lb->list)) {
+		MwSetInteger(handle, MwNvalue, arrlen(lb->list) - 1);
 	}
-	if(lb->selected < 0) {
-		lb->selected = -1;
+	if(MwGetInteger(handle, MwNvalue) < 0) {
+		MwSetInteger(handle, MwNvalue, -1);
 	}
 
 	resize(handle);
@@ -505,7 +506,7 @@ static void mwListBoxResetImpl(MwWidget handle) {
 		arrdel(lb->list, 0);
 	}
 
-	lb->selected = -1;
+	MwSetInteger(handle, MwNvalue, -1);
 
 	MwSetInteger(lb->vscroll, MwNvalue, 0);
 

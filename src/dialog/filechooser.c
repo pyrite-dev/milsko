@@ -68,8 +68,15 @@ static void cancel_window(MwWidget handle, void* user, void* call) {
 }
 
 static void okay(MwWidget handle, void* user, void* call) {
+	filechooser_t* fc    = handle->parent->opaque;
+	char* p;
+
 	(void)user;
 	(void)call;
+
+	p = MwDirectoryJoin(fc->path, fc->sorted_entries[MwGetInteger(fc->files, MwNvalue)]->name);
+	MwDispatchUserHandler(handle->parent, MwNfileChosenHandler, p);
+	free(p);
 
 	destroy(handle->parent);
 }
