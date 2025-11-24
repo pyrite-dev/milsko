@@ -74,7 +74,7 @@ static void okay(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	p = MwDirectoryJoin(fc->path, fc->sorted_entries[MwGetInteger(fc->files, MwNvalue)]->name);
+	p = MwDirectoryJoin(fc->path, fc->sorted_entries[MwGetInteger(fc->files, MwNvalue) - 1]->name);
 	MwDispatchUserHandler(handle->parent, MwNfileChosenHandler, p);
 	free(p);
 
