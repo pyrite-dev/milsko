@@ -226,6 +226,9 @@ static void MwFreeWidget(MwWidget handle) {
 		handle->text[i].value = NULL;
 	}
 	shfree(handle->text);
+	for(i = 0; i < shlen(handle->handler); i++) {
+		arrfree(handle->handler[i].value);
+	}
 	shfree(handle->handler);
 	shfree(handle->data);
 
@@ -467,11 +470,7 @@ void MwVaListApply(MwWidget handle, va_list va) {
 			MwSetText(handle, key, t);
 		} else if(key[0] == 'C') {
 			MwUserHandler h = va_arg(va, MwUserHandler);
-			int	      ind;
-
-			shput(handle->handler, key, h);
-			ind			       = shgeti(handle->handler, key);
-			handle->handler[ind].user_data = NULL;
+			MwAddUserHandler(handle, key, h, NULL);
 		} else if(key[0] == 'V') {
 			void* v = va_arg(va, void*);
 			MwSetVoid(handle, key, v);
@@ -543,20 +542,34 @@ void MwHideCursor(MwWidget handle) {
 void MwDispatchUserHandler(MwWidget handle, const char* key, void* handler_data) {
 	int ind = shgeti(handle->handler, key);
 	int p	= handle->prop_event;
+	int i;
 	if(ind == -1) return;
 	if(handle->destroyed) return;
 
 	if(!p) handle->prop_event = 1;
-	handle->handler[ind].value(handle, handle->handler[ind].user_data, handler_data);
+	for(i = 0; i < arrlen(handle->handler[ind].value); i++) {
+		handle->handler[ind].value[i].handler(handle, handle->handler[ind].value[i].user_data, handler_data);
+	}
 	if(!p) handle->prop_event = 0;
 }
 
 void MwAddUserHandler(MwWidget handle, const char* key, MwUserHandler handler, void* user_data) {
-	int ind;
+	int		   ind;
+	MwUserHandlerArray a;
+	a.handler   = handler;
+	a.user_data = user_data;
 
-	shput(handle->handler, key, handler);
-	ind			       = shgeti(handle->handler, key);
-	handle->handler[ind].user_data = user_data;
+	ind = shgeti(handle->handler, key);
+	if(ind == -1) {
+		MwUserHandlerKeyValue e;
+		e.key	= (char*)key;
+		e.value = NULL;
+
+		arrput(e.value, a);
+		shputs(handle->handler, e);
+	} else {
+		arrput(handle->handler[ind].value, a);
+	}
 }
 
 static MwErrorHandler error_handler   = NULL;

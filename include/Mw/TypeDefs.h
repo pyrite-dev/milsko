@@ -12,6 +12,7 @@
 typedef struct _MwClass *	      MwClass, MwClassRec;
 typedef struct _MwIntegerKeyValue     MwIntegerKeyValue;
 typedef struct _MwTextKeyValue	      MwTextKeyValue;
+typedef struct _MwUserHandlerArray    MwUserHandlerArray;
 typedef struct _MwUserHandlerKeyValue MwUserHandlerKeyValue;
 typedef struct _MwVoidKeyValue	      MwVoidKeyValue;
 typedef struct _MwMenu*		      MwMenu;
@@ -48,10 +49,14 @@ struct _MwIntegerKeyValue {
 	int   value;
 };
 
-struct _MwUserHandlerKeyValue {
-	char*	      key;
+struct _MwUserHandlerArray {
 	void*	      user_data;
-	MwUserHandler value;
+	MwUserHandler handler;
+};
+
+struct _MwUserHandlerKeyValue {
+	char*		    key;
+	MwUserHandlerArray* value;
 };
 
 struct _MwVoidKeyValue {
