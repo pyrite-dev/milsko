@@ -256,7 +256,7 @@ static void frame_draw(MwWidget handle) {
 				if(MwUTF8Length(str) > (get_col_width(lb, j) - l) / MwTextWidth(handle, "M")) {
 					int ind	 = (get_col_width(lb, j) - l) / MwTextWidth(handle, "M");
 					str[ind] = 0;
-					memset(str + ind - 3, '.', 3);
+					if(ind > 3) memset(str + ind - 3, '.', 3);
 				}
 
 				p.x += 4;
