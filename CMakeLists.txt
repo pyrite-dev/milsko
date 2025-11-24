@@ -6,6 +6,10 @@ project(
 
 include(CheckIncludeFiles)
 
+include(GNUInstallDirs)
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 option(BUILD_OPENGL "Compile OpenGL widget or not" ON)
 if(CMAKE_SYSTEM_NAME STREQUAL "SunOS")
 	option(BUILD_VULKAN "Compile Vulkan widget or not" OFF)
