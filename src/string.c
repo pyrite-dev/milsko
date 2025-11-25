@@ -32,5 +32,9 @@ void MwStringTime(char* out, time_t t) {
 	struct tm*  tm	     = localtime(&t);
 	const char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
-	sprintf(out, "%s %2d %02d:%02d %d", months[tm->tm_mon], tm->tm_mday, tm->tm_hour, tm->tm_min, 1900 + tm->tm_year);
+	if(tm == NULL) {
+		sprintf(out, "localtime error");
+	} else {
+		sprintf(out, "%s %2d %02d:%02d %d", months[tm->tm_mon], tm->tm_mday, tm->tm_hour, tm->tm_min, 1900 + tm->tm_year);
+	}
 }

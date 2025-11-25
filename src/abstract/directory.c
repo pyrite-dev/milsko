@@ -54,6 +54,7 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	dir_t*		  dir	= handle;
 	MwDirectoryEntry* entry = malloc(sizeof(*entry));
 #ifdef _WIN32
+	ULARGE_INTEGER* l;
 	if(dir->first) {
 		dir->first = 0;
 	} else if(FindNextFile(dir->hFind, &dir->ffd) == 0) {
@@ -73,6 +74,10 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	entry->size |= dir->ffd.nFileSizeHigh;
 	entry->size = entry->size << 32;
 	entry->size |= dir->ffd.nFileSizeLow;
+
+	l = (ULARGE_INTEGER*)&dir->ffd.ftLastWriteTime;
+
+	entry->mtime = l->QuadPart / 10000000 - 11644473600;
 #else
 	struct dirent* d;
 	struct stat    s;
