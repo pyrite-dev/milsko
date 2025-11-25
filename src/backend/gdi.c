@@ -201,8 +201,8 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	} else if(msg == WM_SETCURSOR) {
 		if(LOWORD(lp) != HTCLIENT) return DefWindowProc(hWnd, msg, wp, lp);
 		if(u->ll->gdi.cursor != NULL) SetCursor(u->ll->gdi.cursor);
-	} else if(msg == WM_SETICON) {
-		return u->ll.gdi.icon;
+	} else if(msg == WM_GETICON) {
+		return u->ll->gdi.icon;
 	} else if(msg == WM_USER) {
 		InvalidateRect(hWnd, NULL, FALSE);
 		UpdateWindow(hWnd);
