@@ -323,6 +323,13 @@ MWDECL MwClass MwGetClass(MwWidget handle);
  */
 MWDECL MwWidget* MwGetChildren(MwWidget handle);
 
+/*!
+ * @brief Gets the cursor coordinate
+ * @param handle Widget
+ * @param point Point
+ */
+MWDECL void MwGetCursorCoord(MwWidget handle, MwPoint* point);
+
 #ifdef __cplusplus
 }
 #endif

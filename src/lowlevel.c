@@ -48,6 +48,8 @@ void (*MwLLGrabPointer)(MwLL handle, int toggle);
 void (*MwLLSetClipboard)(MwLL handle, const char* text);
 char* (*MwLLGetClipboard)(MwLL handle);
 
+void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
+
 void MwLLCreateCommon(MwLL handle) {
 	handle->common.handler = malloc(sizeof(*handle->common.handler));
 	memset(handle->common.handler, 0, sizeof(*handle->common.handler));

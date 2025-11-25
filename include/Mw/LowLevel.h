@@ -192,6 +192,8 @@ MWDECL void (*MwLLGrabPointer)(MwLL handle, int toggle);
 MWDECL void (*MwLLSetClipboard)(MwLL handle, const char* text);
 MWDECL char* (*MwLLGetClipboard)(MwLL handle);
 
+MWDECL void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
+
 #ifdef __cplusplus
 }
 #endif

@@ -990,6 +990,17 @@ static void MwLLMakeToolWindowImpl(MwLL handle) {
 	XChangeProperty(handle->x11.display, handle->x11.window, wndtype, XA_ATOM, 32, PropModeReplace, (unsigned char*)&wndmenu, 1);
 }
 
+static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
+	Window	     root, child;
+	int	     rx, ry, wx, wy;
+	unsigned int m;
+
+	XQueryPointer(handle->x11.display, DefaultRootWindow(handle->x11.display), &root, &child, &rx, &ry, &wx, &wy, &m);
+
+	point->x = rx;
+	point->y = ry;
+}
+
 static void MwLLBeginStateChangeImpl(MwLL handle) {
 	MwLLShow(handle, 0);
 }

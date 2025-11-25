@@ -240,7 +240,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->gdi.hWnd	 = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->gdi.hWnd, 0, wc.hInstance, NULL);
 	r->gdi.hInstance = wc.hInstance;
 	r->gdi.cursor	 = NULL;
-	r->gdi.icon = NULL;
+	r->gdi.icon	 = NULL;
 
 	u->ll	   = r;
 	u->min_set = 0;
@@ -716,13 +716,23 @@ static void MwLLMakeToolWindowImpl(MwLL handle) {
 	SetWindowPos(handle->gdi.hWnd, NULL, 0, 0, w, h, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
 }
 
+static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
+	POINT p;
+
+	(void)handle;
+
+	GetCursorPos(&p);
+
+	point->x = p.x;
+	point->y = p.y;
+}
+
 static void MwLLBeginStateChangeImpl(MwLL handle) {
 	(void)handle;
 }
 
 static void MwLLEndStateChangeImpl(MwLL handle) {
 	(void)handle;
-	;
 }
 
 static int MwLLGDICallInitImpl(void) {

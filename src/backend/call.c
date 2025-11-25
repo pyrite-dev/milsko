@@ -53,5 +53,7 @@
 		MwLLSetClipboard = MwLLSetClipboardImpl; \
 		MwLLGetClipboard = MwLLGetClipboardImpl; \
 \
+		MwLLGetCursorCoord = MwLLGetCursorCoordImpl; \
+\
 		return 0; \
 	}

@@ -705,3 +705,7 @@ MwWidget* MwGetChildren(MwWidget handle) {
 
 	return c;
 }
+
+void MwGetCursorCoord(MwWidget handle, MwPoint* point) {
+	MwLLGetCursorCoord(handle->lowlevel, point);
+}

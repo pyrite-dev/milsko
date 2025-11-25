@@ -18,7 +18,7 @@ struct _MwLLGDI {
 	HWND	  hWnd;
 	HDC	  hDC;
 	HCURSOR	  cursor;
-	HICON icon;
+	HICON	  icon;
 
 	int grabbed;
 };
