@@ -319,8 +319,8 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 
 		XTranslateCoordinates(handle->x11.display, handle->x11.window, root, 0, 0, &rx, &ry, &child);
 
-		*x += rx;
-		*y += ry;
+		*x = rx;
+		*y = ry;
 	}
 }
 
