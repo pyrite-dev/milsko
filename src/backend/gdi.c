@@ -513,8 +513,8 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	ii.hbmMask  = pixmap->gdi.hMask2;
 	ii.hbmColor = pixmap->gdi.hBitmap;
 
-	if(handle->gdi.icon != NULL) DestroyCursor(handle->gdi.icon);
-	handle->gdi.icon o = CreateIconIndirect(&ii);
+	if(handle->gdi.icon != NULL) DestroyIcon(handle->gdi.icon);
+	handle->gdi.icon = CreateIconIndirect(&ii);
 }
 
 static void MwLLForceRenderImpl(MwLL handle) {
