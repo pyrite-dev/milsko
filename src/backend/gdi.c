@@ -510,8 +510,8 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	ii.hbmColor = pixmap->gdi.hBitmap;
 
 	ico = CreateIconIndirect(&ii);
-	SendMessage(handle->gdi.hWnd, WM_SETICON, ICON_BIG, ico);
-	SendMessage(handle->gdi.hWnd, WM_SETICON, ICON_SMALL, ico);
+	SendMessage(handle->gdi.hWnd, WM_SETICON, ICON_BIG, (LPARAM)ico);
+	SendMessage(handle->gdi.hWnd, WM_SETICON, ICON_SMALL, (LPARAM)ico);
 	DestroyIcon(ico);
 }
 
