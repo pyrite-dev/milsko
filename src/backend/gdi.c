@@ -240,6 +240,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->gdi.hWnd	 = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->gdi.hWnd, 0, wc.hInstance, NULL);
 	r->gdi.hInstance = wc.hInstance;
 	r->gdi.cursor	 = NULL;
+	r->gdi.icon = NULL;
 
 	u->ll	   = r;
 	u->min_set = 0;
@@ -509,10 +510,10 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	ii.hbmMask  = pixmap->gdi.hMask2;
 	ii.hbmColor = pixmap->gdi.hBitmap;
 
-	ico = CreateIconIndirect(&ii);
-	SendMessage(handle->gdi.hWnd, WM_SETICON, ICON_SMALL, (LPARAM)ico);
-	SendMessage(handle->gdi.hWnd, WM_SETICON, ICON_BIG, (LPARAM)ico);
-//	DestroyIcon(ico);
+	if(handle->gdi.icon != NULL) DestroyIcon(handle->gdi.icon);
+	handle->gdi.icon = CreateIconIndirect(&ii);
+	SendMessage(handle->gdi.hWnd, WM_SETICON, ICON_SMALL, (LPARAM)handle->gdi.icon);
+	SendMessage(handle->gdi.hWnd, WM_SETICON, ICON_BIG, (LPARAM)handle->gdi.icon);
 }
 
 static void MwLLForceRenderImpl(MwLL handle) {
@@ -561,6 +562,7 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	cursor = CreateCursor(GetModuleHandle(NULL), xs, ys, MwCursorDataHeight, MwCursorDataHeight, dmask, dimage);
 
 	if(handle->gdi.cursor != NULL) DestroyCursor(handle->gdi.cursor);
+	if(handle->gdi.icon != NULL) DestroyIcon(handle->gdi.icon);
 	handle->gdi.cursor = cursor;
 
 	free(dimage);
