@@ -201,8 +201,6 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	} else if(msg == WM_SETCURSOR) {
 		if(LOWORD(lp) != HTCLIENT) return DefWindowProc(hWnd, msg, wp, lp);
 		if(u->ll->gdi.cursor != NULL) SetCursor(u->ll->gdi.cursor);
-	} else if(msg == WM_GETICON) {
-		return (LPARAM)u->ll->gdi.icon;
 	} else if(msg == WM_USER) {
 		InvalidateRect(hWnd, NULL, FALSE);
 		UpdateWindow(hWnd);
@@ -242,7 +240,6 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->gdi.hWnd	 = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->gdi.hWnd, 0, wc.hInstance, NULL);
 	r->gdi.hInstance = wc.hInstance;
 	r->gdi.cursor	 = NULL;
-	r->gdi.icon	 = NULL;
 
 	u->ll	   = r;
 	u->min_set = 0;
@@ -276,7 +273,6 @@ static void MwLLDestroyImpl(MwLL handle) {
 	DestroyWindow(handle->gdi.hWnd);
 
 	if(handle->gdi.cursor != NULL) DestroyCursor(handle->gdi.cursor);
-	if(handle->gdi.icon != NULL) DestroyIcon(handle->gdi.icon);
 
 	free(handle);
 }
@@ -513,8 +509,10 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	ii.hbmMask  = pixmap->gdi.hMask2;
 	ii.hbmColor = pixmap->gdi.hBitmap;
 
-	if(handle->gdi.icon != NULL) DestroyIcon(handle->gdi.icon);
-	handle->gdi.icon = CreateIconIndirect(&ii);
+	ico = CreateIconIndirect(&ii);
+	SendMessage(handle->gdi.hWnd, WM_SETICON, ICON_BIG, ico);
+	SendMessage(handle->gdi.hWnd, WM_SETICON, ICON_SMALL, ico);
+	DestroyIcon(ico);
 }
 
 static void MwLLForceRenderImpl(MwLL handle) {
