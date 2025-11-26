@@ -21,6 +21,15 @@ extern "C" {
  */
 MWDECL MwWidget MwFileChooser(MwWidget handle, const char* title);
 
+/*!
+ * @brief Creates a file chooser
+ * @param handle Widget
+ * @param title Title text
+ * @param dir Show directory only or not
+ * @return Widget
+ */
+MwWidget MwFileChooserEx(MwWidget handle, const char* title, int dir);
+
 #ifdef __cplusplus
 }
 #endif

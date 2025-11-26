@@ -7,6 +7,7 @@ typedef struct filechooser {
 	char*  path;
 	char** history;
 	int    history_seek;
+	int    dir_only;
 
 	MwDirectoryEntry** entries;
 	MwDirectoryEntry** sorted_entries;
@@ -68,15 +69,8 @@ static void cancel_window(MwWidget handle, void* user, void* call) {
 }
 
 static void okay(MwWidget handle, void* user, void* call) {
-	filechooser_t* fc = handle->parent->opaque;
-	char*	       p;
-
 	(void)user;
 	(void)call;
-
-	p = MwDirectoryJoin(fc->path, fc->sorted_entries[MwGetInteger(fc->files, MwNvalue) - 1]->name);
-	MwDispatchUserHandler(handle->parent, MwNfileChosenHandler, p);
-	free(p);
 
 	destroy(handle->parent);
 }
@@ -101,8 +95,46 @@ static void files_activate(MwWidget handle, void* user, void* call) {
 
 		free(p);
 	} else {
+		char* p;
+
+		p = MwDirectoryJoin(fc->path, fc->sorted_entries[MwGetInteger(fc->files, MwNvalue) - 1]->name);
+		MwDispatchUserHandler(handle->parent, MwNfileChosenHandler, p);
+		free(p);
+
 		okay(fc->okay, NULL, NULL);
 	}
+}
+
+static void okay_activate(MwWidget handle, void* user, void* call) {
+	filechooser_t* fc = handle->parent->opaque;
+	char*	       t  = (char*)MwGetText(fc->filename, MwNtext);
+	struct stat    s;
+	char*	       p = NULL;
+
+	(void)user;
+	(void)call;
+
+	if(t != NULL && t[0] == '/') {
+		p = MwStringDuplicate(t);
+	} else {
+		p = MwDirectoryJoin(fc->path, t);
+	}
+
+	if(t == NULL || strlen(t) == 0) {
+		MwWidget msgbox = MwMessageBox(handle->parent, fc->dir_only ? "You have to type directory!" : "You have to type filename!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
+		MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, msgbox_okay, NULL);
+	} else if(stat(p, &s) != 0) {
+		MwWidget msgbox = MwMessageBox(handle->parent, "File does not exist!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
+		MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, msgbox_okay, NULL);
+	} else if(fc->dir_only ? !S_ISDIR(s.st_mode) : 0) {
+		MwWidget msgbox = MwMessageBox(handle->parent, "File is not permitted here!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
+		MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, msgbox_okay, NULL);
+	} else {
+		MwDispatchUserHandler(handle->parent, MwNfileChosenHandler, p);
+		okay(fc->okay, NULL, NULL);
+	}
+
+	if(p != NULL) free(p);
 }
 
 static void nav_activate(MwWidget handle, void* user, void* call) {
@@ -293,6 +325,7 @@ static void layout(MwWidget handle) {
 	wh = 24;
 	if(fc->filename == NULL) {
 		fc->filename = MwCreateWidget(MwEntryClass, "filename", handle, wx, wy, ww, wh);
+		MwAddUserHandler(fc->filename, MwNactivateHandler, okay_activate, NULL);
 	} else {
 		MwVaApply(fc->filename,
 			  MwNx, wx,
@@ -308,7 +341,7 @@ static void layout(MwWidget handle) {
 	wh = 24;
 	if(fc->filename_label == NULL) {
 		fc->filename_label = MwVaCreateWidget(MwLabelClass, "filename_label", handle, wx, wy, ww, wh,
-						      MwNtext, "Filename:",
+						      MwNtext, fc->dir_only ? "Directory:" : "Filename:",
 						      NULL);
 	} else {
 		MwVaApply(fc->filename_label,
@@ -328,7 +361,7 @@ static void layout(MwWidget handle) {
 					    MwNtext, "Okay",
 					    NULL);
 
-		MwAddUserHandler(fc->okay, MwNactivateHandler, okay, NULL);
+		MwAddUserHandler(fc->okay, MwNactivateHandler, okay_activate, NULL);
 	} else {
 		MwVaApply(fc->okay,
 			  MwNx, wx,
@@ -416,6 +449,16 @@ static void scan(MwWidget handle, const char* path, int record) {
 		  MwNtext, path,
 		  NULL);
 
+	if(fc->dir_only) {
+		MwVaApply(fc->filename,
+			  MwNtext, path,
+			  NULL);
+	} else {
+		MwVaApply(fc->filename,
+			  MwNtext, "",
+			  NULL);
+	}
+
 	MwListBoxReset(fc->files);
 	MwListBoxSetWidth(fc->files, 0, -128 - 96);
 	MwListBoxSetWidth(fc->files, 1, 128);
@@ -443,7 +486,7 @@ static void scan(MwWidget handle, const char* path, int record) {
 		}
 	}
 	for(i = 0; i < arrlen(fc->entries); i++) {
-		if(fc->entries[i]->type == MwDIRECTORY_FILE) {
+		if(fc->entries[i]->type == MwDIRECTORY_FILE && !fc->dir_only) {
 			char date[128];
 			char size[128];
 
@@ -463,7 +506,7 @@ static void scan(MwWidget handle, const char* path, int record) {
 	MwListBoxDestroyPacket(p);
 }
 
-MwWidget MwFileChooser(MwWidget handle, const char* title) {
+MwWidget MwFileChooserEx(MwWidget handle, const char* title, int dir) {
 	MwWidget       window;
 	int	       w, h;
 	filechooser_t* fc = malloc(sizeof(*fc));
@@ -497,6 +540,7 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	fc->forward  = MwLoadIcon(window, MwIconForward);
 	fc->up	     = MwLoadIcon(window, MwIconUp);
 	fc->computer = MwLoadIcon(window, MwIconComputer);
+	fc->dir_only = dir;
 
 	icon = MwLoadIcon(window, MwIconSearch);
 	MwVaApply(window,
@@ -518,4 +562,8 @@ MwWidget MwFileChooser(MwWidget handle, const char* title) {
 	MwLLEndStateChange(window->lowlevel);
 
 	return window;
+}
+
+MwWidget MwFileChooser(MwWidget handle, const char* title) {
+	return MwFileChooserEx(handle, title, 0);
 }
