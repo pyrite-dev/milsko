@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 	printf(" *   \"%s\"\n", rec.u.atom);
 	printf(" */\n");
 	printf("MwFont MwFontData[] = {\n");
-	for(i = 0; i < 0x80; i++) {
+	for(i = 0; i < 0x100; i++) {
 		int	      y, x;
 		FT_Bitmap     bitmap;
 		unsigned char n;
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 			}
 			printf("%d%s", n, y == (bitmap.rows - 1) ? "" : ", ");
 		}
-		printf("}}%s /* %d */\n", i == (0x80 - 1) ? "" : ", ", i);
+		printf("}}%s /* %d */\n", i == (0x100 - 1) ? "" : ", ", i);
 
 		FT_Bitmap_Done(lib, &bitmap);
 

@@ -50,7 +50,9 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 		int out;
 		i += MwUTF8ToUTF32(text + i, &out);
 
-		if(out >= 0x80) out = 0;
+		if(out > 0xff) {
+			out = 0;
+		}
 
 		if(out == '\n') {
 			sx = 0;
@@ -210,7 +212,9 @@ static int ttf_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 		int	   c;
 		FT_Bitmap* bmp;
 		int	   cy, cx;
-		text += MwUTF8ToUTF32(text, &c);
+		int	   l = MwUTF8ToUTF32(text, &c);
+		if(l <= 0) break;
+		text += l;
 
 		if(c == '\n') {
 			x = 0;
@@ -263,7 +267,9 @@ static int ttf_MwTextWidth(MwWidget handle, const char* text) {
 
 	while(text[0] != 0) {
 		int c;
-		text += MwUTF8ToUTF32(text, &c);
+		int l = MwUTF8ToUTF32(text, &c);
+		if(l <= 0) break;
+		text += l;
 		if(c == '\n') {
 			tw = 0;
 			continue;
@@ -318,7 +324,9 @@ int MwTextHeight(MwWidget handle, const char* text) {
 
 	while(text[i] != 0) {
 		int out;
-		i += MwUTF8ToUTF32(text + i, &out);
+		int l = MwUTF8ToUTF32(text + i, &out);
+		if(l == 0) break;
+		i += l;
 
 		if(out == '\n') c++;
 	}
