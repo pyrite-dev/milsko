@@ -16,6 +16,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <time.h>
+#include <sys/stat.h>
 #ifdef _WIN32
 #include <direct.h>
 
@@ -43,7 +44,6 @@
 #include <dlfcn.h>
 #include <signal.h>
 #include <dirent.h>
-#include <sys/stat.h>
 #endif
 
 #ifndef M_PI
