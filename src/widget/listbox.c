@@ -245,38 +245,38 @@ static void frame_draw(MwWidget handle) {
 		p.x = MwDefaultBorderWidth(handle) + MwGetInteger(handle->parent, MwNleftPadding);
 		for(j = 0; j < arrlen(lb->list[i].name); j++) {
 			char* t = lb->list[i].name[j];
+			char* str;
+			int   l = (j == 0 ? MwGetInteger(handle->parent, MwNleftPadding) : 0);
 
 			if(t == NULL) t = "";
 
+			str = MwStringDuplicate(t);
+			if(MwUTF8Length(str) > (get_col_width(lb, j) - l) / MwTextWidth(handle, "M")) {
+				int ind	 = (get_col_width(lb, j) - l) / MwTextWidth(handle, "M");
+				str[ind] = 0;
+				if(ind > 3) memset(str + ind - 3, '.', 3);
+			}
+
 			if(j == (arrlen(lb->list[i].name) - 1)) p.x -= MwDefaultBorderWidth(handle);
 			if(arrlen(lb->alignment) <= j || lb->alignment[j] == MwALIGNMENT_BEGINNING) {
-				char* str = MwStringDuplicate(t);
-				int   l	  = (j == 0 ? MwGetInteger(handle->parent, MwNleftPadding) : 0);
-
-				if(MwUTF8Length(str) > (get_col_width(lb, j) - l) / MwTextWidth(handle, "M")) {
-					int ind	 = (get_col_width(lb, j) - l) / MwTextWidth(handle, "M");
-					str[ind] = 0;
-					if(ind > 3) memset(str + ind - 3, '.', 3);
-				}
 
 				p.x += 4;
 				MwDrawText(handle, &p, str, 0, MwALIGNMENT_BEGINNING, selected ? base2 : text2);
 				p.x -= 4;
 				p.x += get_col_width(lb, j);
 
-				free(str);
 			} else if(lb->alignment[j] == MwALIGNMENT_CENTER) {
-				int l = (j == 0 ? MwGetInteger(handle->parent, MwNleftPadding) : 0);
 				p.x += (get_col_width(lb, j) - l) / 2;
-				MwDrawText(handle, &p, t, 0, MwALIGNMENT_CENTER, selected ? base2 : text2);
+				MwDrawText(handle, &p, str, 0, MwALIGNMENT_CENTER, selected ? base2 : text2);
 				p.x += (get_col_width(lb, j) - l) / 2;
 				p.x += l;
 			} else if(lb->alignment[j] == MwALIGNMENT_END) {
 				p.x += get_col_width(lb, j);
 				p.x -= 4;
-				MwDrawText(handle, &p, t, 0, MwALIGNMENT_END, selected ? base2 : text2);
+				MwDrawText(handle, &p, str, 0, MwALIGNMENT_END, selected ? base2 : text2);
 				p.x += 4;
 			}
+			free(str);
 
 			if(j == 0) p.x -= MwGetInteger(handle->parent, MwNleftPadding);
 		}
