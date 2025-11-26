@@ -10,12 +10,8 @@ include(GNUInstallDirs)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-option(BUILD_OPENGL "Compile OpenGL widget or not" ON)
-if(CMAKE_SYSTEM_NAME STREQUAL "SunOS")
-	option(BUILD_VULKAN "Compile Vulkan widget or not" OFF)
-else()
-	option(BUILD_VULKAN "Compile Vulkan widget or not" ON)
-endif()
+option(TRY_OPENGL "Try to compile OpenGL widget or not" ON)
+option(TRY_VULKAN "Try to compile Vulkan widget or not" ON)
 option(CLASSIC_THEME "Use classic theme" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(USE_STB_IMAGE "Use stb_image" ON)
@@ -28,13 +24,8 @@ file(
 	src/*.c src/cursor/*.c src/icon/*.c src/text.c src/widget/*.c src/math/*.c src/font/*.c src/dialog/*.c src/abstract/*.c external/*.c
 )
 
-if(NOT BUILD_OPENGL)
-	list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl.c")
-endif()
-
-if(NOT BUILD_VULKAN)
-	list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/vulkan.c")
-endif()
+list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl.c")
+list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/vulkan.c")
 
 if(NOT USE_STB_IMAGE)
 	list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image.c")
@@ -42,6 +33,33 @@ endif()
 
 if(NOT USE_STB_TRUETYPE)
 	list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/external/stb_truetype.c")
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
+	list(APPEND CMAKE_REQUIRED_INCLUDES "/usr/X11R7/include")
+	list(APPEND CMAKE_REQUIRED_INCLUDES "/usr/pkg/include")
+endif()
+
+if(TRY_OPENGL)
+	check_include_files(GL/gl.h HAVE_GL_GL_H)
+	if(HAVE_GL_GL_H)
+		set(BUILD_OPENGL ON)
+		list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl.c")
+		message(STATUS "OpenGL widget has been enabled")
+	else()
+		message(WARNING "OpenGL widget has been disabled")
+	endif()
+endif()
+
+if(TRY_OPENGL)
+	check_include_files(vulkan/vulkan.h HAVE_VULKAN_VULKAN_H)
+	if(HAVE_VULKAN_VULKAN_H)
+		set(BUILD_VULKAN ON)
+		list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/vulkan.c")
+		message(STATUS "Vulkan widget has been enabled")
+	else()
+		message(WARNING "Vulkan widget has been disabled")
+	endif()
 endif()
 
 add_library(
@@ -143,21 +161,7 @@ else()
 	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		list(APPEND LIBRARIES dl)
 	endif()
-	if(BUILD_VULKAN)
-		if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
-			list(APPEND INCLUDE_DIRS /usr/pkg/include)
-		else()
-			pkg_check_modules(VULKAN REQUIRED vulkan)
-			list(APPEND INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS})
-		endif()
-	endif()
 endif()
-
-set_source_files_properties(
-	src/math/mmx.c
-	PROPERTIES
-	COMPILE_FLAGS -mmmx
-)
 
 target_include_directories(
 	Mw
