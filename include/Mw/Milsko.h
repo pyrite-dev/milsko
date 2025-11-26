@@ -30,6 +30,7 @@
 
 #include <Mw/Dialog/MessageBox.h>
 #include <Mw/Dialog/FileChooser.h>
+#include <Mw/Dialog/DirectoryChooser.h>
 #include <Mw/Dialog/ColorPicker.h>
 
 #include <Mw/Widget/Window.h>
