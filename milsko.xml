@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
 <!--
-	Basically, you have to implement 8+n types:
+	Basically, you have to implement 10+n types:
 	 - Integer (int)
 	 - Unsigned integer (unsigned int)
+	 - Short integer (short)
+	 - Unsigned short integer (unsigned short)
 	 - String (char*)
 	 - Pointer (void*)
 	 - Struct and pointer to it
@@ -25,6 +27,11 @@
 			<integer name="min_height" />
 			<integer name="max_width" />
 			<integer name="max_height" />
+		</struct>
+		<struct name="MwRGB">
+			<short name="red" unsigned="yes" />
+			<short name="green" unsigned="yes" />
+			<short name="blue" unsigned="yes" />
 		</struct>
 	</structs>
 	<!--
@@ -116,6 +123,7 @@
 			<integer name="MwMB_ICONQUESTION" />
 			<integer name="MwMB_ICONNEWS" />
 			<integer name="MwMB_ICONERROR" />
+			<integer name="MwMB_ICONCLOCK" />
 		</enumeration>
 	</enumerations>
 	<constants>
