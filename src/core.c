@@ -460,11 +460,22 @@ void MwVaApply(MwWidget handle, ...) {
 
 void MwVaListApply(MwWidget handle, va_list va) {
 	char* key;
+	int   x = MwDEFAULT, y = MwDEFAULT, w = MwDEFAULT, h = MwDEFAULT;
 
 	while((key = va_arg(va, char*)) != NULL) {
 		if(key[0] == 'I') {
 			int n = va_arg(va, int);
-			MwSetInteger(handle, key, n);
+			if(strcmp(key, MwNx) == 0) {
+				x = n;
+			} else if(strcmp(key, MwNy) == 0) {
+				y = n;
+			} else if(strcmp(key, MwNwidth) == 0) {
+				w = n;
+			} else if(strcmp(key, MwNheight) == 0) {
+				h = n;
+			} else {
+				MwSetInteger(handle, key, n);
+			}
 		} else if(key[0] == 'S') {
 			char* t = va_arg(va, char*);
 			MwSetText(handle, key, t);
@@ -474,6 +485,24 @@ void MwVaListApply(MwWidget handle, va_list va) {
 		} else if(key[0] == 'V') {
 			void* v = va_arg(va, void*);
 			MwSetVoid(handle, key, v);
+		}
+	}
+	if(x != MwDEFAULT && y != MwDEFAULT) {
+		MwLLSetXY(handle->lowlevel, x, y);
+	} else {
+		if(x != MwDEFAULT) {
+			MwSetInteger(handle, MwNx, x);
+		} else if(y != MwDEFAULT) {
+			MwSetInteger(handle, MwNy, y);
+		}
+	}
+	if(w != MwDEFAULT && h != MwDEFAULT) {
+		MwLLSetWH(handle->lowlevel, w, h);
+	} else {
+		if(w != MwDEFAULT) {
+			MwSetInteger(handle, MwNwidth, w);
+		} else if(h != MwDEFAULT) {
+			MwSetInteger(handle, MwNheight, h);
 		}
 	}
 }
