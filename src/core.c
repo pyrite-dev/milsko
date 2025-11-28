@@ -738,3 +738,7 @@ MwWidget* MwGetChildren(MwWidget handle) {
 void MwGetCursorCoord(MwWidget handle, MwPoint* point) {
 	MwLLGetCursorCoord(handle->lowlevel, point);
 }
+
+void MwGetScreenSize(MwWidget handle, MwRect* rect) {
+	MwLLGetScreenSize(handle->lowlevel, rect);
+}

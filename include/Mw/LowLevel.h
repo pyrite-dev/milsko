@@ -193,6 +193,7 @@ MWDECL void (*MwLLSetClipboard)(MwLL handle, const char* text);
 MWDECL char* (*MwLLGetClipboard)(MwLL handle);
 
 MWDECL void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
+MWDECL void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect);
 
 #ifdef __cplusplus
 }

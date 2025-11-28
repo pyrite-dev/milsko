@@ -330,6 +330,13 @@ MWDECL MwWidget* MwGetChildren(MwWidget handle);
  */
 MWDECL void MwGetCursorCoord(MwWidget handle, MwPoint* point);
 
+/*!
+ * @brief Gets the screen size
+ * @param handle Widget
+ * @param rect Rectangle
+ */
+MWDECL void MwGetScreenSize(MwWidget handle, MwRect* rect);
+
 #ifdef __cplusplus
 }
 #endif

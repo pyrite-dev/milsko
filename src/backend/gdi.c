@@ -727,6 +727,15 @@ static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
 	point->y = p.y;
 }
 
+static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
+	RECT rc;
+	GetClientRect(GetDesktopWindow(), &rc);
+
+	rect->x = rect->y = 0;
+	rect->width	  = rc.right - rc.left;
+	rect->height	  = rc.bottom - rc.top;
+}
+
 static void MwLLBeginStateChangeImpl(MwLL handle) {
 	(void)handle;
 }

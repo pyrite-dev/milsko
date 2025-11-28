@@ -49,6 +49,7 @@ void (*MwLLSetClipboard)(MwLL handle, const char* text);
 char* (*MwLLGetClipboard)(MwLL handle);
 
 void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
+void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect);
 
 void MwLLCreateCommon(MwLL handle) {
 	handle->common.handler = malloc(sizeof(*handle->common.handler));

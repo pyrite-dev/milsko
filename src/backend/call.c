@@ -54,6 +54,7 @@
 		MwLLGetClipboard = MwLLGetClipboardImpl; \
 \
 		MwLLGetCursorCoord = MwLLGetCursorCoordImpl; \
+		MwLLGetScreenSize  = MwLLGetScreenSizeImpl; \
 \
 		return 0; \
 	}
