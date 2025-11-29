@@ -30,6 +30,7 @@
 #define MwNsingleClickSelectable "IsingleClickSelectable"
 #define MwNflat "Iflat"
 #define MwNshowArrows "IshowArrows"
+#define MwNpadding "Ipadding"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

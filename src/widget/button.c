@@ -5,6 +5,7 @@ static int create(MwWidget handle) {
 	MwSetDefault(handle);
 
 	MwSetInteger(handle, MwNflat, 0);
+	MwSetInteger(handle, MwNpadding, 0);
 
 	return 0;
 }
@@ -54,6 +55,8 @@ static void draw(MwWidget handle) {
 			r.width	 = px->common.width * sh;
 			r.height = px->common.height * sh;
 		}
+		r.width -= MwGetInteger(handle, MwNpadding) * 2;
+		r.height -= MwGetInteger(handle, MwNpadding) * 2;
 
 		r.x += (double)(ow - r.width) / 2;
 		r.y += (double)(oh - r.height) / 2;
@@ -75,7 +78,7 @@ static void click(MwWidget handle) {
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNtext) == 0 || strcmp(key, MwNpixmap) == 0 || strcmp(key, MwNflat) == 0) MwForceRender(handle);
+	if(strcmp(key, MwNtext) == 0 || strcmp(key, MwNpixmap) == 0 || strcmp(key, MwNflat) == 0 || strcmp(key, MwNpadding) == 0) MwForceRender(handle);
 }
 
 MwClassRec MwButtonClassRec = {

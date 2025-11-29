@@ -72,6 +72,8 @@
 		<integer name="hideInput" />
 		<integer name="singleClickSelectable" />
 		<integer name="flat" />
+		<integer name="showArrows" />
+		<integer name="padding" />
 
 		<string name="title" />
 		<string name="text" />
@@ -449,6 +451,7 @@
 				<property name="pixmap" />
 				<property name="text" />
 				<property name="flat" />
+				<property name="padding" />
 			</properties>
 		</widget>
 		<widget name="CheckBox">
@@ -557,6 +560,7 @@
 				<property name="minValue" />
 				<property name="maxValue" />
 				<property name="orientation" />
+				<property name="showArrows" />
 			</properties>
 			<functions>
 				<function name="GetVisibleLength">
