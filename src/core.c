@@ -490,6 +490,10 @@ void MwVaListApply(MwWidget handle, va_list va) {
 	}
 	if(x != MwDEFAULT && y != MwDEFAULT) {
 		MwLLSetXY(handle->lowlevel, x, y);
+		if(handle->prop_event){
+			MwDispatch3(handle, prop_change, MwNx);
+			MwDispatch3(handle, prop_change, MwNy);
+		}
 	} else {
 		if(x != MwDEFAULT) {
 			MwSetInteger(handle, MwNx, x);
@@ -499,6 +503,10 @@ void MwVaListApply(MwWidget handle, va_list va) {
 	}
 	if(w != MwDEFAULT && h != MwDEFAULT) {
 		MwLLSetWH(handle->lowlevel, w, h);
+		if(handle->prop_event){
+			MwDispatch3(handle, prop_change, MwNwidth);
+			MwDispatch3(handle, prop_change, MwNheight);
+		}
 	} else {
 		if(w != MwDEFAULT) {
 			MwSetInteger(handle, MwNwidth, w);
