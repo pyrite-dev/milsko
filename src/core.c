@@ -11,6 +11,7 @@ static void lldrawhandler(MwLL handle, void* data) {
 	h->bgcolor = NULL;
 	MwDispatch(h, draw);
 	if(h->draw_inject != NULL) h->draw_inject(h);
+	MwDispatchUserHandler(h, MwNdrawHandler, NULL);
 }
 
 static void lluphandler(MwLL handle, void* data) {

@@ -99,6 +99,7 @@
 		<handler name="focusOut" />
 		<handler name="fileChosen" />
 		<handler name="colorChosen" />
+		<handler name="draw" />
 	</properties>
 	<enumerations>
 		<enumeration name="MwDIRECTION">

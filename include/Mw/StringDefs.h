@@ -60,5 +60,6 @@
 #define MwNfileChosenHandler "CfileChosen" /* char* */
 #define MwNdirectoryChosenHandler MwNfileChosenHandler
 #define MwNcolorChosenHandler "CcolorChosen" /* MwRGB* */
+#define MwNdrawHandler "Cdraw"		     /* NULL */
 
 #endif
