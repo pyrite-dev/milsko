@@ -50,7 +50,9 @@ sub new_object {
 }
 
 sub use_backend {
-    $backend = $_[0];
+    foreach my $l (@_) {
+        push(@backends, $l);
+    }
 }
 
 our %params = ();

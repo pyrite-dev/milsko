@@ -6,7 +6,7 @@ my $gl_libs = "";
 if (param_get("classic-theme")) {
     add_cflags("-DUSE_CLASSIC_THEME");
 }
-if ($backend eq "x11") {
+if (grep(@backends, /^x11$/)) {
     add_cflags("-DUSE_X11");
     new_object("src/backend/x11.c");
     add_libs("-lX11");
@@ -18,7 +18,8 @@ if ($backend eq "x11") {
         add_libs("-lXrender");
     }
 }
-elsif ($backend eq "gdi") {
+
+if (grep(@backends, /^gdi$/)) {
     add_cflags("-DUSE_GDI");
     new_object("src/backend/gdi.c");
     add_libs("-lgdi32");

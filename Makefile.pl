@@ -11,16 +11,16 @@ foreach my $l (@ARGV) {
     }
 }
 
-our $prefix  = "/usr/local";
-our $cc      = defined($ENV{CC}) ? $ENV{CC} : "*host*gcc";
-our $ar      = defined($ENV{AR}) ? $ENV{AR} : "*host*ar";
-our $incdir  = "-I include";
-our $cflags  = "-fPIC -D_MILSKO";
-our $libdir  = "";
-our $ldflags = "";
-our $math    = "-lm";
-our $shared  = "-shared";
-our $backend = "";
+our $prefix   = "/usr/local";
+our $cc       = defined($ENV{CC}) ? $ENV{CC} : "*host*gcc";
+our $ar       = defined($ENV{AR}) ? $ENV{AR} : "*host*ar";
+our $incdir   = "-I include";
+our $cflags   = "-fPIC -D_MILSKO";
+our $libdir   = "";
+our $ldflags  = "";
+our $math     = "-lm";
+our $shared   = "-shared";
+our @backends = ();
 
 our $library_prefix    = "lib";
 our $library_suffix    = ".so";
