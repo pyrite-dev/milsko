@@ -685,12 +685,6 @@ MwWidget MwGetParent(MwWidget handle) {
 }
 
 typedef int (*call_t)(void);
-#ifdef USE_X11
-int MwLLX11CallInit(void);
-#endif
-#ifdef USE_GDI
-int MwLLGDICallInit(void);
-#endif
 int MwLibraryInit(void) {
 	call_t calls[] = {
 #ifdef USE_X11

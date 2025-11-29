@@ -68,4 +68,6 @@ struct _MwLLX11Pixmap {
 	XImage*	       mask;
 };
 
+MWDECL int MwLLX11CallInit(void);
+
 #endif

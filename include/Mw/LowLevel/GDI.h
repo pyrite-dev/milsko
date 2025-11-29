@@ -38,4 +38,6 @@ struct _MwLLGDIPixmap {
 	HBITMAP	 hMask2;
 };
 
+MWDECL int MwLLGDICallInit(void);
+
 #endif
