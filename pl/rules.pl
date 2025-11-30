@@ -27,6 +27,19 @@ if (grep(/^gdi$/, @backends)) {
     $gl_libs = "-lopengl32 -lglu32";
 }
 
+if (grep(/^wayland$/, @backends)) {
+    add_cflags("-DUSE_WAYLAND");
+    new_object("src/backend/wayland.c");
+    add_libs("-lwayland-client -lxkbcommon");
+
+    scan_wayland_protocol("stable", "xdg-shell","");
+    scan_wayland_protocol("stable", "tablet","-v2");
+    scan_wayland_protocol("staging", "cursor-shape","-v1");
+    scan_wayland_protocol("unstable", "xdg-decoration","-unstable-v1");
+
+    $gl_libs = "-lGL -lGLU";
+}
+
 if (param_get("stb-image")) {
     add_cflags("-DUSE_STB_IMAGE");
 }

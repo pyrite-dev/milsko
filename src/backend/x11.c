@@ -1019,7 +1019,6 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 }
 
 static int MwLLX11CallInitImpl(void) {
-	/* TODO: check properly */
 	return 0;
 }
 
