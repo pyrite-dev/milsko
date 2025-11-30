@@ -30,32 +30,40 @@ typedef struct wayland_protocol {
 
 typedef wayland_protocol_t*(wl_setup_func)(MwU32, struct _MwLLWayland*);
 
+struct _MwLLWaylandTopLevel {
+	struct xdg_surface*	     xdg_surface;
+	struct xdg_toplevel*	     xdg_top_level;
+	struct xdg_toplevel_listener xdg_toplevel_listener;
+	struct xdg_surface_listener  xdg_surface_listener;
+
+	struct xkb_context* xkb_context;
+
+	MwBool running;
+	MwBool compositor_created;
+	MwBool xdg_wm_base_created;
+	MwBool xdg_surface_created;
+};
+
 struct _MwLLWayland {
 	struct _MwLLCommon common;
+	union {
+		struct _MwLLWaylandTopLevel toplevel;
+		struct wl_subsurface*	    subsurface;
+	};
+	enum {
+		MWLL_WAYLAND_TOPLEVEL	= 0,
+		MWLL_WAYLAND_SUBSURFACE = 1,
+	} type;
+	MwU32 ww;
+	MwU32 wh;
 
-	// struct wl_shm*	      shm;
-	struct wl_display*  display;
-	struct wl_registry* registry;
-	// struct wl_compositor* compositor;
-	// struct wl_seat*	      seat;
-	struct wl_surface*  surface;
-	struct xdg_surface* xdg_surface;
-	// struct xdg_wm_base*   xdg_wm_base;
-	struct xdg_toplevel* xdg_top_level;
-
+	struct wl_display*	    display;
+	struct wl_registry*	    registry;
+	struct wl_compositor*	    compositor;
+	struct wl_subcompositor*    subcompositor;
+	struct wl_surface*	    surface;
+	struct wl_shm*		    shm;
 	struct wl_registry_listener registry_listener;
-
-	// struct zxdg_decoration_manager_v1*  decoration_manager;
-	// struct zxdg_toplevel_decoration_v1* toplevel_decoration;
-
-	struct xdg_toplevel_listener xdg_toplevel_listener;
-	// struct xdg_wm_base_listener  xdg_wm_base_listener;
-	struct xdg_surface_listener xdg_surface_listener;
-	// struct wl_pointer_listener		    pointer_listener;
-	// struct wl_seat_listener			    seat_listener;
-	// struct wl_keyboard_listener		    keyboard_listener;
-	// struct wl_shell_surface_listener	    shell_surface_listener;
-	// struct zxdg_toplevel_decoration_v1_listener decoration_listener;
 
 	struct {
 		const char*    key;
@@ -67,10 +75,7 @@ struct _MwLLWayland {
 		wayland_protocol_t* value;
 	}* wl_protocol_map;
 
-	struct xkb_context* xkb_context;
-
 	MwBool configured;
-	MwBool running;
 };
 
 struct _MwLLWaylandColor {
