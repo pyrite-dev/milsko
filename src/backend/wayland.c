@@ -1,12 +1,5 @@
 /* $Id$ */
 
-/**
- TODO:
-
- - would fit with Milsko's goal to support older compositors using wl_shell. would also suck to test because most compositors outright removed that around 2021...
-
- */
-
 #include <Mw/Milsko.h>
 
 #include <fcntl.h>
@@ -17,7 +10,6 @@
 
 #define WAYLAND_GET_INTERFACE(r, inter) shget(r.wl_protocol_map, inter##_interface.name)
 
-// REGISTRY
 static void new_protocol(void* data, struct wl_registry* registry,
 			 MwU32 name, const char* interface,
 			 MwU32 version) {
@@ -38,12 +30,10 @@ static void protocol_removed(void*		 data,
 
 };
 
-// SEAT
 static void wl_seat_name(void* data, struct wl_seat* wl_seat, const char* name) {};
 static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 				 MwU32 capabilities) {};
 
-// XDG SHELL
 void xdg_wm_base_ping(void*		  data,
 		      struct xdg_wm_base* xdg_wm_base,
 		      MwU32		  serial) {
@@ -51,19 +41,6 @@ void xdg_wm_base_ping(void*		  data,
 	// We need to send back a pong request immediately.
 	xdg_wm_base_pong(xdg_wm_base, serial);
 };
-
-// XDG SHELL SURFACE
-static void wl_shell_surface_ping(void*			   data,
-				  struct wl_shell_surface* wl_shell_surface,
-				  MwU32			   serial) {};
-static void wl_shell_surface_configure(void*			data,
-				       struct wl_shell_surface* wl_shell_surface,
-				       MwU32			edges,
-				       MwI32			width,
-				       MwI32			height) {};
-
-static void wl_shell_surface_popup_done(void*			 data,
-					struct wl_shell_surface* wl_shell_surface) {};
 
 static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland) {
 	wayland->shm = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
@@ -161,19 +138,6 @@ static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wa
 
 	return proto;
 }
-static wayland_protocol_t* wl_shell_surface_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
-	proto->listener		  = malloc(sizeof(struct wl_shell_surface_listener));
-
-	((struct wl_shell_surface_listener*)proto->listener)->ping	 = wl_shell_surface_ping;
-	((struct wl_shell_surface_listener*)proto->listener)->configure	 = wl_shell_surface_configure;
-	((struct wl_shell_surface_listener*)proto->listener)->popup_done = wl_shell_surface_popup_done;
-
-	proto->context = wl_registry_bind(wayland->registry, name, &wl_shell_surface_interface, 1);
-	wl_shell_surface_add_listener(proto->context, proto->listener, wayland);
-
-	return proto;
-}
 
 static wayland_protocol_t* wp_cursor_shape_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
 	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
@@ -257,7 +221,6 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 	if(wayland->type == MWLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(wl_seat);
 		WL_INTERFACE(xdg_wm_base);
-		WL_INTERFACE(wl_shell_surface);
 		WL_INTERFACE(zxdg_decoration_manager_v1);
 		WL_INTERFACE(wp_cursor_shape_manager_v1);
 	}
