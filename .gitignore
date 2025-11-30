@@ -1,10 +1,8 @@
 *.o
 *.so
-examples/*
-examples/*.exe
 examples/*/*
-examples/*/*.exe
-!examples/*/
-!examples/*.*
-!examples/*/*.*
+!examples/*/*.c
+!examples/*/*.spv
 compile_flags.txt
+*.a
+Makefile
