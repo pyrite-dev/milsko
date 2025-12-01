@@ -2,17 +2,19 @@
 
 #include <Mw/Milsko.h>
 
+#include <assert.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <poll.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include <sys/mman.h>
 #include <wayland-client-protocol.h>
 
 #include "../../external/stb_ds.h"
-#include "Mw/LowLevel.h"
-#include "Mw/LowLevel/Wayland/xdg-shell-client-protocol.h"
+
+#include <sys/mman.h>
 
 #define WAYLAND_GET_INTERFACE(r, inter) shget(r.wl_protocol_map, inter##_interface.name)
 
@@ -61,7 +63,6 @@ static void buffer_setup(struct _MwLLWayland* wayland) {
 	MwU32 size	  = wayland->ww * wayland->wh * 4;
 	char  temp_name[] = "/tmp/milsko-wl-shm-XXXXXX";
 	void* map;
-	MwU8  data = 0xFF;
 
 	fd = mkstemp(temp_name);
 
@@ -78,23 +79,9 @@ static void buffer_setup(struct _MwLLWayland* wayland) {
 		return;
 	}
 
-	map = mmap(NULL, wayland->wh * wayland->ww * 4, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-	memset(map, 0xFF, wayland->wh * wayland->ww * 4);
-
-	// 	for(y = 0; y < wayland->wh; y++) {
-	// 		for(x = 0; x < wayland->ww; x++) {
-	// #define MIN(a, b) (((a) < (b)) ? (a) : (b))
-	// 			MwU8 a = 0xFF;
-	// 			MwU8 r = MIN(((wayland->ww - x) * 0xFF) / wayland->ww, ((wayland->wh - y) * 0xFF) / wayland->wh);
-	// 			MwU8 g = MIN((x * 0xFF) / wayland->ww, ((wayland->wh - y) * 0xFF) / wayland->wh);
-	// 			MwU8 b = MIN(((wayland->ww - x) * 0xFF) / wayland->ww, (y * 0xFF) / wayland->wh);
-	// 			write(fd, &b, 1);
-	// 			write(fd, &g, 1);
-	// 			write(fd, &r, 1);
-	// 			write(fd, &a, 1);
-	// #undef MIN
-	// 		}
-	// 	}
+	lseek(fd, 0, SEEK_SET);
+	map = mmap(NULL, size, PROT_WRITE, MAP_SHARED, fd, 0);
+	memset(map, 0xFF, size);
 
 	fsync(fd);
 
@@ -108,8 +95,8 @@ static void buffer_setup(struct _MwLLWayland* wayland) {
 		wl_surface_attach(wayland->surface, buffer, 0, 0);
 		wl_surface_commit(wayland->surface);
 	}
-
 	wl_buffer_destroy(buffer);
+	wl_shm_pool_destroy(pool);
 	close(fd);
 }
 
@@ -187,9 +174,9 @@ static void xdg_toplevel_configure(void*		data,
 	if(width != 0 && height != 0) {
 		self->wayland.ww = width;
 		self->wayland.wh = height;
-		MwLLDispatch(self, resize, NULL);
 		xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, self->wayland.x, self->wayland.y, self->wayland.ww, self->wayland.wh);
-		buffer_setup(&self->wayland);
+
+		MwLLDispatch(self, resize, NULL);
 	};
 
 	wl_surface_commit(self->wayland.surface);
@@ -234,6 +221,8 @@ static void xdg_surface_configure(
 static void setup_callbacks(struct _MwLLWayland* wayland) {
 	wayland->registry_listener.global	 = new_protocol;
 	wayland->registry_listener.global_remove = protocol_removed;
+	wayland->wl_protocol_setup_map		 = NULL;
+	wayland->wl_protocol_map		 = NULL;
 
 	WL_INTERFACE(wl_shm);
 	WL_INTERFACE(wl_compositor);
@@ -390,6 +379,16 @@ static void setup_subsurface(MwLL parent, MwLL r, int x, int y, int width, int h
 
 	r->wayland.type = MWLL_WAYLAND_SUBSURFACE;
 
+	r->wayland.display = parent->wayland.display;
+
+	r->wayland.surface = wl_compositor_create_surface(compositor);
+
+	r->wayland.subsurface = wl_subcompositor_get_subsurface(subcompositor, r->wayland.surface, parent_surface);
+
+	wl_subsurface_set_position(r->wayland.subsurface, x, y);
+
+	// printf("position %d %d\n", x, y);
+
 	setup_callbacks(&r->wayland);
 
 	r->wayland.registry = wl_display_get_registry(parent->wayland.display);
@@ -401,15 +400,6 @@ static void setup_subsurface(MwLL parent, MwLL r, int x, int y, int width, int h
 		raise(SIGTRAP);
 		return;
 	}
-	r->wayland.display = parent->wayland.display;
-
-	r->wayland.surface = wl_compositor_create_surface(compositor);
-
-	r->wayland.subsurface = wl_subcompositor_get_subsurface(subcompositor, r->wayland.surface, parent_surface);
-
-	wl_subsurface_set_position(r->wayland.subsurface, x, y);
-
-	// printf("position %d %d\n", x, y);
 
 	r->wayland.configured = MwTRUE;
 
@@ -424,6 +414,9 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	r->common.copy_buffer = 1;
 	r->common.type	      = MwLLBackendWayland;
+
+	if(width == 0) width = parent->wayland.ww;
+	if(height == 0) height = parent->wayland.wh;
 
 	r->wayland.ww = width;
 	r->wayland.wh = height;
@@ -497,6 +490,7 @@ static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 }
 
 static void MwLLFreeColorImpl(MwLLColor color) {
+	free(color);
 }
 
 static void MwLLSetBackgroundImpl(MwLL handle, MwLLColor color) {
@@ -541,6 +535,8 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 
 static void MwLLForceRenderImpl(MwLL handle) {
 	// event_loop(handle);
+	wl_surface_damage(handle->wayland.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+	wl_surface_commit(handle->wayland.surface);
 }
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
@@ -556,9 +552,27 @@ static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
+	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
+		xdg_toplevel_set_min_size(handle->wayland.toplevel->xdg_top_level, minx, miny);
+		xdg_toplevel_set_max_size(handle->wayland.toplevel->xdg_top_level, maxx, maxy);
+	}
 }
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
+	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
+		if(WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1)->context != NULL) {
+			zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1)->context;
+
+			dec->decoration = zxdg_decoration_manager_v1_get_toplevel_decoration(
+			    dec->manager, handle->wayland.toplevel->xdg_top_level);
+
+			zxdg_toplevel_decoration_v1_set_mode(
+			    dec->decoration, ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE);
+		} else {
+			// TODO: hide our custom window decorations when we have them.
+			printf("zxdg null\n");
+		}
+	}
 }
 
 static void MwLLFocusImpl(MwLL handle) {
