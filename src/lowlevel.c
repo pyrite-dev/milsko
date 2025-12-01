@@ -40,8 +40,6 @@ void (*MwLLMakePopup)(MwLL handle, MwLL parent);
 void (*MwLLBeginStateChange)(MwLL handle);
 void (*MwLLEndStateChange)(MwLL handle);
 
-void (*MwLLSetBackground)(MwLL handle, MwLLColor color);
-
 void (*MwLLFocus)(MwLL handle);
 void (*MwLLGrabPointer)(MwLL handle, int toggle);
 

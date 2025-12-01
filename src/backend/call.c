@@ -45,8 +45,6 @@
 		MwLLBeginStateChange = MwLLBeginStateChangeImpl; \
 		MwLLEndStateChange   = MwLLEndStateChangeImpl; \
 \
-		MwLLSetBackground = MwLLSetBackgroundImpl; \
-\
 		MwLLFocus	= MwLLFocusImpl; \
 		MwLLGrabPointer = MwLLGrabPointerImpl; \
 \

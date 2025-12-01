@@ -342,11 +342,6 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 	free(color);
 }
 
-static void MwLLSetBackgroundImpl(MwLL handle, MwLLColor color) {
-	(void)handle;
-	(void)color;
-}
-
 static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
 	RECT rc;
 

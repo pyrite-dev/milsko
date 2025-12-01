@@ -184,8 +184,6 @@ MWDECL void (*MwLLMakePopup)(MwLL handle, MwLL parent);
 MWDECL void (*MwLLBeginStateChange)(MwLL handle);
 MWDECL void (*MwLLEndStateChange)(MwLL handle);
 
-MWDECL void (*MwLLSetBackground)(MwLL handle, MwLLColor color);
-
 MWDECL void (*MwLLFocus)(MwLL handle);
 MWDECL void (*MwLLGrabPointer)(MwLL handle, int toggle);
 
