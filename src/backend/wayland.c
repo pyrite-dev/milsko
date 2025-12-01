@@ -5,8 +5,14 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <poll.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <wayland-client-protocol.h>
 
 #include "../../external/stb_ds.h"
+#include "Mw/LowLevel.h"
+#include "Mw/LowLevel/Wayland/xdg-shell-client-protocol.h"
 
 #define WAYLAND_GET_INTERFACE(r, inter) shget(r.wl_protocol_map, inter##_interface.name)
 
@@ -54,6 +60,8 @@ static void buffer_setup(struct _MwLLWayland* wayland) {
 	int   fd;
 	MwU32 size	  = wayland->ww * wayland->wh * 4;
 	char  temp_name[] = "/tmp/milsko-wl-shm-XXXXXX";
+	void* map;
+	MwU8  data = 0xFF;
 
 	fd = mkstemp(temp_name);
 
@@ -70,20 +78,23 @@ static void buffer_setup(struct _MwLLWayland* wayland) {
 		return;
 	}
 
-	for(y = 0; y < wayland->wh; y++) {
-		for(x = 0; x < wayland->ww; x++) {
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-			MwU8 a = 0xFF;
-			MwU8 r = MIN(((wayland->ww - x) * 0xFF) / wayland->ww, ((wayland->wh - y) * 0xFF) / wayland->wh);
-			MwU8 g = MIN((x * 0xFF) / wayland->ww, ((wayland->wh - y) * 0xFF) / wayland->wh);
-			MwU8 b = MIN(((wayland->ww - x) * 0xFF) / wayland->ww, (y * 0xFF) / wayland->wh);
-			write(fd, &b, 1);
-			write(fd, &g, 1);
-			write(fd, &r, 1);
-			write(fd, &a, 1);
-#undef MIN
-		}
-	}
+	map = mmap(NULL, wayland->wh * wayland->ww * 4, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	memset(map, 0xFF, wayland->wh * wayland->ww * 4);
+
+	// 	for(y = 0; y < wayland->wh; y++) {
+	// 		for(x = 0; x < wayland->ww; x++) {
+	// #define MIN(a, b) (((a) < (b)) ? (a) : (b))
+	// 			MwU8 a = 0xFF;
+	// 			MwU8 r = MIN(((wayland->ww - x) * 0xFF) / wayland->ww, ((wayland->wh - y) * 0xFF) / wayland->wh);
+	// 			MwU8 g = MIN((x * 0xFF) / wayland->ww, ((wayland->wh - y) * 0xFF) / wayland->wh);
+	// 			MwU8 b = MIN(((wayland->ww - x) * 0xFF) / wayland->ww, (y * 0xFF) / wayland->wh);
+	// 			write(fd, &b, 1);
+	// 			write(fd, &g, 1);
+	// 			write(fd, &r, 1);
+	// 			write(fd, &a, 1);
+	// #undef MIN
+	// 		}
+	// 	}
 
 	fsync(fd);
 
@@ -171,9 +182,17 @@ static void xdg_toplevel_configure(void*		data,
 				   struct xdg_toplevel* xdg_toplevel,
 				   MwI32 width, MwI32 height,
 				   struct wl_array* states) {
-	struct _MwLLWayland* self = (struct _MwLLWayland*)data;
+	MwLL self = data;
 
-	wl_surface_commit(self->surface);
+	if(width != 0 && height != 0) {
+		self->wayland.ww = width;
+		self->wayland.wh = height;
+		MwLLDispatch(self, resize, NULL);
+		xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, self->wayland.x, self->wayland.y, self->wayland.ww, self->wayland.wh);
+		buffer_setup(&self->wayland);
+	};
+
+	wl_surface_commit(self->wayland.surface);
 
 	return;
 };
@@ -185,27 +204,28 @@ static void decoration_configure(
 
 static void xdg_toplevel_close(
     void* data, struct xdg_toplevel* xdg_toplevel) {
-	struct _MwLLWayland* self = (struct _MwLLWayland*)data;
+	MwLL self = data;
+
 	// Stop running if the user requests to close the toplevel
-	self->toplevel.running = MwFALSE;
+	self->wayland.toplevel->running = MwFALSE;
 };
 
 static void xdg_surface_configure(
     void* data, struct xdg_surface* xdg_surface, MwU32 serial) {
-	struct _MwLLWayland* self = (struct _MwLLWayland*)data;
+	MwLL self = data;
 
 	// The compositor configures our surface, acknowledge the configure event
 	xdg_surface_ack_configure(xdg_surface, serial);
 
-	if(self->configured) {
+	if(self->wayland.configured) {
 		// If this isn't the first configure event we've received, we already
 		// have a buffer attached, so no need to do anything. Commit the
 		// surface to apply the configure acknowledgement.
 		// wl_surface_attach(self->surface, self->buffer, 0, 0);
-		wl_surface_commit(self->surface);
+		wl_surface_commit(self->wayland.surface);
 	}
 
-	self->configured = MwTRUE;
+	self->wayland.configured = MwTRUE;
 }
 
 #define WL_INTERFACE(interface) \
@@ -268,7 +288,7 @@ static void event_loop(MwLL handle) {
 	if(!flush_display(handle->wayland.display)) {
 		wl_display_cancel_read(handle->wayland.display);
 
-		handle->wayland.toplevel.running = MwFALSE;
+		handle->wayland.toplevel->running = MwFALSE;
 		return;
 	}
 
@@ -287,7 +307,8 @@ static void event_loop(MwLL handle) {
 }
 
 static void setup_toplevel(MwLL r, int x, int y, int width, int height) {
-	r->wayland.type = MWLL_WAYLAND_TOPLEVEL;
+	r->wayland.type	    = MWLL_WAYLAND_TOPLEVEL;
+	r->wayland.toplevel = malloc(sizeof(struct _MwLLWaylandTopLevel));
 
 	setup_callbacks(&r->wayland);
 
@@ -319,25 +340,25 @@ static void setup_toplevel(MwLL r, int x, int y, int width, int height) {
 		return;
 	}
 
-	r->wayland.toplevel.xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+	r->wayland.toplevel->xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 
 	// Create a wl_surface, a xdg_surface and a xdg_toplevel
 	r->wayland.surface = wl_compositor_create_surface(r->wayland.compositor);
-	r->wayland.toplevel.xdg_surface =
+	r->wayland.toplevel->xdg_surface =
 	    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context, r->wayland.surface);
-	r->wayland.toplevel.xdg_top_level = xdg_surface_get_toplevel(r->wayland.toplevel.xdg_surface);
+	r->wayland.toplevel->xdg_top_level = xdg_surface_get_toplevel(r->wayland.toplevel->xdg_surface);
 
 	// setup mandatory listeners
-	r->wayland.toplevel.xdg_surface_listener.configure  = xdg_surface_configure;
-	r->wayland.toplevel.xdg_toplevel_listener.configure = xdg_toplevel_configure;
-	r->wayland.toplevel.xdg_toplevel_listener.close	    = xdg_toplevel_close;
+	r->wayland.toplevel->xdg_surface_listener.configure  = xdg_surface_configure;
+	r->wayland.toplevel->xdg_toplevel_listener.configure = xdg_toplevel_configure;
+	r->wayland.toplevel->xdg_toplevel_listener.close     = xdg_toplevel_close;
 
-	xdg_surface_add_listener(r->wayland.toplevel.xdg_surface, &r->wayland.toplevel.xdg_surface_listener, r);
-	xdg_toplevel_add_listener(r->wayland.toplevel.xdg_top_level, &r->wayland.toplevel.xdg_toplevel_listener,
+	xdg_surface_add_listener(r->wayland.toplevel->xdg_surface, &r->wayland.toplevel->xdg_surface_listener, r);
+	xdg_toplevel_add_listener(r->wayland.toplevel->xdg_top_level, &r->wayland.toplevel->xdg_toplevel_listener,
 				  r);
 
-	xdg_toplevel_set_title(r->wayland.toplevel.xdg_top_level, "Milsko Wayland App");
-	xdg_toplevel_set_app_id(r->wayland.toplevel.xdg_top_level, "MilskoWaylandApp");
+	xdg_toplevel_set_title(r->wayland.toplevel->xdg_top_level, "Milsko Wayland App");
+	xdg_toplevel_set_app_id(r->wayland.toplevel->xdg_top_level, "MilskoWaylandApp");
 
 	// Perform the initial commit and wait for the first configure event
 	wl_surface_commit(r->wayland.surface);
@@ -349,7 +370,7 @@ static void setup_toplevel(MwLL r, int x, int y, int width, int height) {
 		zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(r->wayland, zxdg_decoration_manager_v1)->context;
 
 		dec->decoration = zxdg_decoration_manager_v1_get_toplevel_decoration(
-		    dec->manager, r->wayland.toplevel.xdg_top_level);
+		    dec->manager, r->wayland.toplevel->xdg_top_level);
 
 		zxdg_toplevel_decoration_v1_set_mode(
 		    dec->decoration, ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
@@ -424,6 +445,35 @@ static void MwLLDestroyImpl(MwLL handle) {
 	free(handle);
 }
 
+static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
+	*x = handle->wayland.x;
+	*y = handle->wayland.y;
+	*w = handle->wayland.ww;
+	*h = handle->wayland.wh;
+}
+
+static void MwLLSetXYImpl(MwLL handle, int x, int y) {
+	handle->wayland.x = x;
+	handle->wayland.y = y;
+	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
+		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, handle->wayland.x, handle->wayland.y, handle->wayland.ww, handle->wayland.wh);
+	} else {
+		wl_subsurface_set_position(handle->wayland.subsurface, x, y);
+	}
+}
+
+static void MwLLSetWHImpl(MwLL handle, int w, int h) {
+	handle->wayland.ww = w;
+	handle->wayland.wh = h;
+
+	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
+		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, handle->wayland.x, handle->wayland.y, handle->wayland.ww, handle->wayland.wh);
+	} else {
+		// setup the buffer again with the new size.
+		buffer_setup(&handle->wayland);
+	}
+}
+
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
 }
 
@@ -446,19 +496,6 @@ static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 	c->common.green = g;
 }
 
-static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
-	*x = 0;
-	*y = 0;
-	*w = 0;
-	*h = 0;
-}
-
-static void MwLLSetXYImpl(MwLL handle, int x, int y) {
-}
-
-static void MwLLSetWHImpl(MwLL handle, int w, int h) {
-}
-
 static void MwLLFreeColorImpl(MwLLColor color) {
 }
 
@@ -476,7 +513,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
-		xdg_toplevel_set_title(handle->wayland.toplevel.xdg_top_level, title);
+		xdg_toplevel_set_title(handle->wayland.toplevel->xdg_top_level, title);
 	}
 }
 

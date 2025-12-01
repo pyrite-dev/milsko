@@ -47,15 +47,13 @@ struct _MwLLWaylandTopLevel {
 struct _MwLLWayland {
 	struct _MwLLCommon common;
 	union {
-		struct _MwLLWaylandTopLevel toplevel;
-		struct wl_subsurface*	    subsurface;
+		struct _MwLLWaylandTopLevel* toplevel;
+		struct wl_subsurface*	     subsurface;
 	};
 	enum {
 		MWLL_WAYLAND_TOPLEVEL	= 0,
 		MWLL_WAYLAND_SUBSURFACE = 1,
 	} type;
-	MwU32 ww;
-	MwU32 wh;
 
 	struct wl_display*	    display;
 	struct wl_registry*	    registry;
@@ -76,6 +74,7 @@ struct _MwLLWayland {
 	}* wl_protocol_map;
 
 	MwBool configured;
+	MwU32  x, y, ww, wh;
 };
 
 struct _MwLLWaylandColor {
