@@ -98,7 +98,7 @@ static void files_activate(MwWidget handle, void* user, void* call) {
 		char* p;
 
 		p = MwDirectoryJoin(fc->path, fc->sorted_entries[MwGetInteger(fc->files, MwNvalue) - 1]->name);
-		MwDispatchUserHandler(handle->parent, MwNfileChosenHandler, p);
+		MwDispatchUserHandler(handle->parent, fc->dir_only ? MwNdirectoryChosenHandler : MwNfileChosenHandler, p);
 		free(p);
 
 		okay(fc->okay, NULL, NULL);
