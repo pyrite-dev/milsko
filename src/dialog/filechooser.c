@@ -130,7 +130,7 @@ static void okay_activate(MwWidget handle, void* user, void* call) {
 		MwWidget msgbox = MwMessageBox(handle->parent, "File is not permitted here!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
 		MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, msgbox_okay, NULL);
 	} else {
-		MwDispatchUserHandler(handle->parent, MwNfileChosenHandler, p);
+		MwDispatchUserHandler(handle->parent, fc->dir_only ? MwNdirectoryChosenHandler : MwNfileChosenHandler, p);
 		okay(fc->okay, NULL, NULL);
 	}
 
