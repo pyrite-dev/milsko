@@ -501,7 +501,6 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	ICONINFO ii;
-	HICON	 ico;
 
 	memset(&ii, 0, sizeof(ii));
 	ii.fIcon    = TRUE;
@@ -729,6 +728,9 @@ static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
 
 static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
 	RECT rc;
+
+	(void)handle;
+
 	GetClientRect(GetDesktopWindow(), &rc);
 
 	rect->x = rect->y = 0;
