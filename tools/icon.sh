@@ -1,5 +1,5 @@
 #!/bin/sh
-echo '/*!' >> include/Mw/Resource/Icon.h
+echo '/*!' > include/Mw/Resource/Icon.h
 echo ' * @file Mw/Resource/Icon.h' >> include/Mw/Resource/Icon.h
 echo ' * @brief Icon' >> include/Mw/Resource/Icon.h
 echo ' */' >> include/Mw/Resource/Icon.h
