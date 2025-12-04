@@ -1,4 +1,3 @@
-/* $Id$ */
 /* this demo does not work well on windows */
 #include <Mw/Milsko.h>
 

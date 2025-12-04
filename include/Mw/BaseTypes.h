@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/BaseTypes.h
  * @brief Base type definitions

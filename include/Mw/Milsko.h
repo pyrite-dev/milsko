@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Milsko.h
  * @brief Includes all headers

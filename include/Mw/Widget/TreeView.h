@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Widget/TreeView.h
  * @brief TreeView widget

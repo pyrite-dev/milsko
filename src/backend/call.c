@@ -1,4 +1,3 @@
-/* $Id$ */
 /* This file gets included by backend */
 #define CALL(NAME) \
 	int MwLL##NAME##CallInit(void) { \

@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Core.h
  * @brief Core

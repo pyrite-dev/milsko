@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Constants.h
  * @brief Constants

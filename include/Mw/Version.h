@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Version.h
  * @brief Version informations

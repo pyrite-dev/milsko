@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Default.h
  * @brief Default properties

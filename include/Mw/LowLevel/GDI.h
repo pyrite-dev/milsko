@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/LowLevel/GDI.h
  * @brief GDI Backend

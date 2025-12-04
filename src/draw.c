@@ -1,4 +1,3 @@
-/* $Id$ */
 #include <Mw/Milsko.h>
 
 #ifdef USE_STB_IMAGE

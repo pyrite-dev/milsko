@@ -1,4 +1,3 @@
-# $Id$
 new_object("src/*.c");
 
 my $gl_libs = "";

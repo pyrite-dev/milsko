@@ -1,4 +1,3 @@
-/* $Id$ */
 #include <Mw/Milsko.h>
 
 const char* MwDefaultBackground	   = "#d2d2d2";

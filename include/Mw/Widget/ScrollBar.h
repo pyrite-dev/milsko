@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Widget/ScrollBar.h
  * @brief ScrollBar widget

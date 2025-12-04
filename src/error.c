@@ -1,4 +1,3 @@
-/* $Id$ */
 #include <Mw/Milsko.h>
 #include "error_internal.h"
 

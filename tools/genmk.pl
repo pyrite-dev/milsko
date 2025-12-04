@@ -1,6 +1,4 @@
 #!/usr/bin/env perl
-# $Id$
-
 my @cfiles = ();
 
 sub scan {
@@ -91,7 +89,6 @@ sub generate {
     }
 
     open(OUT, ">", $output);
-    print(OUT "# \$Id\$\n");
     print(OUT "CC = $cc\n");
     print(OUT "LD = $link\n");
     print(OUT "\n");

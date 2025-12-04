@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Widget/Vulkan.h
  * @brief Vulkan widget

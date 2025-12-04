@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Dialog/DirectoryChooser.h
  * @brief Directory chooser

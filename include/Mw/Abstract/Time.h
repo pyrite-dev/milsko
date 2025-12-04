@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Abstract/Time.h
  * @brief Time

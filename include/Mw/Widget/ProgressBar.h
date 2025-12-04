@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Widget/ProgressBar.h
  * @brief ProgressBar widget

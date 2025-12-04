@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Font.h
  * @brief Font

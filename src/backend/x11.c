@@ -1,4 +1,3 @@
-/* $Id$ */
 #include <Mw/Milsko.h>
 
 #include "../../external/stb_ds.h"

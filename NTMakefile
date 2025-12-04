@@ -1,4 +1,3 @@
-# $Id$
 CC = cl /TC /c /nologo
 LD = link /nologo
 

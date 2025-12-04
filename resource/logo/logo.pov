@@ -1,4 +1,3 @@
-// $Id$
 #include "shapes.inc"
 #include "colors.inc"
 #include "textures.inc"

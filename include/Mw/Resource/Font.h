@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Resource/Font.h
  * @brief Default font resources

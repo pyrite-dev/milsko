@@ -1,4 +1,3 @@
-# $Id$
 file(
 	GLOB
 	EXAMPLES_BASIC_SOURCES

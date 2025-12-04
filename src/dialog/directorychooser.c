@@ -1,4 +1,3 @@
-/* $Id$ */
 #include <Mw/Milsko.h>
 
 MwWidget MwDirectoryChooser(MwWidget handle, const char* title) {

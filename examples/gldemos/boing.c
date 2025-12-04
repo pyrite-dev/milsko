@@ -1,4 +1,3 @@
-/* $Id$ */
 #define TITLE "boing"
 #include "glutlayer.c"
 

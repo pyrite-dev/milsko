@@ -1,4 +1,3 @@
-# $Id$
 $library_prefix    = "";
 $library_suffix    = ".dll";
 $executable_suffix = ".exe";

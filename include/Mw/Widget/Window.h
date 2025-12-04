@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Widget/Window.h
  * @brief Window widget

@@ -1,5 +1,3 @@
-/* $Id$ */
-
 #ifndef __MW_ERROR_INTERNAL_H__
 #define __MW_ERROR_INTERNAL_H__
 

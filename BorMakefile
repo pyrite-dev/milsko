@@ -1,4 +1,3 @@
-# $Id$
 CC = bcc32 -c
 LD = bcc32
 

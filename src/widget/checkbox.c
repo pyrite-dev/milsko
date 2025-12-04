@@ -1,4 +1,3 @@
-/* $Id: button.c 168 2025-10-04 19:30:58Z nishi $ */
 #include <Mw/Milsko.h>
 
 static int create(MwWidget handle) {

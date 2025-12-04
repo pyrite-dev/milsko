@@ -1,4 +1,3 @@
-/* $Id$ */
 #define TITLE "cube"
 #include "glutlayer.c"
 

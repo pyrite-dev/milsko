@@ -1,4 +1,3 @@
-# $Id$
 CC = wcc386 -bt=nt -q -bd
 LD = wlink option quiet
 

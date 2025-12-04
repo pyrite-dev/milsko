@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/LowLevel/X11.h
  * @brief X11 Backend

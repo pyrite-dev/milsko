@@ -1,4 +1,3 @@
-# $Id$
 sub add_incdir {
     my $input = $_[0];
     $input =~ s/\r?\n/ /g;

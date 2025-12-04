@@ -1,4 +1,3 @@
-/* $Id $*/
 #include <Mw/Milsko.h>
 
 typedef struct scrollbar {

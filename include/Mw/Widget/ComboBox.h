@@ -1,4 +1,3 @@
-/* $Id: ComboBox.h 206 2025-10-07 15:10:46Z nishi $ */
 /*!
  * @file Mw/Widget/ComboBox.h
  * @brief ComboBox widget

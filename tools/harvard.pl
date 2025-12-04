@@ -1,6 +1,4 @@
 #!/usr/bin/env perl
-# $Id$
-
 open(IN, "<", "resource/harvard.txt");
 print("const char* harvard[] = {\n");
 while (my $l = <IN>) {

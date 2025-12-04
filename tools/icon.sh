@@ -1,7 +1,4 @@
 #!/bin/sh
-# $Id$
-
-echo '/* $Id$ */' > include/Mw/Resource/Icon.h
 echo '/*!' >> include/Mw/Resource/Icon.h
 echo ' * @file Mw/Resource/Icon.h' >> include/Mw/Resource/Icon.h
 echo ' * @brief Icon' >> include/Mw/Resource/Icon.h
@@ -26,7 +23,6 @@ for i in resource/icon/*.png; do
 	GEO=`convert $i json:- 2>/dev/null | jq -r '(.[0].image.geometry.width | tostring) + "x" + (.[0].image.geometry.height | tostring)'`
 	WIDTH=`echo $GEO | cut -dx -f1`
 	HEIGHT=`echo $GEO | cut -dx -f2`
-	echo '/* $Id$ */' > $OUT
 	echo '#include <Mw/Milsko.h>' >> $OUT
 	echo >> $OUT
 	echo "MwU32 $NAME[] = {" >> $OUT

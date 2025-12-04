@@ -1,5 +1,4 @@
 #!/bin/sh
-# $Id$
 set -e
 wmake -f WatMakefile
 rm -rf milsko

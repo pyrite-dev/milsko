@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Abstract/Dynamic.h
  * @brief Dynamic library

@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/StringDefs.h
  * @brief String definitions for property

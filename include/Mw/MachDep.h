@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/MachDep.h
  * @brief Machine dependent headers and macros

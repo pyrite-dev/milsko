@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Unicode.h
  * @brief Handles UTF8 stuff

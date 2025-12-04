@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Dialog/ColorPicker.h
  * @brief Color picker

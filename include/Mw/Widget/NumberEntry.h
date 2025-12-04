@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Widget/NumberEntry.h
  * @brief NumberEntry widget

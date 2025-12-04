@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Widget/Frame.h
  * @brief Frame widget

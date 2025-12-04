@@ -1,4 +1,3 @@
-# $Id$
 # vim: syntax=tcl
 
 proc run {project_name} {

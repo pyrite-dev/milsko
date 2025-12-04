@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/LowLevel.h
  * @brief Low-level drawing API

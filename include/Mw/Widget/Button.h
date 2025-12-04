@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Widget/Button.h
  * @brief Button widget

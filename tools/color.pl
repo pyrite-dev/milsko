@@ -1,10 +1,7 @@
 #!/usr/bin/env perl
-# $Id$
-
 open(IN,  "<", "resource/rgb.txt");
 open(OUT, ">", "src/color.c");
 
-print(OUT "/* \$Id\$ */\n");
 print(OUT "#include <Mw/Milsko.h>\n");
 print(OUT "\n");
 print(OUT "MwLLColor MwParseColorName(MwWidget handle, const char* color){\n");

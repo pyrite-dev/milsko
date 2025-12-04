@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Widget/Separator.h
  * @brief Separator widget

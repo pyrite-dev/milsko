@@ -1,5 +1,3 @@
-# $Id$
-
 CC = gcc
 CFLAGS = `freetype-config --cflags`
 LDFLAGS =

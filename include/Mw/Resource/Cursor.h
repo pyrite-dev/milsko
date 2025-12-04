@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Resource/Cursor.h
  * @brief Cursor externs

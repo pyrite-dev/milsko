@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Widget/SubMenu.h
  * @brief SubMenu widget

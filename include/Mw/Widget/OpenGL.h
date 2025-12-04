@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Widget/OpenGL.h
  * @brief OpenGL widget

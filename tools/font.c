@@ -1,4 +1,3 @@
-/* $Id$ */
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_BITMAP_H
@@ -30,7 +29,6 @@ int main(int argc, char** argv) {
 
 	FT_Get_BDF_Property(face, "COPYRIGHT", &rec);
 
-	printf("/* $Id$ */\n");
 	printf("#include <Mw/Milsko.h>\n");
 	printf("\n");
 	printf("/**\n");

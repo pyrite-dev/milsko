@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Dialog/MessageBox.h
  * @brief Message box

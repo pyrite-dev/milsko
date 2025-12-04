@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-# $Id$
 my $font = $ARGV[0];
 my $name = $ARGV[1];
 my $out  = $ARGV[2];
@@ -15,7 +14,6 @@ my $nocom = 0;
 my $MAX = 16;
 
 if ($name) {
-    print("/* \$Id\$ */\n");
     print("#include <Mw/Milsko.h>\n");
     print("\n");
 }

@@ -1,4 +1,3 @@
-/* $Id$ */
 #include <Mw/Milsko.h>
 
 static void vscroll_changed(MwWidget handle, void* user, void* call) {

@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /**
  * this example is quite minimal, you may need to modify it if your graphics card is more esoteric

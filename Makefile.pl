@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-# $Id$
 our $target = `uname -s`;
 $target =~ s/\r?\n$//;
 

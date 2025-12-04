@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!-- $Id$ -->
 <!--
 	Basically, you have to implement 10+n types:
 	 - Integer (int)

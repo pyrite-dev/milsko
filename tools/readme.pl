@@ -1,6 +1,4 @@
 #!/usr/bin/env perl
-# $Id$
-
 our $WIDTH = 80;
 
 sub l {

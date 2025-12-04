@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Abstract/Directory.h
  * @brief Directory functions

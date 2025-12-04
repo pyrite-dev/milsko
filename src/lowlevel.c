@@ -1,4 +1,3 @@
-/* $Id$ */
 #include <Mw/Milsko.h>
 
 MwLL (*MwLLCreate)(MwLL parent, int x, int y, int width, int height);

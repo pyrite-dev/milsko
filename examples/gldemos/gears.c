@@ -1,4 +1,3 @@
-/* $Id$ */
 #define TITLE "gears"
 #include "glutlayer.c"
 

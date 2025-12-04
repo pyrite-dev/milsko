@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Draw.h
  * @brief Common drawing API

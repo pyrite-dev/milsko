@@ -1,5 +1,4 @@
 #!/bin/sh
-# $Id$
 povray +A +W256 +H256 +Ologo.png resource/logo/logo.pov
 povray +A +W1280 +H640 +Obanner.png resource/logo/banner.pov
 povray +A +W102 +H47 +O102x47.png resource/logo/102x47.pov

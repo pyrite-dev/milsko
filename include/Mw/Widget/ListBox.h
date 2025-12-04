@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/Widget/ListBox.h
  * @brief ListBox widget

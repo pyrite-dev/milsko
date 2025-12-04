@@ -1,4 +1,3 @@
-/* $Id: font.c 104 2025-10-01 11:16:38Z nishi $ */
 #include <Mw/Milsko.h>
 
 /**

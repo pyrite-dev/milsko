@@ -1,4 +1,3 @@
-/* $Id$ */
 /*!
  * @file Mw/String.h
  * @brief String utilities
