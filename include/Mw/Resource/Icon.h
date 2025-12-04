@@ -91,7 +91,6 @@ MWDECL MwU32 MwIconUp[];
  */
 MWDECL MwU32 MwIconWarning[];
 
-
 #ifdef __cplusplus
 }
 #endif

@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-MwLLColor MwParseColorName(MwWidget handle, const char* color){
+MwLLColor MwParseColorName(MwWidget handle, const char* color) {
 	if(strcmp(color, "snow") == 0) return MwLLAllocColor(handle->lowlevel, 255, 250, 250);
 	if(strcmp(color, "ghost white") == 0) return MwLLAllocColor(handle->lowlevel, 248, 248, 255);
 	if(strcmp(color, "GhostWhite") == 0) return MwLLAllocColor(handle->lowlevel, 248, 248, 255);
