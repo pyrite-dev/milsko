@@ -33,6 +33,7 @@ struct _MwLLX11 {
 	XIC	 xic;
 
 	int top;
+	int toplevel;
 	int grabbed;
 	int force_render;
 
