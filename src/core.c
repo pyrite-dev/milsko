@@ -374,7 +374,7 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 
 		if(shgeti(handle->text, key) != -1) free(shget(handle->text, key));
 
-		if(value == NULL) shput(handle->text, key, v);
+		if(value != NULL) shput(handle->text, key, v);
 	}
 	if(handle->prop_event) MwDispatch3(handle, prop_change, key);
 	if(value != NULL && strcmp(key, MwNbackground) == 0) {
