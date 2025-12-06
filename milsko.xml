@@ -21,6 +21,12 @@
 			<integer name="x" />
 			<integer name="y" />
 		</struct>
+		<struct name="MwRect">
+			<integer name="x" />
+			<integer name="y" />
+			<integer name="width" />
+			<integer name="height" />
+		</struct>
 		<struct name="MwSizeHints">
 			<integer name="min_width" />
 			<integer name="min_height" />
@@ -351,6 +357,34 @@
 					<arguments>
 						<widget name="handle" />
 						<integer name="toggle" />
+					</arguments>
+				</function>
+				<function name="MwGetName">
+					<return>
+						<string />
+					</return>
+					<arguments>
+						<widget name="handle" />
+					</arguments>
+				</function>
+				<function name="MwGetChildren">
+					<return>
+						<widget pointer="yes" />
+					</return>
+					<arguments>
+						<widget name="handle" />
+					</arguments>
+				</function>
+				<function name="MwGetCursorCoord">
+					<arguments>
+						<widget name="handle" />
+						<struct defname="MwPoint" pointer="yes" name="point" />
+					</arguments>
+				</function>
+				<function name="MwGetScreenSize">
+					<arguments>
+						<widget name="handle" />
+						<struct defname="MwRect" pointer="yes" name="rect" />
 					</arguments>
 				</function>
 			</functions>

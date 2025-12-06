@@ -1,6 +1,3 @@
-*.o
-*.so
-*.dll
 examples/*
 examples/*.exe
 examples/*/*
@@ -8,4 +5,10 @@ examples/*/*.exe
 !examples/*/
 !examples/*.*
 !examples/*/*.*
+*.o
+*.so
+*.dll
+*.lib
+*.a
+/Makefile
 compile_flags.txt
