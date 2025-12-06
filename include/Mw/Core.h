@@ -316,6 +316,13 @@ MWDECL void MwReparent(MwWidget handle, MwWidget new_parent);
 MWDECL MwClass MwGetClass(MwWidget handle);
 
 /*!
+ * @brief Gets name of widget
+ * @param handle Widget
+ * @return Name
+ */
+MWDECL const char* MwGetName(MwWidget handle);
+
+/*!
  * @brief Gets children of widget
  * @param handle Widget
  * @return Children (NULL-terminated array)

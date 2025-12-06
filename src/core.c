@@ -725,6 +725,10 @@ MwClass MwGetClass(MwWidget handle) {
 	return handle->widget_class;
 }
 
+const char* MwGetName(MwWidget handle) {
+	return handle->name;
+}
+
 MwWidget* MwGetChildren(MwWidget handle) {
 	MwWidget* c = malloc(sizeof(*c) * (arrlen(handle->children) + 1));
 	int	  i;
