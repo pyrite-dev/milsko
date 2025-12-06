@@ -210,7 +210,7 @@ if (param_get("static")) {
 }
 
 foreach my $l (@library_targets) {
-    my $warn = "-Wall -Wextra -Wno-sign-compare";
+    my $warn = "-Wall -Wextra -Wno-sign-compare -Wno-unused-value";
     my $s    = $l;
     my $o    = $object_suffix;
     $o =~ s/\./\\\./g;

@@ -238,6 +238,14 @@ static void MwFreeWidget(MwWidget handle) {
 	free(handle);
 }
 
+static void destroy_children(MwWidget handle) {
+	int i;
+	for(i = 0; i < arrlen(handle->children); i++) {
+		destroy_children(handle->children[i]);
+	}
+	handle->destroyed = 1;
+}
+
 void MwDestroyWidget(MwWidget handle) {
 	if(handle->parent != NULL) {
 		int i;
@@ -248,6 +256,7 @@ void MwDestroyWidget(MwWidget handle) {
 			arrput(handle->parent->destroy_queue, handle);
 		}
 	}
+	destroy_children(handle);
 	handle->destroyed = 1;
 }
 
