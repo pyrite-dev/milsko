@@ -47,6 +47,7 @@
 		 - MwNy
 		 - MwNwidth
 		 - MwNheight
+		 - MwNborderWidth
 
 		Integer properties must be prefixed with I.
 		String properties must be prefixed with S.
@@ -79,6 +80,7 @@
 		<integer name="flat" />
 		<integer name="showArrows" />
 		<integer name="padding" />
+		<integer name="borderWidth" />
 
 		<string name="title" />
 		<string name="text" />

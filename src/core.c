@@ -374,9 +374,9 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 
 		if(shgeti(handle->text, key) != -1) free(shget(handle->text, key));
 
-		if(value != NULL){
+		if(value != NULL) {
 			shput(handle->text, key, v);
-		}else{
+		} else {
 			shdel(handle->text, key);
 		}
 	}
