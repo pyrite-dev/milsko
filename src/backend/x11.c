@@ -773,10 +773,10 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 }
 
 static void MwLLForceRenderImpl(MwLL handle) {
-	XEvent ev;
-	memset(&ev, 0, sizeof(ev));
-
 	if(!handle->x11.force_render) {
+		XEvent ev;
+		memset(&ev, 0, sizeof(ev));
+
 		ev.type		  = Expose;
 		ev.xexpose.window = handle->x11.window;
 		XSendEvent(handle->x11.display, handle->x11.window, False, ExposureMask, &ev);

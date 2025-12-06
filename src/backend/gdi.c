@@ -19,6 +19,8 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		HBITMAP	    hbmp;
 		HDC	    dc, hbdc;
 
+		u->ll->gdi.force_render = 0;
+
 		if(u->ll->common.copy_buffer) {
 			GetClientRect(hWnd, &rc);
 
@@ -235,11 +237,12 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->common.copy_buffer = 1;
 	r->common.type	      = MwLLBackendGDI;
 
-	r->gdi.grabbed	 = 0;
-	r->gdi.hWnd	 = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->gdi.hWnd, 0, wc.hInstance, NULL);
-	r->gdi.hInstance = wc.hInstance;
-	r->gdi.cursor	 = NULL;
-	r->gdi.icon	 = NULL;
+	r->gdi.force_render = 0;
+	r->gdi.grabbed	    = 0;
+	r->gdi.hWnd	    = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->gdi.hWnd, 0, wc.hInstance, NULL);
+	r->gdi.hInstance    = wc.hInstance;
+	r->gdi.cursor	    = NULL;
+	r->gdi.icon	    = NULL;
 
 	u->ll	   = r;
 	u->min_set = 0;
@@ -515,7 +518,11 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 }
 
 static void MwLLForceRenderImpl(MwLL handle) {
-	PostMessage(handle->gdi.hWnd, WM_USER, 0, 0);
+	if(!handle->gdi.force_render) {
+		PostMessage(handle->gdi.hWnd, WM_USER, 0, 0);
+
+		handle->gdi.force_render = 1;
+	}
 }
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {

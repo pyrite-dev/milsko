@@ -20,6 +20,7 @@ struct _MwLLGDI {
 	HICON	  icon;
 
 	int grabbed;
+	int force_render;
 };
 
 struct _MwLLGDIColor {
