@@ -370,7 +370,7 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 	if(strcmp(key, MwNtitle) == 0) {
 		MwLLSetTitle(handle->lowlevel, value);
 	} else {
-		char* v = MwStringDuplicate(value);
+		char* v = value == NULL ? NULL : MwStringDuplicate(value);
 
 		if(shgeti(handle->text, key) != -1) free(shget(handle->text, key));
 
