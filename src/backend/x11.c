@@ -148,14 +148,14 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	if(height < 2) height = 2;
 
 	if(parent == NULL) {
-		r->x11.display = XOpenDisplay(NULL);
-		p	       = XRootWindow(r->x11.display, XDefaultScreen(r->x11.display));
-		r->x11.top     = 1;
+		r->x11.display	= XOpenDisplay(NULL);
+		p		= XRootWindow(r->x11.display, XDefaultScreen(r->x11.display));
+		r->x11.top	= 1;
 		r->x11.toplevel = 1;
 	} else {
-		r->x11.display = parent->x11.display;
-		p	       = parent->x11.window;
-		r->x11.top     = 0;
+		r->x11.display	= parent->x11.display;
+		p		= parent->x11.window;
+		r->x11.top	= 0;
 		r->x11.toplevel = 0;
 	}
 	r->x11.window  = XCreateSimpleWindow(r->x11.display, p, px, py, width, height, 0, 0, WhitePixel(r->x11.display, DefaultScreen(r->x11.display)));
