@@ -377,7 +377,7 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 		shput(handle->text, key, v);
 	}
 	if(handle->prop_event) MwDispatch3(handle, prop_change, key);
-	if(strcmp(key, MwNbackground) == 0) {
+	if(v != NULL && strcmp(key, MwNbackground) == 0) {
 		MwLLColor c = MwParseColor(handle, value);
 		MwLLSetBackground(handle->lowlevel, c);
 		MwLLFreeColor(c);
