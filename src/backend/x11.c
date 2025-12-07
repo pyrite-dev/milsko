@@ -386,8 +386,11 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	destroy_pixmap(handle);
 	create_pixmap(handle);
 
+	/* we want events */
+#if 0
 	handle->x11.width  = w;
 	handle->x11.height = h;
+#endif
 
 	XSync(handle->x11.display, False);
 
