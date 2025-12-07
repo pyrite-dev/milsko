@@ -390,11 +390,6 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 		}
 	}
 	if(handle->prop_event) MwDispatch3(handle, prop_change, key);
-	if(value != NULL && strcmp(key, MwNbackground) == 0) {
-		MwLLColor c = MwParseColor(handle, value);
-		MwLLSetBackground(handle->lowlevel, c);
-		MwLLFreeColor(c);
-	}
 	if(strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0) {
 		MwForceRender(handle);
 	}

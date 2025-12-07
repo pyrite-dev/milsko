@@ -398,10 +398,6 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 	free(color);
 }
 
-static void MwLLSetBackgroundImpl(MwLL handle, MwLLColor color) {
-	XSetWindowBackground(handle->x11.display, handle->x11.window, color->x11.pixel);
-}
-
 static int MwLLPendingImpl(MwLL handle) {
 	XEvent ev;
 	if(XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, ClientMessage, &ev) || XCheckWindowEvent(handle->x11.display, handle->x11.window, mask, &ev)) {
