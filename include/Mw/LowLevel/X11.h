@@ -69,6 +69,6 @@ struct _MwLLX11Pixmap {
 };
 
 MWDECL int    MwLLX11CallInit(void);
-MWDECL Cursor MwLLX11CreateCursor();
+MWDECL Cursor MwLLX11CreateCursor(Display* display, MwCursor* image, MwCursor* mask);
 
 #endif

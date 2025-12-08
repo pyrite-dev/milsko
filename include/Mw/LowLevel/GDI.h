@@ -38,6 +38,7 @@ struct _MwLLGDIPixmap {
 	HBITMAP	 hMask2;
 };
 
-MWDECL int MwLLGDICallInit(void);
+MWDECL int     MwLLGDICallInit(void);
+MWDECL HCURSOR MwLLGDICreateCursor(MwCursor* image, MwCursor* mask);
 
 #endif

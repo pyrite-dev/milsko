@@ -520,7 +520,7 @@ static void MwLLForceRenderImpl(MwLL handle) {
 	}
 }
 
-static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
+HCURSOR MwLLGDICreateCursor(MwCursor* image, MwCursor* mask) {
 	HCURSOR cursor;
 	BYTE*	dmask  = malloc((MwCursorDataHeight / 8) * MwCursorDataHeight);
 	BYTE*	dimage = malloc((MwCursorDataHeight / 8) * MwCursorDataHeight);
@@ -561,12 +561,18 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 
 	cursor = CreateCursor(GetModuleHandle(NULL), xs, ys, MwCursorDataHeight, MwCursorDataHeight, dmask, dimage);
 
+	free(dimage);
+	free(dmask);
+
+	return cursor;
+}
+
+static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
+	HCURSOR cursor = MwLLGDICreateCursor(image, mask);
+
 	if(handle->gdi.cursor != NULL) DestroyCursor(handle->gdi.cursor);
 	if(handle->gdi.icon != NULL) DestroyIcon(handle->gdi.icon);
 	handle->gdi.cursor = cursor;
-
-	free(dimage);
-	free(dmask);
 }
 
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
