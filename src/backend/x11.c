@@ -784,17 +784,17 @@ static void MwLLForceRenderImpl(MwLL handle) {
 	}
 }
 
-static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
+Cursor MwLLX11CreateCursor(Display* display, MwCursor* image, MwCursor* mask) {
 	Cursor	cur;
 	int	y, x, ys, xs;
 	char*	di	= malloc(MwCursorDataHeight * MwCursorDataHeight * 4);
 	char*	dm	= malloc(MwCursorDataHeight * MwCursorDataHeight * 4);
-	XImage* cimage	= XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, di, MwCursorDataHeight, MwCursorDataHeight, 32, MwCursorDataHeight * 4);
-	XImage* cmask	= XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, dm, MwCursorDataHeight, MwCursorDataHeight, 32, MwCursorDataHeight * 4);
-	Pixmap	pimage	= XCreatePixmap(handle->x11.display, handle->x11.window, MwCursorDataHeight, MwCursorDataHeight, 1);
-	Pixmap	pmask	= XCreatePixmap(handle->x11.display, handle->x11.window, MwCursorDataHeight, MwCursorDataHeight, 1);
-	GC	imagegc = XCreateGC(handle->x11.display, pimage, 0, NULL);
-	GC	maskgc	= XCreateGC(handle->x11.display, pmask, 0, NULL);
+	XImage* cimage	= XCreateImage(display, DefaultVisual(display, DefaultScreen(display)), 1, ZPixmap, 0, di, MwCursorDataHeight, MwCursorDataHeight, 32, MwCursorDataHeight * 4);
+	XImage* cmask	= XCreateImage(display, DefaultVisual(display, DefaultScreen(display)), 1, ZPixmap, 0, dm, MwCursorDataHeight, MwCursorDataHeight, 32, MwCursorDataHeight * 4);
+	Pixmap	pimage	= XCreatePixmap(display, DefaultRootWindow(display), MwCursorDataHeight, MwCursorDataHeight, 1);
+	Pixmap	pmask	= XCreatePixmap(display, DefaultRootWindow(display), MwCursorDataHeight, MwCursorDataHeight, 1);
+	GC	imagegc = XCreateGC(display, pimage, 0, NULL);
+	GC	maskgc	= XCreateGC(display, pmask, 0, NULL);
 	XColor	cfg, cbg;
 
 	xs = -mask->x + image->x;
@@ -826,25 +826,32 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	cfg.red	  = 65535;
 	cfg.green = 65535;
 	cfg.blue  = 65535;
-	XAllocColor(handle->x11.display, handle->x11.colormap, &cfg);
+	XAllocColor(display, DefaultColormap(display, DefaultScreen(display)), &cfg);
 
 	cbg.red	  = 0;
 	cbg.green = 0;
 	cbg.blue  = 0;
-	XAllocColor(handle->x11.display, handle->x11.colormap, &cbg);
+	XAllocColor(display, DefaultColormap(display, DefaultScreen(display)), &cbg);
 
-	XPutImage(handle->x11.display, pimage, imagegc, cimage, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
-	XPutImage(handle->x11.display, pmask, maskgc, cmask, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
+	XPutImage(display, pimage, imagegc, cimage, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
+	XPutImage(display, pmask, maskgc, cmask, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
 
-	cur = XCreatePixmapCursor(handle->x11.display, pimage, pmask, &cfg, &cbg, xs, ys);
-	XDefineCursor(handle->x11.display, handle->x11.window, cur);
-	XFreeCursor(handle->x11.display, cur);
+	cur = XCreatePixmapCursor(display, pimage, pmask, &cfg, &cbg, xs, ys);
 
-	XFreePixmap(handle->x11.display, pimage);
-	XFreePixmap(handle->x11.display, pmask);
+	XFreePixmap(display, pimage);
+	XFreePixmap(display, pmask);
 
 	XDestroyImage(cimage);
 	XDestroyImage(cmask);
+
+	return cur;
+}
+
+static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
+	Cursor cur = MwLLX11CreateCursor(handle->x11.display, image, mask);
+
+	XDefineCursor(handle->x11.display, handle->x11.window, cur);
+	XFreeCursor(handle->x11.display, cur);
 }
 
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
