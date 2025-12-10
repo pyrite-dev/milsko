@@ -1,6 +1,12 @@
 #include <Mw/Milsko.h>
 #include <Mw/Widget/OpenGL.h>
 
+#ifdef USE_WAYLAND
+#include <stb_ds.h>
+#include <pthread.h>
+#include <sys/time.h>
+#endif
+
 #ifdef USE_GDI
 typedef HGLRC(WINAPI* MWwglCreateContext)(HDC);
 typedef BOOL(WINAPI* MWwglMakeCurrent)(HDC, HGLRC);
@@ -103,6 +109,12 @@ static int create(MwWidget handle) {
 		o->gl	  = o->glXCreateContext(handle->lowlevel->x11.display, o->visual, NULL, GL_TRUE);
 	}
 #endif
+#ifdef USE_WAYLAND
+	/* Wayland uses OpenGL as its backend so its already initialized */
+	if(handle->lowlevel->common.type == MwLLBackendWayland) {
+	}
+#endif
+
 	handle->internal		     = r;
 	handle->lowlevel->common.copy_buffer = 0;
 
@@ -133,6 +145,10 @@ static void destroy(MwWidget handle) {
 		MwDynamicClose(o->lib);
 	}
 #endif
+#ifdef USE_WAYLAND
+/* Wayland uses OpenGL as its backend so its destroyed accordingly */
+#endif
+
 	free(handle->internal);
 }
 
@@ -149,6 +165,10 @@ static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 		x11opengl_t* o = handle->internal;
 
 		o->glXMakeCurrent(handle->lowlevel->x11.display, handle->lowlevel->x11.window, o->gl);
+	}
+#endif
+#ifdef USE_WAYLAND
+	if(handle->lowlevel->common.type == MwLLBackendWayland) {
 	}
 #endif
 }
@@ -168,6 +188,16 @@ static void mwOpenGLSwapBufferImpl(MwWidget handle) {
 		o->glXSwapBuffers(handle->lowlevel->x11.display, handle->lowlevel->x11.window);
 	}
 #endif
+#ifdef USE_WAYLAND
+#define tp handle->lowlevel->wayland.topmost_parent->wayland
+	if(handle->lowlevel->common.type == MwLLBackendWayland) {
+		if(!eglSwapBuffers(
+		       tp.egl_display, tp.egl_surface)) {
+			printf("Userland error: eglSwapBuffers, %0X\n", eglGetError());
+		}
+	}
+#undef topmost_parent
+#endif
 }
 
 static void* mwOpenGLGetProcAddressImpl(MwWidget handle, const char* name) {
@@ -183,6 +213,11 @@ static void* mwOpenGLGetProcAddressImpl(MwWidget handle, const char* name) {
 		x11opengl_t* o = handle->internal;
 
 		return o->glXGetProcAddress((const GLubyte*)name);
+	}
+#endif
+#ifdef USE_WAYLAND
+	if(handle->lowlevel->common.type == MwLLBackendWayland) {
+		return eglGetProcAddress(name);
 	}
 #endif
 	return NULL;

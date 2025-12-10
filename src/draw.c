@@ -491,6 +491,7 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p4[2].y = rect->y + s * border;
 	}
 	MwLLPolygon(handle->lowlevel, p4, 3, col);
+
 	if(color != col) MwLLFreeColor(col);
 
 	MwLLFreeColor(lighter);

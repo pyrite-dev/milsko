@@ -25,7 +25,8 @@ typedef void* MwLLPixmap;
 
 enum MwLLBackends {
 	MwLLBackendX11 = 0,
-	MwLLBackendGDI
+	MwLLBackendGDI,
+	MwLLBackendWayland,
 };
 
 struct _MwLLCommon {
@@ -55,6 +56,9 @@ struct _MwLLCommonPixmap {
 #ifdef USE_GDI
 #include <Mw/LowLevel/GDI.h>
 #endif
+#ifdef USE_WAYLAND
+#include <Mw/LowLevel/Wayland.h>
+#endif
 
 union _MwLL {
 	struct _MwLLCommon common;
@@ -63,6 +67,9 @@ union _MwLL {
 #endif
 #ifdef USE_GDI
 	struct _MwLLGDI gdi;
+#endif
+#ifdef USE_WAYLAND
+	struct _MwLLWayland wayland;
 #endif
 };
 
@@ -74,6 +81,9 @@ union _MwLLColor {
 #ifdef USE_GDI
 	struct _MwLLGDIColor gdi;
 #endif
+#ifdef USE_WAYLAND
+	struct _MwLLWaylandColor wayland;
+#endif
 };
 
 union _MwLLPixmap {
@@ -83,6 +93,9 @@ union _MwLLPixmap {
 #endif
 #ifdef USE_GDI
 	struct _MwLLGDIPixmap gdi;
+#endif
+#ifdef USE_WAYLAND
+	struct _MwLLWaylandPixmap wayland;
 #endif
 };
 #endif
@@ -149,6 +162,8 @@ MWDECL void (*MwLLDestroy)(MwLL handle);
 
 MWDECL void (*MwLLPolygon)(MwLL handle, MwPoint* points, int points_count, MwLLColor color);
 MWDECL void (*MwLLLine)(MwLL handle, MwPoint* points, MwLLColor color);
+MWDECL void (*MwLLBeginDraw)(MwLL handle);
+MWDECL void (*MwLLEndDraw)(MwLL handle);
 
 MWDECL MwLLColor (*MwLLAllocColor)(MwLL handle, int r, int g, int b);
 MWDECL void (*MwLLColorUpdate)(MwLL handle, MwLLColor c, int r, int g, int b);

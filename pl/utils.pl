@@ -54,6 +54,38 @@ sub use_backend {
     }
 }
 
+sub scan_wayland_protocol {
+    my $tier  = $_[0];
+    my $proto = $_[1];
+    my $ver   = $_[2];
+
+    my $proto_c = "src/backend/wayland-${proto}-protocol.c";
+
+    if (
+        system(
+"wayland-scanner private-code /usr/share/wayland-protocols/${tier}/${proto}/${proto}${ver}.xml ${proto_c}"
+        ) != 0
+      )
+    {
+        print(
+"^ Error on getting private code for /usr/share/wayland-protocols/${tier}/${proto}/${proto}${ver}.xml\n"
+        );
+    }
+    else {
+        new_object($proto_c);
+    }
+    if (
+        system(
+"wayland-scanner client-header /usr/share/wayland-protocols/${tier}/${proto}/${proto}${ver}.xml include/Mw/LowLevel/Wayland/${proto}-client-protocol.h"
+        )
+      )
+    {
+        print(
+"^ Error on getting client header for /usr/share/wayland-protocols/${tier}/${proto}/${proto}${ver}.xml\n"
+        );
+    }
+}
+
 our %params = ();
 
 sub param_set {

@@ -280,6 +280,14 @@ static void MwLLDestroyImpl(MwLL handle) {
 	free(handle);
 }
 
+static void MwLLBeginDrawImpl(MwLL handle) {
+	(void)handle;
+}
+
+static void MwLLEndDrawImpl(MwLL handle) {
+	(void)handle;
+}
+
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
 	POINT* p   = malloc(sizeof(*p) * points_count);
 	HPEN   pen = CreatePen(PS_NULL, 0, RGB(0, 0, 0));

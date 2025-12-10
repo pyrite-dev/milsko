@@ -26,6 +26,26 @@ if (grep(/^gdi$/, @backends)) {
     $gl_libs = "-lopengl32 -lglu32";
 }
 
+if (grep(/^wayland$/, @backends)) {
+    add_cflags("-DUSE_WAYLAND");
+    new_object("src/backend/wayland.c");
+    if ($cross) {
+        add_libs("-lGL -lEGL -lwayland-egl -lwayland-client -lxkbcommon");
+    }
+    else {
+        add_libs("-lGL -lEGL");
+        add_cflags(`pkg-config --cflags wayland-egl wayland-client xkbcommon`);
+        add_libs(`pkg-config --libs wayland-egl wayland-client xkbcommon`);
+    }
+
+    scan_wayland_protocol("stable",   "xdg-shell",      "");
+    scan_wayland_protocol("stable",   "tablet",         "-v2");
+    scan_wayland_protocol("staging",  "cursor-shape",   "-v1");
+    scan_wayland_protocol("unstable", "xdg-decoration", "-unstable-v1");
+
+    $gl_libs = "-lGL -lGLU";
+}
+
 if (param_get("stb-image")) {
     add_cflags("-DUSE_STB_IMAGE");
 }
@@ -34,7 +54,10 @@ if (param_get("stb-truetype")) {
 }
 if (param_get("freetype2")) {
     add_cflags("-DUSE_FREETYPE2");
-    if (not($cross)) {
+    if ($cross) {
+        add_libs("-lfreetype");
+    }
+    else {
         add_cflags(`pkg-config --cflags freetype2`);
         add_libs(`pkg-config --libs freetype2`);
     }

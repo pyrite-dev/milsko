@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <assert.h>
 #include <math.h>
+#include <errno.h>
 #include <ctype.h>
 #include <time.h>
 #include <sys/stat.h>
@@ -43,6 +44,7 @@
 #include <dlfcn.h>
 #include <signal.h>
 #include <dirent.h>
+#include <fcntl.h>
 #endif
 
 #ifndef M_PI
