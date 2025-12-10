@@ -45,6 +45,7 @@
 #define MwNsizeHints "VsizeHints"
 #define MwNfont "Vfont"
 #define MwNboldFont "VboldFont"
+#define MwNbackgroundPixmap "VbackgroundPixmap"
 
 #define MwNactivateHandler "Cactivate"		     /* NULL/int* (MwListBox)/void* (MwTreeView) */
 #define MwNresizeHandler "Cresize"		     /* NULL */

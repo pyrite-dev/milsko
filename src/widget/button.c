@@ -17,6 +17,7 @@ static void draw(MwWidget handle) {
 	MwLLColor   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	const char* str	 = MwGetText(handle, MwNtext);
 	MwLLPixmap  px	 = MwGetVoid(handle, MwNpixmap);
+	MwLLPixmap  bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	if(str == NULL) str = "";
 
@@ -33,6 +34,9 @@ static void draw(MwWidget handle) {
 		}
 	} else {
 		MwDrawWidgetBack(handle, &r, base, handle->pressed, 1);
+	}
+	if(bgpx != NULL) {
+		MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 	}
 	if(MwGetInteger(handle, MwNflat) && !handle->pressed) {
 		r.x += MwDefaultBorderWidth(handle);

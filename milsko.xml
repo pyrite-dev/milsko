@@ -48,6 +48,7 @@
 		 - MwNwidth
 		 - MwNheight
 		 - MwNborderWidth
+		 - MwNbackgroundPixmap
 
 		Integer properties must be prefixed with I.
 		String properties must be prefixed with S.
