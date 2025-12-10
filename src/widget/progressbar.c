@@ -12,10 +12,11 @@ static int create(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	  r;
-	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor fill = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	double	  w;
+	MwRect	   r;
+	MwLLColor  base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor  fill = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	double	   w;
+	MwLLPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -26,6 +27,7 @@ static void draw(MwWidget handle) {
 	MwDrawRect(handle, &r, base);
 	w = MwGetInteger(handle, MwNvalue) - MwGetInteger(handle, MwNminValue);
 	w = w / (MwGetInteger(handle, MwNmaxValue) - MwGetInteger(handle, MwNminValue));
+	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 
 	r.x += MwDefaultBorderWidth(handle);
 	r.y += MwDefaultBorderWidth(handle);

@@ -65,7 +65,8 @@ static void draw(MwWidget handle) {
 	MwLLColor    dark = MwLightenColor(handle, base, -64, -64, -64);
 	scrollbar_t* scr  = handle->internal;
 	int or ;
-	int uy, dy, ux, dx;
+	int	   uy, dy, ux, dx;
+	MwLLPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -79,6 +80,7 @@ static void draw(MwWidget handle) {
 	dx = r.width - r.height;
 
 	MwDrawWidgetBack(handle, &r, dark, 1, MwTRUE);
+	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 
 	rt = r;
 

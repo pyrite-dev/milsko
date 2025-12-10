@@ -10,10 +10,11 @@ static int create(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	  fr;
-	MwRect	  rr;
-	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	int	  inverted;
+	MwRect	   fr;
+	MwRect	   rr;
+	MwLLColor  base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	int	   inverted;
+	MwLLPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	if(MwGetInteger(handle, MwNhasBorder)) {
 		inverted  = MwGetInteger(handle, MwNinverted);
@@ -36,6 +37,7 @@ static void draw(MwWidget handle) {
 	}
 
 	MwDrawRect(handle, &rr, base);
+	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &rr, bgpx);
 
 	MwLLFreeColor(base);
 }

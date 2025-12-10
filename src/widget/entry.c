@@ -25,6 +25,7 @@ static void draw(MwWidget handle) {
 	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwLLColor   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	const char* str	 = MwGetText(handle, MwNtext);
+	MwLLPixmap  bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 	if(str == NULL) str = "";
 
 	r.x	 = 0;
@@ -33,6 +34,7 @@ static void draw(MwWidget handle) {
 	r.height = MwGetInteger(handle, MwNheight);
 
 	MwDrawWidgetBack(handle, &r, base, 1, 1);
+	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 	if(str != NULL) {
 		int	w = MwTextWidth(handle, "M");
 		int	h = MwTextHeight(handle, "M");

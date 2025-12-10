@@ -11,8 +11,9 @@ static int create(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	  r;
-	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwRect	   r;
+	MwLLColor  base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -20,6 +21,7 @@ static void draw(MwWidget handle) {
 	r.height = MwGetInteger(handle, MwNheight);
 
 	MwDrawRect(handle, &r, base);
+	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 	MwDrawDiamond(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0);
 
 	MwLLFreeColor(base);

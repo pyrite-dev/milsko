@@ -35,9 +35,7 @@ static void draw(MwWidget handle) {
 	} else {
 		MwDrawWidgetBack(handle, &r, base, handle->pressed, 1);
 	}
-	if(bgpx != NULL) {
-		MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
-	}
+	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 	if(MwGetInteger(handle, MwNflat) && !handle->pressed) {
 		r.x += MwDefaultBorderWidth(handle);
 		r.y += MwDefaultBorderWidth(handle);
