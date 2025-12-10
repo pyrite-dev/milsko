@@ -1020,7 +1020,7 @@ static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
 
 static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
 	XWindowAttributes xwa;
-	XGetWindowAttributes(handle->x11.display, handle->x11.window, &xwa);
+	XGetWindowAttributes(handle->x11.display, DefaultRootWindow(handle->x11.display), &xwa);
 
 	rect->x = rect->y = 0;
 	rect->width	  = xwa.width;
