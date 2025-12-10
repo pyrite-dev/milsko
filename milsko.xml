@@ -488,6 +488,7 @@
 				<property name="text" />
 				<property name="flat" />
 				<property name="padding" />
+				<property name="fillArea" />
 			</properties>
 		</widget>
 		<widget name="CheckBox">

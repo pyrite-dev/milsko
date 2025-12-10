@@ -5,6 +5,7 @@ static int create(MwWidget handle) {
 
 	MwSetInteger(handle, MwNflat, 0);
 	MwSetInteger(handle, MwNpadding, 0);
+	MwSetInteger(handle, MwNfillArea, 1);
 
 	return 0;
 }
@@ -44,18 +45,23 @@ static void draw(MwWidget handle) {
 		int ow = r.width;
 		int oh = r.height;
 
-		double sw = (double)ow / px->common.width;
-		double sh = (double)oh / px->common.height;
+		if(MwGetInteger(handle, MwNfillArea)) {
+			double sw = (double)ow / px->common.width;
+			double sh = (double)oh / px->common.height;
 
-		if(sw < sh) {
-			r.width	 = px->common.width * sw;
-			r.height = px->common.height * sw;
+			if(sw < sh) {
+				r.width	 = px->common.width * sw;
+				r.height = px->common.height * sw;
+			} else {
+				r.width	 = px->common.width * sh;
+				r.height = px->common.height * sh;
+			}
+			r.width -= MwGetInteger(handle, MwNpadding) * 2;
+			r.height -= MwGetInteger(handle, MwNpadding) * 2;
 		} else {
-			r.width	 = px->common.width * sh;
-			r.height = px->common.height * sh;
+			r.width	 = px->common.width;
+			r.height = px->common.height;
 		}
-		r.width -= MwGetInteger(handle, MwNpadding) * 2;
-		r.height -= MwGetInteger(handle, MwNpadding) * 2;
 
 		r.x += (double)(ow - r.width) / 2;
 		r.y += (double)(oh - r.height) / 2;
@@ -77,7 +83,7 @@ static void click(MwWidget handle) {
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNtext) == 0 || strcmp(key, MwNpixmap) == 0 || strcmp(key, MwNflat) == 0 || strcmp(key, MwNpadding) == 0) MwForceRender(handle);
+	if(strcmp(key, MwNtext) == 0 || strcmp(key, MwNpixmap) == 0 || strcmp(key, MwNflat) == 0 || strcmp(key, MwNpadding) == 0 || strcmp(key, MwNfillArea) == 0) MwForceRender(handle);
 }
 
 MwClassRec MwButtonClassRec = {

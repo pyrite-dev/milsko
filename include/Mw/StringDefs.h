@@ -31,6 +31,7 @@
 #define MwNshowArrows "IshowArrows"
 #define MwNpadding "Ipadding"
 #define MwNborderWidth "IborderWidth"
+#define MwNfillArea "IfillArea"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
