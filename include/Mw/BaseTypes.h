@@ -31,7 +31,7 @@ typedef uint16_t MwU16;
 typedef int8_t	MwI8;
 typedef uint8_t MwU8;
 
-#define OTHER_TYPES_DEFINED
+#define MW_OTHER_TYPES_DEFINED
 #elif __GNUC__ > 2
 typedef long long	   MwI64;
 typedef unsigned long long MwU64;
@@ -48,18 +48,18 @@ typedef unsigned __int16 MwU16;
 typedef __int8		MwI8;
 typedef unsigned __int8 MwU8;
 
-#define OTHER_TYPES_DEFINED
+#define MW_OTHER_TYPES_DEFINED
 #else
 /* out of hope */
 typedef long	      MwI64;
 typedef unsigned long MwU64;
 #endif
 
-#ifdef OTHER_TYPES_DEFINED
-#undef OTHER_TYPES_DEFINED
+#ifdef MW_OTHER_TYPES_DEFINED
+#undef MW_OTHER_TYPES_DEFINED
 #else
-typedef int		   MwI32;
-typedef unsigned int	   MwU32;
+typedef int	     MwI32;
+typedef unsigned int MwU32;
 
 typedef short	       MwI16;
 typedef unsigned short MwU16;

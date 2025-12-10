@@ -142,7 +142,7 @@ static void draw(MwWidget handle) {
 }
 
 static void mouse_move(MwWidget handle) {
-	int or		 = MwGetInteger(handle, MwNorientation);
+	int	     or	 = MwGetInteger(handle, MwNorientation);
 	scrollbar_t* scr = handle->internal;
 
 	if(!handle->pressed) return;
@@ -170,9 +170,9 @@ static void mouse_move(MwWidget handle) {
 }
 
 static void mouse_down(MwWidget handle, void* ptr) {
-	int ww		 = MwGetInteger(handle, MwNwidth);
-	int wh		 = MwGetInteger(handle, MwNheight);
-	int or		 = MwGetInteger(handle, MwNorientation);
+	int	     ww	 = MwGetInteger(handle, MwNwidth);
+	int	     wh	 = MwGetInteger(handle, MwNheight);
+	int	     or	 = MwGetInteger(handle, MwNorientation);
 	scrollbar_t* scr = handle->internal;
 	MwLLMouse*   m	 = ptr;
 
