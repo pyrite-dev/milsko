@@ -292,6 +292,7 @@ static int ttf_MwTextHeight(MwWidget handle, int count) {
 #endif
 
 void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
+	if(strlen(text) == 0) return;
 #ifdef TTF
 	if(ttf_MwDrawText(handle, point, text, bold, align, color))
 #endif

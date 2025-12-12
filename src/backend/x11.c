@@ -581,8 +581,6 @@ static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
 	MwLLPixmap	  r  = malloc(sizeof(*r));
-	char*		  di = malloc(4 * width * height);
-	char*		  dm = malloc(4 * width * height);
 	int		  evbase, erbase;
 	XWindowAttributes attr;
 
@@ -603,8 +601,11 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 	r->x11.use_xrender = XRenderQueryExtension(handle->x11.display, &evbase, &erbase) ? 1 : 0;
 #endif
 
-	r->x11.image = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), r->x11.depth, ZPixmap, 0, di, width, height, 32, width * 4);
-	r->x11.mask  = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, dm, width, height, 32, width * 4);
+	r->x11.image = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), r->x11.depth, ZPixmap, 0, NULL, width, height, 32, 0);
+	r->x11.mask  = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, NULL, width, height, 32, 0);
+
+	r->x11.image->data = malloc(r->x11.image->bytes_per_line * height);
+	r->x11.mask->data = malloc(r->x11.mask->bytes_per_line * height);
 
 	MwLLPixmapUpdate(r);
 	return r;
