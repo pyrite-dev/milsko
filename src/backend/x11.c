@@ -53,7 +53,7 @@ static void sync_move(MwLL handle, int x, int y) {
 		XSync(handle->x11.display, False);
 		if(!XPending(handle->x11.display)) continue;
 		XNextEvent(handle->x11.display, &ev);
-		if(ev.type == ReparentNotify && ev.xreparent.window == handle->x11.window && ev.xreparent.window != RootWindow(handle->x11.display, DefaultScreen(handle->x11.display))) {
+		if(ev.type == ReparentNotify && ev.xreparent.window == handle->x11.window) {
 			break;
 		} else {
 			arrput(queue, ev);
