@@ -147,7 +147,7 @@ static void color_picker_image_update(color_picker_t* picker) {
 		    picker->parent, picker->color_picker_image_data, PICKER_SIZE, PICKER_SIZE);
 	} else {
 		MwReloadRaw(
-		    picker->parent, picker->color_picker_image_data, PICKER_SIZE, PICKER_SIZE, picker->color_picker_pixmap);
+		    picker->parent, picker->color_picker_pixmap, picker->color_picker_image_data, PICKER_SIZE, PICKER_SIZE);
 	}
 	MwVaApply(picker->color_picker_img, MwNpixmap, picker->color_picker_pixmap, NULL);
 	// printf("%d\n", n);
