@@ -693,6 +693,10 @@ void MwPixmapReloadRaw(MwLLPixmap px, unsigned char* rgb) {
 	MwLLPixmapUpdate(px);
 }
 
+unsigned char* MwPixmapGetRaw(MwLLPixmap pixmap) {
+	return pixmap->common.raw;
+}
+
 void MwPixmapGetSize(MwLLPixmap pixmap, MwRect* rect) {
 	rect->width  = pixmap->common.width;
 	rect->height = pixmap->common.height;
