@@ -37,28 +37,35 @@ static int hex(const char* txt, int len) {
 	return r;
 }
 
-MwLLColor MwParseColor(MwWidget handle, const char* text) {
-	int r;
-	int g;
-	int b;
-
+void MwParseColorNoAllocate(const char* text, MwRGB* rgb) {
 	if(text[0] == '#' && strlen(text) == 4) {
-		r = hex(text + 1, 1);
-		g = hex(text + 2, 1);
-		b = hex(text + 3, 1);
+		rgb->red   = hex(text + 1, 1);
+		rgb->green = hex(text + 2, 1);
+		rgb->blue  = hex(text + 3, 1);
 
-		r |= r << 4;
-		g |= g << 4;
-		b |= b << 4;
+		rgb->red |= rgb->red << 4;
+		rgb->green |= rgb->green << 4;
+		rgb->blue |= rgb->blue << 4;
 	} else if(text[0] == '#' && strlen(text) == 7) {
-		r = hex(text + 1, 2);
-		g = hex(text + 3, 2);
-		b = hex(text + 5, 2);
+		rgb->red   = hex(text + 1, 2);
+		rgb->green = hex(text + 3, 2);
+		rgb->blue  = hex(text + 5, 2);
 	} else {
-		return MwParseColorName(handle, text);
+		MwParseColorNameNoAllocate(text, rgb);
+		return;
 	}
+}
 
-	return MwLLAllocColor(handle->lowlevel, r, g, b);
+MwLLColor MwParseColor(MwWidget handle, const char* text) {
+	MwRGB rgb;
+
+	rgb.red	  = 0;
+	rgb.green = 0;
+	rgb.blue  = 0;
+
+	MwParseColorNoAllocate(text, &rgb);
+
+	return MwLLAllocColor(handle->lowlevel, rgb.red, rgb.green, rgb.blue);
 }
 
 MwLLColor MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, int b) {
@@ -649,40 +656,14 @@ MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 }
 
 MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height) {
-	MwLLPixmap     px;
-	unsigned char* out = malloc(width * height * 4);
-	int	       i;
-	MwLLColor      base = handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
+	MwLLPixmap px = MwLLCreatePixmap(handle->lowlevel, rgb, width, height);
 
-	memset(out, 0, width * height * 4);
-	for(i = 0; i < width * height; i++) {
-		unsigned char* pin  = &rgb[i * 4];
-		unsigned char* pout = &out[i * 4];
-		double	       a    = pin[3];
-
-		a /= 255;
-		if(a != 0) {
-			pout[0] = pin[0] * a;
-			pout[1] = pin[1] * a;
-			pout[2] = pin[2] * a;
-
-			pout[0] += base->common.red * (1 - a);
-			pout[1] += base->common.green * (1 - a);
-			pout[2] += base->common.blue * (1 - a);
-			pout[3] = 255;
-		}
-	}
-
-	if(handle->bgcolor == NULL) MwLLFreeColor(base);
-
-	px = MwLLCreatePixmap(handle->lowlevel, out, width, height);
-
-	free(out);
+	MwReloadRaw(handle, px, rgb, width, height);
 
 	return px;
 }
 
-void MwReloadRaw(MwWidget handle, unsigned char* rgb, int width, int height, MwLLPixmap px) {
+void MwReloadRaw(MwWidget handle, MwLLPixmap px, unsigned char* rgb, int width, int height) {
 	int	  i;
 	MwLLColor base = handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
 

@@ -22,6 +22,13 @@ extern "C" {
 MWDECL MwLLColor MwParseColor(MwWidget handle, const char* text);
 
 /*!
+ * @brief Parses a color text
+ * @param text Color text
+ * @param rgb RGB
+ */
+MWDECL void MwParseColorNoAllocate(const char* text, MwRGB* rgb);
+
+/*!
  * @brief Lighten a color
  * @param handle Widget
  * @param color Color
@@ -120,12 +127,12 @@ MWDECL MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int 
 /*!
  * @brief Creates a pixmap from raw data
  * @param handle Widget
+ * @param pixmap Pixmap to update
  * @param rgb RGBA data
  * @param width Width
  * @param height Height
- * @return Pixmap
  */
-MWDECL void MwReloadRaw(MwWidget handle, unsigned char* rgb, int width, int height, MwLLPixmap pixmap);
+MWDECL void MwReloadRaw(MwWidget handle, MwLLPixmap pixmap, unsigned char* rgb, int width, int height);
 
 /*!
  * @brief Creates a pixmap from XPM data
@@ -190,6 +197,13 @@ MWDECL int MwTextHeight(MwWidget handle, const char* text);
  * @return Color
  */
 MWDECL MwLLColor MwParseColorName(MwWidget handle, const char* color);
+
+/*!
+ * @brief Parses a color name
+ * @param color Color name
+ * @param rgb RGB
+ */
+MWDECL void MwParseColorNameNoAllocate(const char* color, MwRGB* rgb);
 
 #ifdef __cplusplus
 }

@@ -580,7 +580,7 @@ static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 }
 
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
-	MwLLPixmap	  r  = malloc(sizeof(*r));
+	MwLLPixmap	  r = malloc(sizeof(*r));
 	int		  evbase, erbase;
 	XWindowAttributes attr;
 
@@ -605,7 +605,7 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 	r->x11.mask  = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, NULL, width, height, 32, 0);
 
 	r->x11.image->data = malloc(r->x11.image->bytes_per_line * height);
-	r->x11.mask->data = malloc(r->x11.mask->bytes_per_line * height);
+	r->x11.mask->data  = malloc(r->x11.mask->bytes_per_line * height);
 
 	MwLLPixmapUpdate(r);
 	return r;
