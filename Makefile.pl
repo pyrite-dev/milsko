@@ -171,10 +171,10 @@ print(OUT "\n");
 print(OUT "all: lib examples\n");
 print(OUT "\n");
 print(OUT "install: lib\n");
-print(OUT "	mkdir -p \$(PREFIX)/lib \$(PREFIX)/include\n");
-print(OUT "	-cp src/${library_prefix}Mw${library_suffix} \$(PREFIX)/lib/\n");
-print(OUT "	-cp src/libMw.a \$(PREFIX)/lib/\n");
-print(OUT "	cp -rf include \$(PREFIX)/\n");
+print(OUT "	mkdir -p \$(DESTDIR)\$(PREFIX)/lib \$(DESTDIR)\$(PREFIX)/include\n");
+print(OUT "	-cp src/${library_prefix}Mw${library_suffix} \$(DESTDIR)\$(PREFIX)/lib/\n");
+print(OUT "	-cp src/libMw.a \$(DESTDIR)\$(PREFIX)/lib/\n");
+print(OUT "	cp -rf include \$(DESTDIR)\$(PREFIX)/\n");
 print(OUT "\n");
 print(OUT "format:\n");
 print(OUT
