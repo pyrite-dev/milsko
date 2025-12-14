@@ -114,7 +114,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 			if(tree->selected) {
 				r.x	 = p->x;
 				r.y	 = p->y - MwTextHeight(handle, "M") / 2;
-				r.width	 = MwGetInteger(handle, MwNwidth) - MwGetInteger(handle, MwNleftPadding) - shift; // MwTextWidth(handle, tree->label);
+				r.width	 = MwGetInteger(handle, MwNwidth) - MwGetInteger(handle, MwNleftPadding) - shift;
 				r.height = MwTextHeight(handle, "M");
 				MwDrawRect(handle, &r, text2);
 			}

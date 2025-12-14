@@ -47,6 +47,7 @@ struct _MwLLCommonPixmap {
 	int	       width;
 	int	       height;
 	unsigned char* raw;
+	void*	       user;
 };
 
 #ifdef _MILSKO

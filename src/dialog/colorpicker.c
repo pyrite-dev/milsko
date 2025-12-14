@@ -146,11 +146,11 @@ static void color_picker_image_update(color_picker_t* picker) {
 		picker->color_picker_pixmap = MwLoadRaw(
 		    picker->parent, picker->color_picker_image_data, PICKER_SIZE, PICKER_SIZE);
 	} else {
-		MwReloadRaw(
-		    picker->parent, picker->color_picker_pixmap, picker->color_picker_image_data, PICKER_SIZE, PICKER_SIZE);
+		MwPixmapReloadRaw(
+		    picker->color_picker_pixmap, picker->color_picker_image_data);
 	}
 	MwVaApply(picker->color_picker_img, MwNpixmap, picker->color_picker_pixmap, NULL);
-	// printf("%d\n", n);
+	/* printf("%d\n", n); */
 }
 
 static void color_picker_click(MwWidget handle, void* user, void* call) {
@@ -165,7 +165,7 @@ static void color_picker_click(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	// color_picker_image_update(picker);
+	/* color_picker_image_update(picker); */
 
 	i = ((mouse->point.y * PICKER_SIZE) + mouse->point.x) * 4;
 
@@ -198,7 +198,7 @@ static void color_picker_on_change_value(MwWidget handle, void* user,
 	picker->value = ((double)value / 1024.);
 
 	picker->doUpdate = 1;
-	// color_picker_image_update(picker);
+	/* color_picker_image_update(picker); */
 }
 
 static void color_picker_tick(MwWidget handle, void* user,
@@ -282,12 +282,12 @@ color_picker_t* color_picker_setup(MwWidget parent, int w, int h) {
 	    MwVaCreateWidget(MwImageClass, "image", picker->parent, IMG_POS_X(w), IMG_POS_Y(h),
 			     PICKER_SIZE, PICKER_SIZE, NULL);
 
-	// picker->color_picker_image_data = malloc(PICKER_SIZE * PICKER_SIZE * 4);
+	/* picker->color_picker_image_data = malloc(PICKER_SIZE * PICKER_SIZE * 4); */
 
 	picker->color_picker_pixmap = NULL;
 	picker->value		    = 0;
 
-	// color_picker_image_update(picker);
+	/* color_picker_image_update(picker); */
 	picker->doUpdate = 1;
 
 	MwAddUserHandler(picker->color_picker_img, MwNmouseDownHandler,
@@ -299,7 +299,7 @@ color_picker_t* color_picker_setup(MwWidget parent, int w, int h) {
 
 	MwSetText(picker->color_display_text, MwNbackground, "#FFFFFF");
 	MwSetText(picker->color_display_text, MwNtext, "#FFFFFF");
-	// MwSetInteger(picker->color_display_text, Mwnali, MwALIGNMENT_CENTER);
+	/* MwSetInteger(picker->color_display_text, Mwnali, MwALIGNMENT_CENTER); */
 
 	MwAddUserHandler(picker->color_display_text, MwNactivateHandler,
 			 color_display_text_change, picker);

@@ -142,10 +142,10 @@ int main() {
 				  NULL);
 
 	bgcolor = MwParseColor(window, MwGetText(window, MwNbackground));
-	MwGetColor(bgcolor, &br, &bg, &bb);
+	MwColorGet(bgcolor, &br, &bg, &bb);
 
 	fgcolor = MwParseColor(window, MwGetText(window, MwNforeground));
-	MwGetColor(fgcolor, &fr, &fg, &fb);
+	MwColorGet(fgcolor, &fr, &fg, &fb);
 
 	opengl = MwCreateWidget(MwOpenGLClass, "clock", window, 0, 0, 100, 100);
 

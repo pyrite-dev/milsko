@@ -658,17 +658,19 @@ MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height) {
 	MwLLPixmap px = MwLLCreatePixmap(handle->lowlevel, rgb, width, height);
 
-	MwReloadRaw(handle, px, rgb, width, height);
+	px->common.user = handle;
+	MwPixmapReloadRaw(px, rgb);
 
 	return px;
 }
 
-void MwReloadRaw(MwWidget handle, MwLLPixmap px, unsigned char* rgb, int width, int height) {
+void MwPixmapReloadRaw(MwLLPixmap px, unsigned char* rgb) {
 	int	  i;
-	MwLLColor base = handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
+	MwWidget  handle = px->common.user;
+	MwLLColor base	 = handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
 
-	memset(px->common.raw, 0, width * height * 4);
-	for(i = 0; i < width * height; i++) {
+	memset(px->common.raw, 0, px->common.width * px->common.height * 4);
+	for(i = 0; i < px->common.width * px->common.height; i++) {
 		unsigned char* pin  = &rgb[i * 4];
 		unsigned char* pout = &px->common.raw[i * 4];
 		double	       a    = pin[3];
@@ -691,7 +693,12 @@ void MwReloadRaw(MwWidget handle, MwLLPixmap px, unsigned char* rgb, int width, 
 	MwLLPixmapUpdate(px);
 }
 
-void MwGetColor(MwLLColor color, int* red, int* green, int* blue) {
+void MwPixmapGetSize(MwLLPixmap pixmap, MwRect* rect) {
+	rect->width  = pixmap->common.width;
+	rect->height = pixmap->common.height;
+}
+
+void MwColorGet(MwLLColor color, int* red, int* green, int* blue) {
 	*red   = color->common.red;
 	*green = color->common.green;
 	*blue  = color->common.blue;

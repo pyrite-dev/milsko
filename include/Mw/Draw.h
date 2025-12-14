@@ -112,7 +112,7 @@ MWDECL MwLLPixmap MwLoadImage(MwWidget handle, const char* path);
  * @param green Pointer to green color
  * @param blue Pointer to blue color
  */
-MWDECL void MwGetColor(MwLLColor color, int* red, int* green, int* blue);
+MWDECL void MwColorGet(MwLLColor color, int* red, int* green, int* blue);
 
 /*!
  * @brief Creates a pixmap from raw data
@@ -125,14 +125,25 @@ MWDECL void MwGetColor(MwLLColor color, int* red, int* green, int* blue);
 MWDECL MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height);
 
 /*!
- * @brief Creates a pixmap from raw data
- * @param handle Widget
+ * @brief Updates a pixmap using raw data
  * @param pixmap Pixmap to update
  * @param rgb RGBA data
- * @param width Width
- * @param height Height
  */
-MWDECL void MwReloadRaw(MwWidget handle, MwLLPixmap pixmap, unsigned char* rgb, int width, int height);
+MWDECL void MwPixmapReloadRaw(MwLLPixmap pixmap, unsigned char* rgb);
+
+/*!
+ * @brief Gets the raw data of pixmap
+ * @param pixmap Pixmap
+ * @return RFBA data
+ */
+MWDECL unsigned char* MwPixmapGetRaw(MwLLPixmap pixmap);
+
+/*!
+ * @brief Gets the size of pixmap
+ * @param pixmap Pixmap
+ * @param rect Size
+ */
+MWDECL void MwPixmapGetSize(MwLLPixmap pixmap, MwRect* rect);
 
 /*!
  * @brief Creates a pixmap from XPM data
