@@ -86,7 +86,7 @@
 		<integer name="borderWidth" />
 		<integer name="ratio" />
 		<integer name="fixedSize" />
-		<integer name="outerPadding" />
+		<integer name="spacing" />
 
 		<string name="title" />
 		<string name="text" />
@@ -491,8 +491,8 @@
 		<widget name="Box">
 			<properties>
 				<property name="orientation" />
+				<property name="spacing" />
 				<property name="padding" />
-				<property name="outerPadding" />
 			</properties>
 		</widget>
 		<widget name="Button">
