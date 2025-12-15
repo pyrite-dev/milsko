@@ -26,21 +26,21 @@ int main() {
 
 	box = MwVaCreateWidget(MwBoxClass, "box", window, 0, 0, 0, 0,
 			       MwNpadding, 10,
-			       MwNspacing, 10,
+			       MwNmargin, 10,
 			       NULL);
 
 	box2 = MwVaCreateWidget(MwBoxClass, "box2", box, 0, 0, 0, 0,
-				MwNspacing, 10,
+				MwNmargin, 10,
 				MwNorientation, MwVERTICAL,
 				NULL);
 
 	box3 = MwVaCreateWidget(MwBoxClass, "box3", box, 0, 0, 0, 0,
-				MwNspacing, 10,
+				MwNmargin, 10,
 				MwNorientation, MwVERTICAL,
 				NULL);
 
 	box4 = MwVaCreateWidget(MwBoxClass, "box4", box, 0, 0, 0, 0,
-				MwNspacing, 10,
+				MwNmargin, 10,
 				MwNorientation, MwVERTICAL,
 				MwNfixedSize, 40,
 				NULL);

@@ -6,7 +6,7 @@ static int create(MwWidget handle) {
 	MwSetDefault(handle);
 
 	MwSetInteger(handle, MwNorientation, MwHORIZONTAL);
-	MwSetInteger(handle, MwNspacing, 0);
+	MwSetInteger(handle, MwNmargin, 0);
 	MwSetInteger(handle, MwNpadding, 0);
 
 	return 0;
@@ -39,7 +39,7 @@ static void layout(MwWidget handle) {
 		if(n == MwDEFAULT) n = 1;
 
 		if(s != MwDEFAULT) {
-			sz -= s + ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNspacing) : 0);
+			sz -= s + ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNmargin) : 0);
 		} else {
 			sum += n;
 		}
@@ -56,7 +56,7 @@ static void layout(MwWidget handle) {
 		} else {
 			wsz = sz * n / sum;
 		}
-		wsz -= ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNspacing) : 0);
+		wsz -= ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNmargin) : 0);
 
 		MwVaApply(handle->children[i],
 			  horiz ? MwNx : MwNy, sk,				 /* this is what gets changed */
@@ -64,7 +64,7 @@ static void layout(MwWidget handle) {
 			  horiz ? MwNwidth : MwNheight, wsz,			 /* this is what gets changed */
 			  horiz ? MwNheight : MwNwidth, fsz,			 /* fixed between widgets */
 			  NULL);
-		sk += wsz + ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNspacing) : 0);
+		sk += wsz + ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNmargin) : 0);
 	}
 }
 
