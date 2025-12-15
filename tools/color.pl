@@ -20,7 +20,7 @@ while (my $l = <IN>) {
         print(OUT "	if(strcmp(color, \"$4\") == 0){\n");
         print(OUT "		rgb->red = $1;\n");
         print(OUT "		rgb->green = $2;\n");
-        print(OUT "		rgb->green = $3;\n");
+        print(OUT "		rgb->blue = $3;\n");
         print(OUT "		return;\n");
         print(OUT "	}\n");
     }
