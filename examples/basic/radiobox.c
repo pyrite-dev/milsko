@@ -6,8 +6,8 @@ int main() {
 	MwLibraryInit();
 
 	window = MwVaCreateWidget(MwWindowClass, "test", NULL, MwDEFAULT, MwDEFAULT, 8 + 16 + 8 + 16 * 10 + 8, 8 + 16 + 8 + 16 + 8,
-					   MwNtitle, "radiobox",
-					   NULL);
+				  MwNtitle, "radiobox",
+				  NULL);
 
 	MwVaCreateWidget(MwRadioBoxClass, "cb1", window, 8, 8, 16, 16,
 			 NULL);

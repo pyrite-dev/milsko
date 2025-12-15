@@ -41,10 +41,10 @@ int main() {
 
 	MwLibraryInit();
 
-	 msg  = MwVaCreateWidget(MwWindowClass, "test", NULL, MwDEFAULT, MwDEFAULT, 300, 100, MwNtitle, "test", NULL);
-	 btn  = MwVaCreateWidget(MwButtonClass, "button", msg, 8, 8, 300 - 16, (100 - 16) / 2, MwNtext, "press me!", NULL);
-	 btn2 = MwVaCreateWidget(MwButtonClass, "button", msg, 8, 8 + (100 - 16) / 2, (300 - 16) / 2, (100 - 16) / 2, MwNtext, "press me!", NULL);
-	 btn3 = MwVaCreateWidget(MwButtonClass, "button", msg, 8 + (300 - 16) / 2, 8 + (100 - 16) / 2, (300 - 16) / 2, (100 - 16) / 2, MwNtext, "press me!", NULL);
+	msg  = MwVaCreateWidget(MwWindowClass, "test", NULL, MwDEFAULT, MwDEFAULT, 300, 100, MwNtitle, "test", NULL);
+	btn  = MwVaCreateWidget(MwButtonClass, "button", msg, 8, 8, 300 - 16, (100 - 16) / 2, MwNtext, "press me!", NULL);
+	btn2 = MwVaCreateWidget(MwButtonClass, "button", msg, 8, 8 + (100 - 16) / 2, (300 - 16) / 2, (100 - 16) / 2, MwNtext, "press me!", NULL);
+	btn3 = MwVaCreateWidget(MwButtonClass, "button", msg, 8 + (300 - 16) / 2, 8 + (100 - 16) / 2, (300 - 16) / 2, (100 - 16) / 2, MwNtext, "press me!", NULL);
 
 	MwAddUserHandler(btn, MwNactivateHandler, spawn, msg);
 	MwAddUserHandler(btn2, MwNactivateHandler, spawn2, msg);

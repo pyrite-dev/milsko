@@ -4,10 +4,10 @@ int main() {
 	MwWidget window;
 
 	MwLibraryInit();
-	
+
 	window = MwVaCreateWidget(MwWindowClass, "test", NULL, MwDEFAULT, MwDEFAULT, 8 + 16 + 8 + 16 * 10 + 8, 8 + 16 + 8 + 16 + 8,
-					   MwNtitle, "checkbox",
-					   NULL);
+				  MwNtitle, "checkbox",
+				  NULL);
 
 	MwVaCreateWidget(MwCheckBoxClass, "cb1", window, 8, 8, 16, 16,
 			 NULL);

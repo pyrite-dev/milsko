@@ -20,16 +20,16 @@ void activate(MwWidget handle, void* user, void* call) {
 	MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, destroy, msgbox);
 }
 
-int main(){
-	MwWidget tv;
+int main() {
+	MwWidget   tv;
 	MwLLPixmap px;
-	int i;
-	void* p = NULL, *r;
+	int	   i;
+	void *	   p = NULL, *r;
 
 	MwLibraryInit();
-	
+
 	wmain = MwCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 5 + 640 + 5, 5 + 480 + 5);
-	tv = MwCreateWidget(MwTreeViewClass, "tree", wmain, 5, 5, 640, 480);
+	tv    = MwCreateWidget(MwTreeViewClass, "tree", wmain, 5, 5, 640, 480);
 
 	px = MwLoadIcon(tv, MwIconInfo);
 
@@ -37,7 +37,7 @@ int main(){
 
 	MwAddUserHandler(tv, MwNactivateHandler, activate, NULL);
 
-	for(i = 0; i < 10; i++){
+	for(i = 0; i < 10; i++) {
 		void* old = p;
 
 		MwTreeViewAdd(tv, old, px, "World");

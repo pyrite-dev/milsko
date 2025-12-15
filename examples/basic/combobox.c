@@ -1,13 +1,13 @@
 #include <Mw/Milsko.h>
 
-int main(){
+int main() {
 	MwWidget w, cb;
 
 	MwLibraryInit();
 
 	w = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 5 + 320 + 5, 5 + 24 + 5,
-		MwNtitle, "combobox",
-	NULL);
+			     MwNtitle, "combobox",
+			     NULL);
 
 	cb = MwCreateWidget(MwComboBoxClass, "combobox", w, 5, 5, 320, 24);
 

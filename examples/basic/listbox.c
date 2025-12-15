@@ -28,7 +28,7 @@ int main() {
 	int		 i;
 	MwListBoxPacket* packet;
 	int		 index;
-	MwLLPixmap px;
+	MwLLPixmap	 px;
 
 	MwLibraryInit();
 
