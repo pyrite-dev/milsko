@@ -49,7 +49,8 @@
 		 - MwNheight
 		 - MwNborderWidth
 		 - MwNbackgroundPixmap
-		 - MwNboxRatio
+		 - MwNratio
+		 - MwNfixedSize
 
 		Integer properties must be prefixed with I.
 		String properties must be prefixed with S.
@@ -83,7 +84,8 @@
 		<integer name="showArrows" />
 		<integer name="padding" />
 		<integer name="borderWidth" />
-		<integer name="boxRatio" />
+		<integer name="ratio" />
+		<integer name="fixedSize" />
 
 		<string name="title" />
 		<string name="text" />

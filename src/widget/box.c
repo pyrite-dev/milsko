@@ -31,21 +31,30 @@ static void layout(MwWidget handle) {
 	int sz	  = MwGetInteger(handle, horiz ? MwNwidth : MwNheight) - MwGetInteger(handle, MwNpadding);
 	int fsz	  = MwGetInteger(handle, horiz ? MwNheight : MwNwidth) - MwGetInteger(handle, MwNpadding) * 2;
 	int sk	  = 0;
-	if(arrlen(handle->children) == 0) return;
 
 	for(i = 0; i < arrlen(handle->children); i++) {
-		int n = MwGetInteger(handle->children[i], MwNboxRatio);
+		int n = MwGetInteger(handle->children[i], MwNratio);
+		int s = MwGetInteger(handle->children[i], MwNfixedSize);
 		if(n == MwDEFAULT) n = 1;
 
-		sum += n;
+		if(s != MwDEFAULT) {
+			sz -= s + MwGetInteger(handle, MwNpadding);
+		} else {
+			sum += n;
+		}
 	}
 
 	for(i = 0; i < arrlen(handle->children); i++) {
-		int n = MwGetInteger(handle->children[i], MwNboxRatio);
+		int n = MwGetInteger(handle->children[i], MwNratio);
+		int s = MwGetInteger(handle->children[i], MwNfixedSize);
 		int wsz;
 		if(n == MwDEFAULT) n = 1;
 
-		wsz = sz * n / sum - MwGetInteger(handle, MwNpadding);
+		if(s != MwDEFAULT) {
+			wsz = s;
+		} else {
+			wsz = sz * n / sum - MwGetInteger(handle, MwNpadding);
+		}
 
 		sk += MwGetInteger(handle, MwNpadding);
 		MwVaApply(handle->children[i],
@@ -65,7 +74,7 @@ static void prop_change(MwWidget handle, const char* key) {
 static void children_prop_change(MwWidget handle, MwWidget child, const char* key) {
 	(void)child;
 
-	if(strcmp(key, MwNboxRatio) == 0) layout(handle);
+	if(strcmp(key, MwNratio) == 0) layout(handle);
 }
 
 static void resize(MwWidget handle) {

@@ -16,11 +16,11 @@ void resize(MwWidget handle, void* user, void* client) {
 }
 
 int main() {
-	MwWidget box2, box3;
+	MwWidget box2, box3, box4;
 
 	MwLibraryInit();
 
-	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 200, 200,
+	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 600, 200,
 				  MwNtitle, "box",
 				  NULL);
 
@@ -38,13 +38,19 @@ int main() {
 				MwNorientation, MwVERTICAL,
 				NULL);
 
+	box4 = MwVaCreateWidget(MwBoxClass, "box4", box, 0, 0, 0, 0,
+				MwNpadding, 10,
+				MwNorientation, MwVERTICAL,
+				MwNfixedSize, 40,
+				NULL);
+
 	MwVaCreateWidget(MwButtonClass, "btn1", box2, 0, 0, 0, 0,
 			 MwNbackground, "#a00",
 			 NULL);
 
 	MwVaCreateWidget(MwButtonClass, "btn2", box2, 0, 0, 0, 0,
 			 MwNbackground, "#0a0",
-			 MwNboxRatio, 2,
+			 MwNratio, 2,
 			 NULL);
 
 	MwVaCreateWidget(MwButtonClass, "btn3", box2, 0, 0, 0, 0,
@@ -52,7 +58,11 @@ int main() {
 			 NULL);
 
 	MwVaCreateWidget(MwButtonClass, "btn4", box3, 0, 0, 0, 0,
-			 MwNbackground, "#00a",
+			 MwNbackground, "#a0a",
+			 NULL);
+
+	MwVaCreateWidget(MwButtonClass, "btn5", box4, 0, 0, 0, 0,
+			 MwNbackground, "#0aa",
 			 NULL);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
