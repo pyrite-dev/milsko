@@ -25,6 +25,8 @@ static void draw(MwWidget handle) {
 	MwLLFreeColor(base);
 }
 
+#define Margin ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNmargin) : 0)
+
 static void layout(MwWidget handle) {
 	int i;
 	int sum	  = 0;
@@ -39,7 +41,7 @@ static void layout(MwWidget handle) {
 		if(n == MwDEFAULT) n = 1;
 
 		if(s != MwDEFAULT) {
-			sz -= s + ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNmargin) : 0);
+			sz -= s + Margin;
 		} else {
 			sum += n;
 		}
@@ -56,7 +58,7 @@ static void layout(MwWidget handle) {
 		} else {
 			wsz = sz * n / sum;
 		}
-		wsz -= ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNmargin) : 0);
+		wsz -= Margin;
 
 		MwVaApply(handle->children[i],
 			  horiz ? MwNx : MwNy, sk,				 /* this is what gets changed */
@@ -64,7 +66,7 @@ static void layout(MwWidget handle) {
 			  horiz ? MwNwidth : MwNheight, wsz,			 /* this is what gets changed */
 			  horiz ? MwNheight : MwNwidth, fsz,			 /* fixed between widgets */
 			  NULL);
-		sk += wsz + ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNmargin) : 0);
+		sk += wsz + Margin;
 	}
 }
 
