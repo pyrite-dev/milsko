@@ -7,6 +7,7 @@ static int create(MwWidget handle) {
 
 	MwSetInteger(handle, MwNorientation, MwHORIZONTAL);
 	MwSetInteger(handle, MwNpadding, 0);
+	MwSetInteger(handle, MwNouterPadding, 0);
 
 	return 0;
 }
@@ -28,9 +29,9 @@ static void layout(MwWidget handle) {
 	int i;
 	int sum	  = 0;
 	int horiz = MwGetInteger(handle, MwNorientation) == MwHORIZONTAL ? 1 : 0;
-	int sz	  = MwGetInteger(handle, horiz ? MwNwidth : MwNheight) - MwGetInteger(handle, MwNpadding);
-	int fsz	  = MwGetInteger(handle, horiz ? MwNheight : MwNwidth) - MwGetInteger(handle, MwNpadding) * 2;
-	int sk	  = 0;
+	int sz	  = MwGetInteger(handle, horiz ? MwNwidth : MwNheight) - MwGetInteger(handle, MwNouterPadding) * 2;
+	int fsz	  = MwGetInteger(handle, horiz ? MwNheight : MwNwidth) - MwGetInteger(handle, MwNouterPadding) * 2;
+	int sk	  = MwGetInteger(handle, MwNouterPadding);
 
 	for(i = 0; i < arrlen(handle->children); i++) {
 		int n = MwGetInteger(handle->children[i], MwNratio);
@@ -38,7 +39,7 @@ static void layout(MwWidget handle) {
 		if(n == MwDEFAULT) n = 1;
 
 		if(s != MwDEFAULT) {
-			sz -= s + MwGetInteger(handle, MwNpadding);
+			sz -= s + ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNpadding) : 0);
 		} else {
 			sum += n;
 		}
@@ -53,17 +54,17 @@ static void layout(MwWidget handle) {
 		if(s != MwDEFAULT) {
 			wsz = s;
 		} else {
-			wsz = sz * n / sum - MwGetInteger(handle, MwNpadding);
+			wsz = sz * n / sum;
 		}
+		wsz -= ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNpadding) : 0);
 
-		sk += MwGetInteger(handle, MwNpadding);
 		MwVaApply(handle->children[i],
-			  horiz ? MwNx : MwNy, sk,				 /* this is what gets changed */
-			  horiz ? MwNy : MwNx, MwGetInteger(handle, MwNpadding), /* fixed between widgets */
-			  horiz ? MwNwidth : MwNheight, wsz,			 /* this is what gets changed */
-			  horiz ? MwNheight : MwNwidth, fsz,			 /* fixed between widgets */
+			  horiz ? MwNx : MwNy, sk,				      /* this is what gets changed */
+			  horiz ? MwNy : MwNx, MwGetInteger(handle, MwNouterPadding), /* fixed between widgets */
+			  horiz ? MwNwidth : MwNheight, wsz,			      /* this is what gets changed */
+			  horiz ? MwNheight : MwNwidth, fsz,			      /* fixed between widgets */
 			  NULL);
-		sk += wsz;
+		sk += wsz + ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNpadding) : 0);
 	}
 }
 

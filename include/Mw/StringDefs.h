@@ -34,6 +34,7 @@
 #define MwNfillArea "IfillArea"
 #define MwNratio "Iratio"
 #define MwNfixedSize "IfixedSize"
+#define MwNouterPadding "IouterPadding"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
