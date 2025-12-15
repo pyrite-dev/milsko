@@ -201,6 +201,11 @@ MwClassRec MwComboBoxClassRec = {
     NULL,	    /* key */
     func_handler,   /* execute */
     NULL,	    /* tick */
+    NULL,	    /* resize */
+    NULL,	    /* children_update */
+    NULL,	    /* children_prop_change */
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL};

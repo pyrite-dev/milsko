@@ -18,5 +18,6 @@ for i in *.c; do
 done
 cd ../..
 rm -f milsko-examples.zip
+cp resource/logo/logo.png examples/picture.jpg examples/picture.png milsko-examples/
 zip -rv milsko-examples.zip milsko-examples
 rm -rf milsko-examples

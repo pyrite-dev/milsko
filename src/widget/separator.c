@@ -47,6 +47,11 @@ MwClassRec MwSeparatorClassRec = {
     NULL,	 /* key */
     NULL,	 /* execute */
     NULL,	 /* tick */
+    NULL,	 /* resize */
+    NULL,	 /* children_update */
+    NULL,	 /* children_prop_change */
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL};

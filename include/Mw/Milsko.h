@@ -50,5 +50,6 @@
 #include <Mw/Widget/Separator.h>
 #include <Mw/Widget/ComboBox.h>
 #include <Mw/Widget/TreeView.h>
+#include <Mw/Widget/Box.h>
 
 #endif

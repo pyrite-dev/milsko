@@ -50,6 +50,7 @@ static void llresizehandler(MwLL handle, void* data) {
 	for(i = 0; i < arrlen(h->children); i++) {
 		MwDispatch(h->children[i], parent_resize);
 	}
+	MwDispatch(h, resize);
 }
 
 static void llclosehandler(MwLL handle, void* data) {
@@ -175,6 +176,8 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	if(h->widget_class != NULL && h->widget_class->tick != NULL) {
 		MwAddTickList(h);
 	}
+
+	if(h->parent != NULL) MwDispatch(h->parent, children_update);
 
 	return h;
 }
@@ -378,7 +381,10 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 	} else {
 		shput(handle->integer, key, n);
 	}
-	if(handle->prop_event) MwDispatch3(handle, prop_change, key);
+	if(handle->prop_event) {
+		MwDispatch3(handle, prop_change, key);
+		if(handle->parent != NULL) MwDispatch4(handle->parent, children_prop_change, handle, key);
+	}
 }
 
 void MwSetText(MwWidget handle, const char* key, const char* value) {
@@ -395,7 +401,10 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 			shdel(handle->text, key);
 		}
 	}
-	if(handle->prop_event) MwDispatch3(handle, prop_change, key);
+	if(handle->prop_event) {
+		MwDispatch3(handle, prop_change, key);
+		if(handle->parent != NULL) MwDispatch4(handle->parent, children_prop_change, handle, key);
+	}
 	if(strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0) {
 		MwForceRender(handle);
 	}
@@ -413,7 +422,10 @@ void MwSetVoid(MwWidget handle, const char* key, void* value) {
 	} else {
 		shput(handle->data, key, value);
 	}
-	if(handle->prop_event) MwDispatch3(handle, prop_change, key);
+	if(handle->prop_event) {
+		MwDispatch3(handle, prop_change, key);
+		if(handle->parent != NULL) MwDispatch4(handle->parent, children_prop_change, handle, key);
+	}
 }
 
 int MwGetInteger(MwWidget handle, const char* key) {
@@ -732,10 +744,14 @@ void MwReparent(MwWidget handle, MwWidget new_parent) {
 				break;
 			}
 		}
+
+		MwDispatch(handle->parent, children_update);
 	}
 
 	handle->parent = new_parent;
 	arrput(new_parent->children, handle);
+
+	MwDispatch(handle->parent, children_update);
 }
 
 MwClass MwGetClass(MwWidget handle) {

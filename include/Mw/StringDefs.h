@@ -32,6 +32,7 @@
 #define MwNpadding "Ipadding"
 #define MwNborderWidth "IborderWidth"
 #define MwNfillArea "IfillArea"
+#define MwNboxRatio "IboxRatio"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

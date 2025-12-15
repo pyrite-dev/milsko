@@ -71,6 +71,7 @@ new_object("src/icon/*.c");
 new_object("src/font/*.c");
 new_object("src/cursor/*.c");
 
+new_object("src/widget/box.c");
 new_object("src/widget/button.c");
 new_object("src/widget/checkbox.c");
 new_object("src/widget/combobox.c");
@@ -116,6 +117,7 @@ new_example("examples/basic/progressbar");
 new_example("examples/basic/colorpicker");
 new_example("examples/basic/combobox");
 new_example("examples/basic/treeview");
+new_example("examples/basic/box");
 
 if (param_get("opengl")) {
     new_example("examples/gldemos/boing",    $gl_libs);
