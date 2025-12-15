@@ -125,7 +125,11 @@ static void okay_activate(MwWidget handle, void* user, void* call) {
 	} else if(stat(p, &s) != 0) {
 		MwWidget msgbox = MwMessageBox(handle->parent, "File does not exist!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
 		MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, msgbox_okay, NULL);
+#ifdef _S_IFDIR
+	} else if(fc->dir_only ? ((s.st_mode & _S_IFDIR) != _S_IFDIR) : 0) {
+#else
 	} else if(fc->dir_only ? !S_ISDIR(s.st_mode) : 0) {
+#endif
 		MwWidget msgbox = MwMessageBox(handle->parent, "File is not permitted here!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
 		MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, msgbox_okay, NULL);
 	} else {
