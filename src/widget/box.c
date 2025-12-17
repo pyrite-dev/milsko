@@ -77,7 +77,7 @@ static void prop_change(MwWidget handle, const char* key) {
 static void children_prop_change(MwWidget handle, MwWidget child, const char* key) {
 	(void)child;
 
-	if(strcmp(key, MwNratio) == 0) layout(handle);
+	if(strcmp(key, MwNratio) == 0 || strcmp(key, MwNfixedSize) == 0) layout(handle);
 }
 
 static void resize(MwWidget handle) {
