@@ -17,6 +17,11 @@
 #include <linux/input-event-codes.h>
 #endif
 
+/* Setup the wl_shm buffer with the saved width/height */
+static void buffer_setup(struct _MwLLWayland* wayland);
+/* Destroy the wl_shm buffer */
+static void buffer_destroy(struct _MwLLWayland* handle);
+
 /* Get the registered interface from r, or NULL if it doesn't currently have it. */
 #define WAYLAND_GET_INTERFACE(handle, inter) shget(handle.wl_protocol_map, inter##_interface.name)
 
@@ -392,10 +397,8 @@ static void xdg_toplevel_configure(void*		data,
 	self->wayland.wh = height;
 	xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, 0, 0, self->wayland.ww, self->wayland.wh);
 
-	cairo_destroy(self->wayland.cairo);
-	cairo_surface_destroy(self->wayland.cs);
-	self->wayland.cs    = cairo_image_surface_create_for_data(self->wayland.mapped_shm_buf, CAIRO_FORMAT_ARGB32, width, height, 4 * width);
-	self->wayland.cairo = cairo_create(self->wayland.cs);
+	buffer_destroy(&self->wayland);
+	buffer_setup(&self->wayland);
 
 	MwLLDispatch(self, resize, NULL);
 	MwLLDispatch(self, draw, NULL);
@@ -439,13 +442,27 @@ static void xdg_surface_configure(
 
 /* wl_shm setup function */
 static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland) {
+
+	wayland->shm = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
+
+	return NULL;
+}
+
+static void update_buffer(MwLL handle) {
+	fsync(handle->wayland.shm_fd);
+
+	if(handle->wayland.configured) {
+		wl_surface_attach(handle->wayland.surface, handle->wayland.shm_buffer, 0, 0);
+		wl_surface_commit(handle->wayland.surface);
+	}
+}
+
+static void buffer_setup(struct _MwLLWayland* wayland) {
 	int  x, y;
 	int  stride	 = wayland->ww * 4;
 	char temp_name[] = "/tmp/milsko-wl-shm-XXXXXX";
 
 	wayland->mapped_shm_buf_size = wayland->ww * wayland->wh * 4;
-
-	wayland->shm = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
 
 	wayland->shm_fd = mkstemp(temp_name);
 
@@ -454,12 +471,12 @@ static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland
 	if(posix_fallocate(wayland->shm_fd, 0, wayland->mapped_shm_buf_size) != 0) {
 		printf("failure setting up wl_shm: could not fallocate. %s.\n", strerror(errno));
 		close(wayland->shm_fd);
-		return NULL;
+		return;
 	}
 	if(ftruncate(wayland->shm_fd, wayland->mapped_shm_buf_size) != 0) {
 		printf("failure setting up wl_shm: could not truncate. %s.\n", strerror(errno));
 		close(wayland->shm_fd);
-		return NULL;
+		return;
 	}
 
 	wayland->mapped_shm_buf = mmap(NULL, wayland->mapped_shm_buf_size, PROT_WRITE, MAP_SHARED, wayland->shm_fd, 0);
@@ -477,16 +494,25 @@ static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland
 		wl_surface_commit(wayland->surface);
 	}
 
-	return NULL;
+	wayland->cs    = cairo_image_surface_create_for_data(wayland->mapped_shm_buf, CAIRO_FORMAT_ARGB32, wayland->ww, wayland->wh, 4 * wayland->ww);
+	wayland->cairo = cairo_create(wayland->cs);
+
+	memset(wayland->mapped_shm_buf, 255, wayland->mapped_shm_buf_size);
+	update_buffer((MwLL)wayland);
+	wayland->shm_setup = MwTRUE;
 }
 
-static void update_buffer(MwLL handle) {
-	fsync(handle->wayland.shm_fd);
-
-	if(handle->wayland.configured) {
-		wl_surface_attach(handle->wayland.surface, handle->wayland.shm_buffer, 0, 0);
-		wl_surface_commit(handle->wayland.surface);
+static void buffer_destroy(struct _MwLLWayland* wayland) {
+	if(!wayland->shm_setup) {
+		return;
 	}
+	cairo_destroy(wayland->cairo);
+	cairo_surface_destroy(wayland->cs);
+
+	wl_buffer_destroy(wayland->shm_buffer);
+	// munmap(wayland->mapped_shm_buf, wayland->mapped_shm_buf_size);
+	wl_shm_pool_destroy(wayland->shm_pool);
+	close(wayland->shm_fd);
 }
 
 /* Standard Wayland event loop. */
@@ -704,12 +730,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		setup_sublevel(parent, r, x, y);
 	}
 
-	/* example of writing to the buffer */
-	memset(r->wayland.mapped_shm_buf, 255, r->wayland.mapped_shm_buf_size);
-	update_buffer(r);
-
-	r->wayland.cs	 = cairo_image_surface_create_for_data(r->wayland.mapped_shm_buf, CAIRO_FORMAT_ARGB32, width, height, 4 * width);
-	r->wayland.cairo = cairo_create(r->wayland.cs);
+	buffer_setup(&r->wayland);
 
 	MwLLForceRender(r);
 
@@ -719,13 +740,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 static void MwLLDestroyImpl(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
-	cairo_destroy(handle->wayland.cairo);
-	cairo_surface_destroy(handle->wayland.cs);
-
-	munmap(handle->wayland.mapped_shm_buf, handle->wayland.mapped_shm_buf_size);
-	wl_buffer_destroy(handle->wayland.mapped_shm_buf);
-	wl_shm_pool_destroy(handle->wayland.shm_pool);
-	close(handle->wayland.shm_fd);
+	buffer_destroy(&handle->wayland);
 
 	free(handle);
 }

@@ -104,6 +104,7 @@ struct _MwLLWayland {
 	void*		    mapped_shm_buf;
 	MwU64		    mapped_shm_buf_size;
 	int		    shm_fd;
+	MwBool		    shm_setup;
 
 	cairo_surface_t* cs;
 	cairo_t*	 cairo;
