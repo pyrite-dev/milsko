@@ -1066,6 +1066,7 @@ static void MwLLMakeToolWindowImpl(MwLL handle) {
 }
 
 static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
+	*point = handle->wayland.cur_mouse_pos;
 }
 
 static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
