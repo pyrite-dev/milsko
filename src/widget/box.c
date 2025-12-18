@@ -58,7 +58,6 @@ static void layout(MwWidget handle) {
 		} else {
 			wsz = sz * n / sum;
 		}
-		wsz -= Margin;
 
 		MwVaApply(handle->children[i],
 			  horiz ? MwNx : MwNy, sk,				 /* this is what gets changed */
