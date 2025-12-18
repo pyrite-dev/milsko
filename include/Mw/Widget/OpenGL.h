@@ -9,6 +9,7 @@
 #include <Mw/TypeDefs.h>
 #include <Mw/Core.h>
 
+#ifndef __gl_h_
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -18,6 +19,7 @@
 
 #ifndef GLAPIENTRY
 #define GLAPIENTRY APIENTRY
+#endif
 #endif
 
 #ifdef __cplusplus
