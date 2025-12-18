@@ -90,6 +90,10 @@ struct _MwLLWayland {
 	struct wl_compositor*	    compositor;
 	struct wl_surface*	    surface;
 	struct wl_registry_listener registry_listener;
+	struct wl_region*	    region;
+
+	MwBool active; /* Whether or not the surface is the one being hovered over. */
+
 	/*struct wl_event_queue*	    event_queue;*/
 
 	MwLL*  sublevels;  /* stb_ds managed array of any sublevels */
@@ -104,7 +108,6 @@ struct _MwLLWayland {
 	void*		    mapped_shm_buf;
 	MwU64		    mapped_shm_buf_size;
 	int		    shm_fd;
-	MwBool		    shm_setup;
 
 	cairo_surface_t* cs;
 	cairo_t*	 cairo;

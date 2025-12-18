@@ -22,6 +22,9 @@ static void buffer_setup(struct _MwLLWayland* wayland);
 /* Destroy the wl_shm buffer */
 static void buffer_destroy(struct _MwLLWayland* handle);
 
+static void region_setup(MwLL handle);
+static void region_invalidate(MwLL handle);
+
 /* Get the registered interface from r, or NULL if it doesn't currently have it. */
 #define WAYLAND_GET_INTERFACE(handle, inter) shget(handle.wl_protocol_map, inter##_interface.name)
 
@@ -50,11 +53,13 @@ static void protocol_removed(void*		 data,
 /* `wl_pointer.enter` callback */
 static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
 			  struct wl_surface* surface, wl_fixed_t surface_x,
-			  wl_fixed_t surface_y) {};
+			  wl_fixed_t surface_y) {
+};
 
 /* `wl_pointer.leave` callback */
 static void pointer_leave(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
-			  struct wl_surface* surface) {};
+			  struct wl_surface* surface) {
+};
 
 /* `wl_pointer.motion` callback */
 static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time,
@@ -64,7 +69,8 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 	self->wayland.cur_mouse_pos.x = wl_fixed_to_double(surface_x);
 	self->wayland.cur_mouse_pos.y = wl_fixed_to_double(surface_y);
-	p.point			      = self->wayland.cur_mouse_pos;
+
+	p.point = self->wayland.cur_mouse_pos;
 	MwLLDispatch(self, move, &p);
 
 	/*timed_redraw(self, time, 50, &self->wayland.cooldown_timer);*/
@@ -383,6 +389,7 @@ static void xdg_toplevel_configure(void*		data,
 				   MwI32 width, MwI32 height,
 				   struct wl_array* states) {
 	MwLL self = data;
+	int  i;
 
 	if(width == 0 || height == 0) {
 		width  = self->wayland.ww;
@@ -393,15 +400,22 @@ static void xdg_toplevel_configure(void*		data,
 		}
 	}
 
+	region_invalidate(self);
 	self->wayland.ww = width;
 	self->wayland.wh = height;
 	xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, 0, 0, self->wayland.ww, self->wayland.wh);
 
 	buffer_destroy(&self->wayland);
 	buffer_setup(&self->wayland);
+	region_setup(self);
 
 	MwLLDispatch(self, resize, NULL);
 	MwLLDispatch(self, draw, NULL);
+
+	for(i = 0; i < arrlen(self->wayland.sublevels); i++) {
+		MwLL handle = self->wayland.sublevels[i];
+		region_setup(handle);
+	}
 
 	/*if(!self->wayland.egl_setup) {
 		self->wayland.egl_setup = egl_setup(self, self->wayland.x, self->wayland.y, width, height);
@@ -499,11 +513,10 @@ static void buffer_setup(struct _MwLLWayland* wayland) {
 
 	memset(wayland->mapped_shm_buf, 255, wayland->mapped_shm_buf_size);
 	update_buffer((MwLL)wayland);
-	wayland->shm_setup = MwTRUE;
 }
 
 static void buffer_destroy(struct _MwLLWayland* wayland) {
-	if(!wayland->shm_setup) {
+	if(!wayland->configured) {
 		return;
 	}
 	cairo_destroy(wayland->cairo);
@@ -513,6 +526,21 @@ static void buffer_destroy(struct _MwLLWayland* wayland) {
 	// munmap(wayland->mapped_shm_buf, wayland->mapped_shm_buf_size);
 	wl_shm_pool_destroy(wayland->shm_pool);
 	close(wayland->shm_fd);
+}
+
+static void region_invalidate(MwLL handle) {
+	if(!handle->wayland.configured) {
+		return;
+	}
+	wl_region_subtract(handle->wayland.region, handle->wayland.x, handle->wayland.y, handle->wayland.ww, handle->wayland.wh);
+}
+static void region_setup(MwLL handle) {
+	if(!handle->wayland.configured) {
+		return;
+	}
+	wl_region_add(handle->wayland.region, handle->wayland.x, handle->wayland.y, handle->wayland.ww, handle->wayland.wh);
+	wl_surface_set_input_region(handle->wayland.surface, handle->wayland.region);
+	wl_surface_set_opaque_region(handle->wayland.surface, handle->wayland.region);
 }
 
 /* Standard Wayland event loop. */
@@ -732,6 +760,9 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	buffer_setup(&r->wayland);
 
+	r->wayland.region = wl_compositor_create_region(r->wayland.compositor);
+	region_setup(r);
+
 	MwLLForceRender(r);
 
 	return r;
@@ -741,6 +772,7 @@ static void MwLLDestroyImpl(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
 	buffer_destroy(&handle->wayland);
+	wl_region_destroy(handle->wayland.region);
 
 	free(handle);
 }
@@ -754,25 +786,23 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	if(handle->wayland.type != MWLL_WAYLAND_TOPLEVEL) {
+		region_invalidate(handle);
 		handle->wayland.x = x;
 		handle->wayland.y = y;
-		/*if(handle->wayland.has_set_xy) {
-			timed_redraw_by_epoch(handle->wayland.topmost_parent, 25);
-		} else if(x != 0 && y != 0) {
-			handle->wayland.has_set_xy = MwTRUE;
-		}*/
-
 		wl_subsurface_set_position(handle->wayland.sublevel->subsurface, x, y);
+		region_setup(handle);
 	}
+
 	MwLLDispatch(handle, draw, NULL);
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
+	region_invalidate(handle);
 	/* Prevent an integer underflow when the w/h is too low */
 	if((w < 10 || h < 10)) {
 		handle->wayland.ww = 10;
 		handle->wayland.wh = 10;
-		return;
+		goto refresh;
 	}
 	handle->wayland.ww = w;
 	handle->wayland.wh = h;
@@ -780,6 +810,10 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
 		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 	}
+
+refresh:
+	region_setup(handle);
+
 	buffer_destroy(&handle->wayland);
 	buffer_setup(&handle->wayland);
 	MwLLDispatch(handle, draw, NULL);
