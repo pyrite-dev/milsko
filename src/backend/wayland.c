@@ -379,16 +379,6 @@ static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wa
 	return proto;
 }
 
-/* wp_cursor_shape_manager setup function */
-static wayland_protocol_t* wp_cursor_shape_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
-	proto->listener		  = NULL;
-
-	proto->context = wl_registry_bind(wayland->registry, name, &wp_cursor_shape_manager_v1_interface, 1);
-
-	return proto;
-}
-
 /* the two decoration manager constructs */
 typedef struct zxdg_decoration_manager_v1_context {
 	struct zxdg_decoration_manager_v1*  manager;
@@ -649,7 +639,6 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 	if(wayland->type == MWLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(xdg_wm_base);
 		WL_INTERFACE(zxdg_decoration_manager_v1);
-		WL_INTERFACE(wp_cursor_shape_manager_v1);
 	} else {
 		WL_INTERFACE(wl_subcompositor);
 	}
