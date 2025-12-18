@@ -779,10 +779,9 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
 		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
-	} else {
-		/* timed_redraw_by_epoch(handle->wayland.topmost_parent, 25);
-		recursive_draw(handle->wayland.topmost_parent); */
 	}
+	buffer_destroy(&handle->wayland);
+	buffer_setup(&handle->wayland);
 	MwLLDispatch(handle, draw, NULL);
 }
 
