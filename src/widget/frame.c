@@ -29,7 +29,6 @@ static void draw(MwWidget handle) {
 		rr.width  = MwGetInteger(handle, MwNwidth) - (MwDefaultBorderWidth(handle) * 2);
 		rr.height = MwGetInteger(handle, MwNheight) - (MwDefaultBorderWidth(handle) * 2);
 	} else {
-
 		rr.x	  = 0;
 		rr.y	  = 0;
 		rr.width  = MwGetInteger(handle, MwNwidth);

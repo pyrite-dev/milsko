@@ -56,14 +56,16 @@ my %features = (
     "vulkan"               => "build Vulkan widget",
     "vulkan-string-helper" => "use Vulkan string helper",
     "shared"               => "build shared library",
-    "static"               => "build static library"
+    "static"               => "build static library",
+    "experimental-wayland" => "enable WIP wayland backend",
 );
 my @features_keys = (
     "1classic-theme", "1stb-image",
     "1stb-truetype",  "1freetype2",
     "1opengl",        "2xrender",
     "1vulkan",        "2vulkan-string-helper",
-    "1shared",        "1static"
+    "1shared",        "1static",
+    "1experimental-wayland"
 );
 
 foreach my $l (@ARGV) {

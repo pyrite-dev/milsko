@@ -1,12 +1,6 @@
 #include <Mw/Milsko.h>
 #include <Mw/Widget/OpenGL.h>
 
-#ifdef USE_WAYLAND
-#include <stb_ds.h>
-#include <pthread.h>
-#include <sys/time.h>
-#endif
-
 #ifdef USE_GDI
 typedef HGLRC(WINAPI* MWwglCreateContext)(HDC);
 typedef BOOL(WINAPI* MWwglMakeCurrent)(HDC, HGLRC);
@@ -110,8 +104,8 @@ static int create(MwWidget handle) {
 	}
 #endif
 #ifdef USE_WAYLAND
-	/* Wayland uses OpenGL as its backend so its already initialized */
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
+		/* todo */
 	}
 #endif
 
@@ -146,7 +140,9 @@ static void destroy(MwWidget handle) {
 	}
 #endif
 #ifdef USE_WAYLAND
-/* Wayland uses OpenGL as its backend so its destroyed accordingly */
+	if(handle->lowlevel->common.type == MwLLBackendWayland) {
+		/* todo */
+	}
 #endif
 
 	free(handle->internal);
@@ -169,6 +165,7 @@ static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 #endif
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
+		/* todo */
 	}
 #endif
 }
@@ -189,14 +186,9 @@ static void mwOpenGLSwapBufferImpl(MwWidget handle) {
 	}
 #endif
 #ifdef USE_WAYLAND
-#define tp handle->lowlevel->wayland.topmost_parent->wayland
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
-		if(!eglSwapBuffers(
-		       tp.egl_display, tp.egl_surface)) {
-			printf("Userland error: eglSwapBuffers, %0X\n", eglGetError());
-		}
+		/* todo */
 	}
-#undef topmost_parent
 #endif
 }
 
@@ -217,7 +209,7 @@ static void* mwOpenGLGetProcAddressImpl(MwWidget handle, const char* name) {
 #endif
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
-		return eglGetProcAddress(name);
+		/* todo */
 	}
 #endif
 	return NULL;

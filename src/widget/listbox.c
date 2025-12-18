@@ -258,7 +258,6 @@ static void frame_draw(MwWidget handle) {
 
 			if(j == (arrlen(lb->list[i].name) - 1)) p.x -= MwDefaultBorderWidth(handle);
 			if(arrlen(lb->alignment) <= j || lb->alignment[j] == MwALIGNMENT_BEGINNING) {
-
 				p.x += 4;
 				MwDrawText(handle, &p, str, 0, MwALIGNMENT_BEGINNING, selected ? base2 : text2);
 				p.x -= 4;

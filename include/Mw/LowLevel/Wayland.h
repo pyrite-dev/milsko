@@ -12,13 +12,10 @@
 #include <Mw/LowLevel.h>
 
 #include <wayland-client-protocol.h>
-#include <wayland-egl.h>
-#include <EGL/egl.h>
-#include <GL/gl.h>
-#include <GL/glext.h>
 
 #include <wayland-client.h>
 #include <xkbcommon/xkbcommon.h>
+#include <cairo/cairo.h>
 
 MWDECL int MwLLWaylandCallInit(void);
 
@@ -53,15 +50,27 @@ struct _MwLLWaylandTopLevel {
 	MwBool xdg_surface_created;
 };
 
+struct _MwLLWaylandSublevel {
+	struct wl_subsurface*	 subsurface;
+	struct wl_subcompositor* subcompositor;
+
+	MwLL parent;
+	MwLL topmost_parent; /* The parent at the top of all the other parents. Usually a toplevel. */
+};
+
 struct _MwLLWayland {
 	struct _MwLLCommon common;
 
-	/* Pointer for data that's only loaded if the widget is a toplevel */
-	struct _MwLLWaylandTopLevel* toplevel;
+	union {
+		/* Pointer for data that's only loaded if the widget is a toplevel */
+		struct _MwLLWaylandTopLevel* toplevel;
+		/* Pointer for data that's only loaded if the widget is a sublevel */
+		struct _MwLLWaylandSublevel* sublevel;
+	};
 
 	enum {
 		MWLL_WAYLAND_TOPLEVEL = 0,
-		MWLL_WAYLAND_SUBLEVEL = 1, /* Sublevels are surfaces that have the toplevel as a parent. They could be implemented as subsurfaces if we ever switch away from OpenGL. Some parts of the code also call them subwidgets. */
+		MWLL_WAYLAND_SUBLEVEL, /* Sublevels are surfaces that have the toplevel as a parent. Some parts of the code also call them subwidgets. */
 	} type;
 
 	/* Map of Wayland interfaces to their relevant setup functions. */
@@ -79,33 +88,25 @@ struct _MwLLWayland {
 	struct wl_display*	    display;
 	struct wl_registry*	    registry;
 	struct wl_compositor*	    compositor;
-	struct wl_subcompositor*    subcompositor;
 	struct wl_surface*	    surface;
 	struct wl_registry_listener registry_listener;
-	struct wl_event_queue*	    event_queue;
-
-	EGLNativeWindowType egl_window_native;
-	EGLDisplay	    egl_display;
-	EGLContext	    egl_context;
-	EGLSurface	    egl_surface;
-	EGLConfig	    egl_config;
+	/*struct wl_event_queue*	    event_queue;*/
 
 	MwLL*  sublevels;  /* stb_ds managed array of any sublevels */
 	MwBool configured; /* Whether or not xdg_toplevel_configure has run once */
-	MwBool egl_setup;  /* Whether or not EGL has been set up */
-	MwBool has_set_xy /* Whether or not MwSetXY has been called */;
 
-	int	resize_counter; /* Counter that's for a hack in event_loop */
-	MwU32	x, y, ww, wh;	/* Window position */
-	MwU32	lw, lh;		/* Last known window position */
-	MwPoint cur_mouse_pos;	/* Currently known mouse position */
+	MwU32	x, y, ww, wh;  /* Window position */
+	MwPoint cur_mouse_pos; /* Currently known mouse position */
 
-	struct timeval timer;
-	MwU64	       cooldown_timer;
-	MwU64	       cooldown_timer_epoch;
+	struct wl_shm*	    shm;
+	struct wl_shm_pool* shm_pool;
+	struct wl_buffer*   shm_buffer;
+	void*		    mapped_shm_buf;
+	MwU64		    mapped_shm_buf_size;
+	int		    shm_fd;
 
-	MwLL parent;
-	MwLL topmost_parent; /* The parent at the top of all the other parents. Usually a toplevel. */
+	cairo_surface_t* cs;
+	cairo_t*	 cairo;
 };
 
 struct _MwLLWaylandColor {
@@ -114,8 +115,8 @@ struct _MwLLWaylandColor {
 
 struct _MwLLWaylandPixmap {
 	struct _MwLLCommonPixmap common;
-	GLuint			 texture;
-	MwBool			 texture_deleted;
+
+	cairo_surface_t* cs;
 };
 
 #endif

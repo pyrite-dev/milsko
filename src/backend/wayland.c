@@ -6,7 +6,6 @@
 #include "../../external/stb_ds.h"
 
 #include <sys/mman.h>
-#include <wayland-egl-core.h>
 #include <wayland-util.h>
 
 /* TODO: find out what FreeBSD and such wants us to include */
@@ -17,19 +16,6 @@
 #include <linux/input.h>
 #include <linux/input-event-codes.h>
 #endif
-
-/*
- * TODO:
- * make sure MwLLDestroy is finished (+ handle dropdown bug that results from it)
- * GNOME doesn't want to support zxdg_decoration_protocol so we're gonna design some Windows 95 ass ui just for that window manager.
- * finish the rest of the owl
- */
-
-/*
- * Redraw `handle` if the given cooldown hasn't expired (`time` >= `cooldown_timer` + `cooldown)).
- * Used for pointer callbacks, resize callbacks, etc. to ensure we only resize every x milliseconds
- */
-static void timed_redraw(MwLL handle, MwU32 time, int cooldown, MwU64* cooldown_timer);
 
 /* Get the registered interface from r, or NULL if it doesn't currently have it. */
 #define WAYLAND_GET_INTERFACE(handle, inter) shget(handle.wl_protocol_map, inter##_interface.name)
@@ -59,13 +45,11 @@ static void protocol_removed(void*		 data,
 /* `wl_pointer.enter` callback */
 static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
 			  struct wl_surface* surface, wl_fixed_t surface_x,
-			  wl_fixed_t surface_y) {
-};
+			  wl_fixed_t surface_y) {};
 
 /* `wl_pointer.leave` callback */
 static void pointer_leave(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
-			  struct wl_surface* surface) {
-};
+			  struct wl_surface* surface) {};
 
 /* `wl_pointer.motion` callback */
 static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time,
@@ -78,7 +62,7 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	p.point			      = self->wayland.cur_mouse_pos;
 	MwLLDispatch(self, move, &p);
 
-	timed_redraw(self, time, 50, &self->wayland.cooldown_timer);
+	/*timed_redraw(self, time, 50, &self->wayland.cooldown_timer);*/
 };
 
 /* `wl_pointer.button` callback */
@@ -107,6 +91,7 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 			break;
 		}
 	}
+
 	MwLLDispatch(self, draw, NULL);
 };
 
@@ -140,17 +125,6 @@ static void recursive_key_released(MwLL handle, void* ud) {
 		for(i = 0; i < arrlen(handle->wayland.sublevels); i++) {
 			MwLLDispatch(handle->wayland.sublevels[i], key_released, ud);
 			recursive_key(handle->wayland.sublevels[i], ud);
-		}
-	}
-}
-
-/* Recursively dispatch the draw event to `handle` and its children */
-static void recursive_draw(MwLL handle) {
-	int i;
-	if(handle->wayland.sublevels != NULL) {
-		for(i = 0; i < arrlen(handle->wayland.sublevels); i++) {
-			MwLLDispatch(handle->wayland.sublevels[i], draw, NULL);
-			recursive_draw(handle->wayland.sublevels[i]);
 		}
 	}
 }
@@ -350,7 +324,7 @@ static wayland_protocol_t* wl_compositor_setup(MwU32 name, struct _MwLLWayland* 
 
 /* wl_subcompositor setup function */
 static wayland_protocol_t* wl_subcompositor_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland->subcompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
+	wayland->sublevel->subcompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
 
 	return NULL;
 }
@@ -398,129 +372,6 @@ static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _
 	return proto;
 }
 
-/* EGL Setup function */
-static MwBool egl_setup(MwLL self, int x, int y, int width, int height) {
-	int	   err;
-	EGLint	   numConfigs;
-	EGLint	   majorVersion;
-	EGLint	   minorVersion;
-	EGLContext context;
-	EGLSurface surface;
-	EGLint	   fbAttribs[] =
-	    {
-		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-		EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-		EGL_RED_SIZE, 8,
-		EGL_GREEN_SIZE, 8,
-		EGL_BLUE_SIZE, 8,
-		EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-		EGL_NONE};
-	EGLint contextAttribs[] = {
-	    EGL_CONTEXT_CLIENT_VERSION, 1,
-	    EGL_CONTEXT_MAJOR_VERSION, 1,
-	    EGL_CONTEXT_MINOR_VERSION, 1,
-	    EGL_NONE};
-
-	EGLDisplay display;
-	display = eglGetDisplay(self->wayland.display);
-	if(display == EGL_NO_DISPLAY) {
-		printf("ERROR: eglGetDisplay, %0X\n", eglGetError());
-		return MwFALSE;
-	}
-	/* Initialize EGL */
-	if(!eglInitialize(display, &majorVersion, &minorVersion)) {
-		printf("ERROR: eglInitialize, %0X\n", eglGetError());
-		return MwFALSE;
-	}
-
-	/* Get configs */
-	if((eglGetConfigs(display, NULL, 0, &numConfigs) != EGL_TRUE) || (numConfigs == 0)) {
-		printf("ERROR: eglGetConfigs, %0X\n", eglGetError());
-		return MwFALSE;
-	}
-
-	/* Choose config */
-	if((eglChooseConfig(display, fbAttribs, &self->wayland.egl_config, 1, &numConfigs) != EGL_TRUE) || (numConfigs != 1)) {
-		printf("ERROR: eglChooseConfig, %0X\n", eglGetError());
-		return MwFALSE;
-	}
-
-	self->wayland.egl_window_native =
-	    wl_egl_window_create(self->wayland.surface, width, height);
-	if(self->wayland.egl_window_native == EGL_NO_SURFACE) {
-		printf("ERROR: wl_egl_window_create, EGL_NO_SURFACE\n");
-		return MwFALSE;
-	}
-
-	/* Create a surface */
-	surface = eglCreateWindowSurface(display, self->wayland.egl_config, self->wayland.egl_window_native, NULL);
-	if(surface == EGL_NO_SURFACE) {
-		printf("ERROR: eglCreateWindowSurface, %0X\n", eglGetError());
-		return MwFALSE;
-	}
-
-	eglBindAPI(EGL_OPENGL_API);
-
-	/* Create a GL context */
-	context = eglCreateContext(display, self->wayland.egl_config, EGL_NO_CONTEXT, contextAttribs);
-	if(context == EGL_NO_CONTEXT) {
-		printf("ERROR: eglCreateContext, %0X\n", eglGetError());
-		return MwFALSE;
-	}
-
-	self->wayland.egl_display = display;
-	self->wayland.egl_surface = surface;
-	self->wayland.egl_context = context;
-
-	if(self->wayland.parent == NULL) {
-		if(!eglMakeCurrent(self->wayland.egl_display, self->wayland.egl_surface, self->wayland.egl_surface, self->wayland.egl_context)) {
-			printf("ERROR: eglMakeCurrent, %0X\n", eglGetError());
-		}
-	}
-
-	glEnable(GL_TEXTURE_2D);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-	glEnable(GL_SCISSOR_TEST);
-
-	return MwTRUE;
-}
-
-/* EGL reconfiguration function for resizes */
-static void egl_resetup(MwLL handle) {
-	float w, h;
-
-	if(handle->wayland.parent == NULL) {
-		w = handle->wayland.ww;
-		h = handle->wayland.wh;
-	} else {
-		w = handle->wayland.parent->wayland.ww;
-		h = handle->wayland.parent->wayland.wh;
-	}
-
-	glViewport(handle->wayland.x, handle->wayland.y, w, h);
-	glScissor(handle->wayland.x, handle->wayland.y, w, h);
-}
-
-static void timed_redraw(MwLL handle, MwU32 time, int cooldown, MwU64* cooldown_timer) {
-	if(handle->wayland.parent == NULL) {
-		if(time >= (*cooldown_timer + cooldown)) {
-			egl_resetup(handle);
-			MwLLDispatch(handle, draw, NULL);
-			*cooldown_timer = time;
-		}
-	}
-}
-
-/* Same as timed_redraw but it uses the unix epoch as the cooldown timer. */
-static void timed_redraw_by_epoch(MwLL handle, int cooldown) {
-	gettimeofday(&handle->wayland.timer, NULL);
-	unsigned long long time =
-	    (unsigned long long)(handle->wayland.timer.tv_sec) * 1000 +
-	    (unsigned long long)(handle->wayland.timer.tv_usec) / 1000;
-	timed_redraw(handle, time, cooldown, &handle->wayland.cooldown_timer_epoch);
-}
-
 /* `xdg_toplevel.close` callback */
 static void xdg_toplevel_configure(void*		data,
 				   struct xdg_toplevel* xdg_toplevel,
@@ -541,14 +392,20 @@ static void xdg_toplevel_configure(void*		data,
 	self->wayland.wh = height;
 	xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, 0, 0, self->wayland.ww, self->wayland.wh);
 
-	MwLLDispatch(self, resize, NULL);
+	cairo_destroy(self->wayland.cairo);
+	cairo_surface_destroy(self->wayland.cs);
+	self->wayland.cs    = cairo_image_surface_create_for_data(self->wayland.mapped_shm_buf, CAIRO_FORMAT_ARGB32, width, height, 4 * width);
+	self->wayland.cairo = cairo_create(self->wayland.cs);
 
-	if(!self->wayland.egl_setup) {
+	MwLLDispatch(self, resize, NULL);
+	MwLLDispatch(self, draw, NULL);
+
+	/*if(!self->wayland.egl_setup) {
 		self->wayland.egl_setup = egl_setup(self, self->wayland.x, self->wayland.y, width, height);
 	} else {
 		wl_egl_window_resize(self->wayland.egl_window_native, width, height, 0, 0);
 		egl_resetup(self);
-	}
+	}*/
 
 	return;
 };
@@ -580,6 +437,58 @@ static void xdg_surface_configure(
 	self->wayland.configured = MwTRUE;
 }
 
+/* wl_shm setup function */
+static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland) {
+	int  x, y;
+	int  stride	 = wayland->ww * 4;
+	char temp_name[] = "/tmp/milsko-wl-shm-XXXXXX";
+
+	wayland->mapped_shm_buf_size = wayland->ww * wayland->wh * 4;
+
+	wayland->shm = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
+
+	wayland->shm_fd = mkstemp(temp_name);
+
+	unlink(temp_name);
+
+	if(posix_fallocate(wayland->shm_fd, 0, wayland->mapped_shm_buf_size) != 0) {
+		printf("failure setting up wl_shm: could not fallocate. %s.\n", strerror(errno));
+		close(wayland->shm_fd);
+		return NULL;
+	}
+	if(ftruncate(wayland->shm_fd, wayland->mapped_shm_buf_size) != 0) {
+		printf("failure setting up wl_shm: could not truncate. %s.\n", strerror(errno));
+		close(wayland->shm_fd);
+		return NULL;
+	}
+
+	wayland->mapped_shm_buf = mmap(NULL, wayland->mapped_shm_buf_size, PROT_WRITE, MAP_SHARED, wayland->shm_fd, 0);
+
+	fsync(wayland->shm_fd);
+
+	if(!(wayland->shm_pool = wl_shm_create_pool(wayland->shm, wayland->shm_fd, wayland->mapped_shm_buf_size))) {
+		printf("failure setting up wl_shm: could not create pool.\n");
+	}
+
+	wayland->shm_buffer = wl_shm_pool_create_buffer(wayland->shm_pool, 0, wayland->ww, wayland->wh, stride, WL_SHM_FORMAT_ARGB8888);
+
+	if(wayland->configured) {
+		wl_surface_attach(wayland->surface, wayland->shm_buffer, 0, 0);
+		wl_surface_commit(wayland->surface);
+	}
+
+	return NULL;
+}
+
+static void update_buffer(MwLL handle) {
+	fsync(handle->wayland.shm_fd);
+
+	if(handle->wayland.configured) {
+		wl_surface_attach(handle->wayland.surface, handle->wayland.shm_buffer, 0, 0);
+		wl_surface_commit(handle->wayland.surface);
+	}
+}
+
 /* Standard Wayland event loop. */
 static int event_loop(MwLL handle) {
 	enum {
@@ -588,15 +497,20 @@ static int event_loop(MwLL handle) {
 		CURSOR_FD
 	};
 	struct pollfd	     fd;
-	int		     timeout	    = 100;
-	struct _MwLLWayland* wayland	    = &handle->wayland;
-	MwLL		     topmost_parent = handle->wayland.parent;
+	int		     timeout = 1;
+	struct _MwLLWayland* wayland = &handle->wayland;
 
 	if(wayland->display == NULL) {
 		return 0;
 	}
 	fd.fd	  = wl_display_get_fd(wayland->display);
 	fd.events = POLLIN;
+
+	while(wl_display_prepare_read(handle->wayland.display) != 0) {
+		if(wl_display_dispatch_pending(handle->wayland.display) > 0) {
+			return 0;
+		}
+	}
 
 	/* If an error other than EAGAIN happens, we have likely been disconnected from the Wayland session */
 	while(wl_display_flush(wayland->display) == -1) {
@@ -614,38 +528,27 @@ static int event_loop(MwLL handle) {
 		}
 	}
 
+	/* Condition where no events are being sent. */
+	if(!poll(&fd, 1, timeout)) {
+		wl_display_cancel_read(handle->wayland.display);
+		/* In this case, we need to commit the surface for any animations, etc. */
+		wl_surface_commit(handle->wayland.surface);
+		return 0;
+	}
+
 	if(fd.revents & POLLIN) {
 		wl_display_read_events(wayland->display);
 		if(wl_display_dispatch_pending(wayland->display) > 0) {
 		}
 	} else {
-		/* Condition for no events being sent */
-		if(wl_display_dispatch_pending(wayland->display) == 0) {
-			if(wayland->event_queue != NULL) {
-				if(wl_display_roundtrip_queue(wayland->display, wayland->event_queue) < 0) {
-					printf("error\n");
-				};
-			}
-			/* HACK: If the last known size is different, force a redraw */
-			if(wayland->lw != wayland->ww || wayland->lh != wayland->wh) {
-				MwLLDispatch(handle, draw, 0);
-				wayland->resize_counter++;
-				if(wayland->resize_counter >= 5) {
-					wayland->lw		= wayland->ww;
-					wayland->lh		= wayland->wh;
-					wayland->lh		= wayland->wh;
-					wayland->resize_counter = 0;
-				}
-			}
-		}
+		wl_display_cancel_read(handle->wayland.display);
 	}
 
-	return 0;
+	return 1;
 }
 
 /* Function for setting up the callbacks/structs that will be registered upon the relevant interfaces being found. */
 static void setup_callbacks(struct _MwLLWayland* wayland) {
-
 /* Convience macro for adding the interface functions to the setup map */
 #define WL_INTERFACE(interface) \
 	shput(wayland->wl_protocol_setup_map, interface##_interface.name, (wl_setup_func*)interface##_setup);
@@ -655,13 +558,15 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 	wayland->wl_protocol_setup_map		 = NULL;
 	wayland->wl_protocol_map		 = NULL;
 
+	WL_INTERFACE(wl_shm);
 	WL_INTERFACE(wl_compositor);
-	WL_INTERFACE(wl_subcompositor);
 	WL_INTERFACE(wl_seat);
 	if(wayland->type == MWLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(xdg_wm_base);
 		WL_INTERFACE(zxdg_decoration_manager_v1);
 		WL_INTERFACE(wp_cursor_shape_manager_v1);
+	} else {
+		WL_INTERFACE(wl_subcompositor);
 	}
 #undef WL_INTERFACE
 }
@@ -670,9 +575,8 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 static void setup_toplevel(MwLL r, int x, int y) {
 	int i;
 
-	r->wayland.type		  = MWLL_WAYLAND_TOPLEVEL;
-	r->wayland.toplevel	  = malloc(sizeof(struct _MwLLWaylandTopLevel));
-	r->wayland.topmost_parent = NULL;
+	r->wayland.type	    = MWLL_WAYLAND_TOPLEVEL;
+	r->wayland.toplevel = malloc(sizeof(struct _MwLLWaylandTopLevel));
 
 	setup_callbacks(&r->wayland);
 
@@ -731,27 +635,17 @@ static void setup_toplevel(MwLL r, int x, int y) {
 		printf("zxdg null\n");
 	}
 
-	r->wayland.event_queue = wl_display_create_queue(r->wayland.display);
-
-	egl_resetup(r);
+	/*egl_resetup(r);
 	MwLLDispatch(r, draw, NULL);
-	recursive_draw(r);
+	recursive_draw(r);*/
 }
 
 /* Sublevel setup function */
 static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
-	struct wl_compositor*	 compositor	= parent->wayland.compositor;
-	struct wl_subcompositor* subcompositor	= parent->wayland.subcompositor;
-	struct wl_surface*	 parent_surface = parent->wayland.surface;
-	struct wl_region*	 region;
-	{
-		MwLL topmost_parent = parent;
+	struct wl_compositor* compositor     = parent->wayland.compositor;
+	struct wl_surface*    parent_surface = parent->wayland.surface;
 
-		while(topmost_parent->wayland.type != MWLL_WAYLAND_TOPLEVEL) {
-			topmost_parent = topmost_parent->wayland.parent;
-		}
-		r->wayland.topmost_parent = topmost_parent;
-	}
+	r->wayland.sublevel = malloc(sizeof(struct _MwLLWaylandSublevel));
 
 	r->wayland.type = MWLL_WAYLAND_SUBLEVEL;
 
@@ -759,17 +653,12 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 
 	r->wayland.surface = wl_compositor_create_surface(compositor);
 
-	region = wl_compositor_create_region(compositor);
-	wl_region_add(region, 0, 0, r->wayland.ww, r->wayland.wh);
-	wl_surface_set_opaque_region(r->wayland.surface, region);
-	wl_surface_commit(r->wayland.surface);
-	event_loop(r);
-	wl_region_destroy(region);
-
 	setup_callbacks(&r->wayland);
 
-	r->wayland.registry = wl_display_get_registry(r->wayland.topmost_parent->wayland.display);
-	r->wayland.display  = r->wayland.topmost_parent->wayland.display;
+	// printf("position %d %d\n", x, y);
+
+	r->wayland.registry = wl_display_get_registry(parent->wayland.display);
+	r->wayland.display  = parent->wayland.display;
 
 	wl_registry_add_listener(r->wayland.registry, &r->wayland.registry_listener, r);
 	if(wl_display_roundtrip(r->wayland.display) == -1) {
@@ -778,23 +667,11 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 		return;
 	}
 
+	r->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(r->wayland.sublevel->subcompositor, r->wayland.surface, parent_surface);
+
+	wl_subsurface_set_position(r->wayland.sublevel->subsurface, x, y);
+
 	r->wayland.configured = MwTRUE;
-	if(!r->wayland.egl_setup) {
-		r->wayland.egl_setup = egl_setup(r, r->wayland.x, r->wayland.y, r->wayland.ww, r->wayland.wh);
-		egl_resetup(r);
-		MwLLDispatch(r, draw, NULL);
-		recursive_draw(r);
-	};
-
-	r->wayland.event_queue = parent->wayland.event_queue;
-
-	arrpush(parent->wayland.sublevels, r);
-
-	wl_surface_damage(parent->wayland.surface, 0, 0, parent->wayland.ww, parent->wayland.wh);
-
-	egl_resetup(r->wayland.topmost_parent);
-	MwLLDispatch(r->wayland.topmost_parent, draw, NULL);
-	recursive_draw(r->wayland.topmost_parent);
 }
 
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
@@ -804,8 +681,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	r->common.type = MwLLBackendWayland;
 
-	if(width == 0) width = 1;
-	if(height == 0) height = 1;
+	if(width < 2) width = 2;
+	if(height < 2) height = 2;
 
 	if(x == MwDEFAULT) {
 		x = 0;
@@ -819,12 +696,6 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->wayland.x  = x;
 	r->wayland.y  = y;
 
-	r->wayland.parent = parent;
-
-	r->wayland.cooldown_timer = 0;
-	r->wayland.has_set_xy	  = MwFALSE;
-	r->wayland.resize_counter = 0;
-
 	r->wayland.sublevels = NULL;
 
 	if(parent == NULL) {
@@ -833,11 +704,28 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		setup_sublevel(parent, r, x, y);
 	}
 
+	/* example of writing to the buffer */
+	memset(r->wayland.mapped_shm_buf, 255, r->wayland.mapped_shm_buf_size);
+	update_buffer(r);
+
+	r->wayland.cs	 = cairo_image_surface_create_for_data(r->wayland.mapped_shm_buf, CAIRO_FORMAT_ARGB32, width, height, 4 * width);
+	r->wayland.cairo = cairo_create(r->wayland.cs);
+
+	MwLLForceRender(r);
+
 	return r;
 }
 
 static void MwLLDestroyImpl(MwLL handle) {
 	MwLLDestroyCommon(handle);
+
+	cairo_destroy(handle->wayland.cairo);
+	cairo_surface_destroy(handle->wayland.cs);
+
+	munmap(handle->wayland.mapped_shm_buf, handle->wayland.mapped_shm_buf_size);
+	wl_buffer_destroy(handle->wayland.mapped_shm_buf);
+	wl_shm_pool_destroy(handle->wayland.shm_pool);
+	close(handle->wayland.shm_fd);
 
 	free(handle);
 }
@@ -853,111 +741,74 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	if(handle->wayland.type != MWLL_WAYLAND_TOPLEVEL) {
 		handle->wayland.x = x;
 		handle->wayland.y = y;
-		if(handle->wayland.has_set_xy) {
+		/*if(handle->wayland.has_set_xy) {
 			timed_redraw_by_epoch(handle->wayland.topmost_parent, 25);
-			/* recursive_draw(handle->wayland.topmost_parent); */
 		} else if(x != 0 && y != 0) {
 			handle->wayland.has_set_xy = MwTRUE;
-		}
+		}*/
+
+		wl_subsurface_set_position(handle->wayland.sublevel->subsurface, x, y);
 	}
+	MwLLDispatch(handle, draw, NULL);
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	/* Prevent an integer underflow when the w/h is too low */
 	if((w < 10 || h < 10)) {
-		handle->wayland.ww = handle->wayland.lw = 10;
-		handle->wayland.wh = handle->wayland.lh = 10;
+		handle->wayland.ww = 10;
+		handle->wayland.wh = 10;
 		return;
 	}
-	handle->wayland.ww = handle->wayland.lw = w;
-	handle->wayland.wh = handle->wayland.lh = h;
+	handle->wayland.ww = w;
+	handle->wayland.wh = h;
 
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
 		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 	} else {
-		timed_redraw_by_epoch(handle->wayland.topmost_parent, 25);
-		/* recursive_draw(handle->wayland.topmost_parent); */
+		/* timed_redraw_by_epoch(handle->wayland.topmost_parent, 25);
+		recursive_draw(handle->wayland.topmost_parent); */
 	}
+	MwLLDispatch(handle, draw, NULL);
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
-	int   i, n;
-	float maxX = 0, maxY = 0;
-	float centerX, centerY;
-	float w, h;
+	int i;
 
-	if(handle->wayland.parent == NULL) {
-		w = handle->wayland.ww;
-		h = handle->wayland.wh;
-	} else {
-		w = handle->wayland.topmost_parent->wayland.ww;
-		h = handle->wayland.topmost_parent->wayland.wh;
-	}
-
-	glColor3f(color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0);
-
-	glBegin(GL_POLYGON);
-
+	cairo_set_source_rgb(handle->wayland.cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0);
+	cairo_new_path(handle->wayland.cairo);
 	for(i = 0; i < points_count; i++) {
-		float x = ((float)(handle->wayland.x + points[i].x) / (w / 2)) - 1.0;
-		float y = 1.0 - ((float)(handle->wayland.y + points[i].y) / (h / 2));
-
-		glVertex2f(x, y);
+		if(i == 0) {
+			cairo_move_to(handle->wayland.cairo, points[i].x, points[i].y);
+		} else {
+			cairo_line_to(handle->wayland.cairo, points[i].x, points[i].y);
+		}
 	}
-	glEnd();
-	glColor3f(0, 0, 0);
+	cairo_close_path(handle->wayland.cairo);
+	cairo_fill(handle->wayland.cairo);
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
-	int   i;
-	float w, h;
+	int i;
 
-	if(handle->wayland.topmost_parent == NULL) {
-		w = handle->wayland.ww;
-		h = handle->wayland.wh;
-	} else {
-		w = handle->wayland.topmost_parent->wayland.ww;
-		h = handle->wayland.topmost_parent->wayland.wh;
-	}
-
-	glLineWidth(1);
-	glColor3f(color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0);
-
-	glBegin(GL_LINES);
+	cairo_set_line_cap(handle->wayland.cairo, CAIRO_LINE_CAP_SQUARE);
+	cairo_set_source_rgb(handle->wayland.cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0);
+	cairo_new_path(handle->wayland.cairo);
 	for(i = 0; i < 2; i++) {
-		float x = ((float)(handle->wayland.x + points[i].x) / (w / 2)) - 1.0;
-		float y = 1.0 - ((float)(handle->wayland.y + points[i].y) / (h / 2));
-
-		glVertex2f(x, y);
+		if(i == 0) {
+			cairo_move_to(handle->wayland.cairo, points[i].x, points[i].y);
+		} else {
+			cairo_line_to(handle->wayland.cairo, points[i].x, points[i].y);
+		}
 	}
-	glEnd();
-	glColor3f(0, 0, 0);
+	cairo_close_path(handle->wayland.cairo);
+	cairo_stroke(handle->wayland.cairo);
 }
 
 static void MwLLBeginDrawImpl(MwLL handle) {
-	if(handle->wayland.parent == NULL) {
-		if(!eglMakeCurrent(handle->wayland.egl_display, handle->wayland.egl_surface, handle->wayland.egl_surface, handle->wayland.egl_context)) {
-			printf("ERROR: eglMakeCurrent, %0X\n", eglGetError());
-			return;
-		}
-	}
 }
 
 static void MwLLEndDrawImpl(MwLL handle) {
-	int w, h;
-
-	recursive_draw(handle);
-
-	/* glClear(GL_COLOR_BUFFER_BIT); */
-	/* glClearColor(1.0, 0, 0, 1); */
-
-	if(handle->wayland.parent == NULL) {
-		if(!eglSwapBuffers(handle->wayland.egl_display, handle->wayland.egl_surface)) {
-			printf("error swapping buffers! %0X\n", eglGetError());
-		} else {
-			wl_surface_commit(handle->wayland.surface);
-		}
-	}
+	update_buffer(handle);
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
@@ -981,8 +832,6 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 }
 
 static int MwLLPendingImpl(MwLL handle) {
-	if(wl_display_dispatch_pending(handle->wayland.display) == 0) {
-	}
 	return event_loop(handle);
 }
 
@@ -998,19 +847,12 @@ static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
 	MwLLPixmap r = malloc(sizeof(*r));
 
-	r->common.width	   = width;
-	r->common.height   = height;
-	r->common.raw	   = data;
-	r->wayland.texture = 0;
+	r->common.width	 = width;
+	r->common.height = height;
+	r->common.raw	 = malloc(4 * width * height);
+	memcpy(r->common.raw, data, 4 * width * height);
 
-	glGenTextures(1, &r->wayland.texture);
-
-	glBindTexture(GL_TEXTURE_2D, r->wayland.texture);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	r->wayland.cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
 
 	MwLLPixmapUpdate(r);
 
@@ -1018,46 +860,48 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 }
 
 static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
-	glBindTexture(GL_TEXTURE_2D, r->wayland.texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, r->common.width, r->common.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, r->common.raw);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	int	       i;
+	unsigned char* d;
+
+	cairo_surface_flush(r->wayland.cs);
+	d = cairo_image_surface_get_data(r->wayland.cs);
+	for(i = 0; i < r->common.width * r->common.height * 4; i += 4) {
+		MwU32* p = (MwU32*)&d[i];
+		*p <<= 8;
+		*p |= r->common.raw[i + 3];
+		*p <<= 8;
+		*p |= r->common.raw[i + 0];
+		*p <<= 8;
+		*p |= r->common.raw[i + 1];
+		*p <<= 8;
+		*p |= r->common.raw[i + 2];
+	}
+	cairo_surface_mark_dirty(r->wayland.cs);
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
-	glDeleteTextures(1, &pixmap->wayland.texture);
+	cairo_surface_destroy(pixmap->wayland.cs);
+	free(pixmap->common.raw);
 	free(pixmap);
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	float x, y, w, h;
+	cairo_t*	 c;
+	cairo_surface_t* cs;
 
-	if(handle->wayland.topmost_parent == NULL) {
-		w = handle->wayland.ww;
-		h = handle->wayland.wh;
-	} else {
-		w = handle->wayland.topmost_parent->wayland.ww;
-		h = handle->wayland.topmost_parent->wayland.wh;
-	}
+	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, rect->width, rect->height);
+	c  = cairo_create(cs);
 
-	x = ((float)(handle->wayland.x + rect->x) / (w / 2)) - 1.0;
-	y = 1.0 - ((float)(handle->wayland.y + rect->y) / (h / 2));
+	cairo_scale(c, (double)rect->width / pixmap->common.width, (double)rect->height / pixmap->common.height);
+	cairo_set_source_surface(c, pixmap->wayland.cs, 0, 0);
+	cairo_paint(c);
 
-	glColor3f(1.0, 1.0, 1.0);
+	cairo_set_source_rgb(handle->wayland.cairo, 1, 1, 1);
+	cairo_set_source_surface(handle->wayland.cairo, cs, rect->x, rect->y);
+	cairo_paint(handle->wayland.cairo);
 
-	glBindTexture(GL_TEXTURE_2D, pixmap->wayland.texture);
-	glActiveTexture(pixmap->wayland.texture);
-
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0);
-	glVertex2f(x, y);
-	glTexCoord2f(1, 0);
-	glVertex2f(x + (rect->width / (w / 2)), y);
-	glTexCoord2f(1, 1);
-	glVertex2f(x + (rect->width / (w / 2)), y - (rect->height / (h / 2)));
-	glTexCoord2f(0.0f, 1);
-	glVertex2f(x, y - (rect->height / (h / 2)));
-	glEnd();
-	glFinish();
+	cairo_destroy(c);
+	cairo_surface_destroy(cs);
 }
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 }
@@ -1065,9 +909,11 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 static void MwLLForceRenderImpl(MwLL handle) {
 	wl_surface_damage(handle->wayland.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 
+	/*
 	if(handle->wayland.egl_setup) {
 		timed_redraw_by_epoch(handle, 25);
 	}
+	*/
 }
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
