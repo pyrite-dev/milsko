@@ -16,10 +16,10 @@
 #include <GL/glx.h>
 #endif
 #include <GL/gl.h>
-#endif
 
 #ifndef GLAPIENTRY
 #define GLAPIENTRY APIENTRY
+#endif
 #endif
 
 #ifdef __cplusplus
