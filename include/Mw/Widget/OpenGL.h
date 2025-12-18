@@ -9,12 +9,14 @@
 #include <Mw/TypeDefs.h>
 #include <Mw/Core.h>
 
+#ifndef __gl_h_
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <GL/glx.h>
 #endif
 #include <GL/gl.h>
+#endif
 
 #ifndef GLAPIENTRY
 #define GLAPIENTRY APIENTRY
