@@ -106,7 +106,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	int	       y;
 	double	       darken	  = 0.;
 	int	       ColorDiff  = get_color_diff(handle);
-	double	       darkenStep = (ColorDiff / 2. / 2) / rect->height;
+	double	       darkenStep = (ColorDiff / 4.) / rect->height;
 	unsigned long  sz	  = 1 * rect->height * 4;
 	unsigned char* data	  = malloc(sz);
 	memset(data, 0, sz);
