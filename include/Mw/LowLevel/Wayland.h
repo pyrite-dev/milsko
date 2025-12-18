@@ -94,7 +94,7 @@ struct _MwLLWayland {
 
 	MwBool active; /* Whether or not the surface is the one being hovered over. */
 
-	/*struct wl_event_queue*	    event_queue;*/
+	MwU32 mod_state;
 
 	MwLL*  sublevels;  /* stb_ds managed array of any sublevels */
 	MwBool configured; /* Whether or not xdg_toplevel_configure has run once */

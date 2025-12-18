@@ -118,28 +118,6 @@ struct wl_pointer_listener pointer_listener = {
     .axis   = pointer_axis,
 };
 
-/* Recursively dispatch the key event to `handle` and its children */
-static void recursive_key(MwLL handle, void* ud) {
-	int i;
-	if(handle->wayland.sublevels != NULL) {
-		for(i = 0; i < arrlen(handle->wayland.sublevels); i++) {
-			MwLLDispatch(handle->wayland.sublevels[i], key, ud);
-			recursive_key(handle->wayland.sublevels[i], ud);
-		}
-	}
-}
-
-/* Recursively dispatch the key_released event to `handle` and its children */
-static void recursive_key_released(MwLL handle, void* ud) {
-	int i;
-	if(handle->wayland.sublevels != NULL) {
-		for(i = 0; i < arrlen(handle->wayland.sublevels); i++) {
-			MwLLDispatch(handle->wayland.sublevels[i], key_released, ud);
-			recursive_key(handle->wayland.sublevels[i], ud);
-		}
-	}
-}
-
 /* `wl_keyboard.keymap` callback */
 static void keyboard_keymap(void*		data,
 			    struct wl_keyboard* wl_keyboard,
@@ -259,12 +237,16 @@ static void keyboard_key(void*		     data,
 			default:
 				key = sym;
 			}
+			if((self->wayland.mod_state & 4) == 4) {
+				key |= MwLLControlMask;
+			}
+			if((self->wayland.mod_state & 8) == 8) {
+				key |= MwLLAltMask;
+			}
 			if(state == WL_KEYBOARD_KEY_STATE_PRESSED) {
 				MwLLDispatch(self, key, &key);
-				recursive_key(self, &key);
 			} else {
 				MwLLDispatch(self, key_released, &key);
-				recursive_key_released(self, &key);
 			}
 		}
 	}
@@ -277,7 +259,13 @@ static void keyboard_modifiers(void*		   data,
 			       MwU32		   mods_depressed,
 			       MwU32		   mods_latched,
 			       MwU32		   mods_locked,
-			       MwU32		   group) {};
+			       MwU32		   group) {
+	MwLL self = data;
+
+	self->wayland.mod_state = 0;
+	self->wayland.mod_state |= mods_depressed;
+	self->wayland.mod_state |= mods_locked;
+};
 
 struct wl_keyboard_listener keyboard_listener = {
     .keymap    = keyboard_keymap,
