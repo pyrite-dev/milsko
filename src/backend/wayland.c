@@ -297,6 +297,32 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 	}
 };
 
+static void output_geometry(void*	      data,
+			    struct wl_output* wl_output,
+			    int32_t	      x,
+			    int32_t	      y,
+			    int32_t	      physical_width,
+			    int32_t	      physical_height,
+			    int32_t	      subpixel,
+			    const char*	      make,
+			    const char*	      model,
+			    int32_t	      transform) {};
+static void output_mode(void*		  data,
+			struct wl_output* wl_output,
+			uint32_t	  flags,
+			int32_t		  width,
+			int32_t		  height,
+			int32_t		  refresh) {
+	MwLL self	 = data;
+	self->wayland.mw = width;
+	self->wayland.mh = height;
+};
+
+struct wl_output_listener output_listener = {
+    .geometry = output_geometry,
+    .mode     = output_mode,
+};
+
 /* `xdg_wm_base.ping` callback */
 void xdg_wm_base_ping(void*		  data,
 		      struct xdg_wm_base* xdg_wm_base,
@@ -316,6 +342,14 @@ static wayland_protocol_t* wl_seat_setup(MwU32 name, MwLL ll) {
 	wl_seat_add_listener(proto->context, proto->listener, ll);
 
 	return proto;
+}
+
+/* wl_output setup function */
+static wayland_protocol_t* wl_output_setup(MwU32 name, MwLL ll) {
+	ll->wayland.output = wl_registry_bind(ll->wayland.registry, name, &wl_output_interface, 1);
+	wl_output_add_listener(ll->wayland.output, &output_listener, ll);
+
+	return NULL;
 }
 
 /* wl_compositor setup function */
@@ -611,6 +645,7 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 	WL_INTERFACE(wl_shm);
 	WL_INTERFACE(wl_compositor);
 	WL_INTERFACE(wl_seat);
+	WL_INTERFACE(wl_output);
 	if(wayland->type == MWLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(xdg_wm_base);
 		WL_INTERFACE(zxdg_decoration_manager_v1);
@@ -653,6 +688,7 @@ static void setup_toplevel(MwLL r, int x, int y) {
 
 	/* Create a wl_surface, a xdg_surface and a xdg_toplevel */
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
+
 	r->wayland.toplevel->xdg_surface =
 	    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context, r->wayland.framebuffer.surface);
 	r->wayland.toplevel->xdg_top_level = xdg_surface_get_toplevel(r->wayland.toplevel->xdg_surface);
@@ -1070,6 +1106,10 @@ static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
 }
 
 static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
+	rect->x	     = 0;
+	rect->y	     = 0;
+	rect->width  = handle->wayland.mw;
+	rect->height = handle->wayland.mh;
 }
 
 static void MwLLBeginStateChangeImpl(MwLL handle) {

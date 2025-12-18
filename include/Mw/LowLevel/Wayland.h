@@ -63,11 +63,13 @@ struct _MwLLWaylandShmBuffer {
 	struct wl_shm*	    shm;
 	struct wl_shm_pool* shm_pool;
 	struct wl_buffer*   shm_buffer;
-	MwU8*		    buf;
-	MwU64		    buf_size;
-	int		    fd;
-	MwBool		    setup;
 	struct wl_surface*  surface;
+	struct wl_output*   output;
+
+	MwU8*  buf;
+	MwU64  buf_size;
+	int    fd;
+	MwBool setup;
 };
 
 struct _MwLLWayland {
@@ -102,6 +104,7 @@ struct _MwLLWayland {
 	struct wl_compositor*	    compositor;
 	struct wl_registry_listener registry_listener;
 	struct wl_region*	    region;
+	struct wl_output*	    output;
 
 	struct wl_pointer* pointer;
 	MwU32		   pointer_serial;
@@ -115,6 +118,8 @@ struct _MwLLWayland {
 
 	MwU32	x, y, ww, wh;  /* Window position */
 	MwPoint cur_mouse_pos; /* Currently known mouse position */
+
+	MwU32 mw, mh; /* Monitor width and height as advertised by wl_output.mode */
 
 	struct _MwLLWaylandShmBuffer framebuffer;
 	struct _MwLLWaylandShmBuffer cursor;
