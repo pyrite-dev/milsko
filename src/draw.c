@@ -104,28 +104,25 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	MwLLPixmap     pixmap;
 	int	       y;
-	int	       x;
 	double	       darken	  = 0.;
 	int	       ColorDiff  = get_color_diff(handle);
-	double	       darkenStep = (ColorDiff / 2.) / rect->height;
-	unsigned long  sz	  = rect->width * rect->height * 4;
+	double	       darkenStep = (ColorDiff / 2. / 2) / rect->height;
+	unsigned long  sz	  = 1 * rect->height * 4;
 	unsigned char* data	  = malloc(sz);
 	memset(data, 0, sz);
 
 	for(y = 0; y < rect->height; y++) {
 		MwLLColor col = MwLightenColor(handle, color, -darken, -darken, -darken);
-		for(x = 0; x < rect->width; x++) {
-			int idx	      = ((y * rect->width) + x) * 4;
-			data[idx]     = col->common.red;
-			data[idx + 1] = col->common.green;
-			data[idx + 2] = col->common.blue;
-			data[idx + 3] = 255;
-		}
+		int	  idx = y * 4;
+		data[idx]     = col->common.red;
+		data[idx + 1] = col->common.green;
+		data[idx + 2] = col->common.blue;
+		data[idx + 3] = 255;
 		MwLLFreeColor(col);
 		darken += darkenStep;
 	}
 
-	pixmap = MwLLCreatePixmap(handle->lowlevel, data, rect->width / 4, rect->height);
+	pixmap = MwLLCreatePixmap(handle->lowlevel, data, 1, rect->height);
 	MwLLDrawPixmap(handle->lowlevel, rect, pixmap);
 	MwLLDestroyPixmap(pixmap);
 
