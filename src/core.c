@@ -693,7 +693,7 @@ static void force_render_all(MwWidget handle) {
 	for(i = 0; i < arrlen(handle->children); i++) {
 		force_render_all(handle->children[i]);
 	}
-	MwForceRender(handle);
+	if(handle->lowlevel != NULL) MwForceRender(handle);
 }
 
 void MwToggleDarkTheme(MwWidget handle, int toggle) {

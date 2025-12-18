@@ -5,6 +5,7 @@ static int create(MwWidget handle) {
 
 	MwSetInteger(handle, MwNhasBorder, 0);
 	MwSetInteger(handle, MwNinverted, 1);
+	MwSetInteger(handle, MwNfillArea, 1);
 
 	return 0;
 }
@@ -23,6 +24,13 @@ static void draw(MwWidget handle) {
 
 	MwDrawRect(handle, &r, base);
 	if(px != NULL) {
+		if(!MwGetInteger(handle, MwNfillArea)) {
+			r.x	 = (r.width - px->common.width) / 2;
+			r.y	 = (r.height - px->common.height) / 2;
+			r.width	 = px->common.width;
+			r.height = px->common.height;
+		}
+
 		MwLLDrawPixmap(handle->lowlevel, &r, px);
 	}
 
