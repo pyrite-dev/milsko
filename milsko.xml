@@ -526,6 +526,7 @@
 				<property name="pixmap" />
 				<property name="hasBorder" />
 				<property name="inverted" />
+				<property name="fillArea" />
 			</properties>
 		</widget>
 		<widget name="Label">
