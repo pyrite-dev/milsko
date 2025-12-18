@@ -58,6 +58,18 @@ struct _MwLLWaylandSublevel {
 	MwLL topmost_parent; /* The parent at the top of all the other parents. Usually a toplevel. */
 };
 
+/* Shared set of anything needed for a shm buffer. Used both for surface framebuffers, and cursors. */
+struct _MwLLWaylandShmBuffer {
+	struct wl_shm*	    shm;
+	struct wl_shm_pool* shm_pool;
+	struct wl_buffer*   shm_buffer;
+	MwU8*		    buf;
+	MwU64		    buf_size;
+	int		    fd;
+	MwBool		    setup;
+	struct wl_surface*  surface;
+};
+
 struct _MwLLWayland {
 	struct _MwLLCommon common;
 
@@ -88,9 +100,11 @@ struct _MwLLWayland {
 	struct wl_display*	    display;
 	struct wl_registry*	    registry;
 	struct wl_compositor*	    compositor;
-	struct wl_surface*	    surface;
 	struct wl_registry_listener registry_listener;
 	struct wl_region*	    region;
+
+	struct wl_pointer* pointer;
+	MwU32		   pointer_serial;
 
 	MwBool active; /* Whether or not the surface is the one being hovered over. */
 
@@ -102,12 +116,8 @@ struct _MwLLWayland {
 	MwU32	x, y, ww, wh;  /* Window position */
 	MwPoint cur_mouse_pos; /* Currently known mouse position */
 
-	struct wl_shm*	    shm;
-	struct wl_shm_pool* shm_pool;
-	struct wl_buffer*   shm_buffer;
-	void*		    mapped_shm_buf;
-	MwU64		    mapped_shm_buf_size;
-	int		    shm_fd;
+	struct _MwLLWaylandShmBuffer framebuffer;
+	struct _MwLLWaylandShmBuffer cursor;
 
 	cairo_surface_t* cs;
 	cairo_t*	 cairo;
