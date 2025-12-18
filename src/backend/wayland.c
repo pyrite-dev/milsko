@@ -908,6 +908,7 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 	cairo_scale(c, (double)rect->width / pixmap->common.width, (double)rect->height / pixmap->common.height);
 	cairo_set_source_surface(c, pixmap->wayland.cs, 0, 0);
+	cairo_pattern_set_filter(cairo_get_source(c), CAIRO_FILTER_NEAREST);
 	cairo_paint(c);
 
 	cairo_set_source_rgb(handle->wayland.cairo, 1, 1, 1);
