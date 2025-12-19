@@ -51,6 +51,7 @@
 		 - MwNbackgroundPixmap
 		 - MwNratio
 		 - MwNfixedSize
+		 - MwNbitmapFont
 
 		Integer properties must be prefixed with I.
 		String properties must be prefixed with S.
@@ -87,6 +88,7 @@
 		<integer name="ratio" />
 		<integer name="fixedSize" />
 		<integer name="margin" />
+		<integer name="bitmapFont" />
 
 		<string name="title" />
 		<string name="text" />

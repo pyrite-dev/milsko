@@ -35,6 +35,7 @@
 #define MwNratio "Iratio"
 #define MwNfixedSize "IfixedSize"
 #define MwNmargin "Imargin"
+#define MwNbitmapFont "IbitmapFont"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
