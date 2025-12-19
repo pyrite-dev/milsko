@@ -9,6 +9,16 @@
 #include <wayland-util.h>
 #include <unistd.h>
 
+/* TODO:
+ * - MwLLMakeToolWindowImpl
+ * - MwLLSetClipboardImpl
+ * - MwLLGrabPointerImpl
+ * - MwLLFocusImpl
+ * - MwLLMakePopupImpl
+ * - MwLLShowImpl
+ * - MwLLDetachImpl
+ */
+
 /* TODO: find out what FreeBSD and such wants us to include */
 #ifdef __FreeBSD__
 /* XXX: Untested (nishi) */
@@ -501,11 +511,6 @@ static void xdg_toplevel_configure(void*		data,
 	MwLLDispatch(self, resize, NULL);
 	MwLLDispatch(self, draw, NULL);
 
-	for(i = 0; i < arrlen(self->wayland.sublevels); i++) {
-		MwLL handle = self->wayland.sublevels[i];
-		region_setup(handle);
-	}
-
 	/*if(!self->wayland.egl_setup) {
 		self->wayland.egl_setup = egl_setup(self, self->wayland.x, self->wayland.y, width, height);
 	} else {
@@ -855,8 +860,6 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->wayland.wh = height;
 	r->wayland.x  = x;
 	r->wayland.y  = y;
-
-	r->wayland.sublevels = NULL;
 
 	if(parent == NULL) {
 		setup_toplevel(r, x, y);

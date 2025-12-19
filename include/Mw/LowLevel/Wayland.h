@@ -60,7 +60,7 @@ struct _MwLLWaylandSublevel {
 	MwLL topmost_parent; /* The parent at the top of all the other parents. Usually a toplevel. */
 };
 
-/* Shared set of anything needed for a shm buffer. Used both for surface framebuffers, and cursors. */
+/* Shared set of anything needed for a shm buffer.  */
 struct _MwLLWaylandShmBuffer {
 	struct wl_shm*	    shm;
 	struct wl_shm_pool* shm_pool;
@@ -111,19 +111,14 @@ struct _MwLLWayland {
 	struct wl_pointer* pointer;
 	MwU32		   pointer_serial;
 
-	MwBool active; /* Whether or not the surface is the one being hovered over. */
-
 	MwU32 mod_state;
 
-	MwLL*  sublevels;  /* stb_ds managed array of any sublevels */
 	MwBool configured; /* Whether or not xdg_toplevel_configure has run once */
 
 	MwU32	x, y, ww, wh;  /* Window position */
 	MwPoint cur_mouse_pos; /* Currently known mouse position */
 
 	MwU32 mw, mh; /* Monitor width and height as advertised by wl_output.mode */
-
-	char* cur_selection;
 
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  cursor;
