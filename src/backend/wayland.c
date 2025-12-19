@@ -972,7 +972,6 @@ static void popup_configure(void*	      data,
 
 static void popup_done(void*		 data,
 		       struct xdg_popup* xdg_popup) {
-	printf("Sdfgs\n");
 };
 
 struct xdg_popup_listener popup_listener = {
@@ -1251,10 +1250,14 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 }
 
 static int MwLLPendingImpl(MwLL handle) {
-	return event_loop(handle);
+	return handle->wayland.events_pending || wl_display_dispatch(handle->wayland.display);
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
+	event_loop(handle);
+	if(handle->wayland.events_pending) {
+		handle->wayland.events_pending = MwFALSE;
+	}
 }
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
