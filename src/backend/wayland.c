@@ -552,14 +552,11 @@ static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland
 	return NULL;
 }
 
-static void update_framebuffer(struct _MwLLWayland* wayland) {
-	struct _MwLLWaylandShmBuffer* buffer = &wayland->framebuffer;
+static void update_buffer(struct _MwLLWaylandShmBuffer* buffer) {
 	fsync(buffer->fd);
 
-	if(wayland->configured && buffer->setup) {
-		wl_surface_attach(wayland->framebuffer.surface, buffer->shm_buffer, wayland->x, wayland->y);
-		wl_surface_commit(wayland->framebuffer.surface);
-	}
+	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
+	wl_surface_commit(buffer->surface);
 }
 
 static void buffer_setup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height) {
@@ -613,7 +610,7 @@ static void framebuffer_setup(struct _MwLLWayland* wayland) {
 	wayland->cairo = cairo_create(wayland->cs);
 
 	memset(wayland->framebuffer.buf, 255, wayland->framebuffer.buf_size);
-	update_framebuffer(wayland);
+	update_buffer(&wayland->framebuffer);
 };
 static void framebuffer_destroy(struct _MwLLWayland* wayland) {
 	buffer_destroy(&wayland->framebuffer);
@@ -634,6 +631,16 @@ static void region_setup(MwLL handle) {
 	wl_region_add(handle->wayland.region, handle->wayland.x, handle->wayland.y, handle->wayland.ww, handle->wayland.wh);
 	wl_surface_set_input_region(handle->wayland.framebuffer.surface, handle->wayland.region);
 	wl_surface_set_opaque_region(handle->wayland.framebuffer.surface, handle->wayland.region);
+}
+
+/* wl_shm setup function */
+static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
+	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
+
+	proto->context	= wl_registry_bind(wayland->registry, name, &xdg_toplevel_icon_manager_v1_interface, 1);
+	proto->listener = NULL;
+
+	return proto;
 }
 
 /* Standard Wayland event loop. */
@@ -713,6 +720,7 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 	if(wayland->type == MWLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(xdg_wm_base);
 		WL_INTERFACE(zxdg_decoration_manager_v1);
+		WL_INTERFACE(xdg_toplevel_icon_manager_v1);
 	} else {
 		WL_INTERFACE(wl_subcompositor);
 	}
@@ -886,6 +894,11 @@ static void MwLLDestroyImpl(MwLL handle) {
 		// arrpush(primary_selection->devices, device);
 	}
 
+	if(handle->wayland.icon != NULL) {
+		buffer_destroy(handle->wayland.icon);
+		wl_surface_destroy(handle->wayland.icon->surface);
+	}
+
 	free(handle);
 }
 
@@ -968,7 +981,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 }
 
 static void MwLLEndDrawImpl(MwLL handle) {
-	update_framebuffer(&handle->wayland);
+	update_buffer(&handle->wayland.framebuffer);
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
@@ -1065,6 +1078,41 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_surface_destroy(cs);
 }
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
+	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
+		if(WAYLAND_GET_INTERFACE(handle->wayland, xdg_toplevel_icon_manager_v1) != NULL) {
+			void*				     map;
+			struct xdg_toplevel_icon_manager_v1* icon_manager = WAYLAND_GET_INTERFACE(handle->wayland, xdg_toplevel_icon_manager_v1)->context;
+			struct xdg_toplevel_icon_v1*	     icon	  = xdg_toplevel_icon_manager_v1_create_icon(icon_manager);
+			MwU64				     size	  = pixmap->common.width * pixmap->common.height * 4;
+			int				     i		  = 0;
+
+			if(handle->wayland.icon == NULL) {
+				handle->wayland.icon	  = calloc(sizeof(struct _MwLLWaylandShmBuffer), 0);
+				handle->wayland.icon->shm = handle->wayland.framebuffer.shm;
+			}
+
+			if(handle->wayland.icon->setup) {
+				buffer_destroy(handle->wayland.icon);
+				wl_surface_destroy(handle->wayland.icon->surface);
+			}
+			handle->wayland.icon->surface = wl_compositor_create_surface(handle->wayland.compositor);
+
+			buffer_setup(handle->wayland.icon, pixmap->common.width, pixmap->common.height);
+
+			for(; i < size; i += 2) {
+				handle->wayland.icon->buf[i]	 = pixmap->common.raw[i + 2];
+				handle->wayland.icon->buf[i + 1] = pixmap->common.raw[i + 1];
+				handle->wayland.icon->buf[i + 2] = pixmap->common.raw[i + 0];
+				handle->wayland.icon->buf[i + 3] = 255;
+			}
+
+			update_buffer(handle->wayland.icon);
+
+			xdg_toplevel_icon_v1_add_buffer(icon, handle->wayland.icon->shm_buffer, 1);
+
+			xdg_toplevel_icon_manager_v1_set_icon(icon_manager, handle->wayland.toplevel->xdg_top_level, icon);
+		}
+	}
 }
 
 static void MwLLForceRenderImpl(MwLL handle) {

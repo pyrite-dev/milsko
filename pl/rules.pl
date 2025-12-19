@@ -34,6 +34,7 @@ if (grep(/^wayland$/, @backends)) {
 
     scan_wayland_protocol("stable",   "xdg-shell",      "");
     scan_wayland_protocol("stable",   "tablet",         "-v2");
+    scan_wayland_protocol("staging",  "xdg-toplevel-icon",   "-v1");
     scan_wayland_protocol("staging",  "cursor-shape",   "-v1");
     scan_wayland_protocol("unstable", "xdg-decoration", "-unstable-v1");
     scan_wayland_protocol("unstable", "primary-selection", "-unstable-v1");

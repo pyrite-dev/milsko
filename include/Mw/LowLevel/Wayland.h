@@ -25,6 +25,7 @@ MWDECL int MwLLWaylandCallInit(void);
 #include "Wayland/xdg-decoration-client-protocol.h"
 #include "Wayland/cursor-shape-client-protocol.h"
 #include "Wayland/primary-selection-client-protocol.h"
+#include "Wayland/xdg-toplevel-icon-client-protocol.h"
 #endif
 
 struct _MwLLWayland;
@@ -124,8 +125,9 @@ struct _MwLLWayland {
 
 	char* cur_selection;
 
-	struct _MwLLWaylandShmBuffer framebuffer;
-	struct _MwLLWaylandShmBuffer cursor;
+	struct _MwLLWaylandShmBuffer  framebuffer;
+	struct _MwLLWaylandShmBuffer  cursor;
+	struct _MwLLWaylandShmBuffer* icon;
 
 	cairo_surface_t* cs;
 	cairo_t*	 cairo;
