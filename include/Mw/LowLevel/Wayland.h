@@ -42,6 +42,7 @@ struct _MwLLWaylandTopLevel {
 	struct xdg_toplevel*	     xdg_top_level;
 	struct xdg_toplevel_listener xdg_toplevel_listener;
 	struct xdg_surface_listener  xdg_surface_listener;
+	struct xdg_positioner*	     xdg_positioner;
 
 	struct xkb_context* xkb_context;
 	struct xkb_keymap*  xkb_keymap;
@@ -110,6 +111,8 @@ struct _MwLLWayland {
 
 	struct wl_pointer* pointer;
 	MwU32		   pointer_serial;
+
+	MwBool events_pending;
 
 	MwU32 mod_state;
 

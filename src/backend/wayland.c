@@ -13,7 +13,6 @@
  * - MwLLMakeToolWindowImpl
  * - MwLLSetClipboardImpl
  * - MwLLGrabPointerImpl
- * - MwLLFocusImpl
  * - MwLLMakePopupImpl
  * - MwLLShowImpl
  * - MwLLDetachImpl
@@ -146,6 +145,7 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 	p.point = self->wayland.cur_mouse_pos;
 	MwLLDispatch(self, move, &p);
+	self->wayland.events_pending = MwTRUE;
 
 	/*timed_redraw(self, time, 50, &self->wayland.cooldown_timer);*/
 };
@@ -178,6 +178,7 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	}
 
 	MwLLDispatch(self, draw, NULL);
+	self->wayland.events_pending = MwTRUE;
 };
 
 /* `wl_pointer.axis` callback */
@@ -229,6 +230,7 @@ static void keyboard_enter(void*	       data,
 			   struct wl_array*    keys) {
 	MwLL self = data;
 	MwLLDispatch(self, focus_in, NULL);
+	self->wayland.events_pending = MwTRUE;
 };
 
 /* `wl_keyboard.leave` callback */
@@ -238,6 +240,7 @@ static void keyboard_leave(void*	       data,
 			   struct wl_surface*  surface) {
 	MwLL self = data;
 	MwLLDispatch(self, focus_out, NULL);
+	self->wayland.events_pending = MwTRUE;
 };
 
 /* `wl_keyboard.key` callback */
@@ -324,6 +327,7 @@ static void keyboard_key(void*		     data,
 			}
 		}
 	}
+	self->wayland.events_pending = MwTRUE;
 };
 
 /* `wl_keyboard.modifiers` callback */
@@ -616,6 +620,7 @@ static void framebuffer_setup(struct _MwLLWayland* wayland) {
 
 	memset(wayland->framebuffer.buf, 255, wayland->framebuffer.buf_size);
 	update_buffer(&wayland->framebuffer);
+	wayland->events_pending = MwTRUE;
 };
 static void framebuffer_destroy(struct _MwLLWayland* wayland) {
 	buffer_destroy(&wayland->framebuffer);
@@ -940,6 +945,7 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	}
 
 refresh:
+	MwLLDispatch(handle, draw, NULL);
 	region_setup(handle);
 
 	framebuffer_destroy(&handle->wayland);
@@ -961,6 +967,7 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 	}
 	cairo_close_path(handle->wayland.cairo);
 	cairo_fill(handle->wayland.cairo);
+	handle->wayland.events_pending = MwTRUE;
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
@@ -978,6 +985,7 @@ static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	}
 	cairo_close_path(handle->wayland.cairo);
 	cairo_stroke(handle->wayland.cairo);
+	handle->wayland.events_pending = MwTRUE;
 }
 
 static void MwLLBeginDrawImpl(MwLL handle) {
@@ -985,6 +993,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 
 static void MwLLEndDrawImpl(MwLL handle) {
 	update_buffer(&handle->wayland.framebuffer);
+	handle->wayland.events_pending = MwTRUE;
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
@@ -1008,10 +1017,11 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 }
 
 static int MwLLPendingImpl(MwLL handle) {
-	return event_loop(handle);
+	return handle->wayland.events_pending;
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
+	event_loop(handle);
 }
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
@@ -1185,6 +1195,13 @@ static void MwLLShowImpl(MwLL handle, int show) {
 }
 
 static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
+	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
+		struct xdg_wm_base* wm_base = WAYLAND_GET_INTERFACE(handle->wayland, xdg_wm_base)->context;
+
+		handle->wayland.toplevel->xdg_positioner = xdg_wm_base_create_positioner(wm_base);
+		xdg_surface_get_popup(handle->wayland.toplevel->xdg_surface, handle->wayland.toplevel->xdg_surface, handle->wayland.toplevel->xdg_positioner);
+	} else {
+	}
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
@@ -1212,6 +1229,7 @@ static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
 }
 
 static void MwLLFocusImpl(MwLL handle) {
+	printf("[WARNING] MwLLFocus not supported on Wayland\n");
 }
 
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
@@ -1292,6 +1310,7 @@ static char* MwLLGetClipboardImpl(MwLL handle) {
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {
+	printf("sub menu\n");
 }
 
 static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
