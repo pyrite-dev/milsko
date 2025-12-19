@@ -36,13 +36,18 @@ typedef struct wayland_protocol {
 } wayland_protocol_t;
 
 typedef wayland_protocol_t*(wl_setup_func)(MwU32, struct _MwLLWayland*);
+typedef void(wl_destroy_func)(struct _MwLLWayland* wayland, wayland_protocol_t* data);
+
+typedef struct wayland_protocol_callback_table {
+	wl_setup_func*	 setup;
+	wl_destroy_func* destroy;
+} wayland_protocol_callback_table_t;
 
 struct _MwLLWaylandTopLevel {
 	struct xdg_surface*	     xdg_surface;
 	struct xdg_toplevel*	     xdg_top_level;
 	struct xdg_toplevel_listener xdg_toplevel_listener;
 	struct xdg_surface_listener  xdg_surface_listener;
-	struct xdg_positioner*	     xdg_positioner;
 
 	struct xkb_context* xkb_context;
 	struct xkb_keymap*  xkb_keymap;
@@ -58,7 +63,17 @@ struct _MwLLWaylandSublevel {
 	struct wl_subcompositor* subcompositor;
 
 	MwLL parent;
-	MwLL topmost_parent; /* The parent at the top of all the other parents. Usually a toplevel. */
+
+	struct xdg_surface* parent_xdg_surface;
+};
+
+struct _MwLLWaylandPopup {
+	struct xdg_surface*	    xdg_surface;
+	struct xdg_popup*	    xdg_popup;
+	struct xdg_positioner*	    xdg_positioner;
+	struct xdg_surface_listener xdg_surface_listener;
+	struct xdg_wm_base*	    xdg_wm_base;
+	MwLL			    parent;
 };
 
 /* Shared set of anything needed for a shm buffer.  */
@@ -75,6 +90,13 @@ struct _MwLLWaylandShmBuffer {
 	MwBool setup;
 };
 
+enum _MwLLWaylandType {
+	MWLL_WAYLAND_UNKNOWN = 0,
+	MWLL_WAYLAND_TOPLEVEL,
+	MWLL_WAYLAND_SUBLEVEL,
+	MWLL_WAYLAND_POPUP,
+};
+
 struct _MwLLWayland {
 	struct _MwLLCommon common;
 
@@ -83,17 +105,17 @@ struct _MwLLWayland {
 		struct _MwLLWaylandTopLevel* toplevel;
 		/* Pointer for data that's only loaded if the widget is a sublevel */
 		struct _MwLLWaylandSublevel* sublevel;
+		/* Pointer for data that's only loaded if the widget is a popup */
+		struct _MwLLWaylandPopup* popup;
 	};
 
-	enum {
-		MWLL_WAYLAND_TOPLEVEL = 0,
-		MWLL_WAYLAND_SUBLEVEL, /* Sublevels are surfaces that have the toplevel as a parent. Some parts of the code also call them subwidgets. */
-	} type;
+	enum _MwLLWaylandType type;
+	enum _MwLLWaylandType type_to_be;
 
 	/* Map of Wayland interfaces to their relevant setup functions. */
 	struct {
-		const char*    key;
-		wl_setup_func* value;
+		const char*			   key;
+		wayland_protocol_callback_table_t* value;
 	}* wl_protocol_setup_map;
 
 	/* Map of Wayland interfaces to any information we keep about them once we've registered them. */
@@ -109,10 +131,12 @@ struct _MwLLWayland {
 	struct wl_region*	    region;
 	struct wl_output*	    output;
 
-	struct wl_pointer* pointer;
-	MwU32		   pointer_serial;
+	struct wl_pointer*  pointer;
+	struct wl_keyboard* keyboard;
+	MwU32		    pointer_serial;
 
 	MwBool events_pending;
+	MwBool test;
 
 	MwU32 mod_state;
 
@@ -122,6 +146,8 @@ struct _MwLLWayland {
 	MwPoint cur_mouse_pos; /* Currently known mouse position */
 
 	MwU32 mw, mh; /* Monitor width and height as advertised by wl_output.mode */
+
+	MwLL parent;
 
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  cursor;

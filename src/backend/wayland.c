@@ -10,7 +10,6 @@
 #include <unistd.h>
 
 /* TODO:
- * - MwLLMakeToolWindowImpl
  * - MwLLSetClipboardImpl
  * - MwLLGrabPointerImpl
  * - MwLLMakePopupImpl
@@ -32,6 +31,8 @@ static void framebuffer_setup(struct _MwLLWayland* wayland);
 /* Destroy the framebuffer */
 static void framebuffer_destroy(struct _MwLLWayland* handle);
 
+static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer);
+
 static void region_setup(MwLL handle);
 static void region_invalidate(MwLL handle);
 
@@ -44,12 +45,11 @@ static void new_protocol(void* data, struct wl_registry* registry,
 			 MwU32 version) {
 	struct _MwLLWayland* wayland = data;
 
-	wl_setup_func* func = shget(wayland->wl_protocol_setup_map, interface);
-	if(func != NULL) {
+	wayland_protocol_callback_table_t* cb = shget(wayland->wl_protocol_setup_map, interface);
+	if(cb != NULL) {
 		char* inter = malloc(strlen(interface));
 		strcpy(inter, interface);
-
-		shput(wayland->wl_protocol_map, inter, func(name, data));
+		shput(wayland->wl_protocol_map, inter, cb->setup(name, data));
 	} else {
 		/* printf("unknown interface %s\n", interface); */
 	}
@@ -59,7 +59,7 @@ static void new_protocol(void* data, struct wl_registry* registry,
 static void protocol_removed(void*		 data,
 			     struct wl_registry* registry,
 			     MwU32		 name) {
-
+	printf("%d destroyed\n", name);
 };
 
 static void offer_offer(void*				       data,
@@ -117,6 +117,25 @@ static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 n
 	proto->listener = NULL;
 
 	return proto;
+}
+
+static void zwp_primary_selection_device_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	primary_selection_context_t* context = data->context;
+	int			     i;
+
+	zwp_primary_selection_device_manager_v1_destroy(context->manager);
+
+	for(i = 0; i < arrlen(context->devices); i++) {
+		primary_selection_device_context_t* device = context->devices[i];
+		// zwp_primary_selection_device_v1_destroy(device->device);
+		// zwp_primary_selection_offer_v1_destroy(device->offer);
+		free(device);
+	}
+	arrfree(context->devices);
+
+	zwp_primary_selection_source_v1_destroy(context->source);
+
+	free(data->listener);
 }
 
 /* `wl_pointer.enter` callback */
@@ -362,8 +381,8 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 				 MwU32 capabilities) {
 	MwLL self = data;
 	if(capabilities & WL_SEAT_CAPABILITY_KEYBOARD) {
-		struct wl_keyboard* keyboard = wl_seat_get_keyboard(wl_seat);
-		wl_keyboard_add_listener(keyboard, &keyboard_listener, data);
+		self->wayland.keyboard = wl_seat_get_keyboard(wl_seat);
+		wl_keyboard_add_listener(self->wayland.keyboard, &keyboard_listener, data);
 	}
 	if(capabilities & WL_SEAT_CAPABILITY_POINTER) {
 		self->wayland.pointer = wl_seat_get_pointer(wl_seat);
@@ -379,6 +398,8 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 		    zwp_primary_selection_device_manager_v1_get_device(primary_selection->manager, wl_seat);
 
 		zwp_primary_selection_device_v1_add_listener(device_ctx->device, &primary_selection->listener, device_ctx);
+
+		device_ctx->offer = NULL;
 
 		arrpush(primary_selection->devices, device_ctx);
 	}
@@ -431,12 +452,21 @@ static wayland_protocol_t* wl_seat_setup(MwU32 name, MwLL ll) {
 	return proto;
 }
 
+static void wl_seat_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	free(data->listener);
+	wl_seat_destroy(data->context);
+}
+
 /* wl_output setup function */
 static wayland_protocol_t* wl_output_setup(MwU32 name, MwLL ll) {
 	ll->wayland.output = wl_registry_bind(ll->wayland.registry, name, &wl_output_interface, 1);
 	wl_output_add_listener(ll->wayland.output, &output_listener, ll);
 
 	return NULL;
+}
+
+static void wl_output_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	// wl_output_destroy(wayland->output);
 }
 
 /* wl_compositor setup function */
@@ -446,11 +476,19 @@ static wayland_protocol_t* wl_compositor_setup(MwU32 name, struct _MwLLWayland* 
 	return NULL;
 }
 
+static void wl_compositor_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	// wl_compositor_destroy(wayland->compositor);
+}
+
 /* wl_subcompositor setup function */
 static wayland_protocol_t* wl_subcompositor_setup(MwU32 name, struct _MwLLWayland* wayland) {
 	wayland->sublevel->subcompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
 
 	return NULL;
+}
+
+static void wl_subcompositor_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	wl_subcompositor_destroy(wayland->sublevel->subcompositor);
 }
 
 /* xdg_wm_base setup function */
@@ -464,6 +502,11 @@ static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wa
 	xdg_wm_base_add_listener(proto->context, proto->listener, wayland);
 
 	return proto;
+}
+
+static void xdg_wm_base_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	xdg_wm_base_destroy(data->context);
+	free(data->listener);
 }
 
 /* the two decoration manager constructs */
@@ -484,6 +527,13 @@ static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _
 	proto->context = ctx;
 
 	return proto;
+}
+
+static void zxdg_decoration_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	zxdg_decoration_manager_v1_context_t* context = data->context;
+
+	zxdg_decoration_manager_v1_destroy(context->manager);
+	zxdg_toplevel_decoration_v1_destroy(context->decoration);
 }
 
 /* `xdg_toplevel.close` callback */
@@ -559,6 +609,10 @@ static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland
 	wayland->cursor.shm	 = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
 
 	return NULL;
+}
+
+static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	// buffer_destroy(&wayland->framebuffer);
 }
 
 static void update_buffer(struct _MwLLWaylandShmBuffer* buffer) {
@@ -643,7 +697,6 @@ static void region_setup(MwLL handle) {
 	wl_surface_set_opaque_region(handle->wayland.framebuffer.surface, handle->wayland.region);
 }
 
-/* wl_shm setup function */
 static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
 	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
 
@@ -653,13 +706,32 @@ static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct
 	return proto;
 }
 
+static void xdg_toplevel_icon_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	free(data->listener);
+	xdg_toplevel_icon_manager_v1_destroy(data->context);
+}
+
+/* Flush Wayland events */
+static void wl_flush(MwLL handle) {
+	struct pollfd pfd;
+	int	      rc;
+
+	pfd.fd	   = wl_display_get_fd(handle->wayland.display);
+	pfd.events = POLLIN;
+	while(MwTRUE) {
+		rc = wl_display_flush(handle->wayland.display);
+		if(errno != EAGAIN || rc != -1) {
+			break;
+		}
+
+		if(poll(&pfd, 1, -1) == -1) {
+			break;
+		}
+	}
+}
+
 /* Standard Wayland event loop. */
 static int event_loop(MwLL handle) {
-	enum {
-		DISPLAY_FD,
-		KEYREPEAT_FD,
-		CURSOR_FD
-	};
 	struct pollfd	     fd;
 	int		     timeout = 1;
 	struct _MwLLWayland* wayland = &handle->wayland;
@@ -715,7 +787,12 @@ static int event_loop(MwLL handle) {
 static void setup_callbacks(struct _MwLLWayland* wayland) {
 /* Convience macro for adding the interface functions to the setup map */
 #define WL_INTERFACE(interface) \
-	shput(wayland->wl_protocol_setup_map, interface##_interface.name, (wl_setup_func*)interface##_setup);
+	do { \
+		wayland_protocol_callback_table_t* cb = malloc(sizeof(wayland_protocol_callback_table_t)); \
+		cb->setup			      = (wl_setup_func*)interface##_setup; \
+		cb->destroy			      = (wl_destroy_func*)interface##_interface_destroy; \
+		shput(wayland->wl_protocol_setup_map, interface##_interface.name, cb); \
+	} while(0);
 
 	wayland->registry_listener.global	 = new_protocol;
 	wayland->registry_listener.global_remove = protocol_removed;
@@ -731,6 +808,8 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 		WL_INTERFACE(xdg_wm_base);
 		WL_INTERFACE(zxdg_decoration_manager_v1);
 		WL_INTERFACE(xdg_toplevel_icon_manager_v1);
+	} else if(wayland->type == MWLL_WAYLAND_POPUP) {
+		WL_INTERFACE(xdg_wm_base);
 	} else {
 		WL_INTERFACE(wl_subcompositor);
 	}
@@ -803,10 +882,28 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	} else {
 		printf("zxdg null\n");
 	}
+}
 
-	/*egl_resetup(r);
-	MwLLDispatch(r, draw, NULL);
-	recursive_draw(r);*/
+/* Toplevel destroy function */
+static void destroy_toplevel(MwLL r) {
+	int i;
+
+	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
+		zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(r->wayland, zxdg_decoration_manager_v1)->context;
+		zxdg_decoration_manager_v1_destroy(dec->manager);
+	}
+
+	wl_compositor_destroy(r->wayland.compositor);
+
+	xdg_surface_destroy(r->wayland.toplevel->xdg_surface);
+
+	xdg_toplevel_destroy(r->wayland.toplevel->xdg_top_level);
+
+	xkb_context_unref(r->wayland.toplevel->xkb_context);
+
+	wl_registry_destroy(r->wayland.registry);
+
+	wl_display_disconnect(r->wayland.display);
 }
 
 /* Sublevel setup function */
@@ -814,7 +911,14 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 	struct wl_compositor* compositor     = parent->wayland.compositor;
 	struct wl_surface*    parent_surface = parent->wayland.framebuffer.surface;
 
-	r->wayland.sublevel = malloc(sizeof(struct _MwLLWaylandSublevel));
+	r->wayland.sublevel	    = malloc(sizeof(struct _MwLLWaylandSublevel));
+	r->wayland.sublevel->parent = parent;
+
+	if(parent->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
+		r->wayland.sublevel->parent_xdg_surface = parent->wayland.toplevel->xdg_surface;
+	} else {
+		r->wayland.sublevel->parent_xdg_surface = parent->wayland.sublevel->parent_xdg_surface;
+	}
 
 	r->wayland.type = MWLL_WAYLAND_SUBLEVEL;
 
@@ -843,6 +947,113 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 	r->wayland.configured = MwTRUE;
 }
 
+/* Sublevel setup function */
+static void destroy_sublevel(MwLL r) {
+	wl_subsurface_destroy(r->wayland.sublevel->subsurface);
+
+	wl_surface_destroy(r->wayland.framebuffer.surface);
+
+	free(r->wayland.sublevel);
+}
+
+static void popup_configure(void*	      data,
+			    struct xdg_popup* xdg_popup,
+			    int32_t	      x,
+			    int32_t	      y,
+			    int32_t	      width,
+			    int32_t	      height) {
+	MwLL self = data;
+
+	self->wayland.x	 = x;
+	self->wayland.y	 = y;
+	self->wayland.ww = width;
+	self->wayland.wh = height;
+};
+
+static void popup_done(void*		 data,
+		       struct xdg_popup* xdg_popup) {
+	printf("Sdfgs\n");
+};
+
+struct xdg_popup_listener popup_listener = {
+    .configure	= popup_configure,
+    .popup_done = popup_done,
+};
+
+/* Popup setup function */
+static void setup_popup(MwLL r) {
+	int		    i;
+	struct xdg_surface* xdg_surface;
+	MwLL		    topmost_parent = r->wayland.parent;
+
+	while(topmost_parent->wayland.type != MWLL_WAYLAND_TOPLEVEL) {
+		topmost_parent = topmost_parent->wayland.parent;
+	}
+
+	r->wayland.type = MWLL_WAYLAND_POPUP;
+
+	setup_callbacks(&r->wayland);
+
+	/* Do a roundtrip to ensure all interfaces are setup. */
+	r->wayland.registry = wl_display_get_registry(r->wayland.display);
+	wl_registry_add_listener(r->wayland.registry, &r->wayland.registry_listener, r);
+	if(wl_display_roundtrip(r->wayland.display) == -1) {
+		printf("roundtrip failed\n");
+		raise(SIGTRAP);
+		return;
+	}
+
+	r->wayland.popup = calloc(sizeof(struct _MwLLWaylandPopup), 0);
+	// r->wayland.popup->parent = parent;
+
+	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
+
+	r->wayland.popup->xdg_wm_base = WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context;
+
+	r->wayland.popup->xdg_positioner = xdg_wm_base_create_positioner(r->wayland.popup->xdg_wm_base);
+
+	xdg_positioner_set_size(r->wayland.popup->xdg_positioner, r->wayland.ww, r->wayland.wh);
+	xdg_positioner_set_anchor_rect(
+	    r->wayland.popup->xdg_positioner,
+	    topmost_parent->wayland.cur_mouse_pos.x,
+	    topmost_parent->wayland.cur_mouse_pos.y,
+	    1, 1);
+
+	xdg_surface = topmost_parent->wayland.toplevel->xdg_surface;
+
+	r->wayland.popup->xdg_surface =
+	    xdg_wm_base_get_xdg_surface(r->wayland.popup->xdg_wm_base, r->wayland.framebuffer.surface);
+
+	r->wayland.popup->xdg_popup = xdg_surface_get_popup(
+	    r->wayland.popup->xdg_surface,
+	    xdg_surface,
+	    r->wayland.popup->xdg_positioner);
+
+	xdg_popup_add_listener(r->wayland.popup->xdg_popup, &popup_listener, r);
+
+	r->wayland.popup->xdg_surface_listener.configure = xdg_surface_configure;
+
+	xdg_surface_add_listener(r->wayland.popup->xdg_surface, &r->wayland.popup->xdg_surface_listener, r);
+
+	/* Perform the initial commit and wait for the first configure event */
+	wl_surface_commit(r->wayland.framebuffer.surface);
+	event_loop(r);
+}
+/* Popup destroy function */
+static void destroy_popup(MwLL r) {
+	xdg_popup_destroy(r->wayland.popup->xdg_popup);
+
+	xdg_surface_destroy(r->wayland.popup->xdg_surface);
+
+	xdg_positioner_destroy(r->wayland.popup->xdg_positioner);
+
+	wl_surface_destroy(r->wayland.framebuffer.surface);
+
+	// free(r->wayland.popup);
+
+	wl_registry_destroy(r->wayland.registry);
+}
+
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL r;
 	r = malloc(sizeof(*r));
@@ -861,10 +1072,11 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		y = 0;
 	}
 
-	r->wayland.ww = width;
-	r->wayland.wh = height;
-	r->wayland.x  = x;
-	r->wayland.y  = y;
+	r->wayland.ww	  = width;
+	r->wayland.wh	  = height;
+	r->wayland.x	  = x;
+	r->wayland.y	  = y;
+	r->wayland.parent = parent;
 
 	if(parent == NULL) {
 		setup_toplevel(r, x, y);
@@ -883,6 +1095,10 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 }
 
 static void MwLLDestroyImpl(MwLL handle) {
+	int i;
+
+	event_loop(handle);
+
 	MwLLDestroyCommon(handle);
 
 	buffer_destroy(&handle->wayland.framebuffer);
@@ -891,20 +1107,38 @@ static void MwLLDestroyImpl(MwLL handle) {
 
 	if(WAYLAND_GET_INTERFACE(handle->wayland, zwp_primary_selection_device_manager_v1) != NULL) {
 		primary_selection_context_t* primary_selection = WAYLAND_GET_INTERFACE(handle->wayland, zwp_primary_selection_device_manager_v1)->context;
-		int			     i;
 
 		for(i = 0; i < arrlen(primary_selection->devices); i++) {
 			zwp_primary_selection_offer_v1_destroy(primary_selection->devices[i]->offer);
 		}
-
-		// zwp_primary_selection_source_v1_send();
-
-		// arrpush(primary_selection->devices, device);
 	}
 
 	if(handle->wayland.icon != NULL) {
 		buffer_destroy(handle->wayland.icon);
 		wl_surface_destroy(handle->wayland.icon->surface);
+	}
+
+	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
+		destroy_toplevel(handle);
+	} else if(handle->wayland.type == MWLL_WAYLAND_SUBLEVEL) {
+		destroy_sublevel(handle);
+	} else if(handle->wayland.type == MWLL_WAYLAND_POPUP) {
+		destroy_popup(handle);
+	}
+
+	for(i = 0; i < shlen(handle->wayland.wl_protocol_setup_map); i++) {
+		void* ctx = shget(handle->wayland.wl_protocol_map, handle->wayland.wl_protocol_setup_map[i].key);
+
+		handle->wayland.wl_protocol_setup_map[i].value->destroy(&handle->wayland, ctx);
+	}
+	shfree(handle->wayland.wl_protocol_map);
+	shfree(handle->wayland.wl_protocol_setup_map);
+
+	if(handle->wayland.pointer != NULL) {
+		wl_pointer_destroy(handle->wayland.pointer);
+	}
+	if(handle->wayland.keyboard != NULL) {
+		wl_keyboard_destroy(handle->wayland.keyboard);
 	}
 
 	free(handle);
@@ -1017,11 +1251,10 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 }
 
 static int MwLLPendingImpl(MwLL handle) {
-	return handle->wayland.events_pending;
+	return event_loop(handle);
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
-	event_loop(handle);
 }
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
@@ -1189,19 +1422,32 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 }
 
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
+	switch(handle->wayland.type) {
+	case MWLL_WAYLAND_UNKNOWN:
+	case MWLL_WAYLAND_TOPLEVEL:
+		destroy_toplevel(handle);
+		break;
+	case MWLL_WAYLAND_SUBLEVEL:
+		destroy_sublevel(handle);
+		break;
+	case MWLL_WAYLAND_POPUP:
+		return;
+	}
+
+	switch(handle->wayland.type_to_be) {
+	case MWLL_WAYLAND_POPUP:
+		setup_popup(handle);
+		return;
+	default:
+		setup_toplevel(handle, point->x, point->y);
+		break;
+	}
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
 }
 
 static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
-	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
-		struct xdg_wm_base* wm_base = WAYLAND_GET_INTERFACE(handle->wayland, xdg_wm_base)->context;
-
-		handle->wayland.toplevel->xdg_positioner = xdg_wm_base_create_positioner(wm_base);
-		xdg_surface_get_popup(handle->wayland.toplevel->xdg_surface, handle->wayland.toplevel->xdg_surface, handle->wayland.toplevel->xdg_positioner);
-	} else {
-	}
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
@@ -1240,21 +1486,12 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
 
 static char* MwLLGetClipboardImpl(MwLL handle) {
 	if(WAYLAND_GET_INTERFACE(handle->wayland, zwp_primary_selection_device_manager_v1) != NULL) {
-		enum {
-			DISPLAY_FD,
-			KEYREPEAT_FD,
-			CURSOR_FD
-		};
-		struct pollfd		     pfd;
 		primary_selection_context_t* primary_selection = WAYLAND_GET_INTERFACE(handle->wayland, zwp_primary_selection_device_manager_v1)->context;
 		int			     i, n = 0;
 		int			     fds[2];
 		struct timeval		     timeout;
 		fd_set			     set;
 		char*			     clip_buffer = NULL;
-
-		pfd.fd	   = wl_display_get_fd(handle->wayland.display);
-		pfd.events = POLLIN;
 
 		if(pipe(fds) != 0) {
 			return NULL;
@@ -1274,16 +1511,7 @@ static char* MwLLGetClipboardImpl(MwLL handle) {
 
 			zwp_primary_selection_offer_v1_receive(device->offer, "text/plain", fds[1]);
 
-			while(MwTRUE) {
-				rc = wl_display_flush(handle->wayland.display);
-				if(errno != EAGAIN || rc != -1) {
-					break;
-				}
-
-				if(poll(&pfd, 1, -1) == -1) {
-					break;
-				}
-			}
+			wl_flush(handle);
 
 			fcntl(fds[0], F_SETFL, O_NONBLOCK);
 
@@ -1310,7 +1538,7 @@ static char* MwLLGetClipboardImpl(MwLL handle) {
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {
-	printf("sub menu\n");
+	handle->wayland.type_to_be = MWLL_WAYLAND_POPUP;
 }
 
 static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
