@@ -428,6 +428,15 @@ void MwSetVoid(MwWidget handle, const char* key, void* value) {
 	}
 }
 
+static int inherit_integer(MwWidget handle, const char* key, int default_v) {
+	int v;
+
+	if(handle->parent != NULL && (v = MwGetInteger(handle->parent, key)) != MwDEFAULT) {
+		return v;
+	}
+	return default_v;
+}
+
 int MwGetInteger(MwWidget handle, const char* key) {
 	if(strcmp(key, MwNx) == 0 || strcmp(key, MwNy) == 0 || strcmp(key, MwNwidth) == 0 || strcmp(key, MwNheight) == 0) {
 		int	     x, y;
@@ -441,6 +450,18 @@ int MwGetInteger(MwWidget handle, const char* key) {
 		if(strcmp(key, MwNheight) == 0) return h;
 		return MwDEFAULT;
 	} else {
+		if(shgeti(handle->integer, key) == -1) {
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
+			if(strcmp(key, MwNbitmapFont) == 0) return inherit_integer(handle, key, 0);
+#else
+			if(strcmp(key, MwNbitmapFont) == 0) return inherit_integer(handle, key, 1);
+#endif
+#ifdef USE_CLASSIC_THEME
+			if(strcmp(key, MwNmodernLook) == 0) return inherit_integer(handle, key, 0);
+#else
+			if(strcmp(key, MwNmodernLook) == 0) return inherit_integer(handle, key, 1);
+#endif
+		}
 		return shget(handle->integer, key);
 	}
 }
@@ -541,19 +562,6 @@ void MwVaListApply(MwWidget handle, va_list va) {
 	}
 }
 
-static void inherit_integer(MwWidget handle, const char* key, int default_value) {
-	int	 n;
-	MwWidget h = handle;
-	while(h != NULL) {
-		if((n = MwGetInteger(h, key)) != MwDEFAULT) {
-			MwSetInteger(handle, key, n);
-			return;
-		}
-		h = h->parent;
-	}
-	MwSetInteger(handle, key, default_value);
-}
-
 #if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
 static void set_font(MwWidget handle) {
 	void*	 f;
@@ -587,18 +595,9 @@ static void set_boldfont(MwWidget handle) {
 void MwSetDefault(MwWidget handle) {
 	if(handle->lowlevel != NULL) MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
 
-#ifdef USE_CLASSIC_THEME
-	inherit_integer(handle, MwNmodernLook, 0);
-#else
-	inherit_integer(handle, MwNmodernLook, 1);
-#endif
 #if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
-	inherit_integer(handle, MwNbitmapFont, 0);
-
 	set_font(handle);
 	set_boldfont(handle);
-#else
-	inherit_integer(handle, MwNbitmapFont, 1);
 #endif
 }
 
