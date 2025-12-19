@@ -7,6 +7,7 @@
 
 #include <sys/mman.h>
 #include <wayland-util.h>
+#include <unistd.h>
 
 /* TODO: find out what FreeBSD and such wants us to include */
 #ifdef __FreeBSD__
@@ -36,8 +37,10 @@ static void new_protocol(void* data, struct wl_registry* registry,
 
 	wl_setup_func* func = shget(wayland->wl_protocol_setup_map, interface);
 	if(func != NULL) {
-		/* printf("registering interface %s\n", interface); */
-		shput(wayland->wl_protocol_map, interface, func(name, data));
+		char* inter = malloc(strlen(interface));
+		strcpy(inter, interface);
+
+		shput(wayland->wl_protocol_map, inter, func(name, data));
 	} else {
 		/* printf("unknown interface %s\n", interface); */
 	}
@@ -49,6 +52,63 @@ static void protocol_removed(void*		 data,
 			     MwU32		 name) {
 
 };
+
+static void offer_offer(void*				       data,
+			struct zwp_primary_selection_offer_v1* zwp_primary_selection_offer_v1,
+			const char*			       mime_type) {
+};
+
+struct zwp_primary_selection_offer_v1_listener offer_listener = {
+    .offer = offer_offer,
+};
+
+typedef struct primary_selection_device_context {
+	struct zwp_primary_selection_device_v1* device;
+	struct zwp_primary_selection_offer_v1*	offer;
+} primary_selection_device_context_t;
+
+typedef struct primary_selection_context {
+	struct zwp_primary_selection_device_manager_v1* manager;
+	/* stored seperately of the listeners because it's not a pointer and it gets assigned to data devices dynamically. */
+	struct zwp_primary_selection_device_v1_listener listener;
+
+	struct zwp_primary_selection_source_v1* source;
+	primary_selection_device_context_t**	devices;
+} primary_selection_context_t;
+
+static void primary_selection_data_offer(void*					 data,
+					 struct zwp_primary_selection_device_v1* zwp_primary_selection_device_v1,
+					 struct zwp_primary_selection_offer_v1*	 offer) {
+	struct primary_selection_device_context* self = data;
+	zwp_primary_selection_offer_v1_add_listener(offer, &offer_listener, data);
+
+	self->offer = offer;
+};
+static void primary_selection_selection(void*					data,
+					struct zwp_primary_selection_device_v1* zwp_primary_selection_device_v1,
+					struct zwp_primary_selection_offer_v1*	id) {
+};
+
+/* zwp_primary_selection_device_manager_v1 setup function */
+static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
+	wayland_protocol_t*	     proto   = malloc(sizeof(wayland_protocol_t));
+	primary_selection_context_t* context = malloc(sizeof(primary_selection_context_t));
+
+	context->manager = wl_registry_bind(wayland->registry, name, &zwp_primary_selection_device_manager_v1_interface, 1);
+
+	struct zwp_primary_selection_device_manager_v1* device;
+	context->listener.data_offer = primary_selection_data_offer;
+	context->listener.selection  = primary_selection_selection;
+
+	context->source = zwp_primary_selection_device_manager_v1_create_source(context->manager);
+
+	context->devices = NULL;
+
+	proto->context	= context;
+	proto->listener = NULL;
+
+	return proto;
+}
 
 /* `wl_pointer.enter` callback */
 static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
@@ -294,6 +354,19 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 	if(capabilities & WL_SEAT_CAPABILITY_POINTER) {
 		self->wayland.pointer = wl_seat_get_pointer(wl_seat);
 		wl_pointer_add_listener(self->wayland.pointer, &pointer_listener, data);
+	}
+
+	/* primary selection support */
+	if(WAYLAND_GET_INTERFACE(self->wayland, zwp_primary_selection_device_manager_v1) != NULL) {
+		primary_selection_context_t*	    primary_selection = WAYLAND_GET_INTERFACE(self->wayland, zwp_primary_selection_device_manager_v1)->context;
+		primary_selection_device_context_t* device_ctx	      = malloc(sizeof(primary_selection_device_context_t));
+
+		device_ctx->device =
+		    zwp_primary_selection_device_manager_v1_get_device(primary_selection->manager, wl_seat);
+
+		zwp_primary_selection_device_v1_add_listener(device_ctx->device, &primary_selection->listener, device_ctx);
+
+		arrpush(primary_selection->devices, device_ctx);
 	}
 };
 
@@ -636,6 +709,7 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 	WL_INTERFACE(wl_compositor);
 	WL_INTERFACE(wl_seat);
 	WL_INTERFACE(wl_output);
+	WL_INTERFACE(zwp_primary_selection_device_manager_v1);
 	if(wayland->type == MWLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(xdg_wm_base);
 		WL_INTERFACE(zxdg_decoration_manager_v1);
@@ -798,6 +872,19 @@ static void MwLLDestroyImpl(MwLL handle) {
 	buffer_destroy(&handle->wayland.framebuffer);
 	buffer_destroy(&handle->wayland.cursor);
 	wl_region_destroy(handle->wayland.region);
+
+	if(WAYLAND_GET_INTERFACE(handle->wayland, zwp_primary_selection_device_manager_v1) != NULL) {
+		primary_selection_context_t* primary_selection = WAYLAND_GET_INTERFACE(handle->wayland, zwp_primary_selection_device_manager_v1)->context;
+		int			     i;
+
+		for(i = 0; i < arrlen(primary_selection->devices); i++) {
+			zwp_primary_selection_offer_v1_destroy(primary_selection->devices[i]->offer);
+		}
+
+		// zwp_primary_selection_source_v1_send();
+
+		// arrpush(primary_selection->devices, device);
+	}
 
 	free(handle);
 }
@@ -1083,8 +1170,74 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
 }
 
 static char* MwLLGetClipboardImpl(MwLL handle) {
-	char* r = NULL;
-	return r;
+	if(WAYLAND_GET_INTERFACE(handle->wayland, zwp_primary_selection_device_manager_v1) != NULL) {
+		enum {
+			DISPLAY_FD,
+			KEYREPEAT_FD,
+			CURSOR_FD
+		};
+		struct pollfd		     pfd;
+		primary_selection_context_t* primary_selection = WAYLAND_GET_INTERFACE(handle->wayland, zwp_primary_selection_device_manager_v1)->context;
+		int			     i, n = 0;
+		int			     fds[2];
+		struct timeval		     timeout;
+		fd_set			     set;
+		char*			     clip_buffer = NULL;
+
+		pfd.fd	   = wl_display_get_fd(handle->wayland.display);
+		pfd.events = POLLIN;
+
+		if(pipe(fds) != 0) {
+			return NULL;
+		}
+
+		FD_ZERO(&set);
+		FD_SET(fds[0], &set);
+
+		timeout.tv_sec	= 0;
+		timeout.tv_usec = 100;
+
+		for(i = 0; i < arrlen(primary_selection->devices); i++) {
+			primary_selection_device_context_t* device = primary_selection->devices[i];
+			size_t				    size   = 0;
+			char				    ch;
+			int				    rc = 0;
+
+			zwp_primary_selection_offer_v1_receive(device->offer, "text/plain", fds[1]);
+
+			while(MwTRUE) {
+				rc = wl_display_flush(handle->wayland.display);
+				if(errno != EAGAIN || rc != -1) {
+					break;
+				}
+
+				if(poll(&pfd, 1, -1) == -1) {
+					break;
+				}
+			}
+
+			fcntl(fds[0], F_SETFL, O_NONBLOCK);
+
+			while(MwTRUE) {
+				rc = select(fds[0] + 1, &set, NULL, NULL, &timeout);
+				if(rc <= 0) {
+					break;
+				} else {
+					read(fds[0], &ch, 1);
+					arrpush(clip_buffer, ch);
+					if(n++ >= 10240) {
+						break;
+					}
+				}
+			}
+			return clip_buffer;
+		}
+
+		// zwp_primary_selection_source_v1_send();
+
+		// arrpush(primary_selection->devices, device);
+	}
+	return NULL;
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {

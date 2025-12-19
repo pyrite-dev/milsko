@@ -36,6 +36,7 @@ if (grep(/^wayland$/, @backends)) {
     scan_wayland_protocol("stable",   "tablet",         "-v2");
     scan_wayland_protocol("staging",  "cursor-shape",   "-v1");
     scan_wayland_protocol("unstable", "xdg-decoration", "-unstable-v1");
+    scan_wayland_protocol("unstable", "primary-selection", "-unstable-v1");
 
     $gl_libs = "-lEGL -lwayland-egl lGL -lGLU";
 }
@@ -112,6 +113,7 @@ new_example("examples/basic/colorpicker");
 new_example("examples/basic/combobox");
 new_example("examples/basic/treeview");
 new_example("examples/basic/box");
+new_example("examples/basic/clipboard");
 
 if (param_get("opengl")) {
     new_example("examples/gldemos/boing",    $gl_libs);

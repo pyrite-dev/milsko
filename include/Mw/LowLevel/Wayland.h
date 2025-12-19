@@ -24,6 +24,7 @@ MWDECL int MwLLWaylandCallInit(void);
 #include "Wayland/xdg-shell-client-protocol.h"
 #include "Wayland/xdg-decoration-client-protocol.h"
 #include "Wayland/cursor-shape-client-protocol.h"
+#include "Wayland/primary-selection-client-protocol.h"
 #endif
 
 struct _MwLLWayland;
@@ -120,6 +121,8 @@ struct _MwLLWayland {
 	MwPoint cur_mouse_pos; /* Currently known mouse position */
 
 	MwU32 mw, mh; /* Monitor width and height as advertised by wl_output.mode */
+
+	char* cur_selection;
 
 	struct _MwLLWaylandShmBuffer framebuffer;
 	struct _MwLLWaylandShmBuffer cursor;
