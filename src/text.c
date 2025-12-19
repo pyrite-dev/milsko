@@ -294,7 +294,7 @@ static int ttf_MwTextHeight(MwWidget handle, int count) {
 void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
 	if(strlen(text) == 0) return;
 #ifdef TTF
-	if(!MwGetInteger(handle, MwNbitmapFont) && ttf_MwDrawText(handle, point, text, bold, align, color))
+	if(MwGetInteger(handle, MwNbitmapFont) || ttf_MwDrawText(handle, point, text, bold, align, color))
 #endif
 		bitmap_MwDrawText(handle, point, text, bold, align, color);
 }
