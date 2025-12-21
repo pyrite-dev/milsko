@@ -129,7 +129,7 @@ static void mouse_down(MwWidget handle, void* ptr) {
 			p2.y = p.y + th / 2 + 5;
 
 			m->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
-			MwSubMenuAppear(m->sub[i]->wsub, m->sub[i], &p2);
+			MwSubMenuAppear(m->sub[i]->wsub, m->sub[i], &p2, 0);
 		} else if(m->sub[i]->wsub != NULL && m->sub[i]->keep) {
 			MwDestroyWidget(m->sub[i]->wsub);
 			m->sub[i]->wsub = NULL;

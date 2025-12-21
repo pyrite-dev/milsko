@@ -18,8 +18,15 @@ extern "C" {
  */
 MWDECL MwClass MwSubMenuClass;
 
-MwInline void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point) {
-	MwVaWidgetExecute(handle, "mwSubMenuAppear", NULL, menu, point);
+/*!
+ * @brief Makes submenu appear
+ * @param handle Handle
+ * @param menu Menu
+ * @param point Point
+ * @param diff_calc Toggles different way to calculate positiion
+ */
+MwInline void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point, int diff_calc) {
+	MwVaWidgetExecute(handle, "mwSubMenuAppear", NULL, menu, point, diff_calc);
 }
 
 #ifdef __cplusplus

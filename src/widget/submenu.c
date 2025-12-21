@@ -130,7 +130,7 @@ static void click(MwWidget handle) {
 					p.y = rc.y - 3;
 
 					menu->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
-					MwSubMenuAppear(menu->sub[i]->wsub, menu->sub[i], &p);
+					MwSubMenuAppear(menu->sub[i]->wsub, menu->sub[i], &p, 0);
 					i = -1;
 				} else if(menu->sub[i]->wsub != NULL && arrlen(menu->sub[i]->sub) > 0) {
 					while(w->parent->widget_class != MwMenuClass) w = w->parent;
@@ -159,7 +159,7 @@ static void click(MwWidget handle) {
 	}
 }
 
-static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
+static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point, int diff_calc) {
 	int	i, w = 0, h = 0;
 	MwRect	rc;
 	MwPoint p = *point;
@@ -183,6 +183,10 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
 	w += 10 + 15;
 	h += 3;
 
+	if(diff_calc) {
+		p.y = rc.height - p.y - h;
+	}
+
 	MwLLMakeToolWindow(handle->lowlevel);
 	MwLLDetach(handle->lowlevel, &p);
 
@@ -203,9 +207,10 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 	(void)out;
 
 	if(strcmp(name, "mwSubMenuAppear") == 0) {
-		MwMenu	 menu  = va_arg(va, MwMenu);
-		MwPoint* point = va_arg(va, MwPoint*);
-		mwSubMenuAppearImpl(handle, menu, point);
+		MwMenu	 menu	   = va_arg(va, MwMenu);
+		MwPoint* point	   = va_arg(va, MwPoint*);
+		int	 diff_calc = va_arg(va, int);
+		mwSubMenuAppearImpl(handle, menu, point, diff_calc);
 	}
 }
 
