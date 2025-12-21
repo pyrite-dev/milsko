@@ -184,7 +184,7 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point, in
 	h += 3;
 
 	if(diff_calc) {
-		p.y = rc.height - p.y - h;
+		p.y = p.y - h;
 	}
 
 	MwLLMakeToolWindow(handle->lowlevel);
