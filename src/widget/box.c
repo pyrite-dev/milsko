@@ -8,6 +8,8 @@ static int create(MwWidget handle) {
 	MwSetInteger(handle, MwNorientation, MwHORIZONTAL);
 	MwSetInteger(handle, MwNmargin, 0);
 	MwSetInteger(handle, MwNpadding, 0);
+	MwSetInteger(handle, MwNhasBorder, 0);
+	MwSetInteger(handle, MwNinverted, 1);
 
 	return 0;
 }
@@ -20,6 +22,11 @@ static void draw(MwWidget handle) {
 	r.y	 = 0;
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
+
+	if(MwGetInteger(handle, MwNhasBorder)) {
+		MwDrawFrame(handle, &r, base, MwGetInteger(handle, MwNinverted));
+	}
+
 	MwDrawRect(handle, &r, base);
 
 	MwLLFreeColor(base);
@@ -31,9 +38,9 @@ static void layout(MwWidget handle) {
 	int i;
 	int sum	  = 0;
 	int horiz = MwGetInteger(handle, MwNorientation) == MwHORIZONTAL ? 1 : 0;
-	int sz	  = MwGetInteger(handle, horiz ? MwNwidth : MwNheight) - MwGetInteger(handle, MwNpadding) * 2;
-	int fsz	  = MwGetInteger(handle, horiz ? MwNheight : MwNwidth) - MwGetInteger(handle, MwNpadding) * 2;
-	int sk	  = MwGetInteger(handle, MwNpadding);
+	int sz	  = MwGetInteger(handle, horiz ? MwNwidth : MwNheight) - (MwGetInteger(handle, MwNpadding) + (MwGetInteger(handle, MwNhasBorder) ? MwDefaultBorderWidth(handle) : 0)) * 2;
+	int fsz	  = MwGetInteger(handle, horiz ? MwNheight : MwNwidth) - (MwGetInteger(handle, MwNpadding) + (MwGetInteger(handle, MwNhasBorder) ? MwDefaultBorderWidth(handle) : 0)) * 2;
+	int sk	  = MwGetInteger(handle, MwNpadding) + (MwGetInteger(handle, MwNhasBorder) ? MwDefaultBorderWidth(handle) : 0);
 
 	for(i = 0; i < arrlen(handle->children); i++) {
 		int n = MwGetInteger(handle->children[i], MwNratio);
@@ -60,10 +67,10 @@ static void layout(MwWidget handle) {
 		}
 
 		MwVaApply(handle->children[i],
-			  horiz ? MwNx : MwNy, sk,				 /* this is what gets changed */
-			  horiz ? MwNy : MwNx, MwGetInteger(handle, MwNpadding), /* fixed between widgets */
-			  horiz ? MwNwidth : MwNheight, wsz,			 /* this is what gets changed */
-			  horiz ? MwNheight : MwNwidth, fsz,			 /* fixed between widgets */
+			  horiz ? MwNx : MwNy, sk,													   /* this is what gets changed */
+			  horiz ? MwNy : MwNx, MwGetInteger(handle, MwNpadding) + (MwGetInteger(handle, MwNhasBorder) ? MwDefaultBorderWidth(handle) : 0), /* fixed between widgets */
+			  horiz ? MwNwidth : MwNheight, wsz,												   /* this is what gets changed */
+			  horiz ? MwNheight : MwNwidth, fsz,												   /* fixed between widgets */
 			  NULL);
 		sk += wsz + Margin;
 	}

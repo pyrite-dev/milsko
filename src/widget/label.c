@@ -295,7 +295,7 @@ static void draw(MwWidget handle) {
 
 		px = MwLoadRaw(handle, raw, w, h);
 
-		r.y	 = 0;
+		r.y	 = (r.height - h) / 2;
 		r.height = h;
 		if(align == MwALIGNMENT_CENTER) {
 			r.x = (r.width - w) / 2;
