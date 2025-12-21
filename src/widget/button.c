@@ -29,7 +29,9 @@ static void draw(MwWidget handle) {
 	r.height = MwGetInteger(handle, MwNheight);
 
 	if(MwGetInteger(handle, MwNflat)) {
-		if(handle->pressed) {
+		int inv;
+
+		if(handle->pressed || ((inv = MwGetInteger(handle, MwNforceInverted)) != MwDEFAULT && inv)) {
 			MwDrawWidgetBack(handle, &r, base, handle->pressed, 1);
 		} else {
 			MwDrawRect(handle, &r, base);
