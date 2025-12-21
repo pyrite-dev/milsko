@@ -1,13 +1,7 @@
 #include <Mw/Milsko.h>
 
-typedef struct scrollbar {
-	MwPoint point;
-	int	drag;
-	int	pos;
-} scrollbar_t;
-
 static int create(MwWidget handle) {
-	scrollbar_t* scr = malloc(sizeof(*scr));
+	MwScrollBar scr = malloc(sizeof(*scr));
 
 	handle->internal = scr;
 
@@ -60,10 +54,10 @@ static void add_value(MwWidget handle, int mul) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	     r, rt, rbar;
-	MwLLColor    base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor    dark = MwLightenColor(handle, base, -64, -64, -64);
-	scrollbar_t* scr  = handle->internal;
+	MwRect	    r, rt, rbar;
+	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor   dark = MwLightenColor(handle, base, -64, -64, -64);
+	MwScrollBar scr	 = handle->internal;
 	int or ;
 	int	   uy, dy, ux, dx;
 	MwLLPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
@@ -144,8 +138,8 @@ static void draw(MwWidget handle) {
 }
 
 static void mouse_move(MwWidget handle) {
-	int	     or	 = MwGetInteger(handle, MwNorientation);
-	scrollbar_t* scr = handle->internal;
+	int	    or	= MwGetInteger(handle, MwNorientation);
+	MwScrollBar scr = handle->internal;
 
 	if(!handle->pressed) return;
 
@@ -172,11 +166,11 @@ static void mouse_move(MwWidget handle) {
 }
 
 static void mouse_down(MwWidget handle, void* ptr) {
-	int	     ww	 = MwGetInteger(handle, MwNwidth);
-	int	     wh	 = MwGetInteger(handle, MwNheight);
-	int	     or	 = MwGetInteger(handle, MwNorientation);
-	scrollbar_t* scr = handle->internal;
-	MwLLMouse*   m	 = ptr;
+	int	    ww	= MwGetInteger(handle, MwNwidth);
+	int	    wh	= MwGetInteger(handle, MwNheight);
+	int	    or	= MwGetInteger(handle, MwNorientation);
+	MwScrollBar scr = handle->internal;
+	MwLLMouse*  m	= ptr;
 
 	if(m->button == MwLLMouseWheelUp) {
 		int min	 = MwGetInteger(handle, MwNminValue);

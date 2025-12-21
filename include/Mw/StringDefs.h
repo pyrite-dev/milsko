@@ -36,6 +36,7 @@
 #define MwNfixedSize "IfixedSize"
 #define MwNmargin "Imargin"
 #define MwNbitmapFont "IbitmapFont"
+#define MwNsevenSegment "IsevenSegment"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

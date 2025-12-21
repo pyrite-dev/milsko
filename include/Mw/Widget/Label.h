@@ -17,6 +17,17 @@ extern "C" {
  */
 MWDECL MwClass MwLabelClass;
 
+/*!
+ * @brief Sets the custom data for seven segment
+ * @param handle Widget
+ * @param index Index
+ * @param data Data, `GFEDCBA` as 7-bit value
+ * @note See https://en.wikipedia.org/wiki/File:7_Segment_Display_with_Labeled_Segments.svg for what alphabets mean here
+ * */
+MwInline void MwLabelSetSevenSegment(MwWidget handle, int index, int data) {
+	MwVaWidgetExecute(handle, "mwLabelSetSevenSegment", NULL, index, data);
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -89,6 +89,7 @@
 		<integer name="fixedSize" />
 		<integer name="margin" />
 		<integer name="bitmapFont" />
+		<integer name="sevenSegment" />
 
 		<string name="title" />
 		<string name="text" />
@@ -536,7 +537,16 @@
 				<property name="text" />
 				<property name="alignment" />
 				<property name="bold" />
+				<property name="sevenSegment" />
 			</properties>
+			<functions>
+				<function name="SetSevenSegment">
+					<arguments>
+						<integer name="index" />
+						<integer name="data" />
+					</arguments>
+				</function>
+			</functions>
 		</widget>
 		<widget name="ListBox">
 			<properties>

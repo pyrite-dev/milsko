@@ -115,6 +115,7 @@ new_example("examples/basic/combobox");
 new_example("examples/basic/treeview");
 new_example("examples/basic/box");
 new_example("examples/basic/clipboard");
+new_example("examples/basic/sevensegment");
 
 if (param_get("opengl")) {
     new_example("examples/gldemos/boing",    $gl_libs);

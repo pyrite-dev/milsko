@@ -20,6 +20,9 @@ typedef struct _MwViewport*	      MwViewport;
 typedef struct _MwListBox*	      MwListBox;
 typedef struct _MwComboBox*	      MwComboBox;
 typedef struct _MwTreeView*	      MwTreeView;
+typedef struct _MwScrollBar*	      MwScrollBar;
+typedef struct _MwLabel*	      MwLabel;
+typedef struct _MwLabelSegment	      MwLabelSegment;
 typedef struct _MwListBoxEntry	      MwListBoxEntry;
 typedef struct _MwTreeViewEntry	      MwTreeViewEntry;
 typedef struct _MwDirectoryEntry      MwDirectoryEntry;
@@ -162,6 +165,21 @@ struct _MwTreeView {
 	MwTreeViewEntry** tree;
 
 	MwPoint pressed;
+};
+
+struct _MwScrollBar {
+	MwPoint point;
+	int	drag;
+	int	pos;
+};
+
+struct _MwLabel {
+	MwLabelSegment* segment;
+};
+
+struct _MwLabelSegment {
+	int	      key;
+	unsigned char value;
 };
 
 struct _MwDirectoryEntry {

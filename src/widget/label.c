@@ -1,11 +1,117 @@
 #include <Mw/Milsko.h>
 
+#include "../../external/stb_ds.h"
+
+#define ShortOne 5
+#define LongOne 10
+#define Spacing 2
+
 static int create(MwWidget handle) {
+	MwLabel lab = malloc(sizeof(*lab));
+
+	lab->segment	 = NULL;
+	handle->internal = lab;
+
 	MwSetDefault(handle);
 	MwSetInteger(handle, MwNalignment, MwALIGNMENT_CENTER);
 	MwSetInteger(handle, MwNbold, 0);
+	MwSetInteger(handle, MwNsevenSegment, 0);
 
 	return 0;
+}
+
+static void destroy(MwWidget handle) {
+	MwLabel lab = handle->internal;
+
+	hmfree(lab->segment);
+
+	free(handle->internal);
+}
+
+static void draw_v(unsigned char* raw, int x, int y, int stride, MwLLColor text) {
+	int cy, cx, b;
+	for(cy = y; cy < y + LongOne; cy++) {
+		for(cx = x; cx < x + ShortOne; cx++) {
+			unsigned char* px = &raw[(cy * stride + cx) * 4];
+			px[0]		  = text->common.red;
+			px[1]		  = text->common.green;
+			px[2]		  = text->common.blue;
+			px[3]		  = 255;
+		}
+	}
+
+	b = y - (ShortOne - 1) / 2;
+	for(cy = b; cy < b + (ShortOne - 1) / 2; cy++) {
+		int w  = (cy - b) * 2 + 1;
+		int b2 = x + (ShortOne - w) / 2;
+		for(cx = b2; cx < b2 + w; cx++) {
+			unsigned char* px;
+
+			px    = &raw[(cy * stride + cx) * 4];
+			px[0] = text->common.red;
+			px[1] = text->common.green;
+			px[2] = text->common.blue;
+			px[3] = 255;
+		}
+	}
+
+	b = y + LongOne;
+	for(cy = b; cy < b + (ShortOne - 1) / 2; cy++) {
+		int w  = ((ShortOne - 1) / 2 - 1 - (cy - b)) * 2 + 1;
+		int b2 = x + (ShortOne - w) / 2;
+		for(cx = b2; cx < b2 + w; cx++) {
+			unsigned char* px;
+
+			px    = &raw[(cy * stride + cx) * 4];
+			px[0] = text->common.red;
+			px[1] = text->common.green;
+			px[2] = text->common.blue;
+			px[3] = 255;
+		}
+	}
+}
+
+static void draw_h(unsigned char* raw, int x, int y, int stride, MwLLColor text) {
+	int cy, cx, b;
+	for(cx = x; cx < x + LongOne; cx++) {
+		for(cy = y; cy < y + ShortOne; cy++) {
+			unsigned char* px = &raw[(cy * stride + cx) * 4];
+			px[0]		  = text->common.red;
+			px[1]		  = text->common.green;
+			px[2]		  = text->common.blue;
+			px[3]		  = 255;
+		}
+	}
+
+	b = x - (ShortOne - 1) / 2;
+	for(cx = b; cx < b + (ShortOne - 1) / 2; cx++) {
+		int w  = (cx - b) * 2 + 1;
+		int b2 = y + (ShortOne - w) / 2;
+		for(cy = b2; cy < b2 + w; cy++) {
+			unsigned char* px;
+
+			px    = &raw[(cy * stride + cx) * 4];
+			px[0] = text->common.red;
+			px[1] = text->common.green;
+			px[2] = text->common.blue;
+			px[3] = 255;
+		}
+	}
+
+	b = x + LongOne;
+	for(cx = b; cx < b + (ShortOne - 1) / 2; cx++) {
+		int w  = ((ShortOne - 1) / 2 - 1 - (cx - b)) * 2 + 1;
+		int b2 = y + (ShortOne - w) / 2;
+		for(cy = b2; cy < b2 + w; cy++) {
+			unsigned char* px;
+
+			px    = &raw[(cy * stride + cx) * 4];
+			px[0] = text->common.red;
+			px[1] = text->common.green;
+			px[2] = text->common.blue;
+			px[3] = 255;
+		}
+	}
 }
 
 static void draw(MwWidget handle) {
@@ -16,6 +122,7 @@ static void draw(MwWidget handle) {
 	int	    align;
 	const char* str	 = MwGetText(handle, MwNtext);
 	MwLLPixmap  bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwLabel	    lab	 = handle->internal;
 
 	if(str == NULL) str = "";
 
@@ -28,40 +135,206 @@ static void draw(MwWidget handle) {
 	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 
 	align = MwGetInteger(handle, MwNalignment);
-	if(align == MwALIGNMENT_CENTER) {
-		p.x = r.width / 2;
-	} else if(align == MwALIGNMENT_BEGINNING) {
-		p.x = MwTextWidth(handle, str) / 2;
-	} else if(align == MwALIGNMENT_END) {
-		p.x = r.width - MwTextWidth(handle, str) / 2;
+	if(MwGetInteger(handle, MwNsevenSegment)) {
+		MwLLPixmap     px;
+		unsigned char* raw;
+		int	       w = 0, h = ShortOne * 3 + LongOne * 2, i;
+		int	       x = 0;
+
+		/* so - this mode cannot do unicode.
+		 * but you wouldn't show unicode on 7 segment anyways
+		 */
+
+		/*     L
+		 * S <--->
+		 *
+		 *   S
+		 *   ^
+		 *   |
+		 * L |
+		 *   |
+		 *   v
+		 */
+
+		for(i = 0; (hmgeti(lab->segment, i) != -1) || str[i] != 0; i++) {
+			if(i > 0 && ((hmgeti(lab->segment, i) != -1) || str[i] != '.')) w += Spacing;
+			if(hmgeti(lab->segment, i) != -1 || ('0' <= str[i] && str[i] <= '9') || ('A' <= str[i] && str[i] <= 'F') || ('a' <= str[i] && str[i] <= 'f')) {
+				w += LongOne + ShortOne * 2;
+			} else if(str[i] == ':' || str[i] == ' ') {
+				w += ShortOne;
+			}
+		}
+
+		raw = malloc(w * h * 4);
+		memset(raw, 0, w * h * 4);
+
+		for(i = 0; (hmgeti(lab->segment, i) != -1) || str[i] != 0; i++) {
+			if((hmgeti(lab->segment, i) != -1) || ('0' <= str[i] && str[i] <= '9') || ('A' <= str[i] && str[i] <= 'F') || ('a' <= str[i] && str[i] <= 'f')) {
+				int la = 0, lb = 0, lc = 0, ld = 0, le = 0, lf = 0, lg = 0;
+
+				/* https://en.wikipedia.org/wiki/File:7_Segment_Display_with_Labeled_Segments.svg */
+
+				if(hmgeti(lab->segment, i) != -1) {
+					unsigned char c = hmget(lab->segment, i);
+
+					if(c & (1 << 0)) la = 1;
+					if(c & (1 << 1)) lb = 1;
+					if(c & (1 << 2)) lc = 1;
+					if(c & (1 << 3)) ld = 1;
+					if(c & (1 << 4)) le = 1;
+					if(c & (1 << 5)) lf = 1;
+					if(c & (1 << 6)) lg = 1;
+				} else {
+					if(str[i] == '0') {
+						la = lb = lc = ld = le = lf = 1;
+					} else if(str[i] == '1') {
+						lb = lc = 1;
+					} else if(str[i] == '2') {
+						la = lb = ld = le = lg = 1;
+					} else if(str[i] == '3') {
+						la = lb = lc = ld = lg = 1;
+					} else if(str[i] == '4') {
+						lb = lc = lf = lg = 1;
+					} else if(str[i] == '5') {
+						la = lc = ld = lf = lg = 1;
+					} else if(str[i] == '6') {
+						la = lc = ld = le = lf = lg = 1;
+					} else if(str[i] == '7') {
+						la = lb = lc = 1;
+					} else if(str[i] == '8') {
+						la = lb = lc = ld = le = lf = lg = 1;
+					} else if(str[i] == '9') {
+						la = lb = lc = ld = lf = lg = 1;
+					} else if(str[i] == 'A' || str[i] == 'a') {
+						la = lb = lc = le = lf = lg = 1;
+					} else if(str[i] == 'B' || str[i] == 'b') {
+						lc = ld = le = lf = lg = 1;
+					} else if(str[i] == 'C' || str[i] == 'c') {
+						ld = le = lg = 1;
+					} else if(str[i] == 'D' || str[i] == 'd') {
+						lb = lc = ld = le = lg = 1;
+					} else if(str[i] == 'E' || str[i] == 'e') {
+						la = ld = le = lf = lg = 1;
+					} else if(str[i] == 'F' || str[i] == 'f') {
+						la = le = lf = lg = 1;
+					}
+				}
+
+				if(la) draw_h(raw, x + ShortOne, 0, w, text);
+				if(lb) draw_v(raw, x + ShortOne + LongOne, ShortOne, w, text);
+				if(lc) draw_v(raw, x + ShortOne + LongOne, ShortOne * 2 + LongOne, w, text);
+				if(ld) draw_h(raw, x + ShortOne, ShortOne * 2 + LongOne * 2, w, text);
+				if(le) draw_v(raw, x, ShortOne * 2 + LongOne, w, text);
+				if(lf) draw_v(raw, x, ShortOne, w, text);
+				if(lg) draw_h(raw, x + ShortOne, ShortOne + LongOne, w, text);
+
+				x += LongOne + ShortOne * 2;
+			} else if(str[i] == ':') {
+				int cy, cx;
+				for(cy = 1; cy < h - 1; cy++) {
+					int c = (LongOne - ShortOne) / 2 + ShortOne;
+
+					int c1 = (c <= cy && cy <= (c + ShortOne)) ? 1 : 0;
+					int c2 = ((ShortOne + LongOne + c) <= cy && cy <= (ShortOne + LongOne + c + ShortOne)) ? 1 : 0;
+
+					if(c1 || c2) {
+						for(cx = x; cx < x + ShortOne; cx++) {
+							unsigned char* px = &raw[(cy * w + cx) * 4];
+							px[0]		  = text->common.red;
+							px[1]		  = text->common.green;
+							px[2]		  = text->common.blue;
+							px[3]		  = 255;
+						}
+					}
+				}
+				x += ShortOne;
+			} else if(str[i] == ' ') {
+				x += ShortOne;
+			} else if(str[i] == '.') {
+				int cy, cx;
+				for(cy = h - (ShortOne - 1) / 2 - 1; cy < h; cy++) {
+					for(cx = x - Spacing - (ShortOne - 1) / 2 - 1; cx < (x - Spacing); cx++) {
+						unsigned char* px = &raw[(cy * w + cx) * 4];
+						px[0]		  = text->common.red;
+						px[1]		  = text->common.green;
+						px[2]		  = text->common.blue;
+						px[3]		  = 255;
+					}
+				}
+				continue;
+			}
+
+			x += Spacing;
+		}
+
+		px = MwLoadRaw(handle, raw, w, h);
+
+		r.y	 = 0;
+		r.height = h;
+		if(align == MwALIGNMENT_CENTER) {
+			r.x = (r.width - w) / 2;
+		} else if(align == MwALIGNMENT_BEGINNING) {
+			r.x = 0;
+		} else if(align == MwALIGNMENT_END) {
+			r.x = r.width - w;
+		}
+		r.width = w;
+		MwLLDrawPixmap(handle->lowlevel, &r, px);
+
+		MwLLDestroyPixmap(px);
+	} else {
+		if(align == MwALIGNMENT_CENTER) {
+			p.x = r.width / 2;
+		} else if(align == MwALIGNMENT_BEGINNING) {
+			p.x = MwTextWidth(handle, str) / 2;
+		} else if(align == MwALIGNMENT_END) {
+			p.x = r.width - MwTextWidth(handle, str) / 2;
+		}
+		p.y = r.height / 2;
+		MwDrawText(handle, &p, str, MwGetInteger(handle, MwNbold), MwALIGNMENT_CENTER, text);
 	}
-	p.y = r.height / 2;
-	MwDrawText(handle, &p, str, MwGetInteger(handle, MwNbold), MwALIGNMENT_CENTER, text);
 
 	MwLLFreeColor(text);
 	MwLLFreeColor(base);
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNtext) == 0 || strcmp(key, MwNalignment) == 0) MwForceRender(handle);
+	if(strcmp(key, MwNtext) == 0 || strcmp(key, MwNalignment) == 0 || strcmp(key, MwNsevenSegment) == 0) MwForceRender(handle);
+}
+
+static void mwLabelSetSevenSegmentImpl(MwWidget handle, int index, unsigned char data) {
+	MwLabel lab = handle->internal;
+
+	hmput(lab->segment, index, data);
+}
+
+static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+	(void)out;
+
+	if(strcmp(name, "mwLabelSetSevenSegment") == 0) {
+		int index = va_arg(va, int);
+		int data  = va_arg(va, int);
+
+		mwLabelSetSevenSegmentImpl(handle, index, data);
+	}
 }
 
 MwClassRec MwLabelClassRec = {
-    create,	 /* create */
-    NULL,	 /* destroy */
-    draw,	 /* draw */
-    NULL,	 /* click */
-    NULL,	 /* parent_resize */
-    prop_change, /* prop_change */
-    NULL,	 /* mouse_move */
-    NULL,	 /* mouse_up */
-    NULL,	 /* mouse_down */
-    NULL,	 /* key */
-    NULL,	 /* execute */
-    NULL,	 /* tick */
-    NULL,	 /* resize */
-    NULL,	 /* children_update */
-    NULL,	 /* children_prop_change */
+    create,	  /* create */
+    destroy,	  /* destroy */
+    draw,	  /* draw */
+    NULL,	  /* click */
+    NULL,	  /* parent_resize */
+    prop_change,  /* prop_change */
+    NULL,	  /* mouse_move */
+    NULL,	  /* mouse_up */
+    NULL,	  /* mouse_down */
+    NULL,	  /* key */
+    func_handler, /* execute */
+    NULL,	  /* tick */
+    NULL,	  /* resize */
+    NULL,	  /* children_update */
+    NULL,	  /* children_prop_change */
     NULL,
     NULL,
     NULL,

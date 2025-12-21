@@ -1,5 +1,7 @@
 #include <Mw/Milsko.h>
 
+#include "../../external/stb_ds.h"
+
 static int create(MwWidget handle) {
 	MwSetDefault(handle);
 

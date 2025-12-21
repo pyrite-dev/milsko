@@ -11,4 +11,5 @@ examples/*/*.exe
 *.lib
 *.a
 /Makefile
+/build
 compile_flags.txt
