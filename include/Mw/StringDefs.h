@@ -38,6 +38,7 @@
 #define MwNbitmapFont "IbitmapFont"
 #define MwNsevenSegment "IsevenSegment"
 #define MwNlength "Ilength"
+#define MwNforceInverted "IforceInverted"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

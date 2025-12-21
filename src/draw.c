@@ -131,6 +131,9 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
+	int inv;
+
+	if((inv = MwGetInteger(handle, MwNforceInverted)) != MwDEFAULT && inv) invert = 1;
 	if(MwGetInteger(handle, MwNmodernLook)) {
 		MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle), 0, 0);
 	} else {

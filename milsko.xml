@@ -52,6 +52,7 @@
 		 - MwNratio
 		 - MwNfixedSize
 		 - MwNbitmapFont
+		 - MwNforceInverted
 
 		Integer properties must be prefixed with I.
 		String properties must be prefixed with S.
@@ -91,6 +92,7 @@
 		<integer name="bitmapFont" />
 		<integer name="sevenSegment" />
 		<integer name="length" />
+		<integer name="forceInverted" />
 
 		<string name="title" />
 		<string name="text" />
