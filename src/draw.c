@@ -1,6 +1,7 @@
 #include <Mw/Milsko.h>
 
-#ifdef USE_STB_IMAGE
+#ifdef NO_IMAGE
+#elif defined(USE_STB_IMAGE)
 #include "../external/stb_image.h"
 #else
 #include <png.h>
@@ -502,7 +503,8 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 	MwLLFreeColor(darker);
 }
 
-#ifndef USE_STB_IMAGE
+#if defined(NO_IMAGE)
+#elif !defined(USE_STB_IMAGE)
 static void PNGCAPI user_error(png_structp png, const char* str) {
 	(void)str;
 
@@ -617,7 +619,9 @@ static unsigned char* load_jpeg(FILE* f, int* w, int* h) {
 #endif
 
 static unsigned char* load_image(const char* path, int* w, int* h) {
-#ifdef USE_STB_IMAGE
+#if defined(NO_IMAGE)
+	return NULL;
+#elif defined(USE_STB_IMAGE)
 	int ch;
 
 	return stbi_load(path, w, h, &ch, 4);
