@@ -92,8 +92,8 @@ for (my $i = 0 ; $i < 2 ; $i++) {
             print(OUT "\$	WRITE LINK_OPT \"$obj\"\n");
         }
         print(OUT
-              "\$	WRITE LINK_OPT \"SYS\$LIBRARY:DECW\$XLIBSHR/SHARE/SHARE\"\n");
-        print(OUT "\$	WRITE LINK_OPT \"SYS\$LIBRARY:DECC\$SHR/SHARE/SHARE\"\n");
+              "\$	WRITE LINK_OPT \"SYS\$LIBRARY:DECW\$XLIBSHR/SHARE\"\n");
+        print(OUT "\$	WRITE LINK_OPT \"SYS\$LIBRARY:DPML\$SHR/SHARE\"\n");
         print(OUT "\$	CLOSE LINK_OPT\n");
         print(OUT "\$	link /SHAREABLE=[.src]MwSHR.exe LINK.OPT/options\n");
         print(OUT "\$	DELETE LINK.OPT;*\n");
