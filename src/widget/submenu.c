@@ -160,13 +160,13 @@ static void click(MwWidget handle) {
 }
 
 static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
-	int i, w = 0, h = 0;
+	int	i, w = 0, h = 0;
+	MwRect	rc;
+	MwPoint p = *point;
+
+	MwGetScreenSize(handle, &rc);
 
 	handle->internal = menu;
-
-	MwLLMakeToolWindow(handle->lowlevel);
-	MwLLDetach(handle->lowlevel, point);
-	MwLLEndStateChange(handle->lowlevel);
 
 	for(i = 0; i < arrlen(menu->sub); i++) {
 		if(strcmp(menu->sub[i]->name, "----") == 0) {
@@ -182,6 +182,16 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point) {
 
 	w += 10 + 15;
 	h += 3;
+
+	MwLLMakeToolWindow(handle->lowlevel);
+	MwLLDetach(handle->lowlevel, &p);
+
+	if(MwGetInteger(handle, MwNy) + h > rc.height) {
+		MwVaApply(handle,
+			  MwNy, rc.height - h,
+			  NULL);
+	}
+	MwLLEndStateChange(handle->lowlevel);
 
 	MwVaApply(handle,
 		  MwNwidth, w,
