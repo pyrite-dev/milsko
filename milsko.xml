@@ -90,6 +90,7 @@
 		<integer name="margin" />
 		<integer name="bitmapFont" />
 		<integer name="sevenSegment" />
+		<integer name="length" />
 
 		<string name="title" />
 		<string name="text" />
@@ -538,6 +539,7 @@
 				<property name="alignment" />
 				<property name="bold" />
 				<property name="sevenSegment" />
+				<property name="length" />
 			</properties>
 			<functions>
 				<function name="SetSevenSegment">

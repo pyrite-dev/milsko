@@ -2,9 +2,7 @@
 
 #include "../../external/stb_ds.h"
 
-#define ShortOne 5
-#define LongOne 10
-#define Spacing 2
+#define Spacing 1
 
 static int create(MwWidget handle) {
 	MwLabel lab = malloc(sizeof(*lab));
@@ -16,6 +14,7 @@ static int create(MwWidget handle) {
 	MwSetInteger(handle, MwNalignment, MwALIGNMENT_CENTER);
 	MwSetInteger(handle, MwNbold, 0);
 	MwSetInteger(handle, MwNsevenSegment, 0);
+	MwSetInteger(handle, MwNlength, 4);
 
 	return 0;
 }
@@ -28,10 +27,14 @@ static void destroy(MwWidget handle) {
 	free(handle->internal);
 }
 
-static void draw_v(unsigned char* raw, int x, int y, int stride, MwLLColor text) {
+static void draw_v(MwWidget handle, unsigned char* raw, int x, int y, int stride, MwLLColor text) {
 	int cy, cx, b;
-	for(cy = y; cy < y + LongOne; cy++) {
-		for(cx = x; cx < x + ShortOne; cx++) {
+
+	int l_one = MwGetInteger(handle, MwNlength) - (MwGetInteger(handle, MwNlength) % 2);
+	int s_one = (l_one * 3 / 4) - ((l_one * 3 / 4) % 2) + 1;
+
+	for(cy = y; cy < y + l_one; cy++) {
+		for(cx = x; cx < x + s_one; cx++) {
 			unsigned char* px = &raw[(cy * stride + cx) * 4];
 			px[0]		  = text->common.red;
 			px[1]		  = text->common.green;
@@ -40,10 +43,10 @@ static void draw_v(unsigned char* raw, int x, int y, int stride, MwLLColor text)
 		}
 	}
 
-	b = y - (ShortOne - 1) / 2;
-	for(cy = b; cy < b + (ShortOne - 1) / 2; cy++) {
+	b = y - (s_one - 1) / 2;
+	for(cy = b; cy < b + (s_one - 1) / 2; cy++) {
 		int w  = (cy - b) * 2 + 1;
-		int b2 = x + (ShortOne - w) / 2;
+		int b2 = x + (s_one - w) / 2;
 		for(cx = b2; cx < b2 + w; cx++) {
 			unsigned char* px;
 
@@ -55,10 +58,10 @@ static void draw_v(unsigned char* raw, int x, int y, int stride, MwLLColor text)
 		}
 	}
 
-	b = y + LongOne;
-	for(cy = b; cy < b + (ShortOne - 1) / 2; cy++) {
-		int w  = ((ShortOne - 1) / 2 - 1 - (cy - b)) * 2 + 1;
-		int b2 = x + (ShortOne - w) / 2;
+	b = y + l_one;
+	for(cy = b; cy < b + (s_one - 1) / 2; cy++) {
+		int w  = ((s_one - 1) / 2 - 1 - (cy - b)) * 2 + 1;
+		int b2 = x + (s_one - w) / 2;
 		for(cx = b2; cx < b2 + w; cx++) {
 			unsigned char* px;
 
@@ -71,10 +74,14 @@ static void draw_v(unsigned char* raw, int x, int y, int stride, MwLLColor text)
 	}
 }
 
-static void draw_h(unsigned char* raw, int x, int y, int stride, MwLLColor text) {
+static void draw_h(MwWidget handle, unsigned char* raw, int x, int y, int stride, MwLLColor text) {
 	int cy, cx, b;
-	for(cx = x; cx < x + LongOne; cx++) {
-		for(cy = y; cy < y + ShortOne; cy++) {
+
+	int l_one = MwGetInteger(handle, MwNlength) - (MwGetInteger(handle, MwNlength) % 2);
+	int s_one = (l_one * 3 / 4) - ((l_one * 3 / 4) % 2) + 1;
+
+	for(cx = x; cx < x + l_one; cx++) {
+		for(cy = y; cy < y + s_one; cy++) {
 			unsigned char* px = &raw[(cy * stride + cx) * 4];
 			px[0]		  = text->common.red;
 			px[1]		  = text->common.green;
@@ -83,10 +90,10 @@ static void draw_h(unsigned char* raw, int x, int y, int stride, MwLLColor text)
 		}
 	}
 
-	b = x - (ShortOne - 1) / 2;
-	for(cx = b; cx < b + (ShortOne - 1) / 2; cx++) {
+	b = x - (s_one - 1) / 2;
+	for(cx = b; cx < b + (s_one - 1) / 2; cx++) {
 		int w  = (cx - b) * 2 + 1;
-		int b2 = y + (ShortOne - w) / 2;
+		int b2 = y + (s_one - w) / 2;
 		for(cy = b2; cy < b2 + w; cy++) {
 			unsigned char* px;
 
@@ -98,10 +105,10 @@ static void draw_h(unsigned char* raw, int x, int y, int stride, MwLLColor text)
 		}
 	}
 
-	b = x + LongOne;
-	for(cx = b; cx < b + (ShortOne - 1) / 2; cx++) {
-		int w  = ((ShortOne - 1) / 2 - 1 - (cx - b)) * 2 + 1;
-		int b2 = y + (ShortOne - w) / 2;
+	b = x + l_one;
+	for(cx = b; cx < b + (s_one - 1) / 2; cx++) {
+		int w  = ((s_one - 1) / 2 - 1 - (cx - b)) * 2 + 1;
+		int b2 = y + (s_one - w) / 2;
 		for(cy = b2; cy < b2 + w; cy++) {
 			unsigned char* px;
 
@@ -117,12 +124,15 @@ static void draw_h(unsigned char* raw, int x, int y, int stride, MwLLColor text)
 static void draw(MwWidget handle) {
 	MwRect	    r;
 	MwPoint	    p;
-	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwLLColor   base   = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor   text   = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwLLColor   shadow = MwLightenColor(handle, base, -32, -32, -32);
 	int	    align;
-	const char* str	 = MwGetText(handle, MwNtext);
-	MwLLPixmap  bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
-	MwLabel	    lab	 = handle->internal;
+	const char* str	  = MwGetText(handle, MwNtext);
+	MwLLPixmap  bgpx  = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwLabel	    lab	  = handle->internal;
+	int	    l_one = MwGetInteger(handle, MwNlength) - (MwGetInteger(handle, MwNlength) % 2);
+	int	    s_one = (l_one * 3 / 4) - ((l_one * 3 / 4) % 2) + 1;
 
 	if(str == NULL) str = "";
 
@@ -138,7 +148,7 @@ static void draw(MwWidget handle) {
 	if(MwGetInteger(handle, MwNsevenSegment)) {
 		MwLLPixmap     px;
 		unsigned char* raw;
-		int	       w = 0, h = ShortOne * 3 + LongOne * 2, i;
+		int	       w = 0, h = s_one * 3 + l_one * 2, i;
 		int	       x = 0;
 
 		/* so - this mode cannot do unicode.
@@ -159,11 +169,14 @@ static void draw(MwWidget handle) {
 		for(i = 0; (hmgeti(lab->segment, i) != -1) || str[i] != 0; i++) {
 			if(i > 0 && ((hmgeti(lab->segment, i) != -1) || str[i] != '.')) w += Spacing;
 			if(hmgeti(lab->segment, i) != -1 || ('0' <= str[i] && str[i] <= '9') || ('A' <= str[i] && str[i] <= 'F') || ('a' <= str[i] && str[i] <= 'f')) {
-				w += LongOne + ShortOne * 2;
+				w += l_one + s_one * 2;
 			} else if(str[i] == ':' || str[i] == ' ') {
-				w += ShortOne;
+				w += s_one;
 			}
 		}
+
+		w++;
+		h++;
 
 		raw = malloc(w * h * 4);
 		memset(raw, 0, w * h * 4);
@@ -171,6 +184,7 @@ static void draw(MwWidget handle) {
 		for(i = 0; (hmgeti(lab->segment, i) != -1) || str[i] != 0; i++) {
 			if((hmgeti(lab->segment, i) != -1) || ('0' <= str[i] && str[i] <= '9') || ('A' <= str[i] && str[i] <= 'F') || ('a' <= str[i] && str[i] <= 'f')) {
 				int la = 0, lb = 0, lc = 0, ld = 0, le = 0, lf = 0, lg = 0;
+				int j;
 
 				/* https://en.wikipedia.org/wiki/File:7_Segment_Display_with_Labeled_Segments.svg */
 
@@ -220,45 +234,57 @@ static void draw(MwWidget handle) {
 					}
 				}
 
-				if(la) draw_h(raw, x + ShortOne, 0, w, text);
-				if(lb) draw_v(raw, x + ShortOne + LongOne, ShortOne, w, text);
-				if(lc) draw_v(raw, x + ShortOne + LongOne, ShortOne * 2 + LongOne, w, text);
-				if(ld) draw_h(raw, x + ShortOne, ShortOne * 2 + LongOne * 2, w, text);
-				if(le) draw_v(raw, x, ShortOne * 2 + LongOne, w, text);
-				if(lf) draw_v(raw, x, ShortOne, w, text);
-				if(lg) draw_h(raw, x + ShortOne, ShortOne + LongOne, w, text);
+				for(j = 1; j >= 0; j--) {
+					MwLLColor cl = j == 1 ? shadow : text;
 
-				x += LongOne + ShortOne * 2;
+					if(la) draw_h(handle, raw, x + s_one + j, j, w, cl);
+					if(lb) draw_v(handle, raw, x + s_one + l_one + j, s_one + j, w, cl);
+					if(lc) draw_v(handle, raw, x + s_one + l_one + j, s_one * 2 + l_one + j, w, cl);
+					if(ld) draw_h(handle, raw, x + s_one + j, s_one * 2 + l_one * 2 + j, w, cl);
+					if(le) draw_v(handle, raw, x + j, s_one * 2 + l_one + j, w, cl);
+					if(lf) draw_v(handle, raw, x + j, s_one + j, w, cl);
+					if(lg) draw_h(handle, raw, x + s_one + j, s_one + l_one + j, w, cl);
+				}
+
+				x += l_one + s_one * 2;
 			} else if(str[i] == ':') {
 				int cy, cx;
-				for(cy = 1; cy < h - 1; cy++) {
-					int c = (LongOne - ShortOne) / 2 + ShortOne;
+				int j;
+				for(j = 1; j >= 0; j--) {
+					MwLLColor cl = j == 1 ? shadow : text;
+					for(cy = 1; cy < h - 1; cy++) {
+						int c = (l_one - s_one) / 2 + s_one;
 
-					int c1 = (c <= cy && cy <= (c + ShortOne)) ? 1 : 0;
-					int c2 = ((ShortOne + LongOne + c) <= cy && cy <= (ShortOne + LongOne + c + ShortOne)) ? 1 : 0;
+						int c1 = (c <= cy && cy <= (c + s_one)) ? 1 : 0;
+						int c2 = ((s_one + l_one + c) <= cy && cy <= (s_one + l_one + c + s_one)) ? 1 : 0;
 
-					if(c1 || c2) {
-						for(cx = x; cx < x + ShortOne; cx++) {
-							unsigned char* px = &raw[(cy * w + cx) * 4];
-							px[0]		  = text->common.red;
-							px[1]		  = text->common.green;
-							px[2]		  = text->common.blue;
-							px[3]		  = 255;
+						if(c1 || c2) {
+							for(cx = x; cx < x + s_one; cx++) {
+								unsigned char* px = &raw[((cy + j) * w + (cx + j)) * 4];
+								px[0]		  = cl->common.red;
+								px[1]		  = cl->common.green;
+								px[2]		  = cl->common.blue;
+								px[3]		  = 255;
+							}
 						}
 					}
 				}
-				x += ShortOne;
+				x += s_one;
 			} else if(str[i] == ' ') {
-				x += ShortOne;
+				x += s_one;
 			} else if(str[i] == '.') {
 				int cy, cx;
-				for(cy = h - (ShortOne - 1) / 2 - 1; cy < h; cy++) {
-					for(cx = x - Spacing - (ShortOne - 1) / 2 - 1; cx < (x - Spacing); cx++) {
-						unsigned char* px = &raw[(cy * w + cx) * 4];
-						px[0]		  = text->common.red;
-						px[1]		  = text->common.green;
-						px[2]		  = text->common.blue;
-						px[3]		  = 255;
+				int j;
+				for(j = 1; j >= 0; j--) {
+					MwLLColor cl = j == 1 ? shadow : text;
+					for(cy = h - (s_one - 1) / 2 - 1; cy < h; cy++) {
+						for(cx = x - Spacing - (s_one - 1) / 2 - 1; cx < (x - Spacing); cx++) {
+							unsigned char* px = &raw[((cy + j) * w + (cx + j)) * 4];
+							px[0]		  = cl->common.red;
+							px[1]		  = cl->common.green;
+							px[2]		  = cl->common.blue;
+							px[3]		  = 255;
+						}
 					}
 				}
 				continue;
@@ -294,6 +320,7 @@ static void draw(MwWidget handle) {
 		MwDrawText(handle, &p, str, MwGetInteger(handle, MwNbold), MwALIGNMENT_CENTER, text);
 	}
 
+	MwLLFreeColor(shadow);
 	MwLLFreeColor(text);
 	MwLLFreeColor(base);
 }

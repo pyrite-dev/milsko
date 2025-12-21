@@ -14,6 +14,7 @@ int main() {
 				 MwNtext, " 123456:78.90 abcdef",
 				 MwNsevenSegment, 1,
 				 MwNalignment, MwALIGNMENT_BEGINNING,
+				 MwNlength, 8,
 				 NULL);
 
 	MwLabelSetSevenSegment(label, 0, (1 << 0) | (1 << 3) | (1 << 6));
