@@ -133,7 +133,7 @@ static void click(MwWidget handle) {
 					MwSubMenuAppear(menu->sub[i]->wsub, menu->sub[i], &p, 0);
 					i = -1;
 				} else if(menu->sub[i]->wsub != NULL && arrlen(menu->sub[i]->sub) > 0) {
-					while(w->parent->widget_class != MwMenuClass) w = w->parent;
+					while(w->parent->widget_class == MwSubMenuClass) w = w->parent;
 
 					MwDestroyWidget(menu->sub[i]->wsub);
 					menu->sub[i]->wsub = NULL;
@@ -142,7 +142,7 @@ static void click(MwWidget handle) {
 
 					MwForceRender(handle);
 				} else if(strcmp(menu->sub[i]->name, "----") != 0 && arrlen(menu->sub[i]->sub) == 0) {
-					while(w->parent->widget_class != MwMenuClass) w = w->parent;
+					while(w->parent->widget_class == MwSubMenuClass) w = w->parent;
 					MwGetBeforeStep(w, &jmp);
 
 					MwDestroyWidget(w);
