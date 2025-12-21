@@ -20,6 +20,7 @@ static void draw(MwWidget handle) {
 	const char* str	 = MwGetText(handle, MwNtext);
 	MwLLPixmap  px	 = MwGetVoid(handle, MwNpixmap);
 	MwLLPixmap  bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	int	    inv;
 
 	if(str == NULL) str = "";
 
@@ -29,8 +30,6 @@ static void draw(MwWidget handle) {
 	r.height = MwGetInteger(handle, MwNheight);
 
 	if(MwGetInteger(handle, MwNflat)) {
-		int inv;
-
 		if(handle->pressed || ((inv = MwGetInteger(handle, MwNforceInverted)) != MwDEFAULT && inv)) {
 			MwDrawWidgetBack(handle, &r, base, handle->pressed, 1);
 		} else {
@@ -40,7 +39,7 @@ static void draw(MwWidget handle) {
 		MwDrawWidgetBack(handle, &r, base, handle->pressed, 1);
 	}
 	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
-	if(MwGetInteger(handle, MwNflat) && !handle->pressed) {
+	if(MwGetInteger(handle, MwNflat) && !(handle->pressed || ((inv = MwGetInteger(handle, MwNforceInverted)) != MwDEFAULT && inv))) {
 		r.x += MwDefaultBorderWidth(handle);
 		r.y += MwDefaultBorderWidth(handle);
 		r.width -= MwDefaultBorderWidth(handle) * 2;
