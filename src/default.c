@@ -10,6 +10,8 @@ const char* MwDefaultDarkForeground    = "#ddd";
 const char* MwDefaultDarkSubBackground = "#333";
 const char* MwDefaultDarkSubForeground = "#ddd";
 
+const int MwDefaultShadow = -32;
+
 int MwDefaultBorderWidth(MwWidget handle) {
 	int bw = MwGetInteger(handle, MwNborderWidth);
 

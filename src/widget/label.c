@@ -126,7 +126,7 @@ static void draw(MwWidget handle) {
 	MwPoint	    p;
 	MwLLColor   base   = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwLLColor   text   = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	MwLLColor   shadow = MwLightenColor(handle, base, -32, -32, -32);
+	MwLLColor   shadow = MwLightenColor(handle, base, MwDefaultShadow, MwDefaultShadow, MwDefaultShadow);
 	int	    align;
 	const char* str	  = MwGetText(handle, MwNtext);
 	MwLLPixmap  bgpx  = MwGetVoid(handle, MwNbackgroundPixmap);
@@ -317,6 +317,13 @@ static void draw(MwWidget handle) {
 			p.x = r.width - MwTextWidth(handle, str) / 2;
 		}
 		p.y = r.height / 2;
+
+		p.x += 1;
+		p.y += 1;
+		MwDrawText(handle, &p, str, MwGetInteger(handle, MwNbold), MwALIGNMENT_CENTER, shadow);
+
+		p.x -= 1;
+		p.y -= 1;
 		MwDrawText(handle, &p, str, MwGetInteger(handle, MwNbold), MwALIGNMENT_CENTER, text);
 	}
 

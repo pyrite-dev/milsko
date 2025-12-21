@@ -53,6 +53,11 @@ MWDECL const char* MwDefaultDarkSubBackground;
 MWDECL const char* MwDefaultDarkSubForeground;
 
 /*!
+ * @brief Default shadow difference
+ */
+MWDECL const int MwDefaultShadow;
+
+/*!
  * @brief Gets default border width
  * @param handle Widget
  */
