@@ -126,7 +126,7 @@ static void click(MwWidget handle) {
 						menu->sub[j]->wsub = NULL;
 					}
 
-					p.x = rc.x + rc.width + 3;
+					p.x = MwGetInteger(handle, MwNwidth);
 					p.y = rc.y - 3;
 
 					menu->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
@@ -182,6 +182,8 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point, in
 
 	w += 10 + 15;
 	h += 3;
+
+	if(w < 150) w = 150;
 
 	if(diff_calc) {
 		p.y = p.y - h;
