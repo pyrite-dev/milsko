@@ -66,7 +66,7 @@ static void draw(MwWidget handle) {
 				if(menu->sub[i]->wsub != NULL) {
 					r.x	 = 0;
 					r.y	 = p.y - 3;
-					r.width	 = tw + 15 + 5 * 2;
+					r.width = MwGetInteger(handle, MwNwidth);
 					r.height = th + 3 * 2;
 					MwDrawWidgetBack(handle, &r, base, 0, MwTRUE);
 				}
@@ -79,7 +79,7 @@ static void draw(MwWidget handle) {
 				if(arrlen(menu->sub[i]->sub) > 0) {
 					MwRect tr;
 
-					tr.x	 = p.x + tw / 2 + 5;
+					tr.x	 = MwGetInteger(handle, MwNwidth) - MwDefaultBorderWidth(handle) - 11 - 2;
 					tr.y	 = p.y - th / 2 + 2;
 					tr.width = tr.height = 11;
 
