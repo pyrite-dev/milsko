@@ -66,7 +66,7 @@ static void draw(MwWidget handle) {
 				if(menu->sub[i]->wsub != NULL) {
 					r.x	 = 0;
 					r.y	 = p.y - 3;
-					r.width = MwGetInteger(handle, MwNwidth);
+					r.width	 = MwGetInteger(handle, MwNwidth);
 					r.height = th + 3 * 2;
 					MwDrawWidgetBack(handle, &r, base, 0, MwTRUE);
 				}
