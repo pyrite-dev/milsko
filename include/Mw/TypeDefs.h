@@ -108,6 +108,7 @@ struct _MwMenu {
 	int	 keep;
 	MwWidget wsub;
 	MwMenu*	 sub;
+	void* user;
 };
 
 struct _MwEntry {
