@@ -29,6 +29,16 @@ MwInline void MwSubMenuAppear(MwWidget handle, MwMenu menu, MwPoint* point, int 
 	MwVaWidgetExecute(handle, "mwSubMenuAppear", NULL, menu, point, diff_calc);
 }
 
+/*!
+ * @brief Calculates the size of submenu
+ * @param handle Handle
+ * @param menu Menu
+ * @param rect Size
+ */
+MwInline void MwSubMenuGetSize(MwWidget handle, MwMenu menu, MwRect* rect) {
+	MwVaWidgetExecute(handle, "mwSubMenuGetSize", NULL, menu, rect);
+}
+
 #ifdef __cplusplus
 }
 #endif

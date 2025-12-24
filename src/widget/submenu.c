@@ -167,51 +167,59 @@ static void click(MwWidget handle) {
 }
 
 static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point, int diff_calc) {
-	int	i, w = 0, h = 0;
-	MwRect	rc;
+	MwRect	rc, sz;
 	MwPoint p = *point;
+
+	MwSubMenuGetSize(handle, menu, &sz);
 
 	MwGetScreenSize(handle, &rc);
 
 	handle->internal = menu;
 
-	for(i = 0; i < arrlen(menu->sub); i++) {
-		if(strcmp(menu->sub[i]->name, "----") == 0) {
-			h += MwDefaultBorderWidth(handle) * 2 + 2;
-		} else {
-			int tw = MwTextWidth(handle, menu->sub[i]->name);
-			h += MwTextHeight(handle, menu->sub[i]->name) + 3;
-			if(tw > w) {
-				w = tw;
-			}
-		}
-	}
-
-	w += MwGetInteger(handle, MwNleftPadding);
-
-	w += 10 + 15;
-	h += 3;
-
-	w += 32;
-
 	if(diff_calc) {
-		p.y = p.y - h;
+		p.y = p.y - sz.height;
 	}
 
 	MwLLMakeToolWindow(handle->lowlevel);
 	MwLLDetach(handle->lowlevel, &p);
 
-	if(MwGetInteger(handle, MwNy) + h > rc.height) {
+	if(MwGetInteger(handle, MwNy) + sz.height > rc.height) {
 		MwVaApply(handle,
-			  MwNy, rc.height - h,
+			  MwNy, rc.height - sz.height,
 			  NULL);
 	}
 	MwLLEndStateChange(handle->lowlevel);
 
 	MwVaApply(handle,
-		  MwNwidth, w,
-		  MwNheight, h,
+		  MwNwidth, sz.width,
+		  MwNheight, sz.height,
 		  NULL);
+}
+
+static void mwSubMenuGetSizeImpl(MwWidget handle, MwMenu menu, MwRect* rect) {
+	int i;
+
+	rect->width  = 0;
+	rect->height = 0;
+
+	for(i = 0; i < arrlen(menu->sub); i++) {
+		if(strcmp(menu->sub[i]->name, "----") == 0) {
+			rect->height += 2 + 2;
+		} else {
+			int tw = MwTextWidth(handle, menu->sub[i]->name);
+			rect->height += MwTextHeight(handle, menu->sub[i]->name) + 3;
+			if(tw > rect->width) {
+				rect->width = tw;
+			}
+		}
+	}
+
+	rect->width += MwGetInteger(handle, MwNleftPadding);
+
+	rect->width += 10 + 15;
+	rect->height += 3;
+
+	rect->width += 16;
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
@@ -222,6 +230,10 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		MwPoint* point	   = va_arg(va, MwPoint*);
 		int	 diff_calc = va_arg(va, int);
 		mwSubMenuAppearImpl(handle, menu, point, diff_calc);
+	} else if(strcmp(name, "mwSubMenuGetSize") == 0) {
+		MwMenu	menu = va_arg(va, MwMenu);
+		MwRect* rect = va_arg(va, MwRect*);
+		mwSubMenuGetSizeImpl(handle, menu, rect);
 	}
 }
 
