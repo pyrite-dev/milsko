@@ -6,6 +6,7 @@ static int create(MwWidget handle) {
 	MwLLBeginStateChange(handle->lowlevel);
 
 	MwSetDefault(handle);
+	MwSetInteger(handle, MwNleftPadding, 16);
 
 	return 0;
 }
@@ -53,8 +54,10 @@ static void draw(MwWidget handle) {
 
 				rc.x	  = MwDefaultBorderWidth(handle) * 2;
 				rc.y	  = p.y;
-				rc.width  = r.width - (rc.x * 2);
+				rc.width  = r.width - (rc.x * 2) - MwGetInteger(handle, MwNleftPadding);
 				rc.height = 2;
+
+				rc.x += MwGetInteger(handle, MwNleftPadding);
 
 				MwDrawFrameEx(handle, &rc, base, 1, 1, 0, 0);
 
@@ -71,7 +74,7 @@ static void draw(MwWidget handle) {
 					MwDrawWidgetBack(handle, &r, base, 0, MwTRUE);
 				}
 
-				p.x = 5 + tw / 2;
+				p.x = 5 + tw / 2 + MwGetInteger(handle, MwNleftPadding);
 
 				p.y += th / 2;
 				MwDrawText(handle, &p, menu->sub[i]->name, menu->sub[i]->wsub != NULL ? 1 : 0, MwALIGNMENT_CENTER, text);
@@ -120,7 +123,7 @@ static void click(MwWidget handle) {
 				rc.height = 2 - 1;
 			}
 
-			if(rc.y <= handle->mouse_point.y && handle->mouse_point.y <= (int)(rc.y + rc.height)) {
+			if(MwGetInteger(handle, MwNleftPadding) <= handle->mouse_point.x && rc.y <= handle->mouse_point.y && handle->mouse_point.y <= (int)(rc.y + rc.height)) {
 				if(menu->sub[i]->wsub == NULL && arrlen(menu->sub[i]->sub) > 0) {
 					MwPoint p;
 					int	j;
@@ -183,6 +186,8 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point, in
 			}
 		}
 	}
+
+	w += MwGetInteger(handle, MwNleftPadding);
 
 	w += 10 + 15;
 	h += 3;

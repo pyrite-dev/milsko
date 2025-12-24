@@ -640,6 +640,9 @@
 			</functions>
 		</widget>
 		<widget name="SubMenu">
+			<properties>
+				<property name="leftPadding" />
+			</properties>
 			<functions>
 				<function name="Appear">
 					<arguments>
