@@ -6,7 +6,7 @@ static int create(MwWidget handle) {
 	MwLLBeginStateChange(handle->lowlevel);
 
 	MwSetDefault(handle);
-	MwSetInteger(handle, MwNleftPadding, 16);
+	MwSetInteger(handle, MwNleftPadding, 0);
 
 	return 0;
 }
