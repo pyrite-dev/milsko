@@ -67,9 +67,9 @@ static void draw(MwWidget handle) {
 				int th = MwTextHeight(handle, menu->sub[i]->name);
 
 				if(menu->sub[i]->wsub != NULL) {
-					r.x	 = 0;
+					r.x	 = MwGetInteger(handle, MwNleftPadding);
 					r.y	 = p.y - 3;
-					r.width	 = MwGetInteger(handle, MwNwidth);
+					r.width	 = MwGetInteger(handle, MwNwidth) - MwGetInteger(handle, MwNleftPadding);
 					r.height = th + 3 * 2;
 					MwDrawWidgetBack(handle, &r, base, 0, MwTRUE);
 				}
