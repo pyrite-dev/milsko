@@ -195,7 +195,6 @@ target_compile_definitions(
 	_MILSKO
 )
 
-include(GNUInstallDirs)
 install(
 	TARGETS Mw
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
