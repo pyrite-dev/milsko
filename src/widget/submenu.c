@@ -116,7 +116,7 @@ static void click(MwWidget handle) {
 			int th	  = MwTextHeight(handle, menu->sub[i]->name);
 			rc.height = th;
 
-			if(rc.x <= handle->mouse_point.x && rc.y <= handle->mouse_point.y && handle->mouse_point.x <= (int)(rc.x + rc.width) && handle->mouse_point.y <= (int)(rc.y + rc.height)) {
+			if(rc.y <= handle->mouse_point.y && handle->mouse_point.y <= (int)(rc.y + rc.height)) {
 				if(menu->sub[i]->wsub == NULL && arrlen(menu->sub[i]->sub) > 0) {
 					MwPoint p;
 					int	j;
@@ -183,7 +183,7 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point, in
 	w += 10 + 15;
 	h += 3;
 
-	if(w < 150) w = 150;
+	w += 32;
 
 	if(diff_calc) {
 		p.y = p.y - h;
