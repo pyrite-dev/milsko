@@ -116,6 +116,10 @@ static void click(MwWidget handle) {
 			int th	  = MwTextHeight(handle, menu->sub[i]->name);
 			rc.height = th;
 
+			if(strcmp(menu->sub[i]->name, "----") == 0) {
+				rc.height = MwDefaultBorderWidth(handle) * 2 - 1;
+			}
+
 			if(rc.y <= handle->mouse_point.y && handle->mouse_point.y <= (int)(rc.y + rc.height)) {
 				if(menu->sub[i]->wsub == NULL && arrlen(menu->sub[i]->sub) > 0) {
 					MwPoint p;
