@@ -15,6 +15,7 @@ static int create(MwWidget handle) {
 	MwSetInteger(handle, MwNbold, 0);
 	MwSetInteger(handle, MwNsevenSegment, 0);
 	MwSetInteger(handle, MwNlength, 4);
+	MwSetInteger(handle, MwNleftPadding, 0);
 
 	return 0;
 }
@@ -309,6 +310,8 @@ static void draw(MwWidget handle) {
 
 		MwLLDestroyPixmap(px);
 	} else {
+		r.width -= MwGetInteger(handle, MwNleftPadding);
+
 		if(align == MwALIGNMENT_CENTER) {
 			p.x = r.width / 2;
 		} else if(align == MwALIGNMENT_BEGINNING) {
@@ -317,6 +320,8 @@ static void draw(MwWidget handle) {
 			p.x = r.width - MwTextWidth(handle, str) / 2;
 		}
 		p.y = r.height / 2;
+
+		p.x += MwGetInteger(handle, MwNleftPadding);
 
 		p.x += 1;
 		p.y += 1;
@@ -333,7 +338,7 @@ static void draw(MwWidget handle) {
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNtext) == 0 || strcmp(key, MwNalignment) == 0 || strcmp(key, MwNsevenSegment) == 0) MwForceRender(handle);
+	if(strcmp(key, MwNtext) == 0 || strcmp(key, MwNalignment) == 0 || strcmp(key, MwNsevenSegment) == 0 || strcmp(key, MwNlength) == 0 || strcmp(key, MwNleftPadding) == 0) MwForceRender(handle);
 }
 
 static void mwLabelSetSevenSegmentImpl(MwWidget handle, int index, unsigned char data) {

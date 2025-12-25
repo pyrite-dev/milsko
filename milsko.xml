@@ -544,6 +544,7 @@
 				<property name="bold" />
 				<property name="sevenSegment" />
 				<property name="length" />
+				<property name="leftPadding" />
 			</properties>
 			<functions>
 				<function name="SetSevenSegment">
