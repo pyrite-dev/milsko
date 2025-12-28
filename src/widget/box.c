@@ -47,6 +47,8 @@ static void layout(MwWidget handle) {
 		int s = MwGetInteger(handle->children[i], MwNfixedSize);
 		if(n == MwDEFAULT) n = 1;
 
+		if(handle->children[i]->destroyed) continue;
+
 		if(s != MwDEFAULT) {
 			sz -= s + Margin;
 		} else {
@@ -59,6 +61,8 @@ static void layout(MwWidget handle) {
 		int s = MwGetInteger(handle->children[i], MwNfixedSize);
 		int wsz;
 		if(n == MwDEFAULT) n = 1;
+
+		if(handle->children[i]->destroyed) continue;
 
 		if(s != MwDEFAULT) {
 			wsz = s;
