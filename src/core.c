@@ -261,6 +261,8 @@ void MwDestroyWidget(MwWidget handle) {
 		if(i == arrlen(handle->parent->destroy_queue)) {
 			arrput(handle->parent->destroy_queue, handle);
 		}
+
+		MwDispatch(handle->parent, children_update);
 	}
 	destroy_children(handle);
 	handle->destroyed = 1;
