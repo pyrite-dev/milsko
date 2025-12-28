@@ -254,10 +254,11 @@ static void draw(MwWidget handle) {
 				for(j = 1; j >= 0; j--) {
 					MwLLColor cl = j == 1 ? shadow : text;
 					for(cy = 1; cy < h - 1; cy++) {
-						int c = (l_one - s_one) / 2 + s_one;
+						int h = s_one / 2;
+						int c = (l_one - h) / 2 + s_one;
 
-						int c1 = (c <= cy && cy <= (c + s_one)) ? 1 : 0;
-						int c2 = ((s_one + l_one + c) <= cy && cy <= (s_one + l_one + c + s_one)) ? 1 : 0;
+						int c1 = (c <= cy && cy <= (c + h)) ? 1 : 0;
+						int c2 = ((s_one + l_one + c) <= cy && cy <= (s_one + l_one + c + h)) ? 1 : 0;
 
 						if(c1 || c2) {
 							for(cx = x; cx < x + s_one; cx++) {
