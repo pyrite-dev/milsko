@@ -29,6 +29,7 @@ struct _MwLLX11 {
 	GC	 gc;
 	Colormap colormap;
 	Atom	 wm_delete;
+	Atom	 wm_protocols;
 	XIM	 xim;
 	XIC	 xic;
 

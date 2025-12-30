@@ -209,8 +209,9 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->x11.grabbed	    = 0;
 	r->x11.force_render = 0;
 
-	r->x11.colormap	 = DefaultColormap(r->x11.display, XDefaultScreen(r->x11.display));
-	r->x11.wm_delete = XInternAtom(r->x11.display, "WM_DELETE_WINDOW", False);
+	r->x11.colormap	    = DefaultColormap(r->x11.display, XDefaultScreen(r->x11.display));
+	r->x11.wm_delete    = XInternAtom(r->x11.display, "WM_DELETE_WINDOW", False);
+	r->x11.wm_protocols = XInternAtom(r->x11.display, "WM_PROTOCOLS", False);
 	XSetWMProtocols(r->x11.display, r->x11.window, &r->x11.wm_delete, 1);
 
 	r->x11.gc = XCreateGC(r->x11.display, r->x11.window, 0, NULL);
@@ -471,7 +472,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 			handle->x11.width  = ev.xconfigure.width;
 			handle->x11.height = ev.xconfigure.height;
 		} else if(ev.type == ClientMessage) {
-			if(ev.xclient.data.l[0] == (long)handle->x11.wm_delete) {
+			if(ev.xclient.message_type == handle->x11.wm_protocols && ev.xclient.data.l[0] == (long)handle->x11.wm_delete) {
 				MwLLDispatch(handle, close, NULL);
 			}
 		} else if(ev.type == FocusIn) {
