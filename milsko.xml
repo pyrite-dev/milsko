@@ -122,6 +122,7 @@
 		<handler name="directoryChosen" />
 		<handler name="colorChosen" />
 		<handler name="draw" />
+		<handler name="clipboard" />
 	</properties>
 	<enumerations>
 		<enumeration name="MwDIRECTION">

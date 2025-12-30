@@ -404,7 +404,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 			GlobalUnlock(hg);
 			CloseClipboard();
 
-			MwLLDispatch(handle, clipboard_received, txt);
+			MwLLDispatch(handle, clipboard, txt);
 
 			free(txt);
 		}

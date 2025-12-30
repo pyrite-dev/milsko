@@ -107,7 +107,7 @@ MwClassRec MwButtonClassRec = {
     NULL,	    /* resize */
     NULL,	    /* children_update */
     NULL,	    /* children_prop_change */
-    NULL,	    /* clipboard_received */
+    NULL,	    /* clipboard */
     NULL,
     NULL,
     NULL,

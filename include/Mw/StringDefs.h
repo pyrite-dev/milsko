@@ -71,5 +71,6 @@
 #define MwNdirectoryChosenHandler "CdirectoryChosen" /* char* */
 #define MwNcolorChosenHandler "CcolorChosen"	     /* MwRGB* */
 #define MwNdrawHandler "Cdraw"			     /* NULL */
+#define MwNclipboardHandler "Cclipboard"	     /* char* */
 
 #endif

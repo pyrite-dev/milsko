@@ -212,7 +212,7 @@ struct _MwClass {
 	MwHandler		   resize;
 	MwHandler		   children_update;
 	MwHandlerChildrenProp	   children_prop_change;
-	MwHandlerClipboardReceived clipboard_received;
+	MwHandlerClipboardReceived clipboard;
 	void*			   reserved1;
 	void*			   reserved2;
 	void*			   reserved3;

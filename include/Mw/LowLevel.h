@@ -147,7 +147,7 @@ struct _MwLLHandler {
 	void (*key_released)(MwLL handle, void* data);
 	void (*focus_in)(MwLL handle, void* data);
 	void (*focus_out)(MwLL handle, void* data);
-	void (*clipboard_received)(MwLL handle, void* data);
+	void (*clipboard)(MwLL handle, void* data);
 };
 
 #ifdef __cplusplus
