@@ -107,8 +107,8 @@ static void llfocusouthandler(MwLL handle, void* data) {
 	MwDispatchUserHandler(h, MwNfocusOutHandler, data);
 }
 
-static void llclipboardreceivedhandler(MwLL handle, void* data){
-	MwWidget h   = (MwWidget)handle->common.user;
+static void llclipboardreceivedhandler(MwLL handle, void* data) {
+	MwWidget h = (MwWidget)handle->common.user;
 
 	MwDispatch3(h, clipboard_received, data);
 }
@@ -143,18 +143,18 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	if(parent == NULL) arrput(h->tick_list, h);
 
 	if(h->lowlevel != NULL) {
-		h->lowlevel->common.user		  = h;
-		h->lowlevel->common.handler->draw	  = lldrawhandler;
-		h->lowlevel->common.handler->up		  = lluphandler;
-		h->lowlevel->common.handler->down	  = lldownhandler;
-		h->lowlevel->common.handler->resize	  = llresizehandler;
-		h->lowlevel->common.handler->close	  = llclosehandler;
-		h->lowlevel->common.handler->move	  = llmovehandler;
-		h->lowlevel->common.handler->key	  = llkeyhandler;
-		h->lowlevel->common.handler->key_released = llkeyrelhandler;
-		h->lowlevel->common.handler->focus_in	  = llfocusinhandler;
-		h->lowlevel->common.handler->focus_out	  = llfocusouthandler;
-		h->lowlevel->common.handler->clipboard_received	  = llclipboardreceivedhandler;
+		h->lowlevel->common.user			= h;
+		h->lowlevel->common.handler->draw		= lldrawhandler;
+		h->lowlevel->common.handler->up			= lluphandler;
+		h->lowlevel->common.handler->down		= lldownhandler;
+		h->lowlevel->common.handler->resize		= llresizehandler;
+		h->lowlevel->common.handler->close		= llclosehandler;
+		h->lowlevel->common.handler->move		= llmovehandler;
+		h->lowlevel->common.handler->key		= llkeyhandler;
+		h->lowlevel->common.handler->key_released	= llkeyrelhandler;
+		h->lowlevel->common.handler->focus_in		= llfocusinhandler;
+		h->lowlevel->common.handler->focus_out		= llfocusouthandler;
+		h->lowlevel->common.handler->clipboard_received = llclipboardreceivedhandler;
 	}
 
 	if(parent != NULL) arrput(parent->children, h);

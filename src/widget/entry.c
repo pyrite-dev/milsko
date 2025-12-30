@@ -144,10 +144,10 @@ static void prop_change(MwWidget handle, const char* prop) {
 	}
 }
 
-static void clipboard_received(MwWidget handle, const char* data){
+static void clipboard_received(MwWidget handle, const char* data) {
 	MwEntry	    t	= handle->internal;
-	const char* str	 = MwGetText(handle, MwNtext);
-	char* out = malloc(strlen(str) + strlen(data) + 1);
+	const char* str = MwGetText(handle, MwNtext);
+	char*	    out = malloc(strlen(str) + strlen(data) + 1);
 
 	if(str == NULL) str = "";
 
@@ -162,22 +162,22 @@ static void clipboard_received(MwWidget handle, const char* data){
 }
 
 MwClassRec MwEntryClassRec = {
-    create,	    /* create */
-    destroy,	    /* destroy */
-    draw,	    /* draw */
-    NULL,	    /* click */
-    NULL,	    /* parent_resize */
-    prop_change,    /* prop_change */
-    NULL,	    /* mouse_move */
-    MwForceRender2, /* mouse_up */
-    MwForceRender2, /* mouse_down */
-    key,	    /* key */
-    NULL,	    /* execute */
-    NULL,	    /* tick */
-    NULL,	    /* resize */
-    NULL,	    /* children_update */
-    NULL,	    /* children_prop_change */
-    clipboard_received,  /* clipboard_received */
+    create,		/* create */
+    destroy,		/* destroy */
+    draw,		/* draw */
+    NULL,		/* click */
+    NULL,		/* parent_resize */
+    prop_change,	/* prop_change */
+    NULL,		/* mouse_move */
+    MwForceRender2,	/* mouse_up */
+    MwForceRender2,	/* mouse_down */
+    key,		/* key */
+    NULL,		/* execute */
+    NULL,		/* tick */
+    NULL,		/* resize */
+    NULL,		/* children_update */
+    NULL,		/* children_prop_change */
+    clipboard_received, /* clipboard_received */
     NULL,
     NULL,
     NULL,

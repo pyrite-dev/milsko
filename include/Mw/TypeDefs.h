@@ -197,26 +197,26 @@ struct _MwListBoxPacket {
 };
 
 struct _MwClass {
-	MwHandlerWithStatus   create;
-	MwHandler	      destroy;
-	MwHandler	      draw;
-	MwHandler	      click;
-	MwHandler	      parent_resize;
-	MwHandlerProp	      prop_change;
-	MwHandler	      mouse_move;
-	MwHandlerMouse	      mouse_up;
-	MwHandlerMouse	      mouse_down;
-	MwHandlerKey	      key;
-	MwHandlerExecute      execute;
-	MwHandler	      tick;
-	MwHandler	      resize;
-	MwHandler	      children_update;
-	MwHandlerChildrenProp children_prop_change;
+	MwHandlerWithStatus	   create;
+	MwHandler		   destroy;
+	MwHandler		   draw;
+	MwHandler		   click;
+	MwHandler		   parent_resize;
+	MwHandlerProp		   prop_change;
+	MwHandler		   mouse_move;
+	MwHandlerMouse		   mouse_up;
+	MwHandlerMouse		   mouse_down;
+	MwHandlerKey		   key;
+	MwHandlerExecute	   execute;
+	MwHandler		   tick;
+	MwHandler		   resize;
+	MwHandler		   children_update;
+	MwHandlerChildrenProp	   children_prop_change;
 	MwHandlerClipboardReceived clipboard_received;
-	void*		      reserved1;
-	void*		      reserved2;
-	void*		      reserved3;
-	void*		      reserved4;
+	void*			   reserved1;
+	void*			   reserved2;
+	void*			   reserved3;
+	void*			   reserved4;
 };
 
 #endif

@@ -114,7 +114,7 @@ MwClassRec MwBoxClassRec = {
     resize,		  /* resize */
     children_update,	  /* children_update */
     children_prop_change, /* children_prop_change */
-    NULL,  /* clipboard_received */
+    NULL,		  /* clipboard_received */
     NULL,
     NULL,
     NULL,
