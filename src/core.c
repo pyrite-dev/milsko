@@ -387,6 +387,9 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 		MwDispatch3(handle, prop_change, key);
 		if(handle->parent != NULL) MwDispatch4(handle->parent, children_prop_change, handle, key);
 	}
+	if(strcmp(key, MwNforceInverted) == 0) {
+		MwForceRender(handle);
+	}
 }
 
 void MwSetText(MwWidget handle, const char* key, const char* value) {
