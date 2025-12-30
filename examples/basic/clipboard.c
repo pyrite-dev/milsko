@@ -29,6 +29,9 @@ void handler(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
 	(void)call_data;
+
+	/* nishi: please rewrite this part */
+	/*
 	char* clipboard;
 
 	clipboard = MwLLGetClipboard(handle->lowlevel);
@@ -37,6 +40,7 @@ void handler(MwWidget handle, void* user_data, void* call_data) {
 		MwVaApply(text, MwNtext, clipboard);
 		MwForceRender(text);
 	}
+	*/
 
 	resize(window, NULL, NULL);
 }

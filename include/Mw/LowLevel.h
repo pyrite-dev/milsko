@@ -147,6 +147,7 @@ struct _MwLLHandler {
 	void (*key_released)(MwLL handle, void* data);
 	void (*focus_in)(MwLL handle, void* data);
 	void (*focus_out)(MwLL handle, void* data);
+	void (*clipboard_received)(MwLL handle, void* data);
 };
 
 #ifdef __cplusplus
@@ -203,7 +204,7 @@ MWDECL void (*MwLLFocus)(MwLL handle);
 MWDECL void (*MwLLGrabPointer)(MwLL handle, int toggle);
 
 MWDECL void (*MwLLSetClipboard)(MwLL handle, const char* text);
-MWDECL char* (*MwLLGetClipboard)(MwLL handle);
+MWDECL void (*MwLLGetClipboard)(MwLL handle);
 
 MWDECL void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
 MWDECL void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect);

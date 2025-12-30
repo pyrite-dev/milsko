@@ -21,6 +21,7 @@ struct _MwLLGDI {
 
 	int grabbed;
 	int force_render;
+	int get_clipboard;
 };
 
 struct _MwLLGDIColor {

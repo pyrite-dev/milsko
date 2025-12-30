@@ -46,7 +46,7 @@ void (*MwLLFocus)(MwLL handle);
 void (*MwLLGrabPointer)(MwLL handle, int toggle);
 
 void (*MwLLSetClipboard)(MwLL handle, const char* text);
-char* (*MwLLGetClipboard)(MwLL handle);
+void (*MwLLGetClipboard)(MwLL handle);
 
 void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
 void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect);

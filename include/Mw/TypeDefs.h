@@ -39,6 +39,7 @@ typedef void (*MwHandlerChildrenProp)(MwWidget handle, MwWidget child, const cha
 typedef void (*MwHandlerKey)(MwWidget handle, int key);
 typedef void (*MwHandlerMouse)(MwWidget handle, void* ptr);
 typedef void (*MwHandlerExecute)(MwWidget handle, const char* name, void* out, va_list args);
+typedef void (*MwHandlerClipboardReceived)(MwWidget handle, const char* data);
 
 typedef void (*MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 typedef void (*MwErrorHandler)(int code, const char* message, void* user_data);
@@ -211,11 +212,11 @@ struct _MwClass {
 	MwHandler	      resize;
 	MwHandler	      children_update;
 	MwHandlerChildrenProp children_prop_change;
+	MwHandlerClipboardReceived clipboard_received;
 	void*		      reserved1;
 	void*		      reserved2;
 	void*		      reserved3;
 	void*		      reserved4;
-	void*		      reserved5;
 };
 
 #endif

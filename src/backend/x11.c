@@ -957,45 +957,10 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
 	(void)text;
 }
 
-static char* MwLLGetClipboardImpl(MwLL handle) {
-	Atom	clip, target, prop;
-	XEvent	ev;
-	XEvent* queue = NULL;
-	char*	r     = NULL;
+static void MwLLGetClipboardImpl(MwLL handle) {
+	/* TODO */
 
-	clip   = XInternAtom(handle->x11.display, "CLIPBOARD", 0);
-	target = XA_STRING;
-	prop   = XInternAtom(handle->x11.display, "XSEL_DATA", 0);
-
-	XConvertSelection(handle->x11.display, clip, target, prop, handle->x11.window, CurrentTime);
-
-	while(1) {
-		XNextEvent(handle->x11.display, &ev);
-		if(ev.type == SelectionNotify) {
-			if(ev.xselection.selection == clip && ev.xselection.property != 0) {
-				Atom	      t;
-				unsigned long size, N;
-				char*	      data;
-				int	      format;
-
-				XGetWindowProperty(ev.xselection.display, ev.xselection.requestor, ev.xselection.property, 0, (~0L), 0, AnyPropertyType, &t, &format, &size, &N, (unsigned char**)&data);
-				if(t == target) {
-					r = MwStringDuplicate(data);
-					XFree(data);
-				}
-				XDeleteProperty(ev.xselection.display, ev.xselection.requestor, ev.xselection.property);
-			}
-			break;
-		}
-	}
-
-	while(arrlen(queue) > 0) {
-		XPutBackEvent(handle->x11.display, &queue[0]);
-		arrdel(queue, 0);
-	}
-	arrfree(queue);
-
-	return r;
+	(void)handle;
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {

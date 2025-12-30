@@ -107,6 +107,12 @@ static void llfocusouthandler(MwLL handle, void* data) {
 	MwDispatchUserHandler(h, MwNfocusOutHandler, data);
 }
 
+static void llclipboardreceivedhandler(MwLL handle, void* data){
+	MwWidget h   = (MwWidget)handle->common.user;
+
+	MwDispatch3(h, clipboard_received, data);
+}
+
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	MwWidget h = malloc(sizeof(*h));
 
@@ -148,6 +154,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 		h->lowlevel->common.handler->key_released = llkeyrelhandler;
 		h->lowlevel->common.handler->focus_in	  = llfocusinhandler;
 		h->lowlevel->common.handler->focus_out	  = llfocusouthandler;
+		h->lowlevel->common.handler->clipboard_received	  = llclipboardreceivedhandler;
 	}
 
 	if(parent != NULL) arrput(parent->children, h);

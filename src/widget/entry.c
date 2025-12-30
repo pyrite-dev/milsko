@@ -109,20 +109,7 @@ static void key(MwWidget handle, int code) {
 	} else if(code == MwLLKeyEnter) {
 		MwDispatchUserHandler(handle, MwNactivateHandler, NULL);
 	} else if(code == (MwLLControlMask | 'v')) {
-		char* c = MwLLGetClipboard(handle->lowlevel);
-		if(c != NULL) {
-			char* out = malloc(strlen(str) + strlen(c) + 1);
-
-			MwUTF8Copy(str, 0, out, 0, t->cursor);
-			MwUTF8Copy(c, 0, out, t->cursor, MwUTF8Length(c));
-			MwUTF8Copy(str, t->cursor, out, t->cursor + MwUTF8Length(c), MwUTF8Length(str) - t->cursor);
-
-			t->cursor += MwUTF8Length(c);
-
-			MwSetText(handle, MwNtext, out);
-			free(out);
-			free(c);
-		}
+		MwLLGetClipboard(handle->lowlevel);
 	} else if(!(code & MwLLKeyMask)) {
 		int incr = 0;
 		out	 = malloc(strlen(str) + 5 + 1);
@@ -157,6 +144,23 @@ static void prop_change(MwWidget handle, const char* prop) {
 	}
 }
 
+static void clipboard_received(MwWidget handle, const char* data){
+	MwEntry	    t	= handle->internal;
+	const char* str	 = MwGetText(handle, MwNtext);
+	char* out = malloc(strlen(str) + strlen(data) + 1);
+
+	if(str == NULL) str = "";
+
+	MwUTF8Copy(str, 0, out, 0, t->cursor);
+	MwUTF8Copy(data, 0, out, t->cursor, MwUTF8Length(data));
+	MwUTF8Copy(str, t->cursor, out, t->cursor + MwUTF8Length(data), MwUTF8Length(str) - t->cursor);
+
+	t->cursor += MwUTF8Length(data);
+
+	MwSetText(handle, MwNtext, out);
+	free(out);
+}
+
 MwClassRec MwEntryClassRec = {
     create,	    /* create */
     destroy,	    /* destroy */
@@ -173,7 +177,7 @@ MwClassRec MwEntryClassRec = {
     NULL,	    /* resize */
     NULL,	    /* children_update */
     NULL,	    /* children_prop_change */
-    NULL,
+    clipboard_received,  /* clipboard_received */
     NULL,
     NULL,
     NULL,

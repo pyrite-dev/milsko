@@ -191,7 +191,7 @@ MwClassRec MwViewportClassRec = {
     NULL,	  /* resize */
     NULL,	  /* children_update */
     NULL,	  /* children_prop_change */
-    NULL,
+    NULL,  /* clipboard_received */
     NULL,
     NULL,
     NULL,

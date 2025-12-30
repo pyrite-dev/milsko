@@ -237,6 +237,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->common.copy_buffer = 1;
 	r->common.type	      = MwLLBackendGDI;
 
+	r->gdi.get_clipboard = 1;
 	r->gdi.force_render = 0;
 	r->gdi.grabbed	    = 0;
 	r->gdi.hWnd	    = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->gdi.hWnd, 0, wc.hInstance, NULL);
@@ -383,6 +384,7 @@ static int MwLLPendingImpl(MwLL handle) {
 
 	(void)handle;
 
+	if(handle->gdi.get_clipboard) return 1;
 	return PeekMessage(&msg, handle->gdi.hWnd, 0, 0, PM_NOREMOVE) ? 1 : 0;
 }
 
@@ -391,6 +393,24 @@ static void MwLLNextEventImpl(MwLL handle) {
 
 	(void)handle;
 
+	if(handle->gdi.get_clipboard){
+		HGLOBAL hg;
+		if(OpenClipboard(handle->gdi.hWnd) != 0 && (hg = GetClipboardData(CF_TEXT)) != NULL){
+			char* txt = malloc(GlobalSize(hg));
+			char* clp = GlobalLock(hg);
+
+			strcpy(txt, clp);
+
+			GlobalUnlock(hg);
+			CloseClipboard();
+
+			MwLLDispatch(handle, clipboard_received, txt);
+
+			free(txt);
+		}
+
+		handle->gdi.get_clipboard = 0;
+	}
 	while(PeekMessage(&msg, handle->gdi.hWnd, 0, 0, PM_NOREMOVE)) {
 		GetMessage(&msg, handle->gdi.hWnd, 0, 0);
 		TranslateMessage(&msg);
@@ -697,21 +717,8 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
 	}
 }
 
-static char* MwLLGetClipboardImpl(MwLL handle) {
-	HGLOBAL hg;
-	char*	r = NULL;
-	if(OpenClipboard(handle->gdi.hWnd) != 0 && (hg = GetClipboardData(CF_TEXT)) != NULL) {
-		char* lock;
-
-		r = malloc(GlobalSize(hg));
-
-		lock = GlobalLock(hg);
-		strcpy(r, lock);
-		GlobalUnlock(hg);
-
-		CloseClipboard();
-	}
-	return r;
+static void MwLLGetClipboardImpl(MwLL handle) {
+	handle->gdi.get_clipboard = 1; /* nishi: we do this to make clipboard api work similar to other backends */
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {
