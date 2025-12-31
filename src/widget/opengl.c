@@ -1,7 +1,6 @@
 #include <Mw/Milsko.h>
 #include <Mw/Widget/OpenGL.h>
 
-#ifdef HAS_OPENGL
 #ifdef USE_GDI
 typedef HGLRC(WINAPI* MWwglCreateContext)(HDC);
 typedef BOOL(WINAPI* MWwglMakeCurrent)(HDC, HGLRC);
@@ -320,80 +319,6 @@ static void* mwOpenGLGetProcAddressImpl(MwWidget handle, const char* name) {
 #endif
 	return NULL;
 }
-#else
-#ifdef USE_GDI
-typedef HGLRC(WINAPI* MWwglCreateContext)(HDC);
-typedef BOOL(WINAPI* MWwglMakeCurrent)(HDC, HGLRC);
-typedef PROC(WINAPI* MWwglGetProcAddress)(LPCSTR);
-typedef BOOL(WINAPI* MWwglDeleteContext)(HGLRC);
-
-typedef struct gdiopengl {
-	HDC   dc;
-	HGLRC gl;
-
-	void* lib;
-
-	MWwglCreateContext  wglCreateContext;
-	MWwglMakeCurrent    wglMakeCurrent;
-	MWwglDeleteContext  wglDeleteContext;
-	MWwglGetProcAddress wglGetProcAddress;
-} gdiopengl_t;
-#endif
-#ifdef USE_X11
-typedef XVisualInfo* (*MWglXChooseVisual)(Display* dpy, int screen, int* attribList);
-typedef GLXContext (*MWglXCreateContext)(Display* dpy, XVisualInfo* vis, GLXContext shareList, Bool direct);
-typedef void (*MWglXDestroyContext)(Display* dpy, GLXContext ctx);
-typedef Bool (*MWglXMakeCurrent)(Display* dpy, GLXDrawable drawable, GLXContext ctx);
-typedef void (*MWglXSwapBuffers)(Display* dpy, GLXDrawable drawable);
-typedef void* (*MWglXGetProcAddress)(const GLubyte* procname);
-
-typedef struct x11opengl {
-	XVisualInfo* visual;
-	GLXContext   gl;
-
-	void* lib;
-
-	MWglXChooseVisual   glXChooseVisual;
-	MWglXCreateContext  glXCreateContext;
-	MWglXDestroyContext glXDestroyContext;
-	MWglXMakeCurrent    glXMakeCurrent;
-	MWglXSwapBuffers    glXSwapBuffers;
-	MWglXGetProcAddress glXGetProcAddress;
-} x11opengl_t;
-#endif
-
-#ifdef USE_WAYLAND
-#include <EGL/egl.h>
-#include <wayland-egl.h>
-
-typedef struct waylandopengl {
-	struct wl_egl_window* egl_window_native;
-	EGLDisplay	      egl_display;
-	EGLContext	      egl_context;
-	EGLSurface	      egl_surface;
-	EGLConfig	      egl_config;
-} waylandopengl_t;
-
-#endif
-
-static int create(MwWidget handle) {
-	printf("Milsko compiled without OpenGL support! OpenGL widgets will not work properly.\n");
-	return 1;
-}
-
-static void destroy(MwWidget handle) {
-}
-
-static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
-}
-
-static void mwOpenGLSwapBufferImpl(MwWidget handle) {
-}
-
-static void* mwOpenGLGetProcAddressImpl(MwWidget handle, const char* name) {
-	return NULL;
-}
-#endif
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	if(strcmp(name, "mwOpenGLMakeCurrent") == 0) {

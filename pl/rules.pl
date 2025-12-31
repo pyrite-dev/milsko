@@ -53,10 +53,6 @@ if (param_get("stb-truetype")) {
     add_cflags("-DUSE_STB_TRUETYPE");
 }
 
-if (param_get("opengl")) {
-    add_cflags("-DHAS_OPENGL");
-}
-
 if (param_get("freetype2")) {
     add_cflags("-DUSE_FREETYPE2");
     if ($cross) {

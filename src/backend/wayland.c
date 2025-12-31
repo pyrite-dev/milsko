@@ -1468,14 +1468,11 @@ static int MwLLPendingImpl(MwLL handle) {
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
-	if(!handle->wayland.always_render) {
-		event_loop(handle);
-		if(handle->wayland.events_pending) {
-			handle->wayland.events_pending = 0;
-		}
-		if(handle->wayland.force_render) {
-			handle->wayland.force_render = 0;
-		}
+	if(handle->wayland.events_pending) {
+		handle->wayland.events_pending = 0;
+	}
+	if(handle->wayland.force_render) {
+		handle->wayland.force_render = 0;
 	}
 }
 
