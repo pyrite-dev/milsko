@@ -1,4 +1,3 @@
-#define _MILSKO
 #include <Mw/Milsko.h>
 
 MwWidget window, instructions, text;
@@ -35,8 +34,6 @@ void clipboard(MwWidget handle, void* user_data, void* call_data) {
 		MwForceRender(text);
 	}
 	MwForceRender(window);
-
-	MwLLSetClipboard(window->lowlevel, "Milsko clipboard test");
 }
 
 int main() {
