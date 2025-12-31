@@ -14,7 +14,6 @@
  * - MwLLGrabPointerImpl
  * - MwLLMakePopupImpl
  * - MwLLShowImpl
- * - MwLLDetachImpl
  */
 
 /* TODO: find out what FreeBSD and such wants us to include */

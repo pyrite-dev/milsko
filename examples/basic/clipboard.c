@@ -25,9 +25,10 @@ void resize(MwWidget handle, void* user_data, void* call_data) {
 		  NULL);
 }
 void clipboard(MwWidget handle, void* user_data, void* call_data) {
+	char* clipboard = call_data;
+
 	(void)handle;
 	(void)user_data;
-	char* clipboard = call_data;
 
 	if(clipboard != NULL) {
 		MwVaApply(text, MwNtext, clipboard);
@@ -39,8 +40,6 @@ void clipboard(MwWidget handle, void* user_data, void* call_data) {
 }
 
 int main() {
-	MwMenu m, m2;
-
 	MwLibraryInit();
 
 	window	     = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 400, 400,
