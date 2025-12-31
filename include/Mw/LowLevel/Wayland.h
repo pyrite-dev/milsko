@@ -139,6 +139,8 @@ struct _MwLLWayland {
 		wayland_protocol_t* value;
 	}* wl_protocol_map;
 
+	MwBool always_render;
+
 	struct wl_display*	    display;
 	struct wl_registry*	    registry;
 	struct wl_compositor*	    compositor;
@@ -183,9 +185,6 @@ struct _MwLLWayland {
 	MwLL parent;
 
 	MwBool force_render;
-
-	pthread_mutex_t dispatch_mutex;
-	pthread_mutex_t pending_mutex;
 
 	MwBool break_dispatch;
 	MwBool break_pending;
