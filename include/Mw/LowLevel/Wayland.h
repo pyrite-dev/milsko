@@ -170,8 +170,7 @@ struct _MwLLWayland {
 	struct wl_keyboard* keyboard;
 	MwU32		    keyboard_serial;
 
-	MwU64  events_pending;
-	MwBool test;
+	MwU64 events_pending;
 
 	MwU32 mod_state;
 
@@ -186,8 +185,7 @@ struct _MwLLWayland {
 
 	MwBool force_render;
 
-	MwBool break_dispatch;
-	MwBool break_pending;
+	MwBool hmmmm;
 
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  cursor;

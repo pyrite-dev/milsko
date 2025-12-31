@@ -8,7 +8,6 @@
 #include <sys/mman.h>
 #include <wayland-util.h>
 #include <unistd.h>
-#include <pthread.h>
 
 /* TODO:
  * - MwLLGrabPointerImpl
@@ -360,6 +359,7 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 	p.point = self->wayland.cur_mouse_pos;
 	MwLLDispatch(self, move, &p);
+
 	self->wayland.events_pending += 1;
 
 	/*timed_redraw(self, time, 50, &self->wayland.cooldown_timer);*/
@@ -396,8 +396,10 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 		}
 	}
 
-	MwLLDispatch(self, draw, NULL);
-	self->wayland.events_pending += 1;
+	if(!self->wayland.always_render) {
+		MwLLDispatch(self, draw, NULL);
+		self->wayland.events_pending += 1;
+	}
 };
 
 /* `wl_pointer.axis` callback */
@@ -556,8 +558,11 @@ static void keyboard_key(void*		     data,
 			}
 		}
 	}
-	MwLLDispatch(self, draw, NULL);
-	self->wayland.events_pending += 1;
+
+	if(!self->wayland.always_render) {
+		MwLLDispatch(self, draw, NULL);
+		self->wayland.events_pending += 1;
+	}
 };
 
 /* `wl_keyboard.modifiers` callback */
@@ -783,6 +788,8 @@ static void xdg_toplevel_configure(void*		data,
 	MwLLDispatch(self, resize, NULL);
 	MwLLDispatch(self, draw, NULL);
 
+	MwLLForceRender(self);
+
 	/*if(!self->wayland.egl_setup) {
 		self->wayland.egl_setup = egl_setup(self, self->wayland.x, self->wayland.y, width, height);
 	} else {
@@ -891,6 +898,7 @@ static void framebuffer_setup(struct _MwLLWayland* wayland) {
 
 	memset(wayland->framebuffer.buf, 255, wayland->framebuffer.buf_size);
 	update_buffer(&wayland->framebuffer);
+
 	wayland->events_pending += 1;
 };
 static void framebuffer_destroy(struct _MwLLWayland* wayland) {
@@ -1287,9 +1295,6 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	MwLLForceRender(r);
 
-	pthread_mutex_init(&r->wayland.dispatch_mutex, NULL);
-	pthread_mutex_init(&r->wayland.pending_mutex, NULL);
-
 	return r;
 }
 
@@ -1398,6 +1403,7 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 	}
 	cairo_close_path(handle->wayland.cairo);
 	cairo_fill(handle->wayland.cairo);
+
 	handle->wayland.events_pending += 1;
 }
 
@@ -1416,6 +1422,7 @@ static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	}
 	cairo_close_path(handle->wayland.cairo);
 	cairo_stroke(handle->wayland.cairo);
+
 	handle->wayland.events_pending += 1;
 }
 
@@ -1424,6 +1431,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 
 static void MwLLEndDrawImpl(MwLL handle) {
 	update_buffer(&handle->wayland.framebuffer);
+
 	handle->wayland.events_pending += 1;
 }
 
@@ -1451,20 +1459,29 @@ static int MwLLPendingImpl(MwLL handle) {
 	MwBool		pending = MwFALSE;
 	struct timespec timeout;
 
-	timeout.tv_nsec = 100;
-	timeout.tv_sec	= 0;
-
-	while(pending == 0 && !handle->wayland.break_dispatch) {
-		pending = wl_display_dispatch_timeout(handle->wayland.display, &timeout);
+	if(handle->wayland.always_render) {
+		/* call event loop twice to make it to flush out events like mouse events and ensure we don't lag the render when doing that
+		 */
+		event_loop(handle);
+		return event_loop(handle);
 	}
 
-	return handle->wayland.force_render || handle->wayland.events_pending || pending;
+	timeout.tv_nsec = 10;
+	timeout.tv_sec	= 0;
+
+	printf("%d\n", handle->wayland.force_render);
+	return handle->wayland.force_render || handle->wayland.events_pending || wl_display_dispatch_timeout(handle->wayland.display, &timeout);
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
-	event_loop(handle);
-	if(handle->wayland.events_pending) {
-		handle->wayland.events_pending = 0;
+	if(!handle->wayland.always_render) {
+		event_loop(handle);
+		if(handle->wayland.events_pending) {
+			handle->wayland.events_pending = 0;
+		}
+		if(handle->wayland.force_render) {
+			handle->wayland.force_render = 0;
+		}
 	}
 }
 
@@ -1574,6 +1591,8 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 
 static void MwLLForceRenderImpl(MwLL handle) {
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+
+	handle->wayland.force_render = MwTRUE;
 
 	/*
 	if(handle->wayland.egl_setup) {

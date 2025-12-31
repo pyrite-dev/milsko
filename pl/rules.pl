@@ -32,6 +32,10 @@ if (grep(/^wayland$/, @backends)) {
     add_cflags(`pkg-config --cflags cairo wayland-client xkbcommon`);
     add_libs(`pkg-config --libs cairo wayland-client xkbcommon`);
 
+    if (param_get("opengl")) {
+        add_libs(`pkg-config --libs egl wayland-egl`);
+    }
+
     scan_wayland_protocol("stable",   "xdg-shell",         "");
     scan_wayland_protocol("stable",   "tablet",            "-v2");
     scan_wayland_protocol("staging",  "xdg-toplevel-icon", "-v1");
@@ -39,7 +43,7 @@ if (grep(/^wayland$/, @backends)) {
     scan_wayland_protocol("unstable", "xdg-decoration",    "-unstable-v1");
     scan_wayland_protocol("unstable", "primary-selection", "-unstable-v1");
 
-    $gl_libs = "-lEGL -lwayland-egl lGL -lGLU";
+    $gl_libs = "-lGL -lGLU";
 }
 
 if (param_get("stb-image")) {
@@ -48,6 +52,11 @@ if (param_get("stb-image")) {
 if (param_get("stb-truetype")) {
     add_cflags("-DUSE_STB_TRUETYPE");
 }
+
+if (param_get("opengl")) {
+    add_cflags("-DHAS_OPENGL");
+}
+
 if (param_get("freetype2")) {
     add_cflags("-DUSE_FREETYPE2");
     if ($cross) {
