@@ -8,9 +8,9 @@
 #include <sys/mman.h>
 #include <wayland-util.h>
 #include <unistd.h>
+#include <pthread.h>
 
 /* TODO:
- * - MwLLSetClipboardImpl
  * - MwLLGrabPointerImpl
  * - MwLLMakePopupImpl
  * - MwLLShowImpl
@@ -62,78 +62,275 @@ static void protocol_removed(void*		 data,
 	printf("%d destroyed\n", name);
 };
 
-static void offer_offer(void*				       data,
-			struct zwp_primary_selection_offer_v1* zwp_primary_selection_offer_v1,
-			const char*			       mime_type) {
+/* Flush Wayland events */
+static void wl_flush(MwLL handle) {
+	struct pollfd pfd;
+	int	      rc;
+
+	pfd.fd	   = wl_display_get_fd(handle->wayland.display);
+	pfd.events = POLLIN;
+	while(MwTRUE) {
+		rc = wl_display_flush(handle->wayland.display);
+		if(errno != EAGAIN || rc != -1) {
+			break;
+		}
+
+		if(poll(&pfd, 1, -1) == -1) {
+			break;
+		}
+	}
+}
+
+static void wl_offer(void*		   data,
+		     struct wl_data_offer* wl_data_offer,
+		     const char*	   mime_type) {
+	wl_clipboard_device_context_t* self = data;
+	wl_data_offer_accept(wl_data_offer, self->ll->wayland.clipboard_serial, mime_type);
 };
 
-struct zwp_primary_selection_offer_v1_listener offer_listener = {
-    .offer = offer_offer,
+struct wl_data_offer_listener offer_listener = {
+    .offer = wl_offer,
 };
 
-typedef struct primary_selection_device_context {
-	struct zwp_primary_selection_device_v1* device;
-	struct zwp_primary_selection_offer_v1*	offer;
-} primary_selection_device_context_t;
+static void wl_data_device_data_offer(void*		     data,
+				      struct wl_data_device* wl_data_device,
+				      struct wl_data_offer*  offer) {
+	wl_clipboard_device_context_t* self = data;
 
-typedef struct primary_selection_context {
-	struct zwp_primary_selection_device_manager_v1* manager;
-	/* stored seperately of the listeners because it's not a pointer and it gets assigned to data devices dynamically. */
-	struct zwp_primary_selection_device_v1_listener listener;
+	wl_data_offer_add_listener(offer, &offer_listener, data);
 
-	struct zwp_primary_selection_source_v1* source;
-	primary_selection_device_context_t**	devices;
-} primary_selection_context_t;
-
-static void primary_selection_data_offer(void*					 data,
-					 struct zwp_primary_selection_device_v1* zwp_primary_selection_device_v1,
-					 struct zwp_primary_selection_offer_v1*	 offer) {
-	struct primary_selection_device_context* self = data;
-	zwp_primary_selection_offer_v1_add_listener(offer, &offer_listener, data);
-
-	self->offer = offer;
+	self->offer.wl = offer;
 };
-static void primary_selection_selection(void*					data,
-					struct zwp_primary_selection_device_v1* zwp_primary_selection_device_v1,
-					struct zwp_primary_selection_offer_v1*	id) {
+
+static void wl_data_device_enter(void*			data,
+				 struct wl_data_device* wl_data_device,
+				 uint32_t		serial,
+				 struct wl_surface*	surface,
+				 wl_fixed_t		x,
+				 wl_fixed_t		y,
+				 struct wl_data_offer*	id) {
+	MwLL self		       = data;
+	self->wayland.clipboard_serial = serial;
 };
+static void wl_data_device_leave(void*			data,
+				 struct wl_data_device* wl_data_device) {
+	wl_data_device_destroy(wl_data_device);
+};
+static void wl_data_device_motion(void*			 data,
+				  struct wl_data_device* wl_data_device,
+				  uint32_t		 time,
+				  wl_fixed_t		 x,
+				  wl_fixed_t		 y) {
+};
+static void wl_data_device_drop(void*		       data,
+				struct wl_data_device* wl_data_device) {
+};
+
+static void wl_data_device_selection(void*		    data,
+				     struct wl_data_device* wl_data_device,
+				     struct wl_data_offer*  id) {
+};
+
+struct wl_data_device_listener wl_data_device_listener = {
+    .data_offer = wl_data_device_data_offer,
+    .enter	= wl_data_device_enter,
+    .leave	= wl_data_device_leave,
+    .motion	= wl_data_device_motion,
+    .drop	= wl_data_device_drop,
+    .selection	= wl_data_device_selection,
+};
+
+static void zwp_primary_selection_device_v1_data_offer(void*				       data,
+						       struct zwp_primary_selection_device_v1* zwp_primary_selection_device_v1,
+						       struct zwp_primary_selection_offer_v1*  offer) {
+	wl_clipboard_device_context_t* self = data;
+
+	self->offer.zwp = offer;
+};
+
+static void zwp_primary_selection_device_v1_selection(void*				      data,
+						      struct zwp_primary_selection_device_v1* zwp_primary_selection_device_v1,
+						      struct zwp_primary_selection_offer_v1*  id) {
+};
+
+struct zwp_primary_selection_device_v1_listener zwp_primary_selection_device_v1_listener = {
+    .data_offer = zwp_primary_selection_device_v1_data_offer,
+    .selection	= zwp_primary_selection_device_v1_selection,
+};
+
+static void wl_clipboard_read(wl_clipboard_device_context_t* ctx) {
+	int	       fds[2];
+	fd_set	       set;
+	char*	       buf = NULL;
+	struct timeval timeout;
+	int	       rc = 0;
+	int	       n;
+
+	if(pipe(fds) != 0) {
+		return;
+	}
+
+	FD_ZERO(&set);
+	FD_SET(fds[0], &set);
+	timeout.tv_sec	= 0;
+	timeout.tv_usec = 100;
+
+	if(ctx->ll->wayland.supports_zwp) {
+		zwp_primary_selection_offer_v1_receive(ctx->offer.zwp, "text/plain", fds[1]);
+	} else {
+		wl_data_offer_receive(ctx->offer.wl, "text/plain", fds[1]);
+	}
+	close(fds[1]);
+
+	wl_flush(ctx->ll);
+	wl_display_roundtrip(ctx->ll->wayland.display);
+
+	while(MwTRUE) {
+		char ch;
+		rc = select(fds[0] + 1, &set, NULL, NULL, &timeout);
+		if(rc <= 0) {
+			break;
+		} else {
+			char	b;
+			ssize_t n = read(fds[0], &b, sizeof(b));
+			if(n <= 0) {
+				break;
+			}
+			arrpush(buf, b);
+		}
+	}
+	arrpush(buf, 0);
+	close(fds[0]);
+
+	MwLLDispatch(ctx->ll, clipboard, buf);
+	arrfree(buf);
+}
+
+static void wl_data_source_listener_target(void*		  data,
+					   struct wl_data_source* wl_data_source,
+					   const char*		  mime_type) {
+};
+static void wl_data_source_listener_send(void*			data,
+					 struct wl_data_source* wl_data_source,
+					 const char*		mime_type,
+					 int32_t		fd) {
+	MwLL self = data;
+	if(self->wayland.clipboard_buffer != NULL) {
+		write(fd, self->wayland.clipboard_buffer, strlen(self->wayland.clipboard_buffer));
+		close(fd);
+
+		self->wayland.events_pending = 1;
+	}
+};
+static void wl_data_source_listener_cancelled(void*		     data,
+					      struct wl_data_source* wl_data_source);
+
+struct wl_data_source_listener wl_data_source_listener = {
+    .target    = wl_data_source_listener_target,
+    .send      = wl_data_source_listener_send,
+    .cancelled = wl_data_source_listener_cancelled,
+};
+
+static void wl_data_source_listener_cancelled(void*		     data,
+					      struct wl_data_source* wl_data_source) {
+	MwLL self = data;
+
+	wl_data_source_destroy(wl_data_source);
+
+	self->wayland.clipboard_source.wl = wl_data_device_manager_create_data_source(self->wayland.clipboard_manager.wl);
+
+	wl_data_source_offer(self->wayland.clipboard_source.wl, "text/plain");
+	wl_data_source_offer(self->wayland.clipboard_source.wl, "text/plain;charset=utf-8");
+	wl_data_source_offer(self->wayland.clipboard_source.wl, "TEXT");
+	wl_data_source_offer(self->wayland.clipboard_source.wl, "STRING");
+	wl_data_source_offer(self->wayland.clipboard_source.wl, "UTF8_STRING");
+
+	wl_data_source_add_listener(self->wayland.clipboard_source.wl, &wl_data_source_listener, self);
+};
+
+static void zwp_primary_selection_source_v1_send(void*					 data,
+						 struct zwp_primary_selection_source_v1* wl_data_source,
+						 const char*				 mime_type,
+						 int32_t				 fd) {
+	MwLL self = data;
+	if(self->wayland.clipboard_buffer != NULL) {
+		write(fd, self->wayland.clipboard_buffer, strlen(self->wayland.clipboard_buffer));
+		close(fd);
+
+		self->wayland.events_pending = 1;
+	}
+};
+static void zwp_primary_selection_source_v1_cancelled(void*				      data,
+						      struct zwp_primary_selection_source_v1* wl_data_source) {
+	MwLL self = data;
+
+	zwp_primary_selection_source_v1_destroy(self->wayland.clipboard_source.zwp);
+
+	self->wayland.clipboard_source.zwp = zwp_primary_selection_device_manager_v1_create_source(self->wayland.clipboard_manager.zwp);
+
+	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "text/plain");
+	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "text/plain;charset=utf-8");
+	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "TEXT");
+	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "STRING");
+	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "UTF8_STRING");
+};
+
+struct zwp_primary_selection_source_v1_listener zwp_primary_selection_source_v1_listener = {
+    .send      = zwp_primary_selection_source_v1_send,
+    .cancelled = zwp_primary_selection_source_v1_cancelled,
+};
+
+/* wl_data_device_manager setup function */
+static wayland_protocol_t* wl_data_device_manager_setup(MwU32 name, struct _MwLLWayland* wayland) {
+	wayland->clipboard_manager.wl = wl_registry_bind(wayland->registry, name, &wl_data_device_manager_interface, 2);
+
+	wayland->clipboard_source.wl = wl_data_device_manager_create_data_source(wayland->clipboard_manager.wl);
+
+	wl_data_source_offer(wayland->clipboard_source.wl, "text/plain");
+	wl_data_source_offer(wayland->clipboard_source.wl, "text/plain;charset=utf-8");
+	wl_data_source_offer(wayland->clipboard_source.wl, "TEXT");
+	wl_data_source_offer(wayland->clipboard_source.wl, "STRING");
+	wl_data_source_offer(wayland->clipboard_source.wl, "UTF8_STRING");
+
+	wl_data_source_add_listener(wayland->clipboard_source.wl, &wl_data_source_listener, wayland);
+
+	return NULL;
+}
+
+static void wl_data_device_manager_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	wl_data_device_manager_destroy(wayland->clipboard_manager.wl);
+	wl_data_source_destroy(wayland->clipboard_source.wl);
+}
 
 /* zwp_primary_selection_device_manager_v1 setup function */
 static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland_protocol_t*	     proto   = malloc(sizeof(wayland_protocol_t));
-	primary_selection_context_t* context = malloc(sizeof(primary_selection_context_t));
+	if(wayland->clipboard_manager.wl != NULL) {
+		wl_data_device_manager_interface_destroy(wayland, NULL);
+	}
 
-	context->manager = wl_registry_bind(wayland->registry, name, &zwp_primary_selection_device_manager_v1_interface, 1);
+	wayland->clipboard_manager.zwp = wl_registry_bind(wayland->registry, name, &zwp_primary_selection_device_manager_v1_interface, 1);
 
-	struct zwp_primary_selection_device_manager_v1* device;
-	context->listener.data_offer = primary_selection_data_offer;
-	context->listener.selection  = primary_selection_selection;
+	wayland->clipboard_source.zwp = zwp_primary_selection_device_manager_v1_create_source(wayland->clipboard_manager.zwp);
 
-	context->source = zwp_primary_selection_device_manager_v1_create_source(context->manager);
+	zwp_primary_selection_source_v1_offer(wayland->clipboard_source.zwp, "text/plain");
+	zwp_primary_selection_source_v1_offer(wayland->clipboard_source.zwp, "text/plain;charset=utf-8");
+	zwp_primary_selection_source_v1_offer(wayland->clipboard_source.zwp, "TEXT");
+	zwp_primary_selection_source_v1_offer(wayland->clipboard_source.zwp, "STRING");
+	zwp_primary_selection_source_v1_offer(wayland->clipboard_source.zwp, "UTF8_STRING");
 
-	context->devices = NULL;
+	zwp_primary_selection_source_v1_add_listener(wayland->clipboard_source.zwp, &zwp_primary_selection_source_v1_listener, wayland);
 
-	proto->context	= context;
-	proto->listener = NULL;
+	wayland->supports_zwp = MwTRUE;
 
-	return proto;
+	return NULL;
 }
 
 static void zwp_primary_selection_device_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	primary_selection_context_t* context = data->context;
-	int			     i;
+	return;
 
-	zwp_primary_selection_device_manager_v1_destroy(context->manager);
+	zwp_primary_selection_device_manager_v1_destroy(wayland->clipboard_manager.zwp);
 
-	for(i = 0; i < arrlen(context->devices); i++) {
-		primary_selection_device_context_t* device = context->devices[i];
-		// zwp_primary_selection_device_v1_destroy(device->device);
-		// zwp_primary_selection_offer_v1_destroy(device->offer);
-		free(device);
-	}
-	arrfree(context->devices);
-
-	zwp_primary_selection_source_v1_destroy(context->source);
+	zwp_primary_selection_source_v1_destroy(wayland->clipboard_source.zwp);
 
 	free(data->listener);
 }
@@ -164,7 +361,7 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 	p.point = self->wayland.cur_mouse_pos;
 	MwLLDispatch(self, move, &p);
-	self->wayland.events_pending = MwTRUE;
+	self->wayland.events_pending += 1;
 
 	/*timed_redraw(self, time, 50, &self->wayland.cooldown_timer);*/
 };
@@ -181,6 +378,10 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 			break;
 		case BTN_MIDDLE:
 			p.button = MwLLMouseMiddle;
+			for(int i = 0; i < arrlen(self->wayland.clipboard_devices); i++) {
+				wl_clipboard_read(
+				    self->wayland.clipboard_devices[i]);
+			}
 			break;
 		case BTN_RIGHT:
 			p.button = MwLLMouseRight;
@@ -197,7 +398,7 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	}
 
 	MwLLDispatch(self, draw, NULL);
-	self->wayland.events_pending = MwTRUE;
+	self->wayland.events_pending += 1;
 };
 
 /* `wl_pointer.axis` callback */
@@ -247,9 +448,11 @@ static void keyboard_enter(void*	       data,
 			   MwU32	       serial,
 			   struct wl_surface*  surface,
 			   struct wl_array*    keys) {
-	MwLL self = data;
+	MwLL self		      = data;
+	self->wayland.keyboard_serial = serial;
+
 	MwLLDispatch(self, focus_in, NULL);
-	self->wayland.events_pending = MwTRUE;
+	self->wayland.events_pending += 1;
 };
 
 /* `wl_keyboard.leave` callback */
@@ -259,7 +462,7 @@ static void keyboard_leave(void*	       data,
 			   struct wl_surface*  surface) {
 	MwLL self = data;
 	MwLLDispatch(self, focus_out, NULL);
-	self->wayland.events_pending = MwTRUE;
+	self->wayland.events_pending += 1;
 };
 
 /* `wl_keyboard.key` callback */
@@ -334,11 +537,19 @@ static void keyboard_key(void*		     data,
 				key = sym;
 			}
 			if((self->wayland.mod_state & 4) == 4) {
+				/* clipboard paste */
+				if(key == 'V') {
+					for(int i = 0; i < arrlen(self->wayland.clipboard_devices); i++) {
+						wl_clipboard_read(
+						    self->wayland.clipboard_devices[i]);
+					}
+				}
 				key |= MwLLControlMask;
 			}
 			if((self->wayland.mod_state & 8) == 8) {
 				key |= MwLLAltMask;
 			}
+
 			if(state == WL_KEYBOARD_KEY_STATE_PRESSED) {
 				MwLLDispatch(self, key, &key);
 			} else {
@@ -346,7 +557,8 @@ static void keyboard_key(void*		     data,
 			}
 		}
 	}
-	self->wayland.events_pending = MwTRUE;
+	MwLLDispatch(self, draw, NULL);
+	self->wayland.events_pending += 1;
 };
 
 /* `wl_keyboard.modifiers` callback */
@@ -379,7 +591,9 @@ wl_seat_name(void* data, struct wl_seat* wl_seat, const char* name) {};
 /* `wl_seat.capabilities` callback */
 static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 				 MwU32 capabilities) {
-	MwLL self = data;
+	MwLL			       self	  = data;
+	wl_clipboard_device_context_t* device_ctx = malloc(sizeof(wl_clipboard_device_context_t));
+
 	if(capabilities & WL_SEAT_CAPABILITY_KEYBOARD) {
 		self->wayland.keyboard = wl_seat_get_keyboard(wl_seat);
 		wl_keyboard_add_listener(self->wayland.keyboard, &keyboard_listener, data);
@@ -389,20 +603,22 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 		wl_pointer_add_listener(self->wayland.pointer, &pointer_listener, data);
 	}
 
-	/* primary selection support */
-	if(WAYLAND_GET_INTERFACE(self->wayland, zwp_primary_selection_device_manager_v1) != NULL) {
-		primary_selection_context_t*	    primary_selection = WAYLAND_GET_INTERFACE(self->wayland, zwp_primary_selection_device_manager_v1)->context;
-		primary_selection_device_context_t* device_ctx	      = malloc(sizeof(primary_selection_device_context_t));
-
-		device_ctx->device =
-		    zwp_primary_selection_device_manager_v1_get_device(primary_selection->manager, wl_seat);
-
-		zwp_primary_selection_device_v1_add_listener(device_ctx->device, &primary_selection->listener, device_ctx);
-
-		device_ctx->offer = NULL;
-
-		arrpush(primary_selection->devices, device_ctx);
+	if(self->wayland.supports_zwp) {
+		device_ctx->device.zwp = zwp_primary_selection_device_manager_v1_get_device(self->wayland.clipboard_manager.zwp, wl_seat);
+	} else {
+		device_ctx->device.wl = wl_data_device_manager_get_data_device(self->wayland.clipboard_manager.wl, wl_seat);
 	}
+	device_ctx->ll		 = self;
+	device_ctx->seat	 = wl_seat;
+	device_ctx->capabilities = capabilities;
+
+	if(self->wayland.supports_zwp) {
+		zwp_primary_selection_device_v1_add_listener(device_ctx->device.zwp, &zwp_primary_selection_device_v1_listener, device_ctx);
+	} else {
+		wl_data_device_add_listener(device_ctx->device.wl, &wl_data_device_listener, device_ctx);
+	}
+
+	arrpush(self->wayland.clipboard_devices, device_ctx);
 };
 
 static void output_geometry(void*	      data,
@@ -466,7 +682,6 @@ static wayland_protocol_t* wl_output_setup(MwU32 name, MwLL ll) {
 }
 
 static void wl_output_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	// wl_output_destroy(wayland->output);
 }
 
 /* wl_compositor setup function */
@@ -477,7 +692,6 @@ static wayland_protocol_t* wl_compositor_setup(MwU32 name, struct _MwLLWayland* 
 }
 
 static void wl_compositor_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	// wl_compositor_destroy(wayland->compositor);
 }
 
 /* wl_subcompositor setup function */
@@ -543,6 +757,11 @@ static void xdg_toplevel_configure(void*		data,
 				   struct wl_array* states) {
 	MwLL self = data;
 	int  i;
+
+	/* Yes, somehow this can get called before  */
+	if(!self->wayland.configured) {
+		return;
+	}
 
 	if(width == 0 || height == 0) {
 		width  = self->wayland.ww;
@@ -612,7 +831,6 @@ static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland
 }
 
 static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	// buffer_destroy(&wayland->framebuffer);
 }
 
 static void update_buffer(struct _MwLLWaylandShmBuffer* buffer) {
@@ -674,7 +892,7 @@ static void framebuffer_setup(struct _MwLLWayland* wayland) {
 
 	memset(wayland->framebuffer.buf, 255, wayland->framebuffer.buf_size);
 	update_buffer(&wayland->framebuffer);
-	wayland->events_pending = MwTRUE;
+	wayland->events_pending += 1;
 };
 static void framebuffer_destroy(struct _MwLLWayland* wayland) {
 	buffer_destroy(&wayland->framebuffer);
@@ -709,25 +927,6 @@ static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct
 static void xdg_toplevel_icon_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	free(data->listener);
 	xdg_toplevel_icon_manager_v1_destroy(data->context);
-}
-
-/* Flush Wayland events */
-static void wl_flush(MwLL handle) {
-	struct pollfd pfd;
-	int	      rc;
-
-	pfd.fd	   = wl_display_get_fd(handle->wayland.display);
-	pfd.events = POLLIN;
-	while(MwTRUE) {
-		rc = wl_display_flush(handle->wayland.display);
-		if(errno != EAGAIN || rc != -1) {
-			break;
-		}
-
-		if(poll(&pfd, 1, -1) == -1) {
-			break;
-		}
-	}
 }
 
 /* Standard Wayland event loop. */
@@ -803,6 +1002,7 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 	WL_INTERFACE(wl_compositor);
 	WL_INTERFACE(wl_seat);
 	WL_INTERFACE(wl_output);
+	WL_INTERFACE(wl_data_device_manager);
 	WL_INTERFACE(zwp_primary_selection_device_manager_v1);
 	if(wayland->type == MWLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(xdg_wm_base);
@@ -869,6 +1069,8 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	/* Perform the initial commit and wait for the first configure event */
 	wl_surface_commit(r->wayland.framebuffer.surface);
 	event_loop(r);
+	while(!r->wayland.configured) {
+	}
 
 	/* setup decorations if we can */
 	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
@@ -924,11 +1126,7 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 
 	r->wayland.display = parent->wayland.display;
 
-	r->wayland.framebuffer.surface = wl_compositor_create_surface(compositor);
-
 	setup_callbacks(&r->wayland);
-
-	// printf("position %d %d\n", x, y);
 
 	r->wayland.registry = wl_display_get_registry(parent->wayland.display);
 	r->wayland.display  = parent->wayland.display;
@@ -939,6 +1137,8 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 		raise(SIGTRAP);
 		return;
 	}
+
+	r->wayland.framebuffer.surface = wl_compositor_create_surface(compositor);
 
 	r->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(r->wayland.sublevel->subcompositor, r->wayland.framebuffer.surface, parent_surface);
 
@@ -1003,7 +1203,6 @@ static void setup_popup(MwLL r) {
 	}
 
 	r->wayland.popup = calloc(sizeof(struct _MwLLWaylandPopup), 0);
-	// r->wayland.popup->parent = parent;
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
 
@@ -1038,6 +1237,7 @@ static void setup_popup(MwLL r) {
 	wl_surface_commit(r->wayland.framebuffer.surface);
 	event_loop(r);
 }
+
 /* Popup destroy function */
 static void destroy_popup(MwLL r) {
 	xdg_popup_destroy(r->wayland.popup->xdg_popup);
@@ -1047,8 +1247,6 @@ static void destroy_popup(MwLL r) {
 	xdg_positioner_destroy(r->wayland.popup->xdg_positioner);
 
 	wl_surface_destroy(r->wayland.framebuffer.surface);
-
-	// free(r->wayland.popup);
 
 	wl_registry_destroy(r->wayland.registry);
 }
@@ -1090,6 +1288,9 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	MwLLForceRender(r);
 
+	pthread_mutex_init(&r->wayland.dispatch_mutex, NULL);
+	pthread_mutex_init(&r->wayland.pending_mutex, NULL);
+
 	return r;
 }
 
@@ -1104,14 +1305,11 @@ static void MwLLDestroyImpl(MwLL handle) {
 	buffer_destroy(&handle->wayland.cursor);
 	wl_region_destroy(handle->wayland.region);
 
-	if(WAYLAND_GET_INTERFACE(handle->wayland, zwp_primary_selection_device_manager_v1) != NULL) {
-		primary_selection_context_t* primary_selection = WAYLAND_GET_INTERFACE(handle->wayland, zwp_primary_selection_device_manager_v1)->context;
-
-		for(i = 0; i < arrlen(primary_selection->devices); i++) {
-			zwp_primary_selection_offer_v1_destroy(primary_selection->devices[i]->offer);
-		}
+	if(handle->wayland.supports_zwp) {
+		zwp_primary_selection_source_v1_destroy(handle->wayland.clipboard_source.zwp);
+	} else {
+		wl_data_source_destroy(handle->wayland.clipboard_source.wl);
 	}
-
 	if(handle->wayland.icon != NULL) {
 		buffer_destroy(handle->wayland.icon);
 		wl_surface_destroy(handle->wayland.icon->surface);
@@ -1164,6 +1362,7 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	region_invalidate(handle);
+
 	/* Prevent an integer underflow when the w/h is too low */
 	if((w < 10 || h < 10)) {
 		handle->wayland.ww = 10;
@@ -1173,7 +1372,7 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	handle->wayland.ww = w;
 	handle->wayland.wh = h;
 
-	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
+	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL && handle->wayland.configured) {
 		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 	}
 
@@ -1200,7 +1399,7 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 	}
 	cairo_close_path(handle->wayland.cairo);
 	cairo_fill(handle->wayland.cairo);
-	handle->wayland.events_pending = MwTRUE;
+	handle->wayland.events_pending += 1;
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
@@ -1218,7 +1417,7 @@ static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	}
 	cairo_close_path(handle->wayland.cairo);
 	cairo_stroke(handle->wayland.cairo);
-	handle->wayland.events_pending = MwTRUE;
+	handle->wayland.events_pending += 1;
 }
 
 static void MwLLBeginDrawImpl(MwLL handle) {
@@ -1226,7 +1425,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 
 static void MwLLEndDrawImpl(MwLL handle) {
 	update_buffer(&handle->wayland.framebuffer);
-	handle->wayland.events_pending = MwTRUE;
+	handle->wayland.events_pending += 1;
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
@@ -1249,14 +1448,68 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 	free(color);
 }
 
+static void* display_dispatch_thread(void* data) {
+	MwLL		handle	= data;
+	MwU64		pending = 0;
+	struct timespec timeout;
+
+	timeout.tv_nsec = 100;
+	timeout.tv_sec	= 0;
+
+	while(pending == 0 && !handle->wayland.break_dispatch) {
+		pending = wl_display_dispatch_timeout(handle->wayland.display, &timeout);
+	}
+
+	handle->wayland.break_dispatch = MwTRUE;
+	return (void*)pending;
+};
+static void* force_render_thread(void* data) {
+	MwLL handle = data;
+
+	while(!handle->wayland.force_render && !handle->wayland.events_pending) {
+	}
+
+	handle->wayland.break_pending = MwTRUE;
+	return NULL;
+};
+
 static int MwLLPendingImpl(MwLL handle) {
-	return handle->wayland.events_pending || wl_display_dispatch(handle->wayland.display);
+	pthread_t      t1, t2;
+	pthread_attr_t attr;
+
+	pthread_attr_init(&attr);
+	pthread_create(&t1, &attr, display_dispatch_thread, handle);
+	pthread_create(&t2, &attr, force_render_thread, handle);
+
+	while(MwTRUE) {
+		if(handle->wayland.break_dispatch) {
+			pthread_join(t1, (void**)&handle->wayland.events_pending);
+			handle->wayland.break_dispatch = MwFALSE;
+
+			handle->wayland.force_render = MwTRUE;
+
+			pthread_cancel(t2);
+			break;
+		}
+
+		if(handle->wayland.break_pending) {
+
+			handle->wayland.break_dispatch = MwTRUE;
+			pthread_join(t2, NULL);
+			pthread_join(t1, (void**)&handle->wayland.events_pending);
+			handle->wayland.break_pending = MwFALSE;
+
+			break;
+		}
+	}
+
+	return handle->wayland.events_pending;
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
 	event_loop(handle);
 	if(handle->wayland.events_pending) {
-		handle->wayland.events_pending = MwFALSE;
+		handle->wayland.events_pending = 0;
 	}
 }
 
@@ -1485,59 +1738,28 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 }
 
 static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
+	if(handle->wayland.clipboard_buffer != NULL) {
+		free(handle->wayland.clipboard_buffer);
+	}
+	handle->wayland.clipboard_buffer = malloc(strlen(text));
+	strcpy(handle->wayland.clipboard_buffer, text);
+
+	if(handle->wayland.supports_zwp) {
+		for(int i = 0; i < arrlen(handle->wayland.clipboard_devices); i++) {
+			wl_clipboard_device_context_t* device = handle->wayland.clipboard_devices[i];
+			zwp_primary_selection_device_v1_set_selection(device->device.zwp, handle->wayland.clipboard_source.zwp, handle->wayland.keyboard_serial);
+		}
+	} else {
+		for(int i = 0; i < arrlen(handle->wayland.clipboard_devices); i++) {
+			wl_clipboard_device_context_t* device = handle->wayland.clipboard_devices[i];
+			wl_data_device_set_selection(device->device.wl, handle->wayland.clipboard_source.wl, handle->wayland.keyboard_serial);
+		}
+	}
 }
 
-static char* MwLLGetClipboardImpl(MwLL handle) {
-	if(WAYLAND_GET_INTERFACE(handle->wayland, zwp_primary_selection_device_manager_v1) != NULL) {
-		primary_selection_context_t* primary_selection = WAYLAND_GET_INTERFACE(handle->wayland, zwp_primary_selection_device_manager_v1)->context;
-		int			     i, n = 0;
-		int			     fds[2];
-		struct timeval		     timeout;
-		fd_set			     set;
-		char*			     clip_buffer = NULL;
-
-		if(pipe(fds) != 0) {
-			return NULL;
-		}
-
-		FD_ZERO(&set);
-		FD_SET(fds[0], &set);
-
-		timeout.tv_sec	= 0;
-		timeout.tv_usec = 100;
-
-		for(i = 0; i < arrlen(primary_selection->devices); i++) {
-			primary_selection_device_context_t* device = primary_selection->devices[i];
-			size_t				    size   = 0;
-			char				    ch;
-			int				    rc = 0;
-
-			zwp_primary_selection_offer_v1_receive(device->offer, "text/plain", fds[1]);
-
-			wl_flush(handle);
-
-			fcntl(fds[0], F_SETFL, O_NONBLOCK);
-
-			while(MwTRUE) {
-				rc = select(fds[0] + 1, &set, NULL, NULL, &timeout);
-				if(rc <= 0) {
-					break;
-				} else {
-					read(fds[0], &ch, 1);
-					arrpush(clip_buffer, ch);
-					if(n++ >= 10240) {
-						break;
-					}
-				}
-			}
-			return clip_buffer;
-		}
-
-		// zwp_primary_selection_source_v1_send();
-
-		// arrpush(primary_selection->devices, device);
-	}
-	return NULL;
+static void MwLLGetClipboardImpl(MwLL handle) {
+	/* no-op */
+	return;
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {

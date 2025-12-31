@@ -97,6 +97,21 @@ enum _MwLLWaylandType {
 	MWLL_WAYLAND_POPUP,
 };
 
+typedef struct wl_clipboard_device_context {
+	union {
+		struct wl_data_device*			wl;
+		struct zwp_primary_selection_device_v1* zwp;
+	} device;
+	union {
+		struct wl_data_offer*		       wl;
+		struct zwp_primary_selection_offer_v1* zwp;
+	} offer;
+
+	MwLL		ll;
+	struct wl_seat* seat;
+	MwU32		capabilities;
+} wl_clipboard_device_context_t;
+
 struct _MwLLWayland {
 	struct _MwLLCommon common;
 
@@ -131,11 +146,29 @@ struct _MwLLWayland {
 	struct wl_region*	    region;
 	struct wl_output*	    output;
 
-	struct wl_pointer*  pointer;
-	struct wl_keyboard* keyboard;
-	MwU32		    pointer_serial;
+	/* clipboard related stuff.
+	 * Note that unlike most interfaces, we don't keep zwp_primary_selection stuff in a wayland_protocol_t because we use wl_data_device as a fallback and want to have it share memory space.*/
 
-	MwBool events_pending;
+	union {
+		struct wl_data_device_manager*			wl;
+		struct zwp_primary_selection_device_manager_v1* zwp;
+	} clipboard_manager;
+	union {
+		struct wl_data_source*			wl;
+		struct zwp_primary_selection_source_v1* zwp;
+	} clipboard_source;
+	char*  clipboard_buffer;
+	MwBool supports_zwp;
+
+	uint32_t			clipboard_serial;
+	wl_clipboard_device_context_t** clipboard_devices;
+
+	struct wl_pointer*  pointer;
+	MwU32		    pointer_serial;
+	struct wl_keyboard* keyboard;
+	MwU32		    keyboard_serial;
+
+	MwU64  events_pending;
 	MwBool test;
 
 	MwU32 mod_state;
@@ -148,6 +181,14 @@ struct _MwLLWayland {
 	MwU32 mw, mh; /* Monitor width and height as advertised by wl_output.mode */
 
 	MwLL parent;
+
+	MwBool force_render;
+
+	pthread_mutex_t dispatch_mutex;
+	pthread_mutex_t pending_mutex;
+
+	MwBool break_dispatch;
+	MwBool break_pending;
 
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  cursor;

@@ -1,7 +1,7 @@
 #define _MILSKO
 #include <Mw/Milsko.h>
 
-MwWidget window, button, text;
+MwWidget window, instructions, text;
 
 void resize(MwWidget handle, void* user_data, void* call_data) {
 	unsigned int w, h, mh;
@@ -12,7 +12,7 @@ void resize(MwWidget handle, void* user_data, void* call_data) {
 	w = MwGetInteger(handle, MwNwidth);
 	h = MwGetInteger(handle, MwNheight);
 
-	MwVaApply(button,
+	MwVaApply(instructions,
 		  MwNy, 50 + mh,
 		  MwNwidth, w - 50 * 2,
 		  MwNheight, h - 125 - 50 * 3,
@@ -24,25 +24,18 @@ void resize(MwWidget handle, void* user_data, void* call_data) {
 		  MwNheight, h - 125 - 50 * 3,
 		  NULL);
 }
-
-void handler(MwWidget handle, void* user_data, void* call_data) {
+void clipboard(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
-	(void)call_data;
-
-	/* nishi: please rewrite this part */
-	/*
-	char* clipboard;
-
-	clipboard = MwLLGetClipboard(handle->lowlevel);
+	char* clipboard = call_data;
 
 	if(clipboard != NULL) {
 		MwVaApply(text, MwNtext, clipboard);
 		MwForceRender(text);
 	}
-	*/
+	MwForceRender(window);
 
-	resize(window, NULL, NULL);
+	MwLLSetClipboard(window->lowlevel, "Milsko clipboard test");
 }
 
 int main() {
@@ -50,18 +43,18 @@ int main() {
 
 	MwLibraryInit();
 
-	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 400, 400,
-				  MwNtitle, "clipboard",
-				  NULL);
-	button = MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 300, 125,
-				  MwNtext, "get clipboard contents",
-				  NULL);
-	text   = MwVaCreateWidget(MwLabelClass, "label", window, 50, 200, 300, 125,
-				  MwNtext, "",
-				  NULL);
+	window	     = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 400, 400,
+					MwNtitle, "clipboard",
+					NULL);
+	instructions = MwVaCreateWidget(MwLabelClass, "button", window, 50, 50, 300, 125,
+					MwNtext, "clipboard contents will show up below.",
+					NULL);
+	text	     = MwVaCreateWidget(MwLabelClass, "label", window, 50, 200, 300, 125,
+					MwNtext, "",
+					NULL);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
-	MwAddUserHandler(button, MwNactivateHandler, handler, NULL);
+	MwAddUserHandler(window, MwNclipboardHandler, clipboard, NULL);
 
 	resize(window, NULL, NULL);
 
