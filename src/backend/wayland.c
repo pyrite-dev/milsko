@@ -1447,9 +1447,8 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 	free(color);
 }
 
-static void* display_dispatch_thread(void* data) {
-	MwLL		handle	= data;
-	MwU64		pending = 0;
+static int MwLLPendingImpl(MwLL handle) {
+	MwBool		pending = MwFALSE;
 	struct timespec timeout;
 
 	timeout.tv_nsec = 100;
@@ -1459,50 +1458,7 @@ static void* display_dispatch_thread(void* data) {
 		pending = wl_display_dispatch_timeout(handle->wayland.display, &timeout);
 	}
 
-	handle->wayland.break_dispatch = MwTRUE;
-	return (void*)pending;
-};
-static void* force_render_thread(void* data) {
-	MwLL handle = data;
-
-	while(!handle->wayland.force_render && !handle->wayland.events_pending) {
-	}
-
-	handle->wayland.break_pending = MwTRUE;
-	return NULL;
-};
-
-static int MwLLPendingImpl(MwLL handle) {
-	pthread_t      t1, t2;
-	pthread_attr_t attr;
-
-	pthread_attr_init(&attr);
-	pthread_create(&t1, &attr, display_dispatch_thread, handle);
-	pthread_create(&t2, &attr, force_render_thread, handle);
-
-	while(MwTRUE) {
-		if(handle->wayland.break_dispatch) {
-			pthread_join(t1, (void**)&handle->wayland.events_pending);
-			handle->wayland.break_dispatch = MwFALSE;
-
-			handle->wayland.force_render = MwTRUE;
-
-			pthread_cancel(t2);
-			break;
-		}
-
-		if(handle->wayland.break_pending) {
-
-			handle->wayland.break_dispatch = MwTRUE;
-			pthread_join(t2, NULL);
-			pthread_join(t1, (void**)&handle->wayland.events_pending);
-			handle->wayland.break_pending = MwFALSE;
-
-			break;
-		}
-	}
-
-	return handle->wayland.events_pending;
+	return handle->wayland.force_render || handle->wayland.events_pending || pending;
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
