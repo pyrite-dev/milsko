@@ -185,7 +185,7 @@ struct _MwLLWayland {
 
 	MwBool force_render;
 
-	MwBool hmmmm;
+	MwBool disabled;
 
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  cursor;
