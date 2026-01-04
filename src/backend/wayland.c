@@ -24,6 +24,21 @@
 #include <linux/input-event-codes.h>
 #endif
 
+/* Standard procedure before most event callbacks in Wayland ("most" because the setup ones don't need this). Wait for the Mutex to be freed, if we're deadlocking for longer then a quarter of a second then do nothing with the event. */
+#define WAYLAND_EVENT_OP_START(self) \
+	do { \
+		struct timespec t; \
+		t.tv_sec  = 0; \
+		t.tv_nsec = 250; \
+		if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) { \
+			/*printf("deadlock at line %d\n", __LINE__);*/ \
+			return; \
+		}; \
+	} while(0);
+
+/* Footer for WAYLAND_EVENT_OP_START */
+#define WAYLAND_EVENT_OP_END(self) pthread_mutex_unlock(&self->wayland.eventsMutex);
+
 /* Setup the framebuffer with the saved width/height */
 static void framebuffer_setup(struct _MwLLWayland* wayland);
 /* Destroy the framebuffer */
@@ -41,16 +56,20 @@ static void region_invalidate(MwLL handle);
 static void new_protocol(void* data, struct wl_registry* registry,
 			 MwU32 name, const char* interface,
 			 MwU32 version) {
-	struct _MwLLWayland* wayland = data;
+	MwLL self = data;
 
-	wayland_protocol_callback_table_t* cb = shget(wayland->wl_protocol_setup_map, interface);
+	WAYLAND_EVENT_OP_START(self);
+
+	wayland_protocol_callback_table_t* cb = shget(self->wayland.wl_protocol_setup_map, interface);
 	if(cb != NULL) {
 		char* inter = malloc(strlen(interface) + 1);
 		strcpy(inter, interface);
-		shput(wayland->wl_protocol_map, inter, cb->setup(name, data));
+		shput(self->wayland.wl_protocol_map, inter, cb->setup(name, data));
 	} else {
 		/* printf("unknown interface %s\n", interface); */
 	}
+
+	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `wl_registry.global_remove` callback */
@@ -107,12 +126,21 @@ static void wl_data_device_enter(void*			data,
 				 wl_fixed_t		x,
 				 wl_fixed_t		y,
 				 struct wl_data_offer*	id) {
-	MwLL self		       = data;
+	MwLL self = data;
+
+	WAYLAND_EVENT_OP_START(self);
+
 	self->wayland.clipboard_serial = serial;
+
+	WAYLAND_EVENT_OP_END(self);
 };
 static void wl_data_device_leave(void*			data,
 				 struct wl_data_device* wl_data_device) {
+	MwLL self = data;
+
+	WAYLAND_EVENT_OP_START(self);
 	wl_data_device_destroy(wl_data_device);
+	WAYLAND_EVENT_OP_END(self);
 };
 static void wl_data_device_motion(void*			 data,
 				  struct wl_data_device* wl_data_device,
@@ -213,12 +241,15 @@ static void wl_data_source_listener_send(void*			data,
 					 const char*		mime_type,
 					 int32_t		fd) {
 	MwLL self = data;
+
+	WAYLAND_EVENT_OP_START(self);
 	if(self->wayland.clipboard_buffer != NULL) {
 		write(fd, self->wayland.clipboard_buffer, strlen(self->wayland.clipboard_buffer));
 		close(fd);
 
 		self->wayland.events_pending = 1;
 	}
+	WAYLAND_EVENT_OP_END(self);
 };
 static void wl_data_source_listener_cancelled(void*		     data,
 					      struct wl_data_source* wl_data_source);
@@ -233,6 +264,8 @@ static void wl_data_source_listener_cancelled(void*		     data,
 					      struct wl_data_source* wl_data_source) {
 	MwLL self = data;
 
+	WAYLAND_EVENT_OP_START(self);
+
 	wl_data_source_destroy(wl_data_source);
 
 	self->wayland.clipboard_source.wl = wl_data_device_manager_create_data_source(self->wayland.clipboard_manager.wl);
@@ -244,6 +277,8 @@ static void wl_data_source_listener_cancelled(void*		     data,
 	wl_data_source_offer(self->wayland.clipboard_source.wl, "UTF8_STRING");
 
 	wl_data_source_add_listener(self->wayland.clipboard_source.wl, &wl_data_source_listener, self);
+
+	WAYLAND_EVENT_OP_END(self);
 };
 
 static void zwp_primary_selection_source_v1_send(void*					 data,
@@ -251,16 +286,23 @@ static void zwp_primary_selection_source_v1_send(void*					 data,
 						 const char*				 mime_type,
 						 int32_t				 fd) {
 	MwLL self = data;
+
+	WAYLAND_EVENT_OP_START(self);
+
 	if(self->wayland.clipboard_buffer != NULL) {
 		write(fd, self->wayland.clipboard_buffer, strlen(self->wayland.clipboard_buffer));
 		close(fd);
 
 		self->wayland.events_pending = 1;
 	}
+
+	WAYLAND_EVENT_OP_END(self);
 };
 static void zwp_primary_selection_source_v1_cancelled(void*				      data,
 						      struct zwp_primary_selection_source_v1* wl_data_source) {
 	MwLL self = data;
+
+	WAYLAND_EVENT_OP_START(self);
 
 	zwp_primary_selection_source_v1_destroy(self->wayland.clipboard_source.zwp);
 
@@ -271,6 +313,8 @@ static void zwp_primary_selection_source_v1_cancelled(void*				      data,
 	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "TEXT");
 	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "STRING");
 	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "UTF8_STRING");
+
+	WAYLAND_EVENT_OP_END(self);
 };
 
 struct zwp_primary_selection_source_v1_listener zwp_primary_selection_source_v1_listener = {
@@ -327,31 +371,22 @@ static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 n
 }
 
 static void zwp_primary_selection_device_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	return;
-
 	zwp_primary_selection_device_manager_v1_destroy(wayland->clipboard_manager.zwp);
-
-	zwp_primary_selection_source_v1_destroy(wayland->clipboard_source.zwp);
-
-	free(data->listener);
 }
 
 /* `wl_pointer.enter` callback */
 static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
 			  struct wl_surface* surface, wl_fixed_t surface_x,
 			  wl_fixed_t surface_y) {
-	MwLL		self = data;
-	struct timespec t;
-	t.tv_nsec = 100;
+	MwLL self = data;
 
-	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
-		return;
-	};
+	WAYLAND_EVENT_OP_START(self);
+
 	self->wayland.pointer_serial = serial;
 
 	wl_pointer_set_cursor(wl_pointer, serial, self->wayland.cursor.surface, 0, 0);
 
-	pthread_mutex_unlock(&self->wayland.eventsMutex);
+	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `wl_pointer.leave` callback */
@@ -365,12 +400,8 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	MwLL	  self = data;
 	MwLLMouse p;
 
-	struct timespec t;
-	t.tv_nsec = 100;
+	WAYLAND_EVENT_OP_START(self);
 
-	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
-		return;
-	};
 	self->wayland.cur_mouse_pos.x = wl_fixed_to_double(surface_x);
 	self->wayland.cur_mouse_pos.y = wl_fixed_to_double(surface_y);
 
@@ -378,21 +409,18 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	MwLLDispatch(self, move, &p);
 
 	self->wayland.events_pending += 1;
-	pthread_mutex_unlock(&self->wayland.eventsMutex);
+
+	WAYLAND_EVENT_OP_END(self);
 
 	/*timed_redraw(self, time, 50, &self->wayland.cooldown_timer);*/
 };
 
 /* `wl_pointer.button` callback */
 static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 serial, MwU32 time, MwU32 button, MwU32 state) {
-	MwLL		self = data;
-	MwLLMouse	p;
-	struct timespec t;
-	t.tv_nsec = 100;
+	MwLL	  self = data;
+	MwLLMouse p;
 
-	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
-		return;
-	};
+	WAYLAND_EVENT_OP_START(self);
 
 	p.point = self->wayland.cur_mouse_pos;
 	if(p.point.x > self->wayland.x && p.point.x < self->wayland.x + self->wayland.ww && p.point.y > self->wayland.y && p.point.y < self->wayland.y + self->wayland.wh) {
@@ -425,7 +453,8 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 		MwLLDispatch(self, draw, NULL);
 		self->wayland.events_pending += 1;
 	}
-	pthread_mutex_unlock(&self->wayland.eventsMutex);
+
+	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `wl_pointer.axis` callback */
@@ -447,6 +476,7 @@ static void keyboard_keymap(void*		data,
 			    int32_t		fd,
 			    MwU32		size) {
 	MwLL self = data;
+
 	if(self->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
 		struct _MwLLWaylandTopLevel* wayland = self->wayland.toplevel;
 		assert(format == WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1);
@@ -473,19 +503,16 @@ static void keyboard_enter(void*	       data,
 			   MwU32	       serial,
 			   struct wl_surface*  surface,
 			   struct wl_array*    keys) {
-	MwLL		self = data;
-	struct timespec t;
-	t.tv_nsec = 100;
+	MwLL self = data;
 
-	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
-		return;
-	};
+	WAYLAND_EVENT_OP_START(self);
 
 	self->wayland.keyboard_serial = serial;
 
 	MwLLDispatch(self, focus_in, NULL);
 	self->wayland.events_pending += 1;
-	pthread_mutex_unlock(&self->wayland.eventsMutex);
+
+	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `wl_keyboard.leave` callback */
@@ -493,18 +520,14 @@ static void keyboard_leave(void*	       data,
 			   struct wl_keyboard* wl_keyboard,
 			   MwU32	       serial,
 			   struct wl_surface*  surface) {
-	MwLL		self = data;
-	struct timespec t;
-	t.tv_nsec = 100;
+	MwLL self = data;
 
-	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
-		return;
-	};
+	WAYLAND_EVENT_OP_START(self);
 
 	MwLLDispatch(self, focus_out, NULL);
 	self->wayland.events_pending += 1;
 
-	pthread_mutex_unlock(&self->wayland.eventsMutex);
+	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `wl_keyboard.key` callback */
@@ -514,13 +537,10 @@ static void keyboard_key(void*		     data,
 			 MwU32		     time,
 			 MwU32		     key,
 			 MwU32		     state) {
-	MwLL		self = data;
-	struct timespec t;
-	t.tv_nsec = 100;
+	MwLL self = data;
 
-	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
-		return;
-	};
+	WAYLAND_EVENT_OP_START(self);
+
 	if(self->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
 		struct _MwLLWaylandTopLevel* wayland = self->wayland.toplevel;
 		xkb_layout_index_t	     layout;
@@ -611,7 +631,7 @@ static void keyboard_key(void*		     data,
 		self->wayland.events_pending += 1;
 	}
 
-	pthread_mutex_unlock(&self->wayland.eventsMutex);
+	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `wl_keyboard.modifiers` callback */
@@ -622,19 +642,15 @@ static void keyboard_modifiers(void*		   data,
 			       MwU32		   mods_latched,
 			       MwU32		   mods_locked,
 			       MwU32		   group) {
-	MwLL		self = data;
-	struct timespec t;
-	t.tv_nsec = 100;
+	MwLL self = data;
 
-	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
-		return;
-	};
+	WAYLAND_EVENT_OP_START(self);
 
 	self->wayland.mod_state = 0;
 	self->wayland.mod_state |= mods_depressed;
 	self->wayland.mod_state |= mods_locked;
 
-	pthread_mutex_unlock(&self->wayland.eventsMutex);
+	WAYLAND_EVENT_OP_END(self);
 };
 
 struct wl_keyboard_listener keyboard_listener = {
@@ -654,6 +670,8 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 				 MwU32 capabilities) {
 	MwLL			       self	  = data;
 	wl_clipboard_device_context_t* device_ctx = malloc(sizeof(wl_clipboard_device_context_t));
+
+	WAYLAND_EVENT_OP_START(self);
 
 	if(capabilities & WL_SEAT_CAPABILITY_KEYBOARD) {
 		self->wayland.keyboard = wl_seat_get_keyboard(wl_seat);
@@ -682,6 +700,8 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 
 		arrpush(self->wayland.clipboard_devices, device_ctx);
 	}
+
+	WAYLAND_EVENT_OP_END(self);
 };
 
 static void output_geometry(void*	      data,
@@ -849,13 +869,6 @@ static void xdg_toplevel_configure(void*		data,
 
 	MwLLForceRender(self);
 
-	/*if(!self->wayland.egl_setup) {
-		self->wayland.egl_setup = egl_setup(self, self->wayland.x, self->wayland.y, width, height);
-	} else {
-		wl_egl_window_resize(self->wayland.egl_window_native, width, height, 0, 0);
-		egl_resetup(self);
-	}*/
-
 	return;
 };
 
@@ -869,7 +882,9 @@ static void decoration_configure(
 static void xdg_toplevel_close(
     void* data, struct xdg_toplevel* xdg_toplevel) {
 	MwLL self = data;
+	WAYLAND_EVENT_OP_START(self);
 	MwLLDispatch(self, close, NULL);
+	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `xdg_surface.configure` callback */
@@ -1279,9 +1294,7 @@ static void setup_popup(MwLL r) {
 
 	xdg_positioner_set_size(r->wayland.popup->xdg_positioner, r->wayland.ww, r->wayland.wh);
 	xdg_positioner_set_anchor_rect(
-	    r->wayland.popup->xdg_positioner,
-	    topmost_parent->wayland.cur_mouse_pos.x,
-	    topmost_parent->wayland.cur_mouse_pos.y,
+	    r->wayland.popup->xdg_positioner, 0, 0,
 	    1, 1);
 
 	xdg_surface = topmost_parent->wayland.toplevel->xdg_surface;
@@ -1361,11 +1374,18 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 }
 
 static void MwLLDestroyImpl(MwLL handle) {
-	int	       i;
-	struct timeval tv;
-	int	       select_ret;
+	int		i;
+	struct timeval	tv;
+	struct timespec t = {
+	    .tv_sec  = 0,
+	    .tv_nsec = 100,
+	};
+	int select_ret;
 
-	pthread_mutex_lock(&handle->wayland.eventsMutex);
+	if(pthread_mutex_timedlock(&handle->wayland.eventsMutex, &t) != 0) {
+		printf("WARNING: Couldn't call MwLLDestroyImpl due to deadlock.\n");
+		return;
+	};
 
 	MwLLDestroyCommon(handle);
 
@@ -1411,7 +1431,7 @@ static void MwLLDestroyImpl(MwLL handle) {
 
 	/* sleep long enough that any active attempts to wait for the mutex will have given up and we can safely unlock/destroy it */
 	tv.tv_sec  = 0;
-	tv.tv_usec = 250;
+	tv.tv_usec = 500;
 	do {
 		select_ret = select(1, NULL, NULL, NULL, &tv);
 	} while((select_ret == -1) && (errno == EINTR));
