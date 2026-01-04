@@ -74,7 +74,7 @@ struct _MwLLWaylandPopup {
 	struct xdg_positioner*	    xdg_positioner;
 	struct xdg_surface_listener xdg_surface_listener;
 	struct xdg_wm_base*	    xdg_wm_base;
-	MwLL			    parent;
+	MwLL			    topmost_parent;
 };
 
 /* Shared set of anything needed for a shm buffer.  */

@@ -188,6 +188,7 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point, in
 			  MwNy, rc.height - sz.height,
 			  NULL);
 	}
+
 	MwLLEndStateChange(handle->lowlevel);
 
 	MwVaApply(handle,

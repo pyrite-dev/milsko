@@ -1263,12 +1263,14 @@ struct xdg_popup_listener popup_listener = {
 };
 
 /* Popup setup function */
-static void setup_popup(MwLL r) {
+static void setup_popup(MwLL r, int x, int y) {
 	int		    i;
 	struct xdg_surface* xdg_surface;
 	MwLL		    topmost_parent = r->wayland.parent;
 
 	r->wayland.type = MWLL_WAYLAND_POPUP;
+	r->wayland.x	= x;
+	r->wayland.y	= y;
 
 	while(topmost_parent->wayland.type != MWLL_WAYLAND_TOPLEVEL) {
 		topmost_parent = topmost_parent->wayland.parent;
@@ -1276,6 +1278,7 @@ static void setup_popup(MwLL r) {
 
 	r->wayland.popup = malloc(sizeof(struct _MwLLWaylandPopup));
 	memset(r->wayland.popup, 0, sizeof(struct _MwLLWaylandPopup));
+	r->wayland.popup->topmost_parent = topmost_parent;
 
 	setup_callbacks(&r->wayland);
 
@@ -1288,14 +1291,16 @@ static void setup_popup(MwLL r) {
 		return;
 	}
 
-	r->wayland.popup->xdg_wm_base = WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context;
+	r->wayland.popup->xdg_wm_base = WAYLAND_GET_INTERFACE(topmost_parent->wayland, xdg_wm_base)->context;
 
 	r->wayland.popup->xdg_positioner = xdg_wm_base_create_positioner(r->wayland.popup->xdg_wm_base);
 
 	xdg_positioner_set_size(r->wayland.popup->xdg_positioner, r->wayland.ww, r->wayland.wh);
+	xdg_positioner_set_anchor(r->wayland.popup->xdg_positioner, XDG_POSITIONER_ANCHOR_NONE);
 	xdg_positioner_set_anchor_rect(
-	    r->wayland.popup->xdg_positioner, 0, 0,
-	    1, 1);
+	    r->wayland.popup->xdg_positioner, 0, 0, 1, 1);
+	printf("%d, %d\n", x, y);
+	xdg_positioner_set_offset(r->wayland.popup->xdg_positioner, x, y);
 
 	xdg_surface = topmost_parent->wayland.toplevel->xdg_surface;
 
@@ -1450,13 +1455,17 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 }
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
+	region_invalidate(handle);
+	handle->wayland.x = x;
+	handle->wayland.y = y;
 	if(handle->wayland.type == MWLL_WAYLAND_SUBLEVEL) {
-		region_invalidate(handle);
-		handle->wayland.x = x;
-		handle->wayland.y = y;
 		wl_subsurface_set_position(handle->wayland.sublevel->subsurface, x, y);
-		region_setup(handle);
 	}
+	if(handle->wayland.type == MWLL_WAYLAND_POPUP) {
+		destroy_popup(handle);
+		setup_popup(handle, x, y);
+	}
+	region_setup(handle);
 
 	MwLLDispatch(handle, draw, NULL);
 }
@@ -1761,7 +1770,7 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 
 	switch(handle->wayland.type_to_be) {
 	case MWLL_WAYLAND_POPUP:
-		setup_popup(handle);
+		setup_popup(handle, point->x, point->y);
 		return;
 	default:
 		setup_toplevel(handle, point->x, point->y);
