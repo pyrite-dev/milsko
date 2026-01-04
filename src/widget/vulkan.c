@@ -13,6 +13,9 @@
 #ifdef USE_X11
 #define VK_USE_PLATFORM_XLIB_KHR 1
 #endif
+#ifdef USE_WAYLAND
+#define VK_USE_PLATFORM_WAYLAND_KHR 1
+#endif
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
@@ -21,6 +24,9 @@
 #endif
 #ifdef USE_X11
 #include <vulkan/vulkan_xlib.h>
+#endif
+#ifdef USE_WAYLAND
+#include <vulkan/vulkan_wayland.h>
 #endif
 
 #ifdef HAS_VK_ENUM_STRING_HELPER
@@ -219,6 +225,20 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 		arrput(enabledExtensions, VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
 	}
 #endif
+#ifdef USE_WAYLAND
+	if(handle->lowlevel->common.type == MwLLBackendWayland) {
+		MwLL topmost_parent = handle->lowlevel->wayland.parent;
+
+		arrput(enabledExtensions, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
+		/* take this opprutunity to set the widget to always render */
+		topmost_parent->wayland.always_render = MwTRUE;
+
+		while(topmost_parent->wayland.parent != NULL) {
+			topmost_parent			      = topmost_parent->wayland.parent;
+			topmost_parent->wayland.always_render = MwTRUE;
+		}
+	}
+#endif
 
 	/* passing null gives us all the extensions provided by the current vulkan implementation */
 	VK_CMD(_vkEnumerateInstanceExtensionProperties(NULL, &extension_count, NULL));
@@ -312,6 +332,20 @@ static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
 		    .window = handle->lowlevel->x11.window,
 		};
 		VK_CMD(_vkCreateXlibSurfaceKHR(o->vkInstance, &createInfo, NULL, &o->vkSurface));
+	}
+#endif
+#ifdef USE_WAYLAND
+	if(handle->lowlevel->common.type == MwLLBackendWayland) {
+		LOAD_VK_FUNCTION(vkCreateWaylandSurfaceKHR);
+
+		VkWaylandSurfaceCreateInfoKHR createInfo = {
+		    .sType   = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR,
+		    .pNext   = NULL,
+		    .flags   = 0,
+		    .display = handle->lowlevel->wayland.display,
+		    .surface = handle->lowlevel->wayland.framebuffer.surface,
+		};
+		VK_CMD(_vkCreateWaylandSurfaceKHR(o->vkInstance, &createInfo, NULL, &o->vkSurface));
 	}
 #endif
 	return MwEsuccess;
