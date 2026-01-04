@@ -340,10 +340,18 @@ static void zwp_primary_selection_device_manager_v1_interface_destroy(struct _Mw
 static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
 			  struct wl_surface* surface, wl_fixed_t surface_x,
 			  wl_fixed_t surface_y) {
-	MwLL self		     = data;
+	MwLL		self = data;
+	struct timespec t;
+	t.tv_nsec = 100;
+
+	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
+		return;
+	};
 	self->wayland.pointer_serial = serial;
 
 	wl_pointer_set_cursor(wl_pointer, serial, self->wayland.cursor.surface, 0, 0);
+
+	pthread_mutex_unlock(&self->wayland.eventsMutex);
 };
 
 /* `wl_pointer.leave` callback */
@@ -357,6 +365,12 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	MwLL	  self = data;
 	MwLLMouse p;
 
+	struct timespec t;
+	t.tv_nsec = 100;
+
+	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
+		return;
+	};
 	self->wayland.cur_mouse_pos.x = wl_fixed_to_double(surface_x);
 	self->wayland.cur_mouse_pos.y = wl_fixed_to_double(surface_y);
 
@@ -364,14 +378,22 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	MwLLDispatch(self, move, &p);
 
 	self->wayland.events_pending += 1;
+	pthread_mutex_unlock(&self->wayland.eventsMutex);
 
 	/*timed_redraw(self, time, 50, &self->wayland.cooldown_timer);*/
 };
 
 /* `wl_pointer.button` callback */
 static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 serial, MwU32 time, MwU32 button, MwU32 state) {
-	MwLL	  self = data;
-	MwLLMouse p;
+	MwLL		self = data;
+	MwLLMouse	p;
+	struct timespec t;
+	t.tv_nsec = 100;
+
+	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
+		return;
+	};
+
 	p.point = self->wayland.cur_mouse_pos;
 	if(p.point.x > self->wayland.x && p.point.x < self->wayland.x + self->wayland.ww && p.point.y > self->wayland.y && p.point.y < self->wayland.y + self->wayland.wh) {
 		switch(button) {
@@ -403,6 +425,7 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 		MwLLDispatch(self, draw, NULL);
 		self->wayland.events_pending += 1;
 	}
+	pthread_mutex_unlock(&self->wayland.eventsMutex);
 };
 
 /* `wl_pointer.axis` callback */
@@ -450,11 +473,19 @@ static void keyboard_enter(void*	       data,
 			   MwU32	       serial,
 			   struct wl_surface*  surface,
 			   struct wl_array*    keys) {
-	MwLL self		      = data;
+	MwLL		self = data;
+	struct timespec t;
+	t.tv_nsec = 100;
+
+	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
+		return;
+	};
+
 	self->wayland.keyboard_serial = serial;
 
 	MwLLDispatch(self, focus_in, NULL);
 	self->wayland.events_pending += 1;
+	pthread_mutex_unlock(&self->wayland.eventsMutex);
 };
 
 /* `wl_keyboard.leave` callback */
@@ -462,9 +493,18 @@ static void keyboard_leave(void*	       data,
 			   struct wl_keyboard* wl_keyboard,
 			   MwU32	       serial,
 			   struct wl_surface*  surface) {
-	MwLL self = data;
+	MwLL		self = data;
+	struct timespec t;
+	t.tv_nsec = 100;
+
+	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
+		return;
+	};
+
 	MwLLDispatch(self, focus_out, NULL);
 	self->wayland.events_pending += 1;
+
+	pthread_mutex_unlock(&self->wayland.eventsMutex);
 };
 
 /* `wl_keyboard.key` callback */
@@ -474,7 +514,13 @@ static void keyboard_key(void*		     data,
 			 MwU32		     time,
 			 MwU32		     key,
 			 MwU32		     state) {
-	MwLL self = data;
+	MwLL		self = data;
+	struct timespec t;
+	t.tv_nsec = 100;
+
+	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
+		return;
+	};
 	if(self->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
 		struct _MwLLWaylandTopLevel* wayland = self->wayland.toplevel;
 		xkb_layout_index_t	     layout;
@@ -564,6 +610,8 @@ static void keyboard_key(void*		     data,
 		MwLLDispatch(self, draw, NULL);
 		self->wayland.events_pending += 1;
 	}
+
+	pthread_mutex_unlock(&self->wayland.eventsMutex);
 };
 
 /* `wl_keyboard.modifiers` callback */
@@ -574,11 +622,19 @@ static void keyboard_modifiers(void*		   data,
 			       MwU32		   mods_latched,
 			       MwU32		   mods_locked,
 			       MwU32		   group) {
-	MwLL self = data;
+	MwLL		self = data;
+	struct timespec t;
+	t.tv_nsec = 100;
+
+	if(pthread_mutex_timedlock(&self->wayland.eventsMutex, &t) != 0) {
+		return;
+	};
 
 	self->wayland.mod_state = 0;
 	self->wayland.mod_state |= mods_depressed;
 	self->wayland.mod_state |= mods_locked;
+
+	pthread_mutex_unlock(&self->wayland.eventsMutex);
 };
 
 struct wl_keyboard_listener keyboard_listener = {
@@ -1305,7 +1361,11 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 }
 
 static void MwLLDestroyImpl(MwLL handle) {
-	int i;
+	int	       i;
+	struct timeval tv;
+	int	       select_ret;
+
+	pthread_mutex_lock(&handle->wayland.eventsMutex);
 
 	MwLLDestroyCommon(handle);
 
@@ -1348,6 +1408,16 @@ static void MwLLDestroyImpl(MwLL handle) {
 	if(handle->wayland.keyboard != NULL) {
 		wl_keyboard_destroy(handle->wayland.keyboard);
 	}
+
+	/* sleep long enough that any active attempts to wait for the mutex will have given up and we can safely unlock/destroy it */
+	tv.tv_sec  = 0;
+	tv.tv_usec = 250;
+	do {
+		select_ret = select(1, NULL, NULL, NULL, &tv);
+	} while((select_ret == -1) && (errno == EINTR));
+
+	pthread_mutex_unlock(&handle->wayland.eventsMutex);
+	pthread_mutex_destroy(&handle->wayland.eventsMutex);
 
 	free(handle);
 }
@@ -1465,6 +1535,7 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 static int MwLLPendingImpl(MwLL handle) {
 	MwBool		pending = MwFALSE;
 	struct timespec timeout;
+	int		i;
 
 	if(handle->wayland.always_render) {
 		return event_loop(handle);
