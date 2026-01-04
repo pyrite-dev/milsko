@@ -174,7 +174,7 @@ static int create(MwWidget handle) {
 
 		o->egl_window_native =
 		    (EGLNativeWindowType)wl_egl_window_create(handle->lowlevel->wayland.framebuffer.surface, handle->lowlevel->wayland.ww, handle->lowlevel->wayland.wh);
-		if(o->egl_window_native == EGL_NO_SURFACE) {
+		if(!o->egl_window_native) {
 			printf("ERROR: wl_egl_window_create, EGL_NO_SURFACE\n");
 			return MwFALSE;
 		}
