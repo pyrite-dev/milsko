@@ -183,10 +183,18 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point, in
 	MwLLMakeToolWindow(handle->lowlevel);
 	MwLLDetach(handle->lowlevel, &p);
 
-	if(MwGetInteger(handle, MwNy) + sz.height > rc.height) {
-		MwVaApply(handle,
-			  MwNy, rc.height - sz.height,
-			  NULL);
+	if(handle->lowlevel->common.coordinate_type == MwCoordinatesGlobal) {
+		if(MwGetInteger(handle, MwNy) + sz.height > rc.height) {
+			MwVaApply(handle,
+				  MwNy, rc.height - sz.height,
+				  NULL);
+		}
+	} else {
+		if(MwGetInteger(handle, MwNy) > sz.height) {
+			MwVaApply(handle,
+				  MwNy, sz.height,
+				  NULL);
+		}
 	}
 
 	MwLLEndStateChange(handle->lowlevel);

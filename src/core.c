@@ -797,3 +797,11 @@ void MwGetCursorCoord(MwWidget handle, MwPoint* point) {
 void MwGetScreenSize(MwWidget handle, MwRect* rect) {
 	MwLLGetScreenSize(handle->lowlevel, rect);
 }
+
+int MwGetCoordinateType(MwWidget handle) {
+	if(handle->parent == NULL) {
+		return handle->lowlevel->common.coordinate_type;
+	} else {
+		return MwCoordinatesLocal;
+	}
+};

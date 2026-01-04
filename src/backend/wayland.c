@@ -1344,6 +1344,10 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	memset(r, 0, sizeof(*r));
 	MwLLCreateCommon(r);
 
+	/* Wayland does not report global coordinates ever. Compositors are not even expected to have knowledge of this.
+	 */
+	r->common.coordinate_type = MwCoordinatesLocal;
+
 	r->common.type = MwLLBackendWayland;
 
 	if(width < 2) width = 2;

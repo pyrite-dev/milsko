@@ -33,6 +33,7 @@ struct _MwLLCommon {
 	void* user;
 	int   copy_buffer;
 	int   type;
+	int   coordinate_type;
 
 	MwLLHandler handler;
 };

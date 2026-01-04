@@ -354,6 +354,11 @@ MWDECL void MwGetCursorCoord(MwWidget handle, MwPoint* point);
  */
 MWDECL void MwGetScreenSize(MwWidget handle, MwRect* rect);
 
+/*!
+ * @brief Reports whether a widget reports global or local coordinates upon GetXY/SetXY. Anything with a parent reports local, and most backends report global coordinates being supported for top level windows, but some (Wayland) do not.
+ */
+MWDECL int MwGetCoordinateType(MwWidget handle);
+
 #ifdef __cplusplus
 }
 #endif

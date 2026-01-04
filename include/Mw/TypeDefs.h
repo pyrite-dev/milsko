@@ -219,4 +219,10 @@ struct _MwClass {
 	void*			   reserved4;
 };
 
+/* Whether or not GetXY/SetXY works with global or local coordinates */
+enum MwCoordinateType {
+	MwCoordinatesGlobal = 0,
+	MwCoordinatesLocal,
+};
+
 #endif
