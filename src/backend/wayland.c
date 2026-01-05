@@ -1299,7 +1299,6 @@ static void setup_popup(MwLL r, int x, int y) {
 	xdg_positioner_set_anchor(r->wayland.popup->xdg_positioner, XDG_POSITIONER_ANCHOR_NONE);
 	xdg_positioner_set_anchor_rect(
 	    r->wayland.popup->xdg_positioner, 0, 0, 1, 1);
-	printf("%d, %d\n", x, y);
 	xdg_positioner_set_offset(r->wayland.popup->xdg_positioner, x, y);
 
 	xdg_surface = topmost_parent->wayland.toplevel->xdg_surface;
