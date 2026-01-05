@@ -799,7 +799,7 @@ void MwGetScreenSize(MwWidget handle, MwRect* rect) {
 }
 
 int MwGetCoordinateType(MwWidget handle) {
-	if(handle->parent == NULL) {
+	if(handle->parent == NULL || handle->parent->lowlevel == NULL) {
 		return handle->lowlevel->common.coordinate_type;
 	} else {
 		return MwCoordinatesLocal;
