@@ -159,6 +159,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		r->x11.toplevel = 0;
 	}
 	r->x11.window  = XCreateSimpleWindow(r->x11.display, p, px, py, width, height, 0, 0, WhitePixel(r->x11.display, DefaultScreen(r->x11.display)));
+
 	sh.flags       = PWinGravity;
 	sh.win_gravity = StaticGravity;
 	XSetWMNormalHints(r->x11.display, r->x11.window, &sh);
@@ -412,6 +413,7 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 
 static int MwLLPendingImpl(MwLL handle) {
 	XEvent ev;
+
 	if(XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, ClientMessage, &ev) || XCheckWindowEvent(handle->x11.display, handle->x11.window, mask, &ev)) {
 		XPutBackEvent(handle->x11.display, &ev);
 		return 1;
@@ -421,6 +423,7 @@ static int MwLLPendingImpl(MwLL handle) {
 
 static void MwLLNextEventImpl(MwLL handle) {
 	XEvent ev;
+
 	while(XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, ClientMessage, &ev) || XCheckWindowEvent(handle->x11.display, handle->x11.window, mask, &ev)) {
 		int render = 0;
 		if(ev.type == Expose) {

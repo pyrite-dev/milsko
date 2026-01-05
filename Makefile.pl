@@ -226,7 +226,7 @@ foreach my $l (@library_targets) {
     }
 
     print(OUT "${l}: ${s}\n");
-    print(OUT "	\$(CC) $warn \$(CFLAGS\) \$\(INCDIR) -c -o ${l} ${s}\n");
+    print(OUT "	\$(CC) $warn \$\(INCDIR) \$(CFLAGS\) -c -o ${l} ${s}\n");
 }
 print(OUT "\n");
 print(OUT "\n");
