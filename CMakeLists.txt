@@ -16,6 +16,8 @@ option(BUILD_EXAMPLES "Build examples" OFF)
 option(USE_STB_IMAGE "Use stb_image" ON)
 option(USE_STB_TRUETYPE "Use stb_truetype" OFF)
 option(USE_FREETYPE2 "Use FreeType 2" ON)
+option(BUILD_SHARED "Build a shared library" ON)
+option(BUILD_STATIC "Build a static library" OFF)
 
 file(
 	GLOB
@@ -61,11 +63,22 @@ if(TRY_OPENGL)
 	endif()
 endif()
 
+if(BUILD_STATIC)
+message(STATUS "Building Milsko as a static library")
+add_library(
+	Mw
+	${SOURCES}
+)
+elseif(BUILD_SHARED)
+message(STATUS "Building Milsko as a shared library")
 add_library(
 	Mw
 	SHARED
 	${SOURCES}
 )
+else()
+message(ERROR "Must either build a shared library or a static library")
+endif()
 
 if(USE_STB_IMAGE)
 	target_compile_definitions(
