@@ -9,7 +9,7 @@
 #include <Mw/TypeDefs.h>
 #include <Mw/Core.h>
 
-#ifndef __gl_h_
+#if !defined(MW_OPENGL_NO_INCLUDE) && !defined(__gl_h_)
 #ifdef _WIN32
 #include <windows.h>
 #else
