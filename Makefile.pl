@@ -48,7 +48,7 @@ param_set("static",               1);
 
 my %features = (
     "classic-theme"        => "use classic theme",
-    "stb-image"            => "use stb_image instead of libjpeg/libpng",
+    "stb-image"            => "use stb_image, instead use libjpeg/libpng",
     "stb-truetype"         => "use stb_truetype",
     "freetype2"            => "use FreeType2",
     "xrender"              => "use XRender",
