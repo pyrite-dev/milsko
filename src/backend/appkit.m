@@ -1,4 +1,4 @@
-#include <Mw/Milsko.h>
+#include <Mw/Milsko.h>
 
 #include "../../external/stb_ds.h"
 
@@ -8,9 +8,9 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	(void)y;
 	(void)width;
 	(void)height;
-	
+
 	r = malloc(sizeof(*r));
-	
+
 
 	MwLLCreateCommon(r);
 
@@ -19,7 +19,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 static void MwLLDestroyImpl(MwLL handle) {
 	MwLLDestroyCommon(handle);
-	
+
 	free(handle);
 }
 
@@ -51,7 +51,7 @@ static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 
 static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 	(void)handle;
-	
+
 	c->common.red	= r;
 	c->common.green = g;
 	c->common.blue	= b;
@@ -96,7 +96,7 @@ static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
 	(void)handle;
-	
+
 	MwLLPixmap	  r = malloc(sizeof(*r));
 
 	r->common.raw = malloc(4 * width * height);
@@ -206,7 +206,7 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 	MwLLShow(handle, 1);
 }
 
-static int AppKit(void) {
+static int MwLLAppKitCallInitImpl(void) {
 	return 0;
 }
 

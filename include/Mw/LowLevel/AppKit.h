@@ -8,7 +8,7 @@
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
-#include <Mw/LowLevel.h>
+#include <Mw/LowLevel.h>
 
 MWDECL int MwLLAppKitCallInit(void);
 

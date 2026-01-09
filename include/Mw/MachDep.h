@@ -43,7 +43,7 @@
 #include <pwd.h>
 #include <dlfcn.h>
 #include <signal.h>
-#include <dirent.h>
+#include <dirent.h>
 #include <fcntl.h>
 #endif
 
