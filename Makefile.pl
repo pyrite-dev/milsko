@@ -18,7 +18,7 @@ our $cflags   = "-fPIC -D_MILSKO";
 our $libdir   = "";
 our $ldflags  = "";
 our $math     = "-lm";
-our $shared   = "-shared";
+our @shared   = "-shared";
 our @backends = ();
 
 our $library_prefix    = "lib";
@@ -45,6 +45,7 @@ param_set("vulkan",               0);
 param_set("vulkan-string-helper", 1);
 param_set("shared",               1);
 param_set("static",               1);
+param_set("examples", 1);
 
 my %features = (
     "classic-theme"        => "use classic theme",
@@ -166,7 +167,7 @@ print(OUT "LIBDIR = ${libdir}\n");
 print(OUT "LDFLAGS = ${ldflags}\n");
 print(OUT "LIBS = ${math} ${libs}\n");
 print(OUT "MATH = ${math}\n");
-print(OUT "SHARED = ${shared}\n");
+print(OUT "SHARED = @{shared}\n");
 print(OUT "\n");
 print(OUT ".PHONY: all format clean distclean lib examples install\n");
 print(OUT "\n");
@@ -219,7 +220,13 @@ foreach my $l (@library_targets) {
     my $s    = $l;
     my $o    = $object_suffix;
     $o =~ s/\./\\\./g;
-    $s =~ s/$o$/.c/;
+   	
+	if ($l =~ /appkit/) {
+	 	$s =~ s/$o$/.m/;
+		
+	} else {
+	 	$s =~ s/$o$/.c/;
+	}
 
     if ($l =~ /^external\//) {
         $warn = "";
@@ -230,34 +237,42 @@ foreach my $l (@library_targets) {
 }
 print(OUT "\n");
 print(OUT "\n");
-print(OUT "examples: " . join(" ", @examples_targets) . "\n");
-print(OUT "\n");
-foreach my $l (@examples_targets) {
-    my $libs = "";
-    my $s    = $l;
-    my $o    = $executable_suffix;
-    $o =~ s/\./\\\./g;
-    $s =~ s/$o$//;
+if(param_get("examples")) {
+	print(OUT "examples: " . join(" ", @examples_targets) . "\n");
+	print(OUT "\n");
+	foreach my $l (@examples_targets) {
+	    my $libs = "";
+	    my $s    = $l;
+	    my $o    = $executable_suffix;
+	    $o =~ s/\./\\\./g;
+	    $s =~ s/$o$//;
 
-    if (defined($examples_libs{$l})) {
-        $libs = $examples_libs{$l};
-    }
+	    if (defined($examples_libs{$l})) {
+	        $libs = $examples_libs{$l};
+	    }
 
-    print(OUT
-"${l}: ${s}${object_suffix} src/${library_prefix}Mw${library_suffix}\n"
-    );
-    print(OUT
-"	\$(CC) -L src -Wl,-R./src \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n"
-    );
-    print(OUT "${s}${object_suffix}: ${s}.c\n");
-    print(OUT
-          "	\$(CC) -c \$\(INCDIR) -o ${s}${object_suffix} ${s}.c -lMw ${math}\n"
-    );
+	    print(OUT
+	"${l}: ${s}${object_suffix} src/${library_prefix}Mw${library_suffix}\n"
+	    );
+		if (grep(/^appkit$/, @backends)) {
+	    	print(OUT
+				"	\$(CC) -L./src \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n"
+	    		);
+		} else {
+			print(OUT
+				"	\$(CC) -L src -Wl,-R./src \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n"
+	    		);
+		} 
+	    print(OUT "${s}${object_suffix}: ${s}.c\n");
+	    print(OUT
+	          "	\$(CC) -c \$\(INCDIR) -o ${s}${object_suffix} ${s}.c -lMw ${math}\n"
+	    );
+	}
 }
 print(OUT "\n");
 print(OUT "clean:\n");
 print(OUT
-"	rm -f */*.o */*/*.o */*/*/*.o */*.exe */*/*.exe */*/*/*.exe src/*.so src/*.dll src/*.a "
+"	rm -f */*.o */*/*.o */*/*/*.o */*.exe */*/*.exe */*/*/*.exe src/*.so src/*.dll src/*.dylib src/*.a "
       . join(" ", @examples_targets)
       . "\n");
 print(OUT "\n");

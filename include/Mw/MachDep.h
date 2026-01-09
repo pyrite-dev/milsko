@@ -43,8 +43,13 @@
 #include <pwd.h>
 #include <dlfcn.h>
 #include <signal.h>
-#include <dirent.h>
+#include <dirent.h>
 #include <fcntl.h>
+#endif
+
+#ifdef __APPLE__
+#include <mach/clock.h>
+#include <mach/mach.h>
 #endif
 
 #ifndef M_PI

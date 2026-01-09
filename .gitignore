@@ -10,6 +10,7 @@ examples/*/*.exe
 *.so
 *.dll
 *.lib
+*.dylib
 *.a
 /Makefile
 /build

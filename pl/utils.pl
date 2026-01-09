@@ -40,10 +40,14 @@ sub new_example {
     push(@examples_targets, "${_[0]}${executable_suffix}");
 }
 
+sub set_shared_flag {
+	@shared = $_[0];
+}
+
 sub new_object {
     my @l = glob($_[0]);
     foreach my $e (@l) {
-        $e =~ s/\.c$/$object_suffix/;
+        $e =~ s/\.(c|m)$/$object_suffix/;
         push(@library_targets, $e);
     }
 }

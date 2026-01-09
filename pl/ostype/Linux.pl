@@ -1,4 +1,4 @@
-if (param_get("experimental-wayland")) {
+IF (param_get("experimental-wayland")) {
     use_backend("wayland", "x11");
 }
 else {

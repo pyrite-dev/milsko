@@ -12,7 +12,7 @@ void* MwDynamicSymbol(void* handle, const char* symbol) {
 void MwDynamicClose(void* handle) {
 	FreeLibrary(handle);
 }
-#elif defined(__unix__)
+#elif defined(__unix__) || defined(__APPLE__)
 void* MwDynamicOpen(const char* path) {
 	return dlopen(path, RTLD_LOCAL | RTLD_LAZY);
 }

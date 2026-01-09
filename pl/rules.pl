@@ -46,6 +46,13 @@ if (grep(/^wayland$/, @backends)) {
     $gl_libs = "-lGL -lGLU";
 }
 
+if (grep(/^appkit$/, @backends)) {
+    add_cflags("-DUSE_APPKIT");
+    new_object("src/backend/appkit.m");
+
+    $gl_libs = "-lGL -lGLU";
+}
+
 if (param_get("stb-image")) {
     add_cflags("-DUSE_STB_IMAGE");
 }
