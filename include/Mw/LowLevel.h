@@ -27,7 +27,7 @@ enum MwLLBackends {
 	MwLLBackendX11 = 0,
 	MwLLBackendGDI,
 	MwLLBackendWayland,
-	MwLLBackendAppKit,
+	MwLLBackendCocoa,
 };
 
 struct _MwLLCommon {
@@ -62,8 +62,8 @@ struct _MwLLCommonPixmap {
 #ifdef USE_WAYLAND
 #include <Mw/LowLevel/Wayland.h>
 #endif
-#ifdef USE_APPKIT
-#include <Mw/LowLevel/AppKit.h>
+#ifdef USE_COCOA
+#include <Mw/LowLevel/Cocoa.h>
 #endif
 
 union _MwLL {
@@ -77,8 +77,8 @@ union _MwLL {
 #ifdef USE_WAYLAND
 	struct _MwLLWayland wayland;
 #endif
-#ifdef USE_APPKIT
-	struct _MwLLAppKit appkit;
+#ifdef USE_COCOA
+	struct _MwLLCocoa cocoa;
 #endif
 };
 
@@ -93,8 +93,8 @@ union _MwLLColor {
 #ifdef USE_WAYLAND
 	struct _MwLLWaylandColor wayland;
 #endif
-#ifdef USE_APPKIT
-	struct _MwLLAppKitColor appkit;
+#ifdef USE_COCOA
+	struct _MwLLCocoaColor cocoa;
 #endif
 };
 
@@ -109,8 +109,8 @@ union _MwLLPixmap {
 #ifdef USE_WAYLAND
 	struct _MwLLWaylandPixmap wayland;
 #endif
-#ifdef USE_APPKIT
-	struct _MwLLAppKitPixmap appkit;
+#ifdef USE_COCOA
+	struct _MwLLCocoaPixmap cocoa;
 #endif
 };
 #endif

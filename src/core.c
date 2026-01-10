@@ -123,6 +123,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->children = NULL;
 
 	if(widget_class != NULL) {
+		printf("%p\n", MwLLCreate);
 		if((h->lowlevel = MwLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height)) == NULL) {
 			free(h->name);
 			free(h);
@@ -729,6 +730,9 @@ MwWidget MwGetParent(MwWidget handle) {
 typedef int (*call_t)(void);
 int MwLibraryInit(void) {
 	call_t calls[] = {
+#ifdef USE_COCOA
+	    MwLLCocoaCallInit,
+#endif
 #ifdef USE_WAYLAND
 	    MwLLWaylandCallInit,
 #endif

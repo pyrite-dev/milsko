@@ -220,10 +220,9 @@ foreach my $l (@library_targets) {
     my $s    = $l;
     my $o    = $object_suffix;
     $o =~ s/\./\\\./g;
-   	
-	if ($l =~ /appkit/) {
+
+	if ($l =~ /cocoa/) {
 	 	$s =~ s/$o$/.m/;
-		
 	} else {
 	 	$s =~ s/$o$/.c/;
 	}
@@ -254,7 +253,7 @@ if(param_get("examples")) {
 	    print(OUT
 	"${l}: ${s}${object_suffix} src/${library_prefix}Mw${library_suffix}\n"
 	    );
-		if (grep(/^appkit$/, @backends)) {
+		if (grep(/^cocoa$/, @backends)) {
 	    	print(OUT
 				"	\$(CC) -L./src \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n"
 	    		);
@@ -262,7 +261,7 @@ if(param_get("examples")) {
 			print(OUT
 				"	\$(CC) -L src -Wl,-R./src \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n"
 	    		);
-		} 
+		}
 	    print(OUT "${s}${object_suffix}: ${s}.c\n");
 	    print(OUT
 	          "	\$(CC) -c \$\(INCDIR) -o ${s}${object_suffix} ${s}.c -lMw ${math}\n"

@@ -46,9 +46,9 @@ if (grep(/^wayland$/, @backends)) {
     $gl_libs = "-lGL -lGLU";
 }
 
-if (grep(/^appkit$/, @backends)) {
-    add_cflags("-DUSE_APPKIT");
-    new_object("src/backend/appkit.m");
+if (grep(/^cocoa$/, @backends)) {
+    add_cflags("-DUSE_COCOA");
+    new_object("src/backend/cocoa.m");
 
     $gl_libs = "-lGL -lGLU";
 }
