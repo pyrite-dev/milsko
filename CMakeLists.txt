@@ -18,6 +18,7 @@ option(USE_STB_TRUETYPE "Use stb_truetype" OFF)
 option(USE_FREETYPE2 "Use FreeType 2" ON)
 option(BUILD_SHARED "Build a shared library" ON)
 option(BUILD_STATIC "Build a static library" OFF)
+option(INSTALL_HEADERS "Install headers" ON)
 
 file(
 	GLOB
@@ -219,11 +220,14 @@ install(
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-install(
-	DIRECTORY include/
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-	FILES_MATCHING PATTERN "*.h"
-)
+
+if(INSTALL_HEADERS)
+	install(
+		DIRECTORY include/
+		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+		FILES_MATCHING PATTERN "*.h"
+	)
+endif()
 
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples)
