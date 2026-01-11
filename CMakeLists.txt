@@ -152,6 +152,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		USE_GDI
 	)
 	list(APPEND LIBRARIES gdi32)
+	target_link_options(
+		Mw
+		PRIVATE
+		-static-libgcc
+	)
 else()
 	find_package(PkgConfig)
 	pkg_check_modules(X11 REQUIRED x11)
