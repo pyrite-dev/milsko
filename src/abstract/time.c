@@ -46,11 +46,14 @@ long MwTimeGetTick(void) {
 }
 
 void MwTimeSleep(int ms) {
+#if 0
 	struct timespec ts;
 
 	ts.tv_sec  = ms / 1000;
-	ts.tv_nsec = (ms % 1000) * 1000 * 1000;
+	ts.tv_nsec = (ms % 1000) * 1000000;
 
 	nanosleep(&ts, NULL);
+#endif
+	usleep(ms * 100);
 }
 #endif
