@@ -123,7 +123,6 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->children = NULL;
 
 	if(widget_class != NULL) {
-		printf("%p\n", MwLLCreate);
 		if((h->lowlevel = MwLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height)) == NULL) {
 			free(h->name);
 			free(h);
