@@ -224,12 +224,12 @@
   point->x = p.x;
   point->y = p.y;
 };
-- (void)getScreenSize:(MwRect *)rect {
+- (void)getScreenSize:(MwRect *)_rect {
   NSScreen *screen = [self->window screen];
-  rect->x = [screen frame].origin.x;
-  rect->y = [screen frame].origin.y;
-  rect->width = [screen frame].size.width;
-  rect->height = [screen frame].size.height;
+  _rect->x = [screen frame].origin.x;
+  _rect->y = [screen frame].origin.y;
+  _rect->width = [screen frame].size.width;
+  _rect->height = [screen frame].size.height;
 };
 - (void)destroy {
   [self->window dealloc];
