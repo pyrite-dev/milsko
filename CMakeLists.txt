@@ -158,6 +158,23 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		PRIVATE
 		-static-libgcc
 	)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+	target_sources(
+		Mw
+		PRIVATE
+		src/backend/cocoa.m
+	)
+	target_compile_definitions(
+		Mw
+		PRIVATE
+		USE_COCOA
+	)
+	list(APPEND LIBRARIES objc)
+	target_link_options(
+		Mw
+		PRIVATE
+		-framework Cocoa
+	)
 else()
 	find_package(PkgConfig)
 	pkg_check_modules(X11 REQUIRED x11)
