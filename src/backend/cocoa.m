@@ -3,12 +3,43 @@
 #endif
 
 #import <AppKit/AppKit.h>
-#include <AppKit/NSEvent.h>
+#import <AppKit/NSEvent.h>
 #import <Foundation/Foundation.h>
 
 #include <Mw/Milsko.h>
 
 #include "../../external/stb_ds.h"
+
+@interface MilskoCocoaPixmap : NSObject {
+  NSImage *image;
+}
++ (MilskoCocoaPixmap*)newWithWidth:(int)width
+                            height:(int)height;
+- (void)updateWithData(void *);
+- (void)destroy;
+@end
+
+@implementation MilskoCocoaPixmap
+
++ (MilskoCocoaPixmap*)newWithWidth:(int)width
+                            height:(int)height {
+  MilskoCocoaPixmap * p = [MilskoCocoaPixmap alloc];
+  NSSize sz;
+
+  sz.width = width;
+  sz.height = height;
+
+  p->image = [NSImage initWithSize:sz];
+
+  return p;
+}
+- (void)updateWithData(void *) {
+}
+- (void)destroy {
+  [self->image dealloc];
+}
+@end
+
 
 @interface MilskoCocoa : NSObject {
   NSApplication *application;
@@ -101,10 +132,24 @@
 - (void)lineWithPoints:(MwPoint *)points color:(MwLLColor)color {
 };
 - (void)getX:(int *)x Y:(int *)y W:(unsigned int *)w H:(unsigned int *)h {
+    NSRect frame = self->window->frame;
+
+    *x = frame.origin.x;
+    *y = frame.origin.y;
+    *w = frame.size.x;
+    *h = frame.size.y;
 };
 - (void)setX:(int)x Y:(int)y {
+    NSPoint p;
+    p.x = x;
+    p.y = y;
+    [self->window setFrameTopLeftPoint p];
 };
 - (void)setW:(int)w H:(int)h {
+    NSSize s;
+    s.w = w;
+    s.h = h;
+    [self->window setFrameSize s];
 };
 - (int)pending {
   return 1;
@@ -122,6 +167,9 @@
   [pool release];
 };
 - (void)setTitle:(const char *)title {
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  [self->window setTitleWithRepresentedFilename:[NSString stringWithUTF8String:title]];
+  [pool release];
 };
 - (void)drawPixmap:(MwLLPixmap)pixmap rect:(MwRect *)rect {
 };
@@ -143,10 +191,21 @@
                         MaxY:(int)maxy {
 };
 - (void)makeBorderless:(int)toggle {
+  NSWindowStyleMask mask = self->window.styleMask;
+  if(mask & NSBorderlessWindowMask) {
+    mask ^= NSBorderlessWindowMask;
+    mask |= NSTitledWindowMask;
+  } else {
+    mask |= NSBorderlessWindowMask;
+    mask ^= NSTitledWindowMask;
+  }
+  [self->window setStyleMask:mask];
 };
 - (void)focus {
+  [self->window makeMainWindow];
 };
 - (void)grabPointer:(int)toggle {
+  /* MacOS didn't have a "pointer grab" function until 10.13.2 so I need to do this manually */
 };
 - (void)setClipboard:(const char *)text {
 };
@@ -155,8 +214,16 @@
 - (void)makeToolWindow {
 };
 - (void)getCursorCoord:(MwPoint *)point {
+  NSPoint p = self->window->mouseLocation;
+  point->x = p.x;
+  point->y = p.y;
 };
 - (void)getScreenSize:(MwRect *)rect {
+  NSScreen * screen = self->window->screen;
+  rect->x = screen->frame.origin.x;
+  rect->y = screen->frame.origin.y;
+  rect->width = screen->frame.size.x;
+  rect->height = screen->frame.size.y;
 };
 - (void)destroy {
   [self->window dealloc];
@@ -185,7 +252,6 @@ static void MwLLDestroyImpl(MwLL handle) {
   MilskoCocoa *h = handle->cocoa.real;
 
   [h destroy];
-  [h dealloc];
 
   MwLLDestroyCommon(handle);
 
@@ -267,13 +333,22 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char *data,
   r->common.width = width;
   r->common.height = height;
 
+  r->cocoa.real = [MilskoCocoaPixmap newWithWidth:width height:height];
+
   MwLLPixmapUpdate(r);
   return r;
 }
 
-static void MwLLPixmapUpdateImpl(MwLLPixmap r) { (void)r; }
+static void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {
+  MilskoCocoaPixmap *p = pixmap->cocoa.real;
+  [p updateWithData:pixmap->common.raw];
+}
 
-static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) { free(pixmap); }
+static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
+  MilskoCocoaPixmap *p = pixmap->cocoa.real;
+  [p destroy];
+  free(pixmap);
+}
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect *rect, MwLLPixmap pixmap) {
   MilskoCocoa *h = handle->cocoa.real;
