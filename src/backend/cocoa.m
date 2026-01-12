@@ -1,5 +1,7 @@
 #ifndef USE_COCOA
 #define USE_COCOA
+#include <Foundation/NSGeometry.h>
+#include <Foundation/NSObjCRuntime.h>
 #endif
 
 #import <AppKit/AppKit.h>
@@ -41,6 +43,7 @@
 @interface MilskoCocoa : NSObject {
   NSApplication *application;
   NSWindow *window;
+  NSRect rect;
 }
 
 + (MilskoCocoa *)newWithParent:(MwLL)parent
@@ -100,22 +103,20 @@
   }
   c->application = [NSApplication sharedApplication];
 
-  NSRect rect = NSMakeRect(x, y, width, height);
+  c->rect = NSMakeRect(x, y, width, height);
 
-  c->window = [[[NSWindow alloc]
-      initWithContentRect:rect
+  c->window = [[NSWindow alloc]
+      initWithContentRect:c->rect
                 styleMask:parent == NULL
                               ? (NSTitledWindowMask | NSClosableWindowMask |
                                  NSMiniaturizableWindowMask |
                                  NSResizableWindowMask)
                               : NSBorderlessWindowMask
                   backing:NSBackingStoreBuffered
-                    defer:NO] autorelease];
+                    defer:NO];
   [c->window makeKeyAndOrderFront:c->application];
 
   if (parent != NULL) {
-    [c->window setBackgroundColor:[NSColor blueColor]];
-
     MilskoCocoa *p = parent->cocoa.real;
     [p->window addChildWindow:c->window ordered:NSWindowAbove];
   }
@@ -140,13 +141,16 @@
   NSPoint p;
   p.x = x;
   p.y = y;
-  [self->window setFrameTopLeftPoint:p];
+  NSRect frame = [self->window frame];
+  frame.origin.x = x;
+  frame.origin.y = y;
+  [self->window setFrame: frame display: YES animate: true];
 };
 - (void)setW:(int)w H:(int)h {
-  NSSize s;
-  s.width = w;
-  s.height = h;
-  [self->window setFrameSize:s];
+  NSRect frame = [self->window frame];
+  frame.size.width = w;
+  frame.size.height = h;
+  [self->window setFrame: frame display: YES animate: true];
 };
 - (int)pending {
   return 1;
@@ -189,7 +193,7 @@
                         MaxY:(int)maxy {
 };
 - (void)makeBorderless:(int)toggle {
-  NSWindowStyleMask mask = self->window.styleMask;
+  uint32_t mask = [self->window styleMask];
   if (mask & NSBorderlessWindowMask) {
     mask ^= NSBorderlessWindowMask;
     mask |= NSTitledWindowMask;
@@ -197,7 +201,10 @@
     mask |= NSBorderlessWindowMask;
     mask ^= NSTitledWindowMask;
   }
-  [self->window setStyleMask:mask];
+  [self->window initWithContentRect:self->rect
+                styleMask:mask
+                  backing:NSBackingStoreBuffered
+                    defer:NO];
 };
 - (void)focus {
   [self->window makeMainWindow];
@@ -219,10 +226,10 @@
 };
 - (void)getScreenSize:(MwRect *)rect {
   NSScreen *screen = [self->window screen];
-  rect->x = screen.frame.origin.x;
-  rect->y = screen.frame.origin.y;
-  rect->width = screen.frame.size.width;
-  rect->height = screen.frame.size.height;
+  rect->x = [screen frame].origin.x;
+  rect->y = [screen frame].origin.y;
+  rect->width = [screen frame].size.width;
+  rect->height = [screen frame].size.height;
 };
 - (void)destroy {
   [self->window dealloc];
