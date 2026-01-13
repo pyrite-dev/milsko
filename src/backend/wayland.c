@@ -465,8 +465,9 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 					MwLLDispatch(self->wayland.parent->wayland.currentlyHeldWidget, up, &p);
 					self->wayland.parent->wayland.currentlyHeldWidget = NULL;
 				}
+			} else {
+				MwLLDispatch(self, up, &p);
 			}
-			MwLLDispatch(self, up, &p);
 			break;
 		}
 	}
@@ -1403,8 +1404,6 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		setup_toplevel(r, x, y);
 	} else {
 		setup_sublevel(parent, r, x, y);
-		MwLLDispatch(parent, draw, NULL);
-		parent->wayland.events_pending += 1;
 	}
 
 	framebuffer_setup(&r->wayland);
@@ -1413,6 +1412,9 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	region_setup(r);
 
 	MwLLForceRender(r);
+	if(parent != NULL) {
+		MwLLForceRender(parent);
+	}
 
 	return r;
 }
@@ -1527,9 +1529,6 @@ refresh:
 	framebuffer_destroy(&handle->wayland);
 	framebuffer_setup(&handle->wayland);
 	MwLLDispatch(handle, draw, NULL);
-	if(handle->wayland.parent != NULL) {
-		MwLLDispatch(handle->wayland.parent, draw, NULL);
-	}
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
