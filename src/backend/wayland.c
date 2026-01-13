@@ -412,16 +412,13 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	p.point = self->wayland.cur_mouse_pos;
 	MwLLDispatch(self, move, &p);
 
-	self->wayland.events_pending += 1;
-
-	/* Only draw once every 10 milliseconds */
-	if((self->wayland.last_time + 10) <= time) {
-		if(!self->wayland.always_render) {
-			MwLLDispatch(self, draw, NULL);
-			self->wayland.events_pending += 1;
-		}
+	/* Only draw once every 50 milliseconds */
+	if((self->wayland.last_time + 50) <= time) {
+		MwLLDispatch(self, draw, NULL);
 		self->wayland.last_time = time;
 	}
+
+	self->wayland.events_pending += 1;
 
 	WAYLAND_EVENT_OP_END(self);
 
@@ -474,10 +471,6 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 
 	if(!self->wayland.always_render) {
 		MwLLDispatch(self, draw, NULL);
-		if(self->wayland.parent != NULL) {
-			MwLLDispatch(self->wayland.parent, draw, NULL);
-			self->wayland.parent->wayland.events_pending += 1;
-		}
 		self->wayland.events_pending += 1;
 	}
 
@@ -655,9 +648,6 @@ static void keyboard_key(void*		     data,
 
 	if(!self->wayland.always_render) {
 		MwLLDispatch(self, draw, NULL);
-		if(self->wayland.parent != NULL) {
-			MwLLDispatch(self->wayland.parent, draw, NULL);
-		}
 		self->wayland.events_pending += 1;
 	}
 
@@ -943,8 +933,6 @@ static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_proto
 }
 
 static void update_buffer(struct _MwLLWaylandShmBuffer* buffer) {
-	fsync(buffer->fd);
-
 	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
 	wl_surface_commit(buffer->surface);
 }

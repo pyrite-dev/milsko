@@ -7,6 +7,7 @@
 #ifndef __MW_LOWLEVEL_WAYLAND_H__
 #define __MW_LOWLEVEL_WAYLAND_H__
 
+#include "Mw/BaseTypes.h"
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
 #include <Mw/LowLevel.h>
