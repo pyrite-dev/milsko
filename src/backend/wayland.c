@@ -465,9 +465,8 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 					MwLLDispatch(self->wayland.parent->wayland.currentlyHeldWidget, up, &p);
 					self->wayland.parent->wayland.currentlyHeldWidget = NULL;
 				}
-			} else {
-				MwLLDispatch(self, up, &p);
 			}
+			MwLLDispatch(self, up, &p);
 			break;
 		}
 	}
@@ -1504,10 +1503,6 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 
 	MwLLDispatch(handle, draw, NULL);
 	handle->wayland.events_pending += 1;
-	if(handle->wayland.parent != NULL) {
-		MwLLDispatch(handle->wayland.parent, draw, NULL);
-		handle->wayland.parent->wayland.events_pending += 1;
-	}
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
@@ -1531,6 +1526,7 @@ refresh:
 
 	framebuffer_destroy(&handle->wayland);
 	framebuffer_setup(&handle->wayland);
+	MwLLDispatch(handle, draw, NULL);
 	if(handle->wayland.parent != NULL) {
 		MwLLDispatch(handle->wayland.parent, draw, NULL);
 	}
