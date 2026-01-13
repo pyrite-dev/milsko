@@ -1,13 +1,17 @@
 #include <Mw/Milsko.h>
 
 #include <poll.h>
+#include <sched.h>
 #include <wayland-client-protocol.h>
 
 #include "../../external/stb_ds.h"
+#include "Mw/BaseTypes.h"
+#include "Mw/LowLevel.h"
 
 #include <sys/mman.h>
 #include <wayland-util.h>
 #include <unistd.h>
+#include <xkbcommon/xkbcommon.h>
 
 /* TODO:
  * - MwLLGrabPointerImpl
@@ -371,7 +375,7 @@ static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 n
 }
 
 static void zwp_primary_selection_device_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	zwp_primary_selection_device_manager_v1_destroy(wayland->clipboard_manager.zwp);
+	// zwp_primary_selection_device_manager_v1_destroy(wayland->clipboard_manager.zwp);
 }
 
 /* `wl_pointer.enter` callback */
@@ -410,6 +414,15 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 	self->wayland.events_pending += 1;
 
+	/* Only draw once every 10 milliseconds */
+	if((self->wayland.last_time + 10) <= time) {
+		if(!self->wayland.always_render) {
+			MwLLDispatch(self, draw, NULL);
+			self->wayland.events_pending += 1;
+		}
+		self->wayland.last_time = time;
+	}
+
 	WAYLAND_EVENT_OP_END(self);
 
 	/*timed_redraw(self, time, 50, &self->wayland.cooldown_timer);*/
@@ -442,15 +455,29 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 		switch(state) {
 		case WL_POINTER_BUTTON_STATE_PRESSED:
 			MwLLDispatch(self, down, &p);
+			if(self->wayland.parent != NULL) {
+				self->wayland.parent->wayland.currentlyHeldWidget = self;
+			}
 			break;
 		case WL_POINTER_BUTTON_STATE_RELEASED:
-			MwLLDispatch(self, up, &p);
+			if(self->wayland.parent != NULL) {
+				if(self->wayland.parent->wayland.currentlyHeldWidget != NULL) {
+					MwLLDispatch(self->wayland.parent->wayland.currentlyHeldWidget, up, &p);
+					self->wayland.parent->wayland.currentlyHeldWidget = NULL;
+				}
+			} else {
+				MwLLDispatch(self, up, &p);
+			}
 			break;
 		}
 	}
 
 	if(!self->wayland.always_render) {
 		MwLLDispatch(self, draw, NULL);
+		if(self->wayland.parent != NULL) {
+			MwLLDispatch(self->wayland.parent, draw, NULL);
+			self->wayland.parent->wayland.events_pending += 1;
+		}
 		self->wayland.events_pending += 1;
 	}
 
@@ -628,6 +655,9 @@ static void keyboard_key(void*		     data,
 
 	if(!self->wayland.always_render) {
 		MwLLDispatch(self, draw, NULL);
+		if(self->wayland.parent != NULL) {
+			MwLLDispatch(self->wayland.parent, draw, NULL);
+		}
 		self->wayland.events_pending += 1;
 	}
 
@@ -745,15 +775,14 @@ static wayland_protocol_t* wl_seat_setup(MwU32 name, MwLL ll) {
 	((struct wl_seat_listener*)proto->listener)->name	  = wl_seat_name;
 	((struct wl_seat_listener*)proto->listener)->capabilities = wl_seat_capabilities;
 
-	proto->context = wl_registry_bind(ll->wayland.registry, name, &wl_seat_interface, 1);
-	wl_seat_add_listener(proto->context, proto->listener, ll);
+	wl_seat_add_listener(wl_registry_bind(ll->wayland.registry, name, &wl_seat_interface, 1), proto->listener, ll);
 
 	return proto;
 }
 
 static void wl_seat_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	free(data->listener);
-	wl_seat_destroy(data->context);
+	// wl_seat_destroy(data->context);
 }
 
 /* wl_output setup function */
@@ -802,7 +831,7 @@ static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wa
 }
 
 static void xdg_wm_base_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	xdg_wm_base_destroy(data->context);
+	// xdg_wm_base_destroy(data->context);
 	free(data->listener);
 }
 
@@ -829,8 +858,8 @@ static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _
 static void zxdg_decoration_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	zxdg_decoration_manager_v1_context_t* context = data->context;
 
-	zxdg_decoration_manager_v1_destroy(context->manager);
-	zxdg_toplevel_decoration_v1_destroy(context->decoration);
+	// zxdg_decoration_manager_v1_destroy(context->manager);
+	// zxdg_toplevel_decoration_v1_destroy(context->decoration);
 }
 
 /* `xdg_toplevel.close` callback */
@@ -1007,7 +1036,7 @@ static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct
 
 static void xdg_toplevel_icon_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	free(data->listener);
-	xdg_toplevel_icon_manager_v1_destroy(data->context);
+	// xdg_toplevel_icon_manager_v1_destroy(data->context);
 }
 
 /* Standard Wayland event loop. */
@@ -1149,8 +1178,8 @@ static void setup_toplevel(MwLL r, int x, int y) {
 
 	/* Perform the initial commit and wait for the first configure event */
 	wl_surface_commit(r->wayland.framebuffer.surface);
-	event_loop(r);
 	while(!r->wayland.configured) {
+		event_loop(r);
 	}
 
 	/* setup decorations if we can */
@@ -1184,7 +1213,13 @@ static void destroy_toplevel(MwLL r) {
 
 	xdg_toplevel_destroy(r->wayland.toplevel->xdg_top_level);
 
+	xkb_keymap_unref(r->wayland.toplevel->xkb_keymap);
+
+	xkb_state_unref(r->wayland.toplevel->xkb_state);
+
 	xkb_context_unref(r->wayland.toplevel->xkb_context);
+
+	free(r->wayland.toplevel);
 
 	wl_registry_destroy(r->wayland.registry);
 
@@ -1369,6 +1404,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		setup_toplevel(r, x, y);
 	} else {
 		setup_sublevel(parent, r, x, y);
+		MwLLDispatch(parent, draw, NULL);
+		parent->wayland.events_pending += 1;
 	}
 
 	framebuffer_setup(&r->wayland);
@@ -1399,6 +1436,16 @@ static void MwLLDestroyImpl(MwLL handle) {
 
 	event_loop(handle);
 
+	/* sleep long enough that any active attempts to wait for the mutex will have given up and we can safely unlock/destroy it */
+	tv.tv_sec  = 0;
+	tv.tv_usec = 1000;
+	do {
+		select_ret = select(1, NULL, NULL, NULL, &tv);
+	} while((select_ret == -1) && (errno == EINTR));
+
+	pthread_mutex_unlock(&handle->wayland.eventsMutex);
+	pthread_mutex_destroy(&handle->wayland.eventsMutex);
+
 	framebuffer_destroy(&handle->wayland);
 	buffer_destroy(&handle->wayland.cursor);
 	wl_region_destroy(handle->wayland.region);
@@ -1424,28 +1471,13 @@ static void MwLLDestroyImpl(MwLL handle) {
 	for(i = 0; i < shlen(handle->wayland.wl_protocol_setup_map); i++) {
 		void* ctx = shget(handle->wayland.wl_protocol_map, handle->wayland.wl_protocol_setup_map[i].key);
 
-		handle->wayland.wl_protocol_setup_map[i].value->destroy(&handle->wayland, ctx);
+		if(ctx != NULL) {
+			handle->wayland.wl_protocol_setup_map[i].value->destroy(&handle->wayland, ctx);
+		}
 		shdel(handle->wayland.wl_protocol_map, handle->wayland.wl_protocol_setup_map[i].value);
 	}
 	shfree(handle->wayland.wl_protocol_map);
 	shfree(handle->wayland.wl_protocol_setup_map);
-
-	if(handle->wayland.pointer != NULL) {
-		wl_pointer_destroy(handle->wayland.pointer);
-	}
-	if(handle->wayland.keyboard != NULL) {
-		wl_keyboard_destroy(handle->wayland.keyboard);
-	}
-
-	/* sleep long enough that any active attempts to wait for the mutex will have given up and we can safely unlock/destroy it */
-	tv.tv_sec  = 0;
-	tv.tv_usec = 500;
-	do {
-		select_ret = select(1, NULL, NULL, NULL, &tv);
-	} while((select_ret == -1) && (errno == EINTR));
-
-	pthread_mutex_unlock(&handle->wayland.eventsMutex);
-	pthread_mutex_destroy(&handle->wayland.eventsMutex);
 
 	free(handle);
 }
@@ -1471,6 +1503,11 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	region_setup(handle);
 
 	MwLLDispatch(handle, draw, NULL);
+	handle->wayland.events_pending += 1;
+	if(handle->wayland.parent != NULL) {
+		MwLLDispatch(handle->wayland.parent, draw, NULL);
+		handle->wayland.parent->wayland.events_pending += 1;
+	}
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
@@ -1490,12 +1527,13 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	}
 
 refresh:
-	MwLLDispatch(handle, draw, NULL);
 	region_setup(handle);
 
 	framebuffer_destroy(&handle->wayland);
 	framebuffer_setup(&handle->wayland);
-	MwLLDispatch(handle, draw, NULL);
+	if(handle->wayland.parent != NULL) {
+		MwLLDispatch(handle->wayland.parent, draw, NULL);
+	}
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
@@ -1576,7 +1614,14 @@ static int MwLLPendingImpl(MwLL handle) {
 	timeout.tv_nsec = 10;
 	timeout.tv_sec	= 0;
 
-	return handle->wayland.force_render || handle->wayland.events_pending || wl_display_dispatch_timeout(handle->wayland.display, &timeout);
+	if(handle->wayland.force_render) {
+		return 1;
+	}
+	if(handle->wayland.events_pending) {
+		return 1;
+	}
+
+	return wl_display_dispatch_timeout(handle->wayland.display, &timeout);
 }
 
 static void MwLLNextEventImpl(MwLL handle) {

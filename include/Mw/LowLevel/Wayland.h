@@ -186,8 +186,6 @@ struct _MwLLWayland {
 
 	MwBool force_render;
 
-	MwBool disabled;
-
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  cursor;
 	struct _MwLLWaylandShmBuffer* icon;
@@ -197,6 +195,10 @@ struct _MwLLWayland {
 
 	IOI_XD: This sounds like a hilariously rare edge case, so it's almost funnier that this happened with 100% certainty for me and I spent day(s) trying to figure out what was happening. */
 	pthread_mutex_t eventsMutex;
+
+	uint32_t last_time;
+
+	MwLL currentlyHeldWidget;
 
 	cairo_surface_t* cs;
 	cairo_t*	 cairo;
