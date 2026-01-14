@@ -23,7 +23,7 @@ struct _MwLLCocoaColor {
 
 struct _MwLLCocoaPixmap {
 	struct _MwLLCommonPixmap common;
-	void*		   real;
+	void*			 real;
 };
 
 #endif
