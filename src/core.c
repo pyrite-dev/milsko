@@ -114,6 +114,19 @@ static void llclipboardhandler(MwLL handle, void* data) {
 	MwDispatchUserHandler(h, MwNclipboardHandler, data);
 }
 
+/* if both of them are true
+ * 1. widget class is not NULL
+ * 2.    parent is NULL
+ *    or parent's widget class is NULL
+ *
+ * most likely this widget is first *visible* widget
+ *
+ * this macro is not used anywhere else - we could expose it if we have to
+ *
+ * (nishi)
+ */
+#define IsFirstVisible(handle) ((handle)->widget_class != NULL && ((handle)->parent == NULL || (handle)->parent->widget_class == NULL))
+
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	MwWidget h = malloc(sizeof(*h));
 
@@ -186,6 +199,17 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 		MwAddTickList(h);
 	}
 
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
+	if(IsFirstVisible(h)) {
+		h->root_font	 = MwFontLoad(MwTTFData, MwTTFDataSize);
+		h->root_boldfont = MwFontLoad(MwBoldTTFData, MwBoldTTFDataSize);
+	} else
+#endif
+	{
+		h->root_font	 = NULL;
+		h->root_boldfont = NULL;
+	}
+
 	if(h->parent != NULL) MwDispatch(h->parent, children_update);
 
 	return h;
@@ -249,6 +273,9 @@ static void MwFreeWidget(MwWidget handle) {
 
 	arrfree(handle->destroy_queue);
 	arrfree(handle->tick_list);
+
+	if(handle->root_font != NULL) MwFontFree(handle->root_font);
+	if(handle->root_boldfont != NULL) MwFontFree(handle->root_boldfont);
 
 	free(handle);
 }
@@ -507,8 +534,41 @@ const char* MwGetText(MwWidget handle, const char* key) {
 	return shget(handle->text, key);
 }
 
+static void* inherit_void(MwWidget handle, const char* key) {
+	void* v;
+
+	if(handle->parent != NULL && (v = MwGetVoid(handle->parent, key)) != NULL) {
+		return v;
+	}
+	return NULL;
+}
+
 void* MwGetVoid(MwWidget handle, const char* key) {
-	return shget(handle->data, key);
+	void* v = shget(handle->data, key);
+
+	if(v != NULL) return v;
+
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
+	if(strcmp(key, MwNfont) == 0 || strcmp(key, MwNboldFont) == 0) {
+		v = inherit_void(handle, key);
+
+		if(v == NULL) {
+			MwWidget w = handle;
+
+			while(w != NULL && v == NULL) {
+				if(strcmp(key, MwNfont) == 0) {
+					v = w->root_font;
+				} else {
+					v = w->root_boldfont;
+				}
+
+				w = w->parent;
+			}
+		}
+	}
+#endif
+
+	return v;
 }
 
 void MwVaApply(MwWidget handle, ...) {
@@ -576,43 +636,8 @@ void MwVaListApply(MwWidget handle, va_list va) {
 	}
 }
 
-#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
-static void set_font(MwWidget handle) {
-	void*	 f;
-	MwWidget h = handle;
-	while(h != NULL) {
-		if((f = MwGetVoid(h, MwNfont)) != NULL) {
-			MwSetVoid(handle, MwNfont, f);
-			return;
-		}
-		h = h->parent;
-	}
-	f = MwFontLoad(MwTTFData, MwTTFDataSize);
-	MwSetVoid(handle, MwNfont, f);
-}
-
-static void set_boldfont(MwWidget handle) {
-	void*	 f;
-	MwWidget h = handle;
-	while(h != NULL) {
-		if((f = MwGetVoid(h, MwNboldFont)) != NULL) {
-			MwSetVoid(handle, MwNboldFont, f);
-			return;
-		}
-		h = h->parent;
-	}
-	f = MwFontLoad(MwBoldTTFData, MwBoldTTFDataSize);
-	MwSetVoid(handle, MwNboldFont, f);
-}
-#endif
-
 void MwSetDefault(MwWidget handle) {
 	if(handle->lowlevel != NULL) MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
-
-#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
-	set_font(handle);
-	set_boldfont(handle);
-#endif
 }
 
 void MwHideCursor(MwWidget handle) {

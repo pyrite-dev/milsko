@@ -1,4 +1,4 @@
-$library_suffix    = ".dylib";
+$library_suffix = ".dylib";
 set_shared_flag("-dynamiclib");
 
 use_backend("cocoa");

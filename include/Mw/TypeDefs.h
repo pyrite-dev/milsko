@@ -101,6 +101,9 @@ struct _MwWidget {
 	MwWidget* tick_list;
 
 	int destroyed;
+
+	void* root_font;
+	void* root_boldfont;
 };
 #endif
 

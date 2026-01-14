@@ -41,7 +41,7 @@ sub new_example {
 }
 
 sub set_shared_flag {
-	@shared = $_[0];
+    @shared = $_[0];
 }
 
 sub new_object {

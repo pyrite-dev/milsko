@@ -158,7 +158,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		r->x11.top	= 0;
 		r->x11.toplevel = 0;
 	}
-	r->x11.window  = XCreateSimpleWindow(r->x11.display, p, px, py, width, height, 0, 0, WhitePixel(r->x11.display, DefaultScreen(r->x11.display)));
+	r->x11.window = XCreateSimpleWindow(r->x11.display, p, px, py, width, height, 0, 0, WhitePixel(r->x11.display, DefaultScreen(r->x11.display)));
 
 	sh.flags       = PWinGravity;
 	sh.win_gravity = StaticGravity;

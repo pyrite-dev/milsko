@@ -45,7 +45,7 @@ param_set("vulkan",               0);
 param_set("vulkan-string-helper", 1);
 param_set("shared",               1);
 param_set("static",               1);
-param_set("examples", 1);
+param_set("examples",             1);
 
 my %features = (
     "classic-theme"        => "use classic theme",
@@ -221,11 +221,12 @@ foreach my $l (@library_targets) {
     my $o    = $object_suffix;
     $o =~ s/\./\\\./g;
 
-	if ($l =~ /cocoa/) {
-	 	$s =~ s/$o$/.m/;
-	} else {
-	 	$s =~ s/$o$/.c/;
-	}
+    if ($l =~ /cocoa/) {
+        $s =~ s/$o$/.m/;
+    }
+    else {
+        $s =~ s/$o$/.c/;
+    }
 
     if ($l =~ /^external\//) {
         $warn = "";
@@ -236,37 +237,38 @@ foreach my $l (@library_targets) {
 }
 print(OUT "\n");
 print(OUT "\n");
-if(param_get("examples")) {
-	print(OUT "examples: " . join(" ", @examples_targets) . "\n");
-	print(OUT "\n");
-	foreach my $l (@examples_targets) {
-	    my $libs = "";
-	    my $s    = $l;
-	    my $o    = $executable_suffix;
-	    $o =~ s/\./\\\./g;
-	    $s =~ s/$o$//;
+if (param_get("examples")) {
+    print(OUT "examples: " . join(" ", @examples_targets) . "\n");
+    print(OUT "\n");
+    foreach my $l (@examples_targets) {
+        my $libs = "";
+        my $s    = $l;
+        my $o    = $executable_suffix;
+        $o =~ s/\./\\\./g;
+        $s =~ s/$o$//;
 
-	    if (defined($examples_libs{$l})) {
-	        $libs = $examples_libs{$l};
-	    }
+        if (defined($examples_libs{$l})) {
+            $libs = $examples_libs{$l};
+        }
 
-	    print(OUT
-	"${l}: ${s}${object_suffix} src/${library_prefix}Mw${library_suffix}\n"
-	    );
-		if (grep(/^cocoa$/, @backends)) {
-	    	print(OUT
-				"	\$(CC) -L./src \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n"
-	    		);
-		} else {
-			print(OUT
-				"	\$(CC) -L src -Wl,-R./src \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n"
-	    		);
-		}
-	    print(OUT "${s}${object_suffix}: ${s}.c\n");
-	    print(OUT
-	          "	\$(CC) -c \$\(INCDIR) -o ${s}${object_suffix} ${s}.c -lMw ${math}\n"
-	    );
-	}
+        print(OUT
+"${l}: ${s}${object_suffix} src/${library_prefix}Mw${library_suffix}\n"
+        );
+        if (grep(/^cocoa$/, @backends)) {
+            print(OUT
+"	\$(CC) -L./src \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n"
+            );
+        }
+        else {
+            print(OUT
+"	\$(CC) -L src -Wl,-R./src \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n"
+            );
+        }
+        print(OUT "${s}${object_suffix}: ${s}.c\n");
+        print(OUT
+"	\$(CC) -c \$\(INCDIR) -o ${s}${object_suffix} ${s}.c -lMw ${math}\n"
+        );
+    }
 }
 print(OUT "\n");
 print(OUT "clean:\n");
