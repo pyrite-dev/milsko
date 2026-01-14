@@ -1,5 +1,4 @@
 ---
-Language: Cpp
 UseTab: Always
 TabWidth: 8
 AlignConsecutiveAssignments:

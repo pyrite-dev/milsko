@@ -184,7 +184,7 @@ print(OUT "	cp -rf include \$(DESTDIR)\$(PREFIX)/\n");
 print(OUT "\n");
 print(OUT "format:\n");
 print(OUT
-"	clang-format --verbose -i `find src include examples -name \"*.c\" -or -name \"*.h\"`\n"
+"	clang-format --verbose -i `find src include examples -name \"*.c\" -or -name \"*.h\" -or -name \"*.m\"`\n"
 );
 print(OUT
 "	perltidy -b -bext=\"/\" --paren-tightness=2 `find tools pl Makefile.pl -name \"*.pl\"`\n"
