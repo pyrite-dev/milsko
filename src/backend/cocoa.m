@@ -1,34 +1,40 @@
-#ifndef USE_COCOA
-#define USE_COCOA
-#include <Foundation/NSGeometry.h>
-#include <Foundation/NSObjCRuntime.h>
-#endif
-
-#import <AppKit/AppKit.h>
-#import <AppKit/NSEvent.h>
-#import <Foundation/Foundation.h>
-
+#include <AppKit/NSGraphicsContext.h>
 #include <Mw/Milsko.h>
+#include <assert.h>
+#include <limits.h>
+#include <stdint.h>
 
 #include "../../external/stb_ds.h"
+#include "Mw/BaseTypes.h"
 
 @implementation MilskoCocoaPixmap
 
 + (MilskoCocoaPixmap*)newWithWidth:(int)width height:(int)height {
 	MilskoCocoaPixmap* p = [MilskoCocoaPixmap alloc];
-	NSSize		   sz;
 
-	sz.width  = width;
-	sz.height = height;
-
-	p->image = [[NSImage alloc] initWithSize:sz];
+	p->width  = width;
+	p->height = height;
+	p->data	  = NULL;
+	p->image  = NULL;
 
 	return p;
 }
-- (void)updateWithData:(void*)data {
+- (void)updateWithData:(void*)_data {
+	[self destroy];
+
+	self->data  = [NSData dataWithBytes:_data length:self->width * self->height * 4];
+	self->image = [[NSImage alloc] initWithData:self->data];
 }
 - (void)destroy {
-	[self->image dealloc];
+	if(self->data != NULL) {
+		[self->data dealloc];
+	}
+	if(self->image != NULL) {
+		[self->image dealloc];
+	}
+}
+- (NSImage*)image {
+	return self->image;
 }
 @end
 
@@ -68,13 +74,32 @@
 	if(parent != NULL) {
 		MilskoCocoa* p = parent->cocoa.real;
 		[p->window addChildWindow:c->window ordered:NSWindowAbove];
+	} else {
+		[c->application activateIgnoringOtherApps:true];
 	}
+
+	c->view = [[MilskoCocoaView alloc] initWithFrame:c->rect];
+	[c->window setContentView:c->view];
 
 	return c;
 }
 - (void)polygonWithPoints:(MwPoint*)points
 	     points_count:(int)points_count
 		    color:(MwLLColor)color {
+	int	     i;
+	CGContextRef cg = [self->view context];
+
+	CGContextSetRGBFillColor(cg, color->common.red / 255., color->common.blue / 255., color->common.green / 255., 1);
+	CGContextBeginPath(cg);
+	for(i = 0; i < points_count; i++) {
+		CGContextMoveToPoint(cg, points[i].x, points[i].y);
+		if(i < points_count - 1) {
+			CGContextAddLineToPoint(cg, points[i + 1].x, points[i + 1].y);
+		}
+	}
+	CGContextFillPath(cg);
+
+	// [self->view setNeedsDisplay:true];
 };
 - (void)lineWithPoints:(MwPoint*)points color:(MwLLColor)color {
 };
@@ -105,15 +130,22 @@
 	return 1;
 };
 - (void)getNextEvent {
-	NSAutoreleasePool* pool	 = [[NSAutoreleasePool alloc] init];
-	NSEvent*	   event = [self->application nextEventMatchingMask:NSAnyEventMask
-							  untilDate:nil
-							     inMode:NSDefaultRunLoopMode
-							    dequeue:YES];
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+
+	NSEvent* event = [self->application nextEventMatchingMask:NSAnyEventMask
+							untilDate:nil
+							   inMode:NSDefaultRunLoopMode
+							  dequeue:YES];
 
 	if(event != nil) {
 		printf("got event: %p\n", event);
 	}
+
+	[self->application sendEvent:event];
+
+	/* this should be in the draw functions but it's here for now for testing */
+	[self->view setNeedsDisplay:true];
+
 	[pool release];
 };
 - (void)setTitle:(const char*)title {
@@ -122,7 +154,9 @@
 	    setTitleWithRepresentedFilename:[NSString stringWithUTF8String:title]];
 	[pool release];
 };
-- (void)drawPixmap:(MwLLPixmap)pixmap rect:(MwRect*)rect {
+- (void)drawPixmap:(MwLLPixmap)pixmap rect:(MwRect*)_rect {
+	MilskoCocoaPixmap* p = pixmap->cocoa.real;
+	[[p image] drawAtPoint:NSMakePoint(_rect->x, _rect->y) fromRect:NSMakeRect(_rect->x, _rect->y, _rect->width, _rect->height) operation:NSCompositeClear fraction:1.0];
 };
 - (void)setIcon:(MwLLPixmap)pixmap {
 };
@@ -183,6 +217,53 @@
 - (void)destroy {
 	[self->window dealloc];
 }
+
+@end
+
+@implementation MilskoCocoaView
+- (id)initWithFrame:(NSRect)frame {
+	self	     = [super initWithFrame:frame];
+	self->width  = frame.size.width;
+	self->height = frame.size.height;
+	self->buf    = malloc(self->width * self->height * 4);
+	self->space  = CGColorSpaceCreateDeviceRGB();
+	self->cg     = CGBitmapContextCreate(self->buf,
+					     self->width,
+					     self->height,
+					     CHAR_BIT,
+					     self->width * sizeof(uint32_t),
+					     self->space, kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedLast);
+	assert(self->cg);
+	printf("%p\n", self->cg);
+	return self;
+}
+
+- (CGContextRef)context {
+	return self->cg;
+}
+
+- (void)drawRect:(NSRect)dirtyRect {
+	[super drawRect:dirtyRect];
+	if(self) {
+
+		CGImageRef img = CGBitmapContextCreateImage(self->cg);
+		if(!img) {
+			return;
+		}
+		printf("printed image\n");
+
+		CGContextDrawImage([[NSGraphicsContext currentContext] graphicsPort], CGRectMake(0, 0, self->width, self->height), img);
+		CGImageRelease(img);
+	}
+	// printf("%0.2f %0.2f %0.2f %0.2f\n", dirtyRect.origin.x, dirtyRect.origin.y, dirtyRect.size.width, dirtyRect.size.height);
+}
+
+- (void)destroy {
+	free(self->buf);
+	CGContextRelease(self->cg);
+	CGColorSpaceRelease(self->space);
+}
+
 @end
 
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {

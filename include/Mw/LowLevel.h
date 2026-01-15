@@ -6,6 +6,7 @@
 #ifndef __MW_LOWLEVEL_H__
 #define __MW_LOWLEVEL_H__
 
+#include "Mw/BaseTypes.h"
 #include <Mw/MachDep.h>
 
 typedef struct _MwLLHandler*	  MwLLHandler;
@@ -40,9 +41,9 @@ struct _MwLLCommon {
 };
 
 struct _MwLLCommonColor {
-	int red;
-	int green;
-	int blue;
+	MwU8 red;
+	MwU8 green;
+	MwU8 blue;
 };
 
 struct _MwLLCommonPixmap {

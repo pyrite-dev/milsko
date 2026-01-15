@@ -11,17 +11,50 @@
 #include <Mw/TypeDefs.h>
 
 #ifdef __OBJC__
+
+#import <Foundation/NSGeometry.h>
+#import <AppKit/AppKit.h>
+#import <Foundation/Foundation.h>
+
+#ifdef __APPLE__
+#import <CoreServices/CoreServices.h>
+#else
+#import <CoreGraphics/CoreGraphics.h>
+#endif
+
 @interface MilskoCocoaPixmap : NSObject {
+	int	 width;
+	int	 height;
+	NSData*	 data;
 	NSImage* image;
 }
+
 + (MilskoCocoaPixmap*)newWithWidth:(int)width height:(int)height;
 - (void)updateWithData:(void*)data;
 - (void)destroy;
+
+/* using @property to create instance variables fucks up 10.4 gcc for some reason? */
+- (NSImage*)image;
+
 @end
+
+@interface MilskoCocoaView : NSView {
+	CGContextRef	  cg;
+	CGColorSpaceRef	  space;
+	CGDataProviderRef provider;
+	MwU32*		  buf;
+	float		  width;
+	float		  height;
+}
+
+- (CGContextRef)context;
+@end
+
 @interface MilskoCocoa : NSObject {
-	NSApplication* application;
-	NSWindow*      window;
-	NSRect	       rect;
+	NSApplication*	 application;
+	NSWindow*	 window;
+	NSRect		 rect;
+	MilskoCocoaView* view;
 }
 
 + (MilskoCocoa*)newWithParent:(MwLL)parent
