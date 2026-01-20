@@ -46,7 +46,10 @@ long MwTimeGetTick(void) {
 }
 
 void MwTimeSleep(int ms) {
-#if 0
+#ifdef __NetBSD__
+	usleep(ms * 100);
+#else
+	/* i don't know why this method does not work well on netbsd */
 	struct timespec ts;
 
 	ts.tv_sec  = ms / 1000;
@@ -54,6 +57,5 @@ void MwTimeSleep(int ms) {
 
 	nanosleep(&ts, NULL);
 #endif
-	usleep(ms * 100);
 }
 #endif
