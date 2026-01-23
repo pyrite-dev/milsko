@@ -56,7 +56,9 @@ typedef struct waylandopengl {
 #endif
 
 static int create(MwWidget handle) {
-	void* r = NULL;
+	void*	 r = NULL;
+	MwWidget w = handle;
+
 #ifdef USE_GDI
 	if(handle->lowlevel->common.type == MwLLBackendGDI) {
 		PIXELFORMATDESCRIPTOR pfd;
@@ -210,10 +212,16 @@ static int create(MwWidget handle) {
 
 	MwSetDefault(handle);
 
+	while(w->parent != NULL) w = w->parent;
+
+	w->berserk++;
+
 	return 0;
 }
 
 static void destroy(MwWidget handle) {
+	MwWidget w = handle;
+
 #ifdef USE_GDI
 	if(handle->lowlevel->common.type == MwLLBackendGDI) {
 		gdiopengl_t* o = handle->internal;
@@ -241,22 +249,48 @@ static void destroy(MwWidget handle) {
 	}
 #endif
 
+	while(w->parent != NULL) w = w->parent;
+
+	w->berserk++;
+
 	free(handle->internal);
 }
 
 static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
+	/* these swap interval functions belonging here actually stink! */
+
 #ifdef USE_GDI
 	if(handle->lowlevel->common.type == MwLLBackendGDI) {
-		gdiopengl_t* o = handle->internal;
+		gdiopengl_t* o		       = handle->internal;
+		void (*swap_interval_ext)(int) = NULL;
 
 		o->wglMakeCurrent(o->dc, o->gl);
+
+		if((swap_interval_ext = MwOpenGLGetProcAddress(handle, "wglSwapIntervalEXT")) != NULL) {
+			swap_interval_ext(1);
+		}
 	}
 #endif
 #ifdef USE_X11
 	if(handle->lowlevel->common.type == MwLLBackendX11) {
-		x11opengl_t* o = handle->internal;
+		x11opengl_t* o					      = handle->internal;
+		void (*swap_interval_ext)(Display*, GLXDrawable, int) = NULL;
+		void (*swap_interval_mesa)(unsigned int)	      = NULL;
+		void (*swap_interval_sgi)(int)			      = NULL;
 
 		o->glXMakeCurrent(handle->lowlevel->x11.display, handle->lowlevel->x11.window, o->gl);
+
+		if((swap_interval_ext = MwOpenGLGetProcAddress(handle, "glXSwapIntervalEXT")) != NULL) {
+			swap_interval_ext(handle->lowlevel->x11.display, handle->lowlevel->x11.window, 1);
+		}
+
+		if((swap_interval_mesa = MwOpenGLGetProcAddress(handle, "glXSwapIntervalMESA")) != NULL) {
+			swap_interval_mesa(1);
+		}
+
+		if((swap_interval_sgi = MwOpenGLGetProcAddress(handle, "glXSwapIntervalSGI")) != NULL) {
+			swap_interval_sgi(1);
+		}
 	}
 #endif
 #ifdef USE_WAYLAND
@@ -266,6 +300,8 @@ static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 		if(!eglMakeCurrent(o->egl_display, o->egl_surface, o->egl_surface, o->egl_context)) {
 			printf("ERROR: eglMakeCurrent, %0X\n", eglGetError());
 		}
+
+		eglSwapInterval(o->egl_display, 1);
 	}
 #endif
 }

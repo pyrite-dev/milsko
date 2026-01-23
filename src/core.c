@@ -154,6 +154,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->destroyed	 = 0;
 	h->dark_theme	 = 0;
 	h->bgcolor	 = NULL;
+	h->berserk	 = 0;
 
 	if(parent == NULL) arrput(h->tick_list, h);
 
@@ -392,7 +393,7 @@ void MwLoop(MwWidget handle) {
 		more = over % (wait / 2);
 		t    = (tick + wait - more) - (t2 = MwTimeGetTick());
 		if(t > 0) {
-			MwTimeSleep(t);
+			if(!handle->berserk) MwTimeSleep(t);
 			tick = MwTimeGetTick();
 			over -= more;
 		} else {

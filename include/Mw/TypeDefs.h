@@ -104,6 +104,8 @@ struct _MwWidget {
 
 	void* root_font;
 	void* root_boldfont;
+
+	int berserk;
 };
 #endif
 
