@@ -45,6 +45,7 @@
 #include <signal.h>
 #include <dirent.h>
 #include <fcntl.h>
+#include <limits.h>
 #endif
 
 #ifdef __APPLE__

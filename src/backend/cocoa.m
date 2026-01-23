@@ -1,11 +1,8 @@
-#include <AppKit/NSGraphicsContext.h>
 #include <Mw/Milsko.h>
-#include <assert.h>
-#include <limits.h>
-#include <stdint.h>
+
+#include <AppKit/NSGraphicsContext.h>
 
 #include "../../external/stb_ds.h"
-#include "Mw/BaseTypes.h"
 
 @implementation MilskoCocoaPixmap
 
@@ -176,7 +173,7 @@
 			MaxY:(int)maxy {
 };
 - (void)makeBorderless:(int)toggle {
-	uint32_t mask = [self->window styleMask];
+	MwU32 mask = [self->window styleMask];
 	if(mask & NSBorderlessWindowMask) {
 		mask ^= NSBorderlessWindowMask;
 		mask |= NSTitledWindowMask;
@@ -231,7 +228,7 @@
 					     self->width,
 					     self->height,
 					     CHAR_BIT,
-					     self->width * sizeof(uint32_t),
+					     self->width * sizeof(MwU32),
 					     self->space, kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedLast);
 	assert(self->cg);
 	printf("%p\n", self->cg);
