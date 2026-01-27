@@ -22,6 +22,7 @@ struct _MwLLGDI {
 	int grabbed;
 	int force_render;
 	int get_clipboard;
+	int get_darktheme;
 };
 
 struct _MwLLGDIColor {

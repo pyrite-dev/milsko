@@ -8,6 +8,17 @@ typedef struct userdata {
 	int   max_set;
 } userdata_t;
 
+static void detect_darktheme(MwLL handle){
+	DWORD dw;
+	DWORD sz = sizeof(dw);
+
+	if(RegGetValue(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "AppsUseLightTheme", RRF_RT_REG_DWORD, NULL, &dw, &sz) == ERROR_SUCCESS){
+		int t = dw ? 0 : 1;
+
+		MwLLDispatch(handle, dark_theme, &t);
+	}
+}
+
 static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	userdata_t* u = (userdata_t*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
@@ -205,6 +216,10 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	} else if(msg == WM_USER) {
 		InvalidateRect(hWnd, NULL, FALSE);
 		UpdateWindow(hWnd);
+	} else if(msg == WM_WININICHANGE){
+		char* s = (char*)lp;
+		
+		if(s != NULL && strcmp(s, "ImmersiveColorSet") == 0) detect_darktheme(u->ll);
 	} else {
 		return DefWindowProc(hWnd, msg, wp, lp);
 	}
@@ -238,6 +253,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->common.type	      = MwLLBackendGDI;
 
 	r->gdi.get_clipboard = 1;
+	r->gdi.get_darktheme = 1;
 	r->gdi.force_render  = 0;
 	r->gdi.grabbed	     = 0;
 	r->gdi.hWnd	     = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->gdi.hWnd, 0, wc.hInstance, NULL);
@@ -384,7 +400,7 @@ static int MwLLPendingImpl(MwLL handle) {
 
 	(void)handle;
 
-	if(handle->gdi.get_clipboard) return 1;
+	if(handle->gdi.get_clipboard || handle->gdi.get_darktheme) return 1;
 	return PeekMessage(&msg, handle->gdi.hWnd, 0, 0, PM_NOREMOVE) ? 1 : 0;
 }
 
@@ -408,6 +424,11 @@ static void MwLLNextEventImpl(MwLL handle) {
 
 			free(txt);
 		}
+
+		handle->gdi.get_clipboard = 0;
+	}
+	if(handle->gdi.get_darktheme){
+		detect_darktheme(handle);
 
 		handle->gdi.get_clipboard = 0;
 	}

@@ -127,6 +127,13 @@ static void llclipboardhandler(MwLL handle, void* data) {
  */
 #define IsFirstVisible(handle) ((handle)->widget_class != NULL && ((handle)->parent == NULL || (handle)->parent->widget_class == NULL))
 
+static void lldarkthemehandler(MwLL handle, void* data){
+	MwWidget h = (MwWidget)handle->common.user;
+	int* ptr = data;
+
+	if(IsFirstVisible(h)) MwToggleDarkTheme(h, *ptr);
+}
+
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	MwWidget h = malloc(sizeof(*h));
 
@@ -171,6 +178,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 		h->lowlevel->common.handler->focus_in	  = llfocusinhandler;
 		h->lowlevel->common.handler->focus_out	  = llfocusouthandler;
 		h->lowlevel->common.handler->clipboard	  = llclipboardhandler;
+		h->lowlevel->common.handler->dark_theme	  = lldarkthemehandler;
 	}
 
 	if(parent != NULL) arrput(parent->children, h);
