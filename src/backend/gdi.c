@@ -19,8 +19,8 @@ static void detect_darktheme(MwLL handle){
 	if(err != ERROR_SUCCESS) return;
 
 	err = RegQueryValueEx(hkey, "AppsUseLightTheme", NULL, &type, (PBYTE)&dw, &sz);
+	RegCloseKey(hkey);
 	if(err != ERROR_SUCCESS || type != REG_DWORD){
-		RegCloseKey(hkey);
 		return;
 	}
 	
