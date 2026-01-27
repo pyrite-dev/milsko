@@ -11,12 +11,22 @@ typedef struct userdata {
 static void detect_darktheme(MwLL handle){
 	DWORD dw;
 	DWORD sz = sizeof(dw);
+	int err, t;
+	HKEY hkey;
+	DWORD type;
 
-	if(RegGetValue(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "AppsUseLightTheme", RRF_RT_REG_DWORD, NULL, &dw, &sz) == ERROR_SUCCESS){
-		int t = dw ? 0 : 1;
+	err = RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_QUERY_VALUE, &hkey);
+	if(err != ERROR_SUCCESS) return;
 
-		MwLLDispatch(handle, dark_theme, &t);
+	err = RegQueryValueEx(hkey, "AppsUseLightTheme", NULL, &type, (PBYTE)&dw, &sz);
+	if(err != ERROR_SUCCESS || type != REG_DWORD){
+		RegCloseKey(hkey);
+		return;
 	}
+	
+	t = dw ? 0 : 1;
+
+	MwLLDispatch(handle, dark_theme, &t);
 }
 
 static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
