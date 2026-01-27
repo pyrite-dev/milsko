@@ -218,8 +218,11 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		UpdateWindow(hWnd);
 	} else if(msg == WM_WININICHANGE){
 		char* s = (char*)lp;
+		LPARAM style = GetWindowLongPtr(hWnd, GWL_STYLE);
 		
-		if(s != NULL && strcmp(s, "ImmersiveColorSet") == 0) detect_darktheme(u->ll);
+		if(!(style & WS_CHILD)){
+			if(s != NULL && strcmp(s, "ImmersiveColorSet") == 0) detect_darktheme(u->ll);
+		}
 	} else {
 		return DefWindowProc(hWnd, msg, wp, lp);
 	}
