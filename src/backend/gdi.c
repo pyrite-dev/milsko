@@ -663,6 +663,8 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	rc2.bottom -= rc2.top;
 
 	SetWindowPos(handle->gdi.hWnd, HWND_TOPMOST, rc.left, rc.top, rc2.right == 0 ? 1 : rc2.right, rc2.bottom == 0 ? 1 : rc2.bottom, SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+	handle->gdi.get_darktheme = 1;
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
