@@ -127,9 +127,9 @@ static void llclipboardhandler(MwLL handle, void* data) {
  */
 #define IsFirstVisible(handle) ((handle)->widget_class != NULL && ((handle)->parent == NULL || (handle)->parent->widget_class == NULL))
 
-static void lldarkthemehandler(MwLL handle, void* data){
-	MwWidget h = (MwWidget)handle->common.user;
-	int* ptr = data;
+static void lldarkthemehandler(MwLL handle, void* data) {
+	MwWidget h   = (MwWidget)handle->common.user;
+	int*	 ptr = data;
 
 	if(IsFirstVisible(h)) MwSetDarkTheme(h, *ptr);
 }

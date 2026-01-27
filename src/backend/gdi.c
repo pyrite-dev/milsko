@@ -8,11 +8,11 @@ typedef struct userdata {
 	int   max_set;
 } userdata_t;
 
-static void detect_darktheme(MwLL handle){
+static void detect_darktheme(MwLL handle) {
 	DWORD dw;
 	DWORD sz = sizeof(dw);
-	int err, t;
-	HKEY hkey;
+	int   err, t;
+	HKEY  hkey;
 	DWORD type;
 
 	err = RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_QUERY_VALUE, &hkey);
@@ -20,10 +20,10 @@ static void detect_darktheme(MwLL handle){
 
 	err = RegQueryValueEx(hkey, "AppsUseLightTheme", NULL, &type, (PBYTE)&dw, &sz);
 	RegCloseKey(hkey);
-	if(err != ERROR_SUCCESS || type != REG_DWORD){
+	if(err != ERROR_SUCCESS || type != REG_DWORD) {
 		return;
 	}
-	
+
 	t = dw ? 0 : 1;
 
 	MwLLDispatch(handle, dark_theme, &t);
@@ -226,11 +226,11 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	} else if(msg == WM_USER) {
 		InvalidateRect(hWnd, NULL, FALSE);
 		UpdateWindow(hWnd);
-	} else if(msg == WM_WININICHANGE){
-		char* s = (char*)lp;
+	} else if(msg == WM_WININICHANGE) {
+		char*  s     = (char*)lp;
 		LPARAM style = GetWindowLongPtr(hWnd, GWL_STYLE);
-		
-		if(!(style & WS_CHILD)){
+
+		if(!(style & WS_CHILD)) {
 			if(s != NULL && strcmp(s, "ImmersiveColorSet") == 0) detect_darktheme(u->ll);
 		}
 	} else {
@@ -267,12 +267,12 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	r->gdi.get_clipboard = 1;
 	if(parent == NULL) r->gdi.get_darktheme = 1;
-	r->gdi.force_render  = 0;
-	r->gdi.grabbed	     = 0;
-	r->gdi.hWnd	     = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->gdi.hWnd, 0, wc.hInstance, NULL);
-	r->gdi.hInstance     = wc.hInstance;
-	r->gdi.cursor	     = NULL;
-	r->gdi.icon	     = NULL;
+	r->gdi.force_render = 0;
+	r->gdi.grabbed	    = 0;
+	r->gdi.hWnd	    = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->gdi.hWnd, 0, wc.hInstance, NULL);
+	r->gdi.hInstance    = wc.hInstance;
+	r->gdi.cursor	    = NULL;
+	r->gdi.icon	    = NULL;
 
 	u->ll	   = r;
 	u->min_set = 0;
@@ -440,7 +440,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 
 		handle->gdi.get_clipboard = 0;
 	}
-	if(handle->gdi.get_darktheme){
+	if(handle->gdi.get_darktheme) {
 		detect_darktheme(handle);
 
 		handle->gdi.get_darktheme = 0;
