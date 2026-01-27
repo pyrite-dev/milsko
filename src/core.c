@@ -543,6 +543,7 @@ const char* MwGetText(MwWidget handle, const char* key) {
 	return shget(handle->text, key);
 }
 
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
 static void* inherit_void(MwWidget handle, const char* key) {
 	void* v;
 
@@ -551,6 +552,7 @@ static void* inherit_void(MwWidget handle, const char* key) {
 	}
 	return NULL;
 }
+#endif
 
 void* MwGetVoid(MwWidget handle, const char* key) {
 	void* v = shget(handle->data, key);
