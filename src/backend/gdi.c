@@ -443,7 +443,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 	if(handle->gdi.get_darktheme){
 		detect_darktheme(handle);
 
-		handle->gdi.get_clipboard = 0;
+		handle->gdi.get_darktheme = 0;
 	}
 	while(PeekMessage(&msg, handle->gdi.hWnd, 0, 0, PM_NOREMOVE)) {
 		GetMessage(&msg, handle->gdi.hWnd, 0, 0);
