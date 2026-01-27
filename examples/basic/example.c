@@ -17,7 +17,7 @@ void handler_dark(MwWidget handle, void* user_data, void* call_data) {
 	(void)call_data;
 
 	toggle = toggle ? 0 : 1;
-	MwToggleDarkTheme(window, toggle);
+	MwSetDarkTheme(window, toggle);
 }
 
 void resize(MwWidget handle, void* user_data, void* call_data) {

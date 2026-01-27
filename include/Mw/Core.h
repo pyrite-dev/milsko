@@ -296,7 +296,7 @@ MWDECL void MwHideCursor(MwWidget handle);
  * @param handle Widget
  * @param toggle Toggle
  */
-MWDECL void MwToggleDarkTheme(MwWidget handle, int toggle);
+MWDECL void MwSetDarkTheme(MwWidget handle, int toggle);
 
 /*!
  * @brief Gets the parent widget

@@ -353,7 +353,7 @@
 						<widget name="handle" />
 					</arguments>
 				</function>
-				<function name="MwToggleDarkTheme">
+				<function name="MwSetDarkTheme">
 					<arguments>
 						<widget name="handle" />
 						<integer name="toggle" />

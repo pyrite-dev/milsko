@@ -131,7 +131,7 @@ static void lldarkthemehandler(MwLL handle, void* data){
 	MwWidget h = (MwWidget)handle->common.user;
 	int* ptr = data;
 
-	if(IsFirstVisible(h)) MwToggleDarkTheme(h, *ptr);
+	if(IsFirstVisible(h)) MwSetDarkTheme(h, *ptr);
 }
 
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
@@ -747,7 +747,7 @@ static void force_render_all(MwWidget handle) {
 	if(handle->lowlevel != NULL) MwForceRender(handle);
 }
 
-void MwToggleDarkTheme(MwWidget handle, int toggle) {
+void MwSetDarkTheme(MwWidget handle, int toggle) {
 	int old = handle->dark_theme;
 	if(old != toggle) {
 		handle->dark_theme = toggle;
