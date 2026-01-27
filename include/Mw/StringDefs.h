@@ -72,5 +72,6 @@
 #define MwNcolorChosenHandler "CcolorChosen"	     /* MwRGB* */
 #define MwNdrawHandler "Cdraw"			     /* NULL */
 #define MwNclipboardHandler "Cclipboard"	     /* char* */
+#define MwNdarkThemeHandler "CdarkTheme"	     /* int* */
 
 #endif

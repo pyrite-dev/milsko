@@ -131,7 +131,11 @@ static void lldarkthemehandler(MwLL handle, void* data) {
 	MwWidget h   = (MwWidget)handle->common.user;
 	int*	 ptr = data;
 
-	if(IsFirstVisible(h)) MwSetDarkTheme(h, *ptr);
+	if(IsFirstVisible(h)) {
+		MwSetDarkTheme(h, *ptr);
+
+		MwDispatchUserHandler(h, MwNdarkThemeHandler, data);
+	}
 }
 
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
