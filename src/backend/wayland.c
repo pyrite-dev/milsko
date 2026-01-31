@@ -5,12 +5,9 @@
 #include <wayland-client-protocol.h>
 
 #include "../../external/stb_ds.h"
-#include "Mw/BaseTypes.h"
-#include "Mw/LowLevel.h"
 
 #include <sys/mman.h>
 #include <wayland-util.h>
-#include <unistd.h>
 #include <xkbcommon/xkbcommon.h>
 
 /* TODO:
