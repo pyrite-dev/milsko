@@ -431,13 +431,14 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 
 	p.point = self->wayland.cur_mouse_pos;
 	if(p.point.x > self->wayland.x && p.point.x < self->wayland.x + self->wayland.ww && p.point.y > self->wayland.y && p.point.y < self->wayland.y + self->wayland.wh) {
+		int i;
 		switch(button) {
 		case BTN_LEFT:
 			p.button = MwLLMouseLeft;
 			break;
 		case BTN_MIDDLE:
 			p.button = MwLLMouseMiddle;
-			for(int i = 0; i < arrlen(self->wayland.clipboard_devices); i++) {
+			for(i = 0; i < arrlen(self->wayland.clipboard_devices); i++) {
 				wl_clipboard_read(
 				    self->wayland.clipboard_devices[i]);
 			}
@@ -624,7 +625,8 @@ static void keyboard_key(void*		     data,
 			if((self->wayland.mod_state & 4) == 4) {
 				/* clipboard paste */
 				if(key == 'V') {
-					for(int i = 0; i < arrlen(self->wayland.clipboard_devices); i++) {
+					int i;
+					for(i = 0; i < arrlen(self->wayland.clipboard_devices); i++) {
 						wl_clipboard_read(
 						    self->wayland.clipboard_devices[i]);
 					}
@@ -1851,12 +1853,14 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
 	strcpy(handle->wayland.clipboard_buffer, text);
 
 	if(handle->wayland.supports_zwp) {
-		for(int i = 0; i < arrlen(handle->wayland.clipboard_devices); i++) {
+		int i;
+		for(i = 0; i < arrlen(handle->wayland.clipboard_devices); i++) {
 			wl_clipboard_device_context_t* device = handle->wayland.clipboard_devices[i];
 			zwp_primary_selection_device_v1_set_selection(device->device.zwp, handle->wayland.clipboard_source.zwp, handle->wayland.keyboard_serial);
 		}
 	} else {
-		for(int i = 0; i < arrlen(handle->wayland.clipboard_devices); i++) {
+		int i;
+		for(i = 0; i < arrlen(handle->wayland.clipboard_devices); i++) {
 			wl_clipboard_device_context_t* device = handle->wayland.clipboard_devices[i];
 			wl_data_device_set_selection(device->device.wl, handle->wayland.clipboard_source.wl, handle->wayland.keyboard_serial);
 		}
