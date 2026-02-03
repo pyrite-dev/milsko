@@ -52,8 +52,8 @@ pipeline {
 						label "2012r2"
 					}
 					steps {
-						sh("nmake -f NTMakefile clean")
-						sh("nmake")
+						bat("nmake -f NTMakefile clean")
+						bat("nmake -f NTMakefile")
 					}
 				}
 			}
