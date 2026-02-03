@@ -47,6 +47,15 @@ pipeline {
 						sh("make -j4")
 					}
 				}
+				stage("Build for Windows 64-bit (MSVC)") {
+					agent {
+						label "2012r2"
+					}
+					steps {
+						sh("nmake -f NTMakefile clean")
+						sh("nmake")
+					}
+				}
 			}
 			post {
 				always {
