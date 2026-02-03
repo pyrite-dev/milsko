@@ -9,6 +9,11 @@ pipeline {
 				sh("rm -rf /var/www/milsko-doxygen")
 				sh("mv doxygen/html /var/www/milsko-doxygen")
 			}
+			post {
+				always {
+					notifyDiscord()
+				}
+			}
 		}
 		stage("Build") {
 			parallel {
@@ -32,6 +37,11 @@ pipeline {
 						sh("make clean")
 						sh("make -j4")
 					}
+				}
+			}
+			post {
+				always {
+					notifyDiscord()
 				}
 			}
 		}
