@@ -5,12 +5,9 @@ pipeline {
 	stages {
 		stage("Build document") {
 			steps {
-				sh("echo Testing testing...")
-			}
-			post {
-				always {
-					notifyDiscord()
-				}
+				sh("doxygen")
+				sh("rm -rf /var/www/milsko-doxygen")
+				sh("mv doxygen/html /var/www/milsko-doxygen")
 			}
 		}
 	}
