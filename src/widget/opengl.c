@@ -251,7 +251,7 @@ static void destroy(MwWidget handle) {
 
 	while(w->parent != NULL) w = w->parent;
 
-	w->berserk++;
+	w->berserk--;
 
 	free(handle->internal);
 }
