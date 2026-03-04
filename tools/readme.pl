@@ -59,8 +59,10 @@ l("");
 c("Requirements");
 l("");
 l(
-"  Milsko requires the Windows environment with GDI (so anything NT or 9x) or the Unix-like environment with X11 for runtime."
-);
+"  Milsko requires either");
+l("  * A Windows environment with GDI (so anything NT or 9x)");
+l("  * A MacOS environment with Cocoa (10.4 or above supported)");
+l("  * A Unix-like environment with X11 for runtime.");
 l("");
 l("  To build Milsko for Windows, you must have one of following compilers:");
 l("  * Visual C++ 6.0 or newer");
@@ -68,7 +70,7 @@ l("  * Borland C++ 5.5 or newer");
 l("  * Open Watcom 2.0 or newer");
 l("  * MinGW-w64");
 l("");
-l("  and for Unix-like:");
+l("  and for Unix-like and MacOS:");
 l("  * GNU C Compiler");
 l("  * Clang");
 l("");
