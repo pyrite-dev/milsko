@@ -147,7 +147,7 @@ scan("src/icon");
 scan("src/cursor");
 scan("src/widget");
 scan("src/text");
-scan("src/font");
+scan("src/text/font");
 scan("src/dialog");
 scan("src/abstract");
 push(@cfiles, "src/backend/gdi.c");
