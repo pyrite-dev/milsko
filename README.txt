@@ -8,7 +8,7 @@ distributions and building instructions for Milsko GUI Toolkit.
 
   Milsko requires either
   * A Windows environment with GDI (so anything NT or 9x)
-  * A MacOS environment with XCode Tools, including perl and Make
+  * A MacOS environment with Xcode Tools
   * A Unix-like environment with X11 for runtime.
 
   To build Milsko for Windows, you must have one of following compilers:
@@ -67,12 +67,5 @@ D. MinGW-w64/GCC/Clang
    For help, run `./configure --help'.
 
 3) Run `make'.
-
-E. MacOS
-----------------------
-
-Currently there is not an .xcodeproj file. The plan for the future is
-to write something that automatically generates it, so for now, you
-just follow step D
 
  -- Nishi  (nishi@nishi.boats)
