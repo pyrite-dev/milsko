@@ -1,25 +1,23 @@
 
-Greetings - Welcome to the Milsko GUI Toolkit (Version pre-1.0)
+Greetings - Welcome to the Milsko GUI Toolkit (Version pre-1.0) 
 
-  This document contains a brief summary of the contents of this source
-distributions and building instructions for Milsko GUI Toolkit.
+  This document contains a brief summary of the contents of this source 
+distributions and building instructions for Milsko GUI Toolkit. 
 
                                   Requirements
 
-  Milsko requires either
-  * A Windows environment with GDI (so anything NT or 9x)
-  * A Mac OS environment with Cocoa (10.4 is the minimum tested)
-  * Unix-like environment with X11 for runtime.
+  Milsko requires the Windows environment with GDI (so anything NT or 9x) or 
+the Unix-like environment with X11 for runtime. 
 
-  To build Milsko for Windows, you must have one of following compilers:
-  * Visual C++ 6.0 or newer
-  * Borland C++ 5.5 or newer
-  * Open Watcom 2.0 or newer
-  * MinGW-w64
+  To build Milsko for Windows, you must have one of following compilers: 
+  * Visual C++ 6.0 or newer 
+  * Borland C++ 5.5 or newer 
+  * Open Watcom 2.0 or newer 
+  * MinGW-w64 
 
-  and for Unix-like/Mac OS:
-  * GNU C Compiler
-  * Clang
+  and for Unix-like: 
+  * GNU C Compiler 
+  * Clang 
 
 
                                     Contents
@@ -41,31 +39,31 @@ distributions and building instructions for Milsko GUI Toolkit.
 
                                 Building Milsko
 
-  Building Milsko depends on the platform you use, and the compiler you use.
+  Building Milsko depends on the platform you use, and the compiler you use. 
 
 A. Visual C++
 -------------
 
-1) Run `nmake -f NTMakefile'.
+1) Run `nmake -f NTMakefile'. 
 
 B. Borland C++
 --------------
 
-1) Run `make -f BorMakefile'.
+1) Run `make -f BorMakefile'. 
 
 C. Open Watcom
 --------------
 
-1) Run `wmake -f WatMakefile'.
+1) Run `wmake -f WatMakefile'. 
 
 D. MinGW-w64/GCC/Clang
 ----------------------
 
-1) Determine if you need Vulkan and/or OpenGL.
+1) Determine if you need Vulkan and/or OpenGL. 
 
-2) Run `./Makefile.pl'.
-   For help, run `./Makefile.pl --help'.
+2) Run `./configure'. 
+   For help, run `./configure --help'. 
 
-3) Run `make'.
+3) Run `make'. 
 
- -- Nishi  (nishi@nishi.boats)
+ -- Nishi  (nishi@nishi.boats) 

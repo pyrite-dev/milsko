@@ -22,7 +22,7 @@ pipeline {
 						label "built-in"
 					}
 					steps {
-						sh("./Makefile.pl --enable-opengl --enable-vulkan --without-vulkan-string-helper")
+						sh("./configure --enable-opengl --enable-vulkan --without-vulkan-string-helper")
 						sh("make clean")
 						sh("make -j4")
 					}
@@ -32,7 +32,7 @@ pipeline {
 						label "built-in"
 					}
 					steps {
-						sh("./Makefile.pl --enable-opengl --enable-stb-truetype --disable-freetype2 --cross --target=Windows --host=i686-w64-mingw32")
+						sh("./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross --target=Windows --host=i686-w64-mingw32")
 						sh("make clean")
 						sh("make -j4")
 					}
@@ -42,7 +42,7 @@ pipeline {
 						label "built-in"
 					}
 					steps {
-						sh("./Makefile.pl --enable-opengl --enable-stb-truetype --disable-freetype2 --cross --target=Windows --host=x86_64-w64-mingw32")
+						sh("./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross --target=Windows --host=x86_64-w64-mingw32")
 						sh("make clean")
 						sh("make -j4")
 					}
