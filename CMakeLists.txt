@@ -23,7 +23,7 @@ option(MW_INSTALL_HEADERS "Install headers" ON)
 file(
 	GLOB
 	SOURCES
-	src/*.c src/cursor/*.c src/icon/*.c src/text.c src/widget/*.c src/math/*.c src/font/*.c src/dialog/*.c src/abstract/*.c external/*.c
+	src/*.c src/cursor/*.c src/icon/*.c src/widget/*.c src/text/*.c src/text/font/*.c src/dialog/*.c src/abstract/*.c external/*.c
 )
 
 list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl.c")

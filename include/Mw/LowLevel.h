@@ -18,10 +18,12 @@ typedef struct _MwLLCommonPixmap* MwLLCommonPixmap;
 typedef union _MwLL*	   MwLL;
 typedef union _MwLLColor*  MwLLColor;
 typedef union _MwLLPixmap* MwLLPixmap;
+typedef struct _MwFLFont*  MwFLFont;
 #else
 typedef void* MwLL;
 typedef void* MwLLColor;
 typedef void* MwLLPixmap;
+typedef void* MwFLFont;
 #endif
 
 enum MwLLBackends {
@@ -166,6 +168,14 @@ struct _MwLLHandler {
 	void (*dark_theme)(MwLL handle, void* data);
 };
 
+struct _MwLLTextDispatchTable {
+	int (*drawText)(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color);
+	int (*textWidth)(MwWidget handle, const char* text);
+	int (*textHeight)(MwWidget handle, int count);
+	void* (*fontLoad)(unsigned char* data, unsigned int size);
+	void (*fontFree)(void* handle);
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -224,6 +234,22 @@ MWDECL void (*MwLLGetClipboard)(MwLL handle);
 
 MWDECL void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
 MWDECL void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect);
+
+/*font renderer */
+MWDECL void MwFLSetup();
+
+#ifdef USE_FREETYPE2
+MWDECL int MWFL_FT2Setup();
+#endif
+#ifdef USE_STB_TRUETYPE
+MWDECL int MwFL_STBTTSetup();
+#endif
+
+MWDECL int (*MwFLDrawText)(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color);
+MWDECL int (*MwFLTextWidth)(MwWidget handle, const char* text);
+MWDECL int (*MwFLTextHeight)(MwWidget handle, int count);
+MWDECL void* (*MwFLFontLoad)(unsigned char* data, unsigned int size);
+MWDECL void (*MwFLFontFree)(void* handle);
 
 #ifdef __cplusplus
 }

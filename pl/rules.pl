@@ -76,8 +76,9 @@ if (param_get("vulkan") && param_get("vulkan-string-helper")) {
 }
 
 new_object("src/icon/*.c");
-new_object("src/font/*.c");
 new_object("src/cursor/*.c");
+new_object("src/text/*.c");
+new_object("src/text/font/*.c");
 
 new_object("src/widget/box.c");
 new_object("src/widget/button.c");

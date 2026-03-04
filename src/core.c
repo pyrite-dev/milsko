@@ -784,6 +784,8 @@ int MwLibraryInit(void) {
 	    NULL};
 	int i;
 
+	MwFLSetup();
+
 	for(i = 0; calls[i] != NULL; i++) {
 		if(calls[i]() == 0) return 0;
 	}
