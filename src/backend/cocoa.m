@@ -1,3 +1,4 @@
+#include "Mw/BaseTypes.h"
 #include <Mw/Milsko.h>
 #include <assert.h>
 #include <stdbool.h>
@@ -97,6 +98,7 @@
   if (parent != NULL) {
     MilskoCocoa *p = parent->cocoa.real;
     [p->window addChildWindow:c->window ordered:NSWindowAbove];
+    [c->window setHasShadow:MwFALSE];
   } else {
     [c->application activateIgnoringOtherApps:true];
   }
@@ -111,25 +113,40 @@
 - (void)polygonWithPoints:(MwPoint *)points
              points_count:(int)points_count
                     color:(MwLLColor)color {
-  int i;
-  CGContextRef cg = [self->view context];
+  NSGraphicsContext *ctx = [self->view context];
+  if (ctx) {
+    int i;
+    NSBezierPath *path = [NSBezierPath bezierPath];
+    NSColor *nscolor = [NSColor colorWithRed:color->common.red / 255.
+                                       green:color->common.green / 255.
+                                        blue:color->common.blue / 255.
+                                       alpha:1.0];
 
-  [self->view lockFocus];
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:ctx];
 
-  CGContextSetRGBFillColor(cg, color->common.red / 255.,
-                           color->common.blue / 255.,
-                           color->common.green / 255., 1);
-  CGContextBeginPath(cg);
-  for (i = 0; i < points_count; i++) {
-    CGContextMoveToPoint(cg, points[i].x, points[i].y);
-    if (i < points_count - 1) {
-      CGContextAddLineToPoint(cg, points[i + 1].x, points[i + 1].y);
+    [nscolor setFill];
+    for (i = 0; i < points_count; i++) {
+      if (i == 0) {
+        [path moveToPoint:NSMakePoint(points[i].x,
+                                      [self->window frame].size.height -
+                                          points[i].y)];
+      } else {
+        [path lineToPoint:NSMakePoint(points[i].x,
+                                      [self->window frame].size.height -
+                                          points[i].y)];
+      }
     }
-  }
-  CGContextFillPath(cg);
-  [self->view unlockFocus];
 
-  [self->view setNeedsDisplay:true];
+    [path closePath];
+    [path fill];
+
+    [NSGraphicsContext restoreGraphicsState];
+
+    [self->view setNeedsDisplay:YES];
+
+    [nscolor dealloc];
+  }
 };
 - (void)lineWithPoints:(MwPoint *)points color:(MwLLColor)color {
 };
@@ -204,7 +221,6 @@
     [NSGraphicsContext saveGraphicsState];
     [NSGraphicsContext setCurrentContext:ctx];
 
-    [[NSColor redColor] setFill];
     [[p image] drawInRect:NSMakeRect(_rect->x, _rect->y, _rect->width,
                                      _rect->height)
                  fromRect:NSZeroRect
