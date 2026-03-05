@@ -82,15 +82,12 @@ static CGPoint pointFlip(CGPoint point) {
                         height:(int)height
                         handle:(MwLL)r {
   MilskoCocoa *c = [MilskoCocoa alloc];
-  bool centerX = false, centerY = false;
 
   if (x == MwDEFAULT) {
-    x = 0;
-    centerX = true;
+    x = ([NSScreen mainScreen].frame.size.width / 2.) - (width / 2.);
   }
   if (y == MwDEFAULT) {
-    y = 0;
-    centerY = true;
+    y = ([NSScreen mainScreen].frame.size.height / 2.) - (height / 2.);
   }
   c->application = [NSApplication sharedApplication];
   c->rect = rectFlip(NSMakeRect(x, y, width, height));
@@ -108,6 +105,9 @@ static CGPoint pointFlip(CGPoint point) {
     offset =
         [parentWindow frameRectForContentRect:parentWindow.frame].size.height -
         [parentWindow contentRectForFrameRect:parentWindow.frame].size.height;
+
+    c->rect.origin.x += parentWindow.frame.origin.x;
+    c->rect.origin.y -= parentWindow.frame.origin.y - offset;
     c->rect.origin.y -= offset;
 
     c->window = [[NSWindow alloc] initWithContentRect:c->rect
@@ -204,7 +204,15 @@ static CGPoint pointFlip(CGPoint point) {
     offset =
         [parentWindow frameRectForContentRect:parentWindow.frame].size.height -
         [parentWindow contentRectForFrameRect:parentWindow.frame].size.height;
-    frame.origin.y -= offset;
+
+    if (x < parentWindow.frame.origin.x) {
+      frame.origin.x += parentWindow.frame.origin.x;
+    }
+
+    if (y < parentWindow.frame.origin.y) {
+      frame.origin.y -= parentWindow.frame.origin.y - offset;
+      frame.origin.y -= offset;
+    }
   }
   [self->view setFrameSize:frame.size];
 
