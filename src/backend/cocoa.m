@@ -1,7 +1,6 @@
 #include "Mw/BaseTypes.h"
+#include "Mw/LowLevel.h"
 #include <Mw/Milsko.h>
-#include <assert.h>
-#include <stdbool.h>
 
 @implementation MilskoCocoaPixmap
 
@@ -56,7 +55,8 @@
                              x:(int)x
                              y:(int)y
                          width:(int)width
-                        height:(int)height {
+                        height:(int)height
+                        handle:(MwLL)r {
   MilskoCocoa *c = [MilskoCocoa alloc];
   bool centerX = false, centerY = false;
 
@@ -92,6 +92,8 @@
                                               backing:NSBackingStoreBuffered
                                                 defer:NO];
   }
+  c->window.delegate =
+      [[MilskoCocoaWindowDelegate alloc] initWithWin:c->window];
 
   [c->window makeKeyAndOrderFront:c->application];
 
@@ -100,13 +102,19 @@
     [p->window addChildWindow:c->window ordered:NSWindowAbove];
     [c->window setHasShadow:MwFALSE];
   } else {
-    [c->application activateIgnoringOtherApps:true];
+    // [c->application activateIgnoringOtherApps:true];
   }
 
   c->view = [[MilskoCocoaView alloc] initWithFrame:c->rect];
+  c->handle = [[MilskoFakePointer alloc] initWithFrame:NSMakeRect(0, 0, 1, 1)];
+  [c->handle setPointer:r];
+  [c->view addSubview:c->handle];
+
   [c->window setContentView:c->view];
 
   c->parent = parent;
+
+  c->_forceRender = MwTRUE;
 
   return c;
 }
@@ -154,7 +162,8 @@
   NSRect frame = [self->window frame];
 
   *x = frame.origin.x;
-  *y = frame.origin.y - frame.size.height;
+  *y = frame.origin.y;
+
   *w = frame.size.width;
   *h = frame.size.height;
 };
@@ -165,11 +174,12 @@
   frame.origin.y = y;
 
   if (self->parent) {
-    NSWindow *parentWindow = self->parent->cocoa.real->window;
-    frame = [parentWindow contentRectForFrameRect:frame];
-    frame.origin.y =
-        [parentWindow contentRectForFrameRect:parentWindow.frame].size.height -
-        y;
+    NSWindow *parentWindow = [self parentWindow];
+    CGFloat ny;
+    NSRect realFrame = parentWindow.frame;
+    NSRect correctedFrame = [parentWindow contentRectForFrameRect:realFrame];
+    ny = (correctedFrame.size.height - y);
+    frame.origin.y = ny;
   }
 
   [self->window setFrame:frame display:YES animate:false];
@@ -178,11 +188,7 @@
   NSRect frame = [self->window frame];
   frame.size.width = w;
   frame.size.height = h;
-
-  if (self->parent) {
-    NSWindow *parentWindow = self->parent->cocoa.real->window;
-    // frame = [parentWindow contentRectForFrameRect:frame];
-  }
+  self->rect = frame;
 
   [self->window setFrame:frame display:YES animate:false];
 };
@@ -192,22 +198,144 @@
                                      untilDate:nil
                                         inMode:NSDefaultRunLoopMode
                                        dequeue:YES];
+  if (_forceRender) {
+    _forceRender = MwFALSE;
+    return 1;
+  }
   return self->lastEvent != NULL;
 };
 - (void)getNextEvent {
-  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
   if (self->lastEvent != nil) {
+    NSWindow *win = [self->lastEvent window];
+    NSWindow *parentWindow = [self parentWindow];
+    NSRect realFrame = parentWindow.frame;
+    NSRect correctedFrame =
+        [parentWindow frameRectForContentRect:parentWindow.frame];
+    CGFloat offset = realFrame.size.height - correctedFrame.size.height;
+    MwLL h;
+
+    if ([win contentView].subviews.count == 0) {
+      NSLog(@"[WARNING] no subviews on this window, cannot process events.\n");
+      return;
+    }
+
+    h = [((MilskoFakePointer *)[win contentView].subviews[0]) pointer];
+    switch (self->lastEvent.type) {
+    case NSEventTypeLeftMouseDown:
+    case NSEventTypeRightMouseDown:
+    case NSEventTypeOtherMouseDown:
+    case NSEventTypeLeftMouseUp:
+    case NSEventTypeRightMouseUp:
+    case NSEventTypeOtherMouseUp: {
+      MwLLMouse mouse = {};
+      MwBool isDown = MwTRUE;
+      switch (self->lastEvent.type) {
+      case NSEventTypeLeftMouseUp:
+        isDown = MwFALSE;
+      case NSEventTypeLeftMouseDown:
+        mouse.button = MwLLMouseLeft;
+        break;
+      case NSEventTypeRightMouseUp:
+        isDown = MwFALSE;
+      case NSEventTypeRightMouseDown:
+        mouse.button = MwLLMouseRight;
+        break;
+      case NSEventTypeOtherMouseUp:
+        isDown = MwFALSE;
+      case NSEventTypeOtherMouseDown:
+        mouse.button = MwLLMouseMiddle;
+        break;
+      default:
+        break;
+      }
+      mouse.point.x = [lastEvent locationInWindow].x;
+      mouse.point.y = [win contentRectForFrameRect:win.frame].size.height -
+                      [lastEvent locationInWindow].y;
+
+      if (isDown) {
+        MwLLDispatch(h, down, &mouse);
+      } else {
+        MwLLDispatch(h, up, &mouse);
+      }
+      break;
+    }
+
+    break;
+    case NSEventTypeMouseMoved: {
+      MwPoint pos;
+      pos.x = [lastEvent locationInWindow].x;
+      pos.y = [win contentRectForFrameRect:win.frame].size.height -
+              [lastEvent locationInWindow].y;
+      MwLLDispatch(h, move, &pos);
+      break;
+    }
+    case NSEventTypeLeftMouseDragged:
+      MwLLDispatch(h, focus_in, NULL);
+      break;
+    case NSEventTypeRightMouseDragged:
+      MwLLDispatch(h, focus_out, NULL);
+      break;
+    case NSEventTypeMouseEntered:
+      break;
+    case NSEventTypeMouseExited:
+      break;
+    case NSEventTypeKeyDown:
+      [win interpretKeyEvents:[NSArray arrayWithObject:lastEvent]];
+      break;
+    case NSEventTypeKeyUp:
+      [win interpretKeyEvents:[NSArray arrayWithObject:lastEvent]];
+      break;
+    case NSEventTypeFlagsChanged:
+      break;
+    case NSEventTypeAppKitDefined:
+      break;
+    case NSEventTypeSystemDefined:
+      break;
+    case NSEventTypeApplicationDefined:
+      break;
+    case NSEventTypePeriodic:
+      break;
+    case NSEventTypeCursorUpdate:
+      break;
+    case NSEventTypeScrollWheel:
+      break;
+    case NSEventTypeTabletPoint:
+      break;
+    case NSEventTypeTabletProximity:
+      break;
+      break;
+    case NSEventTypeOtherMouseDragged:
+      break;
+    case NSEventTypeGesture:
+      break;
+    case NSEventTypeMagnify:
+      break;
+    case NSEventTypeSwipe:
+      break;
+    case NSEventTypeRotate:
+      break;
+    case NSEventTypeBeginGesture:
+      break;
+    case NSEventTypeEndGesture:
+      break;
+    case NSEventTypeSmartMagnify:
+      break;
+    case NSEventTypeQuickLook:
+      break;
+    case NSEventTypePressure:
+      break;
+    case NSEventTypeDirectTouch:
+      break;
+    case NSEventTypeChangeMode:
+      break;
+    };
     // printf("got event: %ld\n", self->lastEvent.type);
+    [self->application sendEvent:self->lastEvent];
   }
 
-  [self->application sendEvent:self->lastEvent];
-
-  /* this should be in the draw functions but it's here for now for testing */
   [self->view setNeedsDisplay:true];
-
-  [pool release];
 };
+
 - (void)setTitle:(const char *)title {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   [self->window
@@ -237,6 +365,7 @@
 - (void)setIcon:(MwLLPixmap)pixmap {
 };
 - (void)forceRender {
+  _forceRender = MwTRUE;
 };
 - (void)setCursor:(MwCursor *)image mask:(MwCursor *)mask {
 };
@@ -269,8 +398,8 @@
   [self->window makeMainWindow];
 };
 - (void)grabPointer:(int)toggle {
-  /* MacOS didn't have a "pointer grab" function until 10.13.2 so I need to do
-   * this manually */
+  /* MacOS didn't have a "pointer grab" function
+   * until 10.13.2 so I need to do this manually */
 };
 - (void)setClipboard:(const char *)text {
 };
@@ -294,14 +423,23 @@
   [self->window dealloc];
 }
 
+- (void)setDoWHResize:(MwBool)d {
+  doWHResize = d;
+};
+
+- (NSWindow *)parentWindow {
+  NSWindow *topmostWindow = self->window;
+  while (topmostWindow.parentWindow)
+    topmostWindow = topmostWindow.parentWindow;
+  return topmostWindow;
+}
 @end
 
 @implementation MilskoCocoaView
 - (id)initWithFrame:(NSRect)frame {
+  width = frame.size.width;
+  height = frame.size.height;
   self = [super initWithFrame:frame];
-  self->width = frame.size.width;
-  self->height = frame.size.height;
-  self->buf = malloc(self->width * self->height * 4);
   self->space = CGColorSpaceCreateDeviceRGB();
 
   if (width == 0 || height == 0) {
@@ -333,23 +471,84 @@
   return self->context;
 }
 
+- (NSBitmapImageRep *)getRep {
+  return self->rep;
+}
+
 - (void)drawRect:(NSRect)dirtyRect {
+  NSSize sz = [self->rep size];
+  unsigned char *pixels;
   [super drawRect:dirtyRect];
   if (!self->rep) {
     return;
   }
-  [self->rep drawInRect:NSMakeRect(0, 0, self->width, self->height)];
 
-  unsigned char *pixels = [self->rep bitmapData];
+  [self->rep drawInRect:NSMakeRect(0, 0, width, height)];
+
+  pixels = [self->rep bitmapData];
 }
 
 - (void)destroy {
-  free(self->buf);
   CGColorSpaceRelease(self->space);
+}
+
+- (void)setFrameSize:(NSSize)newSize {
+  [super setFrameSize:newSize];
+  if (newSize.width != 0 && newSize.height != 0) {
+    // [self->rep setSize:newSize];
+    // width = newSize.width;
+    // height = newSize.height;
+    // [self->context setImageInterpolation:NSImageInterpolationHigh];
+  }
+}
+
+- (void)displayRect:(NSRect)rect {
+};
+@end
+
+@implementation MilskoFakePointer
+- (void)viewDidMoveToSuperview {
+}
+- (void)setPointer:(void *)pointer {
+  self.frame = *(NSRect *)&pointer;
+  self->ptr = pointer;
+};
+- (void *)pointer {
+  return self->ptr;
+};
+
+- (void)drawRect:(NSRect)dirtyRect {
+  /* explicitly do nothing */
+}
+
+- (void)destroy {
 }
 
 @end
 
+@implementation MilskoCocoaWindowDelegate
+
+- (NSSize)windowWillResize:(NSWindow *)win toSize:(NSSize)frameSize;
+{
+  if (win.contentView.subviews.count >= 1) {
+    MilskoFakePointer *ptr = win.contentView.subviews[0];
+    MwLL h = [ptr pointer];
+
+    // MwLLDispatch(h, resize, NULL);
+    MwLLDispatch(h, draw, NULL);
+  }
+  return frameSize;
+}
+
+- (void)windowDidResize:(NSNotification *)notification {
+}
+
+- (instancetype)initWithWin:(NSWindow *)win {
+  self->w = win;
+  return self;
+}
+
+@end
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
   MwLL r;
   (void)x;
@@ -361,8 +560,12 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
   MwLLCreateCommon(r);
 
-  MilskoCocoa *o =
-      [MilskoCocoa newWithParent:parent x:x y:y width:width height:height];
+  MilskoCocoa *o = [MilskoCocoa newWithParent:parent
+                                            x:x
+                                            y:y
+                                        width:width
+                                       height:height
+                                       handle:r];
   r->cocoa.real = o;
 
   return r;

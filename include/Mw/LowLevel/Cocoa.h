@@ -21,6 +21,21 @@
 #import <CoreGraphics/CoreGraphics.h>
 #endif
 
+@interface MilskoCocoaWindowDelegate<NSWindowDelegate> : NSObject {
+  NSWindow *w;
+}
+- (instancetype)initWithWin:(NSWindow *)win;
+@end
+
+@interface MilskoFakePointer : NSView {
+  void *ptr;
+}
+
+- (void)setPointer:(void *)ptr;
+- (void *)pointer;
+
+@end
+
 @interface MilskoCocoaPixmap : NSObject {
   MwBool valid;
   int width;
@@ -46,28 +61,34 @@
   MwBool valid;
   CGColorSpaceRef space;
   CGDataProviderRef provider;
-  unsigned char *buf;
   float width;
   float height;
 }
 
 - (NSGraphicsContext *)context;
+- (void)destroy;
+- (NSBitmapImageRep *)getRep;
+
 @end
 
 @interface MilskoCocoa : NSObject {
   NSApplication *application;
   NSEvent *lastEvent;
+  MwBool _forceRender;
   NSWindow *window;
   NSRect rect;
   MilskoCocoaView *view;
   MwLL parent;
+  MilskoFakePointer *handle;
+  MwBool doWHResize;
 }
 
 + (MilskoCocoa *)newWithParent:(MwLL)parent
                              x:(int)x
                              y:(int)y
                          width:(int)width
-                        height:(int)height;
+                        height:(int)height
+                        handle:(MwLL)handle;
 - (void)polygonWithPoints:(MwPoint *)points
              points_count:(int)points_count
                     color:(MwLLColor)color;
@@ -97,6 +118,9 @@
 - (void)getCursorCoord:(MwPoint *)point;
 - (void)getScreenSize:(MwRect *)rect;
 - (void)destroy;
+- (void)setHandle:(MwLL)h;
+
+- (NSWindow *)parentWindow;
 
 @end
 #define OBJC(x) x
