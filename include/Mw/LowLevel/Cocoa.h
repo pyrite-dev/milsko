@@ -117,7 +117,6 @@
 - (void)getCursorCoord:(MwPoint *)point;
 - (void)getScreenSize:(MwRect *)rect;
 - (void)destroy;
-- (void)setHandle:(MwLL)h;
 
 - (NSWindow *)parentWindow;
 

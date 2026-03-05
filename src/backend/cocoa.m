@@ -1,6 +1,7 @@
-#include "Mw/BaseTypes.h"
-#include "Mw/LowLevel.h"
 #include <Mw/Milsko.h>
+
+#pragma clang push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 @implementation MilskoCocoaPixmap
 
@@ -92,8 +93,8 @@
                                               backing:NSBackingStoreBuffered
                                                 defer:NO];
   }
-  c->window.delegate =
-      [[MilskoCocoaWindowDelegate alloc] initWithWin:c->window];
+  c->window.delegate = (id<NSWindowDelegate>)[[MilskoCocoaWindowDelegate alloc]
+      initWithWin:c->window];
 
   [c->window makeKeyAndOrderFront:c->application];
 
@@ -625,10 +626,10 @@ static int MwLLPendingImpl(MwLL handle) {
     MwLLDispatch(handle, draw, NULL);
     return 1;
   };
+  return 0;
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
-
   MilskoCocoa *h = handle->cocoa.real;
   [h getNextEvent];
 }
