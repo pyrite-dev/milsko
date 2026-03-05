@@ -119,6 +119,7 @@
 - (void)destroy;
 
 - (NSWindow *)parentWindow;
+- (NSView *)getView;
 
 @end
 #define OBJC(x) x

@@ -3,6 +3,29 @@
 #pragma clang push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+static CGRect rectFlip(CGRect originFrame) {
+  NSScreen *zeroScreen = NSScreen.screens[0];
+  double screenHeight = zeroScreen.frame.size.height;
+  double originY = originFrame.origin.y;
+  double frameHeight = originFrame.size.height;
+  double destinationY = screenHeight - (originY + frameHeight);
+  CGRect destinationFrame = originFrame;
+  destinationFrame.origin.y = destinationY;
+  if (destinationFrame.origin.x < 0)
+    destinationFrame.origin.x = 0;
+  if (destinationFrame.origin.y < 0)
+    destinationFrame.origin.y = 0;
+  if (destinationFrame.size.width < 0)
+    destinationFrame.size.width = 0;
+  if (destinationFrame.size.height < 0)
+    destinationFrame.size.height = 0;
+  return destinationFrame;
+}
+
+static CGPoint pointFlip(CGPoint point) {
+  return rectFlip(NSMakeRect(point.x, point.y, 0, 0)).origin;
+}
+
 @implementation MilskoCocoaPixmap
 
 + (MilskoCocoaPixmap *)newWithWidth:(int)width height:(int)height {
@@ -70,8 +93,7 @@
     centerY = true;
   }
   c->application = [NSApplication sharedApplication];
-
-  c->rect = NSMakeRect(x, y, width, height);
+  c->rect = rectFlip(NSMakeRect(x, y, width, height));
 
   if (parent == NULL) {
     c->window = [[NSWindow alloc]
@@ -81,12 +103,12 @@
                     backing:NSBackingStoreBuffered
                       defer:NO];
   } else {
+    double offset = 0;
     NSWindow *parentWindow = parent->cocoa.real->window;
-
-    c->rect = [parentWindow frameRectForContentRect:c->rect];
-    c->rect.origin.y =
-        y -
+    offset =
+        [parentWindow frameRectForContentRect:parentWindow.frame].size.height -
         [parentWindow contentRectForFrameRect:parentWindow.frame].size.height;
+    c->rect.origin.y -= offset;
 
     c->window = [[NSWindow alloc] initWithContentRect:c->rect
                                             styleMask:NSBorderlessWindowMask
@@ -160,10 +182,10 @@
 - (void)lineWithPoints:(MwPoint *)points color:(MwLLColor)color {
 };
 - (void)getX:(int *)x Y:(int *)y W:(unsigned int *)w H:(unsigned int *)h {
-  NSRect frame = [self->window frame];
+  NSRect frame = rectFlip([self->window frame]);
 
   *x = frame.origin.x;
-  *y = frame.origin.y - frame.size.height;
+  *y = frame.origin.y;
 
   *w = frame.size.width;
   *h = frame.size.height;
@@ -174,12 +196,17 @@
   frame.origin.x = x;
   frame.origin.y = y;
 
-  if (self->parent) {
-    NSWindow *parentWindow = [self parentWindow];
-    NSRect correctedFrame =
-        [parentWindow contentRectForFrameRect:parentWindow.frame];
-    frame.origin.y = (correctedFrame.size.height - y);
+  frame = rectFlip(frame);
+
+  if (parent) {
+    double offset = 0;
+    NSWindow *parentWindow = parent->cocoa.real->window;
+    offset =
+        [parentWindow frameRectForContentRect:parentWindow.frame].size.height -
+        [parentWindow contentRectForFrameRect:parentWindow.frame].size.height;
+    frame.origin.y -= offset;
   }
+  [self->view setFrameSize:frame.size];
 
   [self->window setFrame:frame display:YES animate:false];
 };
@@ -187,8 +214,10 @@
   NSRect frame = [self->window frame];
   frame.size.width = w;
   frame.size.height = h;
+
   self->rect = frame;
 
+  [self->view setFrameSize:frame.size];
   [self->window setFrame:frame display:YES animate:false];
 };
 - (int)pending {
@@ -207,10 +236,6 @@
   if (self->lastEvent != nil) {
     NSWindow *win = [self->lastEvent window];
     NSWindow *parentWindow = [self parentWindow];
-    NSRect realFrame = parentWindow.frame;
-    NSRect correctedFrame =
-        [parentWindow frameRectForContentRect:parentWindow.frame];
-    CGFloat offset = realFrame.size.height - correctedFrame.size.height;
     MwLL h;
 
     if ([win contentView].subviews.count == 0) {
@@ -228,6 +253,7 @@
     case NSEventTypeOtherMouseUp: {
       MwLLMouse mouse = {};
       MwBool isDown = MwTRUE;
+      CGPoint mousePoint = pointFlip([lastEvent locationInWindow]);
       switch (self->lastEvent.type) {
       case NSEventTypeLeftMouseUp:
         isDown = MwFALSE;
@@ -247,9 +273,8 @@
       default:
         break;
       }
-      mouse.point.x = [lastEvent locationInWindow].x;
-      mouse.point.y = [win contentRectForFrameRect:win.frame].size.height -
-                      [lastEvent locationInWindow].y;
+      mouse.point.x = mousePoint.x;
+      mouse.point.y = mousePoint.y;
 
       if (isDown) {
         MwLLDispatch(h, down, &mouse);
@@ -428,6 +453,10 @@
     topmostWindow = topmostWindow.parentWindow;
   return topmostWindow;
 }
+
+- (NSView *)getView {
+  return view;
+}
 @end
 
 @implementation MilskoCocoaView
@@ -471,13 +500,13 @@
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
-  NSSize sz = [self->rep size];
+  NSSize sz = self->rep.size;
   [super drawRect:dirtyRect];
   if (!self->rep) {
     return;
   }
 
-  [self->rep drawInRect:NSMakeRect(0, 0, width, height)];
+  [self->rep drawInRect:NSMakeRect(0, 0, sz.width, sz.height)];
 
   [self->rep bitmapData];
 }
@@ -488,12 +517,7 @@
 
 - (void)setFrameSize:(NSSize)newSize {
   [super setFrameSize:newSize];
-  if (newSize.width != 0 && newSize.height != 0) {
-    // [self->rep setSize:newSize];
-    // width = newSize.width;
-    // height = newSize.height;
-    // [self->context setImageInterpolation:NSImageInterpolationHigh];
-  }
+  [self->rep setSize:newSize];
 }
 
 - (void)displayRect:(NSRect)rect {

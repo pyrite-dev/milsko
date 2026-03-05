@@ -50,7 +50,14 @@ if (grep(/^cocoa$/, @backends)) {
     add_cflags("-DUSE_COCOA");
     new_object("src/backend/cocoa.m");
 
-    $gl_libs = "-lGL -lGLU";
+    if (param_get("opengl")) {
+        new_object("src/widget/opengl_cocoa.m");
+    }
+
+    # tim cook my man literally everybody and their mother who knows what opengl is knows its deprecated on macos and i'm not having you spam the console with this
+    add_cflags("-DGL_SILENCE_DEPRECATION");
+
+    $gl_libs = "-framework OpenGL";
 }
 
 if (param_get("stb-image")) {
