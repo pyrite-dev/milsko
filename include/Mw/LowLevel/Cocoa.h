@@ -80,7 +80,6 @@
   MilskoCocoaView *view;
   MwLL parent;
   MilskoFakePointer *handle;
-  MwBool doWHResize;
 }
 
 + (MilskoCocoa *)newWithParent:(MwLL)parent

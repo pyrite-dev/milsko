@@ -162,7 +162,7 @@
   NSRect frame = [self->window frame];
 
   *x = frame.origin.x;
-  *y = frame.origin.y;
+  *y = frame.origin.y - frame.size.height;
 
   *w = frame.size.width;
   *h = frame.size.height;
@@ -175,11 +175,9 @@
 
   if (self->parent) {
     NSWindow *parentWindow = [self parentWindow];
-    CGFloat ny;
-    NSRect realFrame = parentWindow.frame;
-    NSRect correctedFrame = [parentWindow contentRectForFrameRect:realFrame];
-    ny = (correctedFrame.size.height - y);
-    frame.origin.y = ny;
+    NSRect correctedFrame =
+        [parentWindow contentRectForFrameRect:parentWindow.frame];
+    frame.origin.y = (correctedFrame.size.height - y);
   }
 
   [self->window setFrame:frame display:YES animate:false];
@@ -423,10 +421,6 @@
   [self->window dealloc];
 }
 
-- (void)setDoWHResize:(MwBool)d {
-  doWHResize = d;
-};
-
 - (NSWindow *)parentWindow {
   NSWindow *topmostWindow = self->window;
   while (topmostWindow.parentWindow)
@@ -477,7 +471,6 @@
 
 - (void)drawRect:(NSRect)dirtyRect {
   NSSize sz = [self->rep size];
-  unsigned char *pixels;
   [super drawRect:dirtyRect];
   if (!self->rep) {
     return;
@@ -485,7 +478,7 @@
 
   [self->rep drawInRect:NSMakeRect(0, 0, width, height)];
 
-  pixels = [self->rep bitmapData];
+  [self->rep bitmapData];
 }
 
 - (void)destroy {
@@ -507,8 +500,6 @@
 @end
 
 @implementation MilskoFakePointer
-- (void)viewDidMoveToSuperview {
-}
 - (void)setPointer:(void *)pointer {
   self.frame = *(NSRect *)&pointer;
   self->ptr = pointer;
