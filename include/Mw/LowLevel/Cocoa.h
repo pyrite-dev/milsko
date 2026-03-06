@@ -79,7 +79,7 @@
   MwLL parent;
   MilskoFakePointer *handle;
   NSUInteger strHash;
-  MwBool pendingTicker;
+  NSEvent *lastEvent;
 }
 
 + (MilskoCocoa *)newWithParent:(MwLL)parent

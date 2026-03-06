@@ -236,23 +236,12 @@ static CGPoint pointFlip(CGPoint point) {
     _forceRender = MwFALSE;
     return 1;
   }
-// Apple does not give you a reliable way to tell when events are coming. I
-// found this out by accident by stumbling upon a comment wxWidget's code,
-// thought I could figure out something better, and I ended up with the same
-// solution they tried and can confirm it doesn't work.
-// Thanks Tim Cook.
-#if 0
   self->lastEvent = [self->window nextEventMatchingMask:NSAnyEventMask
                                               untilDate:[NSDate distantPast]
                                                  inMode:NSDefaultRunLoopMode
                                                 dequeue:YES];
 
-
   return self->lastEvent != NULL;
-#endif
-  // And unlike wxWidgets we can't just return 1, so instead we alternate
-  // between such.
-  return (self->pendingTicker = !self->pendingTicker);
 };
 
 - (void)getNextEvent {
