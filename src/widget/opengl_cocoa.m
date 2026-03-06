@@ -1,3 +1,4 @@
+#include "Mw/BaseTypes.h"
 #include "Mw/Core.h"
 #include "Mw/StringDefs.h"
 #include <Mw/Milsko.h>
@@ -28,10 +29,8 @@ static int create(MwWidget handle) {
 
   printf("%d %d\n", width, height);
 
-  MacOpenGLWidget *o = r = [[MacOpenGLWidget alloc]
+  handle->internal = [[MacOpenGLWidget alloc]
       initWithView:[handle->lowlevel->cocoa.real getView]];
-
-  handle->internal = r;
   handle->lowlevel->common.copy_buffer = 0;
 
   MwSetDefault(handle);
@@ -96,6 +95,19 @@ static void func_handler(MwWidget handle, const char *name, void *out,
   [self->glc makeCurrentContext];
 };
 - (void)swapBuffer {
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  NSEvent *event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
+                                      location:NSMakePoint(0, 0)
+                                 modifierFlags:0
+                                     timestamp:0
+                                  windowNumber:0
+                                       context:nil
+                                       subtype:0
+                                         data1:0
+                                         data2:0];
+  [NSApp postEvent:event atStart:YES];
+  [pool release];
+
   [self->glc flushBuffer];
 };
 - (void *)getProcAddressWithName:(const char *)name {

@@ -96,6 +96,7 @@
 - (void)setX:(int)x Y:(int)y;
 - (void)setW:(int)w H:(int)h;
 - (int)pending;
+- (void)eventProcess:(NSEvent *)ev;
 - (void)getNextEvent;
 - (void)setTitle:(const char *)title;
 - (void)drawPixmap:(MwLLPixmap)pixmap rect:(MwRect *)rect;
@@ -120,6 +121,8 @@
 
 - (NSWindow *)parentWindow;
 - (NSView *)getView;
+- (NSWindow *)getWindow;
+- (MilskoFakePointer *)getHandle;
 
 @end
 #define OBJC(x) x
