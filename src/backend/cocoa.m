@@ -247,7 +247,9 @@ static CGPoint pointFlip(CGPoint point) {
   int i;
   NSEvent *ev;
 
-  [self eventProcess:lastEvent];
+  if (lastEvent) {
+    [self eventProcess:lastEvent];
+  }
 
   while ((ev = [self->window nextEventMatchingMask:NSAnyEventMask
                                          untilDate:[NSDate distantPast]
@@ -262,6 +264,8 @@ static CGPoint pointFlip(CGPoint point) {
   NSWindow *parentWindow = [self parentWindow];
   MwLL h;
   MwBool doSendEvent = MwTRUE;
+  MwLL this = self->handle.pointer;
+
   if (!win) {
     return;
   }
@@ -789,10 +793,10 @@ static CGPoint pointFlip(CGPoint point) {
     }
     switch (ev.type) {
     case NSEventTypeKeyDown:
-      MwLLDispatch(h, key, &ch);
+      MwLLDispatch(this, key, &ch);
       break;
     case NSEventTypeKeyUp:
-      MwLLDispatch(h, key_released, &ch);
+      MwLLDispatch(this, key_released, &ch);
       break;
     default:
       break;
