@@ -80,6 +80,8 @@
   MilskoCocoaView *view;
   MwLL parent;
   MilskoFakePointer *handle;
+  NSUInteger strHash;
+  MwBool pendingTicker;
 }
 
 + (MilskoCocoa *)newWithParent:(MwLL)parent
@@ -118,6 +120,7 @@
 - (void)getCursorCoord:(MwPoint *)point;
 - (void)getScreenSize:(MwRect *)rect;
 - (void)destroy;
+- (void)sendClipboardEvent;
 
 - (NSWindow *)parentWindow;
 - (NSView *)getView;

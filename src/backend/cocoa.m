@@ -1,3 +1,5 @@
+#include "Mw/BaseTypes.h"
+#include "Mw/LowLevel.h"
 #include <Mw/Milsko.h>
 
 #pragma clang push
@@ -140,6 +142,7 @@ static CGPoint pointFlip(CGPoint point) {
   c->parent = parent;
 
   c->_forceRender = MwTRUE;
+  c->strHash = 0;
 
   return c;
 }
@@ -235,12 +238,23 @@ static CGPoint pointFlip(CGPoint point) {
     _forceRender = MwFALSE;
     return 1;
   }
-
+// Apple does not give you a reliable way to tell when events are coming. I
+// found this out by accident by stumbling upon a comment wxWidget's code,
+// thought I could figure out something better, and I ended up with the same
+// solution they tried and can confirm it doesn't work.
+// Thanks Tim Cook.
+#if 0
   self->lastEvent = [self->window nextEventMatchingMask:NSAnyEventMask
                                               untilDate:[NSDate distantPast]
                                                  inMode:NSDefaultRunLoopMode
                                                 dequeue:YES];
+
+
   return self->lastEvent != NULL;
+#endif
+  // And unlike wxWidgets we can't just return 1, so instead we alternate
+  // between such.
+  return (self->pendingTicker = !self->pendingTicker);
 };
 
 - (void)getNextEvent {
@@ -257,6 +271,8 @@ static CGPoint pointFlip(CGPoint point) {
                                            dequeue:YES])) {
     [self eventProcess:ev];
   }
+
+  [self sendClipboardEvent];
 };
 
 - (void)eventProcess:(NSEvent *)ev {
@@ -816,6 +832,39 @@ static CGPoint pointFlip(CGPoint point) {
   }
 }
 
+- (void)sendClipboardEvent {
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+  NSArray *items = @[
+    @"public.utf8-plain-text",
+    @"public.utf16-external-plain-text",
+    @"com.apple.traditional-mac-plain-text",
+  ];
+  MwLL this = self->handle.pointer;
+
+  if ([pasteboard canReadItemWithDataConformingToTypes:items]) {
+    char *data = NULL;
+    size_t size = 0;
+    for (NSPasteboardItem *item in [pasteboard pasteboardItems]) {
+      for (NSString *it in items) {
+        NSString *itemData = [item stringForType:(NSString *)it];
+        if (itemData != NULL) {
+          if (strHash != 0 && strHash != [itemData hash]) {
+            char *text = malloc([itemData length]);
+            strncpy(text, [itemData UTF8String], [itemData length]);
+            MwLLDispatch(this, clipboard, text);
+            printf("%s -> %p\n", text, this);
+            free(text);
+          }
+          strHash = [itemData hash];
+        }
+      }
+    }
+  }
+
+  [pool release];
+}
+
 - (void)setTitle:(const char *)title {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   [self->window
@@ -882,6 +931,11 @@ static CGPoint pointFlip(CGPoint point) {
    * until 10.13.2 so I need to do this manually */
 };
 - (void)setClipboard:(const char *)text {
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+  [pasteboard declareTypes:@[ NSPasteboardTypeString ] owner:nil];
+  [pasteboard setString:@(text) forType:NSPasteboardTypeString];
+  [pool release];
 };
 - (void)getClipboard {
 };
