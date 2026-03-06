@@ -40,7 +40,6 @@
   MwBool valid;
   int width;
   int height;
-  NSData *data;
   NSImage *image;
   NSBitmapImageRep *rep;
 }
@@ -73,7 +72,6 @@
 
 @interface MilskoCocoa : NSObject {
   NSApplication *application;
-  NSEvent *lastEvent;
   MwBool _forceRender;
   NSWindow *window;
   NSRect rect;

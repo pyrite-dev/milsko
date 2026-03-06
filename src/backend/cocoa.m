@@ -35,11 +35,11 @@ static CGPoint pointFlip(CGPoint point) {
 
   p->width = width;
   p->height = height;
-  p->data = NULL;
   p->image = NULL;
   return p;
 }
 - (void)updateWithData:(unsigned char *)_data {
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   [self destroy];
 
   self->rep =
@@ -53,21 +53,17 @@ static CGPoint pointFlip(CGPoint point) {
                                           colorSpaceName:NSDeviceRGBColorSpace
                                              bytesPerRow:(int)width * 4
                                             bitsPerPixel:32];
-
   assert(self->rep);
-  self->data = [NSData dataWithBytes:[self->rep bitmapData]
-                              length:self->width * self->height * 4];
-  assert(self->data);
+  [self->rep retain];
   self->image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
   assert(self->image);
   [self->image addRepresentation:self->rep];
+  [self->image retain];
+  [pool release];
 }
 - (void)destroy {
-  if (self->data != NULL) {
-    [self->data dealloc];
-  }
   if (self->image != NULL) {
-    [self->image dealloc];
+    [self->image release];
   }
 }
 - (NSImage *)image {
@@ -84,6 +80,7 @@ static CGPoint pointFlip(CGPoint point) {
                         height:(int)height
                         handle:(MwLL)r {
   MilskoCocoa *c = [MilskoCocoa alloc];
+  [c retain];
 
   if (x == MwDEFAULT) {
     x = ([NSScreen mainScreen].frame.size.width / 2.) - (width / 2.);
@@ -121,6 +118,7 @@ static CGPoint pointFlip(CGPoint point) {
       initWithWin:c->window];
 
   [c->window makeKeyAndOrderFront:c->application];
+  [c->window retain];
 
   if (parent != NULL) {
     MilskoCocoa *p = parent->cocoa.real;
@@ -149,6 +147,7 @@ static CGPoint pointFlip(CGPoint point) {
 - (void)polygonWithPoints:(MwPoint *)points
              points_count:(int)points_count
                     color:(MwLLColor)color {
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   NSGraphicsContext *ctx = [self->view context];
   if (ctx) {
     int i;
@@ -180,9 +179,8 @@ static CGPoint pointFlip(CGPoint point) {
     [NSGraphicsContext restoreGraphicsState];
 
     [self->view setNeedsDisplay:YES];
-
-    [nscolor dealloc];
   }
+  [pool release];
 };
 - (void)lineWithPoints:(MwPoint *)points color:(MwLLColor)color {
 };
@@ -258,12 +256,8 @@ static CGPoint pointFlip(CGPoint point) {
 };
 
 - (void)getNextEvent {
-  int i;
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   NSEvent *ev;
-
-  if (lastEvent) {
-    [self eventProcess:lastEvent];
-  }
 
   while ((ev = [self->window nextEventMatchingMask:NSAnyEventMask
                                          untilDate:[NSDate distantPast]
@@ -273,9 +267,11 @@ static CGPoint pointFlip(CGPoint point) {
   }
 
   [self sendClipboardEvent];
+  [pool release];
 };
 
 - (void)eventProcess:(NSEvent *)ev {
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   NSWindow *win = [ev window];
   NSWindow *parentWindow = [self parentWindow];
   MwLL h;
@@ -283,11 +279,13 @@ static CGPoint pointFlip(CGPoint point) {
   MwLL this = self->handle.pointer;
 
   if (!win) {
+    [pool release];
     return;
   }
 
   if ([win contentView].subviews.count == 0) {
     printf("no subviews on %p\n", win);
+    [pool release];
     return;
   } else {
     h = [((MilskoFakePointer *)[win contentView].subviews[0]) pointer];
@@ -756,16 +754,6 @@ static CGPoint pointFlip(CGPoint point) {
     //   ch = tab;
     //   break;
 
-    // case kVK_Mute:
-    //   ch = mute;
-    //   break;
-    // case kVK_VolumeDown:
-    //   ch = volumeDown;
-    //   break;
-    // case kVK_VolumeUp:
-    //   ch = volumeUp;
-    //   break;
-
     // case kVK_Command:
     //   ch = MwLLKey;
     //   break;
@@ -830,6 +818,8 @@ static CGPoint pointFlip(CGPoint point) {
   if (doSendEvent) {
     [win sendEvent:ev];
   }
+
+  [pool release];
 }
 
 - (void)sendClipboardEvent {
@@ -872,6 +862,7 @@ static CGPoint pointFlip(CGPoint point) {
   [pool release];
 };
 - (void)drawPixmap:(MwLLPixmap)pixmap rect:(MwRect *)_rect {
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   MilskoCocoaPixmap *p = pixmap->cocoa.real;
   NSGraphicsContext *ctx = [self->view context];
   if (ctx) {
@@ -890,6 +881,7 @@ static CGPoint pointFlip(CGPoint point) {
 
     [self->view setNeedsDisplay:YES];
   }
+  [pool release];
 };
 - (void)setIcon:(MwLLPixmap)pixmap {
 };
@@ -954,7 +946,7 @@ static CGPoint pointFlip(CGPoint point) {
   _rect->height = [screen frame].size.height;
 };
 - (void)destroy {
-  [self->window dealloc];
+  [self->window release];
 }
 
 - (NSWindow *)parentWindow {
@@ -1017,15 +1009,18 @@ static CGPoint pointFlip(CGPoint point) {
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   NSSize sz = self->rep.size;
   [super drawRect:dirtyRect];
   if (!self->rep) {
+    [pool release];
     return;
   }
 
   [self->rep drawInRect:NSMakeRect(0, 0, sz.width, sz.height)];
 
   [self->rep bitmapData];
+  [pool release];
 }
 
 - (void)destroy {
