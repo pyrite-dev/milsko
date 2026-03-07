@@ -235,14 +235,14 @@ MWDECL void (*MwLLGetClipboard)(MwLL handle);
 MWDECL void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
 MWDECL void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect);
 
-/*font renderer */
-MWDECL void MwFLSetup();
+/* font renderer */
+MWDECL void MwFLSetup(void);
 
 #ifdef USE_FREETYPE2
-MWDECL int MWFL_FT2Setup();
+MWDECL int MWFL_FT2Setup(void);
 #endif
 #ifdef USE_STB_TRUETYPE
-MWDECL int MwFL_STBTTSetup();
+MWDECL int MwFL_STBTTSetup(void);
 #endif
 
 MWDECL int (*MwFLDrawText)(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color);

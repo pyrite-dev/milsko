@@ -128,7 +128,7 @@ static void ft2_MwFontFree(void* handle) {
 	free(ttf);
 }
 
-int MWFL_FT2Setup() {
+int MWFL_FT2Setup(void) {
 	MwFLDrawText   = ft2_MwDrawText;
 	MwFLTextWidth  = ft2_MwTextWidth;
 	MwFLTextHeight = ft2_MwTextHeight;

@@ -140,8 +140,8 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 	free(px);
 }
 
-typedef int (*call_t)();
-void MwFLSetup() {
+typedef int (*call_t)(void);
+void MwFLSetup(void) {
 	call_t calls[] = {
 #ifdef USE_FREETYPE2
 	    MWFL_FT2Setup,

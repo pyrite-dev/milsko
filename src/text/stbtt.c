@@ -1,5 +1,4 @@
 #ifdef USE_STB_TRUETYPE
-#include <stdlib.h>
 #include <Mw/Milsko.h>
 
 #include "../../external/stb_truetype.h"
@@ -129,7 +128,7 @@ static void stbtt_MwFontFree(void* handle) {
 	free(ttf);
 }
 
-int MwFL_STBTTSetup() {
+int MwFL_STBTTSetup(void) {
 	MwFLDrawText   = stbtt_MwDrawText;
 	MwFLTextWidth  = stbtt_MwTextWidth;
 	MwFLTextHeight = stbtt_MwTextHeight;
