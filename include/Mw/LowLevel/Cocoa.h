@@ -40,6 +40,7 @@
   MwBool valid;
   int width;
   int height;
+  unsigned char *buf;
   NSImage *image;
   NSBitmapImageRep *rep;
 }
@@ -97,6 +98,8 @@
 - (void)setW:(int)w H:(int)h;
 - (int)pending;
 - (void)eventProcess:(NSEvent *)ev;
+- (void)handleKeyEvent:(NSEvent *)ev;
+- (void)handleMouseEvent:(NSEvent *)ev ll:(MwLL)ll;
 - (void)getNextEvent;
 - (void)setTitle:(const char *)title;
 - (void)drawPixmap:(MwLLPixmap)pixmap rect:(MwRect *)rect;
