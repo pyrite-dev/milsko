@@ -1,3 +1,4 @@
+#include "Mw/BaseTypes.h"
 #include <Mw/Milsko.h>
 
 #ifdef __clang__
@@ -93,41 +94,43 @@ static NSPoint pointFlip(NSPoint point) {
   c->rect = rectFlip(NSMakeRect(x, y, width, height));
 
   if (parent == NULL) {
-    c->window = [[NSWindow alloc]
+    c->window = [[MilskoCocoaWindow alloc]
         initWithContentRect:c->rect
-                  styleMask:(NSTitledWindowMask | NSClosableWindowMask |
-                             NSMiniaturizableWindowMask | NSResizableWindowMask)
+                  styleMask:(NSTitledWindowMask |
+                             NSTexturedBackgroundWindowMask |
+                             NSClosableWindowMask | NSMiniaturizableWindowMask |
+                             NSResizableWindowMask)
                     backing:NSBackingStoreBuffered
                       defer:NO];
   } else {
-    double	  offset       = 0;
-		NSWindow* parentWindow = parent->cocoa.real->window;
-		offset =
-		    [parentWindow frameRectForContentRect:[parentWindow frame]].size.height -
-		    [parentWindow contentRectForFrameRect:[parentWindow frame]].size.height;
+    double offset = 0;
+    MilskoCocoaWindow *parentWindow = parent->cocoa.real->window;
+    offset =
+        [parentWindow frameRectForContentRect:[parentWindow frame]]
+            .size.height -
+        [parentWindow contentRectForFrameRect:[parentWindow frame]].size.height;
 
-		c->rect.origin.x += [parentWindow frame].origin.x;
-		c->rect.origin.y -= [parentWindow frame].origin.y - offset;
-		c->rect.origin.y -= offset;
+    c->rect.origin.x += [parentWindow frame].origin.x;
+    c->rect.origin.y -= [parentWindow frame].origin.y - offset;
+    c->rect.origin.y -= offset;
 
-		c->window = [[NSWindow alloc] initWithContentRect:c->rect
-							styleMask:NSBorderlessWindowMask
-							  backing:NSBackingStoreBuffered
-							    defer:NO];
+    c->window =
+        [[MilskoCocoaWindow alloc] initWithContentRect:c->rect
+                                             styleMask:NSBorderlessWindowMask
+                                               backing:NSBackingStoreBuffered
+                                                 defer:NO];
   }
   [c->window
-      setDelegate:[[MilskoCocoaWindowDelegate alloc]
-                      initWithWin:c->window]];
+      setDelegate:[[MilskoCocoaWindowDelegate alloc] initWithWin:c->window]];
 
   [c->window makeKeyAndOrderFront:c->application];
   [c->window retain];
 
   if (parent != NULL) {
     MilskoCocoa *p = parent->cocoa.real;
-    double	  offset       = 0;
-		offset =
-		    [p->window frameRectForContentRect:[p->window frame]].size.height -
-		    [p->window contentRectForFrameRect:[p->window frame]].size.height;
+    double offset = 0;
+    offset = [p->window frameRectForContentRect:[p->window frame]].size.height -
+             [p->window contentRectForFrameRect:[p->window frame]].size.height;
     [p->window addChildWindow:c->window ordered:NSWindowAbove];
     [c->window setHasShadow:MwFALSE];
     [c->window setParentWindow:p->window];
@@ -139,10 +142,11 @@ static NSPoint pointFlip(NSPoint point) {
     [c->application setActivationPolicy:NSApplicationActivationPolicyRegular];
     [c->application activateIgnoringOtherApps:true];
     [c->window makeFirstResponder:c->view];
+    [c->window makeKeyAndOrderFront:nil];
   }
-
   [c->application setDelegate:[[MilskoCocoaApplicationDelegate alloc]
                                   initWithAppl:c->application]];
+  [c->application retain];
 
   c->view = [[MilskoCocoaView alloc] initWithFrame:c->rect];
   [c->view retain];
@@ -157,6 +161,8 @@ static NSPoint pointFlip(NSPoint point) {
 
   c->_forceRender = MwTRUE;
   c->strHash = 0;
+
+  c->cursorPixmap = NULL;
 
   [c->application finishLaunching];
 
@@ -209,7 +215,7 @@ static NSPoint pointFlip(NSPoint point) {
   NSRect frame = rectFlip([self->window frame]);
   frame = rectFlip(frame);
 
-  if(parent) {
+  if (parent) {
     frame.origin.x -= [parent->cocoa.real->window frame].origin.x;
     frame.origin.y += [parent->cocoa.real->window frame].origin.y;
   }
@@ -228,17 +234,18 @@ static NSPoint pointFlip(NSPoint point) {
 
   frame = rectFlip(frame);
 
-	if(parent) {
-		double	  offset       = 0;
-		NSWindow* parentWindow = parent->cocoa.real->window;
-		offset =
-		    [parentWindow frameRectForContentRect:[parentWindow frame]].size.height -
-		    [parentWindow contentRectForFrameRect:[parentWindow frame]].size.height;
+  if (parent) {
+    double offset = 0;
+    MilskoCocoaWindow *parentWindow = parent->cocoa.real->window;
+    offset =
+        [parentWindow frameRectForContentRect:[parentWindow frame]]
+            .size.height -
+        [parentWindow contentRectForFrameRect:[parentWindow frame]].size.height;
 
     frame.origin.x += [parentWindow frame].origin.x;
     frame.origin.y -= [parentWindow frame].origin.y - offset;
     frame.origin.y -= offset;
-	}
+  }
 
   [self->view setFrameSize:frame.size];
 
@@ -336,9 +343,11 @@ static NSPoint pointFlip(NSPoint point) {
   }
   case NSMouseEntered:
     MwLLDispatch(h, focus_in, NULL);
+    [self->cursor push];
     break;
   case NSMouseExited:
     MwLLDispatch(h, focus_out, NULL);
+    [self->cursor pop];
     break;
   case NSKeyDown:
   case NSKeyUp: {
@@ -346,10 +355,12 @@ static NSPoint pointFlip(NSPoint point) {
     doSendEvent = MwFALSE;
   }
   case NSCursorUpdate:
+    [self->cursor set];
     break;
   case NSScrollWheel:
     break;
   default:
+    doSendEvent = MwFALSE;
     break;
   };
   if (doSendEvent) {
@@ -589,7 +600,7 @@ static NSPoint pointFlip(NSPoint point) {
   [pool release];
 };
 - (void)setIcon:(MwLLPixmap)pixmap {
-  (void)pixmap;
+  [self->application setApplicationIconImage:[pixmap->cocoa.real image]];
 };
 - (void)forceRender {
   self->_forceRender = MwTRUE;
@@ -607,11 +618,63 @@ static NSPoint pointFlip(NSPoint point) {
   // [pool release];
 };
 - (void)setCursor:(MwCursor *)image mask:(MwCursor *)mask {
-  (void)image;
-  (void)mask;
+  int y, x, ys, xs;
+  unsigned char *di = malloc(image->width * image->height * 4);
+  memset(di, 0, image->width * image->height * 4);
+
+  if (self->cursorPixmap) {
+    [self->cursorPixmap destroy];
+  }
+  self->cursorPixmap =
+      [MilskoCocoaPixmap newWithWidth:image->width height:image->height];
+
+  xs = -mask->x + image->x;
+  ys = MwCursorDataHeight + mask->y;
+  ys = MwCursorDataHeight + image->y - ys;
+
+  for (y = 0; y < mask->height; y++) {
+    unsigned int d = mask->data[y];
+    for (x = mask->width - 1; x >= 0; x--) {
+      int px = 0;
+      int idx = ((y * mask->width) + x) * 4;
+
+      if (d & 1) {
+        di[idx + 3] = 255;
+      };
+      d = d >> 1;
+    }
+  }
+  for (y = 0; y < image->height; y++) {
+    unsigned int d = image->data[y];
+    for (x = image->width - 1; x >= 0; x--) {
+      int px = 0;
+      int idx = ((y * image->width) + x) * 4;
+
+      if (d & 1) {
+        px = 255;
+      };
+
+      di[idx] = px;
+      di[idx + 1] = px;
+      di[idx + 2] = px;
+      d = d >> 1;
+    }
+  }
+
+  [self->cursorPixmap updateWithData:di];
+
+  self->cursor = [[NSCursor alloc]
+      initWithImage:[self->cursorPixmap image]
+            hotSpot:NSMakePoint(image->x, image->y + image->height)];
+  [self->cursor retain];
+
+  [self->cursor pop];
+  [self->cursor push];
+
+  free(di);
 };
 - (void)detachWithPoint:(MwPoint *)point {
-  (void)point;
+  [self->window setParentWindow:NULL];
 };
 - (void)show:(int)show {
   (void)show;
@@ -623,10 +686,8 @@ static NSPoint pointFlip(NSPoint point) {
                         MinY:(int)miny
                         MaxX:(int)maxx
                         MaxY:(int)maxy {
-  (void)minx;
-  (void)miny;
-  (void)maxx;
-  (void)maxy;
+  [self->window setMinSize:NSMakeSize(minx, miny)];
+  [self->window setMaxSize:NSMakeSize(maxx, maxy)];
 };
 - (void)makeBorderless:(int)toggle {
   MwU32 mask = [self->window styleMask];
@@ -658,8 +719,6 @@ static NSPoint pointFlip(NSPoint point) {
   // [pasteboard declareTypes:[NSArray arrayWithObjects:NSPasteboardTypeString]
   // owner:nil]; [pasteboard setString:[NSString stringWithUTF8String:text]
   // forType:NSPasteboardTypeString]; [pool release];
-};
-- (void)getClipboard {
 };
 - (void)makeToolWindow {
 };
@@ -703,6 +762,7 @@ static NSPoint pointFlip(NSPoint point) {
 - (MilskoFakePointer *)getHandle {
   return handle;
 }
+
 @end
 
 @implementation MilskoCocoaView
@@ -787,8 +847,15 @@ static NSPoint pointFlip(NSPoint point) {
   self->appl = _appl;
   return self;
 }
+- (void)applicationDidBecomeActive:(NSNotification *)notification {
+  printf("test\n");
+}
+- (void)applicationWillFinishLaunching:(NSNotification *)notification {
+  // printf("test\n");
+  // [self->appl activateIgnoringOtherApps:MwTRUE];
+}
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
-  [self->appl activateIgnoringOtherApps:MwTRUE];
+  // [self->appl activateIgnoringOtherApps:MwTRUE];
 }
 @end
 
@@ -804,6 +871,10 @@ static NSPoint pointFlip(NSPoint point) {
     MwLLDispatch(h, draw, NULL);
   }
   return frameSize;
+}
+
+- (void)windowDidBecomeMain:(NSNotification *)notification {
+  printf("waow\n");
 }
 
 - (void)windowDidResize:(NSNotification *)notification {
@@ -842,8 +913,17 @@ static NSPoint pointFlip(NSPoint point) {
 
 - (void)destroy {
 }
-
 @end
+
+@implementation MilskoCocoaWindow
+- (BOOL)canBecomeKeyWindow {
+  return true;
+}
+- (BOOL)canBecomeMainWindow {
+  return true;
+}
+@end
+
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
   MwLL r;
   (void)x;

@@ -28,11 +28,15 @@
 - (MilskoCocoaApplicationDelegate *)initWithAppl:(NSApplication *)appl;
 @end
 
+@interface MilskoCocoaWindow : NSWindow {
+}
+@end
+
 // Note: implements NSWindowDelegate
 @interface MilskoCocoaWindowDelegate : NSObject {
-  NSWindow *w;
+  MilskoCocoaWindow *w;
 }
-- (MilskoCocoaWindowDelegate *)initWithWin:(NSWindow *)win;
+- (MilskoCocoaWindowDelegate *)initWithWin:(MilskoCocoaWindow *)win;
 @end
 
 @interface MilskoFakePointer : NSView {
@@ -82,13 +86,16 @@
 @interface MilskoCocoa : NSObject {
   NSApplication *application;
   MwBool _forceRender;
-  NSWindow *window;
+  MilskoCocoaWindow *window;
   NSRect rect;
   MilskoCocoaView *view;
   MwLL parent;
   MilskoFakePointer *handle;
   unsigned int strHash;
   NSEvent *lastEvent;
+
+  MilskoCocoaPixmap *cursorPixmap;
+  NSCursor *cursor;
 }
 
 + (MilskoCocoa *)newWithParent:(MwLL)parent
@@ -131,9 +138,9 @@
 - (void)destroy;
 - (void)sendClipboardEvent;
 
-- (NSWindow *)parentWindow;
+- (MilskoCocoaWindow *)parentWindow;
 - (NSView *)getView;
-- (NSWindow *)getWindow;
+- (MilskoCocoaWindow *)getWindow;
 - (MilskoFakePointer *)getHandle;
 
 @end
