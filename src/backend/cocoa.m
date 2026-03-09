@@ -1,4 +1,3 @@
-#include "Mw/BaseTypes.h"
 #include <Mw/Milsko.h>
 
 #ifdef __clang__
@@ -166,6 +165,8 @@ static NSPoint pointFlip(NSPoint point) {
 
   [c->application finishLaunching];
 
+  c->pointerLocked = MwFALSE;
+
   return c;
 }
 - (void)polygonWithPoints:(MwPoint *)points
@@ -298,9 +299,18 @@ static NSPoint pointFlip(NSPoint point) {
      * events we handle */
     [self eventProcess:ev];
     [pool release];
+    [self->application updateWindows];
   }
 
   [self sendClipboardEvent];
+
+  if (self->pointerLocked && [self->window isMainWindow]) {
+    NSPoint pos = [window frame].origin;
+    pos.x += [window frame].size.width / 2;
+    pos.y += [window frame].size.height / 2;
+
+    CGWarpMouseCursorPosition(pos);
+  }
 
   [self->application updateWindows];
 };
@@ -339,9 +349,10 @@ static NSPoint pointFlip(NSPoint point) {
   case NSOtherMouseDragged:
   case NSMouseMoved: {
     MwPoint pos;
-    pos.x = [ev locationInWindow].x;
-    pos.y = [win contentRectForFrameRect:[win frame]].size.height -
-            [ev locationInWindow].y;
+    NSPoint pos_translated = pointFlip([ev locationInWindow]);
+    pos.x = pos_translated.x;
+    pos.y = pos_translated.y;
+    printf("%d %d\n", pos.x, pos.y);
     MwLLDispatch(h, move, &pos);
     break;
   }
@@ -355,8 +366,7 @@ static NSPoint pointFlip(NSPoint point) {
     break;
   case NSKeyDown:
   case NSKeyUp: {
-    [self handleKeyEvent:ev];
-    doSendEvent = MwFALSE;
+    [self handleKeyEvent:ev ll:h];
   }
   case NSCursorUpdate:
     [self->cursor set];
@@ -364,12 +374,9 @@ static NSPoint pointFlip(NSPoint point) {
   case NSScrollWheel:
     break;
   default:
-    doSendEvent = MwFALSE;
     break;
   };
-  if (doSendEvent) {
-    [win sendEvent:ev];
-  }
+  [win sendEvent:ev];
 
   [pool release];
 }
@@ -378,6 +385,7 @@ static NSPoint pointFlip(NSPoint point) {
   MwLLMouse mouse;
   MwBool isDown = MwTRUE;
   NSPoint mousePoint = pointFlip([ev locationInWindow]);
+  MwLL this = [self->handle pointer];
   switch ([ev type]) {
   case NSLeftMouseUp:
     isDown = MwFALSE;
@@ -401,13 +409,15 @@ static NSPoint pointFlip(NSPoint point) {
   mouse.point.y = mousePoint.y;
 
   if (isDown) {
+    MwLLDispatch(this, down, &mouse);
     MwLLDispatch(ll, down, &mouse);
   } else {
+    MwLLDispatch(this, up, &mouse);
     MwLLDispatch(ll, up, &mouse);
   }
 }
 
-- (void)handleKeyEvent:(NSEvent *)ev {
+- (void)handleKeyEvent:(NSEvent *)ev ll:(MwLL)ll {
   int ch;
   MwLL this = [self->handle pointer];
   enum {
@@ -537,9 +547,11 @@ static NSPoint pointFlip(NSPoint point) {
   switch ([ev type]) {
   case NSKeyDown:
     MwLLDispatch(this, key, &ch);
+    MwLLDispatch(ll, key, &ch);
     break;
   case NSKeyUp:
     MwLLDispatch(this, key_released, &ch);
+    MwLLDispatch(ll, key_released, &ch);
     break;
   default:
     break;
@@ -711,9 +723,7 @@ static NSPoint pointFlip(NSPoint point) {
   [self->window makeMainWindow];
 };
 - (void)grabPointer:(int)toggle {
-  (void)toggle;
-  /* MacOS didn't have a "pointer grab" function
-   * until 10.13.2 so I need to do this manually */
+  self->pointerLocked = toggle;
 };
 - (void)setClipboard:(const char *)text {
   (void)text;
@@ -848,6 +858,14 @@ static NSPoint pointFlip(NSPoint point) {
 - (void)displayRect:(NSRect)rect {
   (void)rect;
 };
+
+- (BOOL)acceptsFirstResponder {
+  return MwTRUE;
+}
+- (BOOL)performKeyEquivalent:(NSEvent *)event {
+  (void)event;
+  return MwTRUE;
+}
 
 @end
 
