@@ -39,6 +39,18 @@
 - (MilskoCocoaWindowDelegate *)initWithWin:(MilskoCocoaWindow *)win;
 @end
 
+/*
+ So we want to associate each NSWindow with its corresponding MwLL handle. The
+ conventional way of doing this is through "associative pointers", however
+ this is a feature that Apple added in 10.6 (marketted back then as "Objective
+ C 2" iirc). For 10.4 compatibility, we have to do a bit of an ugly hack that
+ might seem like horrifically undefined behavior, but I've tested this on
+ both 10.4 and modern Mac OS and as long as we're careful there's no
+ problems: we override NSView, use NSView's "frame" property to store the
+ pointer, and then override functions appropriately so that this frame is never
+ actually used. This can then be attached to an NSWindow with addSubview and
+ retrieved appropriately.
+ */
 @interface MilskoFakePointer : NSView {
   void *ptr;
 }
