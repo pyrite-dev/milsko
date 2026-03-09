@@ -140,6 +140,7 @@ static NSPoint pointFlip(NSPoint point) {
     c->rect.origin.y -= [p->window frame].origin.y - offset;
     c->rect.origin.y -= offset;
   } else {
+    [c->application setActivationPolicy:NSApplicationActivationPolicyRegular];
     [c->application activateIgnoringOtherApps:true];
     [c->window makeFirstResponder:c->view];
   }
@@ -279,7 +280,7 @@ static NSPoint pointFlip(NSPoint point) {
 };
 
 - (void)getNextEvent {
-
+  [self eventProcess:self->lastEvent];
   while (true) {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSEvent *ev = [self->window nextEventMatchingMask:NSAnyEventMask
@@ -595,18 +596,19 @@ static NSPoint pointFlip(NSPoint point) {
   (void)pixmap;
 };
 - (void)forceRender {
-  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-  NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
-                                      location:NSMakePoint(0, 0)
-                                 modifierFlags:0
-                                     timestamp:0
-                                  windowNumber:0
-                                       context:nil
-                                       subtype:0
-                                         data1:0
-                                         data2:0];
-  [NSApp postEvent:event atStart:YES];
-  [pool release];
+  self->_forceRender = MwTRUE;
+  // NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  // NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
+  //                                     location:NSMakePoint(0, 0)
+  //                                modifierFlags:0
+  //                                    timestamp:0
+  //                                 windowNumber:0
+  //                                      context:nil
+  //                                      subtype:0
+  //                                        data1:0
+  //                                        data2:0];
+  // [NSApp postEvent:event atStart:YES];
+  // [pool release];
 };
 - (void)setCursor:(MwCursor *)image mask:(MwCursor *)mask {
   (void)image;

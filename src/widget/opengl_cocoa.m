@@ -1,5 +1,6 @@
 #include "Mw/BaseTypes.h"
 #include "Mw/Core.h"
+#include "Mw/LowLevel/Cocoa.h"
 #include "Mw/StringDefs.h"
 #include <Mw/Milsko.h>
 #include <Mw/Widget/OpenGL.h>
@@ -8,9 +9,10 @@
 @interface MacOpenGLWidget : NSObject {
   NSOpenGLPixelFormat *pixelFormat;
   NSOpenGLContext *glc;
+  MilskoCocoa * _win;
 }
 
-- (MacOpenGLWidget *)initWithView:(NSView *)view;
+- (MacOpenGLWidget *)initWithWindow:(MilskoCocoa *)w;
 - (void)destroy;
 - (void)makeCurrent;
 - (void)swapBuffer;
@@ -30,7 +32,7 @@ static int create(MwWidget handle) {
   printf("%d %d\n", width, height);
 
   handle->internal = [[MacOpenGLWidget alloc]
-      initWithView:[handle->lowlevel->cocoa.real getView]];
+      initWithWindow:handle->lowlevel->cocoa.real];
   handle->lowlevel->common.copy_buffer = 0;
 
   MwSetDefault(handle);
@@ -75,7 +77,7 @@ static void func_handler(MwWidget handle, const char *name, void *out,
 
 @implementation MacOpenGLWidget
 
-- (MacOpenGLWidget *)initWithView:(NSView *)view {
+- (MacOpenGLWidget *)initWithWindow:(MilskoCocoa *)w {
   NSOpenGLPixelFormatAttribute pixelFormatAttributes[] = {
       NSOpenGLPFAColorSize,    24,
       NSOpenGLPFAStencilSize,  8,
@@ -86,7 +88,8 @@ static void func_handler(MwWidget handle, const char *name, void *out,
       [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes];
   self->glc =
       [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
-  [self->glc setView:view];
+  [self->glc setView:[w getView]];
+  self->_win = w;
   return self;
 };
 - (void)destroy {
@@ -95,19 +98,7 @@ static void func_handler(MwWidget handle, const char *name, void *out,
   [self->glc makeCurrentContext];
 };
 - (void)swapBuffer {
-  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-  NSEvent *event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
-                                      location:NSMakePoint(0, 0)
-                                 modifierFlags:0
-                                     timestamp:0
-                                  windowNumber:0
-                                       context:nil
-                                       subtype:0
-                                         data1:0
-                                         data2:0];
-  [NSApp postEvent:event atStart:YES];
-  [pool release];
-
+  [self->_win forceRender];
   [self->glc flushBuffer];
 };
 - (void *)getProcAddressWithName:(const char *)name {
