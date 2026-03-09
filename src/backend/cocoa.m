@@ -138,7 +138,9 @@ static NSPoint pointFlip(NSPoint point) {
     c->rect.origin.y -= [p->window frame].origin.y - offset;
     c->rect.origin.y -= offset;
   } else {
-    [c->application setActivationPolicy:NSApplicationActivationPolicyRegular];
+    if ([c->application respondsToSelector:@selector(setActivationPolicy:)]) {
+      [c->application setActivationPolicy:0 /* NSApplicationActivationPolicyRegular */];
+    }
     [c->application activateIgnoringOtherApps:true];
     [c->window makeFirstResponder:c->view];
     [c->window makeKeyAndOrderFront:nil];
@@ -305,9 +307,9 @@ static NSPoint pointFlip(NSPoint point) {
   [self sendClipboardEvent];
 
   if (self->pointerLocked && [self->window isMainWindow]) {
-    NSPoint pos = [window frame].origin;
-    pos.x += [window frame].size.width / 2;
-    pos.y += [window frame].size.height / 2;
+    struct CGPoint pos;
+    pos.x = [window frame].origin.x + [window frame].size.width / 2;
+    pos.y = [window frame].origin.y + [window frame].size.height / 2;
 
     CGWarpMouseCursorPosition(pos);
   }
