@@ -21,136 +21,143 @@
 #import <CoreGraphics/CoreGraphics.h>
 #endif
 
+// Note: implements NSApplicationDelegate
+@interface MilskoCocoaApplicationDelegate : NSObject <NSApplicationDelegate> {
+  NSApplication *appl;
+}
+- (MilskoCocoaApplicationDelegate *)initWithAppl:(NSApplication *)appl;
+@end
+
 // Note: implements NSWindowDelegate
 @interface MilskoCocoaWindowDelegate : NSObject {
-	NSWindow* w;
+  NSWindow *w;
 }
-- (MilskoCocoaWindowDelegate*)initWithWin:(NSWindow*)win;
+- (MilskoCocoaWindowDelegate *)initWithWin:(NSWindow *)win;
 @end
 
 @interface MilskoFakePointer : NSView {
-	void* ptr;
+  void *ptr;
 }
 
-- (void)setPointer:(void*)ptr;
-- (void*)pointer;
+- (void)setPointer:(void *)ptr;
+- (void *)pointer;
 
 @end
 
 @interface MilskoCocoaPixmap : NSObject {
-	MwBool		  valid;
-	int		  width;
-	int		  height;
-	unsigned char*	  buf;
-	NSImage*	  image;
-	NSBitmapImageRep* rep;
+  MwBool valid;
+  int width;
+  int height;
+  unsigned char *buf;
+  NSImage *image;
+  NSBitmapImageRep *rep;
 }
 
-+ (MilskoCocoaPixmap*)newWithWidth:(int)width height:(int)height;
-- (void)updateWithData:(unsigned char*)data;
++ (MilskoCocoaPixmap *)newWithWidth:(int)width height:(int)height;
+- (void)updateWithData:(unsigned char *)data;
 - (void)destroy;
 
 /* using @property to create instance variables fucks up 10.4 gcc for some
  * reason? */
-- (NSImage*)image;
+- (NSImage *)image;
 
 @end
 
 @interface MilskoCocoaView : NSView {
-	NSBitmapImageRep*  rep;
-	NSGraphicsContext* context;
-	MwBool		   valid;
-	CGColorSpaceRef	   space;
-	CGDataProviderRef  provider;
-	float		   width;
-	float		   height;
+  NSBitmapImageRep *rep;
+  NSGraphicsContext *context;
+  MwBool valid;
+  CGColorSpaceRef space;
+  CGDataProviderRef provider;
+  float width;
+  float height;
 }
 
-- (NSGraphicsContext*)context;
+- (NSGraphicsContext *)context;
 - (void)destroy;
-- (NSBitmapImageRep*)getRep;
+- (NSBitmapImageRep *)getRep;
 
 @end
 
 @interface MilskoCocoa : NSObject {
-	NSApplication*	   application;
-	MwBool		   _forceRender;
-	NSWindow*	   window;
-	NSRect		   rect;
-	MilskoCocoaView*   view;
-	MwLL		   parent;
-	MilskoFakePointer* handle;
-	unsigned int	   strHash;
-	NSEvent*	   lastEvent;
+  NSApplication *application;
+  MwBool _forceRender;
+  NSWindow *window;
+  NSRect rect;
+  MilskoCocoaView *view;
+  MwLL parent;
+  MilskoFakePointer *handle;
+  unsigned int strHash;
+  NSEvent *lastEvent;
 }
 
-+ (MilskoCocoa*)newWithParent:(MwLL)parent
-			    x:(int)x
-			    y:(int)y
-			width:(int)width
-		       height:(int)height
-		       handle:(MwLL)handle;
-- (void)polygonWithPoints:(MwPoint*)points
-	     points_count:(int)points_count
-		    color:(MwLLColor)color;
-- (void)lineWithPoints:(MwPoint*)points color:(MwLLColor)color;
-- (void)getX:(int*)x Y:(int*)y W:(unsigned int*)w H:(unsigned int*)h;
++ (MilskoCocoa *)newWithParent:(MwLL)parent
+                             x:(int)x
+                             y:(int)y
+                         width:(int)width
+                        height:(int)height
+                        handle:(MwLL)handle;
+- (void)polygonWithPoints:(MwPoint *)points
+             points_count:(int)points_count
+                    color:(MwLLColor)color;
+- (void)lineWithPoints:(MwPoint *)points color:(MwLLColor)color;
+- (void)getX:(int *)x Y:(int *)y W:(unsigned int *)w H:(unsigned int *)h;
 - (void)setX:(int)x Y:(int)y;
 - (void)setW:(int)w H:(int)h;
 - (int)pending;
-- (void)eventProcess:(NSEvent*)ev;
-- (void)handleKeyEvent:(NSEvent*)ev;
-- (void)handleMouseEvent:(NSEvent*)ev ll:(MwLL)ll;
+- (void)eventProcess:(NSEvent *)ev;
+- (void)handleKeyEvent:(NSEvent *)ev;
+- (void)handleMouseEvent:(NSEvent *)ev ll:(MwLL)ll;
 - (void)getNextEvent;
-- (void)setTitle:(const char*)title;
-- (void)drawPixmap:(MwLLPixmap)pixmap rect:(MwRect*)rect;
+- (void)setTitle:(const char *)title;
+- (void)drawPixmap:(MwLLPixmap)pixmap rect:(MwRect *)rect;
 - (void)setIcon:(MwLLPixmap)pixmap;
 - (void)forceRender;
-- (void)setCursor:(MwCursor*)image mask:(MwCursor*)mask;
-- (void)detachWithPoint:(MwPoint*)point;
+- (void)setCursor:(MwCursor *)image mask:(MwCursor *)mask;
+- (void)detachWithPoint:(MwPoint *)point;
 - (void)show:(int)show;
 - (void)makePopupWithParent:(MwLL)parent;
 - (void)setSizeHintsWithMinX:(int)minx
-			MinY:(int)miny
-			MaxX:(int)maxx
-			MaxY:(int)maxy;
+                        MinY:(int)miny
+                        MaxX:(int)maxx
+                        MaxY:(int)maxy;
 - (void)makeBorderless:(int)toggle;
 - (void)focus;
 - (void)grabPointer:(int)toggle;
-- (void)setClipboard:(const char*)text;
+- (void)setClipboard:(const char *)text;
 - (void)makeToolWindow;
-- (void)getCursorCoord:(MwPoint*)point;
-- (void)getScreenSize:(MwRect*)rect;
+- (void)getCursorCoord:(MwPoint *)point;
+- (void)getScreenSize:(MwRect *)rect;
 - (void)destroy;
 - (void)sendClipboardEvent;
 
-- (NSWindow*)parentWindow;
-- (NSView*)getView;
-- (NSWindow*)getWindow;
-- (MilskoFakePointer*)getHandle;
+- (NSWindow *)parentWindow;
+- (NSView *)getView;
+- (NSWindow *)getWindow;
+- (MilskoFakePointer *)getHandle;
 
 @end
 #define OBJC(x) x
 #else
-#define OBJC(x) void*
+#define OBJC(x) void *
 #endif
 
 MWDECL int MwLLCocoaCallInit(void);
 
 struct _MwLLCocoa {
-	struct _MwLLCommon common;
-	OBJC(MilskoCocoa*)
-	real;
+  struct _MwLLCommon common;
+  OBJC(MilskoCocoa *)
+  real;
 };
 
 struct _MwLLCocoaColor {
-	struct _MwLLCommonColor common;
+  struct _MwLLCommonColor common;
 };
 
 struct _MwLLCocoaPixmap {
-	struct _MwLLCommonPixmap common;
-	OBJC(MilskoCocoaPixmap*)
-	real;
+  struct _MwLLCommonPixmap common;
+  OBJC(MilskoCocoaPixmap *)
+  real;
 };
 
 #endif
