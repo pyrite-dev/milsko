@@ -177,7 +177,6 @@ static CGPoint pointFlip(CGPoint point) {
 
     [path closePath];
     [path fill];
-    [nscolor release];
 
     [NSGraphicsContext restoreGraphicsState];
 
