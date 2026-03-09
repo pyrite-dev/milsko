@@ -1,5 +1,7 @@
 #include "Mw/BaseTypes.h"
+#include <AppKit/NSGraphicsContext.h>
 #include <Mw/Milsko.h>
+#include <inttypes.h>
 #include <stdlib.h>
 
 #ifdef __clang__
@@ -102,24 +104,23 @@ static NSPoint pointFlip(NSPoint point) {
                     backing:NSBackingStoreBuffered
                       defer:NO];
   } else {
-    double offset = 0;
-    NSWindow *parentWindow = parent->cocoa.real->window;
-    offset =
-        [parentWindow frameRectForContentRect:[parentWindow frame]]
-            .size.height -
-        [parentWindow contentRectForFrameRect:[parentWindow frame]].size.height;
+    double	  offset       = 0;
+		NSWindow* parentWindow = parent->cocoa.real->window;
+		offset =
+		    [parentWindow frameRectForContentRect:[parentWindow frame]].size.height -
+		    [parentWindow contentRectForFrameRect:[parentWindow frame]].size.height;
 
-    c->rect.origin.x += [parentWindow frame].origin.x;
-    c->rect.origin.y -= [parentWindow frame].origin.y - offset;
-    c->rect.origin.y -= offset;
+		c->rect.origin.x += [parentWindow frame].origin.x;
+		c->rect.origin.y -= [parentWindow frame].origin.y - offset;
+		c->rect.origin.y -= offset;
 
-    c->window = [[NSWindow alloc] initWithContentRect:c->rect
-                                            styleMask:NSBorderlessWindowMask
-                                              backing:NSBackingStoreBuffered
-                                                defer:NO];
+		c->window = [[NSWindow alloc] initWithContentRect:c->rect
+							styleMask:NSBorderlessWindowMask
+							  backing:NSBackingStoreBuffered
+							    defer:NO];
   }
   [c->window
-      setDelegate:(id<NSWindowDelegate>)[[MilskoCocoaWindowDelegate alloc]
+      setDelegate:[[MilskoCocoaWindowDelegate alloc]
                       initWithWin:c->window]];
 
   [c->window makeKeyAndOrderFront:c->application];
@@ -127,8 +128,17 @@ static NSPoint pointFlip(NSPoint point) {
 
   if (parent != NULL) {
     MilskoCocoa *p = parent->cocoa.real;
+    double	  offset       = 0;
+		offset =
+		    [p->window frameRectForContentRect:[p->window frame]].size.height -
+		    [p->window contentRectForFrameRect:[p->window frame]].size.height;
     [p->window addChildWindow:c->window ordered:NSWindowAbove];
     [c->window setHasShadow:MwFALSE];
+    [c->window setParentWindow:p->window];
+
+    c->rect.origin.x += [p->window frame].origin.x;
+    c->rect.origin.y -= [p->window frame].origin.y - offset;
+    c->rect.origin.y -= offset;
   } else {
     [c->application activateIgnoringOtherApps:true];
     [c->window makeFirstResponder:c->view];
@@ -202,6 +212,11 @@ static NSPoint pointFlip(NSPoint point) {
   NSRect frame = rectFlip([self->window frame]);
   frame = rectFlip(frame);
 
+  if(parent) {
+    frame.origin.x -= [parent->cocoa.real->window frame].origin.x;
+    frame.origin.y += [parent->cocoa.real->window frame].origin.y;
+  }
+
   *x = frame.origin.x;
   *y = frame.origin.y;
 
@@ -216,24 +231,21 @@ static NSPoint pointFlip(NSPoint point) {
 
   frame = rectFlip(frame);
 
-  if (parent) {
-    double offset = 0;
-    NSWindow *parentWindow = parent->cocoa.real->window;
-    offset =
-        [parentWindow frameRectForContentRect:[parentWindow frame]]
-            .size.height -
-        [parentWindow contentRectForFrameRect:[parentWindow frame]].size.height;
+	if(parent) {
+		double	  offset       = 0;
+		NSWindow* parentWindow = parent->cocoa.real->window;
+		offset =
+		    [parentWindow frameRectForContentRect:[parentWindow frame]].size.height -
+		    [parentWindow contentRectForFrameRect:[parentWindow frame]].size.height;
 
-    if (x < [parentWindow frame].origin.x) {
-      frame.origin.x += [parentWindow frame].origin.x;
-    }
-
+    frame.origin.x += [parentWindow frame].origin.x;
     frame.origin.y -= [parentWindow frame].origin.y - offset;
     frame.origin.y -= offset;
-  }
+	}
+
   [self->view setFrameSize:frame.size];
 
-  [self->window setFrame:frame display:YES animate:false];
+  [self->window setFrameOrigin:frame.origin];
 
   [self forceRender];
 };
@@ -583,7 +595,8 @@ static NSPoint pointFlip(NSPoint point) {
   (void)pixmap;
 };
 - (void)forceRender {
-  NSEvent *event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
                                       location:NSMakePoint(0, 0)
                                  modifierFlags:0
                                      timestamp:0
@@ -593,6 +606,7 @@ static NSPoint pointFlip(NSPoint point) {
                                          data1:0
                                          data2:0];
   [NSApp postEvent:event atStart:YES];
+  [pool release];
 };
 - (void)setCursor:(MwCursor *)image mask:(MwCursor *)mask {
   (void)image;

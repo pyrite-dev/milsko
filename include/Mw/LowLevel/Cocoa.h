@@ -22,7 +22,7 @@
 #endif
 
 // Note: implements NSApplicationDelegate
-@interface MilskoCocoaApplicationDelegate : NSObject <NSApplicationDelegate> {
+@interface MilskoCocoaApplicationDelegate : NSObject {
   NSApplication *appl;
 }
 - (MilskoCocoaApplicationDelegate *)initWithAppl:(NSApplication *)appl;
