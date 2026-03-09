@@ -294,11 +294,15 @@ static NSPoint pointFlip(NSPoint point) {
       [pool release];
       break;
     }
+    /* run through the switch case on ev.type, before calling sendEvent on any
+     * events we handle */
     [self eventProcess:ev];
     [pool release];
   }
 
   [self sendClipboardEvent];
+
+  [self->application updateWindows];
 };
 
 - (void)eventProcess:(NSEvent *)ev {
@@ -721,6 +725,11 @@ static NSPoint pointFlip(NSPoint point) {
   // forType:NSPasteboardTypeString]; [pool release];
 };
 - (void)makeToolWindow {
+  /* If my understand of what a "tool window" usually is is correct then I
+   * highly doubt the Mac OS has this and if they did they probably outright
+   * removed it along time ago is this kind of conflicts with modern UX. So
+   * we'll just make it borderless idgaf */
+  [self makeBorderless:MwTRUE];
 };
 - (void)getCursorCoord:(MwPoint *)point {
   NSPoint p = [NSEvent mouseLocation];
