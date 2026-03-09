@@ -352,7 +352,6 @@ static NSPoint pointFlip(NSPoint point) {
     NSPoint pos_translated = pointFlip([ev locationInWindow]);
     pos.x = pos_translated.x;
     pos.y = pos_translated.y;
-    printf("%d %d\n", pos.x, pos.y);
     MwLLDispatch(h, move, &pos);
     break;
   }
@@ -901,7 +900,6 @@ static NSPoint pointFlip(NSPoint point) {
 }
 
 - (void)windowDidBecomeMain:(NSNotification *)notification {
-  printf("waow\n");
 }
 
 - (void)windowDidResize:(NSNotification *)notification {

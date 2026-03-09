@@ -96,6 +96,8 @@
 
   MilskoCocoaPixmap *cursorPixmap;
   NSCursor *cursor;
+
+  MwBool pointerLocked;
 }
 
 + (MilskoCocoa *)newWithParent:(MwLL)parent
@@ -113,7 +115,7 @@
 - (void)setW:(int)w H:(int)h;
 - (int)pending;
 - (void)eventProcess:(NSEvent *)ev;
-- (void)handleKeyEvent:(NSEvent *)ev;
+- (void)handleKeyEvent:(NSEvent *)ev ll:(MwLL)ll;
 - (void)handleMouseEvent:(NSEvent *)ev ll:(MwLL)ll;
 - (void)getNextEvent;
 - (void)setTitle:(const char *)title;
