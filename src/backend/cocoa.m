@@ -139,7 +139,8 @@ static NSPoint pointFlip(NSPoint point) {
     c->rect.origin.y -= offset;
   } else {
     if ([c->application respondsToSelector:@selector(setActivationPolicy:)]) {
-      [c->application setActivationPolicy:0 /* NSApplicationActivationPolicyRegular */];
+      [c->application
+          setActivationPolicy:0 /* NSApplicationActivationPolicyRegular */];
     }
     [c->application activateIgnoringOtherApps:true];
     [c->window makeFirstResponder:c->view];
@@ -410,10 +411,8 @@ static NSPoint pointFlip(NSPoint point) {
   mouse.point.y = mousePoint.y;
 
   if (isDown) {
-    MwLLDispatch(this, down, &mouse);
     MwLLDispatch(ll, down, &mouse);
   } else {
-    MwLLDispatch(this, up, &mouse);
     MwLLDispatch(ll, up, &mouse);
   }
 }
