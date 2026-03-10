@@ -276,6 +276,21 @@ static NSPoint pointFlip(NSPoint point) {
   [self forceRender];
 };
 - (int)pending {
+  /*
+    ok so this is a crime against god but I did in fact try the better method
+    of using nextEventMatchingMask and then pumping events manually. However
+    this gives me something that only kind of works, with strange behavior such
+    as the window never becoming the main window (have to make it key in order
+    for the menu to show up) occuring. Hours of research and digging led me down
+    a rabbit hole that, on all sides, pointed to "just use [NSApplication run]".
+    So we just to do that; of course, this is a blocking function, so we
+    register this function that instantly cancels it and pumps whatever event
+    MacOS has in store for us. We do this on loop and somehow the resulting CPU
+    usage is managable.
+
+    If some Apple developer with 20 years of experience in Objective C is here:
+    Pls god send PR if you know how to properly do this.
+*/
   [MilskoCocoa performSelectorOnMainThread:@selector(eventCanceller:)
                                 withObject:self
                              waitUntilDone:NO];
