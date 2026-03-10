@@ -176,6 +176,21 @@ static NSPoint pointFlip(NSPoint point) {
   this->lastEvent = [this->application currentEvent];
   [this eventProcess:this->lastEvent];
 
+  if (this->_forceRender) {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
+                                        location:NSMakePoint(0, 0)
+                                   modifierFlags:0
+                                       timestamp:0
+                                    windowNumber:0
+                                         context:nil
+                                         subtype:0
+                                           data1:0
+                                           data2:0];
+    [NSApp postEvent:event atStart:YES];
+    [pool release];
+  }
+
   [[NSApplication sharedApplication] stop:nil];
 }
 
@@ -301,7 +316,7 @@ static NSPoint pointFlip(NSPoint point) {
 - (void)getNextEvent {
   [self sendClipboardEvent];
 
-  if (self->pointerLocked && [self->window isMainWindow]) {
+  if (self->pointerLocked && [self->window isMainWindow] && self->lastEvent) {
     struct CGPoint pos;
     pos.x = [window frame].origin.x + [window frame].size.width / 2;
     pos.y = [window frame].origin.y + [window frame].size.height / 2;

@@ -9,7 +9,7 @@
 @interface MacOpenGLWidget : NSObject {
   NSOpenGLPixelFormat *pixelFormat;
   NSOpenGLContext *glc;
-  MilskoCocoa * _win;
+  MilskoCocoa *_win;
 }
 
 - (MacOpenGLWidget *)initWithWindow:(MilskoCocoa *)w;
@@ -31,8 +31,8 @@ static int create(MwWidget handle) {
 
   printf("%d %d\n", width, height);
 
-  handle->internal = [[MacOpenGLWidget alloc]
-      initWithWindow:handle->lowlevel->cocoa.real];
+  handle->internal =
+      [[MacOpenGLWidget alloc] initWithWindow:handle->lowlevel->cocoa.real];
   handle->lowlevel->common.copy_buffer = 0;
 
   MwSetDefault(handle);
@@ -98,7 +98,6 @@ static void func_handler(MwWidget handle, const char *name, void *out,
   [self->glc makeCurrentContext];
 };
 - (void)swapBuffer {
-  [self->_win forceRender];
   [self->glc flushBuffer];
 };
 - (void *)getProcAddressWithName:(const char *)name {

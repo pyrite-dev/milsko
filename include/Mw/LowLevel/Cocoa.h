@@ -110,6 +110,7 @@
   NSCursor *cursor;
 
   MwBool pointerLocked;
+  MwBool mouseMoved;
 }
 
 + (MilskoCocoa *)newWithParent:(MwLL)parent
