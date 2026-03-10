@@ -156,6 +156,7 @@
 - (NSView *)getView;
 - (MilskoCocoaWindow *)getWindow;
 - (MilskoFakePointer *)getHandle;
++ (void)eventCanceller:(MilskoCocoa *)this;
 
 @end
 #define OBJC(x) x

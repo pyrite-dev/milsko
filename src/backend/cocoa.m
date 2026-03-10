@@ -142,9 +142,9 @@ static NSPoint pointFlip(NSPoint point) {
       [c->application
           setActivationPolicy:0 /* NSApplicationActivationPolicyRegular */];
     }
+    [c->window makeKeyAndOrderFront:nil];
     [c->application activateIgnoringOtherApps:true];
     [c->window makeFirstResponder:c->view];
-    [c->window makeKeyAndOrderFront:nil];
   }
   [c->application setDelegate:[[MilskoCocoaApplicationDelegate alloc]
                                   initWithAppl:c->application]];
@@ -172,6 +172,13 @@ static NSPoint pointFlip(NSPoint point) {
 
   return c;
 }
++ (void)eventCanceller:(MilskoCocoa *)this {
+  this->lastEvent = [this->application currentEvent];
+  [this eventProcess:this->lastEvent];
+
+  [[NSApplication sharedApplication] stop:nil];
+}
+
 - (void)polygonWithPoints:(MwPoint *)points
              points_count:(int)points_count
                     color:(MwLLColor)color {
@@ -269,42 +276,14 @@ static NSPoint pointFlip(NSPoint point) {
   [self forceRender];
 };
 - (int)pending {
-  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-  MwBool isPending = MwFALSE;
-  if (_forceRender) {
-    _forceRender = MwFALSE;
-    [pool release];
-    return 1;
-  }
-  self->lastEvent = [self->window nextEventMatchingMask:NSAnyEventMask
-                                              untilDate:[NSDate distantPast]
-                                                 inMode:NSDefaultRunLoopMode
-                                                dequeue:YES];
-
-  isPending = self->lastEvent != NULL;
-  [pool release];
-  return isPending;
+  [MilskoCocoa performSelectorOnMainThread:@selector(eventCanceller:)
+                                withObject:self
+                             waitUntilDone:NO];
+  [self->application run];
+  return 1;
 };
 
 - (void)getNextEvent {
-  [self eventProcess:self->lastEvent];
-  while (true) {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSEvent *ev = [self->window nextEventMatchingMask:NSAnyEventMask
-                                            untilDate:[NSDate distantPast]
-                                               inMode:NSDefaultRunLoopMode
-                                              dequeue:YES];
-    if (!ev) {
-      [pool release];
-      break;
-    }
-    /* run through the switch case on ev.type, before calling sendEvent on any
-     * events we handle */
-    [self eventProcess:ev];
-    [pool release];
-    [self->application updateWindows];
-  }
-
   [self sendClipboardEvent];
 
   if (self->pointerLocked && [self->window isMainWindow]) {
