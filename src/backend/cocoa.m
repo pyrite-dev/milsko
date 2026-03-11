@@ -185,6 +185,7 @@ static NSPoint pointFlip(NSPoint point) {
   [c->application finishLaunching];
 
   c->pointerLocked = MwFALSE;
+  c->modalSession = [c->application beginModalSessionForWindow:c->window];
 
   return c;
 }
@@ -286,26 +287,27 @@ static NSPoint pointFlip(NSPoint point) {
   [self forceRender];
 };
 - (int)pending {
-  /*
-    ok so this is a crime against god but I did in fact try the better method
-    of using nextEventMatchingMask and then pumping events manually. However
-    this gives me something that only kind of works, with strange behavior such
-    as the window never becoming the main window (have to make it key in order
-    for the menu to show up) occuring. Hours of research and digging led me down
-    a rabbit hole that, on all sides, pointed to "just use [NSApplication run]".
-    So we just to do that; of course, this is a blocking function, so we
-    register this function that instantly cancels it and pumps whatever event
-    MacOS has in store for us. We do this on loop and somehow the resulting CPU
-    usage is managable.
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  MwBool isPending = MwFALSE;
 
-    If some Apple developer with 20 years of experience in Objective C is here:
-    Pls god send PR if you know how to properly do this.
-*/
-  [MilskoCocoa performSelectorOnMainThread:@selector(eventCanceller:)
-                                withObject:self
-                             waitUntilDone:NO];
-  [self->application run];
-  return 1;
+  if (_forceRender) {
+    _forceRender = MwFALSE;
+    [pool release];
+    return 1;
+  }
+  self->lastEvent = [self->window nextEventMatchingMask:NSAnyEventMask
+                                              untilDate:[NSDate distantPast]
+                                                 inMode:NSDefaultRunLoopMode
+                                                dequeue:YES];
+  [self->lastEvent retain];
+
+  if (!self->lastEvent) {
+    [NSApp runModalSession:self->modalSession];
+  }
+
+  isPending = self->lastEvent != NULL;
+  [pool release];
+  return isPending;
 };
 
 + (void)eventCanceller:(MilskoCocoa *)this {
@@ -331,6 +333,10 @@ static NSPoint pointFlip(NSPoint point) {
 }
 
 - (void)getNextEvent {
+  NSEvent *event;
+
+  [self eventProcess:self->lastEvent];
+
   if (_forceRender) {
     MwLL h = [self->handle pointer];
     MwLLDispatch(h, draw, NULL);
@@ -377,6 +383,7 @@ static NSPoint pointFlip(NSPoint point) {
   case NSRightMouseUp:
   case NSOtherMouseUp: {
     [self handleMouseEvent:ev ll:h];
+    break;
   }
   case NSLeftMouseDragged:
   case NSRightMouseDragged:
@@ -400,6 +407,7 @@ static NSPoint pointFlip(NSPoint point) {
   case NSKeyDown:
   case NSKeyUp: {
     [self handleKeyEvent:ev ll:h];
+    break;
   }
   case NSCursorUpdate:
     [self->cursor set];
@@ -790,10 +798,6 @@ static NSPoint pointFlip(NSPoint point) {
   _rect->height = [screen frame].size.height;
 };
 - (void)destroy {
-  if (self->lastEvent) {
-    [self->lastEvent release];
-    [self->lastEvent dealloc];
-  }
   [self->handle release];
   [self->handle dealloc];
   [self->window release];
@@ -999,6 +1003,7 @@ static NSPoint pointFlip(NSPoint point) {
 - (BOOL)canBecomeMainWindow {
   return true;
 }
+
 @end
 
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
@@ -1080,7 +1085,13 @@ static void MwLLSetWHImpl(MwLL handle, int w, int height) {
 
 static void MwLLFreeColorImpl(MwLLColor color) { free(color); }
 
-static int MwLLPendingImpl(MwLL handle) { return [handle->cocoa.real pending]; }
+static int MwLLPendingImpl(MwLL handle) {
+  int p = [handle->cocoa.real pending];
+  if (p) {
+    MwLLDispatch(handle, draw, NULL);
+  }
+  return p;
+}
 
 static void MwLLNextEventImpl(MwLL handle) {
   MilskoCocoa *h = handle->cocoa.real;

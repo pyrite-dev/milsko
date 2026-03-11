@@ -109,6 +109,7 @@
 
   MilskoCocoaPixmap *cursorPixmap;
   NSCursor *cursor;
+  NSModalSession modalSession;
 
   MwBool pointerLocked;
   MwBool mouseMoved;
