@@ -89,6 +89,7 @@
   float height;
 }
 
+- (void)initRepAndContextWithWidth:(float)w Height:(float)h;
 - (NSGraphicsContext *)context;
 - (void)destroy;
 - (NSBitmapImageRep *)getRep;
@@ -153,9 +154,10 @@
 - (void)destroy;
 - (void)sendClipboardEvent;
 
-- (MilskoCocoaWindow *)parentWindow;
+- (MwLL)getParent;
 - (NSView *)getView;
 - (MilskoCocoaWindow *)getWindow;
+
 - (MilskoFakePointer *)getHandle;
 + (void)eventCanceller:(MilskoCocoa *)this;
 

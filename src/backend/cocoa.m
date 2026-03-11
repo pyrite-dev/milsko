@@ -773,11 +773,8 @@ static NSPoint pointFlip(NSPoint point) {
   [self->window dealloc];
 }
 
-- (NSWindow *)parentWindow {
-  NSWindow *topmostWindow = self->window;
-  while ([topmostWindow parentWindow])
-    topmostWindow = [topmostWindow parentWindow];
-  return topmostWindow;
+- (MwLL)getParent {
+  return self->parent;
 }
 
 - (NSView *)getView {
@@ -804,24 +801,7 @@ static NSPoint pointFlip(NSPoint point) {
     self->rep = NULL;
     self->context = NULL;
   } else {
-    self->rep =
-        [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
-                                                pixelsWide:width
-                                                pixelsHigh:height
-                                             bitsPerSample:8
-                                           samplesPerPixel:4
-                                                  hasAlpha:YES
-                                                  isPlanar:NO
-                                            colorSpaceName:NSDeviceRGBColorSpace
-                                               bytesPerRow:width * 4
-                                              bitsPerPixel:32];
-    assert(self->rep);
-    [self->rep retain];
-
-    self->context =
-        [NSGraphicsContext graphicsContextWithBitmapImageRep:self->rep];
-    assert(self->context);
-    [self->context retain];
+    [self initRepAndContextWithWidth:width Height:height];
   }
 
   return self;
@@ -840,14 +820,42 @@ static NSPoint pointFlip(NSPoint point) {
   NSSize sz = [self->rep size];
   [super drawRect:dirtyRect];
   if (!self->rep) {
-    [pool release];
-    return;
+    if (dirtyRect.size.width && dirtyRect.size.height) {
+      [self initRepAndContextWithWidth:dirtyRect.size.width
+                                Height:dirtyRect.size.height];
+      self->width = dirtyRect.size.width;
+      self->height = dirtyRect.size.height;
+    } else {
+      [pool release];
+      return;
+    }
   }
 
   [self->rep drawInRect:NSMakeRect(0, 0, sz.width, sz.height)];
 
   [self->rep bitmapData];
   [pool release];
+}
+
+- (void)initRepAndContextWithWidth:(float)w Height:(float)h {
+  self->rep =
+      [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
+                                              pixelsWide:w
+                                              pixelsHigh:h
+                                           bitsPerSample:8
+                                         samplesPerPixel:4
+                                                hasAlpha:YES
+                                                isPlanar:NO
+                                          colorSpaceName:NSDeviceRGBColorSpace
+                                             bytesPerRow:w * 4
+                                            bitsPerPixel:32];
+  assert(self->rep);
+  [self->rep retain];
+
+  self->context =
+      [NSGraphicsContext graphicsContextWithBitmapImageRep:self->rep];
+  assert(self->context);
+  [self->context retain];
 }
 
 - (void)destroy {
@@ -884,6 +892,7 @@ static NSPoint pointFlip(NSPoint point) {
   return self;
 }
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
+  [self->appl activateIgnoringOtherApps:true];
   printf("test\n");
 }
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
@@ -910,6 +919,12 @@ static NSPoint pointFlip(NSPoint point) {
 }
 
 - (void)windowDidBecomeMain:(NSNotification *)notification {
+  if ([[[w contentView] subviews] count] != 0) {
+    MwLL h = [((MilskoFakePointer *)[[[w contentView] subviews]
+        objectAtIndex:0]) pointer];
+    MwLLDispatch(h, focus_in, NULL);
+  }
+  [self->w makeKeyAndOrderFront:nil];
 }
 
 - (void)windowDidResize:(NSNotification *)notification {
