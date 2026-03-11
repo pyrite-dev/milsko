@@ -60,6 +60,22 @@ static NSPoint pointFlip(NSPoint point) {
 }
 - (void)updateWithData:(unsigned char *)_data {
   memcpy(self->buf, _data, width * height * 4);
+  if (self->rep) {
+    [self->image removeRepresentation:self->rep];
+    [self->rep release];
+  }
+  self->rep =
+      [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&self->buf
+                                              pixelsWide:(int)width
+                                              pixelsHigh:(int)height
+                                           bitsPerSample:8
+                                         samplesPerPixel:4
+                                                hasAlpha:YES
+                                                isPlanar:NO
+                                          colorSpaceName:NSDeviceRGBColorSpace
+                                             bytesPerRow:(int)width * 4
+                                            bitsPerPixel:32];
+  [self->image addRepresentation:self->rep];
 }
 - (void)destroy {
   free(self->buf);
