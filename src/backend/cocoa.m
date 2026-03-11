@@ -188,27 +188,6 @@ static NSPoint pointFlip(NSPoint point) {
 
   return c;
 }
-+ (void)eventCanceller:(MilskoCocoa *)this {
-  this->lastEvent = [this->application currentEvent];
-  [this eventProcess:this->lastEvent];
-
-  if (this->_forceRender) {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
-                                        location:NSMakePoint(0, 0)
-                                   modifierFlags:0
-                                       timestamp:0
-                                    windowNumber:0
-                                         context:nil
-                                         subtype:0
-                                           data1:0
-                                           data2:0];
-    [NSApp postEvent:event atStart:YES];
-    [pool release];
-  }
-
-  [[NSApplication sharedApplication] stop:nil];
-}
 
 - (void)polygonWithPoints:(MwPoint *)points
              points_count:(int)points_count
@@ -329,7 +308,34 @@ static NSPoint pointFlip(NSPoint point) {
   return 1;
 };
 
++ (void)eventCanceller:(MilskoCocoa *)this {
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
+                                      location:NSMakePoint(0, 0)
+                                 modifierFlags:0
+                                     timestamp:0
+                                  windowNumber:0
+                                       context:nil
+                                       subtype:0
+                                         data1:0
+                                         data2:0];
+
+  this->lastEvent = [this->window currentEvent];
+  [this eventProcess:this->lastEvent];
+
+  [NSApp postEvent:event atStart:YES];
+  [pool release];
+
+  [[NSApplication sharedApplication] stop:nil];
+  usleep(1000);
+}
+
 - (void)getNextEvent {
+  if (_forceRender) {
+    MwLL h = [self->handle pointer];
+    MwLLDispatch(h, draw, NULL);
+    _forceRender = MwFALSE;
+  }
   [self sendClipboardEvent];
 
   if (self->pointerLocked && [self->window isMainWindow] && self->lastEvent) {
@@ -401,10 +407,15 @@ static NSPoint pointFlip(NSPoint point) {
   case NSScrollWheel:
     break;
   default:
+    /* mute bizarre "unknown subtype" errors that flood the console */
+    if (ev.subtype > 8) {
+      doSendEvent = false;
+    }
     break;
   };
-  [win sendEvent:ev];
-
+  if (doSendEvent) {
+    [win sendEvent:ev];
+  }
   [pool release];
 }
 
@@ -909,7 +920,7 @@ static NSPoint pointFlip(NSPoint point) {
 }
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
   [self->appl activateIgnoringOtherApps:true];
-  printf("test\n");
+  // printf("test\n");
 }
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
   // printf("test\n");
@@ -1069,14 +1080,7 @@ static void MwLLSetWHImpl(MwLL handle, int w, int height) {
 
 static void MwLLFreeColorImpl(MwLLColor color) { free(color); }
 
-static int MwLLPendingImpl(MwLL handle) {
-  MilskoCocoa *h = handle->cocoa.real;
-  if ([h pending]) {
-    MwLLDispatch(handle, draw, NULL);
-    return 1;
-  };
-  return 0;
-}
+static int MwLLPendingImpl(MwLL handle) { return [handle->cocoa.real pending]; }
 
 static void MwLLNextEventImpl(MwLL handle) {
   MilskoCocoa *h = handle->cocoa.real;
