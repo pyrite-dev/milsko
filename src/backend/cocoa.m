@@ -141,7 +141,7 @@ static NSPoint pointFlip(NSPoint point) {
   [c->window makeKeyAndOrderFront:c->application];
   [c->window retain];
 
-  if (parent != NULL) {
+  if (parent) {
     MilskoCocoa *p = parent->cocoa.real;
     double offset = 0;
     offset = [p->window frameRectForContentRect:[p->window frame]].size.height -
@@ -149,10 +149,6 @@ static NSPoint pointFlip(NSPoint point) {
     [p->window addChildWindow:c->window ordered:NSWindowAbove];
     [c->window setHasShadow:MwFALSE];
     [c->window setParentWindow:p->window];
-
-    c->rect.origin.x += [p->window frame].origin.x;
-    c->rect.origin.y -= [p->window frame].origin.y - offset;
-    c->rect.origin.y -= offset;
   } else {
     if ([c->application respondsToSelector:@selector(setActivationPolicy:)]) {
       [c->application
