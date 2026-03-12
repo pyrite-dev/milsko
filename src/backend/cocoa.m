@@ -372,15 +372,6 @@ static NSPoint pointFlip(NSPoint point) {
   }
 
   switch ([ev type]) {
-  case NSLeftMouseDown:
-  case NSRightMouseDown:
-  case NSOtherMouseDown:
-  case NSLeftMouseUp:
-  case NSRightMouseUp:
-  case NSOtherMouseUp: {
-    [self handleMouseEvent:ev ll:h];
-    break;
-  }
   case NSLeftMouseDragged:
   case NSRightMouseDragged:
   case NSOtherMouseDragged:
@@ -390,8 +381,18 @@ static NSPoint pointFlip(NSPoint point) {
     pos.x = pos_translated.x;
     pos.y = pos_translated.y;
     MwLLDispatch(h, move, &pos);
+    // break;
+  }
+  case NSLeftMouseDown:
+  case NSRightMouseDown:
+  case NSOtherMouseDown:
+  case NSLeftMouseUp:
+  case NSRightMouseUp:
+  case NSOtherMouseUp: {
+    [self handleMouseEvent:ev ll:h];
     break;
   }
+
   case NSMouseEntered:
     MwLLDispatch(h, focus_in, NULL);
     [self->cursor push];
@@ -412,9 +413,6 @@ static NSPoint pointFlip(NSPoint point) {
     break;
   default:
     /* mute bizarre "unknown subtype" errors that flood the console */
-    if (ev.subtype > 8) {
-      doSendEvent = false;
-    }
     break;
   };
   if (doSendEvent) {
@@ -426,22 +424,27 @@ static NSPoint pointFlip(NSPoint point) {
 - (void)handleMouseEvent:(NSEvent *)ev ll:(MwLL)ll {
   MwLLMouse mouse;
   MwBool isDown = MwTRUE;
-  NSPoint mousePoint = pointFlip([ev locationInWindow]);
+  NSPoint mousePoint = [ev locationInWindow];
+  mousePoint.y = [[ev window] frame].size.height - mousePoint.y;
   MwLL this = [self->handle pointer];
+
   switch ([ev type]) {
   case NSLeftMouseUp:
     isDown = MwFALSE;
+  case NSEventTypeLeftMouseDragged:
   case NSLeftMouseDown:
     mouse.button = MwLLMouseLeft;
     break;
   case NSRightMouseUp:
     isDown = MwFALSE;
   case NSRightMouseDown:
+  case NSEventTypeRightMouseDragged:
     mouse.button = MwLLMouseRight;
     break;
   case NSOtherMouseUp:
     isDown = MwFALSE;
   case NSOtherMouseDown:
+  case NSEventTypeOtherMouseDragged:
     mouse.button = MwLLMouseMiddle;
     break;
   default:
