@@ -2,8 +2,14 @@ pipeline {
 	agent {
 		label "built-in"
 	}
+	options {
+		buildDiscarder(logRotator(numToKeepStr: '16', artifactNumToKeepStr: '16'))
+	}
 	stages {
 		stage("Build document") {
+			when {
+				branch "master"
+			}
 			steps {
 				sh("doxygen")
 				sh("rm -rf /var/www/milsko-doxygen")
