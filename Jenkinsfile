@@ -1,5 +1,3 @@
-discardBuilds()
-
 pipeline {
 	agent {
 		label "built-in"
