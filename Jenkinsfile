@@ -4,6 +4,9 @@ pipeline {
 	}
 	stages {
 		stage("Build document") {
+			when {
+				branch "master"
+			}
 			steps {
 				sh("doxygen")
 				sh("rm -rf /var/www/milsko-doxygen")
