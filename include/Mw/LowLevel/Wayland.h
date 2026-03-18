@@ -178,7 +178,9 @@ struct _MwLLWayland {
 
 	MwBool configured; /* Whether or not xdg_toplevel_configure has run once */
 
-	MwU32	x, y, ww, wh;  /* Window position */
+	MwI32	x, y;
+	MwI32	ox, oy;
+	MwU32	ww, wh;	       /* Window position */
 	MwPoint cur_mouse_pos; /* Currently known mouse position */
 
 	MwU32 mw, mh; /* Monitor width and height as advertised by wl_output.mode */

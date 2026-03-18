@@ -7,6 +7,7 @@
 #include "../../external/stb_ds.h"
 #include "Mw/BaseTypes.h"
 #include "Mw/LowLevel.h"
+#include "Mw/LowLevel/Wayland/xdg-shell-client-protocol.h"
 
 #include <sys/mman.h>
 #include <wayland-util.h>
@@ -405,12 +406,16 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 	WAYLAND_EVENT_OP_START(self);
 
-	self->wayland.cur_mouse_pos.x = wl_fixed_to_double(surface_x);
-	self->wayland.cur_mouse_pos.y = wl_fixed_to_double(surface_y);
-
-	p.point = self->wayland.cur_mouse_pos;
+	self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
+	self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
+	p.point			      = self->wayland.cur_mouse_pos;
 	MwLLDispatch(self, move, &p);
 
+	if(self->wayland.parent != NULL) {
+		if(!self->wayland.parent->wayland.currentlyHeldWidget) {
+			MwLLDispatch(self, down, &p);
+		}
+	}
 	/* Only draw once every 50 milliseconds */
 	if((self->wayland.last_time + 50) <= time) {
 		MwLLDispatch(self, draw, NULL);
@@ -429,14 +434,16 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	MwLL	  self = data;
 	MwLLMouse p;
 
+	int x = self->wayland.x;
+	int y = self->wayland.y;
+
 	WAYLAND_EVENT_OP_START(self);
 
 	p.point = self->wayland.cur_mouse_pos;
-	if(p.point.x > self->wayland.x && p.point.x < self->wayland.x + self->wayland.ww && p.point.y > self->wayland.y && p.point.y < self->wayland.y + self->wayland.wh) {
+
+	if(p.point.x > x && p.point.x < x + self->wayland.ww && p.point.y > y && p.point.y < y + self->wayland.wh) {
 		int i;
 
-		p.point.x -= self->wayland.x;
-		p.point.y -= self->wayland.y;
 		switch(button) {
 		case BTN_LEFT:
 			p.button = MwLLMouseLeft;
@@ -1006,13 +1013,18 @@ static void region_invalidate(MwLL handle) {
 	if(!handle->wayland.configured) {
 		return;
 	}
-	wl_region_subtract(handle->wayland.region, handle->wayland.x, handle->wayland.y, handle->wayland.ww, handle->wayland.wh);
+	wl_region_subtract(handle->wayland.region, 0, 0, handle->wayland.ww, handle->wayland.wh);
 }
 static void region_setup(MwLL handle) {
 	if(!handle->wayland.configured) {
 		return;
 	}
-	wl_region_add(handle->wayland.region, handle->wayland.x, handle->wayland.y, handle->wayland.ww, handle->wayland.wh);
+
+	if(handle->wayland.type == MWLL_WAYLAND_POPUP) {
+		wl_region_add(handle->wayland.region, 0, 0, handle->wayland.ww + abs(handle->wayland.x), handle->wayland.wh + abs(handle->wayland.y));
+	} else {
+		wl_region_add(handle->wayland.region, handle->wayland.x, handle->wayland.y, handle->wayland.ww + abs(handle->wayland.x), handle->wayland.wh + abs(handle->wayland.y));
+	}
 	wl_surface_set_input_region(handle->wayland.framebuffer.surface, handle->wayland.region);
 	wl_surface_set_opaque_region(handle->wayland.framebuffer.surface, handle->wayland.region);
 }
@@ -1116,6 +1128,8 @@ static void setup_toplevel(MwLL r, int x, int y) {
 
 	r->wayland.type	    = MWLL_WAYLAND_TOPLEVEL;
 	r->wayland.toplevel = malloc(sizeof(struct _MwLLWaylandTopLevel));
+	r->wayland.x	    = x;
+	r->wayland.y	    = y;
 
 	setup_callbacks(&r->wayland);
 
@@ -1251,9 +1265,9 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 
 /* Sublevel setup function */
 static void destroy_sublevel(MwLL r) {
-	wl_subsurface_destroy(r->wayland.sublevel->subsurface);
+	framebuffer_destroy(&r->wayland);
 
-	wl_surface_destroy(r->wayland.framebuffer.surface);
+	wl_subsurface_destroy(r->wayland.sublevel->subsurface);
 
 	free(r->wayland.sublevel);
 }
@@ -1315,10 +1329,11 @@ static void setup_popup(MwLL r, int x, int y) {
 	r->wayland.popup->xdg_positioner = xdg_wm_base_create_positioner(r->wayland.popup->xdg_wm_base);
 
 	xdg_positioner_set_size(r->wayland.popup->xdg_positioner, r->wayland.ww, r->wayland.wh);
-	xdg_positioner_set_anchor(r->wayland.popup->xdg_positioner, XDG_POSITIONER_ANCHOR_NONE);
 	xdg_positioner_set_anchor_rect(
-	    r->wayland.popup->xdg_positioner, 0, 0, 1, 1);
-	xdg_positioner_set_offset(r->wayland.popup->xdg_positioner, x, y);
+	    r->wayland.popup->xdg_positioner,
+	    x, y, r->wayland.ww, r->wayland.wh);
+	xdg_positioner_set_anchor(r->wayland.popup->xdg_positioner, XDG_POSITIONER_ANCHOR_TOP_LEFT);
+	xdg_positioner_set_gravity(r->wayland.popup->xdg_positioner, XDG_POSITIONER_ANCHOR_BOTTOM_RIGHT);
 
 	xdg_surface = topmost_parent->wayland.toplevel->xdg_surface;
 
@@ -1341,6 +1356,9 @@ static void setup_popup(MwLL r, int x, int y) {
 	/* Perform the initial commit and wait for the first configure event */
 	wl_surface_commit(r->wayland.framebuffer.surface);
 	event_loop(r);
+
+	// framebuffer_destroy(&r->wayland);
+	framebuffer_setup(&r->wayland);
 }
 
 /* Popup destroy function */
@@ -1431,7 +1449,7 @@ static void MwLLDestroyImpl(MwLL handle) {
 	pthread_mutex_unlock(&handle->wayland.eventsMutex);
 	pthread_mutex_destroy(&handle->wayland.eventsMutex);
 
-	framebuffer_destroy(&handle->wayland);
+	// framebuffer_destroy(&handle->wayland);
 	buffer_destroy(&handle->wayland.cursor);
 	wl_region_destroy(handle->wayland.region);
 
@@ -1482,8 +1500,6 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 		wl_subsurface_set_position(handle->wayland.sublevel->subsurface, x, y);
 	}
 	if(handle->wayland.type == MWLL_WAYLAND_POPUP) {
-		destroy_popup(handle);
-		setup_popup(handle, x, y);
 	}
 	region_setup(handle);
 
@@ -1505,6 +1521,11 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL && handle->wayland.configured) {
 		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+	}
+
+	if(handle->wayland.type == MWLL_WAYLAND_POPUP) {
+		destroy_popup(handle);
+		setup_popup(handle, handle->wayland.x, handle->wayland.y);
 	}
 
 refresh:
@@ -1594,12 +1615,12 @@ static int MwLLPendingImpl(MwLL handle) {
 		event_loop(handle);
 		return 0;
 	}
-	// if(handle->wayland.force_render) {
-	// 	// event_loop(handle);
-	// 	// handle->wayland.force_render = 0;
-	// 	// update_buffer(&handle->wayland.framebuffer);
-	// 	return 1;
-	// }
+	if(handle->wayland.force_render) {
+		// event_loop(handle);
+		// handle->wayland.force_render = 0;
+		// update_buffer(&handle->wayland.framebuffer);
+		return 1;
+	}
 	if(handle->wayland.events_pending || handle->wayland.force_render) {
 		handle->wayland.did_event_loop_early = MwTRUE;
 		return event_loop(handle);
@@ -1812,7 +1833,7 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	switch(handle->wayland.type_to_be) {
 	case MWLL_WAYLAND_POPUP:
 		setup_popup(handle, point->x, point->y);
-		return;
+		break;
 	default:
 		setup_toplevel(handle, point->x, point->y);
 		break;
@@ -1842,9 +1863,6 @@ static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
 
 			zxdg_toplevel_decoration_v1_set_mode(
 			    dec->decoration, ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE);
-		} else {
-			/* TODO: hide our custom window decorations when we have them. */
-			printf("zxdg null\n");
 		}
 	}
 }
