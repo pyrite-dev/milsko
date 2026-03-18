@@ -5,6 +5,8 @@
 #include <wayland-client-protocol.h>
 
 #include "../../external/stb_ds.h"
+#include "Mw/BaseTypes.h"
+#include "Mw/LowLevel.h"
 
 #include <sys/mman.h>
 #include <wayland-util.h>
@@ -432,6 +434,9 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	p.point = self->wayland.cur_mouse_pos;
 	if(p.point.x > self->wayland.x && p.point.x < self->wayland.x + self->wayland.ww && p.point.y > self->wayland.y && p.point.y < self->wayland.y + self->wayland.wh) {
 		int i;
+
+		p.point.x -= self->wayland.x;
+		p.point.y -= self->wayland.y;
 		switch(button) {
 		case BTN_LEFT:
 			p.button = MwLLMouseLeft;
@@ -1038,12 +1043,6 @@ static int event_loop(MwLL handle) {
 	fd.fd	  = wl_display_get_fd(wayland->display);
 	fd.events = POLLIN;
 
-	while(wl_display_prepare_read(handle->wayland.display) != 0) {
-		if(wl_display_dispatch_pending(handle->wayland.display) > 0) {
-			return 0;
-		}
-	}
-
 	/* If an error other than EAGAIN happens, we have likely been disconnected from the Wayland session */
 	while(wl_display_flush(wayland->display) == -1) {
 		if(errno != EAGAIN) {
@@ -1060,19 +1059,17 @@ static int event_loop(MwLL handle) {
 		}
 	}
 
+	wl_display_prepare_read(handle->wayland.display);
 	/* Condition where no events are being sent. */
 	if(!poll(&fd, 1, timeout)) {
-		wl_display_cancel_read(handle->wayland.display);
+		wl_display_cancel_read(wayland->display);
 		/* In this case, we need to commit the surface for any animations, etc. */
-		wl_surface_commit(handle->wayland.framebuffer.surface);
+		wl_surface_commit(wayland->framebuffer.surface);
 		return 0;
 	}
 
-	if(fd.revents & POLLIN) {
-		wl_display_read_events(wayland->display);
-		if(wl_display_dispatch_pending(wayland->display) > 0) {
-		}
-	} else {
+	wl_display_read_events(wayland->display);
+	if(wl_display_dispatch_pending(wayland->display) < 0) {
 		wl_display_cancel_read(handle->wayland.display);
 	}
 
@@ -1588,32 +1585,42 @@ static int MwLLPendingImpl(MwLL handle) {
 	MwBool		pending = MwFALSE;
 	struct timespec timeout;
 	int		i;
+	timeout.tv_nsec = 1;
+	timeout.tv_sec	= 0;
+
+	pending = wl_display_dispatch_timeout(handle->wayland.display, &timeout);
 
 	if(handle->wayland.always_render) {
+		event_loop(handle);
+		return 0;
+	}
+	// if(handle->wayland.force_render) {
+	// 	// event_loop(handle);
+	// 	// handle->wayland.force_render = 0;
+	// 	// update_buffer(&handle->wayland.framebuffer);
+	// 	return 1;
+	// }
+	if(handle->wayland.events_pending || handle->wayland.force_render) {
+		handle->wayland.did_event_loop_early = MwTRUE;
 		return event_loop(handle);
 	}
 
-	timeout.tv_nsec = 10;
-	timeout.tv_sec	= 0;
-
-	if(handle->wayland.force_render) {
-		return 1;
-	}
-	if(handle->wayland.events_pending) {
-		return 1;
-	}
-
-	return wl_display_dispatch_timeout(handle->wayland.display, &timeout);
+	return pending;
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
 	if(!handle->wayland.always_render) {
-		event_loop(handle);
+		if(handle->wayland.did_event_loop_early) {
+			handle->wayland.did_event_loop_early = MwFALSE;
+		} else {
+			event_loop(handle);
+		}
 	}
 	if(handle->wayland.events_pending) {
 		handle->wayland.events_pending = 0;
 	}
 	if(handle->wayland.force_render) {
+		update_buffer(&handle->wayland.framebuffer);
 		handle->wayland.force_render = 0;
 	}
 }
@@ -1683,6 +1690,10 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 	cairo_destroy(c);
 	cairo_surface_destroy(cs);
+
+	MwLLForceRender(handle);
+	// update_buffer(&handle->wayland.framebuffer);
+	// wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 }
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {

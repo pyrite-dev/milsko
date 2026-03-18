@@ -186,6 +186,7 @@ struct _MwLLWayland {
 	MwLL parent;
 
 	MwBool force_render;
+	MwBool did_event_loop_early;
 
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  cursor;

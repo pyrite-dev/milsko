@@ -3,7 +3,7 @@
 MwWidget window, instructions, text;
 
 void resize(MwWidget handle, void* user_data, void* call_data) {
-	unsigned int w, h, mh;
+	unsigned int w, h;
 
 	(void)user_data;
 	(void)call_data;
@@ -12,13 +12,13 @@ void resize(MwWidget handle, void* user_data, void* call_data) {
 	h = MwGetInteger(handle, MwNheight);
 
 	MwVaApply(instructions,
-		  MwNy, 50 + mh,
+		  MwNy, 50,
 		  MwNwidth, w - 50 * 2,
 		  MwNheight, h - 125 - 50 * 3,
 		  NULL);
 
 	MwVaApply(text,
-		  MwNy, 200 + mh,
+		  MwNy, 200,
 		  MwNwidth, w - 50 * 2,
 		  MwNheight, h - 125 - 50 * 3,
 		  NULL);
@@ -30,7 +30,7 @@ void clipboard(MwWidget handle, void* user_data, void* call_data) {
 	(void)user_data;
 
 	if(clipboard != NULL) {
-		MwVaApply(text, MwNtext, clipboard);
+		MwVaApply(text, MwNtext, clipboard, NULL);
 		MwForceRender(text);
 	}
 	MwForceRender(window);
