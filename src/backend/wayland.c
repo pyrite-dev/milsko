@@ -1046,8 +1046,12 @@ static void xdg_toplevel_icon_manager_v1_interface_destroy(struct _MwLLWayland* 
 /* Standard Wayland event loop. */
 static int event_loop(MwLL handle) {
 	struct pollfd	     fd;
-	int		     timeout = 1;
+	struct timespec	     timeout;
 	struct _MwLLWayland* wayland = &handle->wayland;
+	int		     res;
+
+	timeout.tv_nsec = 1;
+	timeout.tv_sec	= 0;
 
 	if(wayland->display == NULL) {
 		return 0;
@@ -1072,19 +1076,15 @@ static int event_loop(MwLL handle) {
 	}
 
 	wl_display_prepare_read(handle->wayland.display);
-	/* Condition where no events are being sent. */
-	if(!poll(&fd, 1, timeout)) {
-		wl_display_cancel_read(wayland->display);
-		/* In this case, we need to commit the surface for any animations, etc. */
+	wl_display_read_events(wayland->display);
+	if((res = wl_display_dispatch_timeout(wayland->display, &timeout)) <= 0) {
+		if(res < 0) {
+			wl_display_cancel_read(handle->wayland.display);
+		}
+
 		wl_surface_commit(wayland->framebuffer.surface);
 		return 0;
 	}
-
-	wl_display_read_events(wayland->display);
-	if(wl_display_dispatch_pending(wayland->display) < 0) {
-		wl_display_cancel_read(handle->wayland.display);
-	}
-
 	return 1;
 }
 
@@ -1605,20 +1605,17 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 static int MwLLPendingImpl(MwLL handle) {
 	MwBool		pending = MwFALSE;
 	struct timespec timeout;
-	int		i;
 	timeout.tv_nsec = 1;
 	timeout.tv_sec	= 0;
+	int i;
 
 	pending = wl_display_dispatch_timeout(handle->wayland.display, &timeout);
 
 	if(handle->wayland.always_render) {
 		event_loop(handle);
 		return 0;
-	}
-	if(handle->wayland.force_render) {
+	} else if(handle->wayland.force_render) {
 		MwLLDispatch(handle, draw, NULL);
-		// handle->wayland.force_render = 0;
-		// update_buffer(&handle->wayland.framebuffer);
 		return 1;
 	}
 	if(handle->wayland.events_pending || handle->wayland.force_render) {
