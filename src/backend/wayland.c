@@ -1616,7 +1616,7 @@ static int MwLLPendingImpl(MwLL handle) {
 		return 0;
 	}
 	if(handle->wayland.force_render) {
-		// event_loop(handle);
+		MwLLDispatch(handle, draw, NULL);
 		// handle->wayland.force_render = 0;
 		// update_buffer(&handle->wayland.framebuffer);
 		return 1;
