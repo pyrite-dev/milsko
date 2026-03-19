@@ -430,10 +430,6 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 
 	p.point = self->wayland.cur_mouse_pos;
 
-	if(self->wayland.parent == NULL) {
-		return;
-	}
-
 	if(self->wayland.framebuffer.surface == self->wayland.curSurface) {
 		int i;
 
@@ -878,7 +874,7 @@ static void xdg_toplevel_configure(void*		data,
 	region_setup(self);
 
 	MwLLDispatch(self, resize, NULL);
-	MwLLDispatch(self, draw, NULL);
+	// MwLLDispatch(self, draw, NULL);
 
 	MwLLForceRender(self);
 
@@ -1407,7 +1403,7 @@ static void MwLLDestroyImpl(MwLL handle) {
 	struct timeval	tv;
 	struct timespec t = {
 	    .tv_sec  = 0,
-	    .tv_nsec = 100,
+	    .tv_nsec = 0,
 	};
 	int select_ret;
 
