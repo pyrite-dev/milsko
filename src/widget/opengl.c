@@ -364,14 +364,12 @@ static void mwOpenGLSwapBufferImpl(MwWidget handle) {
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
 		waylandopengl_t* o = handle->internal;
-		// eglSwapInterval(o->egl_display, 0);
 		if(!eglSwapBuffers(o->egl_display, o->egl_surface)) {
 			printf("ERROR: eglSwapBuffers, %0X\n", eglGetError());
 		};
 		wl_egl_window_resize((struct wl_egl_window*)o->egl_window_native,
 				     handle->lowlevel->wayland.ww,
 				     handle->lowlevel->wayland.wh, 0, 0);
-		// MwLLForceRender(handle->lowlevel);
 	}
 #endif
 }

@@ -24,10 +24,10 @@ static NSPoint pointFlip(NSPoint point) {
 static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 	float  viewHeight	= [view bounds].size.height;
 	NSRect destinationFrame = NSMakeRect(
-	originFrame.origin.x,
-					     [view bounds].size.height - (originFrame.origin.y + originFrame.size.height),
-					     originFrame.size.width,
-					     originFrame.size.height);
+	    originFrame.origin.x,
+	    [view bounds].size.height - (originFrame.origin.y + originFrame.size.height),
+	    originFrame.size.width,
+	    originFrame.size.height);
 	return destinationFrame;
 }
 
@@ -151,8 +151,8 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 
 		if(parent) {
 			MilskoCocoa* topmost = p;
-			NSRect rect = localRectFlip(c->rect, p->view);
-			printf("%0.2f %0.2f %0.2f %0.2f\n",c->rect.origin.x, c->rect.origin.y, c->rect.size.width, c->rect.size.height);
+			NSRect	     rect    = localRectFlip(c->rect, p->view);
+			printf("%0.2f %0.2f %0.2f %0.2f\n", c->rect.origin.x, c->rect.origin.y, c->rect.size.width, c->rect.size.height);
 			c->view = [[MilskoCocoaView alloc] initWithFrame:rect];
 			[c->view setBounds:c->rect];
 		} else {
@@ -180,7 +180,6 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 	[c->application finishLaunching];
 
 	c->pointerLocked = MwFALSE;
-
 
 	return c;
 }
@@ -279,7 +278,7 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 	}
 };
 - (int)pending {
-	NSAutoreleasePool* pool	     = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	[NSApp runModalSession:self->modalSession];
 	[pool release];
 	return 1;
@@ -326,7 +325,6 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 		h = [((MilskoFakePointer*)[[[win contentView] subviews]
 		    objectAtIndex:0]) pointer];
 	}
-
 
 	switch([ev type]) {
 	case NSLeftMouseDragged:
@@ -808,7 +806,7 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 - (void)drawRect:(NSRect)dirtyRect {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	NSSize		   sz	= [self->rep size];
-	MwLL ll = [((MilskoFakePointer *)[[[[self window] contentView] subviews]
+	MwLL		   ll	= [((MilskoFakePointer*)[[[[self window] contentView] subviews]
 	    objectAtIndex:0]) pointer];
 
 	[super drawRect:dirtyRect];
@@ -1001,14 +999,6 @@ static void MwLLDestroyImpl(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
 	free(handle);
-}
-
-static void MwLLBeginDrawImpl(MwLL handle) {
-	(void)handle;
-}
-
-static void MwLLEndDrawImpl(MwLL handle) {
-	(void)handle;
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count,

@@ -5,16 +5,12 @@
 #include <wayland-client-protocol.h>
 
 #include "../../external/stb_ds.h"
-#include "Mw/BaseTypes.h"
-#include "Mw/LowLevel.h"
-#include "Mw/LowLevel/Wayland/xdg-shell-client-protocol.h"
 
 #include <sys/mman.h>
 #include <wayland-util.h>
 #include <xkbcommon/xkbcommon.h>
 
 /* TODO:
- * - MwLLGrabPointerImpl
  * - MwLLMakePopupImpl
  * - MwLLShowImpl
  */
@@ -250,8 +246,6 @@ static void wl_data_source_listener_send(void*			data,
 	if(self->wayland.clipboard_buffer != NULL) {
 		write(fd, self->wayland.clipboard_buffer, strlen(self->wayland.clipboard_buffer));
 		close(fd);
-
-		self->wayland.events_pending = 1;
 	}
 	WAYLAND_EVENT_OP_END(self);
 };
@@ -296,8 +290,6 @@ static void zwp_primary_selection_source_v1_send(void*					 data,
 	if(self->wayland.clipboard_buffer != NULL) {
 		write(fd, self->wayland.clipboard_buffer, strlen(self->wayland.clipboard_buffer));
 		close(fd);
-
-		self->wayland.events_pending = 1;
 	}
 
 	WAYLAND_EVENT_OP_END(self);
@@ -422,11 +414,7 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 		self->wayland.last_time = time;
 	}
 
-	self->wayland.events_pending += 1;
-
 	WAYLAND_EVENT_OP_END(self);
-
-	/*timed_redraw(self, time, 50, &self->wayland.cooldown_timer);*/
 };
 
 /* `wl_pointer.button` callback */
@@ -481,7 +469,6 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 
 	if(!self->wayland.always_render) {
 		MwLLDispatch(self, draw, NULL);
-		self->wayland.events_pending += 1;
 	}
 
 	WAYLAND_EVENT_OP_END(self);
@@ -540,7 +527,6 @@ static void keyboard_enter(void*	       data,
 	self->wayland.keyboard_serial = serial;
 
 	MwLLDispatch(self, focus_in, NULL);
-	self->wayland.events_pending += 1;
 
 	WAYLAND_EVENT_OP_END(self);
 };
@@ -555,7 +541,6 @@ static void keyboard_leave(void*	       data,
 	WAYLAND_EVENT_OP_START(self);
 
 	MwLLDispatch(self, focus_out, NULL);
-	self->wayland.events_pending += 1;
 
 	WAYLAND_EVENT_OP_END(self);
 };
@@ -659,7 +644,6 @@ static void keyboard_key(void*		     data,
 
 	if(!self->wayland.always_render) {
 		MwLLDispatch(self, draw, NULL);
-		self->wayland.events_pending += 1;
 	}
 
 	WAYLAND_EVENT_OP_END(self);
@@ -783,7 +767,6 @@ static wayland_protocol_t* wl_seat_setup(MwU32 name, MwLL ll) {
 
 static void wl_seat_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	free(data->listener);
-	// wl_seat_destroy(data->context);
 }
 
 /* wl_output setup function */
@@ -832,7 +815,6 @@ static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wa
 }
 
 static void xdg_wm_base_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	// xdg_wm_base_destroy(data->context);
 	free(data->listener);
 }
 
@@ -857,10 +839,6 @@ static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _
 }
 
 static void zxdg_decoration_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	zxdg_decoration_manager_v1_context_t* context = data->context;
-
-	// zxdg_decoration_manager_v1_destroy(context->manager);
-	// zxdg_toplevel_decoration_v1_destroy(context->decoration);
 }
 
 /* `xdg_toplevel.close` callback */
@@ -1000,8 +978,6 @@ static void framebuffer_setup(struct _MwLLWayland* wayland) {
 
 	memset(wayland->framebuffer.buf, 255, wayland->framebuffer.buf_size);
 	update_buffer(&wayland->framebuffer);
-
-	wayland->events_pending += 1;
 };
 static void framebuffer_destroy(struct _MwLLWayland* wayland) {
 	buffer_destroy(&wayland->framebuffer);
@@ -1040,7 +1016,6 @@ static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct
 
 static void xdg_toplevel_icon_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	free(data->listener);
-	// xdg_toplevel_icon_manager_v1_destroy(data->context);
 }
 
 /* Standard Wayland event loop. */
@@ -1504,7 +1479,6 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	region_setup(handle);
 
 	MwLLDispatch(handle, draw, NULL);
-	handle->wayland.events_pending += 1;
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
@@ -1551,7 +1525,7 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 	cairo_close_path(handle->wayland.cairo);
 	cairo_fill(handle->wayland.cairo);
 
-	handle->wayland.events_pending += 1;
+	handle->wayland.events_pending = 1;
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
@@ -1570,16 +1544,7 @@ static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	cairo_close_path(handle->wayland.cairo);
 	cairo_stroke(handle->wayland.cairo);
 
-	handle->wayland.events_pending += 1;
-}
-
-static void MwLLBeginDrawImpl(MwLL handle) {
-}
-
-static void MwLLEndDrawImpl(MwLL handle) {
-	update_buffer(&handle->wayland.framebuffer);
-
-	handle->wayland.events_pending += 1;
+	handle->wayland.events_pending = 1;
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
@@ -1756,12 +1721,6 @@ static void MwLLForceRenderImpl(MwLL handle) {
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 
 	handle->wayland.force_render = MwTRUE;
-
-	/*
-	if(handle->wayland.egl_setup) {
-		timed_redraw_by_epoch(handle, 25);
-	}
-	*/
 }
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
