@@ -39,8 +39,6 @@ struct _MwLLCommon {
 	int   type;
 	int   coordinate_type;
 
-	MwBool place_above;
-
 	MwLLHandler handler;
 };
 
