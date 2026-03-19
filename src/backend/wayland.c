@@ -993,12 +993,14 @@ static void region_invalidate(MwLL handle) {
 	wl_region_subtract(handle->wayland.region, 0, 0, handle->wayland.ww, handle->wayland.wh);
 }
 static void region_setup(MwLL handle) {
-	if(!handle->wayland.configured) {
-		return;
-	}
 	MwLL parent = handle->wayland.parent;
 	int  width  = handle->wayland.ww;
 	int  height = handle->wayland.wh;
+
+	if(!handle->wayland.configured) {
+		return;
+	}
+
 	wl_region_add(handle->wayland.o_region, 0, 0, 1, 1);
 	wl_surface_set_opaque_region(handle->wayland.framebuffer.surface, handle->wayland.o_region);
 
