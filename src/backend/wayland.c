@@ -377,6 +377,7 @@ static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 	MwLL self = data;
 
 	WAYLAND_EVENT_OP_START(self);
+	self->wayland.curSurface = surface;
 
 	self->wayland.pointer_serial = serial;
 
@@ -429,7 +430,11 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 
 	p.point = self->wayland.cur_mouse_pos;
 
-	if(p.point.x > x && p.point.x < x + self->wayland.ww && p.point.y > y && p.point.y < y + self->wayland.wh) {
+	if(self->wayland.parent == NULL) {
+		return;
+	}
+
+	if(self->wayland.framebuffer.surface == self->wayland.curSurface) {
 		int i;
 
 		switch(button) {
@@ -999,7 +1004,7 @@ static void region_setup(MwLL handle) {
 	if(handle->wayland.type == MWLL_WAYLAND_POPUP) {
 		wl_region_add(handle->wayland.region, 0, 0, handle->wayland.ww + abs(handle->wayland.x), handle->wayland.wh + abs(handle->wayland.y));
 	} else {
-		wl_region_add(handle->wayland.region, handle->wayland.x, handle->wayland.y, handle->wayland.ww + abs(handle->wayland.x), handle->wayland.wh + abs(handle->wayland.y));
+		wl_region_add(handle->wayland.region, 0, 0, handle->wayland.ww, handle->wayland.wh);
 	}
 	wl_surface_set_input_region(handle->wayland.framebuffer.surface, handle->wayland.region);
 	wl_surface_set_opaque_region(handle->wayland.framebuffer.surface, handle->wayland.region);
@@ -1233,6 +1238,7 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 
 	r->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(r->wayland.sublevel->subcompositor, r->wayland.framebuffer.surface, parent_surface);
 
+	wl_subsurface_set_desync(r->wayland.sublevel->subsurface);
 	wl_subsurface_set_position(r->wayland.sublevel->subsurface, x, y);
 
 	r->wayland.configured = MwTRUE;

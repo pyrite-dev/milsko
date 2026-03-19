@@ -204,6 +204,8 @@ struct _MwLLWayland {
 
 	MwLL currentlyHeldWidget;
 
+	struct wl_surface* curSurface;
+
 	cairo_surface_t* cs;
 	cairo_t*	 cairo;
 };
