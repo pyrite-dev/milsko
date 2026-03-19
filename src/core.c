@@ -46,6 +46,7 @@ static void llresizehandler(MwLL handle, void* data) {
 	MwDispatchUserHandler(h, MwNresizeHandler, NULL);
 	for(i = 0; i < arrlen(h->children); i++) {
 		MwDispatch(h->children[i], parent_resize);
+		MwDispatch(h->children[i], draw);
 	}
 	MwDispatch(h, resize);
 }

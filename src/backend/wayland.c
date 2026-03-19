@@ -996,14 +996,26 @@ static void region_setup(MwLL handle) {
 	if(!handle->wayland.configured) {
 		return;
 	}
+	MwLL parent = handle->wayland.parent;
+	int  width  = handle->wayland.ww;
+	int  height = handle->wayland.wh;
+	wl_region_add(handle->wayland.o_region, 0, 0, 1, 1);
+	wl_surface_set_opaque_region(handle->wayland.framebuffer.surface, handle->wayland.o_region);
 
 	if(handle->wayland.type == MWLL_WAYLAND_POPUP) {
-		wl_region_add(handle->wayland.region, 0, 0, handle->wayland.ww + abs(handle->wayland.x), handle->wayland.wh + abs(handle->wayland.y));
+		wl_region_add(handle->wayland.region, 0, 0, width + abs(handle->wayland.x), height + abs(handle->wayland.y));
 	} else {
-		wl_region_add(handle->wayland.region, 0, 0, handle->wayland.ww, handle->wayland.wh);
+		if(parent) {
+			if(width - handle->wayland.x > parent->wayland.ww) {
+				width = parent->wayland.ww - handle->wayland.x;
+			}
+			if(height - handle->wayland.y > parent->wayland.wh) {
+				height = parent->wayland.wh - handle->wayland.y;
+			}
+		}
+		wl_region_add(handle->wayland.region, 0, 0, width, height);
 	}
 	wl_surface_set_input_region(handle->wayland.framebuffer.surface, handle->wayland.region);
-	wl_surface_set_opaque_region(handle->wayland.framebuffer.surface, handle->wayland.region);
 }
 
 static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
@@ -1237,6 +1249,10 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 	wl_subsurface_set_desync(r->wayland.sublevel->subsurface);
 	wl_subsurface_set_position(r->wayland.sublevel->subsurface, x, y);
 
+	if(parent) {
+		wl_subsurface_place_above(r->wayland.sublevel->subsurface, parent->wayland.framebuffer.surface);
+	}
+
 	r->wayland.configured = MwTRUE;
 }
 
@@ -1387,7 +1403,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	framebuffer_setup(&r->wayland);
 
-	r->wayland.region = wl_compositor_create_region(r->wayland.compositor);
+	r->wayland.region   = wl_compositor_create_region(r->wayland.compositor);
+	r->wayland.o_region = wl_compositor_create_region(r->wayland.compositor);
 	region_setup(r);
 
 	MwLLForceRender(r);
@@ -1514,7 +1531,6 @@ refresh:
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
 	int i;
-
 	cairo_set_source_rgb(handle->wayland.cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0);
 	cairo_new_path(handle->wayland.cairo);
 	for(i = 0; i < points_count; i++) {
@@ -1525,6 +1541,7 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 		}
 	}
 	cairo_close_path(handle->wayland.cairo);
+
 	cairo_fill(handle->wayland.cairo);
 
 	handle->wayland.events_pending = 1;
@@ -1660,16 +1677,18 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_t*	 c;
 	cairo_surface_t* cs;
+	MwLL		 parent = handle->wayland.parent;
 
 	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, rect->width, rect->height);
 	c  = cairo_create(cs);
 
 	cairo_scale(c, (double)rect->width / pixmap->common.width, (double)rect->height / pixmap->common.height);
+
 	cairo_set_source_surface(c, pixmap->wayland.cs, 0, 0);
 	cairo_pattern_set_filter(cairo_get_source(c), CAIRO_FILTER_NEAREST);
+
 	cairo_paint(c);
 
-	cairo_set_source_rgb(handle->wayland.cairo, 1, 1, 1);
 	cairo_set_source_surface(handle->wayland.cairo, cs, rect->x, rect->y);
 	cairo_paint(handle->wayland.cairo);
 

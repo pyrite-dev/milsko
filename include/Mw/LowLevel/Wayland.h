@@ -147,6 +147,7 @@ struct _MwLLWayland {
 	struct wl_registry*	    registry;
 	struct wl_compositor*	    compositor;
 	struct wl_registry_listener registry_listener;
+	struct wl_region*	    o_region;
 	struct wl_region*	    region;
 	struct wl_output*	    output;
 
