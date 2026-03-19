@@ -190,6 +190,8 @@ MWDECL void (*MwLLDestroy)(MwLL handle);
 
 MWDECL void (*MwLLPolygon)(MwLL handle, MwPoint* points, int points_count, MwLLColor color);
 MWDECL void (*MwLLLine)(MwLL handle, MwPoint* points, MwLLColor color);
+MWDECL void (*MwLLBeginDraw)(MwLL handle);
+MWDECL void (*MwLLEndDraw)(MwLL handle);
 
 MWDECL MwLLColor (*MwLLAllocColor)(MwLL handle, int r, int g, int b);
 MWDECL void (*MwLLColorUpdate)(MwLL handle, MwLLColor c, int r, int g, int b);

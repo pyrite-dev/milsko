@@ -261,8 +261,15 @@ static void MwLLDestroyImpl(MwLL handle) {
 	free(handle);
 }
 
-static void
-MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
+static void MwLLBeginDrawImpl(MwLL handle) {
+	(void)handle;
+}
+
+static void MwLLEndDrawImpl(MwLL handle) {
+	(void)handle;
+}
+
+static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
 	int	i;
 	XPoint* p = malloc(sizeof(*p) * points_count);
 

@@ -6,11 +6,14 @@ static void lldrawhandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->common.user;
 
 	(void)data;
+	MwLLBeginDraw(handle);
 
 	h->bgcolor = NULL;
 	MwDispatch(h, draw);
 	if(h->draw_inject != NULL) h->draw_inject(h);
 	MwDispatchUserHandler(h, MwNdrawHandler, NULL);
+
+	MwLLEndDraw(handle);
 }
 
 static void lluphandler(MwLL handle, void* data) {

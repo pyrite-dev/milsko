@@ -1531,6 +1531,14 @@ refresh:
 	MwLLDispatch(handle, draw, NULL);
 }
 
+static void MwLLBeginDrawImpl(MwLL handle) {
+	(void)handle;
+}
+
+static void MwLLEndDrawImpl(MwLL handle) {
+	update_buffer(&handle->wayland.framebuffer);
+}
+
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
 	int i;
 	cairo_set_source_rgb(handle->wayland.cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0);

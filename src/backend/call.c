@@ -8,8 +8,10 @@
 		MwLLCreate  = MwLLCreateImpl; \
 		MwLLDestroy = MwLLDestroyImpl; \
 \
-		MwLLPolygon = MwLLPolygonImpl; \
-		MwLLLine    = MwLLLineImpl; \
+		MwLLPolygon   = MwLLPolygonImpl; \
+		MwLLLine      = MwLLLineImpl; \
+		MwLLBeginDraw = MwLLBeginDrawImpl; \
+		MwLLEndDraw   = MwLLEndDrawImpl; \
 \
 		MwLLAllocColor	= MwLLAllocColorImpl; \
 		MwLLColorUpdate = MwLLColorUpdateImpl; \

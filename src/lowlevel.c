@@ -6,6 +6,9 @@ void (*MwLLDestroy)(MwLL handle)				     = NULL;
 void (*MwLLPolygon)(MwLL handle, MwPoint* points, int points_count, MwLLColor color) = NULL;
 void (*MwLLLine)(MwLL handle, MwPoint* points, MwLLColor color)			     = NULL;
 
+void (*MwLLBeginDraw)(MwLL handle) = NULL;
+void (*MwLLEndDraw)(MwLL handle)   = NULL;
+
 MwLLColor (*MwLLAllocColor)(MwLL handle, int r, int g, int b)	       = NULL;
 void (*MwLLColorUpdate)(MwLL handle, MwLLColor c, int r, int g, int b) = NULL;
 void (*MwLLFreeColor)(MwLLColor color)				       = NULL;
