@@ -2,9 +2,12 @@
 
 #include <poll.h>
 #include <sched.h>
+#include <signal.h>
+#include <wayland-client-core.h>
 #include <wayland-client-protocol.h>
 
 #include "../../external/stb_ds.h"
+#include "Mw/BaseTypes.h"
 
 #include <sys/mman.h>
 #include <wayland-util.h>
@@ -842,7 +845,7 @@ static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _
 static void zxdg_decoration_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 }
 
-/* `xdg_toplevel.close` callback */
+/* `xdg_toplevel.configure` callback */
 static void xdg_toplevel_configure(void*		data,
 				   struct xdg_toplevel* xdg_toplevel,
 				   MwI32 width, MwI32 height,
@@ -867,6 +870,7 @@ static void xdg_toplevel_configure(void*		data,
 	region_invalidate(self);
 	self->wayland.ww = width;
 	self->wayland.wh = height;
+
 	xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, 0, 0, self->wayland.ww, self->wayland.wh);
 
 	framebuffer_destroy(&self->wayland);
@@ -874,7 +878,7 @@ static void xdg_toplevel_configure(void*		data,
 	region_setup(self);
 
 	MwLLDispatch(self, resize, NULL);
-	// MwLLDispatch(self, draw, NULL);
+	MwLLDispatch(self, draw, NULL);
 
 	MwLLForceRender(self);
 
@@ -978,7 +982,7 @@ static void framebuffer_setup(struct _MwLLWayland* wayland) {
 	wayland->cairo = cairo_create(wayland->cs);
 
 	memset(wayland->framebuffer.buf, 255, wayland->framebuffer.buf_size);
-	update_buffer(&wayland->framebuffer);
+	if(wayland->configured) update_buffer(&wayland->framebuffer);
 };
 static void framebuffer_destroy(struct _MwLLWayland* wayland) {
 	buffer_destroy(&wayland->framebuffer);
@@ -1212,6 +1216,8 @@ static void destroy_toplevel(MwLL r) {
 	wl_registry_destroy(r->wayland.registry);
 
 	wl_display_disconnect(r->wayland.display);
+
+	r->wayland.configured = MwFALSE;
 }
 
 /* Sublevel setup function */
@@ -1265,6 +1271,8 @@ static void destroy_sublevel(MwLL r) {
 	wl_subsurface_destroy(r->wayland.sublevel->subsurface);
 
 	free(r->wayland.sublevel);
+
+	r->wayland.configured = MwFALSE;
 }
 
 static void popup_configure(void*	      data,
@@ -1367,6 +1375,13 @@ static void destroy_popup(MwLL r) {
 	wl_surface_destroy(r->wayland.framebuffer.surface);
 
 	wl_registry_destroy(r->wayland.registry);
+
+	r->wayland.configured = MwFALSE;
+}
+
+static void wl_logger(const char* fmt, va_list args) {
+	vprintf(fmt, args);
+	raise(SIGTRAP);
 }
 
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
@@ -1374,6 +1389,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r = malloc(sizeof(*r));
 	memset(r, 0, sizeof(*r));
 	MwLLCreateCommon(r);
+
+	wl_log_set_handler_client(wl_logger);
 
 	/* Wayland does not report global coordinates ever. Compositors are not even expected to have knowledge of this.
 	 */
@@ -1519,8 +1536,9 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	}
 
 	if(handle->wayland.type == MWLL_WAYLAND_POPUP) {
-		destroy_popup(handle);
-		setup_popup(handle, handle->wayland.x, handle->wayland.y);
+		// destroy_popup(handle);
+		// wl_flush(handle);
+		// setup_popup(handle, handle->wayland.x, handle->wayland.y);
 	}
 
 refresh:
@@ -1536,7 +1554,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 }
 
 static void MwLLEndDrawImpl(MwLL handle) {
-	update_buffer(&handle->wayland.framebuffer);
+	if(handle->wayland.configured) update_buffer(&handle->wayland.framebuffer);
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
@@ -1632,7 +1650,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 		handle->wayland.events_pending = 0;
 	}
 	if(handle->wayland.force_render) {
-		update_buffer(&handle->wayland.framebuffer);
+		if(handle->wayland.configured) update_buffer(&handle->wayland.framebuffer);
 		handle->wayland.force_render = 0;
 	}
 }
@@ -1739,7 +1757,7 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 				handle->wayland.icon->buf[i + 3] = 255;
 			}
 
-			update_buffer(handle->wayland.icon);
+			if(handle->wayland.configured) update_buffer(handle->wayland.icon);
 
 			xdg_toplevel_icon_v1_add_buffer(icon, handle->wayland.icon->shm_buffer, 1);
 
@@ -1816,6 +1834,8 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	case MWLL_WAYLAND_POPUP:
 		return;
 	}
+
+	wl_flush(handle);
 
 	switch(handle->wayland.type_to_be) {
 	case MWLL_WAYLAND_POPUP:
