@@ -1,5 +1,6 @@
 #include <Mw/Milsko.h>
 
+#include <cairo/cairo.h>
 #include <poll.h>
 #include <sched.h>
 #include <signal.h>
@@ -877,12 +878,11 @@ static void xdg_toplevel_configure(void*		data,
 	framebuffer_setup(&self->wayland);
 	region_setup(self);
 
+finish:
 	MwLLDispatch(self, resize, NULL);
 	MwLLDispatch(self, draw, NULL);
 
 	MwLLForceRender(self);
-
-	return;
 };
 
 /* Empty function for satisfying zxdg_toplevel's requirements */
@@ -1710,6 +1710,11 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, rect->width, rect->height);
 	c  = cairo_create(cs);
 
+	if(parent) {
+		cairo_rectangle(c, 0, 0, parent->wayland.ww + handle->wayland.x, parent->wayland.wh + handle->wayland.y);
+		cairo_clip(c);
+	}
+
 	cairo_scale(c, (double)rect->width / pixmap->common.width, (double)rect->height / pixmap->common.height);
 
 	cairo_set_source_surface(c, pixmap->wayland.cs, 0, 0);
@@ -1848,6 +1853,15 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
+	switch(handle->wayland.type) {
+	case MWLL_WAYLAND_UNKNOWN:
+	case MWLL_WAYLAND_TOPLEVEL:
+		break;
+	case MWLL_WAYLAND_SUBLEVEL:
+		break;
+	case MWLL_WAYLAND_POPUP:
+		break;
+	}
 }
 
 static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
