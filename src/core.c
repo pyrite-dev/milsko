@@ -815,6 +815,8 @@ void MwReparent(MwWidget handle, MwWidget new_parent) {
 	arrput(new_parent->children, handle);
 
 	MwDispatch(handle->parent, children_update);
+
+	MwForceRender(handle);
 }
 
 MwClass MwGetClass(MwWidget handle) {
