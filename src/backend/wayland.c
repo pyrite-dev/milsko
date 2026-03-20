@@ -4,6 +4,7 @@
 #include <poll.h>
 #include <sched.h>
 #include <signal.h>
+#include <sys/poll.h>
 #include <wayland-client-core.h>
 #include <wayland-client-protocol.h>
 
@@ -1070,14 +1071,16 @@ static int event_loop(MwLL handle) {
 	}
 
 	wl_display_prepare_read(handle->wayland.display);
-	wl_display_read_events(wayland->display);
-	if((res = wl_display_dispatch_timeout(wayland->display, &timeout)) <= 0) {
-		if(res < 0) {
-			wl_display_cancel_read(handle->wayland.display);
-		}
+	/* Condition where no events are being sent. */
+	if(!poll(&fd, 1, timeout.tv_nsec)) {
+		wl_display_cancel_read(wayland->display);
 
 		wl_surface_commit(wayland->framebuffer.surface);
 		return 0;
+	}
+	wl_display_read_events(wayland->display);
+	if(wl_display_dispatch_pending(wayland->display) < 0) {
+		wl_display_cancel_read(wayland->display);
 	}
 	return 1;
 }
@@ -1615,13 +1618,26 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 }
 
 static int MwLLPendingImpl(MwLL handle) {
-	MwBool		pending = MwFALSE;
 	struct timespec timeout;
-	timeout.tv_nsec = 1;
-	timeout.tv_sec	= 0;
-	int i;
+	struct pollfd	fd;
+	int		pending = 0;
 
-	pending = wl_display_dispatch_timeout(handle->wayland.display, &timeout);
+	timeout.tv_nsec = 100;
+	timeout.tv_sec	= 0;
+
+	fd.fd	  = wl_display_get_fd(handle->wayland.display);
+	fd.events = POLLOUT;
+
+	wl_display_prepare_read(handle->wayland.display);
+	if(!poll(&fd, 1, timeout.tv_nsec)) {
+		wl_display_cancel_read(handle->wayland.display);
+	} else {
+		wl_display_read_events(handle->wayland.display);
+		if((pending = wl_display_dispatch_pending(handle->wayland.display)) < 0) {
+			wl_display_cancel_read(handle->wayland.display);
+		}
+	}
+	wl_surface_commit(handle->wayland.framebuffer.surface);
 
 	if(handle->wayland.always_render) {
 		event_loop(handle);
