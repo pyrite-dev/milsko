@@ -24,11 +24,20 @@ MWDECL int MwLLWaylandCallInit(void);
 #ifndef WL_PROTOCOLS_DEFINED
 #define WL_PROTOCOLS_DEFINED
 #include "Wayland/xdg-shell-client-protocol.h"
+#include "Wayland/viewporter-client-protocol.h"
 #include "Wayland/xdg-decoration-client-protocol.h"
 #include "Wayland/cursor-shape-client-protocol.h"
 #include "Wayland/primary-selection-client-protocol.h"
 #include "Wayland/xdg-toplevel-icon-client-protocol.h"
 #endif
+
+#define SSD_BORDER_FRAME_LEFT 5
+#define SSD_BORDER_FRAME_RIGHT 5
+#define SSD_BORDER_FRAME_TOP 24
+#define SSD_BORDER_FRAME_BOTTOM 5
+
+#define SSD_LEFT_OFFSET(handle) handle->wayland.has_decorations ? 0 : SSD_BORDER_FRAME_LEFT
+#define SSD_TOP_OFFSET(handle) handle->wayland.has_decorations ? 0 : SSD_BORDER_FRAME_TOP
 
 struct _MwLLWayland;
 
@@ -58,6 +67,9 @@ struct _MwLLWaylandTopLevel {
 	MwBool compositor_created;
 	MwBool xdg_wm_base_created;
 	MwBool xdg_surface_created;
+
+	struct wl_subsurface*	 ssurface;
+	struct wl_subcompositor* scompositor;
 };
 
 struct _MwLLWaylandSublevel {
@@ -143,6 +155,9 @@ struct _MwLLWayland {
 
 	MwBool always_render;
 
+	MwBool has_decorations;
+	char   title[255];
+
 	struct wl_display*	    display;
 	struct wl_registry*	    registry;
 	struct wl_compositor*	    compositor;
@@ -150,6 +165,8 @@ struct _MwLLWayland {
 	struct wl_region*	    o_region;
 	struct wl_region*	    region;
 	struct wl_output*	    output;
+
+	struct wp_viewport* vp;
 
 	/* clipboard related stuff.
 	 * Note that unlike most interfaces, we don't keep zwp_primary_selection stuff in a wayland_protocol_t because we use wl_data_device as a fallback and want to have it share memory space.*/
@@ -192,6 +209,7 @@ struct _MwLLWayland {
 	MwBool did_event_loop_early;
 
 	struct _MwLLWaylandShmBuffer  framebuffer;
+	struct _MwLLWaylandShmBuffer  backbuffer;
 	struct _MwLLWaylandShmBuffer  cursor;
 	struct _MwLLWaylandShmBuffer* icon;
 
@@ -203,12 +221,16 @@ struct _MwLLWayland {
 
 	uint32_t last_time;
 
+	MwBool moving;
+
 	MwLL currentlyHeldWidget;
 
 	struct wl_surface* curSurface;
 
-	cairo_surface_t* cs;
-	cairo_t*	 cairo;
+	cairo_surface_t* front_cs;
+	cairo_surface_t* back_cs;
+	cairo_t*	 front_cairo;
+	cairo_t*	 back_cairo;
 };
 
 struct _MwLLWaylandColor {
