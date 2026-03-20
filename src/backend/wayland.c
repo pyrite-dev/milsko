@@ -1436,6 +1436,16 @@ static void destroy_popup(MwLL r) {
 	r->wayland.configured = MwFALSE;
 }
 
+static void clip(MwLL handle) {
+	MwLL parent = handle->wayland.parent;
+
+	if(parent && handle->wayland.type == MWLL_WAYLAND_SUBLEVEL) {
+		cairo_reset_clip(handle->wayland.front_cairo);
+		cairo_rectangle(handle->wayland.front_cairo, 0, 0, parent->wayland.ww + handle->wayland.x, parent->wayland.wh + handle->wayland.y);
+		cairo_clip(handle->wayland.front_cairo);
+	}
+}
+
 static void wl_logger(const char* fmt, va_list args) {
 	vprintf(fmt, args);
 	raise(SIGTRAP);
@@ -1644,6 +1654,9 @@ static void MwLLEndDrawImpl(MwLL handle) {
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
 	int i;
+
+	clip(handle);
+
 	cairo_set_source_rgb(handle->wayland.front_cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0);
 	cairo_new_path(handle->wayland.front_cairo);
 	for(i = 0; i < points_count; i++) {
@@ -1809,10 +1822,11 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_t*	 c;
 	cairo_surface_t* cs;
-	MwLL		 parent = handle->wayland.parent;
 
 	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, rect->width, rect->height);
 	c  = cairo_create(cs);
+
+	clip(handle);
 
 	cairo_scale(c, (double)rect->width / pixmap->common.width, (double)rect->height / pixmap->common.height);
 
