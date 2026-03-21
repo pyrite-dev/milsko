@@ -890,6 +890,68 @@ static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _
 static void zxdg_decoration_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 }
 
+/* Standard Wayland event loop. */
+static int event_loop(MwLL handle) {
+	struct pollfd	     fd;
+	struct timespec	     timeout;
+	struct _MwLLWayland* wayland = &handle->wayland;
+	int		     res;
+
+	timeout.tv_nsec = 1;
+	timeout.tv_sec	= 0;
+
+	if(wayland->display == NULL) {
+		return 0;
+	}
+	fd.fd	  = wl_display_get_fd(wayland->display);
+	fd.events = POLLIN;
+
+	/* If an error other than EAGAIN happens, we have likely been disconnected from the Wayland session */
+	while(wl_display_flush(wayland->display) == -1) {
+		if(errno != EAGAIN) {
+			return MwFALSE;
+		}
+
+		while(poll(&fd, 1, -1) == -1) {
+			if(errno != EINTR && errno != EAGAIN) {
+				wl_display_cancel_read(wayland->display);
+
+				MwLLDispatch(handle, close, NULL);
+				return 0;
+			}
+		}
+	}
+
+	wl_display_prepare_read(handle->wayland.display);
+	/* Condition where no events are being sent. */
+	if(!poll(&fd, 1, timeout.tv_nsec)) {
+		wl_display_cancel_read(wayland->display);
+
+		wl_surface_commit(wayland->framebuffer.surface);
+		if(wayland->type == MWLL_WAYLAND_TOPLEVEL)
+			wl_surface_commit(wayland->backbuffer.surface);
+		return 0;
+	}
+	wl_display_read_events(wayland->display);
+	if(wl_display_dispatch_pending(wayland->display) < 0) {
+		wl_display_cancel_read(wayland->display);
+	}
+	return 1;
+}
+
+/* make the fuck sure that we're configurd */
+static void hang_until_configured(MwLL handle) {
+	int i = 0;
+	while(!handle->wayland.configured) {
+		if(wl_display_roundtrip(handle->wayland.display) == -1) {
+			printf("roundtrip failed\n");
+			raise(SIGTRAP);
+			return;
+		}
+		event_loop(handle);
+	}
+}
+
 /* `xdg_toplevel.configure` callback */
 static void xdg_toplevel_configure(void*		data,
 				   struct xdg_toplevel* xdg_toplevel,
@@ -1033,7 +1095,8 @@ static void framebuffer_setup(struct _MwLLWayland* wayland) {
 	wayland->front_cairo = cairo_create(wayland->front_cs);
 
 	memset(wayland->framebuffer.buf, 0, wayland->framebuffer.buf_size);
-	if(wayland->configured) update_buffer(&wayland->framebuffer);
+	hang_until_configured((MwLL)wayland);
+	update_buffer(&wayland->framebuffer);
 };
 static void framebuffer_destroy(struct _MwLLWayland* wayland) {
 	buffer_destroy(&wayland->framebuffer);
@@ -1051,7 +1114,8 @@ static void backbuffer_setup(struct _MwLLWayland* wayland) {
 	wayland->back_cairo = cairo_create(wayland->back_cs);
 
 	memset(wayland->backbuffer.buf, 0, wayland->backbuffer.buf_size);
-	if(wayland->configured) update_buffer(&wayland->backbuffer);
+	hang_until_configured((MwLL)wayland);
+	update_buffer(&wayland->backbuffer);
 };
 static void backbuffer_destroy(struct _MwLLWayland* wayland) {
 	buffer_destroy(&wayland->backbuffer);
@@ -1108,55 +1172,6 @@ static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct
 
 static void xdg_toplevel_icon_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	free(data->listener);
-}
-
-/* Standard Wayland event loop. */
-static int event_loop(MwLL handle) {
-	struct pollfd	     fd;
-	struct timespec	     timeout;
-	struct _MwLLWayland* wayland = &handle->wayland;
-	int		     res;
-
-	timeout.tv_nsec = 1;
-	timeout.tv_sec	= 0;
-
-	if(wayland->display == NULL) {
-		return 0;
-	}
-	fd.fd	  = wl_display_get_fd(wayland->display);
-	fd.events = POLLIN;
-
-	/* If an error other than EAGAIN happens, we have likely been disconnected from the Wayland session */
-	while(wl_display_flush(wayland->display) == -1) {
-		if(errno != EAGAIN) {
-			return MwFALSE;
-		}
-
-		while(poll(&fd, 1, -1) == -1) {
-			if(errno != EINTR && errno != EAGAIN) {
-				wl_display_cancel_read(wayland->display);
-
-				MwLLDispatch(handle, close, NULL);
-				return 0;
-			}
-		}
-	}
-
-	wl_display_prepare_read(handle->wayland.display);
-	/* Condition where no events are being sent. */
-	if(!poll(&fd, 1, timeout.tv_nsec)) {
-		wl_display_cancel_read(wayland->display);
-
-		wl_surface_commit(wayland->framebuffer.surface);
-		if(wayland->type == MWLL_WAYLAND_TOPLEVEL)
-			wl_surface_commit(wayland->backbuffer.surface);
-		return 0;
-	}
-	wl_display_read_events(wayland->display);
-	if(wl_display_dispatch_pending(wayland->display) < 0) {
-		wl_display_cancel_read(wayland->display);
-	}
-	return 1;
 }
 
 /* Function for setting up the callbacks/structs that will be registered upon the relevant interfaces being found. */
