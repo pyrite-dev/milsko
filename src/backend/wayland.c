@@ -1472,16 +1472,22 @@ static void destroy_popup(MwLL r) {
 }
 
 static void clip(MwLL handle) {
-	MwLL topmost = handle->wayland.parent;
-	if(topmost && handle->wayland.type == MWLL_WAYLAND_SUBLEVEL) {
+	MwLL parent	 = handle->wayland.parent;
+	MwLL topmost	 = parent;
+	int  left_offset = 0;
+	int  top_offset	 = 0;
+
+	if(parent && handle->wayland.type == MWLL_WAYLAND_SUBLEVEL) {
 		cairo_reset_clip(handle->wayland.front_cairo);
-		cairo_rectangle(handle->wayland.front_cairo, 0, 0, (topmost->wayland.ww + handle->wayland.x) - (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT), (topmost->wayland.wh + handle->wayland.y) - (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM));
+		cairo_rectangle(handle->wayland.front_cairo, 0, 0, (parent->wayland.ww + handle->wayland.x), (parent->wayland.wh + handle->wayland.y));
 		cairo_clip(handle->wayland.front_cairo);
 	}
 	if(topmost && handle->wayland.type == MWLL_WAYLAND_SUBLEVEL) {
-		while(topmost->wayland.parent) topmost = topmost->wayland.parent;
 		cairo_reset_clip(handle->wayland.front_cairo);
-		cairo_rectangle(handle->wayland.front_cairo, 0, 0, (topmost->wayland.ww + handle->wayland.x) - (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT), (topmost->wayland.wh + handle->wayland.y) - (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM));
+		while(topmost->wayland.parent) topmost = topmost->wayland.parent;
+		left_offset = topmost->wayland.has_decorations ? 0 : (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
+		top_offset  = topmost->wayland.has_decorations ? 0 : (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
+		cairo_rectangle(handle->wayland.front_cairo, 0, 0, (topmost->wayland.ww + handle->wayland.x) - left_offset, (topmost->wayland.wh + handle->wayland.y) - top_offset);
 		cairo_clip(handle->wayland.front_cairo);
 	}
 }
