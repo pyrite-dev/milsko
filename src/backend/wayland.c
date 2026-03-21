@@ -1402,6 +1402,10 @@ static void setup_popup(MwLL r, int x, int y) {
 	while(topmost_parent->wayland.type != MWLL_WAYLAND_TOPLEVEL) {
 		topmost_parent = topmost_parent->wayland.parent;
 	}
+	if(!topmost_parent->wayland.has_decorations) {
+		r->wayland.x += ceil((float)CSD_BORDER_FRAME_LEFT / 2.);
+		r->wayland.y += ceil((float)CSD_BORDER_FRAME_TOP / 2.);
+	}
 
 	r->wayland.popup = malloc(sizeof(struct _MwLLWaylandPopup));
 	memset(r->wayland.popup, 0, sizeof(struct _MwLLWaylandPopup));
@@ -1425,9 +1429,7 @@ static void setup_popup(MwLL r, int x, int y) {
 	xdg_positioner_set_size(r->wayland.popup->xdg_positioner, r->wayland.ww, r->wayland.wh);
 	xdg_positioner_set_anchor_rect(
 	    r->wayland.popup->xdg_positioner,
-	    x, y, r->wayland.ww, r->wayland.wh);
-	xdg_positioner_set_anchor(r->wayland.popup->xdg_positioner, XDG_POSITIONER_ANCHOR_TOP_LEFT);
-	xdg_positioner_set_gravity(r->wayland.popup->xdg_positioner, XDG_POSITIONER_ANCHOR_BOTTOM_RIGHT);
+	    r->wayland.x, r->wayland.y, r->wayland.ww, r->wayland.wh);
 
 	xdg_surface = topmost_parent->wayland.toplevel->xdg_surface;
 
@@ -1759,6 +1761,8 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 			free(px);
 		}
 		update_buffer(&handle->wayland.backbuffer);
+
+		wl_surface_commit(handle->wayland.backbuffer.surface);
 	}
 	handle->wayland.selected_cairo = handle->wayland.front_cairo;
 }
@@ -1961,8 +1965,8 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_surface_destroy(cs);
 
 	MwLLForceRender(handle);
-	// update_buffer(&handle->wayland.framebuffer);
-	// wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+	update_buffer(&handle->wayland.framebuffer);
+	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 }
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
