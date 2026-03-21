@@ -31,13 +31,13 @@ MWDECL int MwLLWaylandCallInit(void);
 #include "Wayland/xdg-toplevel-icon-client-protocol.h"
 #endif
 
-#define SSD_BORDER_FRAME_LEFT 5
-#define SSD_BORDER_FRAME_RIGHT 5
-#define SSD_BORDER_FRAME_TOP 24
-#define SSD_BORDER_FRAME_BOTTOM 5
+#define CSD_BORDER_FRAME_LEFT 5
+#define CSD_BORDER_FRAME_RIGHT 5
+#define CSD_BORDER_FRAME_TOP 24
+#define CSD_BORDER_FRAME_BOTTOM 5
 
-#define SSD_LEFT_OFFSET(handle) handle->wayland.has_decorations ? 0 : SSD_BORDER_FRAME_LEFT
-#define SSD_TOP_OFFSET(handle) handle->wayland.has_decorations ? 0 : SSD_BORDER_FRAME_TOP
+#define CSD_LEFT_OFFSET(handle) handle->wayland.has_decorations ? 0 : CSD_BORDER_FRAME_LEFT
+#define CSD_TOP_OFFSET(handle) handle->wayland.has_decorations ? 0 : CSD_BORDER_FRAME_TOP
 
 struct _MwLLWayland;
 
@@ -185,8 +185,10 @@ struct _MwLLWayland {
 	uint32_t			clipboard_serial;
 	wl_clipboard_device_context_t** clipboard_devices;
 
-	struct wl_pointer*  pointer;
-	MwU32		    pointer_serial;
+	struct wl_pointer* pointer;
+	MwU32		   pointer_serial;
+	struct wl_seat*	   pointer_seat;
+
 	struct wl_keyboard* keyboard;
 	MwU32		    keyboard_serial;
 
@@ -195,6 +197,8 @@ struct _MwLLWayland {
 	MwU32 mod_state;
 
 	MwBool configured; /* Whether or not xdg_toplevel_configure has run once */
+
+	MwBool held_down;
 
 	MwI32	x, y;
 	MwI32	ox, oy;
@@ -231,6 +235,7 @@ struct _MwLLWayland {
 	cairo_surface_t* back_cs;
 	cairo_t*	 front_cairo;
 	cairo_t*	 back_cairo;
+	cairo_t*	 selected_cairo;
 };
 
 struct _MwLLWaylandColor {
