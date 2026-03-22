@@ -1960,6 +1960,7 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_t*	 c;
 	cairo_surface_t* cs;
+	cairo_t * selected_cairo = handle->wayland.selected_cairo ? handle->wayland.selected_cairo : handle->wayland.front_cairo;
 
 	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, rect->width, rect->height);
 	c  = cairo_create(cs);
@@ -1973,8 +1974,8 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 	cairo_paint(c);
 
-	cairo_set_source_surface(handle->wayland.selected_cairo, cs, rect->x, rect->y);
-	cairo_paint(handle->wayland.selected_cairo);
+	cairo_set_source_surface(selected_cairo, cs, rect->x, rect->y);
+	cairo_paint(selected_cairo);
 
 	cairo_destroy(c);
 	cairo_surface_destroy(cs);
