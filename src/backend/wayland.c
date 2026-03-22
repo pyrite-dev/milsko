@@ -864,7 +864,7 @@ static wayland_protocol_t* wp_viewporter_setup(MwU32 name, struct _MwLLWayland* 
 }
 
 static void wp_viewporter_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	free(data->listener);
+	// free(data->listener);
 }
 
 /* the two decoration manager constructs */
