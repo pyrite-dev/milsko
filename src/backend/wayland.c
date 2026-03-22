@@ -1861,31 +1861,37 @@ static int MwLLPendingImpl(MwLL handle) {
 	fd.fd	  = wl_display_get_fd(handle->wayland.display);
 	fd.events = POLLOUT;
 
-	wl_display_prepare_read(handle->wayland.display);
+	if(!handle->wayland.always_render) wl_display_prepare_read(handle->wayland.display);
 	if(!poll(&fd, 1, timeout.tv_nsec)) {
 		wl_display_cancel_read(handle->wayland.display);
 	} else {
-		wl_display_read_events(handle->wayland.display);
+		if(!handle->wayland.always_render) wl_display_read_events(handle->wayland.display);
 		if((pending = wl_display_dispatch_pending(handle->wayland.display)) < 0) {
 			wl_display_cancel_read(handle->wayland.display);
 		}
 	}
+
+	if(handle->wayland.always_render) {
+		// handle->wayland.did_event_loop_early = MwTRUE;
+		// event_loop(handle);
+		return pending;
+	}
+
 	wl_surface_commit(handle->wayland.framebuffer.surface);
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
 		wl_surface_commit(handle->wayland.backbuffer.surface);
 	}
 
-	if(handle->wayland.always_render) {
+	if(handle->wayland.events_pending) {
+		handle->wayland.did_event_loop_early = MwTRUE;
 		event_loop(handle);
-		return 0;
-	} else if(handle->wayland.force_render) {
-		MwLLDispatch(handle, draw, NULL);
 		return 1;
 	}
-	if(handle->wayland.events_pending || handle->wayland.force_render) {
-		handle->wayland.did_event_loop_early = MwTRUE;
-		return event_loop(handle);
-	}
+
+	// if(handle->wayland.force_render) {
+
+	// 	return 1;
+	// }
 
 	return pending;
 }
@@ -1902,6 +1908,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 		handle->wayland.events_pending = 0;
 	}
 	if(handle->wayland.force_render) {
+		// MwLLDispatch(handle, draw, NULL);
 		if(handle->wayland.configured) update_buffer(&handle->wayland.framebuffer);
 		handle->wayland.force_render = 0;
 	}
@@ -1960,7 +1967,7 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_t*	 c;
 	cairo_surface_t* cs;
-	cairo_t * selected_cairo = handle->wayland.selected_cairo ? handle->wayland.selected_cairo : handle->wayland.front_cairo;
+	cairo_t*	 selected_cairo = handle->wayland.selected_cairo ? handle->wayland.selected_cairo : handle->wayland.front_cairo;
 
 	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, rect->width, rect->height);
 	c  = cairo_create(cs);
