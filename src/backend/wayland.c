@@ -2040,7 +2040,7 @@ static void MwLLForceRenderImpl(MwLL handle) {
 }
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
-	int x, y;
+	int x, y, xs, ys;
 
 	if(handle->wayland.cursor.setup) {
 		buffer_destroy(&handle->wayland.cursor);
@@ -2049,11 +2049,15 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	buffer_setup(&handle->wayland.cursor, image->width, image->height);
 	memset(handle->wayland.cursor.buf, 0, handle->wayland.cursor.buf_size);
 
+	xs = -mask->x + image->x;
+	ys = MwCursorDataHeight + mask->y;
+	ys = MwCursorDataHeight + image->y - ys;
+
 	for(y = 0; y < mask->height; y++) {
 		unsigned int d = mask->data[y];
 		for(x = mask->width - 1; x >= 0; x--) {
 			int px	= 0;
-			int idx = ((y * mask->width) + x) * 4;
+			int idx = (((y + ys) * mask->width) + (x + xs)) * 4;
 
 			if(d & 1) {
 				handle->wayland.cursor.buf[idx + 3] = 255;
@@ -2065,7 +2069,7 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 		unsigned int d = image->data[y];
 		for(x = image->width - 1; x >= 0; x--) {
 			int px	= 0;
-			int idx = ((y * image->width) + x) * 4;
+			int idx = (((y + ys) * image->width) + (x + xs)) * 4;
 
 			if(d & 1) {
 				px = 255;
