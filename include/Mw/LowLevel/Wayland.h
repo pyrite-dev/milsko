@@ -144,6 +144,8 @@ struct _MwLLWayland {
 	MwBool	detatching;
 	MwPoint detach_point;
 
+	MwBool did_initial_resize;
+
 	/* Map of Wayland interfaces to their relevant setup functions. */
 	struct {
 		const char*			   key;

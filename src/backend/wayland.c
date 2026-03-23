@@ -1165,10 +1165,10 @@ static void region_setup(MwLL handle) {
 		wl_region_add(handle->wayland.region, 0, 0, width, height);
 	}
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
-		wl_surface_set_opaque_region(handle->wayland.backbuffer.surface, handle->wayland.region);
+		wl_surface_set_opaque_region(handle->wayland.backbuffer.surface, handle->wayland.o_region);
 		wl_surface_set_input_region(handle->wayland.backbuffer.surface, handle->wayland.region);
 	}
-	wl_surface_set_opaque_region(handle->wayland.framebuffer.surface, handle->wayland.region);
+	wl_surface_set_opaque_region(handle->wayland.framebuffer.surface, handle->wayland.o_region);
 	wl_surface_set_input_region(handle->wayland.framebuffer.surface, handle->wayland.region);
 }
 
@@ -1249,6 +1249,11 @@ static void setup_toplevel(MwLL r, int x, int y) {
 		return;
 	}
 
+	/* check now if we have decorations so that everything else can act accordingly */
+	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
+		r->wayland.has_decorations = MwTRUE;
+	}
+
 	r->wayland.toplevel->xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 
 	/* Create a wl_surface, a xdg_surface and a xdg_toplevel */
@@ -1282,7 +1287,7 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	}
 
 	/* setup decorations if we can */
-	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
+	if(r->wayland.has_decorations) {
 		zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(r->wayland, zxdg_decoration_manager_v1)->context;
 
 		dec->decoration = zxdg_decoration_manager_v1_get_toplevel_decoration(
@@ -1290,15 +1295,12 @@ static void setup_toplevel(MwLL r, int x, int y) {
 
 		zxdg_toplevel_decoration_v1_set_mode(
 		    dec->decoration, ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
-
-		r->wayland.has_decorations = MwTRUE;
 	} else {
 		/* otherwise set up viewporter */
 		struct wp_viewporter* wp = WAYLAND_GET_INTERFACE(r->wayland, wp_viewporter)->context;
 		r->wayland.vp		 = wp_viewporter_get_viewport(wp, r->wayland.framebuffer.surface);
 		wp_viewport_set_source(r->wayland.vp, r->wayland.x, r->wayland.y, r->wayland.ww, r->wayland.wh);
 		wp_viewport_set_destination(r->wayland.vp, r->wayland.ww - (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT), r->wayland.wh - (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM));
-		r->wayland.has_decorations = MwFALSE;
 
 		wl_subsurface_set_position(r->wayland.toplevel->ssurface, CSD_BORDER_FRAME_LEFT, CSD_BORDER_FRAME_TOP);
 	}
@@ -1510,14 +1512,14 @@ static void clip(MwLL handle) {
 		cairo_rectangle(handle->wayland.front_cairo, 0, 0, (parent->wayland.ww + handle->wayland.x), (parent->wayland.wh + handle->wayland.y));
 		cairo_clip(handle->wayland.front_cairo);
 	}
-	if(topmost && handle->wayland.type == MWLL_WAYLAND_SUBLEVEL) {
-		cairo_reset_clip(handle->wayland.front_cairo);
-		while(topmost->wayland.parent) topmost = topmost->wayland.parent;
-		left_offset = topmost->wayland.has_decorations ? 0 : (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
-		top_offset  = topmost->wayland.has_decorations ? 0 : (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
-		cairo_rectangle(handle->wayland.front_cairo, 0, 0, (topmost->wayland.ww + handle->wayland.x) - left_offset, (topmost->wayland.wh + handle->wayland.y) - top_offset);
-		cairo_clip(handle->wayland.front_cairo);
-	}
+	// if(topmost && handle->wayland.type == MWLL_WAYLAND_SUBLEVEL) {
+	// 	cairo_reset_clip(handle->wayland.front_cairo);
+	// 	while(topmost->wayland.parent) topmost = topmost->wayland.parent;
+	// 	left_offset = topmost->wayland.has_decorations ? 0 : (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
+	// 	top_offset  = topmost->wayland.has_decorations ? 0 : (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
+	// 	cairo_rectangle(handle->wayland.front_cairo, 0, 0, (topmost->wayland.ww + handle->wayland.x) - left_offset, (topmost->wayland.wh + handle->wayland.y) - top_offset);
+	// 	cairo_clip(handle->wayland.front_cairo);
+	// }
 }
 
 static void wl_logger(const char* fmt, va_list args) {
@@ -1871,6 +1873,12 @@ static int MwLLPendingImpl(MwLL handle) {
 	    .events = POLLOUT,
 	};
 	int pending = 0;
+
+	if(!handle->wayland.did_initial_resize) {
+		MwLLDispatch(handle, resize, NULL);
+		handle->wayland.did_initial_resize = 1;
+		return 1;
+	}
 
 	if(!handle->wayland.always_render) wl_display_prepare_read(handle->wayland.display);
 	if(!poll(&fd, 1, timeout.tv_nsec)) {
