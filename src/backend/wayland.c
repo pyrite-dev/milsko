@@ -1001,7 +1001,11 @@ static void xdg_toplevel_configure(void*		data,
 	region_setup(self);
 
 	if(self->wayland.type == MWLL_WAYLAND_TOPLEVEL && !self->wayland.has_decorations) {
-		wp_viewport_set_destination(self->wayland.vp, self->wayland.ww - (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT), self->wayland.wh - (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM));
+		MwU32 vwidth  = self->wayland.ww - (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
+		MwU32 vheight = self->wayland.wh - (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
+		if(vwidth < 0) vwidth = 0;
+		if(vheight < 0) vheight = 0;
+		wp_viewport_set_destination(self->wayland.vp, vwidth, vheight);
 	}
 
 	MwLLDispatch(self, resize, NULL);
@@ -1299,8 +1303,12 @@ static void setup_toplevel(MwLL r, int x, int y) {
 		/* otherwise set up viewporter */
 		struct wp_viewporter* wp = WAYLAND_GET_INTERFACE(r->wayland, wp_viewporter)->context;
 		r->wayland.vp		 = wp_viewporter_get_viewport(wp, r->wayland.framebuffer.surface);
-		wp_viewport_set_source(r->wayland.vp, (r->wayland.x >= 0) ? r->wayland.x : 0, (r->wayland.y >= 0) ? r->wayland.y : 0, r->wayland.ww, r->wayland.wh);
-		wp_viewport_set_destination(r->wayland.vp, r->wayland.ww - (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT), r->wayland.wh - (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM));
+		MwU32 vwidth		 = r->wayland.ww - (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
+		MwU32 vheight		 = r->wayland.wh - (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
+		if(vwidth < 0) vwidth = 0;
+		if(vheight < 0) vheight = 0;
+		wp_viewport_set_source(r->wayland.vp, r->wayland.x, r->wayland.y, r->wayland.ww, r->wayland.wh);
+		wp_viewport_set_destination(r->wayland.vp, vwidth, vheight);
 
 		wl_subsurface_set_position(r->wayland.toplevel->ssurface, CSD_BORDER_FRAME_LEFT, CSD_BORDER_FRAME_TOP);
 	}
