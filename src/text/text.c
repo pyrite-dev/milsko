@@ -70,8 +70,7 @@ void* MwFontLoad(unsigned char* data, unsigned int size) {
 }
 
 void MwFontFree(void* handle) {
-	if(MwFLFontFree)
-		return MwFLFontFree(handle);
+	if(MwFLFontFree) MwFLFontFree(handle);
 }
 
 static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
