@@ -1299,7 +1299,7 @@ static void setup_toplevel(MwLL r, int x, int y) {
 		/* otherwise set up viewporter */
 		struct wp_viewporter* wp = WAYLAND_GET_INTERFACE(r->wayland, wp_viewporter)->context;
 		r->wayland.vp		 = wp_viewporter_get_viewport(wp, r->wayland.framebuffer.surface);
-		wp_viewport_set_source(r->wayland.vp, r->wayland.x, r->wayland.y, r->wayland.ww, r->wayland.wh);
+		wp_viewport_set_source(r->wayland.vp, (r->wayland.x >= 0) ? r->wayland.x : 0, (r->wayland.y >= 0) ? r->wayland.y : 0, r->wayland.ww, r->wayland.wh);
 		wp_viewport_set_destination(r->wayland.vp, r->wayland.ww - (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT), r->wayland.wh - (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM));
 
 		wl_subsurface_set_position(r->wayland.toplevel->ssurface, CSD_BORDER_FRAME_LEFT, CSD_BORDER_FRAME_TOP);
