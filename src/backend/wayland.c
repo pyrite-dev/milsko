@@ -1000,8 +1000,8 @@ static void xdg_toplevel_configure(void*		data,
 	framebuffer_setup(&self->wayland);
 	region_setup(self);
 
-	MwLLDispatch(self, resize, NULL);
 	MwLLDispatch(self, draw, NULL);
+	MwLLDispatch(self, resize, NULL);
 };
 
 /* Empty function for satisfying zxdg_toplevel's requirements */
