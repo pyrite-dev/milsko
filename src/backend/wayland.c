@@ -1001,8 +1001,8 @@ static void xdg_toplevel_configure(void*		data,
 	region_setup(self);
 
 	if(self->wayland.type == MWLL_WAYLAND_TOPLEVEL && !self->wayland.has_decorations) {
-		MwU32 vwidth  = self->wayland.ww - (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
-		MwU32 vheight = self->wayland.wh - (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
+		MwU32 vwidth  = self->wayland.ww;
+		MwU32 vheight = self->wayland.wh;
 		if(vwidth < 0) vwidth = 0;
 		if(vheight < 0) vheight = 0;
 		wp_viewport_set_destination(self->wayland.vp, vwidth, vheight);
@@ -1123,9 +1123,15 @@ static void backbuffer_setup(struct _MwLLWayland* wayland) {
 	if(wayland->type != MWLL_WAYLAND_TOPLEVEL) {
 		return;
 	}
-	buffer_setup(&wayland->backbuffer, wayland->ww, wayland->wh);
+	MwU32 w = wayland->ww;
+	MwU32 h = wayland->wh;
+	if(!wayland->has_decorations) {
+		w += (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
+		h += (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
+	}
+	buffer_setup(&wayland->backbuffer, w, h);
 
-	wayland->back_cs    = cairo_image_surface_create_for_data(wayland->backbuffer.buf, CAIRO_FORMAT_ARGB32, wayland->ww, wayland->wh, 4 * wayland->ww);
+	wayland->back_cs    = cairo_image_surface_create_for_data(wayland->backbuffer.buf, CAIRO_FORMAT_ARGB32, w, h, 4 * w);
 	wayland->back_cairo = cairo_create(wayland->back_cs);
 
 	memset(wayland->backbuffer.buf, 0, wayland->backbuffer.buf_size);
@@ -1301,13 +1307,17 @@ static void setup_toplevel(MwLL r, int x, int y) {
 		    dec->decoration, ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
 	} else {
 		/* otherwise set up viewporter */
-		struct wp_viewporter* wp = WAYLAND_GET_INTERFACE(r->wayland, wp_viewporter)->context;
-		r->wayland.vp		 = wp_viewporter_get_viewport(wp, r->wayland.framebuffer.surface);
-		MwU32 vwidth		 = r->wayland.ww - (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
-		MwU32 vheight		 = r->wayland.wh - (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
+		struct wp_viewporter* wp      = WAYLAND_GET_INTERFACE(r->wayland, wp_viewporter)->context;
+		MwI32		      x	      = r->wayland.x;
+		MwI32		      y	      = r->wayland.y;
+		MwU32		      vwidth  = r->wayland.ww;
+		MwU32		      vheight = r->wayland.wh;
+		r->wayland.vp		      = wp_viewporter_get_viewport(wp, r->wayland.framebuffer.surface);
+		if(x < 0) x = 0;
+		if(y < 0) y = 0;
 		if(vwidth < 0) vwidth = 0;
 		if(vheight < 0) vheight = 0;
-		wp_viewport_set_source(r->wayland.vp, r->wayland.x, r->wayland.y, r->wayland.ww, r->wayland.wh);
+		wp_viewport_set_source(r->wayland.vp, wl_fixed_from_int(x), wl_fixed_from_int(y), wl_fixed_from_int(r->wayland.ww), wl_fixed_from_int(r->wayland.wh));
 		wp_viewport_set_destination(r->wayland.vp, vwidth, vheight);
 
 		wl_subsurface_set_position(r->wayland.toplevel->ssurface, CSD_BORDER_FRAME_LEFT, CSD_BORDER_FRAME_TOP);
@@ -1678,14 +1688,7 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 		handle->wayland.wh = 10;
 		goto refresh;
 	}
-	if(handle->wayland.parent) {
-		if(handle->wayland.parent->wayland.type == MWLL_WAYLAND_TOPLEVEL && !handle->wayland.parent->wayland.has_decorations) {
-			if(w >= handle->wayland.parent->wayland.ww - (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT))
-				w = handle->wayland.parent->wayland.ww - (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
-			if(h >= handle->wayland.parent->wayland.wh - (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM))
-				h = handle->wayland.parent->wayland.wh - (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
-		}
-	}
+
 	handle->wayland.ww = w;
 	handle->wayland.wh = h;
 
@@ -1719,34 +1722,36 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		return;
 	}
 	if(!handle->wayland.has_decorations) {
-		int x, y;
+		int   x, y;
+		MwU32 w = handle->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;
+		MwU32 h = handle->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM;
 		cairo_set_line_width(handle->wayland.back_cairo, 4.0);
-		for(x = 0; x < handle->wayland.ww; x++) {
-			float placeholder = (float)x / (float)handle->wayland.ww;
+		for(x = 0; x < w; x++) {
+			float placeholder = (float)x / (float)w;
 			cairo_set_source_rgb(handle->wayland.back_cairo, placeholder, 0.25, 0.25);
 
-			cairo_move_to(handle->wayland.back_cairo, handle->wayland.ww - x, 0);
-			cairo_line_to(handle->wayland.back_cairo, handle->wayland.ww - x, CSD_BORDER_FRAME_TOP);
+			cairo_move_to(handle->wayland.back_cairo, w - x, 0);
+			cairo_line_to(handle->wayland.back_cairo, w - x, CSD_BORDER_FRAME_TOP);
 			cairo_stroke(handle->wayland.back_cairo);
 
 			cairo_move_to(handle->wayland.back_cairo, x, CSD_BORDER_FRAME_TOP);
-			cairo_line_to(handle->wayland.back_cairo, x, handle->wayland.wh);
+			cairo_line_to(handle->wayland.back_cairo, x, h);
 			cairo_stroke(handle->wayland.back_cairo);
 		}
 		cairo_set_source_rgba(handle->wayland.back_cairo, 1, 1, 1, 0.5);
 		cairo_move_to(handle->wayland.back_cairo, 0, 0);
-		cairo_line_to(handle->wayland.back_cairo, 0, handle->wayland.wh);
+		cairo_line_to(handle->wayland.back_cairo, 0, h);
 		cairo_stroke(handle->wayland.back_cairo);
 		cairo_move_to(handle->wayland.back_cairo, 0, 0);
-		cairo_line_to(handle->wayland.back_cairo, handle->wayland.ww, 0);
+		cairo_line_to(handle->wayland.back_cairo, w, 0);
 		cairo_stroke(handle->wayland.back_cairo);
 
 		cairo_set_source_rgba(handle->wayland.back_cairo, 0, 0, 0, 0.5);
-		cairo_move_to(handle->wayland.back_cairo, 0, handle->wayland.wh);
-		cairo_line_to(handle->wayland.back_cairo, handle->wayland.ww, handle->wayland.wh);
+		cairo_move_to(handle->wayland.back_cairo, 0, h);
+		cairo_line_to(handle->wayland.back_cairo, w, h);
 		cairo_stroke(handle->wayland.back_cairo);
-		cairo_move_to(handle->wayland.back_cairo, handle->wayland.ww, 0);
-		cairo_line_to(handle->wayland.back_cairo, handle->wayland.ww, handle->wayland.wh);
+		cairo_move_to(handle->wayland.back_cairo, w, 0);
+		cairo_line_to(handle->wayland.back_cairo, w, h);
 		cairo_stroke(handle->wayland.back_cairo);
 
 		if(strlen(handle->wayland.title) != 0) {
