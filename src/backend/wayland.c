@@ -2050,14 +2050,14 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	memset(handle->wayland.cursor.buf, 0, handle->wayland.cursor.buf_size);
 
 	xs = -mask->x + image->x;
-	ys = MwCursorDataHeight + mask->y;
-	ys = MwCursorDataHeight + image->y - ys;
+	ys = mask->height + mask->y;
+	ys = image->height + image->y - ys;
 
 	for(y = 0; y < mask->height; y++) {
 		unsigned int d = mask->data[y];
 		for(x = mask->width - 1; x >= 0; x--) {
 			int px	= 0;
-			int idx = (((y + ys) * mask->width) + (x + xs)) * 4;
+			int idx = ((y * image->width) + x) * 4;
 
 			if(d & 1) {
 				handle->wayland.cursor.buf[idx + 3] = 255;
@@ -2084,7 +2084,7 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 
 	handle->wayland.cursor.surface = wl_compositor_create_surface(handle->wayland.compositor);
 
-	wl_surface_attach(handle->wayland.cursor.surface, handle->wayland.cursor.shm_buffer, 0, 0);
+	wl_surface_attach(handle->wayland.cursor.surface, handle->wayland.cursor.shm_buffer, xs + image->x, ys + image->height + image->y);
 	wl_surface_commit(handle->wayland.cursor.surface);
 
 	/* If there's currently a pointer, set it up. (Otherwise, it'll be setup during the pointer enter event) */
