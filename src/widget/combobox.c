@@ -138,8 +138,8 @@ static void click(MwWidget handle) {
 		p.x = 0;
 		p.y = MwGetInteger(handle, MwNheight);
 		MwLLBeginStateChange(cb->listbox->lowlevel);
-		MwLLMakeToolWindow(cb->listbox->lowlevel);
 		MwLLDetach(cb->listbox->lowlevel, &p);
+		MwLLMakeToolWindow(cb->listbox->lowlevel);
 		MwLLEndStateChange(cb->listbox->lowlevel);
 	} else {
 		MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);

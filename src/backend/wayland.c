@@ -228,8 +228,12 @@ static void wl_clipboard_read(wl_clipboard_device_context_t* ctx) {
 	arrpush(buf, 0);
 	close(fds[0]);
 
+	printf("sending: %s\n", buf);
+
 	MwLLDispatch(ctx->ll, clipboard, buf);
 	arrfree(buf);
+
+	ctx->ll->wayland.events_pending = 1;
 }
 
 static void wl_data_source_listener_target(void*		  data,
@@ -415,6 +419,8 @@ static void xdg_borderless_step(MwLL self, MwLLMouse p, MwU32 serial) {
 	};
 }
 
+static MwLL currentlyHeldWidget = NULL;
+
 /* `wl_pointer.motion` callback */
 static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time,
 			   wl_fixed_t surface_x, wl_fixed_t surface_y) {
@@ -428,15 +434,25 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	p.point			      = self->wayland.cur_mouse_pos;
 	MwLLDispatch(self, move, &p);
 
-	if(self->wayland.parent != NULL) {
-		if(!self->wayland.parent->wayland.currentlyHeldWidget) {
-			MwLLDispatch(self, down, &p);
-		}
+	if(currentlyHeldWidget) {
+		MwLLDispatch(currentlyHeldWidget, down, &p);
 	}
-	/* Only draw once every 50 milliseconds */
-	if((self->wayland.last_time + 50) <= time) {
-		MwLLDispatch(self, draw, NULL);
-		self->wayland.last_time = time;
+
+	/* We want to send a draw call whenever we move the cursor, BUT only if the topmost parent doesn't already have events pedngin. */
+	if(self->wayland.parent) {
+		MwLL topmost = self->wayland.parent;
+		while(topmost->wayland.parent) topmost = topmost->wayland.parent;
+		/* also we only wanna do it every 50ms */
+		if((self->wayland.last_time + 50) <= time && !topmost->wayland.events_pending) {
+			MwLLDispatch(self, draw, NULL);
+			self->wayland.last_time = time;
+		}
+	} else {
+		/* if there's no parent just impose the requirement on the widget itself */
+		if((self->wayland.last_time + 50) <= time && !self->wayland.events_pending) {
+			MwLLDispatch(self, draw, NULL);
+			self->wayland.last_time = time;
+		}
 	}
 
 	WAYLAND_EVENT_OP_END(self);
@@ -477,17 +493,13 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 		switch(state) {
 		case WL_POINTER_BUTTON_STATE_PRESSED:
 			MwLLDispatch(self, down, &p);
-			if(self->wayland.parent != NULL) {
-				self->wayland.parent->wayland.currentlyHeldWidget = self;
-			}
+			currentlyHeldWidget = self;
 
 			break;
 		case WL_POINTER_BUTTON_STATE_RELEASED:
-			if(self->wayland.parent != NULL) {
-				if(self->wayland.parent->wayland.currentlyHeldWidget != NULL) {
-					MwLLDispatch(self->wayland.parent->wayland.currentlyHeldWidget, up, &p);
-					self->wayland.parent->wayland.currentlyHeldWidget = NULL;
-				}
+			if(currentlyHeldWidget != NULL) {
+				MwLLDispatch(currentlyHeldWidget, up, &p);
+				currentlyHeldWidget = NULL;
 			} else {
 				MwLLDispatch(self, up, &p);
 			}
@@ -993,8 +1005,6 @@ static void xdg_toplevel_configure(void*		data,
 
 	MwLLDispatch(self, resize, NULL);
 	MwLLDispatch(self, draw, NULL);
-
-	MwLLForceRender(self);
 };
 
 /* Empty function for satisfying zxdg_toplevel's requirements */
@@ -1851,15 +1861,15 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 }
 
 static int MwLLPendingImpl(MwLL handle) {
-	struct timespec timeout;
-	struct pollfd	fd;
-	int		pending = 0;
-
-	timeout.tv_nsec = 100;
-	timeout.tv_sec	= 0;
-
-	fd.fd	  = wl_display_get_fd(handle->wayland.display);
-	fd.events = POLLOUT;
+	struct timespec timeout = {
+	    .tv_nsec = 100,
+	    .tv_sec  = 0,
+	};
+	struct pollfd fd = {
+	    .fd	    = wl_display_get_fd(handle->wayland.display),
+	    .events = POLLOUT,
+	};
+	int pending = 0;
 
 	if(!handle->wayland.always_render) wl_display_prepare_read(handle->wayland.display);
 	if(!poll(&fd, 1, timeout.tv_nsec)) {
@@ -1872,8 +1882,8 @@ static int MwLLPendingImpl(MwLL handle) {
 	}
 
 	if(handle->wayland.always_render) {
-		// handle->wayland.did_event_loop_early = MwTRUE;
-		// event_loop(handle);
+		handle->wayland.did_event_loop_early = MwTRUE;
+		event_loop(handle);
 		return pending;
 	}
 
@@ -1882,18 +1892,7 @@ static int MwLLPendingImpl(MwLL handle) {
 		wl_surface_commit(handle->wayland.backbuffer.surface);
 	}
 
-	if(handle->wayland.events_pending) {
-		handle->wayland.did_event_loop_early = MwTRUE;
-		event_loop(handle);
-		return 1;
-	}
-
-	// if(handle->wayland.force_render) {
-
-	// 	return 1;
-	// }
-
-	return pending;
+	return handle->wayland.force_render || handle->wayland.events_pending || pending;
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
@@ -1904,13 +1903,14 @@ static void MwLLNextEventImpl(MwLL handle) {
 			event_loop(handle);
 		}
 	}
-	if(handle->wayland.events_pending) {
-		handle->wayland.events_pending = 0;
-	}
+
 	if(handle->wayland.force_render) {
-		// MwLLDispatch(handle, draw, NULL);
+		if(!handle->wayland.events_pending) MwLLDispatch(handle, draw, NULL);
 		if(handle->wayland.configured) update_buffer(&handle->wayland.framebuffer);
 		handle->wayland.force_render = 0;
+	}
+	if(handle->wayland.events_pending) {
+		handle->wayland.events_pending = 0;
 	}
 }
 
@@ -2034,6 +2034,9 @@ static void MwLLForceRenderImpl(MwLL handle) {
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 
 	handle->wayland.force_render = MwTRUE;
+	if(handle->wayland.parent) {
+		handle->wayland.parent->wayland.force_render = MwTRUE;
+	}
 }
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
@@ -2087,28 +2090,8 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 }
 
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
-	switch(handle->wayland.type) {
-	case MWLL_WAYLAND_UNKNOWN:
-	case MWLL_WAYLAND_TOPLEVEL:
-		destroy_toplevel(handle);
-		break;
-	case MWLL_WAYLAND_SUBLEVEL:
-		destroy_sublevel(handle);
-		break;
-	case MWLL_WAYLAND_POPUP:
-		return;
-	}
-
-	wl_flush(handle);
-
-	switch(handle->wayland.type_to_be) {
-	case MWLL_WAYLAND_POPUP:
-		setup_popup(handle, point->x, point->y);
-		break;
-	default:
-		setup_toplevel(handle, point->x, point->y);
-		break;
-	}
+	handle->wayland.detatching   = MwTRUE;
+	handle->wayland.detach_point = *point;
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
@@ -2201,6 +2184,32 @@ static void MwLLBeginStateChangeImpl(MwLL handle) {
 }
 
 static void MwLLEndStateChangeImpl(MwLL handle) {
+	if(handle->wayland.detatching) {
+		switch(handle->wayland.type) {
+		case MWLL_WAYLAND_UNKNOWN:
+		case MWLL_WAYLAND_TOPLEVEL:
+			destroy_toplevel(handle);
+			break;
+		case MWLL_WAYLAND_SUBLEVEL:
+			destroy_sublevel(handle);
+			break;
+		case MWLL_WAYLAND_POPUP:
+			return;
+		}
+
+		wl_flush(handle);
+
+		switch(handle->wayland.type_to_be) {
+		case MWLL_WAYLAND_POPUP:
+			setup_popup(handle, handle->wayland.detach_point.x, handle->wayland.detach_point.y);
+			break;
+		default:
+			setup_toplevel(handle, handle->wayland.detach_point.x, handle->wayland.detach_point.y);
+			break;
+		}
+		handle->wayland.detatching = MwFALSE;
+	}
+
 	MwLLShow(handle, 1);
 }
 

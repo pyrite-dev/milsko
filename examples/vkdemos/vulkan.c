@@ -27,6 +27,8 @@ MwWidget window, vulkan;
 int	 ow = 300;
 int	 oh = 250;
 
+double timer = 0;
+
 PFN_vkGetInstanceProcAddr _vkGetInstanceProcAddr;
 VkInstance		  instance;
 VkDevice		  device;
@@ -75,9 +77,10 @@ void tick(MwWidget handle, void* user_data, void* call_data) {
 	VkSubmitInfo		 submitInfo	= {};
 	VkPresentInfoKHR	 presentInfo	= {};
 
-	VkClearValue clearColor	   = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+	VkClearValue clearColor	   = {{{sin(timer) / 10., cos(timer) / 10., atan(timer) / 10., 1.0f}}};
 	uint32_t     vertexCount   = 3;
 	uint32_t     instanceCount = 1;
+	timer += (float)(rand() % 1000) / 1000.;
 
 	VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT};
 
@@ -289,8 +292,8 @@ void vulkan_setup(MwWidget handle) {
 	swapchainCreateInfo.imageExtent	     = (VkExtent2D){.width = ow, .height = oh},
 	swapchainCreateInfo.imageArrayLayers = 1,
 	swapchainCreateInfo.imageUsage	     = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-					 VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-					 VK_IMAGE_USAGE_SAMPLED_BIT;
+					       VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+					       VK_IMAGE_USAGE_SAMPLED_BIT;
 	// th is how we specify no transformation.
 	swapchainCreateInfo.preTransform   = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 	swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;

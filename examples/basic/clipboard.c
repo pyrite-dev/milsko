@@ -29,6 +29,7 @@ void clipboard(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
 
+	printf("got: %s\n", clipboard);
 	if(clipboard != NULL) {
 		MwVaApply(text, MwNtext, clipboard, NULL);
 		MwForceRender(text);

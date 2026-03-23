@@ -141,6 +141,9 @@ struct _MwLLWayland {
 	enum _MwLLWaylandType type;
 	enum _MwLLWaylandType type_to_be;
 
+	MwBool	detatching;
+	MwPoint detach_point;
+
 	/* Map of Wayland interfaces to their relevant setup functions. */
 	struct {
 		const char*			   key;
@@ -227,8 +230,6 @@ struct _MwLLWayland {
 
 	MwBool moving;
 
-	MwLL currentlyHeldWidget;
-
 	struct wl_surface* curSurface;
 
 	cairo_surface_t* front_cs;
@@ -236,7 +237,7 @@ struct _MwLLWayland {
 	cairo_t*	 front_cairo;
 	cairo_t*	 back_cairo;
 	/* The cairo to actually use for draw operations. Typically is front_cairo, but MwLLBeginDraw can change this to the back_cairo so it can be used to draw window decorations. */
-	cairo_t*	 selected_cairo;
+	cairo_t* selected_cairo;
 };
 
 struct _MwLLWaylandColor {
