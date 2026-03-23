@@ -203,7 +203,7 @@ static void wl_clipboard_read(wl_clipboard_device_context_t* ctx) {
 
 	if(ctx->ll->wayland.supports_zwp) {
 		zwp_primary_selection_offer_v1_receive(ctx->offer.zwp, "text/plain", fds[1]);
-	} else {
+	} else if(ctx->offer.wl) {
 		wl_data_offer_receive(ctx->offer.wl, "text/plain", fds[1]);
 	}
 	close(fds[1]);
@@ -395,19 +395,19 @@ static void pointer_leave(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 
 static void xdg_borderless_step(MwLL self, MwLLMouse p, MwU32 serial) {
 	if(self->wayland.type == MWLL_WAYLAND_TOPLEVEL && self->wayland.backbuffer.surface == self->wayland.curSurface) {
-		if(p.point.y >= self->wayland.wh - 5) {
-			if(p.point.x >= self->wayland.ww - 5) {
+		if(p.point.y >= (self->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM) - 5) {
+			if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 5) {
 				xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT);
 			} else {
 				xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM);
 			}
 		} else if(p.point.y <= 5) {
-			if(p.point.x >= self->wayland.ww - 5) {
+			if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 5) {
 				xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT);
 			} else {
 				xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_TOP);
 			}
-		} else if(p.point.x >= self->wayland.ww - 5) {
+		} else if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 5) {
 			xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_RIGHT);
 		} else if(p.point.x <= 5) {
 			xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_LEFT);
@@ -1000,14 +1000,6 @@ static void xdg_toplevel_configure(void*		data,
 	framebuffer_setup(&self->wayland);
 	region_setup(self);
 
-	if(self->wayland.type == MWLL_WAYLAND_TOPLEVEL && !self->wayland.has_decorations) {
-		MwU32 vwidth  = self->wayland.ww;
-		MwU32 vheight = self->wayland.wh;
-		if(vwidth < 0) vwidth = 0;
-		if(vheight < 0) vheight = 0;
-		wp_viewport_set_destination(self->wayland.vp, vwidth, vheight);
-	}
-
 	MwLLDispatch(self, resize, NULL);
 	MwLLDispatch(self, draw, NULL);
 };
@@ -1171,9 +1163,15 @@ static void region_setup(MwLL handle) {
 			if(height - handle->wayland.y > parent->wayland.wh) {
 				height = parent->wayland.wh - handle->wayland.y;
 			}
+		} else {
+			if(!handle->wayland.has_decorations) {
+				width += CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;
+				height += CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM;
+			}
 		}
 		wl_region_add(handle->wayland.region, 0, 0, width, height);
 	}
+
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
 		wl_surface_set_opaque_region(handle->wayland.backbuffer.surface, handle->wayland.o_region);
 		wl_surface_set_input_region(handle->wayland.backbuffer.surface, handle->wayland.region);
@@ -1306,20 +1304,6 @@ static void setup_toplevel(MwLL r, int x, int y) {
 		zxdg_toplevel_decoration_v1_set_mode(
 		    dec->decoration, ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
 	} else {
-		/* otherwise set up viewporter */
-		struct wp_viewporter* wp      = WAYLAND_GET_INTERFACE(r->wayland, wp_viewporter)->context;
-		MwI32		      x	      = r->wayland.x;
-		MwI32		      y	      = r->wayland.y;
-		MwU32		      vwidth  = r->wayland.ww;
-		MwU32		      vheight = r->wayland.wh;
-		r->wayland.vp		      = wp_viewporter_get_viewport(wp, r->wayland.framebuffer.surface);
-		if(x < 0) x = 0;
-		if(y < 0) y = 0;
-		if(vwidth < 0) vwidth = 0;
-		if(vheight < 0) vheight = 0;
-		wp_viewport_set_source(r->wayland.vp, wl_fixed_from_int(x), wl_fixed_from_int(y), wl_fixed_from_int(r->wayland.ww), wl_fixed_from_int(r->wayland.wh));
-		wp_viewport_set_destination(r->wayland.vp, vwidth, vheight);
-
 		wl_subsurface_set_position(r->wayland.toplevel->ssurface, CSD_BORDER_FRAME_LEFT, CSD_BORDER_FRAME_TOP);
 	}
 }
@@ -1692,10 +1676,6 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	handle->wayland.ww = w;
 	handle->wayland.wh = h;
 
-	// if(handle->wayland.wh >= (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM)) {
-	// 	handle->wayland.wh -= (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
-	// }
-
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL && handle->wayland.configured) {
 		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 	}
@@ -1714,6 +1694,8 @@ refresh:
 	backbuffer_destroy(&handle->wayland);
 	backbuffer_setup(&handle->wayland);
 	MwLLDispatch(handle, draw, NULL);
+
+	handle->wayland.events_pending = 1;
 }
 
 static void MwLLBeginDrawImpl(MwLL handle) {
@@ -1721,6 +1703,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		handle->wayland.selected_cairo = handle->wayland.front_cairo;
 		return;
 	}
+
 	if(!handle->wayland.has_decorations) {
 		int   x, y;
 		MwU32 w = handle->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;
