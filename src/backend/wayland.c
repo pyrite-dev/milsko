@@ -228,8 +228,6 @@ static void wl_clipboard_read(wl_clipboard_device_context_t* ctx) {
 	arrpush(buf, 0);
 	close(fds[0]);
 
-	printf("sending: %s\n", buf);
-
 	MwLLDispatch(ctx->ll, clipboard, buf);
 	arrfree(buf);
 
@@ -470,7 +468,10 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 
 	p.point = self->wayland.cur_mouse_pos;
 
-	if(self->wayland.framebuffer.surface == self->wayland.curSurface || self->wayland.backbuffer.surface == self->wayland.curSurface) {
+	// p.point.x > x && p.point.x < x + self->wayland.ww && p.point.y > y && p.point.y < y + self->wayland.wh
+	if(
+	    self->wayland.framebuffer.surface == self->wayland.curSurface ||
+	    self->wayland.backbuffer.surface == self->wayland.curSurface) {
 		int i;
 
 		switch(button) {
