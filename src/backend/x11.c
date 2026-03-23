@@ -849,7 +849,7 @@ Cursor MwLLX11CreateCursor(Display* display, MwCursor* image, MwCursor* mask) {
 	XPutImage(display, pimage, imagegc, cimage, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
 	XPutImage(display, pmask, maskgc, cmask, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
 
-	cur = XCreatePixmapCursor(display, pimage, pmask, &cfg, &cbg, xs, ys);
+	cur = XCreatePixmapCursor(display, pimage, pmask, &cfg, &cbg, xs - image->x, ys + (MwCursorDataHeight + image->y));
 
 	XFreePixmap(display, pimage);
 	XFreePixmap(display, pmask);

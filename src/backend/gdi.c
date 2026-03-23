@@ -621,7 +621,7 @@ HCURSOR MwLLGDICreateCursor(MwCursor* image, MwCursor* mask) {
 		}
 	}
 
-	cursor = CreateCursor(GetModuleHandle(NULL), xs, ys, MwCursorDataHeight, MwCursorDataHeight, dmask, dimage);
+	cursor = CreateCursor(GetModuleHandle(NULL), xs - image->x, ys + (MwCursorDataHeight + image->y), MwCursorDataHeight, MwCursorDataHeight, dmask, dimage);
 
 	free(dimage);
 	free(dmask);

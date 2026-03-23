@@ -58,8 +58,7 @@ l(
 l("");
 c("Requirements");
 l("");
-l(
-"  Milsko requires either");
+l("  Milsko requires either");
 l("  * A Windows environment with GDI (so anything NT or 9x)");
 l("  * A MacOS environment with Cocoa (10.4 or above supported)");
 l("  * A Unix-like environment with X11 for runtime.");
