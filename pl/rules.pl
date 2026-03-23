@@ -37,7 +37,7 @@ if (grep(/^wayland$/, @backends)) {
     }
 
     scan_wayland_protocol("stable",   "xdg-shell",         "");
-    scan_wayland_protocol("stable",   "viewporter",         "");
+    scan_wayland_protocol("stable",   "viewporter",        "");
     scan_wayland_protocol("stable",   "tablet",            "-v2");
     scan_wayland_protocol("staging",  "xdg-toplevel-icon", "-v1");
     scan_wayland_protocol("staging",  "cursor-shape",      "-v1");
@@ -55,7 +55,7 @@ if (grep(/^cocoa$/, @backends)) {
         new_object("src/widget/opengl_cocoa.m");
     }
 
-    # tim cook my man literally everybody and their mother who knows what opengl is knows its deprecated on macos and i'm not having you spam the console with this
+# tim cook my man literally everybody and their mother who knows what opengl is knows its deprecated on macos and i'm not having you spam the console with this
     add_cflags("-DGL_SILENCE_DEPRECATION");
 
     $gl_libs = "-framework OpenGL";

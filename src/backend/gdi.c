@@ -589,8 +589,8 @@ HCURSOR MwLLGDICreateCursor(MwCursor* image, MwCursor* mask) {
 	int	y, x, ys, xs;
 
 	xs = -mask->x + image->x;
-	ys = MwCursorDataHeight + mask->y;
-	ys = MwCursorDataHeight + image->y - ys;
+	ys = mask->height + mask->y;
+	ys = image->height + image->y - ys;
 
 	memset(dmask, 0xff, (MwCursorDataHeight / 8) * MwCursorDataHeight);
 	memset(dimage, 0, (MwCursorDataHeight / 8) * MwCursorDataHeight);
@@ -621,7 +621,7 @@ HCURSOR MwLLGDICreateCursor(MwCursor* image, MwCursor* mask) {
 		}
 	}
 
-	cursor = CreateCursor(GetModuleHandle(NULL), xs, ys, MwCursorDataHeight, MwCursorDataHeight, dmask, dimage);
+	cursor = CreateCursor(GetModuleHandle(NULL), xs - image->x, ys + (MwCursorDataHeight + image->y), MwCursorDataHeight, MwCursorDataHeight, dmask, dimage);
 
 	free(dimage);
 	free(dmask);

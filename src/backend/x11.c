@@ -811,8 +811,8 @@ Cursor MwLLX11CreateCursor(Display* display, MwCursor* image, MwCursor* mask) {
 	XColor	cfg, cbg;
 
 	xs = -mask->x + image->x;
-	ys = MwCursorDataHeight + mask->y;
-	ys = MwCursorDataHeight + image->y - ys;
+	ys = mask->height + mask->y;
+	ys = image->height + image->y - ys;
 
 	memset(cimage->data, 0, cimage->bytes_per_line * cimage->height);
 	memset(cmask->data, 0, cmask->bytes_per_line * cmask->height);
@@ -849,7 +849,7 @@ Cursor MwLLX11CreateCursor(Display* display, MwCursor* image, MwCursor* mask) {
 	XPutImage(display, pimage, imagegc, cimage, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
 	XPutImage(display, pmask, maskgc, cmask, 0, 0, 0, 0, MwCursorDataHeight, MwCursorDataHeight);
 
-	cur = XCreatePixmapCursor(display, pimage, pmask, &cfg, &cbg, xs, ys);
+	cur = XCreatePixmapCursor(display, pimage, pmask, &cfg, &cbg, xs - image->x, ys + (MwCursorDataHeight + image->y));
 
 	XFreePixmap(display, pimage);
 	XFreePixmap(display, pmask);
