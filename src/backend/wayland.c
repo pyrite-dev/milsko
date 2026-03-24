@@ -535,10 +535,6 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 		}
 	}
 
-	if(!self->wayland.always_render) {
-		MwLLDispatch(self, draw, NULL);
-	}
-
 	if(!self->wayland.has_decorations) {
 		xdg_borderless_step(self, p, serial);
 	}
@@ -1894,7 +1890,7 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 
 static int MwLLPendingImpl(MwLL handle) {
 	struct timespec timeout = {
-	    .tv_nsec = 100,
+	    .tv_nsec = 1,
 	    .tv_sec  = 0,
 	};
 	struct pollfd fd = {
@@ -1906,7 +1902,6 @@ static int MwLLPendingImpl(MwLL handle) {
 	if(!handle->wayland.did_initial_resize) {
 		recursive_dispatch_resize(handle);
 		handle->wayland.did_initial_resize = 1;
-		return 1;
 	}
 
 	if(!handle->wayland.always_render) wl_display_prepare_read(handle->wayland.display);
@@ -1925,9 +1920,9 @@ static int MwLLPendingImpl(MwLL handle) {
 		return pending;
 	}
 
-	wl_surface_commit(handle->wayland.framebuffer.surface);
+	update_buffer(&handle->wayland.framebuffer);
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
-		wl_surface_commit(handle->wayland.backbuffer.surface);
+		update_buffer(&handle->wayland.backbuffer);
 	}
 
 	return handle->wayland.force_render || handle->wayland.events_pending || pending;
@@ -1944,9 +1939,9 @@ static void MwLLNextEventImpl(MwLL handle) {
 	}
 
 	if(handle->wayland.force_render) {
-		if(!handle->wayland.events_pending) {
-			MwLLDispatch(handle, draw, NULL);
-		}
+		// if(!handle->wayland.events_pending) {
+		MwLLDispatch(handle, draw, NULL);
+		// }
 		if(handle->wayland.configured) update_buffer(&handle->wayland.framebuffer);
 		handle->wayland.force_render = 0;
 	}
