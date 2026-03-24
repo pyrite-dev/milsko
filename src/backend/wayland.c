@@ -102,11 +102,9 @@ static void wl_flush(MwLL handle) {
 static void recursive_dispatch_draw_n_resize(MwLL handle) {
 	MwWidget h = (MwWidget)handle->common.user;
 	MwLLDispatch(handle, draw, NULL);
-	MwLLDispatch(handle, resize, NULL);
 	if(h) {
 		int i;
 		for(i = 0; i < arrlen(h->children); i++) {
-			MwDispatch(h->children[i], draw);
 			MwDispatch(h->children[i], resize);
 			if(arrlen(h->children[i]->children) > 0) {
 				recursive_dispatch_draw_n_resize(h->children[i]->lowlevel);
@@ -481,23 +479,6 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 	if(currentlyHeldWidget) {
 		MwLLDispatch(currentlyHeldWidget, down, &p);
-	}
-
-	/* We want to send a draw call whenever we move the cursor, BUT only if the topmost parent doesn't already have events pedngin. */
-	if(self->wayland.parent) {
-		MwLL topmost = self->wayland.parent;
-		while(topmost->wayland.parent) topmost = topmost->wayland.parent;
-		/* also we only wanna do it every 50ms */
-		if((self->wayland.last_time + 50) <= time && !topmost->wayland.events_pending && !topmost->wayland.always_render) {
-			MwLLDispatch(self, draw, NULL);
-			self->wayland.last_time = time;
-		}
-	} else {
-		/* if there's no parent just impose the requirement on the widget itself */
-		if((self->wayland.last_time + 50) <= time && !self->wayland.events_pending && !self->wayland.always_render) {
-			MwLLDispatch(self, draw, NULL);
-			self->wayland.last_time = time;
-		}
 	}
 
 	WAYLAND_EVENT_OP_END(self);
