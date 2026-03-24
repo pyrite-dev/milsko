@@ -99,15 +99,14 @@ static void wl_flush(MwLL handle) {
 }
 
 /* Recursively dispatch a draw event to a widget and its children */
-static void recursive_dispatch_draw_n_resize(MwLL handle) {
+static void recursive_dispatch_resize(MwLL handle) {
 	MwWidget h = (MwWidget)handle->common.user;
-	MwLLDispatch(handle, draw, NULL);
 	if(h) {
 		int i;
 		for(i = 0; i < arrlen(h->children); i++) {
 			MwDispatch(h->children[i], resize);
 			if(arrlen(h->children[i]->children) > 0) {
-				recursive_dispatch_draw_n_resize(h->children[i]->lowlevel);
+				recursive_dispatch_resize(h->children[i]->lowlevel);
 			}
 		}
 	}
@@ -1028,8 +1027,10 @@ static void xdg_toplevel_configure(void*		data,
 	framebuffer_destroy(&self->wayland);
 	framebuffer_setup(&self->wayland);
 	region_setup(self);
+	MwLLDispatch(self, resize, NULL);
 
-	recursive_dispatch_draw_n_resize(self);
+	MwLLDispatch(self, draw, NULL);
+	recursive_dispatch_resize(self);
 };
 
 /* Empty function for satisfying zxdg_toplevel's requirements */
@@ -1903,7 +1904,7 @@ static int MwLLPendingImpl(MwLL handle) {
 	int pending = 0;
 
 	if(!handle->wayland.did_initial_resize) {
-		recursive_dispatch_draw_n_resize(handle);
+		recursive_dispatch_resize(handle);
 		handle->wayland.did_initial_resize = 1;
 		return 1;
 	}
