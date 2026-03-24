@@ -441,13 +441,13 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 		MwLL topmost = self->wayland.parent;
 		while(topmost->wayland.parent) topmost = topmost->wayland.parent;
 		/* also we only wanna do it every 50ms */
-		if((self->wayland.last_time + 50) <= time && !topmost->wayland.events_pending) {
+		if((self->wayland.last_time + 50) <= time && !topmost->wayland.events_pending && !topmost->wayland.always_render) {
 			MwLLDispatch(self, draw, NULL);
 			self->wayland.last_time = time;
 		}
 	} else {
 		/* if there's no parent just impose the requirement on the widget itself */
-		if((self->wayland.last_time + 50) <= time && !self->wayland.events_pending) {
+		if((self->wayland.last_time + 50) <= time && !self->wayland.events_pending && !self->wayland.always_render) {
 			MwLLDispatch(self, draw, NULL);
 			self->wayland.last_time = time;
 		}

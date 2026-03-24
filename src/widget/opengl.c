@@ -168,11 +168,10 @@ static int create(MwWidget handle) {
 		waylandopengl_t* o = r			= malloc(sizeof(*o));
 		MwLL		 topmost_parent		= handle->lowlevel->wayland.parent;
 		handle->lowlevel->wayland.always_render = MwTRUE;
-		topmost_parent->wayland.always_render	= MwTRUE;
 
 		while(topmost_parent->wayland.parent != NULL) {
-			topmost_parent			      = topmost_parent->wayland.parent;
 			topmost_parent->wayland.always_render = MwTRUE;
+			topmost_parent			      = topmost_parent->wayland.parent;
 		}
 
 		display =
