@@ -49,7 +49,6 @@ void resize(MwWidget w, void* user, void* client) {
 	(void)user;
 	(void)client;
 
-	printf("H\n");
 	ww = MwGetInteger(w, MwNwidth);
 	wh = MwGetInteger(w, MwNheight);
 }

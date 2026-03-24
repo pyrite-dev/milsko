@@ -98,6 +98,51 @@ static void wl_flush(MwLL handle) {
 	}
 }
 
+/* Recursively dispatch a draw event to a widget and its children */
+static void recursive_dispatch_draw_n_resize(MwLL handle) {
+	MwWidget h = (MwWidget)handle->common.user;
+	MwLLDispatch(handle, draw, NULL);
+	MwLLDispatch(handle, resize, NULL);
+	if(h) {
+		int i;
+		for(i = 0; i < arrlen(h->children); i++) {
+			MwDispatch(h->children[i], draw);
+			MwDispatch(h->children[i], resize);
+			if(arrlen(h->children[i]->children) > 0) {
+				recursive_dispatch_draw_n_resize(h->children[i]->lowlevel);
+			}
+		}
+	}
+};
+
+/* Recursively dispatch a key event to a widget and its children */
+static void recursive_dispatch_key(MwLL handle, int* k) {
+	MwWidget h = (MwWidget)handle->common.user;
+	MwLLDispatch(handle, key, k);
+	if(h) {
+		int i;
+		for(i = 0; i < arrlen(h->children); i++) {
+			MwLLDispatch(h->children[i]->lowlevel, key, k);
+			if(arrlen(h->children[i]->children) > 0) {
+				recursive_dispatch_key(h->children[i]->lowlevel, k);
+			}
+		}
+	}
+};
+/* Recursively dispatch a key released event to a widget and its children */
+static void recursive_dispatch_key_released(MwLL handle, int* k) {
+	MwWidget h = (MwWidget)handle->common.user;
+	MwLLDispatch(handle, key_released, k);
+	if(h) {
+		int i;
+		for(i = 0; i < arrlen(h->children); i++) {
+			MwLLDispatch(h->children[i]->lowlevel, key_released, k);
+			if(arrlen(h->children[i]->children) > 0) {
+				recursive_dispatch_key_released(h->children[i]->lowlevel, k);
+			}
+		}
+	}
+};
 static void wl_offer(void*		   data,
 		     struct wl_data_offer* wl_data_offer,
 		     const char*	   mime_type) {
@@ -424,6 +469,8 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 			   wl_fixed_t surface_x, wl_fixed_t surface_y) {
 	MwLL	  self = data;
 	MwLLMouse p;
+	int	  i = 0;
+	MwWidget  h = (MwWidget)self->common.user;
 
 	WAYLAND_EVENT_OP_START(self);
 
@@ -680,9 +727,9 @@ static void keyboard_key(void*		     data,
 			}
 
 			if(state == WL_KEYBOARD_KEY_STATE_PRESSED) {
-				MwLLDispatch(self, key, &key);
+				recursive_dispatch_key(self, &key);
 			} else {
-				MwLLDispatch(self, key_released, &key);
+				recursive_dispatch_key_released(self, &key);
 			}
 		}
 	}
@@ -970,8 +1017,9 @@ static void xdg_toplevel_configure(void*		data,
 				   struct xdg_toplevel* xdg_toplevel,
 				   MwI32 width, MwI32 height,
 				   struct wl_array* states) {
-	MwLL self = data;
-	int  i;
+	MwLL	 self = data;
+	int	 i;
+	MwWidget h = ((MwWidget)self->common.user);
 
 	/* Yes, somehow this can get called before  */
 	if(!self->wayland.configured) {
@@ -1000,8 +1048,7 @@ static void xdg_toplevel_configure(void*		data,
 	framebuffer_setup(&self->wayland);
 	region_setup(self);
 
-	MwLLDispatch(self, draw, NULL);
-	MwLLDispatch(self, resize, NULL);
+	recursive_dispatch_draw_n_resize(self);
 };
 
 /* Empty function for satisfying zxdg_toplevel's requirements */
@@ -1652,6 +1699,9 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 }
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
+	int	 i = 0;
+	MwWidget h = (MwWidget)handle->common.user;
+
 	region_invalidate(handle);
 	handle->wayland.x = x;
 	handle->wayland.y = y;
@@ -1664,6 +1714,8 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
+	int	 i	= 0;
+	MwWidget widget = (MwWidget)handle->common.user;
 	region_invalidate(handle);
 
 	/* Prevent an integer underflow when the w/h is too low */
@@ -1694,7 +1746,6 @@ refresh:
 	backbuffer_destroy(&handle->wayland);
 	backbuffer_setup(&handle->wayland);
 	MwLLDispatch(handle, draw, NULL);
-
 	handle->wayland.events_pending = 1;
 }
 
@@ -1871,7 +1922,7 @@ static int MwLLPendingImpl(MwLL handle) {
 	int pending = 0;
 
 	if(!handle->wayland.did_initial_resize) {
-		MwLLDispatch(handle, resize, NULL);
+		recursive_dispatch_draw_n_resize(handle);
 		handle->wayland.did_initial_resize = 1;
 		return 1;
 	}
@@ -1901,6 +1952,7 @@ static int MwLLPendingImpl(MwLL handle) {
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
+	int i = 0;
 	if(!handle->wayland.always_render) {
 		if(handle->wayland.did_event_loop_early) {
 			handle->wayland.did_event_loop_early = MwFALSE;
@@ -1910,7 +1962,9 @@ static void MwLLNextEventImpl(MwLL handle) {
 	}
 
 	if(handle->wayland.force_render) {
-		if(!handle->wayland.events_pending) MwLLDispatch(handle, draw, NULL);
+		if(!handle->wayland.events_pending) {
+			MwLLDispatch(handle, draw, NULL);
+		}
 		if(handle->wayland.configured) update_buffer(&handle->wayland.framebuffer);
 		handle->wayland.force_render = 0;
 	}
