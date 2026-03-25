@@ -20,6 +20,10 @@ option(MW_BUILD_SHARED "Build a shared library" ON)
 option(MW_BUILD_STATIC "Build a static library" OFF)
 option(MW_INSTALL_HEADERS "Install headers" ON)
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+option(MW_USE_WAYLAND "Enable Wayland backend" ON)
+endif()
+
 file(
 	GLOB
 	SOURCES
@@ -125,6 +129,97 @@ if(MW_USE_FREETYPE2)
 	list(APPEND INCLUDE_DIRS ${FT2_INCLUDE_DIRS})
 	list(APPEND LIBRARY_DIRS ${FT2_LIBRARY_DIRS})
 	list(APPEND LIBRARIES ${FT2_LIBRARIES})
+endif()
+
+if(MW_USE_WAYLAND)
+    function(scan_wayland_protocol_core)
+        execute_process(
+            COMMAND wayland-scanner private-code /usr/share/wayland/wayland.xml ${CMAKE_CURRENT_SOURCE_DIR}/src/backend/wayland-core-protocol.c
+            OUTPUT_VARIABLE WAYLAND_SCANNER_OUTPUT
+            ERROR_VARIABLE WAYLAND_SCANNER_ERROR
+            ECHO_OUTPUT_VARIABLE
+            ECHO_ERROR_VARIABLE
+            COMMAND_ECHO STDOUT
+        )
+        target_sources(
+      		Mw
+      		PRIVATE
+      		${CMAKE_CURRENT_SOURCE_DIR}/src/backend/wayland-core-protocol.c
+       	)
+        execute_process(
+            COMMAND wayland-scanner client-header /usr/share/wayland/wayland.xml ${CMAKE_CURRENT_SOURCE_DIR}/include/Mw/LowLevel/Wayland/wayland-core-protocol.h
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            OUTPUT_VARIABLE WAYLAND_SCANNER_OUTPUT
+            ERROR_VARIABLE WAYLAND_SCANNER_ERROR
+            ECHO_OUTPUT_VARIABLE
+            ECHO_ERROR_VARIABLE
+            COMMAND_ECHO STDOUT
+        )
+    endfunction()
+
+    function(scan_wayland_protocol tier proto ver)
+        SET(proto_c ${CMAKE_CURRENT_SOURCE_DIR}/src/backend/wayland-${proto}-protocol.c)
+        execute_process(
+            COMMAND wayland-scanner private-code /usr/share/wayland-protocols/${tier}/${proto}/${proto}${ver}.xml ${proto_c}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            OUTPUT_VARIABLE WAYLAND_SCANNER_OUTPUT
+            ERROR_VARIABLE WAYLAND_SCANNER_ERROR
+            ECHO_OUTPUT_VARIABLE
+            ECHO_ERROR_VARIABLE
+            COMMAND_ECHO STDOUT
+        )
+        target_sources(
+      		Mw
+      		PRIVATE
+            ${proto_c}
+       	)
+        execute_process(
+            COMMAND wayland-scanner client-header /usr/share/wayland-protocols/${tier}/${proto}/${proto}${ver}.xml ${CMAKE_CURRENT_SOURCE_DIR}/include/Mw/LowLevel/Wayland/${proto}-client-protocol.h
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            OUTPUT_VARIABLE WAYLAND_SCANNER_OUTPUT
+            ERROR_VARIABLE WAYLAND_SCANNER_ERROR
+            ECHO_OUTPUT_VARIABLE
+            ECHO_ERROR_VARIABLE
+            COMMAND_ECHO STDOUT
+        )
+    endfunction()
+
+    check_include_files(wayland-client.h HAVE_WL_H)
+	check_include_files(xkbcommon/xkbcommon.h HAVE_XKBCOMMON_H)
+    check_include_files(cairo/cairo.h HAVE_CAIRO_H)
+	if(HAVE_WL_H)
+	    if(HAVE_XKBCOMMON_H)
+       	    if(HAVE_CAIRO_H)
+                scan_wayland_protocol_core()
+                scan_wayland_protocol("stable"   "xdg-shell"         "")
+                scan_wayland_protocol("stable"   "viewporter"        "")
+                scan_wayland_protocol("stable"   "tablet"            "-v2")
+                scan_wayland_protocol("staging"  "xdg-toplevel-icon" "-v1")
+                scan_wayland_protocol("staging"  "cursor-shape"      "-v1")
+                scan_wayland_protocol("unstable" "xdg-decoration"    "-unstable-v1")
+                scan_wayland_protocol("unstable" "primary-selection" "-unstable-v1")
+                scan_wayland_protocol("unstable" "pointer-constraints" "-unstable-v1")
+
+                target_sources(
+              		Mw
+              		PRIVATE
+              		src/backend/wayland.c
+               	)
+                target_compile_definitions(
+                    Mw
+                    PRIVATE
+                    USE_WAYLAND
+                )
+          		message(STATUS "Wayland backend has been enabled")
+           	else()
+          		message(WARNING "Wayland backend has been disabled")
+           	endif()
+		else()
+    		message(WARNING "Wayland backend has been disabled")
+    	endif()
+	else()
+		message(WARNING "Wayland backend has been disabled")
+	endif()
 endif()
 
 target_include_directories(
