@@ -20,6 +20,7 @@
 #endif
 
 wayland_call_table_t wl_call_tbl;
+MwBool		     MwWaylandAlwaysRender = MwFALSE;
 
 /* Standard procedure before most event callbacks in Wayland ("most" because the setup ones don't need this). Wait for the Mutex to be freed, if we're deadlocking for longer then a quarter of a second then do nothing with the event. */
 #define WAYLAND_EVENT_OP_START(self) \
@@ -770,7 +771,7 @@ static void keyboard_key(void*		     data,
 		}
 	}
 
-	if(!self->wayland.always_render) {
+	if(!MwWaylandAlwaysRender) {
 		MwLLDispatch(self, draw, NULL);
 	}
 
@@ -1999,17 +2000,17 @@ static int MwLLPendingImpl(MwLL handle) {
 		handle->wayland.did_initial_resize = 1;
 	}
 
-	if(!handle->wayland.always_render) wl_display_prepare_read(handle->wayland.display);
+	if(!MwWaylandAlwaysRender) wl_display_prepare_read(handle->wayland.display);
 	if(!poll(&fd, 1, timeout.tv_nsec)) {
 		wl_display_cancel_read(handle->wayland.display);
 	} else {
-		if(!handle->wayland.always_render) wl_display_read_events(handle->wayland.display);
+		if(!MwWaylandAlwaysRender) wl_display_read_events(handle->wayland.display);
 		if((pending = wl_display_dispatch_pending(handle->wayland.display)) < 0) {
 			wl_display_cancel_read(handle->wayland.display);
 		}
 	}
 
-	if(handle->wayland.always_render) {
+	if(MwWaylandAlwaysRender) {
 		handle->wayland.did_event_loop_early = MwTRUE;
 		event_loop(handle);
 		return pending;
@@ -2024,7 +2025,7 @@ static int MwLLPendingImpl(MwLL handle) {
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
-	if(!handle->wayland.always_render) {
+	if(!MwWaylandAlwaysRender) {
 		if(handle->wayland.did_event_loop_early) {
 			handle->wayland.did_event_loop_early = MwFALSE;
 		} else {

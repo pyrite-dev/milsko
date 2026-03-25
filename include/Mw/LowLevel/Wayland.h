@@ -127,7 +127,7 @@ typedef struct wayland_call_table {
 } wayland_call_table_t;
 
 extern wayland_call_table_t wl_call_tbl;
-
+extern MwBool		    MwWaylandAlwaysRender;
 /* defined inline right here so that it doesn't conflict with the other macros */
 MwInline int wayland_load_funcs() {
 	wl_call_tbl.lib = MwDynamicOpen("libwayland-client.so");
@@ -404,8 +404,6 @@ struct _MwLLWayland {
 		const char*	    key;
 		wayland_protocol_t* value;
 	}* wl_protocol_map;
-
-	MwBool always_render;
 
 	MwBool has_decorations;
 	char   title[255];

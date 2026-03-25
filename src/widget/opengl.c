@@ -205,14 +205,9 @@ static int create(MwWidget handle) {
 						     1,
 						     EGL_NONE};
 		EGLDisplay	 display;
-		waylandopengl_t* o = r			= malloc(sizeof(*o));
-		MwLL		 topmost_parent		= handle->lowlevel->wayland.parent;
-		handle->lowlevel->wayland.always_render = MwTRUE;
-
-		while(topmost_parent->wayland.parent != NULL) {
-			topmost_parent->wayland.always_render = MwTRUE;
-			topmost_parent			      = topmost_parent->wayland.parent;
-		}
+		waylandopengl_t* o = r		= malloc(sizeof(*o));
+		MwLL		 topmost_parent = handle->lowlevel->wayland.parent;
+		MwWaylandAlwaysRender		= MwTRUE;
 
 		o->gllib = MwDynamicOpen("libEGL.so");
 		if(!o->gllib) {
