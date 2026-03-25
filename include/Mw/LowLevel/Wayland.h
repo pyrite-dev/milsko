@@ -419,8 +419,10 @@ struct _MwLLWayland {
 
 	struct wp_viewport* vp;
 
+	MwBool				   do_lock_pointer;
 	struct zwp_pointer_constraints_v1* pointer_constraints;
 	struct zwp_locked_pointer_v1*	   locked_pointer;
+	MwBool				   pointer_constrained;
 
 	/* clipboard related stuff.
 	 * Note that unlike most interfaces, we don't keep zwp_primary_selection stuff in a wayland_protocol_t because we use wl_data_device as a fallback and want to have it share memory space.*/

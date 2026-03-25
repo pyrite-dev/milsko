@@ -514,20 +514,33 @@ static MwLL currentlyHeldWidget = NULL;
 /* `wl_pointer.motion` callback */
 static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time,
 			   wl_fixed_t surface_x, wl_fixed_t surface_y) {
-	MwLL	  self = data;
+	MwLL	  self		 = data;
+	MwLL	  topmost_parent = self;
 	MwLLMouse p;
 	(void)time;
 	(void)wl_pointer;
 
 	WAYLAND_EVENT_OP_START(self);
+	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
 	self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
 	self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
-	p.point			      = self->wayland.cur_mouse_pos;
+	if(self->wayland.do_lock_pointer) {
+		self->wayland.cur_mouse_pos.x -= topmost_parent->wayland.ww / 2.;
+		self->wayland.cur_mouse_pos.y -= topmost_parent->wayland.wh / 2.;
+	}
+	p.point = self->wayland.cur_mouse_pos;
 	MwLLDispatch(self, move, &p);
 
 	if(currentlyHeldWidget) {
 		MwLLDispatch(currentlyHeldWidget, down, &p);
+	}
+
+	if(self->wayland.do_lock_pointer) {
+		topmost_parent->wayland.locked_pointer = zwp_pointer_constraints_v1_lock_pointer(topmost_parent->wayland.pointer_constraints, topmost_parent->wayland.backbuffer.surface, topmost_parent->wayland.pointer, topmost_parent->wayland.region, ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT);
+		zwp_locked_pointer_v1_set_cursor_position_hint(topmost_parent->wayland.locked_pointer, wl_fixed_from_double(topmost_parent->wayland.ww / 2.), wl_fixed_from_double(topmost_parent->wayland.wh / 2.));
+		wl_surface_commit(topmost_parent->wayland.backbuffer.surface);
+		zwp_locked_pointer_v1_destroy(topmost_parent->wayland.locked_pointer);
 	}
 
 	WAYLAND_EVENT_OP_END(self);
@@ -1125,6 +1138,11 @@ static void xdg_toplevel_configure(void*		data,
 
 	MwLLDispatch(self, draw, NULL);
 	recursive_dispatch_resize(self);
+
+	if(self->wayland.pointer_constrained) {
+		zwp_locked_pointer_v1_set_cursor_position_hint(self->wayland.locked_pointer, wl_fixed_from_double(self->wayland.ww / 2.), wl_fixed_from_double(self->wayland.wh / 2.));
+		wl_surface_commit(self->wayland.framebuffer.surface);
+	}
 };
 
 /* `xdg_surface.close` callback */
@@ -1166,7 +1184,8 @@ static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_proto
 	(void)data;
 }
 
-static void update_buffer(struct _MwLLWaylandShmBuffer* buffer) {
+static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
+	(void)self; // for later, just in case.
 	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
 	wl_surface_commit(buffer->surface);
 }
@@ -1222,7 +1241,7 @@ static void framebuffer_setup(struct _MwLLWayland* wayland) {
 
 	memset(wayland->framebuffer.buf, 0, wayland->framebuffer.buf_size);
 	hang_until_configured((MwLL)wayland);
-	update_buffer(&wayland->framebuffer);
+	update_buffer((MwLL)wayland, &wayland->framebuffer);
 };
 static void framebuffer_destroy(struct _MwLLWayland* wayland) {
 	buffer_destroy(&wayland->framebuffer);
@@ -1247,7 +1266,7 @@ static void backbuffer_setup(struct _MwLLWayland* wayland) {
 
 	memset(wayland->backbuffer.buf, 255, wayland->backbuffer.buf_size);
 	hang_until_configured((MwLL)wayland);
-	update_buffer(&wayland->backbuffer);
+	update_buffer((MwLL)wayland, &wayland->backbuffer);
 };
 static void backbuffer_destroy(struct _MwLLWayland* wayland) {
 	buffer_destroy(&wayland->backbuffer);
@@ -1913,7 +1932,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 			MwLLDestroyPixmap(p);
 			free(px);
 		}
-		update_buffer(&handle->wayland.backbuffer);
+		update_buffer(handle, &handle->wayland.backbuffer);
 
 		wl_surface_commit(handle->wayland.backbuffer.surface);
 	}
@@ -1923,9 +1942,9 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 static void MwLLEndDrawImpl(MwLL handle) {
 	if(handle->wayland.configured) {
 		if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
-			update_buffer(&handle->wayland.backbuffer);
+			update_buffer(handle, &handle->wayland.backbuffer);
 		}
-		update_buffer(&handle->wayland.framebuffer);
+		update_buffer(handle, &handle->wayland.framebuffer);
 	}
 }
 
@@ -2023,9 +2042,9 @@ static int MwLLPendingImpl(MwLL handle) {
 		return pending;
 	}
 
-	update_buffer(&handle->wayland.framebuffer);
+	update_buffer(handle, &handle->wayland.framebuffer);
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
-		update_buffer(&handle->wayland.backbuffer);
+		update_buffer(handle, &handle->wayland.backbuffer);
 	}
 
 	return handle->wayland.force_render || handle->wayland.events_pending || pending;
@@ -2044,7 +2063,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 		// if(!handle->wayland.events_pending) {
 		MwLLDispatch(handle, draw, NULL);
 		// }
-		if(handle->wayland.configured) update_buffer(&handle->wayland.framebuffer);
+		if(handle->wayland.configured) update_buffer(handle, &handle->wayland.framebuffer);
 		handle->wayland.force_render = 0;
 	}
 	if(handle->wayland.events_pending) {
@@ -2127,7 +2146,7 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_surface_destroy(cs);
 
 	MwLLForceRender(handle);
-	update_buffer(&handle->wayland.framebuffer);
+	update_buffer(handle, &handle->wayland.framebuffer);
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 }
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
@@ -2159,7 +2178,7 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 				handle->wayland.icon->buf[i + 3] = 255;
 			}
 
-			if(handle->wayland.configured) update_buffer(handle->wayland.icon);
+			if(handle->wayland.configured) update_buffer(handle, handle->wayland.icon);
 
 			xdg_toplevel_icon_v1_add_buffer(icon, handle->wayland.icon->shm_buffer, 1);
 
@@ -2283,7 +2302,7 @@ static void MwLLFocusImpl(MwLL handle) {
 
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	if(handle->wayland.pointer_constraints) {
-		handle->wayland.locked_pointer = zwp_pointer_constraints_v1_lock_pointer(handle->wayland.pointer_constraints, handle->wayland.framebuffer.surface, handle->wayland.pointer, handle->wayland.region, ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT);
+		handle->wayland.do_lock_pointer = toggle;
 	} else {
 		printf("[WARNING] MwLLGrabPointer not supported in Wayland session, zwp_pointer_constraints_v1 required.\n");
 	}
