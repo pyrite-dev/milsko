@@ -227,16 +227,9 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 #endif
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
-		MwLL topmost_parent = handle->lowlevel->wayland.parent;
-
 		arrput(enabledExtensions, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 		/* take this opprutunity to set the widget to always render */
 		MwWaylandAlwaysRender  = MwTRUE;
-
-		while(topmost_parent->wayland.parent != NULL) {
-			topmost_parent			      = topmost_parent->wayland.parent;
-			topmost_parent->wayland.always_render = MwTRUE;
-		}
 	}
 #endif
 
