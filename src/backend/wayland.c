@@ -2322,6 +2322,21 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 			setup_toplevel(handle, handle->wayland.detach_point.x, handle->wayland.detach_point.y);
 			break;
 		}
+
+		// framebuffer_setup(&handle->wayland);
+		// backbuffer_setup(&handle->wayland);
+
+		handle->wayland.region	 = wl_compositor_create_region(handle->wayland.compositor);
+		handle->wayland.o_region = wl_compositor_create_region(handle->wayland.compositor);
+		region_setup(handle);
+
+		MwLLForceRender(handle);
+		if(handle->wayland.parent != NULL) {
+			MwLLForceRender(handle->wayland.parent);
+		}
+
+		handle->wayland.events_pending = 1;
+
 		handle->wayland.detatching = MwFALSE;
 	}
 
