@@ -58,7 +58,7 @@ my %features = (
     "vulkan-string-helper" => "use Vulkan string helper",
     "shared"               => "build shared library",
     "static"               => "build static library",
-    "experimental-wayland" => "enable WIP wayland backend",
+    "wayland"              => "enable  ayland backend",
 );
 my @features_keys = (
     "1classic-theme", "1stb-image",
@@ -66,7 +66,7 @@ my @features_keys = (
     "1opengl",        "2xrender",
     "1vulkan",        "2vulkan-string-helper",
     "1shared",        "1static",
-    "1experimental-wayland"
+    "1wayland"
 );
 
 foreach my $l (@ARGV) {
