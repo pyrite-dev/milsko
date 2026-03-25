@@ -479,8 +479,6 @@ struct _MwLLWayland {
 
 	MwBool moving;
 
-	struct wl_surface* curSurface;
-
 	cairo_surface_t* front_cs;
 	cairo_surface_t* back_cs;
 	cairo_t*	 front_cairo;
