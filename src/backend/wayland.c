@@ -1889,6 +1889,7 @@ static void MwLLEndDrawImpl(MwLL handle) {
 	if(handle->wayland.configured) {
 		update_buffer(&handle->wayland.framebuffer);
 		if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
+			update_buffer(&handle->wayland.backbuffer);
 		}
 	}
 }
