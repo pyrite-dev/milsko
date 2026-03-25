@@ -29,13 +29,12 @@ if (grep(/^gdi$/, @backends)) {
 if (grep(/^wayland$/, @backends)) {
     add_cflags("-DUSE_WAYLAND");
     new_object("src/backend/wayland.c");
-    add_cflags(`pkg-config --cflags cairo wayland-client xkbcommon`);
-    add_libs(`pkg-config --libs cairo wayland-client xkbcommon`);
 
     if (param_get("opengl")) {
-        add_libs(`pkg-config --libs egl wayland-egl`);
+        add_cflags("-DWAYLAND_LOAD_OPENGL");
     }
 
+    scan_wayland_protocol_core();
     scan_wayland_protocol("stable",   "xdg-shell",         "");
     scan_wayland_protocol("stable",   "viewporter",        "");
     scan_wayland_protocol("stable",   "tablet",            "-v2");

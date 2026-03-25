@@ -57,6 +57,47 @@ typedef struct waylandopengl {
 	EGLContext	    egl_context;
 	EGLSurface	    egl_surface;
 	EGLConfig	    egl_config;
+
+	void* gllib;
+	void* wlgllib;
+	EGLBoolean (*eglGetConfigs)(EGLDisplay display,
+				    EGLConfig* configs,
+				    EGLint     config_size,
+				    EGLint*    num_config);
+	EGLBoolean (*eglInitialize)(EGLDisplay display,
+				    EGLint*    major,
+				    EGLint*    minor);
+	EGLContext (*eglCreateContext)(EGLDisplay    display,
+				       EGLConfig     config,
+				       EGLContext    share_context,
+				       EGLint const* attrib_list);
+	EGLBoolean (*eglMakeCurrent)(EGLDisplay display,
+				     EGLSurface draw,
+				     EGLSurface read,
+				     EGLContext context);
+	void* (*eglGetProcAddress)(char const* procname);
+	EGLBoolean (*eglSwapBuffers)(EGLDisplay display,
+				     EGLSurface surface);
+	EGLBoolean (*eglSwapInterval)(EGLDisplay display,
+				      EGLint	 interval);
+	EGLint (*eglGetError)(void);
+	EGLBoolean (*eglBindAPI)(EGLenum api);
+	EGLDisplay (*eglGetDisplay)(NativeDisplayType native_display);
+	EGLSurface (*eglCreateWindowSurface)(EGLDisplay	      display,
+					     EGLConfig	      config,
+					     NativeWindowType native_window,
+					     EGLint const*    attrib_list);
+	EGLBoolean (*eglChooseConfig)(EGLDisplay    display,
+				      EGLint const* attrib_list,
+				      EGLConfig*    configs,
+				      EGLint	    config_size,
+				      EGLint*	    num_config);
+
+	struct wl_egl_window* (*wl_egl_window_create)(struct wl_surface* surface,
+						      int width, int height);
+	void (*wl_egl_window_resize)(struct wl_egl_window* egl_window,
+				     int width, int height,
+				     int dx, int dy);
 } waylandopengl_t;
 #endif
 
@@ -136,7 +177,6 @@ static int create(MwWidget handle) {
 #endif
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
-		int		 err;
 		EGLint		 numConfigs;
 		EGLint		 majorVersion;
 		EGLint		 minorVersion;
@@ -173,6 +213,58 @@ static int create(MwWidget handle) {
 			topmost_parent->wayland.always_render = MwTRUE;
 			topmost_parent			      = topmost_parent->wayland.parent;
 		}
+
+		o->gllib = MwDynamicOpen("libEGL.so");
+		if(!o->gllib) {
+			printf("Could not load OpenGL widget under Wayland! libEGL.so missing.\n");
+			return 1;
+		}
+		o->wlgllib = MwDynamicOpen("libwayland-egl.so");
+		if(!o->gllib) {
+			printf("Could not load OpenGL widget under Wayland! libwayland-egl.so missing.\n");
+			return 1;
+		}
+#define EGL_FUNC(x) \
+	o->x = MwDynamicSymbol(o->gllib, #x); \
+	if(!o->x) { \
+		printf("Could not load OpenGL widget under Wayland! " #x " missing.\n"); \
+		return 1; \
+	};
+#define WAYLAND_EGL_FUNC(x) \
+	o->x = MwDynamicSymbol(o->wlgllib, #x); \
+	if(!o->x) { \
+		printf("Could not load OpenGL widget under Wayland! " #x " missing.\n"); \
+		return 1; \
+	};
+		EGL_FUNC(eglGetConfigs)
+		EGL_FUNC(eglInitialize)
+		EGL_FUNC(eglCreateContext)
+		EGL_FUNC(eglMakeCurrent)
+		EGL_FUNC(eglGetProcAddress)
+		EGL_FUNC(eglSwapBuffers)
+		EGL_FUNC(eglSwapInterval)
+		EGL_FUNC(eglGetError)
+		EGL_FUNC(eglBindAPI)
+		EGL_FUNC(eglGetDisplay)
+		EGL_FUNC(eglCreateWindowSurface)
+		EGL_FUNC(eglChooseConfig)
+		WAYLAND_EGL_FUNC(wl_egl_window_create)
+		WAYLAND_EGL_FUNC(wl_egl_window_resize)
+
+#define eglGetConfigs o->eglGetConfigs
+#define eglInitialize o->eglInitialize
+#define eglCreateContext o->eglCreateContext
+#define eglMakeCurrent o->eglMakeCurrent
+#define eglGetProcAddress o->eglGetProcAddress
+#define eglSwapBuffers o->eglSwapBuffers
+#define eglSwapInterval o->eglSwapInterval
+#define eglGetError o->eglGetError
+#define wl_egl_window_create o->wl_egl_window_create
+#define eglBindAPI o->eglBindAPI
+#define eglGetDisplay o->eglGetDisplay
+#define wl_egl_window_resize o->wl_egl_window_resize
+#define eglCreateWindowSurface o->eglCreateWindowSurface
+#define eglChooseConfig o->eglChooseConfig
 
 		display =
 		    eglGetDisplay((EGLNativeDisplayType)handle->lowlevel->wayland.display);
@@ -391,6 +483,7 @@ static void* mwOpenGLGetProcAddressImpl(MwWidget handle, const char* name) {
 #endif
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
+		waylandopengl_t* o = handle->internal;
 		return eglGetProcAddress(name);
 	}
 #endif

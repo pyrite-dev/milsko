@@ -58,6 +58,35 @@ sub use_backend {
     }
 }
 
+
+sub scan_wayland_protocol_core {
+    my $proto_c = "src/backend/wayland-core-protocol.c";
+
+    if (
+        system(
+"wayland-scanner private-code /usr/share/wayland/wayland.xml ${proto_c}"
+        ) != 0
+      )
+    {
+        print(
+"^ Error on getting private code for /usr/share/wayland/wayland.xml\n"
+        );
+    }
+    else {
+        new_object($proto_c);
+    }
+    if (
+        system(
+"wayland-scanner client-header /usr/share/wayland/wayland.xml include/Mw/LowLevel/Wayland/wayland-core-protocol.h"
+        )
+      )
+    {
+        print(
+"^ Error on getting client header for /usr/share/wayland/wayland.xml\n"
+        );
+    }
+}
+
 sub scan_wayland_protocol {
     my $tier  = $_[0];
     my $proto = $_[1];
