@@ -2026,11 +2026,17 @@ static int MwLLPendingImpl(MwLL handle) {
 		handle->wayland.did_initial_resize = 1;
 	}
 
-	if(!MwWaylandAlwaysRender) wl_display_prepare_read(handle->wayland.display);
-	if(!poll(&fd, 1, timeout.tv_nsec)) {
-		wl_display_cancel_read(handle->wayland.display);
+	if(!MwWaylandAlwaysRender) {
+		wl_display_prepare_read(handle->wayland.display);
+		if(!poll(&fd, 1, timeout.tv_nsec)) {
+			wl_display_cancel_read(handle->wayland.display);
+		} else {
+			wl_display_read_events(handle->wayland.display);
+			if((pending = wl_display_dispatch_pending(handle->wayland.display)) < 0) {
+				wl_display_cancel_read(handle->wayland.display);
+			}
+		}
 	} else {
-		if(!MwWaylandAlwaysRender) wl_display_read_events(handle->wayland.display);
 		if((pending = wl_display_dispatch_pending(handle->wayland.display)) < 0) {
 			wl_display_cancel_read(handle->wayland.display);
 		}

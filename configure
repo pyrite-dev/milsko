@@ -46,6 +46,10 @@ param_set("vulkan-string-helper", 1);
 param_set("shared",               1);
 param_set("static",               1);
 param_set("examples",             1);
+print($target);
+if($target eq "Linux") {
+    param_set("wayland",          1);
+}
 
 my %features = (
     "classic-theme"        => "use classic theme",
@@ -58,7 +62,7 @@ my %features = (
     "vulkan-string-helper" => "use Vulkan string helper",
     "shared"               => "build shared library",
     "static"               => "build static library",
-    "wayland"              => "enable  ayland backend",
+    "wayland"              => "enable wayland backend",
 );
 my @features_keys = (
     "1classic-theme", "1stb-image",
