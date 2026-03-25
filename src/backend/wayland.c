@@ -5,11 +5,6 @@
 
 #include "../../external/stb_ds.h"
 
-/* TODO:
- * - MwLLMakePopupImpl
- * - MwLLShowImpl
- */
-
 /* TODO: find out what FreeBSD and such wants us to include */
 #ifdef __FreeBSD__
 /* XXX: Untested (nishi) */
@@ -446,6 +441,17 @@ static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 n
 }
 
 static void zwp_primary_selection_device_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	(void)wayland;
+	(void)data;
+}
+
+/* zwp_primary_selection_device_manager_v1 setup function */
+static wayland_protocol_t* zwp_pointer_constraints_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
+	wayland->pointer_constraints = wl_registry_bind(wayland->registry, name, &zwp_pointer_constraints_v1_interface, 1);
+	return NULL;
+}
+
+static void zwp_pointer_constraints_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)wayland;
 	(void)data;
 }
@@ -1329,6 +1335,7 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 	WL_INTERFACE(wl_output);
 	WL_INTERFACE(wl_data_device_manager);
 	WL_INTERFACE(zwp_primary_selection_device_manager_v1);
+	WL_INTERFACE(zwp_pointer_constraints_v1);
 	if(wayland->type == MWLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(xdg_wm_base);
 		WL_INTERFACE(wp_viewporter);
@@ -2275,9 +2282,11 @@ static void MwLLFocusImpl(MwLL handle) {
 }
 
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
-	(void)handle;
-	(void)toggle;
-	printf("[WARNING] MwLLGrabPointer not supported on Wayland\n");
+	if(handle->wayland.pointer_constraints) {
+		handle->wayland.locked_pointer = zwp_pointer_constraints_v1_lock_pointer(handle->wayland.pointer_constraints, handle->wayland.framebuffer.surface, handle->wayland.pointer, handle->wayland.region, ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT);
+	} else {
+		printf("[WARNING] MwLLGrabPointer not supported in Wayland session, zwp_pointer_constraints_v1 required.\n");
+	}
 }
 
 static void MwLLSetClipboardImpl(MwLL handle, const char* text) {

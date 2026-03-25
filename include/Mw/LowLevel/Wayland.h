@@ -285,6 +285,7 @@ MwInline int wayland_load_funcs() {
 #include "Wayland/xdg-decoration-client-protocol.h"
 #include "Wayland/cursor-shape-client-protocol.h"
 #include "Wayland/primary-selection-client-protocol.h"
+#include "Wayland/pointer-constraints-client-protocol.h"
 #include "Wayland/xdg-toplevel-icon-client-protocol.h"
 #endif
 
@@ -417,6 +418,9 @@ struct _MwLLWayland {
 	struct wl_output*	    output;
 
 	struct wp_viewport* vp;
+
+	struct zwp_pointer_constraints_v1* pointer_constraints;
+	struct zwp_locked_pointer_v1*	   locked_pointer;
 
 	/* clipboard related stuff.
 	 * Note that unlike most interfaces, we don't keep zwp_primary_selection stuff in a wayland_protocol_t because we use wl_data_device as a fallback and want to have it share memory space.*/
