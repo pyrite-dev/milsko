@@ -21,11 +21,17 @@
 #import <CoreGraphics/CoreGraphics.h>
 #endif
 
+@interface MilskoCocoaApplication : NSApplication {
+	MwBool doPending;
+}
+- (MwBool)pending;
+@end
+
 // Note: implements NSApplicationDelegate
 @interface MilskoCocoaApplicationDelegate : NSObject {
-	NSApplication* appl;
+	MilskoCocoaApplication* appl;
 }
-- (MilskoCocoaApplicationDelegate*)initWithAppl:(NSApplication*)appl;
+- (MilskoCocoaApplicationDelegate*)initWithAppl:(MilskoCocoaApplication*)appl;
 @end
 
 @interface MilskoCocoaWindow : NSWindow {
@@ -80,32 +86,39 @@
 @end
 
 @interface MilskoCocoaView : NSView {
-	NSBitmapImageRep*  rep;
-	NSGraphicsContext* context;
-	MwBool		   valid;
-	CGColorSpaceRef	   space;
-	CGDataProviderRef  provider;
-	float		   width;
-	float		   height;
+	NSBitmapImageRep*	   rep;
+	NSGraphicsContext*	   context;
+	MwBool			   valid;
+	CGColorSpaceRef		   space;
+	CGDataProviderRef	   provider;
+	NSRect			   givenRect;
+	float			   x;
+	float			   y;
+	float			   width;
+	float			   height;
+	MwBool			   _child;
+	IBOutlet NSViewController* viewController;
 }
 
 - (void)initRepAndContextWithWidth:(float)w Height:(float)h;
 - (NSGraphicsContext*)context;
 - (void)destroy;
 - (NSBitmapImageRep*)getRep;
+- (void)setChild;
 
 @end
 
 @interface MilskoCocoa : NSObject {
-	NSApplication*	   application;
-	MwBool		   _forceRender;
-	MilskoCocoaWindow* window;
-	NSRect		   rect;
-	MilskoCocoaView*   view;
-	MwLL		   parent;
-	MilskoFakePointer* handle;
-	unsigned int	   strHash;
-	NSEvent*	   lastEvent;
+	MilskoCocoaApplication* application;
+	MwBool			_forceRender;
+	MwBool			_eventsPending;
+	MilskoCocoaWindow*	window;
+	NSRect			rect;
+	MilskoCocoaView*	view;
+	MwLL			parent;
+	MilskoFakePointer*	handle;
+	unsigned int		strHash;
+	NSEvent*		lastEvent;
 
 	MilskoCocoaPixmap* cursorPixmap;
 	NSCursor*	   cursor;
@@ -129,9 +142,6 @@
 - (void)setX:(int)x Y:(int)y;
 - (void)setW:(int)w H:(int)h;
 - (int)pending;
-- (void)eventProcess:(NSEvent*)ev;
-- (void)handleKeyEvent:(NSEvent*)ev ll:(MwLL)ll;
-- (void)handleMouseEvent:(NSEvent*)ev ll:(MwLL)ll;
 - (void)getNextEvent;
 - (void)setTitle:(const char*)title;
 - (void)drawPixmap:(MwLLPixmap)pixmap rect:(MwRect*)rect;
@@ -158,6 +168,10 @@
 - (MwLL)getParent;
 - (NSView*)getView;
 - (MilskoCocoaWindow*)getWindow;
+- (void)nudge;
+
+- (void)pushCursor;
+- (void)popCursor;
 
 - (MilskoFakePointer*)getHandle;
 + (void)eventCanceller:(MilskoCocoa*)this;

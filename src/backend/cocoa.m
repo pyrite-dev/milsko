@@ -1,5 +1,9 @@
 #include "Mw/BaseTypes.h"
+#include "Mw/LowLevel.h"
 #include <Mw/Milsko.h>
+#include <objc/objc.h>
+#include "../../external/stb_ds.h"
+#include "Mw/TypeDefs.h"
 
 #ifdef __clang__
 #pragma clang push
@@ -22,14 +26,43 @@ static NSPoint pointFlip(NSPoint point) {
 }
 
 static NSRect localRectFlip(NSRect originFrame, NSView* view) {
-	float  viewHeight	= [view bounds].size.height;
-	NSRect destinationFrame = NSMakeRect(
-	    originFrame.origin.x,
-	    [view bounds].size.height - (originFrame.origin.y + originFrame.size.height),
-	    originFrame.size.width,
-	    originFrame.size.height);
+	float  viewHeight = [view bounds].size.height;
+	NSRect destinationFrame =
+	    NSMakeRect(originFrame.origin.x,
+		       [view bounds].size.height -
+			   (originFrame.origin.y + originFrame.size.height),
+		       originFrame.size.width, originFrame.size.height);
 	return destinationFrame;
 }
+
+/* Recursively dispatch a key event to a widget and its children */
+static void recursive_dispatch_key(MwLL handle, int* k) {
+	MwWidget h = (MwWidget)handle->common.user;
+	MwLLDispatch(handle, key, k);
+	if(h) {
+		int i;
+		for(i = 0; i < arrlen(h->children); i++) {
+			MwLLDispatch(h->children[i]->lowlevel, key, k);
+			if(arrlen(h->children[i]->children) > 0) {
+				recursive_dispatch_key(h->children[i]->lowlevel, k);
+			}
+		}
+	}
+};
+/* Recursively dispatch a key released event to a widget and its children */
+static void recursive_dispatch_key_released(MwLL handle, int* k) {
+	MwWidget h = (MwWidget)handle->common.user;
+	MwLLDispatch(handle, key_released, k);
+	if(h) {
+		int i;
+		for(i = 0; i < arrlen(h->children); i++) {
+			MwLLDispatch(h->children[i]->lowlevel, key_released, k);
+			if(arrlen(h->children[i]->children) > 0) {
+				recursive_dispatch_key_released(h->children[i]->lowlevel, k);
+			}
+		}
+	}
+};
 
 @implementation MilskoCocoaPixmap
 
@@ -85,6 +118,8 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 	[self->image removeRepresentation:self->rep];
 	[self->image dealloc];
 	[self->rep dealloc];
+	self->image = NULL;
+	self->rep   = NULL;
 }
 - (NSImage*)image {
 	return self->image;
@@ -103,16 +138,18 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 	[c retain];
 
 	/*
-	 * MacOS doesn't really have a "default" window position, you're actually meant to center the window yourself,
-	 * so if the user passes MwDEFAULT respond appropriately. Also for child windows just have it be 0.
+	 * MacOS doesn't really have a "default" window position, you're actually
+	 * meant to center the window yourself, so if the user passes MwDEFAULT
+	 * respond appropriately. Also for child windows just have it be 0.
 	 */
 	if(x == MwDEFAULT) {
 		x = r ? ([[NSScreen mainScreen] frame].size.width / 2.) - (width / 2.) : 0;
 	}
 	if(y == MwDEFAULT) {
-		y = r ? ([[NSScreen mainScreen] frame].size.height / 2.) - (height / 2.) : 0;
+		y = r ? ([[NSScreen mainScreen] frame].size.height / 2.) - (height / 2.)
+		      : 0;
 	}
-	c->application = [NSApplication sharedApplication];
+	c->application = [MilskoCocoaApplication sharedApplication];
 	c->rect	       = NSMakeRect(x, y, width, height);
 
 	if(parent == NULL) {
@@ -130,7 +167,6 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 
 		[c->window makeKeyAndOrderFront:c->application];
 		[c->window makeFirstResponder:c->view];
-		[c->window setAcceptsMouseMovedEvents:MwTRUE];
 
 		c->view = [[MilskoCocoaView alloc] initWithFrame:c->rect];
 		[c->view retain];
@@ -140,29 +176,31 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 			[c->application
 			    setActivationPolicy:0 /* NSApplicationActivationPolicyRegular */];
 		}
-		[c->application activateIgnoringOtherApps:true];
+		[c->application activateIgnoringOtherApps:MwTRUE];
 		[c->application setDelegate:[[MilskoCocoaApplicationDelegate alloc]
 						initWithAppl:c->application]];
 		[c->application retain];
+
+		[c->view addTrackingRect:c->rect owner:c->view userData:NULL assumeInside:MwFALSE];
 	} else {
 		MilskoCocoa* p = parent->cocoa.real;
 
 		c->window = p->window;
 
-		if(parent) {
-			MilskoCocoa* topmost = p;
-			NSRect	     rect    = localRectFlip(c->rect, p->view);
-			printf("%0.2f %0.2f %0.2f %0.2f\n", c->rect.origin.x, c->rect.origin.y, c->rect.size.width, c->rect.size.height);
-			c->view = [[MilskoCocoaView alloc] initWithFrame:rect];
-			[c->view setBounds:c->rect];
-		} else {
-			c->view = [[MilskoCocoaView alloc] initWithFrame:c->rect];
-		}
+		NSRect rect = localRectFlip(c->rect, p->view);
+		c->view	    = [[MilskoCocoaView alloc] initWithFrame:rect];
+		[c->view setBounds:c->rect];
+
 		[c->view retain];
 		[c->view setNeedsDisplay:TRUE];
+		[c->view setChild];
+
+		[c->view addTrackingRect:c->rect owner:c->view userData:NULL assumeInside:MwFALSE];
+
 		[p->view addSubview:c->view];
 		[p->window setContentView:p->view];
 	}
+	[c->window setAcceptsMouseMovedEvents:MwTRUE];
 
 	c->handle = [[MilskoFakePointer alloc] initWithFrame:NSMakeRect(0, 0, 1, 1)];
 	[c->handle retain];
@@ -208,11 +246,11 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 		NSRectFill(self->view.bounds);
 		for(i = 0; i < points_count; i++) {
 			if(i == 0) {
-				[path moveToPoint:NSMakePoint(points[i].x, _rect.size.height -
-									       points[i].y)];
+				[path moveToPoint:NSMakePoint(points[i].x,
+							      _rect.size.height - points[i].y)];
 			} else {
-				[path lineToPoint:NSMakePoint(points[i].x, _rect.size.height -
-									       points[i].y)];
+				[path lineToPoint:NSMakePoint(points[i].x,
+							      _rect.size.height - points[i].y)];
 			}
 		}
 
@@ -262,6 +300,7 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 		frame = localRectFlip(frame, parent->cocoa.real->view);
 		[self->view setBounds:frame];
 	}
+	self->_eventsPending = MwTRUE;
 };
 - (void)setW:(int)w H:(int)h {
 	NSRect frame	  = [self->window frame];
@@ -276,22 +315,27 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 	} else {
 		[self->window setFrame:frame display:YES animate:false];
 	}
+	self->_eventsPending = MwTRUE;
 };
 - (int)pending {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool* pool	     = [[NSAutoreleasePool alloc] init];
+	MwBool		   isPending = [self->application pending];
 	[NSApp runModalSession:self->modalSession];
 	[pool release];
-	return 1;
+	return _forceRender || _eventsPending || isPending;
 };
 
 - (void)getNextEvent {
-	[self eventProcess:self->lastEvent];
-
+	MwLL h = [self->handle pointer];
 	if(_forceRender) {
-		MwLL h = [self->handle pointer];
 		MwLLDispatch(h, draw, NULL);
 		[self->view setNeedsDisplay:true];
 		_forceRender = MwFALSE;
+	}
+	if(_eventsPending) {
+		MwLLDispatch(h, draw, NULL);
+		[self->view setNeedsDisplay:true];
+		_eventsPending = MwFALSE;
 	}
 	[self sendClipboardEvent];
 
@@ -305,258 +349,6 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 
 	[self->application updateWindows];
 };
-
-- (void)eventProcess:(NSEvent*)ev {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	NSWindow*	   win	= [ev window];
-	MwLL		   h;
-	MwBool		   doSendEvent = MwTRUE;
-
-	if(!win) {
-		[pool release];
-		return;
-	}
-
-	if([[[win contentView] subviews] count] == 0) {
-		printf("no subviews on %p\n", win);
-		[pool release];
-		return;
-	} else {
-		h = [((MilskoFakePointer*)[[[win contentView] subviews]
-		    objectAtIndex:0]) pointer];
-	}
-
-	switch([ev type]) {
-	case NSLeftMouseDragged:
-	case NSRightMouseDragged:
-	case NSOtherMouseDragged:
-	case NSMouseMoved: {
-		MwPoint pos;
-		NSPoint pos_translated = pointFlip([ev locationInWindow]);
-		pos.x		       = pos_translated.x;
-		pos.y		       = pos_translated.y;
-		MwLLDispatch(h, move, &pos);
-		break;
-	}
-	case NSLeftMouseDown:
-	case NSRightMouseDown:
-	case NSOtherMouseDown:
-	case NSLeftMouseUp:
-	case NSRightMouseUp:
-	case NSOtherMouseUp: {
-		[self handleMouseEvent:ev ll:h];
-		break;
-	}
-
-	case NSMouseEntered:
-		MwLLDispatch(h, focus_in, NULL);
-		[self->cursor push];
-		break;
-	case NSMouseExited:
-		MwLLDispatch(h, focus_out, NULL);
-		[self->cursor pop];
-		break;
-	case NSKeyDown:
-	case NSKeyUp: {
-		[self handleKeyEvent:ev ll:h];
-		break;
-	}
-	case NSCursorUpdate:
-		[self->cursor set];
-		break;
-	case NSScrollWheel:
-		break;
-	default:
-		/* mute bizarre "unknown subtype" errors that flood the console */
-		break;
-	};
-	if(doSendEvent) {
-		[win sendEvent:ev];
-	}
-	[pool release];
-}
-
-- (void)handleMouseEvent:(NSEvent*)ev ll:(MwLL)ll {
-	MwLLMouse mouse;
-	MwBool	  isDown     = MwTRUE;
-	NSPoint	  mousePoint = [ev locationInWindow];
-	mousePoint.y	     = [[ev window] frame].size.height - mousePoint.y;
-	MwLL this	     = [self->handle pointer];
-
-	switch([ev type]) {
-	case NSLeftMouseUp:
-		isDown = MwFALSE;
-	case NSEventTypeLeftMouseDragged:
-	case NSLeftMouseDown:
-		mouse.button = MwLLMouseLeft;
-		break;
-	case NSRightMouseUp:
-		isDown = MwFALSE;
-	case NSRightMouseDown:
-	case NSEventTypeRightMouseDragged:
-		mouse.button = MwLLMouseRight;
-		break;
-	case NSOtherMouseUp:
-		isDown = MwFALSE;
-	case NSOtherMouseDown:
-	case NSEventTypeOtherMouseDragged:
-		mouse.button = MwLLMouseMiddle;
-		break;
-	default:
-		break;
-	}
-	mouse.point.x = mousePoint.x;
-	mouse.point.y = mousePoint.y;
-
-	printf("%s at %d %d\n", isDown ? "down" : "up", mouse.point.x, mouse.point.y);
-
-	if(isDown) {
-		MwLLDispatch(ll, down, &mouse);
-	} else {
-		MwLLDispatch(ll, up, &mouse);
-	}
-}
-
-- (void)handleKeyEvent:(NSEvent*)ev ll:(MwLL)ll {
-	int ch;
-	MwLL this = [self->handle pointer];
-	enum {
-		kVK_ANSI_A	      = 0x00,
-		kVK_ANSI_S	      = 0x01,
-		kVK_ANSI_D	      = 0x02,
-		kVK_ANSI_F	      = 0x03,
-		kVK_ANSI_H	      = 0x04,
-		kVK_ANSI_G	      = 0x05,
-		kVK_ANSI_Z	      = 0x06,
-		kVK_ANSI_X	      = 0x07,
-		kVK_ANSI_C	      = 0x08,
-		kVK_ANSI_V	      = 0x09,
-		kVK_ANSI_B	      = 0x0B,
-		kVK_ANSI_Q	      = 0x0C,
-		kVK_ANSI_W	      = 0x0D,
-		kVK_ANSI_E	      = 0x0E,
-		kVK_ANSI_R	      = 0x0F,
-		kVK_ANSI_Y	      = 0x10,
-		kVK_ANSI_T	      = 0x11,
-		kVK_ANSI_1	      = 0x12,
-		kVK_ANSI_2	      = 0x13,
-		kVK_ANSI_3	      = 0x14,
-		kVK_ANSI_4	      = 0x15,
-		kVK_ANSI_6	      = 0x16,
-		kVK_ANSI_5	      = 0x17,
-		kVK_ANSI_Equal	      = 0x18,
-		kVK_ANSI_9	      = 0x19,
-		kVK_ANSI_7	      = 0x1A,
-		kVK_ANSI_Minus	      = 0x1B,
-		kVK_ANSI_8	      = 0x1C,
-		kVK_ANSI_0	      = 0x1D,
-		kVK_ANSI_RightBracket = 0x1E,
-		kVK_ANSI_O	      = 0x1F,
-		kVK_ANSI_U	      = 0x20,
-		kVK_ANSI_LeftBracket  = 0x21,
-		kVK_ANSI_I	      = 0x22,
-		kVK_ANSI_P	      = 0x23,
-		kVK_ANSI_L	      = 0x25,
-		kVK_ANSI_J	      = 0x26,
-		kVK_ANSI_Quote	      = 0x27,
-		kVK_ANSI_K	      = 0x28,
-		kVK_ANSI_Semicolon    = 0x29,
-		kVK_ANSI_Backslash    = 0x2A,
-		kVK_ANSI_Comma	      = 0x2B,
-		kVK_ANSI_Slash	      = 0x2C,
-		kVK_ANSI_N	      = 0x2D,
-		kVK_ANSI_M	      = 0x2E,
-		kVK_ANSI_Period	      = 0x2F,
-		kVK_ANSI_Grave	      = 0x32,
-		kVK_Return	      = 0x24,
-		kVK_Space	      = 0x31,
-		kVK_Escape	      = 0x35,
-		kVK_Shift	      = 0x38,
-		kVK_Control	      = 0x3B,
-		kVK_RightShift	      = 0x3C,
-		kVK_RightControl      = 0x3E,
-		kVK_LeftArrow	      = 0x7B,
-		kVK_RightArrow	      = 0x7C,
-		kVK_DownArrow	      = 0x7D,
-		kVK_UpArrow	      = 0x7E
-	};
-#define KEY_CASE(x, y) \
-	case x: \
-		ch = y; \
-		break;
-	switch([ev keyCode]) {
-		KEY_CASE(kVK_ANSI_A, 'a')
-		KEY_CASE(kVK_ANSI_B, 'b')
-		KEY_CASE(kVK_ANSI_C, 'c')
-		KEY_CASE(kVK_ANSI_D, 'd')
-		KEY_CASE(kVK_ANSI_E, 'e')
-		KEY_CASE(kVK_ANSI_F, 'f')
-		KEY_CASE(kVK_ANSI_G, 'g')
-		KEY_CASE(kVK_ANSI_H, 'h')
-		KEY_CASE(kVK_ANSI_I, 'i')
-		KEY_CASE(kVK_ANSI_J, 'j')
-		KEY_CASE(kVK_ANSI_K, 'k')
-		KEY_CASE(kVK_ANSI_L, 'l')
-		KEY_CASE(kVK_ANSI_M, 'm')
-		KEY_CASE(kVK_ANSI_N, 'n')
-		KEY_CASE(kVK_ANSI_O, 'o')
-		KEY_CASE(kVK_ANSI_P, 'p')
-		KEY_CASE(kVK_ANSI_Q, 'q')
-		KEY_CASE(kVK_ANSI_R, 'r')
-		KEY_CASE(kVK_ANSI_S, 's')
-		KEY_CASE(kVK_ANSI_T, 't')
-		KEY_CASE(kVK_ANSI_U, 'u')
-		KEY_CASE(kVK_ANSI_V, 'v')
-		KEY_CASE(kVK_ANSI_W, 'w')
-		KEY_CASE(kVK_ANSI_X, 'x')
-		KEY_CASE(kVK_ANSI_Y, 'y')
-		KEY_CASE(kVK_ANSI_Z, 'z')
-		KEY_CASE(kVK_ANSI_0, '0')
-		KEY_CASE(kVK_ANSI_1, '1')
-		KEY_CASE(kVK_ANSI_2, '2')
-		KEY_CASE(kVK_ANSI_3, '3')
-		KEY_CASE(kVK_ANSI_4, '4')
-		KEY_CASE(kVK_ANSI_5, '5')
-		KEY_CASE(kVK_ANSI_6, '6')
-		KEY_CASE(kVK_ANSI_7, '7')
-		KEY_CASE(kVK_ANSI_8, '8')
-		KEY_CASE(kVK_ANSI_9, '9')
-		KEY_CASE(kVK_ANSI_Quote, '\"')
-		KEY_CASE(kVK_ANSI_Grave, '`')
-		KEY_CASE(kVK_ANSI_Backslash, '/')
-		KEY_CASE(kVK_ANSI_Comma, ',')
-		KEY_CASE(kVK_ANSI_Equal, '=')
-		KEY_CASE(kVK_Escape, MwLLKeyEscape)
-		KEY_CASE(kVK_ANSI_LeftBracket, '[')
-		KEY_CASE(kVK_ANSI_Minus, '-')
-		KEY_CASE(kVK_ANSI_Period, '.')
-		KEY_CASE(kVK_Return, MwLLKeyEnter)
-		KEY_CASE(kVK_ANSI_RightBracket, ']')
-		KEY_CASE(kVK_ANSI_Semicolon, ';')
-		KEY_CASE(kVK_ANSI_Slash, '\\')
-		KEY_CASE(kVK_Space, ' ')
-		KEY_CASE(kVK_Control, MwLLKeyControl)
-		KEY_CASE(kVK_RightControl, MwLLKeyControl)
-		KEY_CASE(kVK_Shift, MwLLKeyLeftShift)
-		KEY_CASE(kVK_RightShift, MwLLKeyRightShift)
-		KEY_CASE(kVK_DownArrow, MwLLKeyDown)
-		KEY_CASE(kVK_LeftArrow, MwLLKeyLeft)
-		KEY_CASE(kVK_RightArrow, MwLLKeyRight)
-		KEY_CASE(kVK_UpArrow, MwLLKeyUp)
-	}
-	switch([ev type]) {
-	case NSKeyDown:
-		MwLLDispatch(this, key, &ch);
-		MwLLDispatch(ll, key, &ch);
-		break;
-	case NSKeyUp:
-		MwLLDispatch(this, key_released, &ch);
-		MwLLDispatch(ll, key_released, &ch);
-		break;
-	default:
-		break;
-	}
-}
 
 - (void)sendClipboardEvent {
 	/*NSAutoreleasePool* pool	      = [[NSAutoreleasePool alloc] init];
@@ -772,14 +564,42 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 	return window;
 }
 
+- (void)nudge {
+	self->_eventsPending = MwTRUE;
+}
+
+- (void)pushCursor {
+	[self->cursor push];
+}
+- (void)popCursor {
+	[self->cursor pop];
+}
+
 - (MilskoFakePointer*)getHandle {
 	return handle;
 }
 
 @end
 
+@implementation MilskoCocoaApplication
+- (void)sendEvent:(NSEvent*)event {
+	self->doPending = MwTRUE;
+	[super sendEvent:event];
+}
+- (MwBool)pending {
+	if(self->doPending) {
+		self->doPending = MwFALSE;
+		return MwTRUE;
+	}
+	return MwFALSE;
+}
+@end
+
 @implementation MilskoCocoaView
 - (id)initWithFrame:(NSRect)frame {
+	givenRect   = frame;
+	x	    = frame.origin.x;
+	y	    = frame.origin.y;
 	width	    = frame.size.width;
 	height	    = frame.size.height;
 	self	    = [super initWithFrame:frame];
@@ -792,7 +612,13 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 		[self initRepAndContextWithWidth:width Height:height];
 	}
 
+	self->_child = MwFALSE;
+
 	return self;
+}
+
+- (void)setChild {
+	self->_child = MwTRUE;
 }
 
 - (NSGraphicsContext*)context {
@@ -871,16 +697,238 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 	self->height = newSize.height;
 }
 
-- (void)displayRect:(NSRect)rect {
-	(void)rect;
-};
-
-- (BOOL)acceptsFirstResponder {
-	return MwTRUE;
+- (BOOL)canBecomeKeyView {
+	return YES;
 }
-- (BOOL)performKeyEquivalent:(NSEvent*)event {
-	(void)event;
-	return MwTRUE;
+- (BOOL)acceptsFirstResponder {
+	return YES;
+}
+
+- (NSView*)hitTest:(NSPoint)aPoint {
+	if(self->_child) {
+		return NSPointInRect(aPoint, givenRect) ? self : nil;
+	} else {
+		return [super hitTest:aPoint];
+	}
+}
+
+- (void)handleKeyEvent:(NSEvent*)ev ll:(MwLL)ll down:(MwBool)isDown {
+	int ch;
+	enum {
+		kVK_ANSI_A	      = 0x00,
+		kVK_ANSI_S	      = 0x01,
+		kVK_ANSI_D	      = 0x02,
+		kVK_ANSI_F	      = 0x03,
+		kVK_ANSI_H	      = 0x04,
+		kVK_ANSI_G	      = 0x05,
+		kVK_ANSI_Z	      = 0x06,
+		kVK_ANSI_X	      = 0x07,
+		kVK_ANSI_C	      = 0x08,
+		kVK_ANSI_V	      = 0x09,
+		kVK_ANSI_B	      = 0x0B,
+		kVK_ANSI_Q	      = 0x0C,
+		kVK_ANSI_W	      = 0x0D,
+		kVK_ANSI_E	      = 0x0E,
+		kVK_ANSI_R	      = 0x0F,
+		kVK_ANSI_Y	      = 0x10,
+		kVK_ANSI_T	      = 0x11,
+		kVK_ANSI_1	      = 0x12,
+		kVK_ANSI_2	      = 0x13,
+		kVK_ANSI_3	      = 0x14,
+		kVK_ANSI_4	      = 0x15,
+		kVK_ANSI_6	      = 0x16,
+		kVK_ANSI_5	      = 0x17,
+		kVK_ANSI_Equal	      = 0x18,
+		kVK_ANSI_9	      = 0x19,
+		kVK_ANSI_7	      = 0x1A,
+		kVK_ANSI_Minus	      = 0x1B,
+		kVK_ANSI_8	      = 0x1C,
+		kVK_ANSI_0	      = 0x1D,
+		kVK_ANSI_RightBracket = 0x1E,
+		kVK_ANSI_O	      = 0x1F,
+		kVK_ANSI_U	      = 0x20,
+		kVK_ANSI_LeftBracket  = 0x21,
+		kVK_ANSI_I	      = 0x22,
+		kVK_ANSI_P	      = 0x23,
+		kVK_ANSI_L	      = 0x25,
+		kVK_ANSI_J	      = 0x26,
+		kVK_ANSI_Quote	      = 0x27,
+		kVK_ANSI_K	      = 0x28,
+		kVK_ANSI_Semicolon    = 0x29,
+		kVK_ANSI_Backslash    = 0x2A,
+		kVK_ANSI_Comma	      = 0x2B,
+		kVK_ANSI_Slash	      = 0x2C,
+		kVK_ANSI_N	      = 0x2D,
+		kVK_ANSI_M	      = 0x2E,
+		kVK_ANSI_Period	      = 0x2F,
+		kVK_ANSI_Grave	      = 0x32,
+		kVK_Return	      = 0x24,
+		kVK_Space	      = 0x31,
+		kVK_Escape	      = 0x35,
+		kVK_Shift	      = 0x38,
+		kVK_Control	      = 0x3B,
+		kVK_RightShift	      = 0x3C,
+		kVK_RightControl      = 0x3E,
+		kVK_LeftArrow	      = 0x7B,
+		kVK_RightArrow	      = 0x7C,
+		kVK_DownArrow	      = 0x7D,
+		kVK_UpArrow	      = 0x7E
+	};
+#define KEY_CASE(x, y) \
+	case x: \
+		ch = y; \
+		break;
+	switch([ev keyCode]) {
+		KEY_CASE(kVK_ANSI_A, 'a')
+		KEY_CASE(kVK_ANSI_B, 'b')
+		KEY_CASE(kVK_ANSI_C, 'c')
+		KEY_CASE(kVK_ANSI_D, 'd')
+		KEY_CASE(kVK_ANSI_E, 'e')
+		KEY_CASE(kVK_ANSI_F, 'f')
+		KEY_CASE(kVK_ANSI_G, 'g')
+		KEY_CASE(kVK_ANSI_H, 'h')
+		KEY_CASE(kVK_ANSI_I, 'i')
+		KEY_CASE(kVK_ANSI_J, 'j')
+		KEY_CASE(kVK_ANSI_K, 'k')
+		KEY_CASE(kVK_ANSI_L, 'l')
+		KEY_CASE(kVK_ANSI_M, 'm')
+		KEY_CASE(kVK_ANSI_N, 'n')
+		KEY_CASE(kVK_ANSI_O, 'o')
+		KEY_CASE(kVK_ANSI_P, 'p')
+		KEY_CASE(kVK_ANSI_Q, 'q')
+		KEY_CASE(kVK_ANSI_R, 'r')
+		KEY_CASE(kVK_ANSI_S, 's')
+		KEY_CASE(kVK_ANSI_T, 't')
+		KEY_CASE(kVK_ANSI_U, 'u')
+		KEY_CASE(kVK_ANSI_V, 'v')
+		KEY_CASE(kVK_ANSI_W, 'w')
+		KEY_CASE(kVK_ANSI_X, 'x')
+		KEY_CASE(kVK_ANSI_Y, 'y')
+		KEY_CASE(kVK_ANSI_Z, 'z')
+		KEY_CASE(kVK_ANSI_0, '0')
+		KEY_CASE(kVK_ANSI_1, '1')
+		KEY_CASE(kVK_ANSI_2, '2')
+		KEY_CASE(kVK_ANSI_3, '3')
+		KEY_CASE(kVK_ANSI_4, '4')
+		KEY_CASE(kVK_ANSI_5, '5')
+		KEY_CASE(kVK_ANSI_6, '6')
+		KEY_CASE(kVK_ANSI_7, '7')
+		KEY_CASE(kVK_ANSI_8, '8')
+		KEY_CASE(kVK_ANSI_9, '9')
+		KEY_CASE(kVK_ANSI_Quote, '\"')
+		KEY_CASE(kVK_ANSI_Grave, '`')
+		KEY_CASE(kVK_ANSI_Backslash, '/')
+		KEY_CASE(kVK_ANSI_Comma, ',')
+		KEY_CASE(kVK_ANSI_Equal, '=')
+		KEY_CASE(kVK_Escape, MwLLKeyEscape)
+		KEY_CASE(kVK_ANSI_LeftBracket, '[')
+		KEY_CASE(kVK_ANSI_Minus, '-')
+		KEY_CASE(kVK_ANSI_Period, '.')
+		KEY_CASE(kVK_Return, MwLLKeyEnter)
+		KEY_CASE(kVK_ANSI_RightBracket, ']')
+		KEY_CASE(kVK_ANSI_Semicolon, ';')
+		KEY_CASE(kVK_ANSI_Slash, '\\')
+		KEY_CASE(kVK_Space, ' ')
+		KEY_CASE(kVK_Control, MwLLKeyControl)
+		KEY_CASE(kVK_RightControl, MwLLKeyControl)
+		KEY_CASE(kVK_Shift, MwLLKeyLeftShift)
+		KEY_CASE(kVK_RightShift, MwLLKeyRightShift)
+		KEY_CASE(kVK_DownArrow, MwLLKeyDown)
+		KEY_CASE(kVK_LeftArrow, MwLLKeyLeft)
+		KEY_CASE(kVK_RightArrow, MwLLKeyRight)
+		KEY_CASE(kVK_UpArrow, MwLLKeyUp)
+	}
+	if(isDown) {
+		recursive_dispatch_key(ll, &ch);
+	} else {
+		recursive_dispatch_key_released(ll, &ch);
+	}
+	[ll->cocoa.real nudge];
+}
+- (void)mouseEntered:(NSEvent*)ev {
+	MwLL h = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	MwLLDispatch(h, focus_in, NULL);
+	[h->cocoa.real pushCursor];
+	[super mouseEntered:ev];
+}
+- (void)mouseExited:(NSEvent*)ev {
+	MwLL h = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	MwLLDispatch(h, focus_out, NULL);
+	[h->cocoa.real popCursor];
+	[super mouseExited:ev];
+}
+- (void)keyDown:(NSEvent*)ev {
+	MwLL h = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	[self handleKeyEvent:ev ll:h down:MwTRUE];
+	[super keyDown:ev];
+}
+- (void)keyUp:(NSEvent*)ev {
+	MwLL h = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	[self handleKeyEvent:ev ll:h down:MwFALSE];
+	[super keyUp:ev];
+}
+
+- (void)mouseMoved:(NSEvent*)ev {
+	MwLLMouse mouse;
+	NSPoint	  mousePoint = [ev locationInWindow];
+	MwLL this	     = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	mousePoint.y	     = [[ev window] frame].size.height - mousePoint.y;
+	mouse.button	     = MwLLMouseLeft;
+	mouse.point.x	     = mousePoint.x;
+	mouse.point.y	     = mousePoint.y;
+	MwLLDispatch(this, move, &mouse);
+	[this->cocoa.real nudge];
+	[super mouseMoved:ev];
+}
+- (void)mouseDown:(NSEvent*)ev {
+	MwLLMouse mouse;
+	NSPoint	  mousePoint = [ev locationInWindow];
+	MwLL this	     = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	mousePoint.y	     = [[ev window] frame].size.height - mousePoint.y;
+	mouse.button	     = MwLLMouseLeft;
+	mouse.point.x	     = mousePoint.x;
+	mouse.point.y	     = mousePoint.y;
+	MwLLDispatch(this, down, &mouse);
+	[this->cocoa.real nudge];
+	[super mouseDown:ev];
+}
+
+- (void)mouseUp:(NSEvent*)ev {
+	MwLLMouse mouse;
+	NSPoint	  mousePoint = [ev locationInWindow];
+	MwLL this	     = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	mousePoint.y	     = [[ev window] frame].size.height - mousePoint.y;
+	mouse.button	     = MwLLMouseLeft;
+	mouse.point.x	     = mousePoint.x;
+	mouse.point.y	     = mousePoint.y;
+	MwLLDispatch(this, up, &mouse);
+	[this->cocoa.real nudge];
+	[super mouseUp:ev];
+}
+- (void)rightMouseDown:(NSEvent*)ev {
+	MwLLMouse mouse;
+	NSPoint	  mousePoint = [ev locationInWindow];
+	MwLL this	     = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	mousePoint.y	     = [[ev window] frame].size.height - mousePoint.y;
+	mouse.button	     = MwLLMouseRight;
+	mouse.point.x	     = mousePoint.x;
+	mouse.point.y	     = mousePoint.y;
+	MwLLDispatch(this, down, &mouse);
+	[this->cocoa.real nudge];
+	[super rightMouseDown:ev];
+}
+
+- (void)rightMouseUp:(NSEvent*)ev {
+	MwLLMouse mouse;
+	NSPoint	  mousePoint = [ev locationInWindow];
+	MwLL this	     = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	mousePoint.y	     = [[ev window] frame].size.height - mousePoint.y;
+	mouse.button	     = MwLLMouseRight;
+	mouse.point.x	     = mousePoint.x;
+	mouse.point.y	     = mousePoint.y;
+	MwLLDispatch(this, up, &mouse);
+	[this->cocoa.real nudge];
+	[super rightMouseUp:ev];
 }
 
 @end

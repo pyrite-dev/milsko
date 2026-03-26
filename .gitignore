@@ -16,3 +16,4 @@ examples/*/*.exe
 /build
 compile_flags.txt
 .cache
+.DS_Store

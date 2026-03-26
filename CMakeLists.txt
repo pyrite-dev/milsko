@@ -15,10 +15,15 @@ option(MW_CLASSIC_THEME "Use classic theme" OFF)
 option(MW_BUILD_EXAMPLES "Build examples" OFF)
 option(MW_USE_STB_IMAGE "Use stb_image" ON)
 option(MW_USE_STB_TRUETYPE "Use stb_truetype" OFF)
-option(MW_USE_FREETYPE2 "Use FreeType 2" ON)
 option(MW_BUILD_SHARED "Build a shared library" ON)
 option(MW_BUILD_STATIC "Build a static library" OFF)
 option(MW_INSTALL_HEADERS "Install headers" ON)
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+option(MW_USE_FREETYPE2 "Use FreeType 2" OFF)
+else()
+option(MW_USE_FREETYPE2 "Use FreeType 2" ON)
+endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
 option(MW_USE_WAYLAND "Enable Wayland backend" ON)
@@ -47,10 +52,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
 endif()
 
 if(MW_TRY_OPENGL)
-	check_include_files(GL/gl.h HAVE_GL_GL_H)
-	if(HAVE_GL_GL_H)
+    find_package(OpenGL)
+    if(OpenGL_FOUND)
 		set(MW_BUILD_OPENGL ON)
-		list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl.c")
+        list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl.c")
+        if(APPLE)
+            list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl_cocoa.m")
+        endif()
 		message(STATUS "OpenGL widget has been enabled")
 	else()
 		message(WARNING "OpenGL widget has been disabled")
@@ -220,6 +228,14 @@ if(MW_USE_WAYLAND)
 	else()
 		message(WARNING "Wayland backend has been disabled")
 	endif()
+endif()
+
+if(APPLE AND MW_BUILD_OPENGL)
+    target_compile_definitions(
+		Mw
+		PRIVATE
+		GL_SILENCE_DEPRECATION
+	)
 endif()
 
 target_include_directories(

@@ -1,10 +1,10 @@
 file(
 	GLOB
-	EXAMPLES_BASIC_SOURCES
+	EXAMPLES_VULKAN_SOURCES
 	*.c
 )
 
-foreach(PATH IN LISTS EXAMPLES_BASIC_SOURCES)
+foreach(PATH IN LISTS EXAMPLES_VULKAN_SOURCES)
 	get_filename_component(TARGET ${PATH} NAME_WE)
 	add_executable(${TARGET} WIN32 MACOSX_BUNDLE ${PATH})
 	target_link_libraries(
