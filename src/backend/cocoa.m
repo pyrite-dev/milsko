@@ -737,7 +737,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 - (NSView*)hitTest:(NSPoint)aPoint {
 	if(self->_child) {
-		return NSPointInRect(aPoint, givenRect) ? self : nil;
+		return NSPointInRect(aPoint, [self bounds]) ? self : nil;
 	} else {
 		return [super hitTest:aPoint];
 	}
