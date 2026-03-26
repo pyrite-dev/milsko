@@ -1,9 +1,6 @@
-#include "Mw/BaseTypes.h"
-#include "Mw/LowLevel.h"
 #include <Mw/Milsko.h>
-#include <objc/objc.h>
 #include "../../external/stb_ds.h"
-#include "Mw/TypeDefs.h"
+#include "Mw/LowLevel/Cocoa.h"
 
 #ifdef __clang__
 #pragma clang push
@@ -904,9 +901,8 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 - (void)mouseMoved:(NSEvent*)ev {
 	MwLLMouse mouse;
-	NSPoint	  mousePoint = [ev locationInWindow];
+	NSPoint	  mousePoint = pointFlip([ev locationInWindow]);
 	MwLL this	     = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
-	mousePoint.y	     = [[ev window] frame].size.height - mousePoint.y;
 	mouse.button	     = MwLLMouseLeft;
 	mouse.point.x	     = mousePoint.x;
 	mouse.point.y	     = mousePoint.y;
@@ -914,6 +910,10 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	[this->cocoa.real nudge];
 	[super mouseMoved:ev];
 }
+- (BOOL)mouseDownCanMoveWindow {
+	return NO;
+}
+
 - (void)mouseDown:(NSEvent*)ev {
 	MwLLMouse mouse;
 	NSPoint	  mousePoint = [ev locationInWindow];
@@ -990,11 +990,12 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 - (NSSize)windowWillResize:(NSWindow*)win toSize:(NSSize)frameSize;
 {
 	if([[[win contentView] subviews] count] >= 1) {
-		MilskoFakePointer* ptr = [[[win contentView] subviews] objectAtIndex:0];
-		MwLL		   h   = [ptr pointer];
-
-		MwLLDispatch(h, resize, NULL);
-		MwLLDispatch(h, draw, NULL);
+		NSView* ptr = [[[win contentView] subviews] objectAtIndex:0];
+		if([ptr isKindOfClass:[MilskoFakePointer class]]) {
+			MwLL h = [(MilskoFakePointer*)ptr pointer];
+			MwLLDispatch(h, resize, NULL);
+			// MwLLDispatch(h, draw, NULL);
+		}
 	}
 	return frameSize;
 }
@@ -1159,6 +1160,7 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data,
 	(void)handle;
 
 	MwLLPixmap r = malloc(sizeof(*r));
+	memset(r, 0, sizeof(*r));
 
 	r->common.raw = malloc(4 * width * height);
 	memcpy(r->common.raw, data, 4 * width * height);
@@ -1169,7 +1171,6 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data,
 	r->cocoa.real = [MilskoCocoaPixmap newWithWidth:width height:height];
 
 	MwLLPixmapUpdate(r);
-	free(r->common.raw);
 	return r;
 }
 
