@@ -34,6 +34,9 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 		       originFrame.size.width, originFrame.size.height);
 	return destinationFrame;
 }
+static NSPoint localPointFlip(NSPoint point, NSView* view) {
+	return localRectFlip(NSMakeRect(point.x, point.y, 0, 0), view).origin;
+}
 
 /* Recursively dispatch a key event to a widget and its children */
 static void recursive_dispatch_key(MwLL handle, int* k) {
@@ -244,7 +247,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 		[nscolor setFill];
 		for(i = 0; i < points_count; i++) {
-			NSPoint p = NSMakePoint(points[i].x, [self->view frame].size.height - points[i].y);
+			NSPoint p = localPointFlip(NSMakePoint(points[i].x, points[i].y), self->view);
 			if(i == 0) {
 				[path moveToPoint:p];
 			} else {
@@ -262,8 +265,41 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	[pool release];
 };
 - (void)lineWithPoints:(MwPoint*)points color:(MwLLColor)color {
-	(void)points;
-	(void)color;
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	NSGraphicsContext* ctx	= [self->view context];
+	if(ctx) {
+		int	      i;
+		NSBezierPath* path = [NSBezierPath bezierPath];
+		/* whatever rect we use for coordinate flipping */
+		NSRect _rect = parent ? [self->view bounds] : [self->window frame];
+
+		NSColor* nscolor =
+		    [NSColor colorWithCalibratedRed:color->common.red / 255.
+					      green:color->common.green / 255.
+					       blue:color->common.blue / 255.
+					      alpha:1.0];
+
+		[NSGraphicsContext saveGraphicsState];
+		[NSGraphicsContext setCurrentContext:ctx];
+
+		[nscolor setFill];
+		for(i = 0; i < 2; i++) {
+			NSPoint p = localPointFlip(NSMakePoint(points[i].x, points[i].y), self->view);
+			if(i == 0) {
+				[path moveToPoint:p];
+			} else {
+				[path lineToPoint:p];
+			}
+		}
+
+		[path closePath];
+		[path stroke];
+
+		[NSGraphicsContext restoreGraphicsState];
+
+		[self->view setNeedsDisplay:YES];
+	}
+	[pool release];
 };
 - (void)getX:(int*)x Y:(int*)y W:(unsigned int*)w H:(unsigned int*)h {
 	NSRect frame;
@@ -394,7 +430,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		[NSGraphicsContext setCurrentContext:ctx];
 
 		[[p image]
-		    drawInRect:NSMakeRect(_rect->x, _rect->y, _rect->width, _rect->height)
+		    drawInRect:localRectFlip(NSMakeRect(_rect->x, _rect->y, _rect->width, _rect->height), self->view)
 		      fromRect:NSZeroRect
 		     operation:NSCompositeSourceOver
 		      fraction:1.0];
