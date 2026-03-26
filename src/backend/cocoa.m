@@ -245,11 +245,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		[nscolor setFill];
 		for(i = 0; i < points_count; i++) {
 			NSPoint p = NSMakePoint(points[i].x, [self->view frame].size.height - points[i].y);
-			if((i % 3) == 0) {
-				if(i != 0) {
-					[path lineToPoint:p];
-					[path fill];
-				}
+			if(i == 0) {
 				[path moveToPoint:p];
 			} else {
 				[path lineToPoint:p];
