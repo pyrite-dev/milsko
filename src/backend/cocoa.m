@@ -243,14 +243,16 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		[NSGraphicsContext setCurrentContext:ctx];
 
 		[nscolor setFill];
-		NSRectFill(self->view.bounds);
 		for(i = 0; i < points_count; i++) {
-			if(i == 0) {
-				[path moveToPoint:NSMakePoint(points[i].x,
-							      _rect.size.height - points[i].y)];
+			NSPoint p = NSMakePoint(points[i].x, [self->view frame].size.height - points[i].y);
+			if((i % 3) == 0) {
+				if(i != 0) {
+					[path lineToPoint:p];
+					[path fill];
+				}
+				[path moveToPoint:p];
 			} else {
-				[path lineToPoint:NSMakePoint(points[i].x,
-							      _rect.size.height - points[i].y)];
+				[path lineToPoint:p];
 			}
 		}
 
