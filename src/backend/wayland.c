@@ -1972,6 +1972,9 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	int i;
 
+	clip(handle);
+
+	cairo_set_antialias(handle->wayland.front_cairo, CAIRO_ANTIALIAS_NONE);
 	cairo_set_line_cap(handle->wayland.front_cairo, CAIRO_LINE_CAP_SQUARE);
 	cairo_set_source_rgb(handle->wayland.front_cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0);
 	cairo_new_path(handle->wayland.front_cairo);

@@ -18,7 +18,7 @@ static void draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 
-	if(MwGetInteger(handle, MwNhasBorder)) MwDrawFrame(handle, &r, c, MwGetInteger(handle, MwNinverted));
+	if(MwGetInteger(handle, MwNhasBorder)) MwDrawFrame(handle, &r, c, MwGetInteger(handle, MwNinverted), 0);
 
 	MwDrawRect(handle, &r, c);
 

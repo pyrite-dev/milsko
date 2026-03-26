@@ -11,9 +11,12 @@
 
 #include "../external/stb_ds.h"
 
+#define BORDER_ROUNDNESS 10
+#define BORDER_SMOOTHNESS 50
+
 static int get_color_diff(MwWidget handle) {
 	if(MwGetInteger(handle, MwNmodernLook)) {
-		return 46;
+		return 23;
 	} else {
 		return 80;
 	}
@@ -29,7 +32,7 @@ static int hex(const char* txt, int len) {
 			n = c - 'a' + 10;
 		} else if('A' <= c && c <= 'F') {
 			n = c - 'A' + 10;
-		} else if('0' <= c && c <= '9') {
+		} else if('0' <= c && c <= 'g') {
 			n = c - '0';
 		}
 		r = r << 4;
@@ -102,14 +105,15 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 	MwLLPolygon(handle->lowlevel, p, 4, color);
 }
 
-void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
+void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounded) {
 	MwLLPixmap     pixmap;
-	int	       y;
+	int	       y, i;
 	double	       darken	  = 0.;
 	int	       ColorDiff  = get_color_diff(handle);
 	double	       darkenStep = (ColorDiff / 4.) / rect->height;
 	unsigned long  sz	  = 1 * rect->height * 4;
 	unsigned char* data	  = malloc(sz);
+	MwRect	       r	  = *rect;
 	memset(data, 0, sz);
 
 	for(y = 0; y < rect->height; y++) {
@@ -124,18 +128,64 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	}
 
 	pixmap = MwLLCreatePixmap(handle->lowlevel, data, 1, rect->height);
-	MwLLDrawPixmap(handle->lowlevel, rect, pixmap);
+	if(rounded && rect->height >= (BORDER_ROUNDNESS * 2) && rect->width >= (BORDER_ROUNDNESS * 2)) {
+		int xt;
+		int x = rect->x + (BORDER_ROUNDNESS + 1);
+		int y = rect->y + (BORDER_ROUNDNESS + 1);
+		for(i = 0; i < BORDER_ROUNDNESS; i++) {
+			double point  = ((i + (M_PI * 4)) / 7.);
+			double point2 = (((i + 1) + (M_PI * 4)) / 7.);
+			int    x2     = x - (sin(point2) * BORDER_ROUNDNESS);
+			r.x	      = x - (sin(point) * BORDER_ROUNDNESS);
+			r.y	      = y + (cos(point) * BORDER_ROUNDNESS);
+			r.width	      = (x - (sin(point + 1) * BORDER_ROUNDNESS)) - r.x;
+			r.height      = (rect->height - ((r.y - rect->y) * 2) - 1);
+			MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
+			for(xt = x; xt < x2; xt++) {
+				r.x	 = xt;
+				r.y	 = y + (cos(point2) * BORDER_ROUNDNESS);
+				r.height = (rect->height - ((r.y - rect->y)) - 1);
+				MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
+			}
+		}
+		r = *rect;
+		r.x += BORDER_ROUNDNESS;
+		r.width -= (BORDER_ROUNDNESS * 2);
+		r.height -= 1;
+		MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
+		r = *rect;
+		x = (rect->x + rect->width) - (BORDER_ROUNDNESS + 2);
+		y = rect->y + (BORDER_ROUNDNESS + 1);
+		for(i = 0; i < BORDER_ROUNDNESS; i++) {
+			double point  = ((i + (M_PI * 4)) / 7.);
+			double point2 = (((i + 1) + (M_PI * 4)) / 7.);
+			int    x2     = x + (sin(point2) * BORDER_ROUNDNESS);
+			r.x	      = x + (sin(point) * BORDER_ROUNDNESS);
+			r.y	      = y + (cos(point) * BORDER_ROUNDNESS);
+			r.width	      = 1;
+			r.height      = (rect->height - ((r.y - rect->y) * 2) - 1);
+			MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
+			for(xt = x; xt < x2; xt++) {
+				r.x	 = xt;
+				r.y	 = y + (cos(point2) * BORDER_ROUNDNESS);
+				r.height = (rect->height - ((r.y - rect->y) * 2) - 2);
+				MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
+			}
+		}
+	} else {
+		MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
+	}
 	MwLLDestroyPixmap(pixmap);
 
 	free(data);
 }
 
-void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
+void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int rounded) {
 	int inv;
 
 	if((inv = MwGetInteger(handle, MwNforceInverted)) != MwDEFAULT && inv) invert = 1;
 	if(MwGetInteger(handle, MwNmodernLook)) {
-		MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle), 0, 0);
+		MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle), 0, 0, rounded);
 	} else {
 		int diff = get_color_diff(handle) / 3 * 2;
 
@@ -143,11 +193,11 @@ void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 			int i;
 			int st = invert ? 1 : 0;
 			for(i = st; i < st + 2; i++) {
-				if((i % 2) == 0) MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) - 1, -diff, (handle->parent == NULL || handle->parent->lowlevel == NULL) ? 1 : 0);
-				if((i % 2) == 1) MwDrawFrameEx(handle, rect, color, invert, 1, diff, 0);
+				if((i % 2) == 0) MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) - 1, -diff, (handle->parent == NULL || handle->parent->lowlevel == NULL) ? 1 : 0, 0);
+				if((i % 2) == 1) MwDrawFrameEx(handle, rect, color, invert, 1, diff, 0, 0);
 			}
 		} else {
-			MwDrawFrameEx(handle, rect, color, invert, 1, 0, 0);
+			MwDrawFrameEx(handle, rect, color, invert, 1, 0, 0, 0);
 		}
 	}
 }
@@ -156,11 +206,11 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 	MwLLColor col;
 
 	if(border) {
-		MwDrawFrame(handle, rect, color, invert);
+		MwDrawFrame(handle, rect, color, invert, handle->lowlevel->common.supports_transparency);
 	}
 	col = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
 	if(MwGetInteger(handle, MwNmodernLook)) {
-		MwDrawRectFading(handle, rect, col);
+		MwDrawRectFading(handle, rect, col, handle->lowlevel->common.supports_transparency);
 	} else {
 		MwDrawRect(handle, rect, col);
 	}
@@ -234,54 +284,158 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	MwLLFreeColor(darker);
 }
 
-void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same) {
-	MwPoint	  p[6];
+void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same, int rounded) {
+	MwPoint	  p[7];
 	int	  ColorDiff = get_color_diff(handle);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
 	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, ColorDiff - diff, ColorDiff - diff, ColorDiff - diff);
+	int	  i;
+	MwLLColor middle = MwLLAllocColor(handle->lowlevel,
+					  (lighter->common.red * darker->common.red) / 255,
+					  (lighter->common.green * darker->common.green) / 255,
+					  (lighter->common.blue * darker->common.blue) / 255);
 
-	p[0].x = rect->x;
-	p[0].y = rect->y;
+	if(rounded) {
+		/* top left edge */
+		for(i = 0; i < BORDER_SMOOTHNESS; i += 2) {
+			MwPoint line[2];
+			double	point = ((i + (M_PI * (BORDER_SMOOTHNESS / 2.))) / (BORDER_SMOOTHNESS));
+			int	x     = rect->x + (BORDER_ROUNDNESS + 2);
+			int	y     = rect->y + (BORDER_ROUNDNESS + 2);
 
-	p[1].x = rect->x + rect->width;
-	p[1].y = rect->y;
+			line[0].x = x - (sin(point) * BORDER_ROUNDNESS);
+			line[0].y = y + (cos(point) * BORDER_ROUNDNESS);
+			line[1].x = x - (sin(point + 1) * BORDER_ROUNDNESS);
+			line[1].y = y + (cos(point + 1) * BORDER_ROUNDNESS);
+			MwLLLine(handle->lowlevel, line, invert ? darker : lighter);
+		}
 
-	p[2].x = rect->x + rect->width - border;
-	p[2].y = rect->y + border;
+		p[0].x = rect->x + BORDER_ROUNDNESS;
+		p[0].y = rect->y;
 
-	p[3].x = rect->x + border;
-	p[3].y = rect->y + border;
+		p[1].x = rect->x + rect->width - BORDER_ROUNDNESS;
+		p[1].y = rect->y;
 
-	p[4].x = rect->x + border;
-	p[4].y = rect->y + rect->height - border;
+		p[2].x = rect->x + rect->width - border - BORDER_ROUNDNESS;
+		p[2].y = rect->y + border;
 
-	p[5].x = rect->x;
-	p[5].y = rect->y + rect->height;
+		p[3].x = rect->x + border - BORDER_ROUNDNESS;
+		p[3].y = rect->y + border + BORDER_ROUNDNESS;
 
+		p[4].x = rect->x + border - BORDER_ROUNDNESS;
+		p[4].y = rect->y + rect->height - border - BORDER_ROUNDNESS;
+
+		p[5].x = rect->x + BORDER_ROUNDNESS;
+		p[5].y = rect->y + rect->height - BORDER_ROUNDNESS;
+		MwLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
+
+		/* top right edge */
+		for(i = 0; i < BORDER_SMOOTHNESS; i += 2) {
+			MwPoint line[2];
+			double	point	    = ((i + (M_PI * (BORDER_SMOOTHNESS / 2.))) / (BORDER_SMOOTHNESS));
+			int	x	    = (rect->x + rect->width) - (BORDER_ROUNDNESS + 2);
+			int	y	    = rect->y + (BORDER_ROUNDNESS + 2);
+			double	placeholder = (sin(point) * BORDER_ROUNDNESS);
+			line[0].x	    = x + placeholder;
+			line[0].y	    = y + (cos(point) * BORDER_ROUNDNESS);
+			line[1].x	    = x + (sin(point + 1) * BORDER_ROUNDNESS);
+			line[1].y	    = y + (cos(point + 1) * BORDER_ROUNDNESS);
+			MwLLLine(handle->lowlevel, line, middle);
+		}
+	} else {
+		p[0].x = rect->x;
+		p[0].y = rect->y;
+
+		p[1].x = rect->x + rect->width;
+		p[1].y = rect->y;
+
+		p[2].x = rect->x + rect->width - border;
+		p[2].y = rect->y + border;
+		p[3].x = rect->x + border;
+		p[3].y = rect->y + border;
+
+		p[4].x = rect->x + border;
+		p[4].y = rect->y + rect->height - border;
+
+		p[5].x = rect->x;
+		p[5].y = rect->y + rect->height;
+	}
 	MwLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
 
-	p[0].x = rect->x + rect->width;
-	p[0].y = rect->y;
+	if(rounded && rect->height >= (BORDER_ROUNDNESS * 2) && rect->width >= (BORDER_ROUNDNESS * 2)) {
+		/* bottom left edge */
+		for(i = 0; i < BORDER_SMOOTHNESS; i += 2) {
+			MwPoint line[2];
+			double	point = ((i + (M_PI * (BORDER_SMOOTHNESS / 2.))) / (BORDER_SMOOTHNESS));
+			int	x     = rect->x + (BORDER_ROUNDNESS + 2);
+			int	y     = (rect->y + rect->height) - (BORDER_ROUNDNESS + 2);
 
-	p[1].x = rect->x + rect->width - border;
-	p[1].y = rect->y + border;
+			line[0].x = x - (sin(point) * BORDER_ROUNDNESS);
+			line[0].y = y - (cos(point) * BORDER_ROUNDNESS);
+			line[1].x = x - (sin(point + 1) * BORDER_ROUNDNESS);
+			line[1].y = y - (cos(point + 1) * BORDER_ROUNDNESS);
+			MwLLLine(handle->lowlevel, line, middle);
+		}
+		p[0].x = rect->x + BORDER_ROUNDNESS;
+		p[0].y = rect->y + 1;
 
-	p[2].x = rect->x + rect->width - border;
-	p[2].y = rect->y + rect->height - border;
+		p[1].x = rect->x + rect->width - border;
+		p[1].y = rect->y + border + BORDER_ROUNDNESS;
 
-	p[3].x = rect->x + border;
-	p[3].y = rect->y + rect->height - border;
+		p[2].x = rect->x + rect->width - border;
+		p[2].y = rect->y + rect->height - border - BORDER_ROUNDNESS;
 
-	p[4].x = rect->x;
-	p[4].y = rect->y + rect->height;
+		p[3].x = rect->x + rect->width - border - BORDER_ROUNDNESS;
+		p[3].y = rect->y + rect->height - border;
 
-	p[5].x = rect->x + rect->width;
-	p[5].y = rect->y + rect->height;
+		p[4].x = rect->x + border + BORDER_ROUNDNESS;
+		p[4].y = rect->y + rect->height - border;
 
-	MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
+		p[5].x = rect->x + BORDER_ROUNDNESS;
+		p[5].y = rect->y + rect->height - BORDER_ROUNDNESS;
+
+		p[6].x = rect->x + rect->width - BORDER_ROUNDNESS;
+		p[6].y = rect->y + rect->height - BORDER_ROUNDNESS;
+
+		MwLLPolygon(handle->lowlevel, p, 7, invert ? lighter : darker);
+
+		/* bottom right edge */
+		for(i = 0; i < BORDER_SMOOTHNESS; i += 2) {
+			MwPoint line[2];
+			double	point = ((i + (M_PI * (BORDER_SMOOTHNESS / 2.))) / (BORDER_SMOOTHNESS));
+			int	x     = (rect->x + rect->width) - (BORDER_ROUNDNESS + 2);
+			int	y     = (rect->y + rect->height) - (BORDER_ROUNDNESS + 2);
+
+			line[0].x = x + (sin(point) * BORDER_ROUNDNESS);
+			line[0].y = y - (cos(point) * BORDER_ROUNDNESS);
+			line[1].x = x + (sin(point + 1) * BORDER_ROUNDNESS);
+			line[1].y = y - (cos(point + 1) * BORDER_ROUNDNESS);
+			MwLLLine(handle->lowlevel, line, middle);
+		}
+	} else {
+		p[0].x = rect->x + rect->width;
+		p[0].y = rect->y;
+
+		p[1].x = rect->x + rect->width - border;
+		p[1].y = rect->y + border;
+
+		p[2].x = rect->x + rect->width - border;
+		p[2].y = rect->y + rect->height - border;
+
+		p[3].x = rect->x + border;
+		p[3].y = rect->y + rect->height - border;
+
+		p[4].x = rect->x;
+		p[4].y = rect->y + rect->height;
+
+		p[5].x = rect->x + rect->width;
+		p[5].y = rect->y + rect->height;
+		MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
+	}
 
 	MwLLFreeColor(lighter);
 	MwLLFreeColor(darker);
+	MwLLFreeColor(middle);
 
 	rect->x += border;
 	rect->y += border;

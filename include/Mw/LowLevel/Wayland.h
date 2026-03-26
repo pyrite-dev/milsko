@@ -123,6 +123,7 @@ typedef struct wayland_call_table {
 	void (*cairo_fill)(cairo_t* cr);
 	void (*cairo_pattern_set_filter)(cairo_pattern_t* pattern,
 					 cairo_filter_t	  filter);
+	void (*cairo_set_antialias)(cairo_t*, cairo_antialias_t);
 
 } wayland_call_table_t;
 
@@ -201,6 +202,7 @@ MwInline int wayland_load_funcs() {
 	CAIRO_FUNC(cairo_rectangle);
 	CAIRO_FUNC(cairo_new_path);
 	CAIRO_FUNC(cairo_set_line_cap);
+	CAIRO_FUNC(cairo_set_antialias);
 	CAIRO_FUNC(cairo_set_source_rgba);
 	CAIRO_FUNC(cairo_set_source_rgb);
 	CAIRO_FUNC(cairo_reset_clip);
@@ -257,6 +259,7 @@ MwInline int wayland_load_funcs() {
 #define cairo_rectangle wl_call_tbl.cairo_rectangle
 #define cairo_new_path wl_call_tbl.cairo_new_path
 #define cairo_set_line_cap wl_call_tbl.cairo_set_line_cap
+#define cairo_set_antialias wl_call_tbl.cairo_set_antialias
 #define cairo_set_source_rgba wl_call_tbl.cairo_set_source_rgba
 #define cairo_set_source_rgb wl_call_tbl.cairo_set_source_rgb
 #define cairo_reset_clip wl_call_tbl.cairo_reset_clip
