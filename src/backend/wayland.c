@@ -1719,6 +1719,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r = malloc(sizeof(*r));
 	memset(r, 0, sizeof(*r));
 	MwLLCreateCommon(r);
+	r->common.supports_transparency = MwTRUE;
 
 	widget_setup(r, parent, x, y, width, height, MWLL_WAYLAND_UNKNOWN);
 

@@ -11,7 +11,8 @@
 
 #include "../external/stb_ds.h"
 
-#define BORDER_ROUNDNESS 10
+#define DEFAULT_ROUNDNESS 10
+#define MAX_ROUNDNESS 30
 #define BORDER_SMOOTHNESS 50
 
 static int get_color_diff(MwWidget handle) {
@@ -114,6 +115,11 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 	unsigned long  sz	  = 1 * rect->height * 4;
 	unsigned char* data	  = malloc(sz);
 	MwRect	       r	  = *rect;
+	int	       roundness  = MwGetInteger(handle, MwNroundness);
+	double	       h;
+	if(roundness == MwDEFAULT) roundness = DEFAULT_ROUNDNESS;
+	if(roundness >= MAX_ROUNDNESS) roundness = MAX_ROUNDNESS;
+	h = (roundness <= 10) ? 7. : 10.;
 	memset(data, 0, sz);
 
 	for(y = 0; y < rect->height; y++) {
@@ -128,46 +134,46 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 	}
 
 	pixmap = MwLLCreatePixmap(handle->lowlevel, data, 1, rect->height);
-	if(rounded && rect->height >= (BORDER_ROUNDNESS * 2) && rect->width >= (BORDER_ROUNDNESS * 2)) {
+	if(rounded && rect->height >= (roundness * 2) && rect->width >= (roundness * 2) && roundness > 0) {
 		int xt;
-		int x = rect->x + (BORDER_ROUNDNESS + 1);
-		int y = rect->y + (BORDER_ROUNDNESS + 1);
-		for(i = 0; i < BORDER_ROUNDNESS; i++) {
-			double point  = ((i + (M_PI * 4)) / 7.);
-			double point2 = (((i + 1) + (M_PI * 4)) / 7.);
-			int    x2     = x - (sin(point2) * BORDER_ROUNDNESS);
-			r.x	      = x - (sin(point) * BORDER_ROUNDNESS);
-			r.y	      = y + (cos(point) * BORDER_ROUNDNESS);
-			r.width	      = (x - (sin(point + 1) * BORDER_ROUNDNESS)) - r.x;
+		int x = rect->x + (roundness + 1);
+		int y = rect->y + (roundness + 1);
+		for(i = 0; i < roundness; i++) {
+			double point  = ((i + (M_PI * 4)) / h);
+			double point2 = (((i + 1) + (M_PI * 4)) / h);
+			int    x2     = x - (sin(point2) * roundness);
+			r.x	      = x - (sin(point) * roundness);
+			r.y	      = y + (cos(point) * roundness);
+			r.width	      = (x - (sin(point + 1) * roundness)) - r.x;
 			r.height      = (rect->height - ((r.y - rect->y) * 2) - 1);
 			MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
 			for(xt = x; xt < x2; xt++) {
 				r.x	 = xt;
-				r.y	 = y + (cos(point2) * BORDER_ROUNDNESS);
+				r.y	 = y + (cos(point2) * roundness);
 				r.height = (rect->height - ((r.y - rect->y)) - 1);
 				MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
 			}
 		}
 		r = *rect;
-		r.x += BORDER_ROUNDNESS;
-		r.width -= (BORDER_ROUNDNESS * 2);
+		r.x += roundness;
+		r.width -= (roundness * 2);
 		r.height -= 1;
 		MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
 		r = *rect;
-		x = (rect->x + rect->width) - (BORDER_ROUNDNESS + 2);
-		y = rect->y + (BORDER_ROUNDNESS + 1);
-		for(i = 0; i < BORDER_ROUNDNESS; i++) {
-			double point  = ((i + (M_PI * 4)) / 7.);
-			double point2 = (((i + 1) + (M_PI * 4)) / 7.);
-			int    x2     = x + (sin(point2) * BORDER_ROUNDNESS);
-			r.x	      = x + (sin(point) * BORDER_ROUNDNESS);
-			r.y	      = y + (cos(point) * BORDER_ROUNDNESS);
+		x = (rect->x + rect->width) - (roundness + 2);
+		y = rect->y + (roundness + 1);
+		for(i = 0; i < roundness; i++) {
+			double point  = ((i + (M_PI * 4)) / h);
+			double point2 = (((i + 1) + (M_PI * 4)) / h);
+			int    x2     = x + (sin(point2) * roundness);
+			r.x	      = x + (sin(point) * roundness);
+			r.y	      = y + (cos(point) * roundness);
 			r.width	      = 1;
 			r.height      = (rect->height - ((r.y - rect->y) * 2) - 1);
 			MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
 			for(xt = x; xt < x2; xt++) {
 				r.x	 = xt;
-				r.y	 = y + (cos(point2) * BORDER_ROUNDNESS);
+				r.y	 = y + (cos(point2) * roundness);
 				r.height = (rect->height - ((r.y - rect->y) * 2) - 2);
 				MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
 			}
@@ -290,56 +296,58 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
 	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, ColorDiff - diff, ColorDiff - diff, ColorDiff - diff);
 	int	  i;
-	MwLLColor middle = MwLLAllocColor(handle->lowlevel,
-					  (lighter->common.red * darker->common.red) / 255,
-					  (lighter->common.green * darker->common.green) / 255,
-					  (lighter->common.blue * darker->common.blue) / 255);
-
-	if(rounded) {
+	MwLLColor middle    = MwLLAllocColor(handle->lowlevel,
+					     (lighter->common.red * darker->common.red) / 255,
+					     (lighter->common.green * darker->common.green) / 255,
+					     (lighter->common.blue * darker->common.blue) / 255);
+	int	  roundness = MwGetInteger(handle, MwNroundness);
+	if(roundness == MwDEFAULT) roundness = DEFAULT_ROUNDNESS;
+	if(roundness >= MAX_ROUNDNESS) roundness = MAX_ROUNDNESS;
+	if(rounded && rect->height >= (roundness * 2) && rect->width >= (roundness * 2) && roundness > 0) {
 		/* top left edge */
 		for(i = 0; i < BORDER_SMOOTHNESS; i += 2) {
 			MwPoint line[2];
 			double	point = ((i + (M_PI * (BORDER_SMOOTHNESS / 2.))) / (BORDER_SMOOTHNESS));
-			int	x     = rect->x + (BORDER_ROUNDNESS + 2);
-			int	y     = rect->y + (BORDER_ROUNDNESS + 2);
+			int	x     = rect->x + (roundness + 2);
+			int	y     = rect->y + (roundness + 2);
 
-			line[0].x = x - (sin(point) * BORDER_ROUNDNESS);
-			line[0].y = y + (cos(point) * BORDER_ROUNDNESS);
-			line[1].x = x - (sin(point + 1) * BORDER_ROUNDNESS);
-			line[1].y = y + (cos(point + 1) * BORDER_ROUNDNESS);
+			line[0].x = x - (sin(point) * roundness);
+			line[0].y = y + (cos(point) * roundness);
+			line[1].x = x - (sin(point + 1) * roundness);
+			line[1].y = y + (cos(point + 1) * roundness);
 			MwLLLine(handle->lowlevel, line, invert ? darker : lighter);
 		}
 
-		p[0].x = rect->x + BORDER_ROUNDNESS;
+		p[0].x = rect->x + roundness;
 		p[0].y = rect->y;
 
-		p[1].x = rect->x + rect->width - BORDER_ROUNDNESS;
+		p[1].x = rect->x + rect->width - roundness;
 		p[1].y = rect->y;
 
-		p[2].x = rect->x + rect->width - border - BORDER_ROUNDNESS;
+		p[2].x = rect->x + rect->width - border - roundness;
 		p[2].y = rect->y + border;
 
-		p[3].x = rect->x + border - BORDER_ROUNDNESS;
-		p[3].y = rect->y + border + BORDER_ROUNDNESS;
+		p[3].x = rect->x + border - roundness;
+		p[3].y = rect->y + border + roundness;
 
-		p[4].x = rect->x + border - BORDER_ROUNDNESS;
-		p[4].y = rect->y + rect->height - border - BORDER_ROUNDNESS;
+		p[4].x = rect->x + border - roundness;
+		p[4].y = rect->y + rect->height - border - roundness;
 
-		p[5].x = rect->x + BORDER_ROUNDNESS;
-		p[5].y = rect->y + rect->height - BORDER_ROUNDNESS;
+		p[5].x = rect->x + roundness;
+		p[5].y = rect->y + rect->height - roundness;
 		MwLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
 
 		/* top right edge */
 		for(i = 0; i < BORDER_SMOOTHNESS; i += 2) {
 			MwPoint line[2];
 			double	point	    = ((i + (M_PI * (BORDER_SMOOTHNESS / 2.))) / (BORDER_SMOOTHNESS));
-			int	x	    = (rect->x + rect->width) - (BORDER_ROUNDNESS + 2);
-			int	y	    = rect->y + (BORDER_ROUNDNESS + 2);
-			double	placeholder = (sin(point) * BORDER_ROUNDNESS);
+			int	x	    = (rect->x + rect->width) - (roundness + 2);
+			int	y	    = rect->y + (roundness + 2);
+			double	placeholder = (sin(point) * roundness);
 			line[0].x	    = x + placeholder;
-			line[0].y	    = y + (cos(point) * BORDER_ROUNDNESS);
-			line[1].x	    = x + (sin(point + 1) * BORDER_ROUNDNESS);
-			line[1].y	    = y + (cos(point + 1) * BORDER_ROUNDNESS);
+			line[0].y	    = y + (cos(point) * roundness);
+			line[1].x	    = x + (sin(point + 1) * roundness);
+			line[1].y	    = y + (cos(point + 1) * roundness);
 			MwLLLine(handle->lowlevel, line, middle);
 		}
 	} else {
@@ -362,40 +370,40 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 	}
 	MwLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
 
-	if(rounded && rect->height >= (BORDER_ROUNDNESS * 2) && rect->width >= (BORDER_ROUNDNESS * 2)) {
+	if(rounded && rect->height >= (roundness * 2) && rect->width >= (roundness * 2) && roundness > 0) {
 		/* bottom left edge */
 		for(i = 0; i < BORDER_SMOOTHNESS; i += 2) {
 			MwPoint line[2];
 			double	point = ((i + (M_PI * (BORDER_SMOOTHNESS / 2.))) / (BORDER_SMOOTHNESS));
-			int	x     = rect->x + (BORDER_ROUNDNESS + 2);
-			int	y     = (rect->y + rect->height) - (BORDER_ROUNDNESS + 2);
+			int	x     = rect->x + (roundness + 2);
+			int	y     = (rect->y + rect->height) - (roundness + 2);
 
-			line[0].x = x - (sin(point) * BORDER_ROUNDNESS);
-			line[0].y = y - (cos(point) * BORDER_ROUNDNESS);
-			line[1].x = x - (sin(point + 1) * BORDER_ROUNDNESS);
-			line[1].y = y - (cos(point + 1) * BORDER_ROUNDNESS);
+			line[0].x = x - (sin(point) * roundness);
+			line[0].y = y - (cos(point) * roundness);
+			line[1].x = x - (sin(point + 1) * roundness);
+			line[1].y = y - (cos(point + 1) * roundness);
 			MwLLLine(handle->lowlevel, line, middle);
 		}
-		p[0].x = rect->x + BORDER_ROUNDNESS;
+		p[0].x = rect->x + roundness;
 		p[0].y = rect->y + 1;
 
 		p[1].x = rect->x + rect->width - border;
-		p[1].y = rect->y + border + BORDER_ROUNDNESS;
+		p[1].y = rect->y + border + roundness;
 
 		p[2].x = rect->x + rect->width - border;
-		p[2].y = rect->y + rect->height - border - BORDER_ROUNDNESS;
+		p[2].y = rect->y + rect->height - border - roundness;
 
-		p[3].x = rect->x + rect->width - border - BORDER_ROUNDNESS;
+		p[3].x = rect->x + rect->width - border - roundness;
 		p[3].y = rect->y + rect->height - border;
 
-		p[4].x = rect->x + border + BORDER_ROUNDNESS;
+		p[4].x = rect->x + border + roundness;
 		p[4].y = rect->y + rect->height - border;
 
-		p[5].x = rect->x + BORDER_ROUNDNESS;
-		p[5].y = rect->y + rect->height - BORDER_ROUNDNESS;
+		p[5].x = rect->x + roundness;
+		p[5].y = rect->y + rect->height - roundness;
 
-		p[6].x = rect->x + rect->width - BORDER_ROUNDNESS;
-		p[6].y = rect->y + rect->height - BORDER_ROUNDNESS;
+		p[6].x = rect->x + rect->width - roundness;
+		p[6].y = rect->y + rect->height - roundness;
 
 		MwLLPolygon(handle->lowlevel, p, 7, invert ? lighter : darker);
 
@@ -403,13 +411,13 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 		for(i = 0; i < BORDER_SMOOTHNESS; i += 2) {
 			MwPoint line[2];
 			double	point = ((i + (M_PI * (BORDER_SMOOTHNESS / 2.))) / (BORDER_SMOOTHNESS));
-			int	x     = (rect->x + rect->width) - (BORDER_ROUNDNESS + 2);
-			int	y     = (rect->y + rect->height) - (BORDER_ROUNDNESS + 2);
+			int	x     = (rect->x + rect->width) - (roundness + 2);
+			int	y     = (rect->y + rect->height) - (roundness + 2);
 
-			line[0].x = x + (sin(point) * BORDER_ROUNDNESS);
-			line[0].y = y - (cos(point) * BORDER_ROUNDNESS);
-			line[1].x = x + (sin(point + 1) * BORDER_ROUNDNESS);
-			line[1].y = y - (cos(point + 1) * BORDER_ROUNDNESS);
+			line[0].x = x + (sin(point) * roundness);
+			line[0].y = y - (cos(point) * roundness);
+			line[1].x = x + (sin(point + 1) * roundness);
+			line[1].y = y - (cos(point + 1) * roundness);
 			MwLLLine(handle->lowlevel, line, middle);
 		}
 	} else {
