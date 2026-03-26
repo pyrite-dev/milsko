@@ -1186,23 +1186,32 @@ static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_proto
 
 static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 	(void)self; // for later, just in case.
+	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
 	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
 	wl_surface_commit(buffer->surface);
 }
 
 static void buffer_setup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height) {
-	int  stride	 = width * 4;
-	char temp_name[] = "/tmp/milsko-wl-shm-XXXXXX";
+	int  stride	      = width * 4;
+	char temp_name[]      = "/tmp/milsko-wl-shm-XXXXXX";
+	char temp_name_back[] = "/tmp/milsko-wl-shm-back-XXXXXX";
 
 	buffer->buf_size = width * height * 4;
 
-	buffer->fd = mkstemp(temp_name);
+	buffer->fd	= mkstemp(temp_name);
+	buffer->fd_back = mkstemp(temp_name_back);
 
 	unlink(temp_name);
+	unlink(temp_name_back);
 
 	if(posix_fallocate(buffer->fd, 0, buffer->buf_size) != 0) {
 		printf("failure setting up wl_shm: could not fallocate. %s.\n", strerror(errno));
 		close(buffer->fd);
+		return;
+	}
+	if(posix_fallocate(buffer->fd_back, 0, buffer->buf_size) != 0) {
+		printf("failure setting up wl_shm: could not fallocate. %s.\n", strerror(errno));
+		close(buffer->fd_back);
 		return;
 	}
 	if(ftruncate(buffer->fd, buffer->buf_size) != 0) {
@@ -1210,17 +1219,27 @@ static void buffer_setup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU3
 		close(buffer->fd);
 		return;
 	}
+	if(ftruncate(buffer->fd_back, buffer->buf_size) != 0) {
+		printf("failure setting up wl_shm: could not truncate. %s.\n", strerror(errno));
+		close(buffer->fd_back);
+		return;
+	}
 
-	buffer->buf = mmap(NULL, buffer->buf_size, PROT_WRITE, MAP_SHARED, buffer->fd, 0);
+	buffer->buf	 = mmap(NULL, buffer->buf_size, PROT_WRITE, MAP_SHARED, buffer->fd, 0);
+	buffer->buf_back = mmap(NULL, buffer->buf_size, PROT_WRITE, MAP_SHARED, buffer->fd_back, 0);
 
 	fsync(buffer->fd);
+	fsync(buffer->fd_back);
 
 	if(!(buffer->shm_pool = wl_shm_create_pool(buffer->shm, buffer->fd, buffer->buf_size))) {
 		printf("failure setting up wl_shm: could not create pool.\n");
 	}
-
-	buffer->shm_buffer = wl_shm_pool_create_buffer(buffer->shm_pool, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
-	buffer->setup	   = MwTRUE;
+	if(!(buffer->shm_pool_back = wl_shm_create_pool(buffer->shm, buffer->fd_back, buffer->buf_size))) {
+		printf("failure setting up wl_shm: could not create pool.\n");
+	}
+	buffer->shm_buffer	= wl_shm_pool_create_buffer(buffer->shm_pool, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
+	buffer->shm_buffer_back = wl_shm_pool_create_buffer(buffer->shm_pool_back, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
+	buffer->setup		= MwTRUE;
 }
 
 static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer) {
@@ -1228,18 +1247,21 @@ static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer) {
 		return;
 	}
 	wl_buffer_destroy(buffer->shm_buffer);
+	wl_buffer_destroy(buffer->shm_buffer_back);
 	wl_shm_pool_destroy(buffer->shm_pool);
+	wl_shm_pool_destroy(buffer->shm_pool_back);
 	close(buffer->fd);
+	close(buffer->fd_back);
 	buffer->setup = MwFALSE;
 }
 
 static void framebuffer_setup(struct _MwLLWayland* wayland) {
 	buffer_setup(&wayland->framebuffer, wayland->ww, wayland->wh);
 
-	wayland->front_cs    = cairo_image_surface_create_for_data(wayland->framebuffer.buf, CAIRO_FORMAT_ARGB32, wayland->ww, wayland->wh, 4 * wayland->ww);
+	wayland->front_cs    = cairo_image_surface_create_for_data(wayland->framebuffer.buf_back, CAIRO_FORMAT_ARGB32, wayland->ww, wayland->wh, 4 * wayland->ww);
 	wayland->front_cairo = cairo_create(wayland->front_cs);
 
-	memset(wayland->framebuffer.buf, 0, wayland->framebuffer.buf_size);
+	memset(wayland->framebuffer.buf_back, 0, wayland->framebuffer.buf_size);
 	hang_until_configured((MwLL)wayland);
 	update_buffer((MwLL)wayland, &wayland->framebuffer);
 };
@@ -1261,10 +1283,10 @@ static void backbuffer_setup(struct _MwLLWayland* wayland) {
 	}
 	buffer_setup(&wayland->backbuffer, w, h);
 
-	wayland->back_cs    = cairo_image_surface_create_for_data(wayland->backbuffer.buf, CAIRO_FORMAT_ARGB32, w, h, 4 * w);
+	wayland->back_cs    = cairo_image_surface_create_for_data(wayland->backbuffer.buf_back, CAIRO_FORMAT_ARGB32, w, h, 4 * w);
 	wayland->back_cairo = cairo_create(wayland->back_cs);
 
-	memset(wayland->backbuffer.buf, 255, wayland->backbuffer.buf_size);
+	memset(wayland->backbuffer.buf_back, 255, wayland->backbuffer.buf_size);
 	hang_until_configured((MwLL)wayland);
 	update_buffer((MwLL)wayland, &wayland->backbuffer);
 };
@@ -2156,7 +2178,7 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_surface_destroy(cs);
 
 	MwLLForceRender(handle);
-	update_buffer(handle, &handle->wayland.framebuffer);
+	// update_buffer(handle, &handle->wayland.framebuffer);
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 }
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
@@ -2182,15 +2204,15 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 			buffer_setup(handle->wayland.icon, pixmap->common.width, pixmap->common.height);
 
 			for(; i < size; i += 2) {
-				handle->wayland.icon->buf[i]	 = pixmap->common.raw[i + 2];
-				handle->wayland.icon->buf[i + 1] = pixmap->common.raw[i + 1];
-				handle->wayland.icon->buf[i + 2] = pixmap->common.raw[i + 0];
-				handle->wayland.icon->buf[i + 3] = 255;
+				handle->wayland.icon->buf_back[i]     = pixmap->common.raw[i + 2];
+				handle->wayland.icon->buf_back[i + 1] = pixmap->common.raw[i + 1];
+				handle->wayland.icon->buf_back[i + 2] = pixmap->common.raw[i + 0];
+				handle->wayland.icon->buf_back[i + 3] = 255;
 			}
 
 			if(handle->wayland.configured) update_buffer(handle, handle->wayland.icon);
 
-			xdg_toplevel_icon_v1_add_buffer(icon, handle->wayland.icon->shm_buffer, 1);
+			xdg_toplevel_icon_v1_add_buffer(icon, handle->wayland.icon->shm_buffer_back, 1);
 
 			xdg_toplevel_icon_manager_v1_set_icon(icon_manager, handle->wayland.toplevel->xdg_top_level, icon);
 		}
@@ -2214,7 +2236,7 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 		wl_surface_destroy(handle->wayland.cursor.surface);
 	}
 	buffer_setup(&handle->wayland.cursor, image->width, image->height);
-	memset(handle->wayland.cursor.buf, 0, handle->wayland.cursor.buf_size);
+	memset(handle->wayland.cursor.buf_back, 0, handle->wayland.cursor.buf_size);
 
 	xs = -mask->x + image->x;
 	ys = mask->height + mask->y;
@@ -2226,7 +2248,7 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 			int idx = ((y * image->width) + x) * 4;
 
 			if(d & 1) {
-				handle->wayland.cursor.buf[idx + 3] = 255;
+				handle->wayland.cursor.buf_back[idx + 3] = 255;
 			};
 			d = d >> 1;
 		}
@@ -2241,16 +2263,16 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 				px = 255;
 			};
 
-			handle->wayland.cursor.buf[idx]	    = px;
-			handle->wayland.cursor.buf[idx + 1] = px;
-			handle->wayland.cursor.buf[idx + 2] = px;
-			d				    = d >> 1;
+			handle->wayland.cursor.buf_back[idx]	 = px;
+			handle->wayland.cursor.buf_back[idx + 1] = px;
+			handle->wayland.cursor.buf_back[idx + 2] = px;
+			d					 = d >> 1;
 		}
 	}
 
 	handle->wayland.cursor.surface = wl_compositor_create_surface(handle->wayland.compositor);
 
-	wl_surface_attach(handle->wayland.cursor.surface, handle->wayland.cursor.shm_buffer, xs + image->x, ys + image->height + image->y);
+	wl_surface_attach(handle->wayland.cursor.surface, handle->wayland.cursor.shm_buffer_back, xs + image->x, ys + image->height + image->y);
 	wl_surface_commit(handle->wayland.cursor.surface);
 
 	/* If there's currently a pointer, set it up. (Otherwise, it'll be setup during the pointer enter event) */

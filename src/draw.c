@@ -11,9 +11,9 @@
 
 #include "../external/stb_ds.h"
 
-#define DEFAULT_ROUNDNESS 10
+#define DEFAULT_ROUNDNESS 5
 #define MAX_ROUNDNESS 30
-#define BORDER_SMOOTHNESS 250
+#define BORDER_SMOOTHNESS 50
 
 static int get_color_diff(MwWidget handle) {
 	if(MwGetInteger(handle, MwNmodernLook)) {
@@ -171,7 +171,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 			MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
 			r.y = y + (cos(point2) * roundness);
 			for(r.x = x; r.x < x2; r.x++) {
-				r.height = (rect->height - ((r.y - rect->y) * 2) - 2);
+				r.height = (rect->height - ((r.y - rect->y) * 2) - 1);
 				MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
 			}
 		}
