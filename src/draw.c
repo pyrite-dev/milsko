@@ -13,7 +13,7 @@
 
 #define DEFAULT_ROUNDNESS 10
 #define MAX_ROUNDNESS 30
-#define BORDER_SMOOTHNESS 50
+#define BORDER_SMOOTHNESS 250
 
 static int get_color_diff(MwWidget handle) {
 	if(MwGetInteger(handle, MwNmodernLook)) {
@@ -135,7 +135,6 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 
 	pixmap = MwLLCreatePixmap(handle->lowlevel, data, 1, rect->height);
 	if(rounded && rect->height >= (roundness * 2) && rect->width >= (roundness * 2) && roundness > 0) {
-		int xt;
 		int x = rect->x + (roundness + 1);
 		int y = rect->y + (roundness + 1);
 		for(i = 0; i < roundness; i++) {
@@ -147,9 +146,8 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 			r.width	      = (x - (sin(point + 1) * roundness)) - r.x;
 			r.height      = (rect->height - ((r.y - rect->y) * 2) - 1);
 			MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
-			for(xt = x; xt < x2; xt++) {
-				r.x	 = xt;
-				r.y	 = y + (cos(point2) * roundness);
+			r.y = y + (cos(point2) * roundness);
+			for(r.x = x; r.x < x2; r.x++) {
 				r.height = (rect->height - ((r.y - rect->y)) - 1);
 				MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
 			}
@@ -171,9 +169,8 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 			r.width	      = 1;
 			r.height      = (rect->height - ((r.y - rect->y) * 2) - 1);
 			MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
-			for(xt = x; xt < x2; xt++) {
-				r.x	 = xt;
-				r.y	 = y + (cos(point2) * roundness);
+			r.y = y + (cos(point2) * roundness);
+			for(r.x = x; r.x < x2; r.x++) {
 				r.height = (rect->height - ((r.y - rect->y) * 2) - 2);
 				MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
 			}
@@ -321,7 +318,7 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 		p[0].x = rect->x + roundness;
 		p[0].y = rect->y;
 
-		p[1].x = rect->x + rect->width - roundness;
+		p[1].x = rect->x + rect->width - border - roundness;
 		p[1].y = rect->y;
 
 		p[2].x = rect->x + rect->width - border - roundness;
@@ -402,7 +399,7 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 		p[5].x = rect->x + roundness;
 		p[5].y = rect->y + rect->height - roundness;
 
-		p[6].x = rect->x + rect->width - roundness;
+		p[6].x = rect->x + rect->width - border - roundness;
 		p[6].y = rect->y + rect->height - roundness;
 
 		MwLLPolygon(handle->lowlevel, p, 7, invert ? lighter : darker);
