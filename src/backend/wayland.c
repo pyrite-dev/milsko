@@ -1512,12 +1512,6 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 	r->wayland.sublevel	    = malloc(sizeof(struct _MwLLWaylandSublevel));
 	r->wayland.sublevel->parent = parent;
 
-	if(parent->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
-		r->wayland.sublevel->parent_xdg_surface = parent->wayland.toplevel->xdg_surface;
-	} else {
-		r->wayland.sublevel->parent_xdg_surface = parent->wayland.sublevel->parent_xdg_surface;
-	}
-
 	r->wayland.type = MWLL_WAYLAND_SUBLEVEL;
 
 	r->wayland.display = parent->wayland.display;
@@ -1535,6 +1529,10 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 	}
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(compositor);
+
+	if(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base))
+		r->wayland.sublevel->xdg_surface =
+		    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context, r->wayland.framebuffer.surface);
 
 	r->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(r->wayland.sublevel->subcompositor, r->wayland.framebuffer.surface, parent_surface);
 
@@ -2309,15 +2307,14 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
-	(void)show;
-	switch(handle->wayland.type) {
-	case MWLL_WAYLAND_UNKNOWN:
-	case MWLL_WAYLAND_TOPLEVEL:
-		break;
-	case MWLL_WAYLAND_SUBLEVEL:
-		break;
-	case MWLL_WAYLAND_POPUP:
-		break;
+	/* Some guy on a mailing list said that "abusing" wl_surface_attach for this purpose is bad? This is documented behavior so please I beg of you let me know if there's a compositor that actually has a problem with this. */
+	if(handle->wayland.framebuffer.surface) {
+		wl_surface_attach(handle->wayland.framebuffer.surface, show ? handle->wayland.framebuffer.shm_buffer : NULL, 0, 0);
+		wl_surface_commit(handle->wayland.framebuffer.surface);
+	}
+	if(handle->wayland.backbuffer.surface) {
+		wl_surface_attach(handle->wayland.backbuffer.surface, show ? handle->wayland.backbuffer.shm_buffer : NULL, 0, 0);
+		wl_surface_commit(handle->wayland.backbuffer.surface);
 	}
 }
 
@@ -2442,8 +2439,9 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 			int	 i;
 			for(i = 0; i < arrlen(w->children); i++) {
 				if(w->children[i]->lowlevel->wayland.type == MWLL_WAYLAND_SUBLEVEL) {
-					MwLL child				    = w->children[i]->lowlevel;
-					child->wayland.sublevel->parent_xdg_surface = handle->wayland.popup->xdg_surface;
+					MwLL child = w->children[i]->lowlevel;
+					child->wayland.sublevel->xdg_surface =
+					    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(handle->wayland, xdg_wm_base)->context, handle->wayland.framebuffer.surface);
 					wl_subsurface_destroy(child->wayland.sublevel->subsurface);
 					wl_flush(handle);
 

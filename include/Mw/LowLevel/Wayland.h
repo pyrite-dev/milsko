@@ -329,7 +329,7 @@ struct _MwLLWaylandSublevel {
 
 	MwLL parent;
 
-	struct xdg_surface* parent_xdg_surface;
+	struct xdg_surface* xdg_surface;
 };
 
 struct _MwLLWaylandPopup {
