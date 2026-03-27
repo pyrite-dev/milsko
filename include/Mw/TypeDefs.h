@@ -27,6 +27,7 @@ typedef struct _MwListBoxEntry	      MwListBoxEntry;
 typedef struct _MwTreeViewEntry	      MwTreeViewEntry;
 typedef struct _MwDirectoryEntry      MwDirectoryEntry;
 typedef struct _MwListBoxPacket	      MwListBoxPacket;
+typedef struct _MwBox*			MwBox;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
 #else
@@ -198,6 +199,10 @@ struct _MwDirectoryEntry {
 struct _MwListBoxPacket {
 	MwLLPixmap* pixmaps;
 	char***	    names;
+};
+
+struct _MwBox {
+	int layout;
 };
 
 struct _MwClass {

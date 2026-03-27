@@ -3,6 +3,11 @@
 #include "../../external/stb_ds.h"
 
 static int create(MwWidget handle) {
+	MwBox b = malloc(sizeof(*b));
+	memset(b, 0, sizeof(*b));
+
+	handle->internal = b;
+
 	MwSetDefault(handle);
 
 	MwSetInteger(handle, MwNorientation, MwHORIZONTAL);
@@ -11,25 +16,14 @@ static int create(MwWidget handle) {
 	MwSetInteger(handle, MwNhasBorder, 0);
 	MwSetInteger(handle, MwNinverted, 1);
 
+	b->layout = 0;
+
 	return 0;
 }
 
-static void draw(MwWidget handle) {
-	MwRect	  r;
-	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-
-	r.x	 = 0;
-	r.y	 = 0;
-	r.width	 = MwGetInteger(handle, MwNwidth);
-	r.height = MwGetInteger(handle, MwNheight);
-
-	if(MwGetInteger(handle, MwNhasBorder)) {
-		MwDrawFrame(handle, &r, base, MwGetInteger(handle, MwNinverted), 0);
-	}
-
-	MwDrawRect(handle, &r, base);
-
-	MwLLFreeColor(base);
+static void destroy(MwWidget handle){
+	MwBox b = handle->internal;
+	free(b);
 }
 
 #define Margin ((i != (arrlen(handle->children) - 1)) ? MwGetInteger(handle, MwNmargin) : 0)
@@ -81,27 +75,68 @@ static void layout(MwWidget handle) {
 	}
 }
 
+static void draw(MwWidget handle) {
+	MwRect	  r;
+	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwBox b = handle->internal;
+
+	r.x	 = 0;
+	r.y	 = 0;
+	r.width	 = MwGetInteger(handle, MwNwidth);
+	r.height = MwGetInteger(handle, MwNheight);
+
+	if(MwGetInteger(handle, MwNhasBorder)) {
+		MwDrawFrame(handle, &r, base, MwGetInteger(handle, MwNinverted), 0);
+	}
+
+	MwDrawRect(handle, &r, base);
+
+	MwLLFreeColor(base);
+
+	if(b->layout){
+		layout(handle);
+
+		b->layout = 0;
+	}
+}
+
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNorientation) == 0) layout(handle);
+	if(strcmp(key, MwNorientation) == 0){
+		MwBox b = handle->internal;
+		b->layout = 1;
+
+		MwForceRender(handle);
+	}
 }
 
 static void children_prop_change(MwWidget handle, MwWidget child, const char* key) {
 	(void)child;
 
-	if(strcmp(key, MwNratio) == 0 || strcmp(key, MwNfixedSize) == 0) layout(handle);
+	if(strcmp(key, MwNratio) == 0 || strcmp(key, MwNfixedSize) == 0){
+		MwBox b = handle->internal;
+		b->layout = 1;
+
+		MwForceRender(handle);
+	}
 }
 
 static void resize(MwWidget handle) {
-	layout(handle);
+	MwBox b = handle->internal;
+	b->layout = 1;
+
+	MwForceRender(handle);
 }
 
 static void children_update(MwWidget handle) {
-	layout(handle);
+	MwBox b = handle->internal;
+	b->layout = 1;
+
+	MwForceRender(handle);
 }
 
 MwClassRec MwBoxClassRec = {
     create,		  /* create */
-    NULL,		  /* destroy */
+    destroy,		  /* destroy */
     draw,		  /* draw */
     NULL,		  /* click */
     NULL,		  /* parent_resize */
