@@ -233,7 +233,7 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	MwPoint	  p[6];
 	int	  border    = MwDefaultBorderWidth(handle);
-	int	  ColorDiff = get_color_diff(handle);
+	int	  ColorDiff = get_color_diff(handle) + (MwGetInteger(handle, MwNmodernLook) ? 48 : 0);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
