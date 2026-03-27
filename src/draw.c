@@ -116,10 +116,10 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 	unsigned char* data	  = malloc(sz);
 	MwRect	       r	  = *rect;
 	int	       roundness  = MwGetInteger(handle, MwNroundness);
-	double	       h;
+	double	       div;
 	if(roundness == MwDEFAULT) roundness = DEFAULT_ROUNDNESS;
 	if(roundness >= MAX_ROUNDNESS) roundness = MAX_ROUNDNESS;
-	h = (roundness <= 10) ? 7. : 10.;
+	div = (roundness <= 10) ? 7. : 10.;
 	memset(data, 0, sz);
 
 	for(y = 0; y < rect->height; y++) {
@@ -138,8 +138,8 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 		int x = rect->x + (roundness + 1);
 		int y = rect->y + (roundness + 1);
 		for(i = 0; i < roundness; i++) {
-			double point  = ((i + (M_PI * 4)) / h);
-			double point2 = (((i + 1) + (M_PI * 4)) / h);
+			double point  = ((i + (M_PI * 4)) / div);
+			double point2 = (((i + 1) + (M_PI * 4)) / div);
 			int    x2     = x - (sin(point2) * roundness);
 			r.x	      = x - (sin(point) * roundness);
 			r.y	      = y + (cos(point) * roundness);
@@ -153,16 +153,16 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 			}
 		}
 		r = *rect;
-		r.x += roundness;
-		r.width -= (roundness * 2);
-		r.height -= 1;
+		r.x += roundness - 1;
+		r.width -= (roundness * 2) + 1;
+		r.height -= 2;
 		MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
 		r = *rect;
 		x = (rect->x + rect->width) - (roundness + 2);
 		y = rect->y + (roundness + 1);
 		for(i = 0; i < roundness; i++) {
-			double point  = ((i + (M_PI * 4)) / h);
-			double point2 = (((i + 1) + (M_PI * 4)) / h);
+			double point  = ((i + (M_PI * 4)) / div);
+			double point2 = (((i + 1) + (M_PI * 4)) / div);
 			int    x2     = x + (sin(point2) * roundness);
 			r.x	      = x + (sin(point) * roundness);
 			r.y	      = y + (cos(point) * roundness);
@@ -207,13 +207,14 @@ void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int
 
 void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
 	MwLLColor col;
+	MwBool	  rounded = handle->lowlevel->common.supports_transparency && MwGetInteger(handle, MwNroundness) != MwDEFAULT;
 
 	if(border) {
-		MwDrawFrame(handle, rect, color, invert, handle->lowlevel->common.supports_transparency);
+		MwDrawFrame(handle, rect, color, invert, rounded);
 	}
 	col = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
 	if(MwGetInteger(handle, MwNmodernLook)) {
-		MwDrawRectFading(handle, rect, col, handle->lowlevel->common.supports_transparency);
+		MwDrawRectFading(handle, rect, col, rounded);
 	} else {
 		MwDrawRect(handle, rect, col);
 	}
@@ -318,10 +319,10 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 		p[0].x = rect->x + roundness;
 		p[0].y = rect->y;
 
-		p[1].x = rect->x + rect->width - border - roundness;
+		p[1].x = rect->x + rect->width - border - roundness - 2;
 		p[1].y = rect->y;
 
-		p[2].x = rect->x + rect->width - border - roundness;
+		p[2].x = rect->x + rect->width - border - roundness - 2;
 		p[2].y = rect->y + border;
 
 		p[3].x = rect->x + border - roundness;
@@ -332,7 +333,6 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 
 		p[5].x = rect->x + roundness;
 		p[5].y = rect->y + rect->height - roundness;
-		MwLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
 
 		/* top right edge */
 		for(i = 0; i < BORDER_SMOOTHNESS; i += 2) {

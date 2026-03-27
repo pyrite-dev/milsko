@@ -8,6 +8,7 @@ static int create(MwWidget handle) {
 	MwSetInteger(handle, MwNflat, 0);
 	MwSetInteger(handle, MwNpadding, 0);
 	MwSetInteger(handle, MwNfillArea, 1);
+	MwSetInteger(handle, MwNroundness, 5);
 
 	return 0;
 }

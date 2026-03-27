@@ -46,7 +46,7 @@ static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer);
 
 static void region_setup(MwLL handle);
 static void region_invalidate(MwLL handle);
-
+static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer);
 /* Get the registered interface from r, or NULL if it doesn't currently have it. */
 #define WAYLAND_GET_INTERFACE(handle, inter) shget(handle.wl_protocol_map, inter##_interface.name)
 
@@ -65,8 +65,11 @@ static void new_protocol(void* data, struct wl_registry* registry,
 		char* inter = malloc(strlen(interface) + 1);
 		strcpy(inter, interface);
 		shput(self->wayland.wl_protocol_map, inter, cb->setup(name, data));
+		/* we don't care for adding this protocol, we just use it to know if the compositor will let us have transparent surfaces */
+	} else if(strcmp(interface, "wp_alpha_modifier_v1") == 0) {
+		self->common.supports_transparency = MwTRUE;
 	} else {
-		/* printf("unknown interface %s\n", interface); */
+		// printf("unknown interface %s\n", interface);
 	}
 
 	WAYLAND_EVENT_OP_END(self);
@@ -1075,9 +1078,9 @@ static int event_loop(MwLL handle) {
 	if(!poll(&fd, 1, timeout.tv_nsec)) {
 		wl_display_cancel_read(wayland->display);
 
-		wl_surface_commit(wayland->framebuffer.surface);
+		update_buffer(handle, &wayland->framebuffer);
 		if(wayland->type == MWLL_WAYLAND_TOPLEVEL)
-			wl_surface_commit(wayland->backbuffer.surface);
+			update_buffer(handle, &wayland->backbuffer);
 		return 0;
 	}
 	wl_display_read_events(wayland->display);
@@ -1163,8 +1166,8 @@ static void xdg_surface_configure(
 	xdg_surface_ack_configure(xdg_surface, serial);
 
 	if(self->wayland.configured) {
-		wl_surface_commit(self->wayland.framebuffer.surface);
-		wl_surface_commit(self->wayland.backbuffer.surface);
+		update_buffer(self, &self->wayland.framebuffer);
+		update_buffer(self, &self->wayland.backbuffer);
 	}
 
 	self->wayland.configured = MwTRUE;
@@ -1735,13 +1738,17 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 	if(parent != NULL) {
 		MwLLForceRender(parent);
 	}
+
+	if(!r->wayland.has_decorations) {
+		MwLLBeginDraw(r);
+		MwLLEndDraw(r);
+	}
 }
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL r;
 	r = malloc(sizeof(*r));
 	memset(r, 0, sizeof(*r));
 	MwLLCreateCommon(r);
-	r->common.supports_transparency = MwTRUE;
 
 	widget_setup(r, parent, x, y, width, height, MWLL_WAYLAND_UNKNOWN);
 
@@ -1956,8 +1963,6 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 			free(px);
 		}
 		update_buffer(handle, &handle->wayland.backbuffer);
-
-		wl_surface_commit(handle->wayland.backbuffer.surface);
 	}
 	handle->wayland.selected_cairo = handle->wayland.front_cairo;
 }
@@ -1976,7 +1981,7 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 
 	clip(handle);
 
-	cairo_set_source_rgb(handle->wayland.front_cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0);
+	cairo_set_source_rgba(handle->wayland.front_cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
 	cairo_new_path(handle->wayland.front_cairo);
 	for(i = 0; i < points_count; i++) {
 		if(i == 0) {
@@ -1999,7 +2004,7 @@ static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 
 	cairo_set_antialias(handle->wayland.front_cairo, CAIRO_ANTIALIAS_NONE);
 	cairo_set_line_cap(handle->wayland.front_cairo, CAIRO_LINE_CAP_SQUARE);
-	cairo_set_source_rgb(handle->wayland.front_cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0);
+	cairo_set_source_rgba(handle->wayland.front_cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
 	cairo_new_path(handle->wayland.front_cairo);
 	for(i = 0; i < 2; i++) {
 		if(i == 0) {
@@ -2109,6 +2114,8 @@ static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 	}
 	if(!handle->wayland.has_decorations) {
 		strncpy(handle->wayland.title, title, 255);
+		MwLLBeginDraw(handle);
+		MwLLEndDraw(handle);
 	}
 }
 
@@ -2178,7 +2185,6 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_surface_destroy(cs);
 
 	MwLLForceRender(handle);
-	// update_buffer(handle, &handle->wayland.framebuffer);
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 }
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {

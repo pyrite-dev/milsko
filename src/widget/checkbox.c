@@ -4,6 +4,7 @@ static int create(MwWidget handle) {
 	MwSetDefault(handle);
 
 	MwSetInteger(handle, MwNchecked, 0);
+	MwSetInteger(handle, MwNroundness, 5);
 
 	return 0;
 }
