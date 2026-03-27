@@ -14,7 +14,6 @@ static int create(MwWidget handle) {
 
 	MwSetInteger(handle, MwNareaShown, 6);
 	MwSetInteger(handle, MwNvalue, 0);
-	MwSetInteger(handle, MwNroundness, 5);
 
 	return 0;
 }
