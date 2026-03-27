@@ -299,6 +299,13 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 					     (lighter->common.green * darker->common.green) / 255,
 					     (lighter->common.blue * darker->common.blue) / 255);
 	int	  roundness = MwGetInteger(handle, MwNroundness);
+	MwLLColor   c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
+
+	if(c != NULL){
+		MwDrawRect(handle, rect, c);
+		MwLLFreeColor(c);
+	}
+
 	if(roundness == MwDEFAULT) roundness = DEFAULT_ROUNDNESS;
 	if(roundness >= MAX_ROUNDNESS) roundness = MAX_ROUNDNESS;
 	if(rounded && rect->height >= (roundness * 2) && rect->width >= (roundness * 2) && roundness > 0) {
