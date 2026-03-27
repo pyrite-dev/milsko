@@ -17,7 +17,7 @@
 
 static int get_color_diff(MwWidget handle) {
 	if(MwGetInteger(handle, MwNmodernLook)) {
-		return 23;
+		return 40;
 	} else {
 		return 80;
 	}
