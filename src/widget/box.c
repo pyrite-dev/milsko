@@ -53,6 +53,7 @@ static void layout(MwWidget handle) {
 			sz -= s + Margin;
 		} else {
 			sum += n;
+			sz -= Margin;
 		}
 	}
 
