@@ -131,7 +131,7 @@ static void draw(MwWidget handle) {
 		}
 	}
 
-	MwDrawWidgetBack(handle, &rbar, base, 0, MwTRUE);
+	if(rbar.height >= 0) MwDrawWidgetBack(handle, &rbar, base, 0, MwTRUE);
 
 	MwLLFreeColor(dark);
 	MwLLFreeColor(base);

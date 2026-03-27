@@ -76,10 +76,10 @@ struct _MwPoint {
 };
 
 struct _MwRect {
-	int	     x;
-	int	     y;
-	unsigned int width;
-	unsigned int height;
+	int x;
+	int y;
+	int width;
+	int height;
 };
 
 struct _MwSizeHints {
