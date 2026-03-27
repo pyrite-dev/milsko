@@ -42,7 +42,9 @@
 	<!--
 		All widgets have:
 		 - MwNbackground
+		 - MwNsubBackground
 		 - MwNforeground
+		 - MwNsubForeground
 		 - MwNx
 		 - MwNy
 		 - MwNwidth
@@ -93,11 +95,15 @@
 		<integer name="sevenSegment" />
 		<integer name="length" />
 		<integer name="forceInverted" />
+		<integer name="roundness" />
+		<integer name="isRounded" />
 
 		<string name="title" />
 		<string name="text" />
 		<string name="background" />
+		<string name="subBackground" />
 		<string name="foreground" />
+		<string name="subForeground" />
 
 		<pixmap name="pixmap" />
 		<pixmap name="iconPixmap" />
@@ -123,6 +129,7 @@
 		<handler name="colorChosen" />
 		<handler name="draw" />
 		<handler name="clipboard" />
+		<handler name="darkTheme" />
 	</properties>
 	<enumerations>
 		<enumeration name="MwDIRECTION">
