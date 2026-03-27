@@ -207,7 +207,7 @@ void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int
 
 void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
 	MwLLColor col;
-	MwBool	  rounded = handle->lowlevel->common.supports_transparency && MwGetInteger(handle, MwNroundness) != MwDEFAULT && MwGetInteger(handle, MwNisRounded) != 0;
+	MwBool	  rounded = MwGetInteger(handle, MwNroundness) != MwDEFAULT && MwGetInteger(handle, MwNisRounded) != 0;
 
 	if(border) {
 		MwDrawFrame(handle, rect, color, invert, rounded);
@@ -299,11 +299,14 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 					     (lighter->common.green * darker->common.green) / 255,
 					     (lighter->common.blue * darker->common.blue) / 255);
 	int	  roundness = MwGetInteger(handle, MwNroundness);
-	MwLLColor   c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
 
-	if(c != NULL){
-		MwDrawRect(handle, rect, c);
-		MwLLFreeColor(c);
+	if(!handle->lowlevel->common.supports_transparency) {
+		MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
+
+		if(c != NULL) {
+			MwDrawRect(handle, rect, c);
+			MwLLFreeColor(c);
+		}
 	}
 
 	if(roundness == MwDEFAULT) roundness = DEFAULT_ROUNDNESS;
