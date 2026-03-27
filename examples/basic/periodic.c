@@ -200,7 +200,7 @@ int main() {
 	MwMenuAdd(menu, m, "Case Sensitive");
 	MwMenuAdd(menu, m, "Word Wrap");
 
-	m = MwMenuAdd(menu, NULL, "Help");
+	m = MwMenuAdd(menu, NULL, "?Help");
 	MwMenuAdd(menu, m, "On Context");
 	MwMenuAdd(menu, m, "On Window");
 	MwMenuAdd(menu, m, "Tutorial");
