@@ -2,13 +2,14 @@
 
 #include <stdarg.h>
 
-#define Columns 4
+#define Columns 5
 #define Padding 20
 #define PaddingContent 2
 
 MwWidget window, menu, box;
 MwWidget boxes[32];
 int	 n = 0, row = -1;
+MwMenu e;
 
 static void resize(MwWidget handle, void* user, void* call) {
 	int w = MwGetInteger(window, MwNwidth);
@@ -139,19 +140,74 @@ static MwWidget child(MwWidget w) {
 	return MwGetVoid(w, "VhandledWidget");
 }
 
+static void menu_handler(MwWidget handle, void* user, void* call){
+	if(call == e) MwDestroyWidget(window);
+}
+
 int main() {
 	int		 i;
 	MwWidget	 f, w;
 	MwListBoxPacket* pkt;
 	int		 index;
+	MwMenu m, m2;
+	void* v;
 
 	MwLibraryInit();
 
 	window = MwVaCreateWidget(MwWindowClass, "window", NULL, MwDEFAULT, MwDEFAULT, 800, 800,
 				  MwNtitle, "Milsko Periodic Table",
+				  MwNmodernLook, 0,
 				  NULL);
 
 	menu = MwCreateWidget(MwMenuClass, "menu", window, 0, 0, 0, 0);
+
+	m = MwMenuAdd(menu, NULL, "File");
+	MwMenuAdd(menu, m, "New");
+	MwMenuAdd(menu, m, "Open");
+	MwMenuAdd(menu, m, "Save");
+	MwMenuAdd(menu, m, "Save As");
+	MwMenuAdd(menu, m, "Print");
+	e = MwMenuAdd(menu, m, "Exit");
+
+	m = MwMenuAdd(menu, NULL, "Edit");
+	MwMenuAdd(menu, m, "Undo");
+	MwMenuAdd(menu, m, "----");
+	MwMenuAdd(menu, m, "Cut");
+	MwMenuAdd(menu, m, "Copy");
+	MwMenuAdd(menu, m, "Paste");
+	MwMenuAdd(menu, m, "----");
+	MwMenuAdd(menu, m, "Clear");
+	MwMenuAdd(menu, m, "Delete");
+
+	m = MwMenuAdd(menu, NULL, "View");
+	MwMenuAdd(menu, m, "Stack");
+	MwMenuAdd(menu, m, "Tile");
+	MwMenuAdd(menu, m, "----");
+	MwMenuAdd(menu, m, "Day");
+	MwMenuAdd(menu, m, "Week");
+	MwMenuAdd(menu, m, "Month");
+	MwMenuAdd(menu, m, "Year");
+
+	m = MwMenuAdd(menu, NULL, "Options");
+	m2 = MwMenuAdd(menu, m, "Font");
+	MwMenuAdd(menu, m2, "Small");
+	MwMenuAdd(menu, m2, "Medium");
+	MwMenuAdd(menu, m2, "Large");
+	m2 = MwMenuAdd(menu, m, "Direction");
+	MwMenuAdd(menu, m2, "Up");
+	MwMenuAdd(menu, m2, "Down");
+	MwMenuAdd(menu, m2, "Left");
+	MwMenuAdd(menu, m2, "Right");
+	MwMenuAdd(menu, m, "Case Sensitive");
+	MwMenuAdd(menu, m, "Word Wrap");
+
+	m = MwMenuAdd(menu, NULL, "Help");
+	MwMenuAdd(menu, m, "On Context");
+	MwMenuAdd(menu, m, "On Window");
+	MwMenuAdd(menu, m, "Tutorial");
+	MwMenuAdd(menu, m, "On Version");
+
+	MwAddUserHandler(menu, MwNmenuHandler, menu_handler, NULL);
 
 	box = MwVaCreateWidget(MwBoxClass, "box", window, 0, 0, 0, 0,
 			       MwNorientation, MwVERTICAL,
@@ -196,7 +252,27 @@ int main() {
 	MwListBoxDestroyPacket(pkt);
 	add(f);
 
+	f = frame("NumberEntry", -PaddingContent, 24, MwNumberEntryClass, NULL);
+	add(f);
+
+	f = frame("ProgressBar", -PaddingContent, 24, MwProgressBarClass,
+		MwNvalue, 25,
+	NULL);
+	add(f);
+
+	f = frame("ScrollBar", -PaddingContent, 16, MwScrollBarClass,
+		MwNorientation, MwHORIZONTAL,
+	NULL);
+	add(f);
+
 	f = frame("Separator", -PaddingContent, -PaddingContent, MwSeparatorClass, NULL);
+	add(f);
+
+	f = frame("TreeView", -PaddingContent, -PaddingContent, MwTreeViewClass, NULL);
+	w = child(f);
+	v = MwTreeViewAdd(w, NULL, NULL, "abc");
+	v = MwTreeViewAdd(w, v, NULL, "def");
+	v = MwTreeViewAdd(w, v, NULL, "ghi");
 	add(f);
 
 	if(n != 0) newrow();

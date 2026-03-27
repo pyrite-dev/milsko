@@ -117,7 +117,10 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 	MwRect	       r	  = *rect;
 	int	       roundness  = MwGetInteger(handle, MwNroundness);
 	double	       div;
-	if(rect->width < 0 || rect->height < 0) return;
+	if(rect->width <= 0 || rect->height <= 0){
+		free(data);
+		return;
+	}
 	if(roundness == MwDEFAULT) roundness = DEFAULT_ROUNDNESS;
 	if(roundness >= MAX_ROUNDNESS) roundness = MAX_ROUNDNESS;
 	div = (roundness <= 10) ? 7. : 10.;
@@ -191,7 +194,7 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 	MwLLColor col;
 	MwBool	  rounded = MwGetInteger(handle, MwNroundness) != MwDEFAULT && MwGetInteger(handle, MwNisRounded) != 0;
 
-	if(rect->width < 0 || rect->height < 0) return;
+	if(rect->width <= 0 || rect->height <= 0) return;
 
 	if(border) {
 		if(!handle->lowlevel->common.supports_transparency) {
@@ -350,7 +353,7 @@ static void frame_border_complex(MwWidget handle, MwRect* rect, MwLLColor lighte
 
 	if(roundness == MwDEFAULT) roundness = DEFAULT_ROUNDNESS;
 	if(roundness >= MAX_ROUNDNESS) roundness = MAX_ROUNDNESS;
-	if(rounded && rect->height >= (roundness * 2) && rect->width >= (roundness * 2) && roundness > 0) {
+	if(rounded && rect->height >= (roundness * 4) && rect->width >= (roundness * 4) && roundness > 0) {
 		/* top left edge */
 		for(i = 0; i < BORDER_SMOOTHNESS; i += 2) {
 			MwPoint line[2];
@@ -417,7 +420,7 @@ static void frame_border_complex(MwWidget handle, MwRect* rect, MwLLColor lighte
 	}
 	MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
 
-	if(rounded && rect->height >= (roundness * 2) && rect->width >= (roundness * 2) && roundness > 0) {
+	if(rounded && rect->height >= (roundness * 4) && rect->width >= (roundness * 4) && roundness > 0) {
 		/* bottom left edge */
 		for(i = 0; i < BORDER_SMOOTHNESS; i += 2) {
 			MwPoint line[2];
