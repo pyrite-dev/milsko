@@ -40,6 +40,7 @@
 #define MwNlength "Ilength"
 #define MwNforceInverted "IforceInverted"
 #define MwNroundness "Iroundness"
+#define MwNisRounded "IisRounded"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

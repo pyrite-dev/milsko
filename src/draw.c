@@ -207,7 +207,7 @@ void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int
 
 void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
 	MwLLColor col;
-	MwBool	  rounded = handle->lowlevel->common.supports_transparency && MwGetInteger(handle, MwNroundness) != MwDEFAULT;
+	MwBool	  rounded = handle->lowlevel->common.supports_transparency && MwGetInteger(handle, MwNroundness) != MwDEFAULT && MwGetInteger(handle, MwNisRounded) != 0;
 
 	if(border) {
 		MwDrawFrame(handle, rect, color, invert, rounded);
@@ -333,6 +333,7 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 
 		p[5].x = rect->x + roundness;
 		p[5].y = rect->y + rect->height - roundness;
+		MwLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
 
 		/* top right edge */
 		for(i = 0; i < BORDER_SMOOTHNESS; i += 2) {

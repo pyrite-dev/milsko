@@ -516,6 +516,7 @@ int MwGetInteger(MwWidget handle, const char* key) {
 #else
 			if(strcmp(key, MwNmodernLook) == 0) return inherit_integer(handle, key, 1);
 #endif
+			if(strcmp(key, MwNisRounded) == 0) return inherit_integer(handle, key, 1);
 		}
 		return shget(handle->integer, key);
 	}
