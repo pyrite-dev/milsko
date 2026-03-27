@@ -21,9 +21,14 @@ static void resize(MwWidget handle, void* user, void* call){
 
 static void newrow(void){
 	if(row >= 0){
+		int i;
+
+		for(i = n; i < Columns; i++) MwCreateWidget(MwFrameClass, "frame", boxes[row], 0, 0, 0, 0);
 	}
 
 	boxes[++row] = MwCreateWidget(MwBoxClass, "box", box, 0, 0, 0, 0);
+
+	n = 0;
 }
 
 static void add(MwWidget w){
@@ -34,7 +39,6 @@ static void add(MwWidget w){
 	n += r;
 
 	if(n == Columns){
-		n = 0;
 		newrow();
 	}
 }
@@ -49,6 +53,8 @@ static MwWidget frame(const char* name, MwWidget w){
 }
 
 int main(){
+	int i;
+
 	MwLibraryInit();
 	
 	window = MwVaCreateWidget(MwWindowClass, "window", NULL, MwDEFAULT, MwDEFAULT, 800, 800,
@@ -72,6 +78,12 @@ int main(){
 	NULL));
 
 	add(frame("TODO", NULL));
+
+	for(i = 0; i < 12; i++) add(frame("TODO", NULL));
+
+	if(n == 0){
+		MwDestroyWidget(boxes[row]);
+	}
 
 	resize(window, NULL, NULL);
 
