@@ -134,8 +134,8 @@ static void lldarkthemehandler(MwLL handle, void* data) {
 
 	if(IsFirstVisible(h)) {
 		MwVaApply(h,
-			MwNdarkTheme, *ptr,
-		NULL);
+			  MwNdarkTheme, *ptr,
+			  NULL);
 
 		MwDispatchUserHandler(h, MwNdarkThemeHandler, data);
 	}
@@ -449,7 +449,7 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 	if(strcmp(key, MwNforceInverted) == 0) {
 		MwForceRender(handle);
 	}
-	if(strcmp(key, MwNmodernLook) == 0 || strcmp(key, MwNdarkTheme) == 0 || strcmp(key, MwNbitmapFont) == 0){
+	if(strcmp(key, MwNmodernLook) == 0 || strcmp(key, MwNdarkTheme) == 0 || strcmp(key, MwNbitmapFont) == 0) {
 		force_render_all(handle);
 	}
 }
@@ -762,8 +762,8 @@ void MwGrabPointer(MwWidget handle, int toggle) {
 
 void MwSetDarkTheme(MwWidget handle, int toggle) {
 	MwVaApply(handle,
-			MwNdarkTheme, toggle,
-		NULL);
+		  MwNdarkTheme, toggle,
+		  NULL);
 }
 
 MwWidget MwGetParent(MwWidget handle) {
@@ -856,4 +856,8 @@ int MwGetCoordinateType(MwWidget handle) {
 	} else {
 		return MwCoordinatesLocal;
 	}
-};
+}
+
+void MwGetClipboard(MwWidget handle) {
+	MwLLGetClipboard(handle->lowlevel);
+}

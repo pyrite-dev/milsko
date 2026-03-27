@@ -357,8 +357,15 @@ MWDECL void MwGetScreenSize(MwWidget handle, MwRect* rect);
 
 /*!
  * @brief Reports whether a widget reports global or local coordinates upon GetXY/SetXY. Anything with a parent reports local, and most backends report global coordinates being supported for top level windows, but some (Wayland) do not.
+ * @param handle Widget
  */
 MWDECL int MwGetCoordinateType(MwWidget handle);
+
+/*!
+ * @brief Queue to get clipboard content
+ * @param handle Widget
+ */
+MWDECL void MwGetClipboard(MwWidget handle);
 
 #ifdef __cplusplus
 }

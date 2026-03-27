@@ -2,7 +2,7 @@
 
 MwWidget window, instructions, text;
 
-void resize(MwWidget handle, void* user_data, void* call_data) {
+static void resize(MwWidget handle, void* user_data, void* call_data) {
 	unsigned int w, h;
 
 	(void)user_data;
@@ -23,7 +23,7 @@ void resize(MwWidget handle, void* user_data, void* call_data) {
 		  MwNheight, h - 125 - 50 * 3,
 		  NULL);
 }
-void clipboard(MwWidget handle, void* user_data, void* call_data) {
+static void clipboard(MwWidget handle, void* user_data, void* call_data) {
 	char* clipboard = call_data;
 
 	(void)handle;
@@ -34,6 +34,10 @@ void clipboard(MwWidget handle, void* user_data, void* call_data) {
 		MwForceRender(text);
 	}
 	MwForceRender(window);
+}
+
+static void tick(MwWidget handle, void* user_data, void* call_data) {
+	MwGetClipboard(handle);
 }
 
 int main() {
@@ -53,6 +57,7 @@ int main() {
 	MwAddUserHandler(window, MwNclipboardHandler, clipboard, NULL);
 	MwAddUserHandler(instructions, MwNclipboardHandler, clipboard, NULL);
 	MwAddUserHandler(text, MwNclipboardHandler, clipboard, NULL);
+	MwAddUserHandler(window, MwNtickHandler, tick, NULL);
 
 	resize(window, NULL, NULL);
 
