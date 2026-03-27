@@ -140,8 +140,10 @@ static MwWidget child(MwWidget w) {
 }
 
 int main() {
-	int	 i;
-	MwWidget f, w;
+	int		 i;
+	MwWidget	 f, w;
+	MwListBoxPacket* pkt;
+	int		 index;
 
 	MwLibraryInit();
 
@@ -171,6 +173,27 @@ int main() {
 	f = frame("ComboBox", -PaddingContent, 24, MwComboBoxClass, NULL);
 	w = child(f);
 	MwComboBoxAdd(w, -1, "Hello!");
+	add(f);
+
+	f = frame("Entry", -PaddingContent, 24, MwEntryClass, NULL);
+	add(f);
+
+	f = frame("Label", -PaddingContent, -PaddingContent, MwLabelClass,
+		  MwNtext, "Epic text",
+		  NULL);
+	add(f);
+
+	f     = frame("ListBox", -PaddingContent, -PaddingContent, MwListBoxClass,
+		      MwNhasHeading, 1,
+		      NULL);
+	w     = child(f);
+	pkt   = MwListBoxCreatePacket();
+	index = MwListBoxPacketInsert(pkt, -1);
+	MwListBoxPacketSet(pkt, index, 0, "Epic title...");
+	index = MwListBoxPacketInsert(pkt, -1);
+	MwListBoxPacketSet(pkt, index, 0, "Hello");
+	MwListBoxInsert(w, -1, pkt);
+	MwListBoxDestroyPacket(pkt);
 	add(f);
 
 	f = frame("Separator", -PaddingContent, -PaddingContent, MwSeparatorClass, NULL);

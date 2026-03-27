@@ -53,30 +53,32 @@ static void draw(MwWidget handle) {
 
 		len = (r.width - p.x * 2) / w;
 
-		show = malloc(len * 4 + 1);
-		memset(show, 0, len * 4 + 1);
+		if(len >= 0) {
+			show = malloc(len * 4 + 1);
+			memset(show, 0, len * 4 + 1);
 
-		start = (t->cursor - 1) / len;
-		start *= len;
-		if((attr = MwGetInteger(handle, MwNhideInput)) == MwDEFAULT || !attr) {
-			MwUTF8Copy(str, start, show, 0, len);
-		} else {
-			for(i = 0; i < MwUTF8Length(str) - start; i++) show[i] = '*';
+			start = (t->cursor - 1) / len;
+			start *= len;
+			if((attr = MwGetInteger(handle, MwNhideInput)) == MwDEFAULT || !attr) {
+				MwUTF8Copy(str, start, show, 0, len);
+			} else {
+				for(i = 0; i < MwUTF8Length(str) - start; i++) show[i] = '*';
+			}
+
+			MwDrawText(handle, &p, show, 0, MwALIGNMENT_BEGINNING, text);
+
+			textlen = (t->cursor - 1) % len + 1;
+			for(i = 0; i < textlen; i++) show[i] = 'M';
+			show[i] = 0;
+
+			currc.x	     = p.x + MwTextWidth(handle, show);
+			currc.y	     = (r.height - h) / 2;
+			currc.width  = 1;
+			currc.height = h;
+			MwDrawRect(handle, &currc, text);
+
+			free(show);
 		}
-
-		MwDrawText(handle, &p, show, 0, MwALIGNMENT_BEGINNING, text);
-
-		textlen = (t->cursor - 1) % len + 1;
-		for(i = 0; i < textlen; i++) show[i] = 'M';
-		show[i] = 0;
-
-		currc.x	     = p.x + MwTextWidth(handle, show);
-		currc.y	     = (r.height - h) / 2;
-		currc.width  = 1;
-		currc.height = h;
-		MwDrawRect(handle, &currc, text);
-
-		free(show);
 	}
 
 	MwLLFreeColor(text);
