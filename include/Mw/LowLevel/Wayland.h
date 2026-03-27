@@ -311,10 +311,6 @@ struct _MwLLWaylandTopLevel {
 	struct xdg_toplevel_listener xdg_toplevel_listener;
 	struct xdg_surface_listener  xdg_surface_listener;
 
-	struct xkb_context* xkb_context;
-	struct xkb_keymap*  xkb_keymap;
-	struct xkb_state*   xkb_state;
-
 	MwBool compositor_created;
 	MwBool xdg_wm_base_created;
 	MwBool xdg_surface_created;
@@ -416,6 +412,10 @@ struct _MwLLWayland {
 	MwBool has_decorations;
 	char   title[255];
 
+	struct xkb_context* xkb_context;
+	struct xkb_keymap*  xkb_keymap;
+	struct xkb_state*   xkb_state;
+
 	struct wl_display*	    display;
 	struct wl_registry*	    registry;
 	struct wl_compositor*	    compositor;
@@ -474,6 +474,8 @@ struct _MwLLWayland {
 
 	MwBool force_render;
 	MwBool did_event_loop_early;
+
+	MwBool dispatching_resize;
 
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  backbuffer;

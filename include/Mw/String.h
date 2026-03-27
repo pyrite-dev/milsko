@@ -41,6 +41,13 @@ MWDECL void MwStringSize(char* out, MwOffset size);
  */
 MWDECL void MwStringTime(char* out, time_t t);
 
+/*!
+ * @brief Check if the given key is UTF8
+ * @param key Input
+ * @return whether its utf8
+ */
+MWDECL MwBool MwIsKeyUTF8(MwU32 key);
+
 #ifdef __cplusplus
 }
 #endif

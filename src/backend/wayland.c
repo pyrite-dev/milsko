@@ -104,7 +104,7 @@ static void wl_flush(MwLL handle) {
 	}
 }
 
-/* Recursively dispatch a draw event to a widget and its children */
+/* Recursively dispatch a resize event to a widget and its children */
 static void recursive_dispatch_resize(MwLL handle) {
 	MwWidget h = (MwWidget)handle->common.user;
 	if(h) {
@@ -113,6 +113,20 @@ static void recursive_dispatch_resize(MwLL handle) {
 			MwDispatch(h->children[i], resize);
 			if(arrlen(h->children[i]->children) > 0) {
 				recursive_dispatch_resize(h->children[i]->lowlevel);
+			}
+		}
+	}
+};
+
+/* Recursively dispatch a draw event to a widget and its children */
+static void recursive_dispatch_draw(MwLL handle) {
+	MwWidget h = (MwWidget)handle->common.user;
+	if(h) {
+		int i;
+		for(i = 0; i < arrlen(h->children); i++) {
+			MwDispatch(h->children[i], draw);
+			if(arrlen(h->children[i]->children) > 0) {
+				recursive_dispatch_draw(h->children[i]->lowlevel);
 			}
 		}
 	}
@@ -482,10 +496,13 @@ static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 /* `wl_pointer.leave` callback */
 static void pointer_leave(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
 			  struct wl_surface* surface) {
-	(void)data;
+	MwLL self = data;
 	(void)wl_pointer;
 	(void)serial;
 	(void)surface;
+	WAYLAND_EVENT_OP_START(self);
+	curSurface = NULL;
+	WAYLAND_EVENT_OP_END(self);
 };
 
 static void xdg_borderless_step(MwLL self, MwLLMouse p, MwU32 serial) {
@@ -553,6 +570,7 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 serial, MwU32 time, MwU32 button, MwU32 state) {
 	MwLL	  self = data;
 	MwLLMouse p;
+	MwBool	  inArea = MwFALSE;
 
 	(void)wl_pointer;
 	(void)serial;
@@ -562,10 +580,13 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 
 	p.point = self->wayland.cur_mouse_pos;
 
-	// p.point.x > x && p.point.x < x + self->wayland.ww && p.point.y > y && p.point.y < y + self->wayland.wh
-	if(
-	    self->wayland.framebuffer.surface == curSurface ||
-	    self->wayland.backbuffer.surface == curSurface) {
+	if(self->wayland.framebuffer.surface) {
+		inArea |= self->wayland.framebuffer.surface == curSurface;
+	}
+	if(self->wayland.backbuffer.surface) {
+		inArea |= self->wayland.backbuffer.surface == curSurface;
+	}
+	if(inArea) {
 		int i;
 
 		switch(button) {
@@ -637,22 +658,24 @@ static void keyboard_keymap(void*		data,
 	(void)wl_keyboard;
 
 	if(self->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
-		struct _MwLLWaylandTopLevel* wayland = self->wayland.toplevel;
 		assert(format == WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1);
 
 		char* map_shm = (char*)mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
 		assert(map_shm != MAP_FAILED);
 
 		struct xkb_keymap* xkb_keymap = xkb_keymap_new_from_string(
-		    wayland->xkb_context, map_shm, XKB_KEYMAP_FORMAT_TEXT_V1,
+		    self->wayland.xkb_context, map_shm, XKB_KEYMAP_FORMAT_TEXT_V1,
 		    XKB_KEYMAP_COMPILE_NO_FLAGS);
 		munmap(map_shm, size);
 		close(fd);
 
 		struct xkb_state* xkb_state = xkb_state_new(xkb_keymap);
 
-		wayland->xkb_keymap = xkb_keymap;
-		wayland->xkb_state  = xkb_state;
+		self->wayland.xkb_keymap = xkb_keymap;
+		self->wayland.xkb_state	 = xkb_state;
+	} else {
+		self->wayland.xkb_keymap = self->wayland.parent->wayland.xkb_keymap;
+		self->wayland.xkb_state	 = self->wayland.parent->wayland.xkb_state;
 	}
 };
 
@@ -700,37 +723,50 @@ static void keyboard_key(void*		     data,
 			 MwU32		     time,
 			 MwU32		     key,
 			 MwU32		     state) {
-	MwLL self = data;
+	MwLL   self = data;
+	MwBool inArea;
+
 	(void)wl_keyboard;
 	(void)serial;
 	(void)time;
 
 	WAYLAND_EVENT_OP_START(self);
 
-	if(self->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
-		struct _MwLLWaylandTopLevel* wayland = self->wayland.toplevel;
-		xkb_layout_index_t	     layout;
-		xkb_level_index_t	     level;
-		const xkb_keysym_t*	     syms_out;
-		MwU32			     keycode = key + 8;
-		MwU64			     syms_num;
-		int			     i;
+	if(self->wayland.framebuffer.surface) {
+		inArea |= self->wayland.framebuffer.surface == curSurface;
+	}
+	if(inArea) {
+		xkb_layout_index_t  layout;
+		MwU32		    levels;
+		xkb_level_index_t   level;
+		const xkb_keysym_t* syms_out;
+		MwU32		    keycode = key + 8;
+		MwU64		    syms_num;
+		int		    i;
 
-		if(!wayland->xkb_keymap) {
+		if(!self->wayland.xkb_keymap) {
 			return;
 		}
 
-		layout = xkb_state_key_get_layout(wayland->xkb_state, keycode);
-		level =
-		    xkb_keymap_num_levels_for_key(wayland->xkb_keymap, keycode, layout) - 1;
-		syms_num = xkb_keymap_key_get_syms_by_level(wayland->xkb_keymap, keycode, layout, level, &syms_out);
+		layout = xkb_state_key_get_layout(self->wayland.xkb_state, keycode);
+		levels =
+		    xkb_keymap_num_levels_for_key(self->wayland.xkb_keymap, keycode, layout);
+
+		if((((self->wayland.mod_state & 1) == 1) || ((self->wayland.mod_state & 2) == 2)) && levels >= 2) {
+			level = 1;
+		} else if(levels >= 1) {
+			level = 0;
+		}
+		syms_num = xkb_keymap_key_get_syms_by_level(self->wayland.xkb_keymap, keycode, layout, level, &syms_out);
 		if(syms_out == NULL) {
 			return;
 		}
 
 		for(i = 0; i < syms_num; i++) {
-			int sym = syms_out[i];
-			int key;
+			int	    sym = syms_out[i];
+			int	    key = -1;
+			const char* name;
+
 			switch(sym) {
 			case XKB_KEY_BackSpace:
 				key = MwLLKeyBackSpace;
@@ -768,8 +804,11 @@ static void keyboard_key(void*		     data,
 				key = MwLLKeyControl;
 				break;
 			default:
-				key = sym;
+				if(MwIsKeyUTF8(sym)) {
+					key = sym;
+				}
 			}
+
 			if((self->wayland.mod_state & 4) == 4) {
 				/* clipboard paste */
 				if(key == 'V') {
@@ -785,10 +824,12 @@ static void keyboard_key(void*		     data,
 				key |= MwLLAltMask;
 			}
 
-			if(state == WL_KEYBOARD_KEY_STATE_PRESSED) {
-				recursive_dispatch_key(self, &key);
-			} else {
-				recursive_dispatch_key_released(self, &key);
+			if(key != -1) {
+				if(state == WL_KEYBOARD_KEY_STATE_PRESSED) {
+					MwLLDispatch(self, key, &key);
+				} else {
+					MwLLDispatch(self, key_released, &key);
+				}
 			}
 		}
 	}
@@ -1139,7 +1180,6 @@ static void xdg_toplevel_configure(void*		data,
 	region_setup(self);
 	MwLLDispatch(self, resize, NULL);
 
-	MwLLDispatch(self, draw, NULL);
 	recursive_dispatch_resize(self);
 
 	if(self->wayland.pointer_constrained) {
@@ -1165,6 +1205,8 @@ static void xdg_surface_configure(
 
 	xdg_surface_ack_configure(xdg_surface, serial);
 
+	MwLLDispatch(self, draw, NULL);
+
 	if(self->wayland.configured) {
 		update_buffer(self, &self->wayland.framebuffer);
 		update_buffer(self, &self->wayland.backbuffer);
@@ -1188,6 +1230,7 @@ static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_proto
 }
 
 static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
+	(void)self;
 	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
 	wl_surface_commit(buffer->surface);
 }
@@ -1383,14 +1426,13 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 	WL_INTERFACE(wl_data_device_manager);
 	WL_INTERFACE(zwp_primary_selection_device_manager_v1);
 	WL_INTERFACE(zwp_pointer_constraints_v1);
+	WL_INTERFACE(xdg_wm_base);
 	if(wayland->type == MWLL_WAYLAND_TOPLEVEL) {
-		WL_INTERFACE(xdg_wm_base);
 		WL_INTERFACE(wp_viewporter);
 		WL_INTERFACE(zxdg_decoration_manager_v1);
 		WL_INTERFACE(xdg_toplevel_icon_manager_v1);
 		WL_INTERFACE(wl_subcompositor);
 	} else if(wayland->type == MWLL_WAYLAND_POPUP) {
-		WL_INTERFACE(xdg_wm_base);
 	} else {
 		WL_INTERFACE(wl_subcompositor);
 	}
@@ -1428,7 +1470,7 @@ static void setup_toplevel(MwLL r, int x, int y) {
 		r->wayland.has_decorations = MwTRUE;
 	}
 
-	r->wayland.toplevel->xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+	r->wayland.xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 
 	/* Create a wl_surface, a xdg_surface and a xdg_toplevel */
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
@@ -1489,11 +1531,11 @@ static void destroy_toplevel(MwLL r) {
 
 	xdg_toplevel_destroy(r->wayland.toplevel->xdg_top_level);
 
-	xkb_keymap_unref(r->wayland.toplevel->xkb_keymap);
+	xkb_keymap_unref(r->wayland.xkb_keymap);
 
-	xkb_state_unref(r->wayland.toplevel->xkb_state);
+	xkb_state_unref(r->wayland.xkb_state);
 
-	xkb_context_unref(r->wayland.toplevel->xkb_context);
+	xkb_context_unref(r->wayland.xkb_context);
 
 	free(r->wayland.toplevel);
 
@@ -1529,10 +1571,8 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 	}
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(compositor);
-
-	if(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base))
-		r->wayland.sublevel->xdg_surface =
-		    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context, r->wayland.framebuffer.surface);
+	r->wayland.sublevel->xdg_surface =
+	    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context, r->wayland.framebuffer.surface);
 
 	r->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(r->wayland.sublevel->subcompositor, r->wayland.framebuffer.surface, parent_surface);
 
@@ -1542,6 +1582,9 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 	if(parent) {
 		wl_subsurface_place_above(r->wayland.sublevel->subsurface, parent->wayland.framebuffer.surface);
 	}
+
+	r->wayland.xkb_keymap = parent->wayland.xkb_keymap;
+	r->wayland.xkb_state  = parent->wayland.xkb_state;
 
 	r->wayland.configured = MwTRUE;
 }
@@ -1630,7 +1673,9 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	    r->wayland.popup->xdg_positioner,
 	    r->wayland.x, r->wayland.y, r->wayland.ww, r->wayland.wh);
 
-	xdg_surface = topmost_parent->wayland.toplevel->xdg_surface;
+	xdg_surface	      = topmost_parent->wayland.toplevel->xdg_surface;
+	r->wayland.xkb_keymap = topmost_parent->wayland.xkb_keymap;
+	r->wayland.xkb_state  = topmost_parent->wayland.xkb_state;
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
 
@@ -1847,17 +1892,22 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	region_invalidate(handle);
 
 	/* Prevent an integer underflow when the w/h is too low */
-	if((w < 10 || h < 10)) {
-		handle->wayland.ww = 10;
-		handle->wayland.wh = 10;
-		goto refresh;
+	if((w < 2 || h < 2)) {
+		handle->wayland.ww = 2;
+		handle->wayland.wh = 2;
+	} else {
+		handle->wayland.ww = w;
+		handle->wayland.wh = h;
 	}
-
-	handle->wayland.ww = w;
-	handle->wayland.wh = h;
 
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL && handle->wayland.configured) {
 		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+	}
+
+	if(handle->wayland.type == MWLL_WAYLAND_SUBLEVEL && handle->wayland.configured && !handle->wayland.dispatching_resize) {
+		handle->wayland.dispatching_resize = MwTRUE;
+		MwLLDispatch(handle, resize, NULL);
+		handle->wayland.dispatching_resize = MwFALSE;
 	}
 
 	if(handle->wayland.type == MWLL_WAYLAND_POPUP) {
@@ -2098,9 +2148,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 	}
 
 	if(handle->wayland.force_render) {
-		// if(!handle->wayland.events_pending) {
 		MwLLDispatch(handle, draw, NULL);
-		// }
 		if(handle->wayland.configured) update_buffer(handle, &handle->wayland.framebuffer);
 		handle->wayland.force_render = 0;
 	}
@@ -2287,7 +2335,7 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 
 	/* If there's currently a pointer, set it up. (Otherwise, it'll be setup during the pointer enter event) */
 	if(handle->wayland.pointer != NULL) {
-		wl_pointer_set_cursor(handle->wayland.pointer, handle->wayland.pointer_serial, handle->wayland.cursor.surface, 0, 0);
+		// wl_pointer_set_cursor(handle->wayland.pointer, handle->wayland.pointer_serial, handle->wayland.cursor.surface, 0, 0);
 	}
 }
 
@@ -2406,7 +2454,8 @@ static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
 }
 
 static void MwLLBeginStateChangeImpl(MwLL handle) {
-	MwLLShow(handle, 0);
+	(void)handle;
+	/* no-op */
 }
 
 static void MwLLEndStateChangeImpl(MwLL handle) {
@@ -2439,9 +2488,8 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 			int	 i;
 			for(i = 0; i < arrlen(w->children); i++) {
 				if(w->children[i]->lowlevel->wayland.type == MWLL_WAYLAND_SUBLEVEL) {
-					MwLL child = w->children[i]->lowlevel;
-					child->wayland.sublevel->xdg_surface =
-					    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(handle->wayland, xdg_wm_base)->context, handle->wayland.framebuffer.surface);
+					MwLL child			     = w->children[i]->lowlevel;
+					child->wayland.sublevel->xdg_surface = handle->wayland.popup->xdg_surface;
 					wl_subsurface_destroy(child->wayland.sublevel->subsurface);
 					wl_flush(handle);
 
@@ -2466,8 +2514,6 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 
 		handle->wayland.detatching = MwFALSE;
 	}
-
-	MwLLShow(handle, 1);
 }
 
 static int MwLLWaylandCallInitImpl(void) {
