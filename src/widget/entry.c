@@ -164,6 +164,8 @@ static void clipboard(MwWidget handle, const char* data) {
 
 	MwSetText(handle, MwNtext, out);
 	free(out);
+
+	MwForceRender(handle);
 }
 
 MwClassRec MwEntryClassRec = {
