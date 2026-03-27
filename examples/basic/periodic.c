@@ -156,7 +156,6 @@ int main() {
 
 	window = MwVaCreateWidget(MwWindowClass, "window", NULL, MwDEFAULT, MwDEFAULT, 800, 800,
 				  MwNtitle, "Milsko Periodic Table",
-				  MwNmodernLook, 0,
 				  NULL);
 
 	menu = MwCreateWidget(MwMenuClass, "menu", window, 0, 0, 0, 0);

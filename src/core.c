@@ -363,7 +363,7 @@ int MwStep(MwWidget handle) {
 
 	handle->prop_event = 0;
 
-	if(handle->lowlevel != NULL && MwLLPending(handle->lowlevel))
+	while(handle->lowlevel != NULL && MwLLPending(handle->lowlevel))
 		MwLLNextEvent(handle->lowlevel);
 
 	handle->prop_event = 1;
