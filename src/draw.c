@@ -190,7 +190,7 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 	MwLLColor col;
 	MwBool	  rounded = MwGetInteger(handle, MwNroundness) != MwDEFAULT && MwGetInteger(handle, MwNisRounded) != 0;
 
-	if(border) {
+	if(border){
 		if(!handle->lowlevel->common.supports_transparency) {
 			MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
 

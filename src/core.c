@@ -133,7 +133,9 @@ static void lldarkthemehandler(MwLL handle, void* data) {
 	int*	 ptr = data;
 
 	if(IsFirstVisible(h)) {
-		MwSetDarkTheme(h, *ptr);
+		MwVaApply(h,
+			MwNdarkTheme, *ptr,
+		NULL);
 
 		MwDispatchUserHandler(h, MwNdarkThemeHandler, data);
 	}
@@ -164,7 +166,6 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->draw_inject	 = NULL;
 	h->tick_list	 = NULL;
 	h->destroyed	 = 0;
-	h->dark_theme	 = 0;
 	h->bgcolor	 = NULL;
 	h->berserk	 = 0;
 
@@ -416,6 +417,14 @@ void MwLoop(MwWidget handle) {
 	}
 }
 
+static void force_render_all(MwWidget handle) {
+	int i;
+	for(i = 0; i < arrlen(handle->children); i++) {
+		force_render_all(handle->children[i]);
+	}
+	if(handle->lowlevel != NULL) MwForceRender(handle);
+}
+
 void MwSetInteger(MwWidget handle, const char* key, int n) {
 	int xy;
 	int wh = 0;
@@ -439,6 +448,9 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 	}
 	if(strcmp(key, MwNforceInverted) == 0) {
 		MwForceRender(handle);
+	}
+	if(strcmp(key, MwNmodernLook) == 0 || strcmp(key, MwNdarkTheme) == 0 || strcmp(key, MwNbitmapFont) == 0){
+		force_render_all(handle);
 	}
 }
 
@@ -517,6 +529,7 @@ int MwGetInteger(MwWidget handle, const char* key) {
 			if(strcmp(key, MwNmodernLook) == 0) return inherit_integer(handle, key, 1);
 #endif
 			if(strcmp(key, MwNisRounded) == 0) return inherit_integer(handle, key, 1);
+			if(strcmp(key, MwNdarkTheme) == 0) return inherit_integer(handle, key, 0);
 		}
 		return shget(handle->integer, key);
 	}
@@ -531,7 +544,7 @@ const char* MwGetText(MwWidget handle, const char* key) {
 			h = h->parent;
 		}
 		if(v == NULL) {
-			if(handle->dark_theme) {
+			if(MwGetInteger(handle, MwNdarkTheme)) {
 				if(strcmp(key, MwNbackground) == 0) return MwDefaultDarkBackground;
 				if(strcmp(key, MwNforeground) == 0) return MwDefaultDarkForeground;
 				if(strcmp(key, MwNsubBackground) == 0) return MwDefaultDarkSubBackground;
@@ -747,21 +760,10 @@ void MwGrabPointer(MwWidget handle, int toggle) {
 	MwLLGrabPointer(handle->lowlevel, toggle);
 }
 
-static void force_render_all(MwWidget handle) {
-	int i;
-	for(i = 0; i < arrlen(handle->children); i++) {
-		force_render_all(handle->children[i]);
-	}
-	if(handle->lowlevel != NULL) MwForceRender(handle);
-}
-
 void MwSetDarkTheme(MwWidget handle, int toggle) {
-	int old = handle->dark_theme;
-	if(old != toggle) {
-		handle->dark_theme = toggle;
-
-		force_render_all(handle);
-	}
+	MwVaApply(handle,
+			MwNdarkTheme, toggle,
+		NULL);
 }
 
 MwWidget MwGetParent(MwWidget handle) {
