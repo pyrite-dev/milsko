@@ -148,7 +148,11 @@ static void prop_change(MwWidget handle, const char* prop) {
 static void clipboard(MwWidget handle, const char* data) {
 	MwEntry	    t	= handle->internal;
 	const char* str = MwGetText(handle, MwNtext);
-	char*	    out = malloc(strlen(str) + strlen(data) + 1);
+	char*	    out;
+	if(!str) {
+		str = "";
+	}
+	out = malloc(strlen(str) + strlen(data) + 1);
 
 	if(str == NULL) str = "";
 

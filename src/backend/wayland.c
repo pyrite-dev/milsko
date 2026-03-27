@@ -2385,8 +2385,11 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
 }
 
 static void MwLLGetClipboardImpl(MwLL handle) {
-	(void)handle;
-	/* no-op */
+	int i;
+	for(i = 0; i < arrlen(handle->wayland.clipboard_devices); i++) {
+		wl_clipboard_read(
+		    handle->wayland.clipboard_devices[i]);
+	}
 	return;
 }
 
