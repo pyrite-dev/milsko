@@ -97,6 +97,7 @@
 		<integer name="forceInverted" />
 		<integer name="roundness" />
 		<integer name="isRounded" />
+		<integer name="darkTheme" />
 
 		<string name="title" />
 		<string name="text" />

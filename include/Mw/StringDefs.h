@@ -41,6 +41,7 @@
 #define MwNforceInverted "IforceInverted"
 #define MwNroundness "Iroundness"
 #define MwNisRounded "IisRounded"
+#define MwNdarkTheme "IdarkTheme"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

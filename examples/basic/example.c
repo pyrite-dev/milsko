@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-MwWidget window, menu, button, button2, button3, button4;
+MwWidget window, menu, button, button2, button3, button4, button5, button6;
 
 void handler(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
@@ -10,14 +10,34 @@ void handler(MwWidget handle, void* user_data, void* call_data) {
 	printf("hello world!\n");
 }
 
-int  toggle = 0;
-void handler_dark(MwWidget handle, void* user_data, void* call_data) {
+void handler_theme(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
 	(void)call_data;
 
-	toggle = toggle ? 0 : 1;
-	MwSetDarkTheme(window, toggle);
+	MwVaApply(window,
+			MwNdarkTheme, MwGetInteger(window, MwNdarkTheme) == 0 ? 1 : 0,
+		NULL);
+}
+
+void handler_look(MwWidget handle, void* user_data, void* call_data) {
+	(void)handle;
+	(void)user_data;
+	(void)call_data;
+
+	MwVaApply(window,
+			MwNmodernLook, MwGetInteger(window, MwNmodernLook) == 0 ? 1 : 0,
+		NULL);
+}
+
+void handler_font(MwWidget handle, void* user_data, void* call_data) {
+	(void)handle;
+	(void)user_data;
+	(void)call_data;
+
+	MwVaApply(window,
+			MwNbitmapFont, MwGetInteger(window, MwNbitmapFont) == 0 ? 1 : 0,
+		NULL);
 }
 
 void resize(MwWidget handle, void* user_data, void* call_data) {
@@ -31,23 +51,37 @@ void resize(MwWidget handle, void* user_data, void* call_data) {
 
 	MwVaApply(button,
 		  MwNy, 50 + mh,
-		  MwNwidth, w - 50 * 2,
+		  MwNwidth, (w - 50 * 2) / 3,
 		  MwNheight, h - 125 - 50 * 3,
 		  NULL);
 
 	MwVaApply(button2,
+		  MwNx, 50 + (w - 50 * 2) / 3,
+		  MwNy, 50 + mh,
+		  MwNwidth, (w - 50 * 2) / 3,
+		  MwNheight, h - 125 - 50 * 3,
+		  NULL);
+
+	MwVaApply(button3,
+		  MwNx, 50 + (w - 50 * 2) / 3 * 2,
+		  MwNy, 50 + mh,
+		  MwNwidth, (w - 50 * 2) / 3,
+		  MwNheight, h - 125 - 50 * 3,
+		  NULL);
+
+	MwVaApply(button4,
 		  MwNx, 50 + (w - 50 * 2) / 3 * 0,
 		  MwNy, h - 50 - 125 + mh,
 		  MwNwidth, (w - 50 * 2) / 3,
 		  NULL);
 
-	MwVaApply(button3,
+	MwVaApply(button5,
 		  MwNx, 50 + (w - 50 * 2) / 3 * 1,
 		  MwNy, h - 50 - 125 + mh,
 		  MwNwidth, (w - 50 * 2) / 3,
 		  NULL);
 
-	MwVaApply(button4,
+	MwVaApply(button6,
 		  MwNx, 50 + (w - 50 * 2) / 3 * 2,
 		  MwNy, h - 50 - 125 + mh,
 		  MwNwidth, (w - 50 * 2) / 3,
@@ -63,30 +97,38 @@ int main() {
 				   MwNtitle, "hello world",
 				   NULL);
 	menu	= MwCreateWidget(MwMenuClass, "menu", window, 0, 0, 0, 0);
-	button	= MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 300, 125,
-				   MwNtext, "toggle dark theme",
+	button	= MwVaCreateWidget(MwButtonClass, "button", window, 50, 50, 100, 125,
+				   MwNtext, "theme",
 				   NULL);
-	button2 = MwVaCreateWidget(MwButtonClass, "button", window, 50, 225, 100, 125,
+	button2 = MwVaCreateWidget(MwButtonClass, "button", window, 150, 50, 100, 125,
+				   MwNtext, "look",
+				   NULL);
+	button3 = MwVaCreateWidget(MwButtonClass, "button", window, 250, 50, 100, 125,
+				   MwNtext, "font",
+				   NULL);
+	button4 = MwVaCreateWidget(MwButtonClass, "button", window, 50, 225, 100, 125,
 				   MwNtext, "lorem ipsum",
 				   MwNbackground, "#f66",
 				   MwNforeground, "#000",
 				   NULL);
-	button3 = MwVaCreateWidget(MwButtonClass, "button", window, 150, 225, 100, 125,
+	button5 = MwVaCreateWidget(MwButtonClass, "button", window, 150, 225, 100, 125,
 				   MwNtext, "lorem ipsum",
 				   MwNbackground, "#6f6",
 				   MwNforeground, "#000",
 				   NULL);
-	button4 = MwVaCreateWidget(MwButtonClass, "button", window, 250, 225, 100, 125,
+	button6 = MwVaCreateWidget(MwButtonClass, "button", window, 250, 225, 100, 125,
 				   MwNtext, "lorem ipsum",
 				   MwNbackground, "#66f",
 				   MwNforeground, "#000",
 				   NULL);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
-	MwAddUserHandler(button, MwNactivateHandler, handler_dark, NULL);
-	MwAddUserHandler(button2, MwNactivateHandler, handler, NULL);
-	MwAddUserHandler(button3, MwNactivateHandler, handler, NULL);
+	MwAddUserHandler(button, MwNactivateHandler, handler_theme, NULL);
+	MwAddUserHandler(button2, MwNactivateHandler, handler_look, NULL);
+	MwAddUserHandler(button3, MwNactivateHandler, handler_font, NULL);
 	MwAddUserHandler(button4, MwNactivateHandler, handler, NULL);
+	MwAddUserHandler(button5, MwNactivateHandler, handler, NULL);
+	MwAddUserHandler(button6, MwNactivateHandler, handler, NULL);
 
 	resize(window, NULL, NULL);
 

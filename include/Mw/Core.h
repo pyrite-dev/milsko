@@ -295,6 +295,7 @@ MWDECL void MwHideCursor(MwWidget handle);
  * @brief Toggles the dark theme
  * @param handle Widget
  * @param toggle Toggle
+ * @deprecated Use MwNdarkTheme instead
  */
 MWDECL void MwSetDarkTheme(MwWidget handle, int toggle);
 
