@@ -158,7 +158,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 		r.height -= 2;
 		MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
 		r = *rect;
-		x = (rect->x + rect->width) - (roundness + 2);
+		x = (rect->x + rect->width) - (roundness + 3);
 		y = rect->y + (roundness + 1);
 		for(i = 0; i < roundness; i++) {
 			double point  = ((i + (M_PI * 4)) / div);
