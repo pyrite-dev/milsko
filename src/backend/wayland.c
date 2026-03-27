@@ -1188,9 +1188,7 @@ static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_proto
 }
 
 static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
-	(void)self; // for later, just in case.
 	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
-	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
 	wl_surface_commit(buffer->surface);
 }
 
@@ -1265,6 +1263,9 @@ static void framebuffer_setup(struct _MwLLWayland* wayland) {
 	wayland->front_cairo = cairo_create(wayland->front_cs);
 
 	memset(wayland->framebuffer.buf_back, 0, wayland->framebuffer.buf_size);
+	wl_surface_attach(wayland->framebuffer.surface, wayland->framebuffer.shm_buffer, 0, 0);
+	wl_surface_commit(wayland->framebuffer.surface);
+
 	hang_until_configured((MwLL)wayland);
 	update_buffer((MwLL)wayland, &wayland->framebuffer);
 };
@@ -1290,6 +1291,8 @@ static void backbuffer_setup(struct _MwLLWayland* wayland) {
 	wayland->back_cairo = cairo_create(wayland->back_cs);
 
 	memset(wayland->backbuffer.buf_back, 255, wayland->backbuffer.buf_size);
+	wl_surface_attach(wayland->backbuffer.surface, wayland->backbuffer.shm_buffer, 0, 0);
+	wl_surface_commit(wayland->backbuffer.surface);
 	hang_until_configured((MwLL)wayland);
 	update_buffer((MwLL)wayland, &wayland->backbuffer);
 };
@@ -2207,6 +2210,9 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 			}
 			handle->wayland.icon->surface = wl_compositor_create_surface(handle->wayland.compositor);
 
+			wl_surface_attach(handle->wayland.icon->surface, handle->wayland.icon->shm_buffer, 0, 0);
+			wl_surface_commit(handle->wayland.icon->surface);
+
 			buffer_setup(handle->wayland.icon, pixmap->common.width, pixmap->common.height);
 
 			for(; i < size; i += 2) {
@@ -2277,9 +2283,9 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	}
 
 	handle->wayland.cursor.surface = wl_compositor_create_surface(handle->wayland.compositor);
-
-	wl_surface_attach(handle->wayland.cursor.surface, handle->wayland.cursor.shm_buffer_back, xs + image->x, ys + image->height + image->y);
+	wl_surface_attach(handle->wayland.cursor.surface, handle->wayland.cursor.shm_buffer, 0, 0);
 	wl_surface_commit(handle->wayland.cursor.surface);
+	update_buffer(handle, &handle->wayland.cursor);
 
 	/* If there's currently a pointer, set it up. (Otherwise, it'll be setup during the pointer enter event) */
 	if(handle->wayland.pointer != NULL) {
@@ -2288,8 +2294,18 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 }
 
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
+	MwLL p = handle->wayland.parent;
+	int  x = 0, y = 0;
+	while(p != NULL) {
+		x += p->wayland.x;
+		y += p->wayland.y;
+		p = p->wayland.parent;
+	}
+
 	handle->wayland.detatching   = MwTRUE;
 	handle->wayland.detach_point = *point;
+	handle->wayland.detach_point.x += x;
+	handle->wayland.detach_point.y += y;
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
@@ -2415,9 +2431,6 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 		}
 
 		wl_flush(handle);
-
-		handle->wayland.detach_point.x += 4;
-		handle->wayland.detach_point.y += 4;
 
 		widget_setup(handle, handle->wayland.parent, handle->wayland.detach_point.x, handle->wayland.detach_point.y, handle->wayland.ww, handle->wayland.wh, handle->wayland.type_to_be);
 
