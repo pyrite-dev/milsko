@@ -58,7 +58,6 @@ sub use_backend {
     }
 }
 
-
 sub scan_wayland_protocol_core {
     my $proto_c = "src/backend/wayland-core-protocol.c";
 

@@ -229,7 +229,7 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
 		arrput(enabledExtensions, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 		/* take this opprutunity to set the widget to always render */
-		MwWaylandAlwaysRender  = MwTRUE;
+		MwWaylandAlwaysRender = MwTRUE;
 	}
 #endif
 

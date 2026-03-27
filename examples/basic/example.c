@@ -16,8 +16,8 @@ void handler_theme(MwWidget handle, void* user_data, void* call_data) {
 	(void)call_data;
 
 	MwVaApply(window,
-			MwNdarkTheme, MwGetInteger(window, MwNdarkTheme) == 0 ? 1 : 0,
-		NULL);
+		  MwNdarkTheme, MwGetInteger(window, MwNdarkTheme) == 0 ? 1 : 0,
+		  NULL);
 }
 
 void handler_look(MwWidget handle, void* user_data, void* call_data) {
@@ -26,8 +26,8 @@ void handler_look(MwWidget handle, void* user_data, void* call_data) {
 	(void)call_data;
 
 	MwVaApply(window,
-			MwNmodernLook, MwGetInteger(window, MwNmodernLook) == 0 ? 1 : 0,
-		NULL);
+		  MwNmodernLook, MwGetInteger(window, MwNmodernLook) == 0 ? 1 : 0,
+		  NULL);
 }
 
 void handler_font(MwWidget handle, void* user_data, void* call_data) {
@@ -36,8 +36,8 @@ void handler_font(MwWidget handle, void* user_data, void* call_data) {
 	(void)call_data;
 
 	MwVaApply(window,
-			MwNbitmapFont, MwGetInteger(window, MwNbitmapFont) == 0 ? 1 : 0,
-		NULL);
+		  MwNbitmapFont, MwGetInteger(window, MwNbitmapFont) == 0 ? 1 : 0,
+		  NULL);
 }
 
 void resize(MwWidget handle, void* user_data, void* call_data) {

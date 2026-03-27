@@ -2,6 +2,8 @@
 
 #include "../../external/stb_ds.h"
 
+#define ClipboardTimeout 100
+
 typedef struct mwm_hints {
 	unsigned long flags;
 	unsigned long functions;
@@ -215,6 +217,14 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->x11.wm_protocols = XInternAtom(r->x11.display, "WM_PROTOCOLS", False);
 	XSetWMProtocols(r->x11.display, r->x11.window, &r->x11.wm_delete, 1);
 
+	r->x11.utf8_string   = XInternAtom(r->x11.display, "UTF8_STRING", False);
+	r->x11.compound_text = XInternAtom(r->x11.display, "COMPOUND_TEXT", False);
+	r->x11.text	     = XInternAtom(r->x11.display, "TEXT", False);
+	r->x11.clipboard     = XInternAtom(r->x11.display, "CLIPBOARD", False);
+	r->x11.selection     = XInternAtom(r->x11.display, "_MILSKO_SELECTION_", False);
+
+	r->x11.clipboard_pending = 0;
+
 	r->x11.gc = XCreateGC(r->x11.display, r->x11.window, 0, NULL);
 
 	create_pixmap(r);
@@ -414,7 +424,11 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 static int MwLLPendingImpl(MwLL handle) {
 	XEvent ev;
 
-	if(XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, ClientMessage, &ev) || XCheckWindowEvent(handle->x11.display, handle->x11.window, mask, &ev)) {
+	if(handle->x11.clipboard_pending && (MwTimeGetTick() - handle->x11.clipboard_time) >= ClipboardTimeout) {
+		return 1;
+	}
+
+	if(XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, ClientMessage, &ev) || XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, SelectionNotify, &ev) || XCheckWindowEvent(handle->x11.display, handle->x11.window, mask, &ev)) {
 		XPutBackEvent(handle->x11.display, &ev);
 		return 1;
 	}
@@ -424,7 +438,33 @@ static int MwLLPendingImpl(MwLL handle) {
 static void MwLLNextEventImpl(MwLL handle) {
 	XEvent ev;
 
-	while(XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, ClientMessage, &ev) || XCheckWindowEvent(handle->x11.display, handle->x11.window, mask, &ev)) {
+	if(handle->x11.clipboard_pending && (MwTimeGetTick() - handle->x11.clipboard_time) >= ClipboardTimeout) {
+		Atom a = handle->x11.selection;
+
+		handle->x11.clipboard_pending++;
+		handle->x11.clipboard_time = MwTimeGetTick();
+
+		switch(handle->x11.clipboard_pending) {
+		case 2:
+			a = handle->x11.compound_text;
+			break;
+		case 3:
+			a = handle->x11.text;
+			break;
+		case 4:
+			a = XA_STRING;
+			break;
+		case 5:
+			handle->x11.clipboard_pending = 0;
+			break;
+		}
+
+		if(a != handle->x11.selection) {
+			XConvertSelection(handle->x11.display, handle->x11.clipboard, a, handle->x11.selection, handle->x11.window, CurrentTime);
+		}
+	}
+
+	while(XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, ClientMessage, &ev) || XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, SelectionNotify, &ev) || XCheckWindowEvent(handle->x11.display, handle->x11.window, mask, &ev)) {
 		int render = 0;
 		if(ev.type == Expose) {
 			handle->x11.force_render = 0;
@@ -562,6 +602,49 @@ static void MwLLNextEventImpl(MwLL handle) {
 				} else {
 					MwLLDispatch(handle, key_released, &n);
 				}
+			}
+		} else if(ev.type == SelectionNotify) {
+			handle->x11.clipboard_pending = 0;
+
+			if(ev.xselection.property != None) {
+				Atom	       type;
+				int	       format;
+				unsigned long  nitems, after, size;
+				unsigned char* pdat;
+				int	       ret = XGetWindowProperty(handle->x11.display, handle->x11.window, handle->x11.selection, 0, 0, False, AnyPropertyType, &type, &format, &nitems, &after, &pdat);
+
+				if(pdat != NULL) XFree(pdat);
+
+				size = after;
+
+				if(ret == Success && type != None && format == 8) {
+					char* buf = malloc(size + 1);
+					int   offset;
+
+					for(offset = 0; after > 0; offset += nitems) {
+						ret = XGetWindowProperty(handle->x11.display, handle->x11.window, handle->x11.selection, offset / 4, after / 4 + 1, False, AnyPropertyType, &type, &format, &nitems, &after, &pdat);
+
+						if(ret != Success) {
+							free(buf);
+							buf = NULL;
+							break;
+						}
+
+						memcpy(buf + offset, pdat, nitems);
+
+						XFree(pdat);
+					}
+
+					if(buf != NULL) {
+						buf[size] = 0;
+
+						MwLLDispatch(handle, clipboard, buf);
+
+						free(buf);
+					}
+				}
+
+				XDeleteProperty(handle->x11.display, handle->x11.window, handle->x11.selection);
 			}
 		}
 		if(render) {
@@ -961,9 +1044,12 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
 }
 
 static void MwLLGetClipboardImpl(MwLL handle) {
-	/* TODO */
+	if(handle->x11.clipboard_pending) return;
 
-	(void)handle;
+	XConvertSelection(handle->x11.display, handle->x11.clipboard, handle->x11.utf8_string, handle->x11.selection, handle->x11.window, CurrentTime);
+
+	handle->x11.clipboard_pending = 1;
+	handle->x11.clipboard_time    = MwTimeGetTick();
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {

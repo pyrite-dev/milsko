@@ -30,8 +30,16 @@ struct _MwLLX11 {
 	Colormap colormap;
 	Atom	 wm_delete;
 	Atom	 wm_protocols;
+	Atom	 utf8_string;
+	Atom	 compound_text;
+	Atom	 text;
+	Atom	 clipboard;
+	Atom	 selection;
 	XIM	 xim;
 	XIC	 xic;
+
+	long clipboard_time;
+	int  clipboard_pending; /* 1 if UTF8_STRING, 2 if COMPOUNd_TEXT, 3 if TEXT, 4 if STRING, otherwise 0 */
 
 	int top;
 	int toplevel;

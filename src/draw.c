@@ -190,7 +190,7 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 	MwLLColor col;
 	MwBool	  rounded = MwGetInteger(handle, MwNroundness) != MwDEFAULT && MwGetInteger(handle, MwNisRounded) != 0;
 
-	if(border){
+	if(border) {
 		if(!handle->lowlevel->common.supports_transparency) {
 			MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
 
@@ -283,7 +283,6 @@ static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwLLColor color,
 	int	  ColorDiff = get_color_diff(handle);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
 	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, ColorDiff - diff, ColorDiff - diff, ColorDiff - diff);
-	int	  i;
 	int	  roundness = MwGetInteger(handle, MwNroundness);
 
 	if(roundness == MwDEFAULT) roundness = DEFAULT_ROUNDNESS;
@@ -345,8 +344,10 @@ static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwLLColor color,
 static void frame_border_complex(MwWidget handle, MwRect* rect, MwLLColor lighter, MwLLColor darker, int invert, int border, int diff, int same, int rounded) {
 	MwPoint p[7];
 	int	roundness = MwGetInteger(handle, MwNroundness);
-	MwRect	r	  = *rect;
 	int	i;
+
+	(void)diff;
+	(void)same;
 
 	if(roundness == MwDEFAULT) roundness = DEFAULT_ROUNDNESS;
 	if(roundness >= MAX_ROUNDNESS) roundness = MAX_ROUNDNESS;
@@ -493,8 +494,7 @@ static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwLLColor color
 	int	  ColorDiff = get_color_diff(handle);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
 	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, ColorDiff - diff, ColorDiff - diff, ColorDiff - diff);
-	int	  i;
-	MwRect	  r = *rect;
+	MwRect	  r	    = *rect;
 
 	frame_border_complex(handle, rect, lighter, darker, invert, border, diff, same, rounded);
 
