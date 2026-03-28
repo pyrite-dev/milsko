@@ -316,6 +316,7 @@ static int create(MwWidget handle) {
 		if(!eglMakeCurrent(display, surface, surface, context)) {
 			printf("ERROR: eglMakeCurrent (setup): %0X\n", eglGetError());
 		}
+		eglSwapInterval(o->egl_display, 0);
 
 		o->egl_display = display;
 		o->egl_surface = surface;
@@ -425,8 +426,6 @@ static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 				   o->egl_context)) {
 			printf("ERROR: eglMakeCurrent, %0X\n", eglGetError());
 		}
-
-		eglSwapInterval(o->egl_display, 1);
 	}
 #endif
 }
@@ -450,6 +449,7 @@ static void mwOpenGLSwapBufferImpl(MwWidget handle) {
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
 		waylandopengl_t* o = handle->internal;
+		eglSwapInterval(o->egl_display, 0);
 		if(!eglSwapBuffers(o->egl_display, o->egl_surface)) {
 			printf("ERROR: eglSwapBuffers, %0X\n", eglGetError());
 		};

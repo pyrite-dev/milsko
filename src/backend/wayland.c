@@ -118,15 +118,15 @@ static void recursive_dispatch_resize(MwLL handle) {
 	}
 };
 
-/* Recursively dispatch a draw event to a widget and its children */
-static void recursive_dispatch_draw(MwLL handle) {
+/* Recursively dispatch a move event to a widget and its children */
+static void recursive_dispatch_move(MwLL handle, MwLLMouse* p) {
 	MwWidget h = (MwWidget)handle->common.user;
 	if(h) {
 		int i;
 		for(i = 0; i < arrlen(h->children); i++) {
-			MwDispatch(h->children[i], draw);
+			MwLLDispatch(h->children[i]->lowlevel, move, p);
 			if(arrlen(h->children[i]->children) > 0) {
-				recursive_dispatch_draw(h->children[i]->lowlevel);
+				recursive_dispatch_move(h->children[i]->lowlevel, p);
 			}
 		}
 	}
@@ -531,36 +531,64 @@ static void xdg_borderless_step(MwLL self, MwLLMouse p, MwU32 serial) {
 
 static MwLL currentlyHeldWidget = NULL;
 
+static void relative_pointer_motion(void*			    data,
+				    struct zwp_relative_pointer_v1* pointer,
+				    uint32_t			    timeHi,
+				    uint32_t			    timeLo,
+				    wl_fixed_t			    dx,
+				    wl_fixed_t			    dy,
+				    wl_fixed_t			    dxUnaccel,
+				    wl_fixed_t			    dyUnaccel) {
+	MwLL	  self = data;
+	MwLLMouse p;
+
+	WAYLAND_EVENT_OP_START(self);
+
+	p.point.x = wl_fixed_to_int(dxUnaccel);
+	p.point.y = wl_fixed_to_int(dyUnaccel);
+
+	recursive_dispatch_move(self, &p);
+	if(self->wayland.locked_pointer) zwp_locked_pointer_v1_set_cursor_position_hint(self->wayland.locked_pointer, 0,CSD_BORDER_FRAME_TOP);
+
+	WAYLAND_EVENT_OP_END(self);
+}
+
+struct zwp_relative_pointer_v1_listener relative_pointer_listener =
+    {
+	relative_pointer_motion};
+
+/* zwp_primary_selection_device_manager_v1 setup function */
+static wayland_protocol_t* zwp_relative_pointer_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
+	printf("Relative pointer\n");
+	wayland->relative_pointer_manager = wl_registry_bind(wayland->registry, name, &zwp_relative_pointer_manager_v1_interface, 1);
+	return NULL;
+}
+
+static void zwp_relative_pointer_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	(void)wayland;
+	(void)data;
+}
+
 /* `wl_pointer.motion` callback */
 static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time,
 			   wl_fixed_t surface_x, wl_fixed_t surface_y) {
-	MwLL	  self		 = data;
-	MwLL	  topmost_parent = self;
+	MwLL	  self = data;
 	MwLLMouse p;
 	(void)time;
 	(void)wl_pointer;
 
-	WAYLAND_EVENT_OP_START(self);
-	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
+	if(self->wayland.do_lock_pointer) {
+		return;
+	}
 
 	self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
 	self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
-	if(self->wayland.do_lock_pointer) {
-		self->wayland.cur_mouse_pos.x -= topmost_parent->wayland.ww / 2.;
-		self->wayland.cur_mouse_pos.y -= topmost_parent->wayland.wh / 2.;
-	}
+
 	p.point = self->wayland.cur_mouse_pos;
 	MwLLDispatch(self, move, &p);
 
 	if(currentlyHeldWidget) {
 		MwLLDispatch(currentlyHeldWidget, down, &p);
-	}
-
-	if(self->wayland.do_lock_pointer) {
-		topmost_parent->wayland.locked_pointer = zwp_pointer_constraints_v1_lock_pointer(topmost_parent->wayland.pointer_constraints, topmost_parent->wayland.backbuffer.surface, topmost_parent->wayland.pointer, topmost_parent->wayland.region, ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT);
-		zwp_locked_pointer_v1_set_cursor_position_hint(topmost_parent->wayland.locked_pointer, wl_fixed_from_double(topmost_parent->wayland.ww / 2.), wl_fixed_from_double(topmost_parent->wayland.wh / 2.));
-		wl_surface_commit(topmost_parent->wayland.backbuffer.surface);
-		zwp_locked_pointer_v1_destroy(topmost_parent->wayland.locked_pointer);
 	}
 
 	WAYLAND_EVENT_OP_END(self);
@@ -735,6 +763,10 @@ static void keyboard_key(void*		     data,
 	if(self->wayland.framebuffer.surface) {
 		inArea |= self->wayland.framebuffer.surface == curSurface;
 	}
+	
+        if(self->wayland.backbuffer.surface) {
+	        inArea |= self->wayland.backbuffer.surface == curSurface;
+        }
 	if(inArea) {
 		xkb_layout_index_t  layout;
 		MwU32		    levels;
@@ -1183,7 +1215,7 @@ static void xdg_toplevel_configure(void*		data,
 	recursive_dispatch_resize(self);
 
 	if(self->wayland.pointer_constrained) {
-		zwp_locked_pointer_v1_set_cursor_position_hint(self->wayland.locked_pointer, wl_fixed_from_double(self->wayland.ww / 2.), wl_fixed_from_double(self->wayland.wh / 2.));
+		zwp_locked_pointer_v1_set_cursor_position_hint(self->wayland.locked_pointer, 0,CSD_BORDER_FRAME_TOP);
 		wl_surface_commit(self->wayland.framebuffer.surface);
 	}
 };
@@ -1290,10 +1322,10 @@ static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer) {
 	if(!buffer->setup) {
 		return;
 	}
-	wl_buffer_destroy(buffer->shm_buffer);
-	wl_buffer_destroy(buffer->shm_buffer_back);
-	wl_shm_pool_destroy(buffer->shm_pool);
-	wl_shm_pool_destroy(buffer->shm_pool_back);
+	if(buffer->shm_buffer) wl_buffer_destroy(buffer->shm_buffer);
+	if(buffer->shm_buffer_back) wl_buffer_destroy(buffer->shm_buffer_back);
+	if(buffer->shm_pool) wl_shm_pool_destroy(buffer->shm_pool);
+	if(buffer->shm_pool_back) wl_shm_pool_destroy(buffer->shm_pool_back);
 	close(buffer->fd);
 	close(buffer->fd_back);
 	buffer->setup = MwFALSE;
@@ -1426,6 +1458,7 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 	WL_INTERFACE(wl_data_device_manager);
 	WL_INTERFACE(zwp_primary_selection_device_manager_v1);
 	WL_INTERFACE(zwp_pointer_constraints_v1);
+	WL_INTERFACE(zwp_relative_pointer_manager_v1);
 	WL_INTERFACE(xdg_wm_base);
 	if(wayland->type == MWLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(wp_viewporter);
@@ -1563,6 +1596,12 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 	r->wayland.registry = wl_display_get_registry(parent->wayland.display);
 	r->wayland.display  = parent->wayland.display;
 
+	if(parent->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
+		r->wayland.sublevel->xdg_surface = parent->wayland.toplevel->xdg_surface;
+	} else {
+		r->wayland.sublevel->xdg_surface = parent->wayland.sublevel->xdg_surface;
+	}
+
 	wl_registry_add_listener(r->wayland.registry, &r->wayland.registry_listener, r);
 	if(wl_display_roundtrip(r->wayland.display) == -1) {
 		printf("roundtrip failed\n");
@@ -1571,8 +1610,6 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 	}
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(compositor);
-	r->wayland.sublevel->xdg_surface =
-	    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context, r->wayland.framebuffer.surface);
 
 	r->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(r->wayland.sublevel->subcompositor, r->wayland.framebuffer.surface, parent_surface);
 
@@ -2400,10 +2437,29 @@ static void MwLLFocusImpl(MwLL handle) {
 }
 
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
-	if(handle->wayland.pointer_constraints) {
+	MwLL topmost_parent = handle;
+	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
+	if(handle->wayland.pointer_constraints && handle->wayland.relative_pointer_manager) {
+		if(toggle) {
+			topmost_parent->wayland.locked_pointer = zwp_pointer_constraints_v1_lock_pointer(topmost_parent->wayland.pointer_constraints, topmost_parent->wayland.backbuffer.surface, topmost_parent->wayland.pointer, topmost_parent->wayland.region, ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT);
+			wl_surface_commit(topmost_parent->wayland.backbuffer.surface);
+			zwp_locked_pointer_v1_set_cursor_position_hint(topmost_parent->wayland.locked_pointer, 0,CSD_BORDER_FRAME_TOP);
+			handle->wayland.relative_pointer = zwp_relative_pointer_manager_v1_get_relative_pointer(handle->wayland.relative_pointer_manager, handle->wayland.pointer);
+			zwp_relative_pointer_v1_add_listener(handle->wayland.relative_pointer, &relative_pointer_listener, topmost_parent);
+			printf("%p\n", handle->wayland.relative_pointer);
+		} else {
+			if(topmost_parent->wayland.locked_pointer) {
+				zwp_locked_pointer_v1_destroy(topmost_parent->wayland.locked_pointer);
+				topmost_parent->wayland.locked_pointer = NULL;
+			}
+			if(topmost_parent->wayland.relative_pointer) {
+				zwp_relative_pointer_v1_destroy(topmost_parent->wayland.relative_pointer);
+				topmost_parent->wayland.relative_pointer = NULL;
+			}
+		}
 		handle->wayland.do_lock_pointer = toggle;
 	} else {
-		printf("[WARNING] MwLLGrabPointer not supported in Wayland session, zwp_pointer_constraints_v1 required.\n");
+		printf("[WARNING] MwLLGrabPointer not supported in Wayland session, zwp_pointer_constraints_v1 and relative_pointer_manager_v1 are required.\n");
 	}
 }
 

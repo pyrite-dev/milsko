@@ -43,6 +43,7 @@ if (grep(/^wayland$/, @backends)) {
     scan_wayland_protocol("unstable", "xdg-decoration",      "-unstable-v1");
     scan_wayland_protocol("unstable", "primary-selection",   "-unstable-v1");
     scan_wayland_protocol("unstable", "pointer-constraints", "-unstable-v1");
+    scan_wayland_protocol("unstable", "relative-pointer",   "-unstable-v1");
 
     $gl_libs = "-lGL -lGLU";
 }
