@@ -32,7 +32,7 @@ typedef int8_t	MwI8;
 typedef uint8_t MwU8;
 
 #define MW_OTHER_TYPES_DEFINED
-#elif __GNUC__ > 2
+#elif !defined(__STRICT_ANSI__) && (defined(__GNUC__) || defined(__clang__))
 typedef long long	   MwI64;
 typedef unsigned long long MwU64;
 #elif defined(_MSC_VER) || defined(__BORLANDC__) || defined(__WATCOMC__)
