@@ -43,7 +43,7 @@ if (grep(/^wayland$/, @backends)) {
     scan_wayland_protocol("unstable", "xdg-decoration",      "-unstable-v1");
     scan_wayland_protocol("unstable", "primary-selection",   "-unstable-v1");
     scan_wayland_protocol("unstable", "pointer-constraints", "-unstable-v1");
-    scan_wayland_protocol("unstable", "relative-pointer",   "-unstable-v1");
+    scan_wayland_protocol("unstable", "relative-pointer",    "-unstable-v1");
 
     $gl_libs = "-lGL -lGLU";
 }
@@ -64,7 +64,8 @@ if (grep(/^cocoa$/, @backends)) {
 
 if (param_get("stb-image")) {
     add_cflags("-DUSE_STB_IMAGE");
-}else{
+}
+else {
     new_object("external/libjpeg/src/*.c");
     new_object("external/libpng/src/*.c");
     add_incdir("-Iexternal/libjpeg/include -Iexternal/libpng/include");

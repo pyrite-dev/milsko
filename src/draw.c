@@ -117,7 +117,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 	MwRect	       r	  = *rect;
 	int	       roundness  = MwGetInteger(handle, MwNroundness);
 	double	       div;
-	if(rect->width <= 0 || rect->height <= 0){
+	if(rect->width <= 0 || rect->height <= 0) {
 		free(data);
 		return;
 	}

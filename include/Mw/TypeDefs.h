@@ -27,7 +27,7 @@ typedef struct _MwListBoxEntry	      MwListBoxEntry;
 typedef struct _MwTreeViewEntry	      MwTreeViewEntry;
 typedef struct _MwDirectoryEntry      MwDirectoryEntry;
 typedef struct _MwListBoxPacket	      MwListBoxPacket;
-typedef struct _MwBox*			MwBox;
+typedef struct _MwBox*		      MwBox;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
 #else

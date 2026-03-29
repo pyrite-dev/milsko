@@ -32,7 +32,7 @@ endif()
 file(
  GLOB
  SOURCES
- src/*.c src/cursor/*.c src/icon/*.c src/widget/*.c src/text/*.c src/text/font/*.c src/dialog/*.c src/abstract/*.c external/*.c
+ external/libz/src/*.c src/*.c src/cursor/*.c src/icon/*.c src/widget/*.c src/text/*.c src/text/font/*.c src/dialog/*.c src/abstract/*.c external/*.c
 )
 
 list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl.c")
@@ -103,7 +103,7 @@ else()
     file(
   GLOB
   IMAGE_SOURCES
-  external/libz/src/*.c external/libjpeg/src/*.c external/libpng/src/*.c
+  external/libjpeg/src/*.c external/libpng/src/*.c
  )
     target_sources(
   Mw
@@ -113,7 +113,7 @@ else()
     target_include_directories(
   Mw
   PRIVATE
-  external/libz/include external/libjpeg/include external/libpng/include
+  external/libjpeg/include external/libpng/include
  )
 endif()
 
@@ -238,6 +238,12 @@ if(APPLE AND MW_BUILD_OPENGL)
   GL_SILENCE_DEPRECATION
  )
 endif()
+
+target_include_directories(
+ Mw
+ PRIVATE
+ external/libz/include
+)
 
 target_include_directories(
  Mw
