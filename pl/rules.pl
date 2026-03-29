@@ -64,10 +64,16 @@ if (grep(/^cocoa$/, @backends)) {
 
 if (param_get("stb-image")) {
     add_cflags("-DUSE_STB_IMAGE");
+}else{
+    new_object("external/libjpeg/src/*.c");
+    new_object("external/libpng/src/*.c");
+    add_incdir("-Iexternal/libjpeg/include -Iexternal/libpng/include");
 }
 if (param_get("stb-truetype")) {
     add_cflags("-DUSE_STB_TRUETYPE");
 }
+
+add_incdir("-Iexternal/libz/include");
 
 if (param_get("freetype2")) {
     add_cflags("-DUSE_FREETYPE2");
@@ -121,6 +127,7 @@ new_object("src/dialog/*.c");
 new_object("src/abstract/*.c");
 
 new_object("external/*.c");
+new_object("external/libz/src/*.c");
 
 new_example("examples/basic/example");
 new_example("examples/basic/rotate");
