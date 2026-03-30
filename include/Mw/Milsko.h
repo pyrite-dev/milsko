@@ -12,7 +12,6 @@
 #include <Mw/Core.h>
 #include <Mw/Default.h>
 #include <Mw/Font.h>
-#include <Mw/Error.h>
 #include <Mw/Constants.h>
 #include <Mw/Unicode.h>
 #include <Mw/String.h>

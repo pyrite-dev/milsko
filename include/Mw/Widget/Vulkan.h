@@ -21,7 +21,6 @@
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
 #include <Mw/Core.h>
-#include <Mw/Error.h>
 
 #ifdef __cplusplus
 extern "C" {

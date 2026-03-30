@@ -5,7 +5,6 @@
  * ioixd maintains this file. nishi doesn't know vulkan at all
  */
 
-#include "Mw/Error.h"
 #include <Mw/Milsko.h>
 #include <Mw/Widget/Vulkan.h>
 
