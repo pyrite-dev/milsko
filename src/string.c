@@ -37,7 +37,6 @@ void MwStringTime(char* out, time_t t) {
 		sprintf(out, "%s %2d %02d:%02d %d", months[tm->tm_mon], tm->tm_mday, tm->tm_hour, tm->tm_min, 1900 + tm->tm_year);
 	}
 }
-<<<<<<< HEAD
 void MwStringPrintIntoBuffer(char* out, MwU32 size, const char* fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
@@ -50,7 +49,6 @@ void MwStringPrintIntoBuffer(char* out, MwU32 size, const char* fmt, ...) {
 
 	va_end(va);
 };
-=======
 
 MWDECL MwBool MwIsKeyUTF8(MwU32 key) {
 	unsigned char bytes[sizeof(MwU32)];
