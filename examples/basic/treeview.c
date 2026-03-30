@@ -14,7 +14,7 @@ void activate(MwWidget handle, void* user, void* call) {
 
 	(void)user;
 
-	sprintf(msg, "You pressed: %s", MwTreeViewGet(handle, call));
+	MwPrintIntoBuffer(msg, 256, "You pressed: %s", MwTreeViewGet(handle, call));
 
 	msgbox = MwMessageBox(wmain, msg, "wow", MwMB_ICONINFO | MwMB_BUTTONOK);
 	MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, destroy, msgbox);

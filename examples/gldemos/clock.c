@@ -32,10 +32,10 @@ void tick(MwWidget handle, void* user, void* call) {
 		char buf[512];
 		tm = localtime(&t);
 
-		sprintf(buf, "%s %02d %s", mon[tm->tm_mon], tm->tm_mday, wday[tm->tm_wday]);
+		MwPrintIntoBuffer(buf, 512, "%s %02d %s", mon[tm->tm_mon], tm->tm_mday, wday[tm->tm_wday]);
 		MwSetText(ldate, MwNtext, buf);
 
-		sprintf(buf, "%02d:%02d %s", tm->tm_hour % 12, tm->tm_min, tm->tm_hour >= 12 ? "PM" : "AM");
+		MwPrintIntoBuffer(buf, 512, "%02d:%02d %s", tm->tm_hour % 12, tm->tm_min, tm->tm_hour >= 12 ? "PM" : "AM");
 		MwSetText(ltime, MwNtext, buf);
 
 		render = 1;

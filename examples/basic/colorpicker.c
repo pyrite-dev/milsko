@@ -15,7 +15,7 @@ void color_callback(MwWidget handle, void* user_data, void* call_data) {
 	rgb->red &= 0xff;
 	rgb->green &= 0xff;
 	rgb->blue &= 0xff;
-	sprintf(hexColor, "#%02X%02X%02X", rgb->red, rgb->green, rgb->blue);
+	MwPrintIntoBuffer(hexColor, 8, "#%02X%02X%02X", rgb->red, rgb->green, rgb->blue);
 	MwSetText(window, MwNbackground, hexColor);
 }
 

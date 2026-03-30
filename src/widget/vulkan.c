@@ -1,8 +1,6 @@
 #include <Mw/Milsko.h>
 #include <Mw/Widget/Vulkan.h>
 
-#include "../error_internal.h"
-
 /**
  * ioixd maintains this file. nishi doesn't know vulkan at all
  */
@@ -49,15 +47,19 @@ MwVulkanConfig vulkan_config = {
 #define VK_CMD(func) \
 	vk_res = func; \
 	if(vk_res != VK_SUCCESS) { \
-		setLastError("Vulkan error (%s:%d): %s\n", __FILE__, __LINE__, string_VkResult(vk_res)); \
-		return MwEerror; \
+		char buf[1024]; \
+		MwPrintIntoBuffer(buf, 1024, "Vulkan error (%s:%d): %s\n", __FILE__, __LINE__, string_VkResult(vk_res)); \
+		MwDispatchError(1, buf); \
+		return 1; \
 	}
 #else
 #define VK_CMD(func) \
 	vk_res = func; \
 	if(vk_res != VK_SUCCESS) { \
-		setLastError("Vulkan error (%s:%d): (error %d)\n", __FILE__, __LINE__, vk_res); \
-		return MwEerror; \
+		char buf[1024]; \
+		MwPrintIntoBuffer(buf, 1024, "Vulkan error (%s:%d): (error %d)\n", __FILE__, __LINE__, vk_res); \
+		MwDispatchError(1, buf); \
+		return 1; \
 	}
 #endif
 
@@ -69,8 +71,10 @@ MwVulkanConfig vulkan_config = {
 /* convienence macro to return an error if an assert goes wrong */
 #define VK_ASSERT(val) \
 	if(!val) { \
-		setLastError("Vulkan error (%s:%d): Assertion Failed (%s != NULL)\n", __FILE__, __LINE__, #val); \
-		return MwEerror; \
+		char buf[1024]; \
+		MwPrintIntoBuffer(buf, 1024, "Vulkan error (%s:%d): Assertion Failed (%s != NULL)\n", __FILE__, __LINE__, #val); \
+		MwDispatchError(1, buf); \
+		return 1; \
 	}
 
 const char** enabledExtensions;
@@ -116,17 +120,17 @@ static int create(MwWidget handle) {
 	memset(o, 0, sizeof(*o));
 
 	err = vulkan_instance_setup(handle, o);
-	if(err != MwEsuccess) {
+	if(err != 0) {
 		printf("%s", MwGetLastError());
 		return 1;
 	}
 	err = vulkan_surface_setup(handle, o);
-	if(err != MwEsuccess) {
+	if(err != 0) {
 		printf("%s", MwGetLastError());
 		return 1;
 	}
 	err = vulkan_devices_setup(handle, o);
-	if(err != MwEsuccess) {
+	if(err != 0) {
 		printf("%s", MwGetLastError());
 		return 1;
 	}
@@ -156,12 +160,12 @@ static MwErrorEnum _destroy(MwWidget handle) {
 
 	free(o);
 
-	return MwEsuccess;
+	return 0;
 }
 
 static void destroy(MwWidget handle) {
 	MwErrorEnum err = _destroy(handle);
-	if(err == MwEerror) {
+	if(err == 1) {
 		printf("[Vulkan Widget] %s", MwGetLastError());
 	}
 }
@@ -199,7 +203,7 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	o->vulkanLibrary = vulkan_lib_load();
 	if(!o->vulkanLibrary) {
 		vulkan_supported = VULKAN_SUPPORTED_NO;
-		setLastError("Vulkan not found.");
+		MwDispatchError(1, "Vulkan not found.");
 	} else {
 		vulkan_supported = VULKAN_SUPPORTED_YES;
 	}
@@ -292,7 +296,7 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	instance_create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 
 	VK_CMD(_vkCreateInstance(&instance_create_info, NULL, &o->vkInstance));
-	return MwEsuccess;
+	return 0;
 }
 
 static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
@@ -341,7 +345,7 @@ static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
 		VK_CMD(_vkCreateWaylandSurfaceKHR(o->vkInstance, &createInfo, NULL, &o->vkSurface));
 	}
 #endif
-	return MwEsuccess;
+	return 0;
 }
 
 static MwErrorEnum vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
@@ -400,8 +404,8 @@ static MwErrorEnum vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	}
 	if(!has_graphics && !has_present) {
 		/* rare, yes, but idk maybe some shitty drivers will present this dillema idk. */
-		setLastError("There were no devices with either a graphics or presentation queue.\n");
-		return MwEerror;
+		MwDispatchError(1, "There were no devices with either a graphics or presentation queue.\n");
+		return 1;
 	}
 
 	/* create the logical device */
@@ -461,7 +465,7 @@ static MwErrorEnum vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 		_vkGetDeviceQueue(o->vkLogicalDevice, o->vkPresentFamilyIDX, 0, &o->vkPresentQueue);
 	}
 	free(devices);
-	return MwEsuccess;
+	return 0;
 }
 
 void MwVulkanConfigure(MwVulkanConfig cfg) {
@@ -495,6 +499,7 @@ VkBool32 MwVulkanSupported(void) {
 
 static void* mwVulkanGetFieldImpl(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
 	vulkan_t* o = handle->internal;
+	char	  buf[1024];
 
 	switch(field) {
 	case MwVulkanField_GetInstanceProcAddr:
@@ -516,14 +521,15 @@ static void* mwVulkanGetFieldImpl(MwWidget handle, MwVulkanField field, MwErrorE
 	case MwVulkanField_PresentQueue:
 		return o->vkPresentQueue;
 	default:
-		setLastError("Unknown vulkan field request (%d given)", field);
+		MwPrintIntoBuffer(buf, 1024, "Unknown vulkan field request (%d given)", field);
+		MwDispatchError(1, buf);
 		if(out != NULL) {
-			*out = MwEerror;
+			*out = 1;
 		}
 		return NULL;
 	}
 	if(out != NULL) {
-		*out = MwEsuccess;
+		*out = 0;
 	}
 };
 

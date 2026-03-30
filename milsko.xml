@@ -412,15 +412,6 @@
 				</function>
 			</functions>
 		</header>
-		<header name="Error">
-			<functions>
-				<function name="MwGetLastError">
-					<return>
-						<string />
-					</return>
-				</function>
-			</functions>
-		</header>
 		<header name="FileChooser">
 			<functions>
 				<function name="MwFileChooser">

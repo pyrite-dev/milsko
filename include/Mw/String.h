@@ -41,6 +41,13 @@ MWDECL void MwStringSize(char* out, MwOffset size);
  */
 MWDECL void MwStringTime(char* out, time_t t);
 
+/*!
+ * @brief Prints up to n characters into a buffer
+ * @param out Buffer
+ * @param size Max size
+ */
+MWDECL void MwPrintIntoBuffer(char* out, MwU32 size, const char* fmt, ...);
+
 #ifdef __cplusplus
 }
 #endif
