@@ -82,7 +82,7 @@ static void activate(MwWidget handle, void* client, void* user) {
 				v = fv / sv;
 			}
 
-			MwPrintIntoBuffer(buf, 256, "%g", v);
+			MwStringPrintIntoBuffer(buf, 256, "%g", v);
 
 			MwVaApply(inp,
 				  MwNtext, buf,

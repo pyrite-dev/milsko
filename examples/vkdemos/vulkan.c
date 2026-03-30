@@ -17,7 +17,7 @@
 char buffer[512];
 
 char* string_VkResult(VkResult res) {
-	MwPrintIntoBuffer(buffer, 512, "%d", res);
+	MwStringPrintIntoBuffer(buffer, 512, "%d", res);
 
 	return &buffer[0];
 }

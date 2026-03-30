@@ -16,7 +16,7 @@ void activate(MwWidget handle, void* user, void* call) {
 
 	(void)user;
 
-	MwPrintIntoBuffer(msg, 256, "You pressed: %s", MwListBoxGet(handle, *(int*)call));
+	MwStringPrintIntoBuffer(msg, 256, "You pressed: %s", MwListBoxGet(handle, *(int*)call));
 
 	msgbox = MwMessageBox(wmain, msg, "wow", MwMB_ICONINFO | MwMB_BUTTONOK);
 	MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, destroy, msgbox);
@@ -48,7 +48,7 @@ int main() {
 
 	for(i = 0; i < len; i++) {
 		char sz[16];
-		MwPrintIntoBuffer(sz, 16, "%d", (int)strlen(harvard[i]));
+		MwStringPrintIntoBuffer(sz, 16, "%d", (int)strlen(harvard[i]));
 		index = MwListBoxPacketInsert(packet, -1);
 		MwListBoxPacketSetIcon(packet, index, px);
 		MwListBoxPacketSet(packet, index, 0, harvard[i]);

@@ -103,9 +103,9 @@ static void mouse_up(MwWidget handle, void* ptr) {
 	if(e->mouse.x >= (w - e->right)) {
 		char s[512];
 		if(e->mouse.y >= (h / 2)) {
-			MwPrintIntoBuffer(s, 512, "%g", atof(str) - 1);
+			MwStringPrintIntoBuffer(s, 512, "%g", atof(str) - 1);
 		} else {
-			MwPrintIntoBuffer(s, 512, "%g", atof(str) + 1);
+			MwStringPrintIntoBuffer(s, 512, "%g", atof(str) + 1);
 		}
 		MwSetText(handle, MwNtext, s);
 	}

@@ -521,7 +521,7 @@ static void* mwVulkanGetFieldImpl(MwWidget handle, MwVulkanField field, MwErrorE
 	case MwVulkanField_PresentQueue:
 		return o->vkPresentQueue;
 	default:
-		MwPrintIntoBuffer(buf, 1024, "Unknown vulkan field request (%d given)", field);
+		MwStringPrintIntoBuffer(buf, 1024, "Unknown vulkan field request (%d given)", field);
 		MwDispatchError(1, buf);
 		if(out != NULL) {
 			*out = 1;
