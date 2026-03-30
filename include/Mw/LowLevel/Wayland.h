@@ -289,6 +289,7 @@ MwInline int wayland_load_funcs() {
 #include "Wayland/cursor-shape-client-protocol.h"
 #include "Wayland/primary-selection-client-protocol.h"
 #include "Wayland/pointer-constraints-client-protocol.h"
+#include "Wayland/relative-pointer-client-protocol.h"
 #include "Wayland/xdg-toplevel-icon-client-protocol.h"
 #endif
 
@@ -310,10 +311,6 @@ struct _MwLLWaylandTopLevel {
 	struct xdg_toplevel*	     xdg_top_level;
 	struct xdg_toplevel_listener xdg_toplevel_listener;
 	struct xdg_surface_listener  xdg_surface_listener;
-
-	struct xkb_context* xkb_context;
-	struct xkb_keymap*  xkb_keymap;
-	struct xkb_state*   xkb_state;
 
 	MwBool compositor_created;
 	MwBool xdg_wm_base_created;
@@ -416,6 +413,10 @@ struct _MwLLWayland {
 	MwBool has_decorations;
 	char   title[255];
 
+	struct xkb_context* xkb_context;
+	struct xkb_keymap*  xkb_keymap;
+	struct xkb_state*   xkb_state;
+
 	struct wl_display*	    display;
 	struct wl_registry*	    registry;
 	struct wl_compositor*	    compositor;
@@ -426,10 +427,12 @@ struct _MwLLWayland {
 
 	struct wp_viewport* vp;
 
-	MwBool				   do_lock_pointer;
-	struct zwp_pointer_constraints_v1* pointer_constraints;
-	struct zwp_locked_pointer_v1*	   locked_pointer;
-	MwBool				   pointer_constrained;
+	MwBool					do_lock_pointer;
+	struct zwp_pointer_constraints_v1*	pointer_constraints;
+	struct zwp_relative_pointer_manager_v1* relative_pointer_manager;
+	struct zwp_relative_pointer_v1*		relative_pointer;
+	struct zwp_locked_pointer_v1*		locked_pointer;
+	MwBool					pointer_constrained;
 
 	/* clipboard related stuff.
 	 * Note that unlike most interfaces, we don't keep zwp_primary_selection stuff in a wayland_protocol_t because we use wl_data_device as a fallback and want to have it share memory space.*/
@@ -474,6 +477,8 @@ struct _MwLLWayland {
 
 	MwBool force_render;
 	MwBool did_event_loop_early;
+
+	MwBool dispatching_resize;
 
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  backbuffer;

@@ -9,7 +9,7 @@
 MwWidget window, menu, box;
 MwWidget boxes[32];
 int	 n = 0, row = -1;
-MwMenu e;
+MwMenu	 e;
 
 static void resize(MwWidget handle, void* user, void* call) {
 	int w = MwGetInteger(window, MwNwidth);
@@ -140,7 +140,7 @@ static MwWidget child(MwWidget w) {
 	return MwGetVoid(w, "VhandledWidget");
 }
 
-static void menu_handler(MwWidget handle, void* user, void* call){
+static void menu_handler(MwWidget handle, void* user, void* call) {
 	if(call == e) MwDestroyWidget(window);
 }
 
@@ -149,8 +149,8 @@ int main() {
 	MwWidget	 f, w;
 	MwListBoxPacket* pkt;
 	int		 index;
-	MwMenu m, m2;
-	void* v;
+	MwMenu		 m, m2;
+	void*		 v;
 
 	MwLibraryInit();
 
@@ -187,7 +187,7 @@ int main() {
 	MwMenuAdd(menu, m, "Month");
 	MwMenuAdd(menu, m, "Year");
 
-	m = MwMenuAdd(menu, NULL, "Options");
+	m  = MwMenuAdd(menu, NULL, "Options");
 	m2 = MwMenuAdd(menu, m, "Font");
 	MwMenuAdd(menu, m2, "Small");
 	MwMenuAdd(menu, m2, "Medium");
@@ -255,13 +255,13 @@ int main() {
 	add(f);
 
 	f = frame("ProgressBar", -PaddingContent, 24, MwProgressBarClass,
-		MwNvalue, 25,
-	NULL);
+		  MwNvalue, 25,
+		  NULL);
 	add(f);
 
 	f = frame("ScrollBar", -PaddingContent, 16, MwScrollBarClass,
-		MwNorientation, MwHORIZONTAL,
-	NULL);
+		  MwNorientation, MwHORIZONTAL,
+		  NULL);
 	add(f);
 
 	f = frame("Separator", -PaddingContent, -PaddingContent, MwSeparatorClass, NULL);

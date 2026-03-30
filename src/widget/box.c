@@ -21,7 +21,7 @@ static int create(MwWidget handle) {
 	return 0;
 }
 
-static void destroy(MwWidget handle){
+static void destroy(MwWidget handle) {
 	MwBox b = handle->internal;
 	free(b);
 }
@@ -78,7 +78,7 @@ static void layout(MwWidget handle) {
 static void draw(MwWidget handle) {
 	MwRect	  r;
 	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwBox b = handle->internal;
+	MwBox	  b    = handle->internal;
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -93,7 +93,7 @@ static void draw(MwWidget handle) {
 
 	MwLLFreeColor(base);
 
-	if(b->layout){
+	if(b->layout) {
 		layout(handle);
 
 		b->layout = 0;
@@ -101,8 +101,8 @@ static void draw(MwWidget handle) {
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNorientation) == 0){
-		MwBox b = handle->internal;
+	if(strcmp(key, MwNorientation) == 0) {
+		MwBox b	  = handle->internal;
 		b->layout = 1;
 
 		MwForceRender(handle);
@@ -112,8 +112,8 @@ static void prop_change(MwWidget handle, const char* key) {
 static void children_prop_change(MwWidget handle, MwWidget child, const char* key) {
 	(void)child;
 
-	if(strcmp(key, MwNratio) == 0 || strcmp(key, MwNfixedSize) == 0){
-		MwBox b = handle->internal;
+	if(strcmp(key, MwNratio) == 0 || strcmp(key, MwNfixedSize) == 0) {
+		MwBox b	  = handle->internal;
 		b->layout = 1;
 
 		MwForceRender(handle);
@@ -121,14 +121,14 @@ static void children_prop_change(MwWidget handle, MwWidget child, const char* ke
 }
 
 static void resize(MwWidget handle) {
-	MwBox b = handle->internal;
+	MwBox b	  = handle->internal;
 	b->layout = 1;
 
 	MwForceRender(handle);
 }
 
 static void children_update(MwWidget handle) {
-	MwBox b = handle->internal;
+	MwBox b	  = handle->internal;
 	b->layout = 1;
 
 	MwForceRender(handle);

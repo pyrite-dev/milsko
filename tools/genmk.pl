@@ -93,7 +93,7 @@ sub generate {
     print(OUT "LD = $link\n");
     print(OUT "\n");
     print(OUT
-"CFLAGS = ${inc}include ${def}_MILSKO ${def}USE_GDI ${def}USE_STB_TRUETYPE ${def}USE_STB_IMAGE ${def}STBI_NO_SIMD\n"
+"CFLAGS = ${inc}include ${inc}external${dir}libz${dir}include ${def}_MILSKO ${def}USE_GDI ${def}USE_STB_TRUETYPE ${def}USE_STB_IMAGE ${def}STBI_NO_SIMD\n"
     );
     print(OUT "LDFLAGS = $dll");
     print(OUT "\n");
@@ -143,6 +143,7 @@ sub generate {
 
 scan("src");
 scan("external");
+scan("external/libz/src");
 scan("src/icon");
 scan("src/cursor");
 scan("src/widget");

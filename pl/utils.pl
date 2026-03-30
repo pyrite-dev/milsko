@@ -5,6 +5,13 @@ sub add_incdir {
     $incdir = "${incdir} ${input}";
 }
 
+sub add_incdir2 {
+    my $input = $_[0];
+    $input =~ s/\r?\n/ /g;
+
+    $incdir2 = "${incdir2} ${input}";
+}
+
 sub add_cflags {
     my $input = $_[0];
     $input =~ s/\r?\n/ /g;
