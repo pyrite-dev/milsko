@@ -78,12 +78,8 @@ add_incdir("-Iexternal/libz/include");
 
 if (param_get("freetype2")) {
     add_cflags("-DUSE_FREETYPE2");
-    if ($cross) {
-        add_libs("-lfreetype");
-    }
-    else {
+    if (!$cross) {
         add_cflags(`pkg-config --cflags freetype2`);
-        add_libs(`pkg-config --libs freetype2`);
     }
 }
 
