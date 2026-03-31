@@ -558,7 +558,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 				strcpy(str, s);
 			}
 
-			if(MwIsKeyUTF8(sym)) {
+			if(MwStringIsKeyUTF8(sym)) {
 				char s = str[0];
 
 				if(ev.xkey.state & (ShiftMask | LockMask) && !(ev.xkey.state & (ControlMask | Mod1Mask))) {

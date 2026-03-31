@@ -50,7 +50,7 @@ void MwStringPrintIntoBuffer(char* out, MwU32 size, const char* fmt, ...) {
 	va_end(va);
 };
 
-MWDECL MwBool MwIsKeyUTF8(MwU32 key) {
+MWDECL MwBool MwStringIsKeyUTF8(MwU32 key) {
 	unsigned char bytes[sizeof(MwU32)];
 	memcpy(bytes, &key, sizeof(MwU32));
 	int i = 0;
@@ -111,4 +111,3 @@ MWDECL MwBool MwIsKeyUTF8(MwU32 key) {
 
 	return 1;
 }
->>>>>>> master

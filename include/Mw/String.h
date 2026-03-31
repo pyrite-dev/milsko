@@ -42,20 +42,19 @@ MWDECL void MwStringSize(char* out, MwOffset size);
 MWDECL void MwStringTime(char* out, time_t t);
 
 /*!
-<<<<<<< HEAD
  * @brief Prints up to n characters into a bufferMwStringPrintIntoBuffer.
  * @note On compilers that support C99, this uses vsnprintf to safely print into a buffer; on compilers that don't, vsprintf is used.
  * @param out Buffer
  * @param size Max size
  */
 MWDECL void MwStringPrintIntoBuffer(char* out, MwU32 size, const char* fmt, ...);
-=======
+
+/*!
  * @brief Check if the given key is UTF8
  * @param key Input
  * @return whether its utf8
  */
-MWDECL MwBool MwIsKeyUTF8(MwU32 key);
->>>>>>> master
+MWDECL MwBool MwStringIsKeyUTF8(MwU32 key);
 
 #ifdef __cplusplus
 }

@@ -834,7 +834,7 @@ static void keyboard_key(void*		     data,
 				key = MwLLKeyControl;
 				break;
 			default:
-				if(MwIsKeyUTF8(sym)) {
+				if(MwStringIsKeyUTF8(sym)) {
 					key = sym;
 				}
 			}
