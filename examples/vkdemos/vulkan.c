@@ -231,43 +231,16 @@ void vulkan_setup(MwWidget handle) {
 	VkSemaphoreCreateInfo		       semaphoreInfo	    = {};
 	VkFenceCreateInfo		       fenceInfo	    = {};
 
-	MwErrorEnum err	       = MwEsuccess;
+	int err		       = 0;
 	_vkGetInstanceProcAddr = MwVulkanGetField(handle, MwVulkanField_GetInstanceProcAddr, &err);
-	if(err != MwEsuccess) {
-		printf("Error getting vkGetInstanceProcAddr!\n%s\n", MwGetLastError());
-	}
-	instance = MwVulkanGetField(handle, MwVulkanField_Instance, &err);
-	if(err != MwEsuccess) {
-		printf("Error getting vulkan instance!\n%s\n", MwGetLastError());
-	}
-	device = MwVulkanGetField(handle, MwVulkanField_LogicalDevice, &err);
-	if(err != MwEsuccess) {
-		printf("Error getting VkDevice!\n%s\n", MwGetLastError());
-	}
-	physicalDevice = MwVulkanGetField(handle, MwVulkanField_PhysicalDevice, &err);
-	if(err != MwEsuccess) {
-		printf("Error getting physical device!\n%s\n", MwGetLastError());
-	}
-	graphicsQueue = MwVulkanGetField(handle, MwVulkanField_GraphicsQueue, &err);
-	if(err != MwEsuccess) {
-		printf("Error getting graphics queue!\n%s\n", MwGetLastError());
-	}
-	presentQueue = MwVulkanGetField(handle, MwVulkanField_PresentQueue, &err);
-	if(err != MwEsuccess) {
-		printf("Error getting present queue!\n%s\n", MwGetLastError());
-	}
-	surface = MwVulkanGetField(handle, MwVulkanField_Surface, &err);
-	if(err != MwEsuccess) {
-		printf("Error getting surface!\n%s\n", MwGetLastError());
-	}
-	presentQueueIndex = MwVulkanGetField(handle, MwVulkanField_PresentQueueIndex, &err);
-	if(err != MwEsuccess) {
-		printf("Error getting present queue index!\n%s\n", MwGetLastError());
-	}
-	graphicsQueueIndex = MwVulkanGetField(handle, MwVulkanField_GraphicsQueueIndex, &err);
-	if(err != MwEsuccess) {
-		printf("Error getting graphics queue index!\n%s\n", MwGetLastError());
-	}
+	instance	       = MwVulkanGetField(handle, MwVulkanField_Instance, &err);
+	device		       = MwVulkanGetField(handle, MwVulkanField_LogicalDevice, &err);
+	physicalDevice	       = MwVulkanGetField(handle, MwVulkanField_PhysicalDevice, &err);
+	graphicsQueue	       = MwVulkanGetField(handle, MwVulkanField_GraphicsQueue, &err);
+	presentQueue	       = MwVulkanGetField(handle, MwVulkanField_PresentQueue, &err);
+	surface		       = MwVulkanGetField(handle, MwVulkanField_Surface, &err);
+	presentQueueIndex      = MwVulkanGetField(handle, MwVulkanField_PresentQueueIndex, &err);
+	graphicsQueueIndex     = MwVulkanGetField(handle, MwVulkanField_GraphicsQueueIndex, &err);
 
 	LOAD_VK_FUNCTION(vkCreateShaderModule);
 	LOAD_VK_FUNCTION(vkCreatePipelineLayout);

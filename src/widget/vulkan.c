@@ -48,7 +48,7 @@ MwVulkanConfig vulkan_config = {
 	vk_res = func; \
 	if(vk_res != VK_SUCCESS) { \
 		char buf[1024]; \
-		MwPrintIntoBuffer(buf, 1024, "Vulkan error (%s:%d): %s\n", __FILE__, __LINE__, string_VkResult(vk_res)); \
+		MwStringPrintIntoBuffer(buf, 1024, "Vulkan error (%s:%d): %s\n", __FILE__, __LINE__, string_VkResult(vk_res)); \
 		MwDispatchError(1, buf); \
 		return 1; \
 	}
@@ -57,7 +57,7 @@ MwVulkanConfig vulkan_config = {
 	vk_res = func; \
 	if(vk_res != VK_SUCCESS) { \
 		char buf[1024]; \
-		MwPrintIntoBuffer(buf, 1024, "Vulkan error (%s:%d): (error %d)\n", __FILE__, __LINE__, vk_res); \
+		MwStringPrintIntoBuffer(buf, 1024, "Vulkan error (%s:%d): (error %d)\n", __FILE__, __LINE__, vk_res); \
 		MwDispatchError(1, buf); \
 		return 1; \
 	}
@@ -72,7 +72,7 @@ MwVulkanConfig vulkan_config = {
 #define VK_ASSERT(val) \
 	if(!val) { \
 		char buf[1024]; \
-		MwPrintIntoBuffer(buf, 1024, "Vulkan error (%s:%d): Assertion Failed (%s != NULL)\n", __FILE__, __LINE__, #val); \
+		MwStringPrintIntoBuffer(buf, 1024, "Vulkan error (%s:%d): Assertion Failed (%s != NULL)\n", __FILE__, __LINE__, #val); \
 		MwDispatchError(1, buf); \
 		return 1; \
 	}
@@ -109,29 +109,26 @@ typedef struct vulkan {
 	int	     vkLayerCount;
 } vulkan_t;
 
-static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o);
-static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o);
-static MwErrorEnum vulkan_devices_setup(MwWidget handle, vulkan_t* o);
+static int vulkan_instance_setup(MwWidget handle, vulkan_t* o);
+static int vulkan_surface_setup(MwWidget handle, vulkan_t* o);
+static int vulkan_devices_setup(MwWidget handle, vulkan_t* o);
 
 static int create(MwWidget handle) {
-	vulkan_t*   o = malloc(sizeof(*o));
-	MwErrorEnum err;
+	vulkan_t* o = malloc(sizeof(*o));
+	int	  err;
 
 	memset(o, 0, sizeof(*o));
 
 	err = vulkan_instance_setup(handle, o);
 	if(err != 0) {
-		printf("%s", MwGetLastError());
 		return 1;
 	}
 	err = vulkan_surface_setup(handle, o);
 	if(err != 0) {
-		printf("%s", MwGetLastError());
 		return 1;
 	}
 	err = vulkan_devices_setup(handle, o);
 	if(err != 0) {
-		printf("%s", MwGetLastError());
 		return 1;
 	}
 
@@ -143,7 +140,7 @@ static int create(MwWidget handle) {
 	return 0;
 }
 
-static MwErrorEnum _destroy(MwWidget handle) {
+static int _destroy(MwWidget handle) {
 	vulkan_t* o = (vulkan_t*)handle->internal;
 
 	LOAD_VK_FUNCTION(vkDestroyInstance);
@@ -164,10 +161,7 @@ static MwErrorEnum _destroy(MwWidget handle) {
 }
 
 static void destroy(MwWidget handle) {
-	MwErrorEnum err = _destroy(handle);
-	if(err == 1) {
-		printf("[Vulkan Widget] %s", MwGetLastError());
-	}
+	int err = _destroy(handle);
 }
 
 static void* vulkan_lib_load() {
@@ -178,7 +172,7 @@ static void* vulkan_lib_load() {
 #endif
 }
 
-static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
+static int vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	uint32_t      vulkan_version  = vulkan_config.vk_version;
 	uint32_t      api_version     = vulkan_config.api_version;
 	uint32_t      extension_count = 0;
@@ -299,7 +293,7 @@ static MwErrorEnum vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	return 0;
 }
 
-static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
+static int vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
 	int vk_res;
 #ifdef USE_GDI
 	if(handle->lowlevel->common.type == MwLLBackendGDI) {
@@ -348,7 +342,7 @@ static MwErrorEnum vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
 	return 0;
 }
 
-static MwErrorEnum vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
+static int vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	(void)(handle);
 
 	int			 vk_res;
@@ -497,7 +491,7 @@ VkBool32 MwVulkanSupported(void) {
 	}
 };
 
-static void* mwVulkanGetFieldImpl(MwWidget handle, MwVulkanField field, MwErrorEnum* out) {
+static void* mwVulkanGetFieldImpl(MwWidget handle, MwVulkanField field, int* out) {
 	vulkan_t* o = handle->internal;
 	char	  buf[1024];
 
@@ -536,7 +530,7 @@ static void* mwVulkanGetFieldImpl(MwWidget handle, MwVulkanField field, MwErrorE
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	if(strcmp(name, "mwVulkanGetField") == 0) {
 		MwVulkanField field = va_arg(va, MwVulkanField);
-		MwErrorEnum*  err   = va_arg(va, MwErrorEnum*);
+		int*	      err   = va_arg(va, int*);
 		*(void**)out	    = mwVulkanGetFieldImpl(handle, field, err);
 	}
 }
