@@ -721,7 +721,7 @@ void MwDispatchError(int code, const char* message) {
 	} else {
 #ifdef _WIN32
 		char buffer[1024];
-		MwPrintIntoBuffer(buffer, 1024, "Error: %s\r\nCode : %d\r\n\r\nMilsko is exiting.", message, code);
+		MwStringPrintIntoBuffer(buffer, 1024, "Error: %s\r\nCode : %d\r\n\r\nMilsko is exiting.", message, code);
 		MessageBox(NULL, buffer, "Error", MB_ICONERROR | MB_OK);
 #else
 		fprintf(stderr, "Error: %s\nCode : %d\n\nMilsko is exiting.", message, code);
