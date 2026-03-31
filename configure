@@ -15,7 +15,7 @@ our $cc       = defined($ENV{CC}) ? $ENV{CC} : "*host*gcc";
 our $ar       = defined($ENV{AR}) ? $ENV{AR} : "*host*ar";
 our $incdir   = "-I include";
 our $incdir2 = "";
-our $cflags   = "-fPIC -D_MILSKO";
+our $cflags   = "-fPIC -D_MILSKO -fvisibility=hidden";
 our $libdir   = "";
 our $ldflags  = "";
 our $math     = "-lm";
@@ -46,17 +46,11 @@ param_set("vulkan-string-helper", 1);
 param_set("shared",               1);
 param_set("static",               1);
 param_set("examples",             1);
-if($target eq "Linux") {
-    param_set("x11",          1);
-}
-if($target eq "Linux") {
-    param_set("wayland",          1);
-}
+
 
 if($target ne "Darwin") {
     param_set("freetype2",        1);
 }
-
 
 my %features = (
     "classic-theme"        => "use classic theme",
@@ -77,7 +71,7 @@ my @features_keys = (
     "1opengl",        "2xrender",
     "1vulkan",        "2vulkan-string-helper",
     "1shared",        "1static",
-    "1wayland"
+    "1wayland",
 );
 
 foreach my $l (@ARGV) {
@@ -96,8 +90,14 @@ foreach my $l (@ARGV) {
     elsif ($l =~ /^--host=(.+)$/) {
         $host = $1 . "-";
     }
+    elsif ($l =~ /^--cflags=(.+)$/) {
+        add_cflags($1);
+    }
     elsif ($l eq "--cross") {
         $cross = 1;
+    }
+    elsif ($l eq "--tiny") {
+        param_set("tiny",1);
     }
     elsif (($l eq "-h") or ($l eq "--help")) {
         print("Milsko Toolkit Configuration Utility\n");
@@ -109,6 +109,8 @@ foreach my $l (@ARGV) {
         print("  --prefix=PREFIX                 Installation prefix\n");
         print("  --host=TARGET                   Host for compiler/archiver\n");
         print("  --target=TARGET                 Specify target\n");
+        print("  --cflags=CFLAGS                 Add cflags\n");
+        print("  --tiny                          Build smallest possible library\n");
         print("  --cross                         Indicate cross compilation\n");
         print("\n");
         print("Features:\n");
@@ -131,6 +133,13 @@ foreach my $l (@ARGV) {
             print("  $flag" . (" " x (32 - length($flag))) . "${do}${feat}\n");
         }
         exit(0);
+    }
+}
+
+if($target eq "Linux") {
+    param_set("x11", 1);
+    if(!param_get("tiny")){
+        param_set("wayland", 1);
     }
 }
 

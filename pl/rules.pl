@@ -1,7 +1,9 @@
 new_object("src/*.c");
 
 my $gl_libs = "";
-
+if (param_get("tiny")) {
+    add_cflags("-Oz");
+}
 if (param_get("classic-theme")) {
     add_cflags("-DUSE_CLASSIC_THEME");
 }
@@ -62,6 +64,10 @@ if (grep(/^cocoa$/, @backends)) {
 
 if (param_get("stb-image")) {
     add_cflags("-DUSE_STB_IMAGE");
+    if(param_get("tiny")) {
+        add_cflags("-DSTB_IMAGE_STATIC");
+        add_cflags("-DSTB_IMAGE_IMPLEMENTATION");
+    }
 }
 else {
     new_object("external/libjpeg/src/*.c");

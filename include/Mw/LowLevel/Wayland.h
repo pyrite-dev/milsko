@@ -1,8 +1,7 @@
 /*!
  * @file Mw/LowLevel/Wayland.h
- * @brief Work in progress Wayland Backend
+ * @brief Wayland Backend
  * @warning This is used internally.
- * @warning This is disabled by default.
  */
 #ifndef __MW_LOWLEVEL_WAYLAND_H__
 #define __MW_LOWLEVEL_WAYLAND_H__

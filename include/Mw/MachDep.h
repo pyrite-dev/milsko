@@ -61,6 +61,12 @@
 #define MWDECL extern __declspec(dllexport)
 #elif defined(_WIN32)
 #define MWDECL extern __declspec(dllimport)
+#elif defined(__has_attribute)
+#if __has_attribute(visibility)
+#define MWDECL extern __attribute__((visibility("default")))
+#else
+#define MWDECL extern
+#endif
 #else
 #define MWDECL extern
 #endif
