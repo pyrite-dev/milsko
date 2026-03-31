@@ -5,545 +5,84 @@
 #define ClipboardTimeout 100
 
 static struct {
-	void* lib_xlib;
-	void* lib_xrender;
+	void*  lib_xlib;
+	void*  lib_xrender;
+	MwBool has_xrender;
 
-	int* _Xdebug;
-
-	XFontStruct* (*XLoadQueryFont)(Display*, _Xconst char*);
-	XFontStruct* (*XQueryFont)(Display*, XID);
-	XTimeCoord* (*XGetMotionEvents)(Display*, Window, Time, Time, int*);
-	XModifierKeymap* (*XDeleteModifiermapEntry)(XModifierKeymap*,
-#if NeedWidePrototypes
-						    unsigned int,
-#else
-						    KeyCode,
-#endif
-						    int);
-	XModifierKeymap* (*XGetModifierMapping)(Display*);
-	XModifierKeymap* (*XInsertModifiermapEntry)(XModifierKeymap*,
-#if NeedWidePrototypes
-						    unsigned int,
-#else
-						    KeyCode,
-#endif
-						    int);
-	XModifierKeymap* (*XNewModifiermap)(int);
 	XImage* (*XCreateImage)(Display*, Visual*, unsigned int, int, int, char*, unsigned int, unsigned int, int, int);
-	Status (*XInitImage)(XImage*);
-	XImage* (*XGetImage)(Display*, Drawable, int, int, unsigned int, unsigned int, unsigned long, int);
-	XImage* (*XGetSubImage)(Display*, Drawable, int, int, unsigned int, unsigned int, unsigned long, int, XImage*, int, int); /*	 * X function declarations.	 */
 	Display* (*XOpenDisplay)(_Xconst char*);
-	void (*XrmInitialize)(void);
-	char* (*XFetchBytes)(Display*, int*);
-	char* (*XFetchBuffer)(Display*, int*, int);
-	char* (*XGetAtomName)(Display*, Atom);
-	Status (*XGetAtomNames)(Display*, Atom*, int, char**);
-	char* (*XGetDefault)(Display*, _Xconst char*, _Xconst char*);
-	char* (*XDisplayName)(_Xconst char*);
 	char* (*XKeysymToString)(KeySym);
-	// int (*XSynchronize(Display*, Bool))(Display*);
-	// int (*XSetAfterFunction(Display*, int (*)(Display*)))(Display*);
 	Atom (*XInternAtom)(Display*, _Xconst char*, Bool);
-	Status (*XInternAtoms)(Display*, char**, int, Bool, Atom*);
-	Colormap (*XCopyColormapAndFree)(Display*, Colormap);
-	Colormap (*XCreateColormap)(Display*, Window, Visual*, int);
 	Cursor (*XCreatePixmapCursor)(Display*, Pixmap, Pixmap, XColor*, XColor*, unsigned int, unsigned int);
-	Cursor (*XCreateGlyphCursor)(Display*, Font, Font, unsigned int, unsigned int, XColor _Xconst*, XColor _Xconst*);
-	Cursor (*XCreateFontCursor)(Display*, unsigned int);
-	Font (*XLoadFont)(Display*, _Xconst char*);
 	GC (*XCreateGC)(Display*, Drawable, unsigned long, XGCValues*);
-	GContext (*XGContextFromGC)(GC);
-	void (*XFlushGC)(Display*, GC);
 	Pixmap (*XCreatePixmap)(Display*, Drawable, unsigned int, unsigned int, unsigned int);
-	Pixmap (*XCreateBitmapFromData)(Display*, Drawable, _Xconst char*, unsigned int, unsigned int);
-	Pixmap (*XCreatePixmapFromBitmapData)(Display*, Drawable, char*, unsigned int, unsigned int, unsigned long, unsigned long, unsigned int);
 	Window (*XCreateSimpleWindow)(Display*, Window, int, int, unsigned int, unsigned int, unsigned int, unsigned long, unsigned long);
-	Window (*XGetSelectionOwner)(Display*, Atom);
-	Window (*XCreateWindow)(Display*, Window, int, int, unsigned int, unsigned int, unsigned int, int, unsigned int, Visual*, unsigned long, XSetWindowAttributes*);
-	Colormap* (*XListInstalledColormaps)(Display*, Window, int*);
-	char** (*XListFonts)(Display*, _Xconst char*, int, int*);
-	char** (*XListFontsWithInfo)(Display*, _Xconst char*, int, int*, XFontStruct**);
-	char** (*XGetFontPath)(Display*, int*);
-	char** (*XListExtensions)(Display*, int*);
-	Atom* (*XListProperties)(Display*, Window, int*);
-	XHostAddress* (*XListHosts)(Display*, int*, Bool*);
-	_X_DEPRECATED KeySym (*XKeycodeToKeysym)(Display*,
-#if NeedWidePrototypes
-						 unsigned int,
-#else
-						 KeyCode,
-#endif
-						 int);
-	KeySym (*XLookupKeysym)(XKeyEvent*, int);
-	KeySym* (*XGetKeyboardMapping)(Display*,
-#if NeedWidePrototypes
-				       unsigned int,
-#else
-				       KeyCode,
-#endif
-				       int, int*);
-	KeySym (*XStringToKeysym)(_Xconst char*);
-	long (*XMaxRequestSize)(Display*);
-	long (*XExtendedMaxRequestSize)(Display*);
-	char* (*XResourceManagerString)(Display*);
-	char* (*XScreenResourceString)(Screen*);
-	unsigned long (*XDisplayMotionBufferSize)(Display*);
 	VisualID (*XVisualIDFromVisual)(Visual*);
-	Status (*XInitThreads)(void);
-	Status (*XFreeThreads)(void);
-	void (*XLockDisplay)(Display*);
-	void (*XUnlockDisplay)(Display*);
-	XExtCodes* (*XInitExtension)(Display*, _Xconst char*);
-	XExtCodes* (*XAddExtension)(Display*);
-	XExtData* (*XFindOnExtensionList)(XExtData**, int);
-	XExtData** (*XEHeadOfExtensionList)(XEDataObject);
 	Window (*XRootWindow)(Display*, int);
-	Window (*XDefaultRootWindow)(Display*);
-	Window (*XRootWindowOfScreen)(Screen*);
-	Visual* (*XDefaultVisual)(Display*, int);
-	Visual* (*XDefaultVisualOfScreen)(Screen*);
-	GC (*XDefaultGC)(Display*, int);
-	GC (*XDefaultGCOfScreen)(Screen*);
-	unsigned long (*XBlackPixel)(Display*, int);
-	unsigned long (*XWhitePixel)(Display*, int);
-	unsigned long (*XAllPlanes)(void);
-	unsigned long (*XBlackPixelOfScreen)(Screen*);
-	unsigned long (*XWhitePixelOfScreen)(Screen*);
-	unsigned long (*XNextRequest)(Display*);
-	unsigned long (*XLastKnownRequestProcessed)(Display*);
-	char* (*XServerVendor)(Display*);
-	char* (*XDisplayString)(Display*);
-	Colormap (*XDefaultColormap)(Display*, int);
-	Colormap (*XDefaultColormapOfScreen)(Screen*);
-	Display* (*XDisplayOfScreen)(Screen*);
-	Screen* (*XScreenOfDisplay)(Display*, int);
-	Screen* (*XDefaultScreenOfDisplay)(Display*);
-	long (*XEventMaskOfScreen)(Screen*);
-	int (*XScreenNumberOfScreen)(Screen*);
-	XErrorHandler (*XSetErrorHandler)(XErrorHandler);
-	XIOErrorHandler (*XSetIOErrorHandler)(XIOErrorHandler);
-	void (*XSetIOErrorExitHandler)(Display*, XIOErrorExitHandler, void*);
-	XPixmapFormatValues* (*XListPixmapFormats)(Display*, int*);
-	int* (*XListDepths)(Display*, int, int*);
-	Status (*XReconfigureWMWindow)(Display*, Window, int, unsigned int, XWindowChanges*);
-	Status (*XGetWMProtocols)(Display*, Window, Atom**, int*);
 	Status (*XSetWMProtocols)(Display*, Window, Atom*, int);
-	Status (*XIconifyWindow)(Display*, Window, int);
-	Status (*XWithdrawWindow)(Display*, Window, int);
-	Status (*XGetCommand)(Display*, Window, char***, int*);
-	Status (*XGetWMColormapWindows)(Display*, Window, Window**, int*);
-	Status (*XSetWMColormapWindows)(Display*, Window, Window*, int);
-	void (*XFreeStringList)(char**);
 	int (*XSetTransientForHint)(Display*, Window, Window);
-	int (*XActivateScreenSaver)(Display*);
-	int (*XAddHost)(Display*, XHostAddress*);
-	int (*XAddHosts)(Display*, XHostAddress*, int);
-	int (*XAddToExtensionList)(struct _XExtData**, XExtData*);
-	int (*XAddToSaveSet)(Display*, Window);
 	Status (*XAllocColor)(Display*, Colormap, XColor*);
-	Status (*XAllocColorCells)(Display*, Colormap, Bool, unsigned long*, unsigned int, unsigned long*, unsigned int);
-	Status (*XAllocColorPlanes)(Display*, Colormap, Bool, unsigned long*, int, int, int, int, unsigned long*, unsigned long*, unsigned long*);
-	Status (*XAllocNamedColor)(Display*, Colormap, _Xconst char*, XColor*, XColor*);
-	int (*XAllowEvents)(Display*, int, Time);
-	int (*XAutoRepeatOff)(Display*);
-	int (*XAutoRepeatOn)(Display*);
-	int (*XBell)(Display*, int);
-	int (*XBitmapBitOrder)(Display*);
-	int (*XBitmapPad)(Display*);
-	int (*XBitmapUnit)(Display*);
-	int (*XCellsOfScreen)(Screen*);
-	int (*XChangeActivePointerGrab)(Display*, unsigned int, Cursor, Time);
-	int (*XChangeGC)(Display*, GC, unsigned long, XGCValues*);
-	int (*XChangeKeyboardControl)(Display*, unsigned long, XKeyboardControl*);
-	int (*XChangeKeyboardMapping)(Display*, int, int, KeySym*, int);
-	int (*XChangePointerControl)(Display*, Bool, Bool, int, int, int);
 	int (*XChangeProperty)(Display*, Window, Atom, Atom, int, int, _Xconst unsigned char*, int);
-	int (*XChangeSaveSet)(Display*, Window, int);
 	int (*XChangeWindowAttributes)(Display*, Window, unsigned long, XSetWindowAttributes*);
-	Bool (*XCheckIfEvent)(Display*, XEvent*, Bool (*)(Display*, XEvent*, XPointer), XPointer);
-	Bool (*XCheckMaskEvent)(Display*, long, XEvent*);
-	Bool (*XCheckTypedEvent)(Display*, int, XEvent*);
 	Bool (*XCheckTypedWindowEvent)(Display*, Window, int, XEvent*);
 	Bool (*XCheckWindowEvent)(Display*, Window, long, XEvent*);
-	int (*XCirculateSubwindows)(Display*, Window, int);
-	int (*XCirculateSubwindowsDown)(Display*, Window);
-	int (*XCirculateSubwindowsUp)(Display*, Window);
-	int (*XClearArea)(Display*, Window, int, int, unsigned int, unsigned int, Bool);
-	int (*XClearWindow)(Display*, Window);
 	int (*XCloseDisplay)(Display*);
 	int (*XConfigureWindow)(Display*, Window, unsigned int, XWindowChanges*);
-	int (*XConnectionNumber)(Display*);
 	int (*XConvertSelection)(Display*, Atom, Atom, Atom, Window, Time);
 	int (*XCopyArea)(Display*, Drawable, Drawable, GC, int, int, unsigned int, unsigned int, int, int);
-	int (*XCopyGC)(Display*, GC, unsigned long, GC);
-	int (*XCopyPlane)(Display*, Drawable, Drawable, GC, int, int, unsigned int, unsigned int, int, int, unsigned long);
-	int (*XDefaultDepth)(Display*, int);
-	int (*XDefaultDepthOfScreen)(Screen*);
 	int (*XDefaultScreen)(Display*);
 	int (*XDefineCursor)(Display*, Window, Cursor);
 	int (*XDeleteProperty)(Display*, Window, Atom);
 	int (*XDestroyWindow)(Display*, Window);
-	int (*XDestroySubwindows)(Display*, Window);
-	int (*XDoesBackingStore)(Screen*);
-	Bool (*XDoesSaveUnders)(Screen*);
-	int (*XDisableAccessControl)(Display*);
-	int (*XDisplayCells)(Display*, int);
-	int (*XDisplayHeight)(Display*, int);
-	int (*XDisplayHeightMM)(Display*, int);
-	int (*XDisplayKeycodes)(Display*, int*, int*);
-	int (*XDisplayPlanes)(Display*, int);
-	int (*XDisplayWidth)(Display*, int);
-	int (*XDisplayWidthMM)(Display*, int);
-	int (*XDrawArc)(Display*, Drawable, GC, int, int, unsigned int, unsigned int, int, int);
-	int (*XDrawArcs)(Display*, Drawable, GC, XArc*, int);
-	int (*XDrawImageString)(Display*, Drawable, GC, int, int, _Xconst char*, int);
-	int (*XDrawImageString16)(Display*, Drawable, GC, int, int, _Xconst XChar2b*, int);
 	int (*XDrawLine)(Display*, Drawable, GC, int, int, int, int);
-	int (*XDrawLines)(Display*, Drawable, GC, XPoint*, int, int);
-	int (*XDrawPoint)(Display*, Drawable, GC, int, int);
-	int (*XDrawPoints)(Display*, Drawable, GC, XPoint*, int, int);
-	int (*XDrawRectangle)(Display*, Drawable, GC, int, int, unsigned int, unsigned int);
-	int (*XDrawRectangles)(Display*, Drawable, GC, XRectangle*, int);
-	int (*XDrawSegments)(Display*, Drawable, GC, XSegment*, int);
-	int (*XDrawString)(Display*, Drawable, GC, int, int, _Xconst char*, int);
-	int (*XDrawString16)(Display*, Drawable, GC, int, int, _Xconst XChar2b*, int);
-	int (*XDrawText)(Display*, Drawable, GC, int, int, XTextItem*, int);
-	int (*XDrawText16)(Display*, Drawable, GC, int, int, XTextItem16*, int);
-	int (*XEnableAccessControl)(Display*);
-	int (*XEventsQueued)(Display*, int);
-	Status (*XFetchName)(Display*, Window, char**);
-	int (*XFillArc)(Display*, Drawable, GC, int, int, unsigned int, unsigned int, int, int);
-	int (*XFillArcs)(Display*, Drawable, GC, XArc*, int);
 	int (*XFillPolygon)(Display*, Drawable, GC, XPoint*, int, int, int);
-	int (*XFillRectangle)(Display*, Drawable, GC, int, int, unsigned int, unsigned int);
-	int (*XFillRectangles)(Display*, Drawable, GC, XRectangle*, int);
-	int (*XFlush)(Display*);
-	int (*XForceScreenSaver)(Display*, int);
 	int (*XFree)(void*);
-	int (*XFreeColormap)(Display*, Colormap);
-	int (*XFreeColors)(Display*, Colormap, unsigned long*, int, unsigned long);
 	int (*XFreeCursor)(Display*, Cursor);
-	int (*XFreeExtensionList)(char**);
-	int (*XFreeFont)(Display*, XFontStruct*);
-	int (*XFreeFontInfo)(char**, XFontStruct*, int);
-	int (*XFreeFontNames)(char**);
-	int (*XFreeFontPath)(char**);
 	int (*XFreeGC)(Display*, GC);
-	int (*XFreeModifiermap)(XModifierKeymap*);
 	int (*XFreePixmap)(Display*, Pixmap);
-	int (*XGeometry)(Display*, int, _Xconst char*, _Xconst char*, unsigned int, unsigned int, unsigned int, int, int, int*, int*, int*, int*);
-	int (*XGetErrorDatabaseText)(Display*, _Xconst char*, _Xconst char*, _Xconst char*, char*, int);
-	int (*XGetErrorText)(Display*, int, char*, int);
-	Bool (*XGetFontProperty)(XFontStruct*, Atom, unsigned long*);
-	Status (*XGetGCValues)(Display*, GC, unsigned long, XGCValues*);
 	Status (*XGetGeometry)(Display*, Drawable, Window*, int*, int*, unsigned int*, unsigned int*, unsigned int*, unsigned int*);
-	Status (*XGetIconName)(Display*, Window, char**);
-	int (*XGetInputFocus)(Display*, Window*, int*);
-	int (*XGetKeyboardControl)(Display*, XKeyboardState*);
-	int (*XGetPointerControl)(Display*, int*, int*, int*);
-	int (*XGetPointerMapping)(Display*, unsigned char*, int);
-	int (*XGetScreenSaver)(Display*, int*, int*, int*, int*);
-	Status (*XGetTransientForHint)(Display*, Window, Window*);
 	int (*XGetWindowProperty)(Display*, Window, Atom, long, long, Bool, Atom, Atom*, int*, unsigned long*, unsigned long*, unsigned char**);
 	Status (*XGetWindowAttributes)(Display*, Window, XWindowAttributes*);
-	int (*XGrabButton)(Display*, unsigned int, unsigned int, Window, Bool, unsigned int, int, int, Window, Cursor);
-	int (*XGrabKey)(Display*, int, unsigned int, Window, Bool, int, int);
-	int (*XGrabKeyboard)(Display*, Window, Bool, int, int, Time);
-	int (*XGrabPointer)(Display*, Window, Bool, unsigned int, int, int, Window, Cursor, Time);
-	int (*XGrabServer)(Display*);
-	int (*XHeightMMOfScreen)(Screen*);
-	int (*XHeightOfScreen)(Screen*);
-	int (*XIfEvent)(Display*, XEvent*, Bool (*)(Display*, XEvent*, XPointer), XPointer);
-	int (*XImageByteOrder)(Display*);
-	int (*XInstallColormap)(Display*, Colormap);
-	KeyCode (*XKeysymToKeycode)(Display*, KeySym);
-	int (*XKillClient)(Display*, XID);
-	Status (*XLookupColor)(Display*, Colormap, _Xconst char*, XColor*, XColor*);
-	int (*XLowerWindow)(Display*, Window);
-	int (*XMapRaised)(Display*, Window);
-	int (*XMapSubwindows)(Display*, Window);
 	int (*XMapWindow)(Display*, Window);
-	int (*XMaskEvent)(Display*, long, XEvent*);
-	int (*XMaxCmapsOfScreen)(Screen*);
-	int (*XMinCmapsOfScreen)(Screen*);
-	int (*XMoveResizeWindow)(Display*, Window, int, int, unsigned int, unsigned int);
-	int (*XMoveWindow)(Display*, Window, int, int);
 	int (*XNextEvent)(Display*, XEvent*);
-	int (*XNoOp)(Display*);
-	Status (*XParseColor)(Display*, Colormap, _Xconst char*, XColor*);
-	int (*XParseGeometry)(_Xconst char*, int*, int*, unsigned int*, unsigned int*);
-	int (*XPeekEvent)(Display*, XEvent*);
-	int (*XPeekIfEvent)(Display*, XEvent*, Bool (*)(Display*, XEvent*, XPointer), XPointer);
 	int (*XPending)(Display*);
-	int (*XPlanesOfScreen)(Screen*);
-	int (*XProtocolRevision)(Display*);
-	int (*XProtocolVersion)(Display*);
 	int (*XPutBackEvent)(Display*, XEvent*);
 	int (*XPutImage)(Display*, Drawable, GC, XImage*, int, int, int, int, unsigned int, unsigned int);
-	int (*XQLength)(Display*);
-	Status (*XQueryBestCursor)(Display*, Drawable, unsigned int, unsigned int, unsigned int*, unsigned int*);
-	Status (*XQueryBestSize)(Display*, int, Drawable, unsigned int, unsigned int, unsigned int*, unsigned int*);
-	Status (*XQueryBestStipple)(Display*, Drawable, unsigned int, unsigned int, unsigned int*, unsigned int*);
-	Status (*XQueryBestTile)(Display*, Drawable, unsigned int, unsigned int, unsigned int*, unsigned int*);
-	int (*XQueryColor)(Display*, Colormap, XColor*);
-	int (*XQueryColors)(Display*, Colormap, XColor*, int);
-	Bool (*XQueryExtension)(Display*, _Xconst char*, int*, int*, int*);
-	int (*XQueryKeymap)(Display*, char[32]);
 	Bool (*XQueryPointer)(Display*, Window, Window*, Window*, int*, int*, int*, int*, unsigned int*);
-	int (*XQueryTextExtents)(Display*, XID, _Xconst char*, int, int*, int*, int*, XCharStruct*);
-	int (*XQueryTextExtents16)(Display*, XID, _Xconst XChar2b*, int, int*, int*, int*, XCharStruct*);
 	Status (*XQueryTree)(Display*, Window, Window*, Window*, Window**, unsigned int*);
-	int (*XRaiseWindow)(Display*, Window);
-	int (*XReadBitmapFile)(Display*, Drawable, _Xconst char*, unsigned int*, unsigned int*, Pixmap*, int*, int*);
-	int (*XReadBitmapFileData)(_Xconst char*, unsigned int*, unsigned int*, unsigned char**, int*, int*);
-	int (*XRebindKeysym)(Display*, KeySym, KeySym*, int, _Xconst unsigned char*, int);
-	int (*XRecolorCursor)(Display*, Cursor, XColor*, XColor*);
-	int (*XRefreshKeyboardMapping)(XMappingEvent*);
-	int (*XRemoveFromSaveSet)(Display*, Window);
-	int (*XRemoveHost)(Display*, XHostAddress*);
-	int (*XRemoveHosts)(Display*, XHostAddress*, int);
 	int (*XReparentWindow)(Display*, Window, Window, int, int);
-	int (*XResetScreenSaver)(Display*);
-	int (*XResizeWindow)(Display*, Window, unsigned int, unsigned int);
-	int (*XRestackWindows)(Display*, Window*, int);
-	int (*XRotateBuffers)(Display*, int);
-	int (*XRotateWindowProperties)(Display*, Window, Atom*, int, int);
-	int (*XScreenCount)(Display*);
 	int (*XSelectInput)(Display*, Window, long);
 	Status (*XSendEvent)(Display*, Window, Bool, long, XEvent*);
-	int (*XSetAccessControl)(Display*, int);
-	int (*XSetArcMode)(Display*, GC, int);
-	int (*XSetBackground)(Display*, GC, unsigned long);
 	int (*XSetClipMask)(Display*, GC, Pixmap);
 	int (*XSetClipOrigin)(Display*, GC, int, int);
-	int (*XSetClipRectangles)(Display*, GC, int, int, XRectangle*, int, int);
-	int (*XSetCloseDownMode)(Display*, int);
-	int (*XSetCommand)(Display*, Window, char**, int);
-	int (*XSetDashes)(Display*, GC, int, _Xconst char*, int);
-	int (*XSetFillRule)(Display*, GC, int);
-	int (*XSetFillStyle)(Display*, GC, int);
-	int (*XSetFont)(Display*, GC, Font);
-	int (*XSetFontPath)(Display*, char**, int);
 	int (*XSetForeground)(Display*, GC, unsigned long);
-	int (*XSetFunction)(Display*, GC, int);
 	int (*XSetGraphicsExposures)(Display*, GC, Bool);
-	int (*XSetIconName)(Display*, Window, _Xconst char*);
 	int (*XSetInputFocus)(Display*, Window, int, Time);
-	int (*XSetLineAttributes)(Display*, GC, unsigned int, int, int, int);
-	int (*XSetModifierMapping)(Display*, XModifierKeymap*);
-	int (*XSetPlaneMask)(Display*, GC, unsigned long);
-	int (*XSetPointerMapping)(Display*, _Xconst unsigned char*, int);
-	int (*XSetScreenSaver)(Display*, int, int, int, int);
-	int (*XSetSelectionOwner)(Display*, Atom, Window, Time);
-	int (*XSetState)(Display*, GC, unsigned long, unsigned long, int, unsigned long);
-	int (*XSetStipple)(Display*, GC, Pixmap);
-	int (*XSetSubwindowMode)(Display*, GC, int);
-	int (*XSetTSOrigin)(Display*, GC, int, int);
-	int (*XSetTile)(Display*, GC, Pixmap);
-	int (*XSetWindowBackground)(Display*, Window, unsigned long);
 	int (*XSetWindowBackgroundPixmap)(Display*, Window, Pixmap);
-	int (*XSetWindowBorder)(Display*, Window, unsigned long);
-	int (*XSetWindowBorderPixmap)(Display*, Window, Pixmap);
-	int (*XSetWindowBorderWidth)(Display*, Window, unsigned int);
-	int (*XSetWindowColormap)(Display*, Window, Colormap);
-	int (*XStoreBuffer)(Display*, _Xconst char*, int, int);
-	int (*XStoreBytes)(Display*, _Xconst char*, int);
-	int (*XStoreColor)(Display*, Colormap, XColor*);
-	int (*XStoreColors)(Display*, Colormap, XColor*, int);
-	int (*XStoreName)(Display*, Window, _Xconst char*);
-	int (*XStoreNamedColor)(Display*, Colormap, _Xconst char*, unsigned long, int);
 	int (*XSync)(Display*, Bool);
-	int (*XTextExtents)(XFontStruct*, _Xconst char*, int, int*, int*, int*, XCharStruct*);
-	int (*XTextExtents16)(XFontStruct*, _Xconst XChar2b*, int, int*, int*, int*, XCharStruct*);
-	int (*XTextWidth)(XFontStruct*, _Xconst char*, int);
-	int (*XTextWidth16)(XFontStruct*, _Xconst XChar2b*, int);
 	Bool (*XTranslateCoordinates)(Display*, Window, Window, int, int, int*, int*, Window*);
-	int (*XUndefineCursor)(Display*, Window);
-	int (*XUngrabButton)(Display*, unsigned int, unsigned int, Window);
-	int (*XUngrabKey)(Display*, int, unsigned int, Window);
-	int (*XUngrabKeyboard)(Display*, Time);
-	int (*XUngrabPointer)(Display*, Time);
-	int (*XUngrabServer)(Display*);
-	int (*XUninstallColormap)(Display*, Colormap);
-	int (*XUnloadFont)(Display*, Font);
-	int (*XUnmapSubwindows)(Display*, Window);
 	int (*XUnmapWindow)(Display*, Window);
-	int (*XVendorRelease)(Display*);
 	int (*XWarpPointer)(Display*, Window, Window, int, int, unsigned int, unsigned int, int, int);
-	int (*XWidthMMOfScreen)(Screen*);
-	int (*XWidthOfScreen)(Screen*);
-	int (*XWindowEvent)(Display*, Window, long, XEvent*);
-	int (*XWriteBitmapFile)(Display*, _Xconst char*, Pixmap, unsigned int, unsigned int, int, int);
-	Bool (*XSupportsLocale)(void);
 	char* (*XSetLocaleModifiers)(const char*);
-	XOM (*XOpenOM)(Display*, struct _XrmHashBucketRec*, _Xconst char*, _Xconst char*);
-	Status (*XCloseOM)(XOM);
-	char* (*XSetOMValues)(XOM, ...)_X_SENTINEL(0);
-	char* (*XGetOMValues)(XOM, ...)_X_SENTINEL(0);
-	Display* (*XDisplayOfOM)(XOM);
-	char* (*XLocaleOfOM)(XOM);
-	XOC (*XCreateOC)(XOM, ...) _X_SENTINEL(0);
-	void (*XDestroyOC)(XOC);
-	XOM (*XOMOfOC)(XOC);
-	char* (*XSetOCValues)(XOC, ...)_X_SENTINEL(0);
-	char* (*XGetOCValues)(XOC, ...)_X_SENTINEL(0);
-	XFontSet (*XCreateFontSet)(Display*, _Xconst char*, char***, int*, char**);
-	void (*XFreeFontSet)(Display*, XFontSet);
-	int (*XFontsOfFontSet)(XFontSet, XFontStruct***, char***);
-	char* (*XBaseFontNameListOfFontSet)(XFontSet);
-	char* (*XLocaleOfFontSet)(XFontSet);
-	Bool (*XContextDependentDrawing)(XFontSet);
-	Bool (*XDirectionalDependentDrawing)(XFontSet);
-	Bool (*XContextualDrawing)(XFontSet);
-	XFontSetExtents* (*XExtentsOfFontSet)(XFontSet);
-	int (*XmbTextEscapement)(XFontSet, _Xconst char*, int);
-	int (*XwcTextEscapement)(XFontSet, _Xconst wchar_t*, int);
-	int (*Xutf8TextEscapement)(XFontSet, _Xconst char*, int);
-	int (*XmbTextExtents)(XFontSet, _Xconst char*, int, XRectangle*, XRectangle*);
-	int (*XwcTextExtents)(XFontSet, _Xconst wchar_t*, int, XRectangle*, XRectangle*);
-	int (*Xutf8TextExtents)(XFontSet, _Xconst char*, int, XRectangle*, XRectangle*);
-	Status (*XmbTextPerCharExtents)(XFontSet, _Xconst char*, int, XRectangle*, XRectangle*, int, int*, XRectangle*, XRectangle*);
-	Status (*XwcTextPerCharExtents)(XFontSet, _Xconst wchar_t*, int, XRectangle*, XRectangle*, int, int*, XRectangle*, XRectangle*);
-	Status (*Xutf8TextPerCharExtents)(XFontSet, _Xconst char*, int, XRectangle*, XRectangle*, int, int*, XRectangle*, XRectangle*);
-	void (*XmbDrawText)(Display*, Drawable, GC, int, int, XmbTextItem*, int);
-	void (*XwcDrawText)(Display*, Drawable, GC, int, int, XwcTextItem*, int);
-	void (*Xutf8DrawText)(Display*, Drawable, GC, int, int, XmbTextItem*, int);
-	void (*XmbDrawString)(Display*, Drawable, XFontSet, GC, int, int, _Xconst char*, int);
-	void (*XwcDrawString)(Display*, Drawable, XFontSet, GC, int, int, _Xconst wchar_t*, int);
-	void (*Xutf8DrawString)(Display*, Drawable, XFontSet, GC, int, int, _Xconst char*, int);
-	void (*XmbDrawImageString)(Display*, Drawable, XFontSet, GC, int, int, _Xconst char*, int);
-	void (*XwcDrawImageString)(Display*, Drawable, XFontSet, GC, int, int, _Xconst wchar_t*, int);
-	void (*Xutf8DrawImageString)(Display*, Drawable, XFontSet, GC, int, int, _Xconst char*, int);
 	XIM (*XOpenIM)(Display*, struct _XrmHashBucketRec*, char*, char*);
 	Status (*XCloseIM)(XIM);
-	char* (*XGetIMValues)(XIM, ...)_X_SENTINEL(0);
-	char* (*XSetIMValues)(XIM, ...)_X_SENTINEL(0);
-	Display* (*XDisplayOfIM)(XIM);
-	char* (*XLocaleOfIM)(XIM /* im*/);
 	XIC (*XCreateIC)(XIM, ...) _X_SENTINEL(0);
 	void (*XDestroyIC)(XIC);
 	void (*XSetICFocus)(XIC);
-	void (*XUnsetICFocus)(XIC);
-	wchar_t* (*XwcResetIC)(XIC);
-	char* (*XmbResetIC)(XIC);
-	char* (*Xutf8ResetIC)(XIC);
-	char* (*XSetICValues)(XIC, ...)_X_SENTINEL(0);
-	char* (*XGetICValues)(XIC, ...)_X_SENTINEL(0);
-	XIM (*XIMOfIC)(XIC);
-	Bool (*XFilterEvent)(XEvent*, Window);
-	int (*XmbLookupString)(XIC, XKeyPressedEvent*, char*, int, KeySym*, Status*);
-	int (*XwcLookupString)(XIC, XKeyPressedEvent*, wchar_t*, int, KeySym*, Status*);
-	int (*Xutf8LookupString)(XIC, XKeyPressedEvent*, char*, int, KeySym*, Status*);
-	XVaNestedList (*XVaCreateNestedList)(int, ...) _X_SENTINEL(0);
-	Bool (*XRegisterIMInstantiateCallback)(Display*, struct _XrmHashBucketRec*, char*, char*, XIDProc, XPointer);
-	Bool (*XUnregisterIMInstantiateCallback)(Display*, struct _XrmHashBucketRec*, char*, char*, XIDProc, XPointer);
-	Status (*XInternalConnectionNumbers)(Display*, int**, int*);
-	void (*XProcessInternalConnection)(Display*, int);
-	Status (*XAddConnectionWatch)(Display*, XConnectionWatchProc, XPointer);
-	void (*XRemoveConnectionWatch)(Display*, XConnectionWatchProc, XPointer);
-	void (*XSetAuthorization)(char*, int, char*, int);
-	int (*_Xmbtowc)(wchar_t*, char*, int);
-	int (*_Xwctomb)(char*, wchar_t);
-	Bool (*XGetEventData)(Display*, XGenericEventCookie*);
-	void (*XFreeEventData)(Display*, XGenericEventCookie*);
 
-	XClassHint* (*XAllocClassHint)(void);
-	XIconSize* (*XAllocIconSize)(void);
 	XSizeHints* (*XAllocSizeHints)(void);
-	XStandardColormap* (*XAllocStandardColormap)(void);
-	XWMHints* (*XAllocWMHints)(void);
-	int (*XClipBox)(Region, XRectangle*);
-	Region (*XCreateRegion)(void);
-	const char* (*XDefaultString)(void);
-	int (*XDeleteContext)(Display*, XID, XContext);
-	int (*XDestroyRegion)(Region);
-	Bool (*XEmptyRegion)(Region);
-	Bool (*XEqualRegion)(Region, Region);
-	int (*XFindContext)(Display*, XID, XContext, XPointer*);
-	Status (*XGetClassHint)(Display*, Window, XClassHint*);
-	Status (*XGetIconSizes)(Display*, Window, XIconSize**, int*);
-	Status (*XGetNormalHints)(Display*, Window, XSizeHints*);
-	Status (*XGetRGBColormaps)(Display*, Window, XStandardColormap**, int*, Atom);
-	Status (*XGetSizeHints)(Display*, Window, XSizeHints*, Atom);
-	Status (*XGetStandardColormap)(Display*, Window, XStandardColormap*, Atom);
-	Status (*XGetTextProperty)(Display*, Window, XTextProperty*, Atom);
 	XVisualInfo* (*XGetVisualInfo)(Display*, long, XVisualInfo*, int*);
-	Status (*XGetWMClientMachine)(Display*, Window, XTextProperty*);
-	XWMHints* (*XGetWMHints)(Display*, Window);
-	Status (*XGetWMIconName)(Display*, Window, XTextProperty*);
-	Status (*XGetWMName)(Display*, Window, XTextProperty*);
 	Status (*XGetWMNormalHints)(Display*, Window, XSizeHints*, long*);
 	Status (*XGetWMSizeHints)(Display*, Window, XSizeHints*, long*, Atom);
-	Status (*XGetZoomHints)(Display*, Window, XSizeHints*);
-	int (*XIntersectRegion)(Region, Region, Region);
-	void (*XConvertCase)(KeySym, KeySym*, KeySym*);
 	int (*XLookupString)(XKeyEvent*, char*, int, KeySym*, XComposeStatus*);
-	Status (*XMatchVisualInfo)(Display*, int, int, int, XVisualInfo*);
-	int (*XOffsetRegion)(Region, int, int);
-	Bool (*XPointInRegion)(Region, int, int);
-	Region (*XPolygonRegion)(XPoint*, int, int);
-	int (*XRectInRegion)(Region, int, int, unsigned int, unsigned int);
-	int (*XSaveContext)(Display*, XID, XContext, _Xconst char*);
-	int (*XSetClassHint)(Display*, Window, XClassHint*);
-	int (*XSetIconSizes)(Display*, Window, XIconSize*, int);
-	int (*XSetNormalHints)(Display*, Window, XSizeHints*);
-	void (*XSetRGBColormaps)(Display*, Window, XStandardColormap*, int, Atom);
-	int (*XSetSizeHints)(Display*, Window, XSizeHints*, Atom);
 	int (*XSetStandardProperties)(Display*, Window, _Xconst char*, _Xconst char*, Pixmap, char**, int, XSizeHints*);
-	void (*XSetTextProperty)(Display*, Window, XTextProperty*, Atom);
-	void (*XSetWMClientMachine)(Display*, Window, XTextProperty*);
-	int (*XSetWMHints)(Display*, Window, XWMHints*);
-	void (*XSetWMIconName)(Display*, Window, XTextProperty*);
-	void (*XSetWMName)(Display*, Window, XTextProperty*);
 	void (*XSetWMNormalHints)(Display*, Window, XSizeHints*);
-	void (*XSetWMProperties)(Display*, Window, XTextProperty*, XTextProperty*, char**, int, XSizeHints*, XWMHints*, XClassHint*);
-	void (*XmbSetWMProperties)(Display*, Window, _Xconst char*, _Xconst char*, char**, int, XSizeHints*, XWMHints*, XClassHint*);
-	void (*Xutf8SetWMProperties)(Display*, Window, _Xconst char*, _Xconst char*, char**, int, XSizeHints*, XWMHints*, XClassHint*);
 	void (*XSetWMSizeHints)(Display*, Window, XSizeHints*, Atom);
-	int (*XSetRegion)(Display*, GC, Region);
-	void (*XSetStandardColormap)(Display*, Window, XStandardColormap*, Atom);
-	int (*XSetZoomHints)(Display*, Window, XSizeHints*);
-	int (*XShrinkRegion)(Region, int, int);
-	Status (*XStringListToTextProperty)(char**, int, XTextProperty*);
-	int (*XSubtractRegion)(Region, Region, Region);
-	int (*XmbTextListToTextProperty)(Display* display, char** list, int count, XICCEncodingStyle style, XTextProperty* text_prop_return);
-	int (*XwcTextListToTextProperty)(Display* display, wchar_t** list, int count, XICCEncodingStyle style, XTextProperty* text_prop_return);
-	int (*Xutf8TextListToTextProperty)(Display* display, char** list, int count, XICCEncodingStyle style, XTextProperty* text_prop_return);
-	void (*XwcFreeStringList)(wchar_t** list);
-	Status (*XTextPropertyToStringList)(XTextProperty*, char***, int*);
-	int (*XmbTextPropertyToTextList)(Display* display, const XTextProperty* text_prop, char*** list_return, int* count_return);
-	int (*XwcTextPropertyToTextList)(Display* display, const XTextProperty* text_prop, wchar_t*** list_return, int* count_return);
-	int (*Xutf8TextPropertyToTextList)(Display* display, const XTextProperty* text_prop, char*** list_return, int* count_return);
-	int (*XUnionRectWithRegion)(XRectangle*, Region, Region);
-	int (*XUnionRegion)(Region, Region, Region);
-	int (*XWMGeometry)(Display*, int, _Xconst char*, _Xconst char*, unsigned int, XSizeHints*, int*, int*, int*, int*, int*);
-	int (*XXorRegion)(Region, Region, Region);
 
 #if USE_XRENDER
 	Bool (*XRenderQueryExtension)(Display* dpy, int* event_basep, int* error_basep);
 
-	Status (*XRenderQueryVersion)(Display* dpy, int* major_versionp,
-				      int* minor_versionp);
-
-	Status (*XRenderQueryFormats)(Display* dpy);
-
-	int (*XRenderQuerySubpixelOrder)(Display* dpy, int screen);
-
-	Bool (*XRenderSetSubpixelOrder)(Display* dpy, int screen, int subpixel);
-
-	XRenderPictFormat* (*XRenderFindVisualFormat)(Display*	      dpy,
-						      _Xconst Visual* visual);
-
-	XRenderPictFormat* (*XRenderFindFormat)(Display* dpy, unsigned long mask,
-						_Xconst XRenderPictFormat* templ,
-						int			   count);
-
 	XRenderPictFormat* (*XRenderFindStandardFormat)(Display* dpy, int format);
-
-	XIndexValue* (*XRenderQueryPictIndexValues)(Display*		       dpy,
-						    _Xconst XRenderPictFormat* format,
-						    int*		       num);
 
 	Picture (*XRenderCreatePicture)(Display* dpy, Drawable drawable,
 					_Xconst XRenderPictFormat*	  format,
@@ -552,16 +91,6 @@ static struct {
 
 	void (*XRenderFreePicture)(Display* dpy, Picture picture);
 
-	void (*XRenderChangePicture)(Display* dpy, Picture picture,
-				     unsigned long		       valuemask,
-				     _Xconst XRenderPictureAttributes* attributes);
-
-	void (*XRenderSetPictureClipRectangles)(Display* dpy, Picture picture, int xOrigin,
-						int yOrigin, _Xconst XRectangle* rects,
-						int n);
-
-	void (*XRenderSetPictureClipRegion)(Display* dpy, Picture picture, Region r);
-
 	void (*XRenderSetPictureTransform)(Display* dpy, Picture picture,
 					   XTransform* transform);
 
@@ -569,648 +98,85 @@ static struct {
 				 Picture dst, int src_x, int src_y, int mask_x, int mask_y,
 				 int dst_x, int dst_y, unsigned int width,
 				 unsigned int height);
-
-	GlyphSet (*XRenderCreateGlyphSet)(Display* dpy, _Xconst XRenderPictFormat* format);
-
-	GlyphSet (*XRenderReferenceGlyphSet)(Display* dpy, GlyphSet existing);
-
-	void (*XRenderFreeGlyphSet)(Display* dpy, GlyphSet glyphset);
-
-	void (*XRenderAddGlyphs)(Display* dpy, GlyphSet glyphset, _Xconst Glyph* gids,
-				 _Xconst XGlyphInfo* glyphs, int nglyphs,
-				 _Xconst char* images, int nbyte_images);
-
-	void (*XRenderFreeGlyphs)(Display* dpy, GlyphSet glyphset, _Xconst Glyph* gids,
-				  int nglyphs);
-
-	void (*XRenderCompositeString8)(Display* dpy, int op, Picture src, Picture dst,
-					_Xconst XRenderPictFormat* maskFormat,
-					GlyphSet glyphset, int xSrc, int ySrc, int xDst,
-					int yDst, _Xconst char* string, int nchar);
-
-	void (*XRenderCompositeString16)(Display* dpy, int op, Picture src, Picture dst,
-					 _Xconst XRenderPictFormat* maskFormat,
-					 GlyphSet glyphset, int xSrc, int ySrc, int xDst,
-					 int yDst, _Xconst unsigned short* string,
-					 int nchar);
-
-	void (*XRenderCompositeString32)(Display* dpy, int op, Picture src, Picture dst,
-					 _Xconst XRenderPictFormat* maskFormat,
-					 GlyphSet glyphset, int xSrc, int ySrc, int xDst,
-					 int yDst, _Xconst unsigned int* string,
-					 int nchar);
-
-	void (*XRenderCompositeText8)(Display* dpy, int op, Picture src, Picture dst,
-				      _Xconst XRenderPictFormat* maskFormat, int xSrc,
-				      int ySrc, int xDst, int yDst,
-				      _Xconst XGlyphElt8* elts, int nelt);
-
-	void (*XRenderCompositeText16)(Display* dpy, int op, Picture src, Picture dst,
-				       _Xconst XRenderPictFormat* maskFormat, int xSrc,
-				       int ySrc, int xDst, int yDst,
-				       _Xconst XGlyphElt16* elts, int nelt);
-
-	void (*XRenderCompositeText32)(Display* dpy, int op, Picture src, Picture dst,
-				       _Xconst XRenderPictFormat* maskFormat, int xSrc,
-				       int ySrc, int xDst, int yDst,
-				       _Xconst XGlyphElt32* elts, int nelt);
-
-	void (*XRenderFillRectangle)(Display* dpy, int op, Picture dst,
-				     _Xconst XRenderColor* color, int x, int y,
-				     unsigned int width, unsigned int height);
-
-	void (*XRenderFillRectangles)(Display* dpy, int op, Picture dst,
-				      _Xconst XRenderColor* color,
-				      _Xconst XRectangle* rectangles, int n_rects);
-
-	void (*XRenderCompositeTrapezoids)(Display* dpy, int op, Picture src, Picture dst,
-					   _Xconst XRenderPictFormat* maskFormat, int xSrc,
-					   int ySrc, _Xconst XTrapezoid* traps, int ntrap);
-
-	void (*XRenderCompositeTriangles)(Display* dpy, int op, Picture src, Picture dst,
-					  _Xconst XRenderPictFormat* maskFormat, int xSrc,
-					  int ySrc, _Xconst XTriangle* triangles,
-					  int ntriangle);
-
-	void (*XRenderCompositeTriStrip)(Display* dpy, int op, Picture src, Picture dst,
-					 _Xconst XRenderPictFormat* maskFormat, int xSrc,
-					 int ySrc, _Xconst XPointFixed* points,
-					 int npoint);
-
-	void (*XRenderCompositeTriFan)(Display* dpy, int op, Picture src, Picture dst,
-				       _Xconst XRenderPictFormat* maskFormat, int xSrc,
-				       int ySrc, _Xconst XPointFixed* points, int npoint);
-
-	void (*XRenderCompositeDoublePoly)(Display* dpy, int op, Picture src, Picture dst,
-					   _Xconst XRenderPictFormat* maskFormat, int xSrc,
-					   int ySrc, int xDst, int yDst,
-					   _Xconst XPointDouble* fpoints, int npoints,
-					   int winding);
-
-	Status (*XRenderParseColor)(Display* dpy, char* spec, XRenderColor* def);
-
-	Cursor (*XRenderCreateCursor)(Display* dpy, Picture source, unsigned int x,
-				      unsigned int y);
-
-	XFilters* (*XRenderQueryFilters)(Display* dpy, Drawable drawable);
-
-	void (*XRenderSetPictureFilter)(Display* dpy, Picture picture, const char* filter,
-					XFixed* params, int nparams);
-
-	Cursor (*XRenderCreateAnimCursor)(Display* dpy, int ncursor, XAnimCursor* cursors);
-
-	void (*XRenderAddTraps)(Display* dpy, Picture picture, int xOff, int yOff,
-				_Xconst XTrap* traps, int ntrap);
-
-	Picture (*XRenderCreateSolidFill)(Display* dpy, const XRenderColor* color);
-
-	Picture (*XRenderCreateLinearGradient)(Display*		      dpy,
-					       const XLinearGradient* gradient,
-					       const XFixed*	      stops,
-					       const XRenderColor* colors, int nstops);
-
-	Picture (*XRenderCreateRadialGradient)(Display*		      dpy,
-					       const XRadialGradient* gradient,
-					       const XFixed*	      stops,
-					       const XRenderColor* colors, int nstops);
-
-	Picture (*XRenderCreateConicalGradient)(Display*		dpy,
-						const XConicalGradient* gradient,
-						const XFixed*		stops,
-						const XRenderColor* colors, int nstops);
 #endif
 } xsymtbl;
 
-#define _Xdebug *xsymtbl._Xdebug
-#define XLoadQueryFont xsymtbl.XLoadQueryFont
-#define XQueryFont xsymtbl.XQueryFont
-#define XGetMotionEvents xsymtbl.XGetMotionEvents
-#define XDeleteModifiermapEntry xsymtbl.XDeleteModifiermapEntry
-#define XGetModifierMapping xsymtbl.XGetModifierMapping
-#define XInsertModifiermapEntry xsymtbl.XInsertModifiermapEntry
-#define XNewModifiermap xsymtbl.XNewModifiermap
-#define XCreateImage xsymtbl.XCreateImage
-#define XInitImage xsymtbl.XInitImage
-#define XGetImage xsymtbl.XGetImage
-#define XGetSubImage xsymtbl.XGetSubImage
-#define XOpenDisplay xsymtbl.XOpenDisplay
-#define XrmInitialize xsymtbl.XrmInitialize
-#define XFetchBytes xsymtbl.XFetchBytes
-#define XFetchBuffer xsymtbl.XFetchBuffer
-#define XGetAtomName xsymtbl.XGetAtomName
-#define XGetAtomNames xsymtbl.XGetAtomNames
-#define XGetDefault xsymtbl.XGetDefault
-#define XDisplayName xsymtbl.XDisplayName
-#define XKeysymToString xsymtbl.XKeysymToString
-#define XInternAtom xsymtbl.XInternAtom
-#define XInternAtoms xsymtbl.XInternAtoms
-#define XCopyColormapAndFree xsymtbl.XCopyColormapAndFree
-#define XCreateColormap xsymtbl.XCreateColormap
-#define XCreatePixmapCursor xsymtbl.XCreatePixmapCursor
-#define XCreateGlyphCursor xsymtbl.XCreateGlyphCursor
-#define XCreateFontCursor xsymtbl.XCreateFontCursor
-#define XLoadFont xsymtbl.XLoadFont
-#define XCreateGC xsymtbl.XCreateGC
-#define XGContextFromGC xsymtbl.XGContextFromGC
-#define XFlushGC xsymtbl.XFlushGC
-#define XCreatePixmap xsymtbl.XCreatePixmap
-#define XCreateBitmapFromData xsymtbl.XCreateBitmapFromData
-#define XCreatePixmapFromBitmapData xsymtbl.XCreatePixmapFromBitmapData
-#define XCreateSimpleWindow xsymtbl.XCreateSimpleWindow
-#define XGetSelectionOwner xsymtbl.XGetSelectionOwner
-#define XCreateWindow xsymtbl.XCreateWindow
-#define XListInstalledColormaps xsymtbl.XListInstalledColormaps
-#define XListFonts xsymtbl.XListFonts
-#define XListFontsWithInfo xsymtbl.XListFontsWithInfo
-#define XGetFontPath xsymtbl.XGetFontPath
-#define XListExtensions xsymtbl.XListExtensions
-#define XListProperties xsymtbl.XListProperties
-#define XListHosts xsymtbl.XListHosts
-#define XKeycodeToKeysym xsymtbl.XKeycodeToKeysym
-#define XLookupKeysym xsymtbl.XLookupKeysym
-#define XGetKeyboardMapping xsymtbl.XGetKeyboardMapping
-#define XStringToKeysym xsymtbl.XStringToKeysym
-#define XMaxRequestSize xsymtbl.XMaxRequestSize
-#define XExtendedMaxRequestSize xsymtbl.XExtendedMaxRequestSize
-#define XResourceManagerString xsymtbl.XResourceManagerString
-#define XScreenResourceString xsymtbl.XScreenResourceString
-#define XDisplayMotionBufferSize xsymtbl.XDisplayMotionBufferSize
-#define XVisualIDFromVisual xsymtbl.XVisualIDFromVisual
-#define XInitThreads xsymtbl.XInitThreads
-#define XFreeThreads xsymtbl.XFreeThreads
-#define XLockDisplay xsymtbl.XLockDisplay
-#define XUnlockDisplay xsymtbl.XUnlockDisplay
-#define XInitExtension xsymtbl.XInitExtension
-#define XAddExtension xsymtbl.XAddExtension
-#define XFindOnExtensionList xsymtbl.XFindOnExtensionList
-#define XEHeadOfExtensionList xsymtbl.XEHeadOfExtensionList
-#define XRootWindow xsymtbl.XRootWindow
-#define XDefaultRootWindow xsymtbl.XDefaultRootWindow
-#define XRootWindowOfScreen xsymtbl.XRootWindowOfScreen
-#define XDefaultVisual xsymtbl.XDefaultVisual
-#define XDefaultVisualOfScreen xsymtbl.XDefaultVisualOfScreen
-#define XDefaultGC xsymtbl.XDefaultGC
-#define XDefaultGCOfScreen xsymtbl.XDefaultGCOfScreen
-#define XBlackPixel xsymtbl.XBlackPixel
-#define XWhitePixel xsymtbl.XWhitePixel
-#define XAllPlanes xsymtbl.XAllPlanes
-#define XBlackPixelOfScreen xsymtbl.XBlackPixelOfScreen
-#define XWhitePixelOfScreen xsymtbl.XWhitePixelOfScreen
-#define XNextRequest xsymtbl.XNextRequest
-#define XLastKnownRequestProcessed xsymtbl.XLastKnownRequestProcessed
-#define XServerVendor xsymtbl.XServerVendor
-#define XDisplayString xsymtbl.XDisplayString
-#define XDefaultColormap xsymtbl.XDefaultColormap
-#define XDefaultColormapOfScreen xsymtbl.XDefaultColormapOfScreen
-#define XDisplayOfScreen xsymtbl.XDisplayOfScreen
-#define XScreenOfDisplay xsymtbl.XScreenOfDisplay
-#define XDefaultScreenOfDisplay xsymtbl.XDefaultScreenOfDisplay
-#define XEventMaskOfScreen xsymtbl.XEventMaskOfScreen
-#define XScreenNumberOfScreen xsymtbl.XScreenNumberOfScreen
-#define XSetErrorHandler xsymtbl.XSetErrorHandler
-#define XSetIOErrorHandler xsymtbl.XSetIOErrorHandler
-#define XSetIOErrorExitHandler xsymtbl.XSetIOErrorExitHandler
-#define XListPixmapFormats xsymtbl.XListPixmapFormats
-#define XListDepths xsymtbl.XListDepths
-#define XReconfigureWMWindow xsymtbl.XReconfigureWMWindow
-#define XGetWMProtocols xsymtbl.XGetWMProtocols
-#define XSetWMProtocols xsymtbl.XSetWMProtocols
-#define XIconifyWindow xsymtbl.XIconifyWindow
-#define XWithdrawWindow xsymtbl.XWithdrawWindow
-#define XGetCommand xsymtbl.XGetCommand
-#define XGetWMColormapWindows xsymtbl.XGetWMColormapWindows
-#define XSetWMColormapWindows xsymtbl.XSetWMColormapWindows
-#define XFreeStringList xsymtbl.XFreeStringList
-#define XSetTransientForHint xsymtbl.XSetTransientForHint
-#define XActivateScreenSaver xsymtbl.XActivateScreenSaver
-#define XAddHost xsymtbl.XAddHost
-#define XAddHosts xsymtbl.XAddHosts
-#define XAddToExtensionList xsymtbl.XAddToExtensionList
-#define XAddToSaveSet xsymtbl.XAddToSaveSet
-#define XAllocColor xsymtbl.XAllocColor
-#define XAllocColorCells xsymtbl.XAllocColorCells
-#define XAllocColorPlanes xsymtbl.XAllocColorPlanes
-#define XAllocNamedColor xsymtbl.XAllocNamedColor
-#define XAllowEvents xsymtbl.XAllowEvents
-#define XAutoRepeatOff xsymtbl.XAutoRepeatOff
-#define XAutoRepeatOn xsymtbl.XAutoRepeatOn
-#define XBell xsymtbl.XBell
-#define XBitmapBitOrder xsymtbl.XBitmapBitOrder
-#define XBitmapPad xsymtbl.XBitmapPad
-#define XBitmapUnit xsymtbl.XBitmapUnit
-#define XCellsOfScreen xsymtbl.XCellsOfScreen
-#define XChangeActivePointerGrab xsymtbl.XChangeActivePointerGrab
-#define XChangeGC xsymtbl.XChangeGC
-#define XChangeKeyboardControl xsymtbl.XChangeKeyboardControl
-#define XChangeKeyboardMapping xsymtbl.XChangeKeyboardMapping
-#define XChangePointerControl xsymtbl.XChangePointerControl
-#define XChangeProperty xsymtbl.XChangeProperty
-#define XChangeSaveSet xsymtbl.XChangeSaveSet
-#define XChangeWindowAttributes xsymtbl.XChangeWindowAttributes
-#define XCheckIfEvent xsymtbl.XCheckIfEvent
-#define XCheckMaskEvent xsymtbl.XCheckMaskEvent
-#define XCheckTypedEvent xsymtbl.XCheckTypedEvent
-#define XCheckTypedWindowEvent xsymtbl.XCheckTypedWindowEvent
-#define XCheckWindowEvent xsymtbl.XCheckWindowEvent
-#define XCirculateSubwindows xsymtbl.XCirculateSubwindows
-#define XCirculateSubwindowsDown xsymtbl.XCirculateSubwindowsDown
-#define XCirculateSubwindowsUp xsymtbl.XCirculateSubwindowsUp
-#define XClearArea xsymtbl.XClearArea
-#define XClearWindow xsymtbl.XClearWindow
-#define XCloseDisplay xsymtbl.XCloseDisplay
-#define XConfigureWindow xsymtbl.XConfigureWindow
-#define XConnectionNumber xsymtbl.XConnectionNumber
-#define XConvertSelection xsymtbl.XConvertSelection
-#define XCopyArea xsymtbl.XCopyArea
-#define XCopyGC xsymtbl.XCopyGC
-#define XCopyPlane xsymtbl.XCopyPlane
-#define XDefaultDepth xsymtbl.XDefaultDepth
-#define XDefaultDepthOfScreen xsymtbl.XDefaultDepthOfScreen
-#define XDefaultScreen xsymtbl.XDefaultScreen
-#define XDefineCursor xsymtbl.XDefineCursor
-#define XDeleteProperty xsymtbl.XDeleteProperty
-#define XDestroyWindow xsymtbl.XDestroyWindow
-#define XDestroySubwindows xsymtbl.XDestroySubwindows
-#define XDoesBackingStore xsymtbl.XDoesBackingStore
-#define XDoesSaveUnders xsymtbl.XDoesSaveUnders
-#define XDisableAccessControl xsymtbl.XDisableAccessControl
-#define XDisplayCells xsymtbl.XDisplayCells
-#define XDisplayHeight xsymtbl.XDisplayHeight
-#define XDisplayHeightMM xsymtbl.XDisplayHeightMM
-#define XDisplayKeycodes xsymtbl.XDisplayKeycodes
-#define XDisplayPlanes xsymtbl.XDisplayPlanes
-#define XDisplayWidth xsymtbl.XDisplayWidth
-#define XDisplayWidthMM xsymtbl.XDisplayWidthMM
-#define XDrawArc xsymtbl.XDrawArc
-#define XDrawArcs xsymtbl.XDrawArcs
-#define XDrawImageString xsymtbl.XDrawImageString
-#define XDrawImageString16 xsymtbl.XDrawImageString16
-#define XDrawLine xsymtbl.XDrawLine
-#define XDrawLines xsymtbl.XDrawLines
-#define XDrawPoint xsymtbl.XDrawPoint
-#define XDrawPoints xsymtbl.XDrawPoints
-#define XDrawRectangle xsymtbl.XDrawRectangle
-#define XDrawRectangles xsymtbl.XDrawRectangles
-#define XDrawSegments xsymtbl.XDrawSegments
-#define XDrawString xsymtbl.XDrawString
-#define XDrawString16 xsymtbl.XDrawString16
-#define XDrawText xsymtbl.XDrawText
-#define XDrawText16 xsymtbl.XDrawText16
-#define XEnableAccessControl xsymtbl.XEnableAccessControl
-#define XEventsQueued xsymtbl.XEventsQueued
-#define XFetchName xsymtbl.XFetchName
-#define XFillArc xsymtbl.XFillArc
-#define XFillArcs xsymtbl.XFillArcs
-#define XFillPolygon xsymtbl.XFillPolygon
-#define XFillRectangle xsymtbl.XFillRectangle
-#define XFillRectangles xsymtbl.XFillRectangles
-#define XFlush xsymtbl.XFlush
-#define XForceScreenSaver xsymtbl.XForceScreenSaver
-#define XFree xsymtbl.XFree
-#define XFreeColormap xsymtbl.XFreeColormap
-#define XFreeColors xsymtbl.XFreeColors
-#define XFreeCursor xsymtbl.XFreeCursor
-#define XFreeExtensionList xsymtbl.XFreeExtensionList
-#define XFreeFont xsymtbl.XFreeFont
-#define XFreeFontInfo xsymtbl.XFreeFontInfo
-#define XFreeFontNames xsymtbl.XFreeFontNames
-#define XFreeFontPath xsymtbl.XFreeFontPath
-#define XFreeGC xsymtbl.XFreeGC
-#define XFreeModifiermap xsymtbl.XFreeModifiermap
-#define XFreePixmap xsymtbl.XFreePixmap
-#define XGeometry xsymtbl.XGeometry
-#define XGetErrorDatabaseText xsymtbl.XGetErrorDatabaseText
-#define XGetErrorText xsymtbl.XGetErrorText
-#define XGetFontProperty xsymtbl.XGetFontProperty
-#define XGetGCValues xsymtbl.XGetGCValues
-#define XGetGeometry xsymtbl.XGetGeometry
-#define XGetIconName xsymtbl.XGetIconName
-#define XGetInputFocus xsymtbl.XGetInputFocus
-#define XGetKeyboardControl xsymtbl.XGetKeyboardControl
-#define XGetPointerControl xsymtbl.XGetPointerControl
-#define XGetPointerMapping xsymtbl.XGetPointerMapping
-#define XGetScreenSaver xsymtbl.XGetScreenSaver
-#define XGetTransientForHint xsymtbl.XGetTransientForHint
-#define XGetWindowProperty xsymtbl.XGetWindowProperty
-#define XGetWindowAttributes xsymtbl.XGetWindowAttributes
-#define XGrabButton xsymtbl.XGrabButton
-#define XGrabKey xsymtbl.XGrabKey
-#define XGrabKeyboard xsymtbl.XGrabKeyboard
-#define XGrabPointer xsymtbl.XGrabPointer
-#define XGrabServer xsymtbl.XGrabServer
-#define XHeightMMOfScreen xsymtbl.XHeightMMOfScreen
-#define XHeightOfScreen xsymtbl.XHeightOfScreen
-#define XIfEvent xsymtbl.XIfEvent
-#define XImageByteOrder xsymtbl.XImageByteOrder
-#define XInstallColormap xsymtbl.XInstallColormap
-#define XKeysymToKeycode xsymtbl.XKeysymToKeycode
-#define XKillClient xsymtbl.XKillClient
-#define XLookupColor xsymtbl.XLookupColor
-#define XLowerWindow xsymtbl.XLowerWindow
-#define XMapRaised xsymtbl.XMapRaised
-#define XMapSubwindows xsymtbl.XMapSubwindows
-#define XMapWindow xsymtbl.XMapWindow
-#define XMaskEvent xsymtbl.XMaskEvent
-#define XMaxCmapsOfScreen xsymtbl.XMaxCmapsOfScreen
-#define XMinCmapsOfScreen xsymtbl.XMinCmapsOfScreen
-#define XMoveResizeWindow xsymtbl.XMoveResizeWindow
-#define XMoveWindow xsymtbl.XMoveWindow
-#define XNextEvent xsymtbl.XNextEvent
-#define XNoOp xsymtbl.XNoOp
-#define XParseColor xsymtbl.XParseColor
-#define XParseGeometry xsymtbl.XParseGeometry
-#define XPeekEvent xsymtbl.XPeekEvent
-#define XPeekIfEvent xsymtbl.XPeekIfEvent
-#define XPending xsymtbl.XPending
-#define XPlanesOfScreen xsymtbl.XPlanesOfScreen
-#define XProtocolRevision xsymtbl.XProtocolRevision
-#define XProtocolVersion xsymtbl.XProtocolVersion
-#define XPutBackEvent xsymtbl.XPutBackEvent
-#define XPutImage xsymtbl.XPutImage
-#define XQLength xsymtbl.XQLength
-#define XQueryBestCursor xsymtbl.XQueryBestCursor
-#define XQueryBestSize xsymtbl.XQueryBestSize
-#define XQueryBestStipple xsymtbl.XQueryBestStipple
-#define XQueryBestTile xsymtbl.XQueryBestTile
-#define XQueryColor xsymtbl.XQueryColor
-#define XQueryColors xsymtbl.XQueryColors
-#define XQueryExtension xsymtbl.XQueryExtension
-#define XQueryKeymap xsymtbl.XQueryKeymap
-#define XQueryPointer xsymtbl.XQueryPointer
-#define XQueryTextExtents xsymtbl.XQueryTextExtents
-#define XQueryTextExtents16 xsymtbl.XQueryTextExtents16
-#define XQueryTree xsymtbl.XQueryTree
-#define XRaiseWindow xsymtbl.XRaiseWindow
-#define XReadBitmapFile xsymtbl.XReadBitmapFile
-#define XReadBitmapFileData xsymtbl.XReadBitmapFileData
-#define XRebindKeysym xsymtbl.XRebindKeysym
-#define XRecolorCursor xsymtbl.XRecolorCursor
-#define XRefreshKeyboardMapping xsymtbl.XRefreshKeyboardMapping
-#define XRemoveFromSaveSet xsymtbl.XRemoveFromSaveSet
-#define XRemoveHost xsymtbl.XRemoveHost
-#define XRemoveHosts xsymtbl.XRemoveHosts
-#define XReparentWindow xsymtbl.XReparentWindow
-#define XResetScreenSaver xsymtbl.XResetScreenSaver
-#define XResizeWindow xsymtbl.XResizeWindow
-#define XRestackWindows xsymtbl.XRestackWindows
-#define XRotateBuffers xsymtbl.XRotateBuffers
-#define XRotateWindowProperties xsymtbl.XRotateWindowProperties
-#define XScreenCount xsymtbl.XScreenCount
-#define XSelectInput xsymtbl.XSelectInput
-#define XSendEvent xsymtbl.XSendEvent
-#define XSetAccessControl xsymtbl.XSetAccessControl
-#define XSetArcMode xsymtbl.XSetArcMode
-#define XSetBackground xsymtbl.XSetBackground
-#define XSetClipMask xsymtbl.XSetClipMask
-#define XSetClipOrigin xsymtbl.XSetClipOrigin
-#define XSetClipRectangles xsymtbl.XSetClipRectangles
-#define XSetCloseDownMode xsymtbl.XSetCloseDownMode
-#define XSetCommand xsymtbl.XSetCommand
-#define XSetDashes xsymtbl.XSetDashes
-#define XSetFillRule xsymtbl.XSetFillRule
-#define XSetFillStyle xsymtbl.XSetFillStyle
-#define XSetFont xsymtbl.XSetFont
-#define XSetFontPath xsymtbl.XSetFontPath
-#define XSetForeground xsymtbl.XSetForeground
-#define XSetFunction xsymtbl.XSetFunction
-#define XSetGraphicsExposures xsymtbl.XSetGraphicsExposures
-#define XSetIconName xsymtbl.XSetIconName
-#define XSetInputFocus xsymtbl.XSetInputFocus
-#define XSetLineAttributes xsymtbl.XSetLineAttributes
-#define XSetModifierMapping xsymtbl.XSetModifierMapping
-#define XSetPlaneMask xsymtbl.XSetPlaneMask
-#define XSetPointerMapping xsymtbl.XSetPointerMapping
-#define XSetScreenSaver xsymtbl.XSetScreenSaver
-#define XSetSelectionOwner xsymtbl.XSetSelectionOwner
-#define XSetState xsymtbl.XSetState
-#define XSetStipple xsymtbl.XSetStipple
-#define XSetSubwindowMode xsymtbl.XSetSubwindowMode
-#define XSetTSOrigin xsymtbl.XSetTSOrigin
-#define XSetTile xsymtbl.XSetTile
-#define XSetWindowBackground xsymtbl.XSetWindowBackground
-#define XSetWindowBackgroundPixmap xsymtbl.XSetWindowBackgroundPixmap
-#define XSetWindowBorder xsymtbl.XSetWindowBorder
-#define XSetWindowBorderPixmap xsymtbl.XSetWindowBorderPixmap
-#define XSetWindowBorderWidth xsymtbl.XSetWindowBorderWidth
-#define XSetWindowColormap xsymtbl.XSetWindowColormap
-#define XStoreBuffer xsymtbl.XStoreBuffer
-#define XStoreBytes xsymtbl.XStoreBytes
-#define XStoreColor xsymtbl.XStoreColor
-#define XStoreColors xsymtbl.XStoreColors
-#define XStoreName xsymtbl.XStoreName
-#define XStoreNamedColor xsymtbl.XStoreNamedColor
-#define XSync xsymtbl.XSync
-#define XTextExtents xsymtbl.XTextExtents
-#define XTextExtents16 xsymtbl.XTextExtents16
-#define XTextWidth xsymtbl.XTextWidth
-#define XTextWidth16 xsymtbl.XTextWidth16
-#define XTranslateCoordinates xsymtbl.XTranslateCoordinates
-#define XUndefineCursor xsymtbl.XUndefineCursor
-#define XUngrabButton xsymtbl.XUngrabButton
-#define XUngrabKey xsymtbl.XUngrabKey
-#define XUngrabKeyboard xsymtbl.XUngrabKeyboard
-#define XUngrabPointer xsymtbl.XUngrabPointer
-#define XUngrabServer xsymtbl.XUngrabServer
-#define XUninstallColormap xsymtbl.XUninstallColormap
-#define XUnloadFont xsymtbl.XUnloadFont
-#define XUnmapSubwindows xsymtbl.XUnmapSubwindows
-#define XUnmapWindow xsymtbl.XUnmapWindow
-#define XVendorRelease xsymtbl.XVendorRelease
-#define XWarpPointer xsymtbl.XWarpPointer
-#define XWidthMMOfScreen xsymtbl.XWidthMMOfScreen
-#define XWidthOfScreen xsymtbl.XWidthOfScreen
-#define XWindowEvent xsymtbl.XWindowEvent
-#define XWriteBitmapFile xsymtbl.XWriteBitmapFile
-#define XSupportsLocale xsymtbl.XSupportsLocale
-#define XSetLocaleModifiers xsymtbl.XSetLocaleModifiers
-#define XOpenOM xsymtbl.XOpenOM
-#define XCloseOM xsymtbl.XCloseOM
-#define XSetOMValues xsymtbl.XSetOMValues
-#define XGetOMValues xsymtbl.XGetOMValues
-#define XDisplayOfOM xsymtbl.XDisplayOfOM
-#define XLocaleOfOM xsymtbl.XLocaleOfOM
-#define XCreateOC xsymtbl.XCreateOC
-#define XDestroyOC xsymtbl.XDestroyOC
-#define XOMOfOC xsymtbl.XOMOfOC
-#define XSetOCValues xsymtbl.XSetOCValues
-#define XGetOCValues xsymtbl.XGetOCValues
-#define XCreateFontSet xsymtbl.XCreateFontSet
-#define XFreeFontSet xsymtbl.XFreeFontSet
-#define XFontsOfFontSet xsymtbl.XFontsOfFontSet
-#define XBaseFontNameListOfFontSet xsymtbl.XBaseFontNameListOfFontSet
-#define XLocaleOfFontSet xsymtbl.XLocaleOfFontSet
-#define XContextDependentDrawing xsymtbl.XContextDependentDrawing
-#define XDirectionalDependentDrawing xsymtbl.XDirectionalDependentDrawing
-#define XContextualDrawing xsymtbl.XContextualDrawing
-#define XExtentsOfFontSet xsymtbl.XExtentsOfFontSet
-#define XmbTextEscapement xsymtbl.XmbTextEscapement
-#define XwcTextEscapement xsymtbl.XwcTextEscapement
-#define Xutf8TextEscapement xsymtbl.Xutf8TextEscapement
-#define XmbTextExtents xsymtbl.XmbTextExtents
-#define XwcTextExtents xsymtbl.XwcTextExtents
-#define Xutf8TextExtents xsymtbl.Xutf8TextExtents
-#define XmbTextPerCharExtents xsymtbl.XmbTextPerCharExtents
-#define XwcTextPerCharExtents xsymtbl.XwcTextPerCharExtents
-#define Xutf8TextPerCharExtents xsymtbl.Xutf8TextPerCharExtents
-#define XmbDrawText xsymtbl.XmbDrawText
-#define XwcDrawText xsymtbl.XwcDrawText
-#define Xutf8DrawText xsymtbl.Xutf8DrawText
-#define XmbDrawString xsymtbl.XmbDrawString
-#define XwcDrawString xsymtbl.XwcDrawString
-#define Xutf8DrawString xsymtbl.Xutf8DrawString
-#define XmbDrawImageString xsymtbl.XmbDrawImageString
-#define XwcDrawImageString xsymtbl.XwcDrawImageString
-#define Xutf8DrawImageString xsymtbl.Xutf8DrawImageString
-#define XOpenIM xsymtbl.XOpenIM
-#define XCloseIM xsymtbl.XCloseIM
-#define XGetIMValues xsymtbl.XGetIMValues
-#define XSetIMValues xsymtbl.XSetIMValues
-#define XDisplayOfIM xsymtbl.XDisplayOfIM
-#define XLocaleOfIM xsymtbl.XLocaleOfIM
 #define XCreateIC xsymtbl.XCreateIC
-#define XDestroyIC xsymtbl.XDestroyIC
-#define XSetICFocus xsymtbl.XSetICFocus
-#define XUnsetICFocus xsymtbl.XUnsetICFocus
-#define XwcResetIC xsymtbl.XwcResetIC
-#define XmbResetIC xsymtbl.XmbResetIC
-#define Xutf8ResetIC xsymtbl.Xutf8ResetIC
-#define XSetICValues xsymtbl.XSetICValues
-#define XGetICValues xsymtbl.XGetICValues
-#define XIMOfIC xsymtbl.XIMOfIC
-#define XFilterEvent xsymtbl.XFilterEvent
-#define XmbLookupString xsymtbl.XmbLookupString
-#define XwcLookupString xsymtbl.XwcLookupString
-#define Xutf8LookupString xsymtbl.Xutf8LookupString
-#define XVaCreateNestedList xsymtbl.XVaCreateNestedList
-#define XRegisterIMInstantiateCallback xsymtbl.XRegisterIMInstantiateCallback
-#define XUnregisterIMInstantiateCallback xsymtbl.XUnregisterIMInstantiateCallback
-#define XInternalConnectionNumbers xsymtbl.XInternalConnectionNumbers
-#define XProcessInternalConnection xsymtbl.XProcessInternalConnection
-#define XAddConnectionWatch xsymtbl.XAddConnectionWatch
-#define XRemoveConnectionWatch xsymtbl.XRemoveConnectionWatch
-#define XSetAuthorization xsymtbl.XSetAuthorization
-#define _Xmbtowc xsymtbl._Xmbtowc
-#define _Xwctomb xsymtbl._Xwctomb
-#define XGetEventData xsymtbl.XGetEventData
-#define XFreeEventData xsymtbl.XFreeEventData
-
-#define XAllocClassHint xsymtbl.XAllocClassHint
-#define XAllocIconSize xsymtbl.XAllocIconSize
-#define XAllocSizeHints xsymtbl.XAllocSizeHints
-#define XAllocStandardColormap xsymtbl.XAllocStandardColormap
-#define XAllocWMHints xsymtbl.XAllocWMHints
-#define XClipBox xsymtbl.XClipBox
-#define XCreateRegion xsymtbl.XCreateRegion
-#define XDefaultString xsymtbl.XDefaultString
-#define XDeleteContext xsymtbl.XDeleteContext
-#define XDestroyRegion xsymtbl.XDestroyRegion
-#define XEmptyRegion xsymtbl.XEmptyRegion
-#define XEqualRegion xsymtbl.XEqualRegion
-#define XFindContext xsymtbl.XFindContext
-#define XGetClassHint xsymtbl.XGetClassHint
-#define XGetIconSizes xsymtbl.XGetIconSizes
-#define XGetNormalHints xsymtbl.XGetNormalHints
-#define XGetRGBColormaps xsymtbl.XGetRGBColormaps
-#define XGetSizeHints xsymtbl.XGetSizeHints
-#define XGetStandardColormap xsymtbl.XGetStandardColormap
-#define XGetTextProperty xsymtbl.XGetTextProperty
-#define XGetVisualInfo xsymtbl.XGetVisualInfo
-#define XGetWMClientMachine xsymtbl.XGetWMClientMachine
-#define XGetWMHints xsymtbl.XGetWMHints
-#define XGetWMIconName xsymtbl.XGetWMIconName
-#define XGetWMName xsymtbl.XGetWMName
+#define XFree xsymtbl.XFree
+#define XFreeCursor xsymtbl.XFreeCursor
+#define XConfigureWindow xsymtbl.XConfigureWindow
+#define XCheckTypedWindowEvent xsymtbl.XCheckTypedWindowEvent
 #define XGetWMNormalHints xsymtbl.XGetWMNormalHints
-#define XGetWMSizeHints xsymtbl.XGetWMSizeHints
-#define XGetZoomHints xsymtbl.XGetZoomHints
-#define XIntersectRegion xsymtbl.XIntersectRegion
-#define XConvertCase xsymtbl.XConvertCase
 #define XLookupString xsymtbl.XLookupString
-#define XMatchVisualInfo xsymtbl.XMatchVisualInfo
-#define XOffsetRegion xsymtbl.XOffsetRegion
-#define XPointInRegion xsymtbl.XPointInRegion
-#define XPolygonRegion xsymtbl.XPolygonRegion
-#define XRectInRegion xsymtbl.XRectInRegion
-#define XSaveContext xsymtbl.XSaveContext
-#define XSetClassHint xsymtbl.XSetClassHint
-#define XSetIconSizes xsymtbl.XSetIconSizes
-#define XSetNormalHints xsymtbl.XSetNormalHints
-#define XSetRGBColormaps xsymtbl.XSetRGBColormaps
-#define XSetSizeHints xsymtbl.XSetSizeHints
-#define XSetStandardProperties xsymtbl.XSetStandardProperties
-#define XSetTextProperty xsymtbl.XSetTextProperty
-#define XSetWMClientMachine xsymtbl.XSetWMClientMachine
-#define XSetWMHints xsymtbl.XSetWMHints
-#define XSetWMIconName xsymtbl.XSetWMIconName
-#define XSetWMName xsymtbl.XSetWMName
+#define XCreateImage xsymtbl.XCreateImage
+#define XSetClipMask xsymtbl.XSetClipMask
+#define XConvertSelection xsymtbl.XConvertSelection
+#define XGetWindowProperty xsymtbl.XGetWindowProperty
 #define XSetWMNormalHints xsymtbl.XSetWMNormalHints
-#define XSetWMProperties xsymtbl.XSetWMProperties
-#define XmbSetWMProperties xsymtbl.XmbSetWMProperties
-#define Xutf8SetWMProperties xsymtbl.Xutf8SetWMProperties
+#define XTranslateCoordinates xsymtbl.XTranslateCoordinates
+#define XCreateSimpleWindow xsymtbl.XCreateSimpleWindow
+#define XGetWMSizeHints xsymtbl.XGetWMSizeHints
+#define XRootWindow xsymtbl.XRootWindow
+#define XOpenDisplay xsymtbl.XOpenDisplay
+#define XCopyArea xsymtbl.XCopyArea
+#define XDeleteProperty xsymtbl.XDeleteProperty
+#define XDrawLine xsymtbl.XDrawLine
+#define XSetGraphicsExposures xsymtbl.XSetGraphicsExposures
+#define XDestroyWindow xsymtbl.XDestroyWindow
+#define XCloseDisplay xsymtbl.XCloseDisplay
+#define XSetForeground xsymtbl.XSetForeground
+#define XGetGeometry xsymtbl.XGetGeometry
+#define XUnmapWindow xsymtbl.XUnmapWindow
+#define XSetTransientForHint xsymtbl.XSetTransientForHint
 #define XSetWMSizeHints xsymtbl.XSetWMSizeHints
-#define XSetRegion xsymtbl.XSetRegion
-#define XSetStandardColormap xsymtbl.XSetStandardColormap
-#define XSetZoomHints xsymtbl.XSetZoomHints
-#define XShrinkRegion xsymtbl.XShrinkRegion
-#define XStringListToTextProperty xsymtbl.XStringListToTextProperty
-#define XSubtractRegion xsymtbl.XSubtractRegion
-#define XmbTextListToTextProperty xsymtbl.XmbTextListToTextProperty
-#define XwcTextListToTextProperty xsymtbl.XwcTextListToTextProperty
-#define Xutf8TextListToTextProperty xsymtbl.Xutf8TextListToTextProperty
-#define XwcFreeStringList xsymtbl.XwcFreeStringList
-#define XTextPropertyToStringList xsymtbl.XTextPropertyToStringList
-#define XmbTextPropertyToTextList xsymtbl.XmbTextPropertyToTextList
-#define XwcTextPropertyToTextList xsymtbl.XwcTextPropertyToTextList
-#define Xutf8TextPropertyToTextList xsymtbl.Xutf8TextPropertyToTextList
-#define XUnionRectWithRegion xsymtbl.XUnionRectWithRegion
-#define XUnionRegion xsymtbl.XUnionRegion
-#define XWMGeometry xsymtbl.XWMGeometry
-#define XXorRegion xsymtbl.XXorRegion
+#define XCreatePixmapCursor xsymtbl.XCreatePixmapCursor
+#define XFreeGC xsymtbl.XFreeGC
+#define XNextEvent xsymtbl.XNextEvent
+#define XSetWMProtocols xsymtbl.XSetWMProtocols
+#define XDefaultScreen xsymtbl.XDefaultScreen
+#define XKeysymToString xsymtbl.XKeysymToString
+#define XMapWindow xsymtbl.XMapWindow
+#define XPutBackEvent xsymtbl.XPutBackEvent
+#define XCreateGC xsymtbl.XCreateGC
+#define XSelectInput xsymtbl.XSelectInput
+#define XSetInputFocus xsymtbl.XSetInputFocus
+#define XDestroyIC xsymtbl.XDestroyIC
+#define XSync xsymtbl.XSync
+#define XSendEvent xsymtbl.XSendEvent
+#define XSetICFocus xsymtbl.XSetICFocus
+#define XWarpPointer xsymtbl.XWarpPointer
+#define XPutImage xsymtbl.XPutImage
+#define XFillPolygon xsymtbl.XFillPolygon
+#define XOpenIM xsymtbl.XOpenIM
+#define XDefineCursor xsymtbl.XDefineCursor
+#define XSetWindowBackgroundPixmap xsymtbl.XSetWindowBackgroundPixmap
+#define XAllocColor xsymtbl.XAllocColor
+#define XInternAtom xsymtbl.XInternAtom
+#define XQueryPointer xsymtbl.XQueryPointer
+#define XGetVisualInfo xsymtbl.XGetVisualInfo
+#define XVisualIDFromVisual xsymtbl.XVisualIDFromVisual
+#define XSetLocaleModifiers xsymtbl.XSetLocaleModifiers
+#define XGetWindowAttributes xsymtbl.XGetWindowAttributes
+#define XSetStandardProperties xsymtbl.XSetStandardProperties
+#define XChangeProperty xsymtbl.XChangeProperty
+#define XAllocSizeHints xsymtbl.XAllocSizeHints
+#define XCheckWindowEvent xsymtbl.XCheckWindowEvent
+#define XFreePixmap xsymtbl.XFreePixmap
+#define XReparentWindow xsymtbl.XReparentWindow
+#define XCreatePixmap xsymtbl.XCreatePixmap
+#define XSetClipOrigin xsymtbl.XSetClipOrigin
+#define XCloseIM xsymtbl.XCloseIM
+#define XQueryTree xsymtbl.XQueryTree
+#define XPending xsymtbl.XPending
+#define XChangeWindowAttributes xsymtbl.XChangeWindowAttributes
 
 #if USE_XRENDER
-#define XRenderQueryExtension xsymtbl.XRenderQueryExtension
-#define XRenderQueryVersion xsymtbl.XRenderQueryVersion
-#define XRenderQueryFormats xsymtbl.XRenderQueryFormats
-#define XRenderQuerySubpixelOrder xsymtbl.XRenderQuerySubpixelOrder
-#define XRenderSetSubpixelOrder xsymtbl.XRenderSetSubpixelOrder
-#define XRenderFindVisualFormat xsymtbl.XRenderFindVisualFormat
-#define XRenderFindFormat xsymtbl.XRenderFindFormat
 #define XRenderFindStandardFormat xsymtbl.XRenderFindStandardFormat
-#define XRenderQueryPictIndexValues xsymtbl.XRenderQueryPictIndexValues
 #define XRenderCreatePicture xsymtbl.XRenderCreatePicture
 #define XRenderFreePicture xsymtbl.XRenderFreePicture
-#define XRenderChangePicture xsymtbl.XRenderChangePicture
-#define XRenderSetPictureClipRectangles xsymtbl.XRenderSetPictureClipRectangles
-#define XRenderSetPictureClipRegion xsymtbl.XRenderSetPictureClipRegion
-#define XRenderSetPictureTransform xsymtbl.XRenderSetPictureTransform
 #define XRenderComposite xsymtbl.XRenderComposite
-#define XRenderCreateGlyphSet xsymtbl.XRenderCreateGlyphSet
-#define XRenderReferenceGlyphSet xsymtbl.XRenderReferenceGlyphSet
-#define XRenderFreeGlyphSet xsymtbl.XRenderFreeGlyphSet
-#define XRenderAddGlyphs xsymtbl.XRenderAddGlyphs
-#define XRenderFreeGlyphs xsymtbl.XRenderFreeGlyphs
-#define XRenderCompositeString8 xsymtbl.XRenderCompositeString8
-#define XRenderCompositeString16 xsymtbl.XRenderCompositeString16
-#define XRenderCompositeString32 xsymtbl.XRenderCompositeString32
-#define XRenderCompositeText8 xsymtbl.XRenderCompositeText8
-#define XRenderCompositeText16 xsymtbl.XRenderCompositeText16
-#define XRenderCompositeText32 xsymtbl.XRenderCompositeText32
-#define XRenderFillRectangle xsymtbl.XRenderFillRectangle
-#define XRenderFillRectangles xsymtbl.XRenderFillRectangles
-#define XRenderCompositeTrapezoids xsymtbl.XRenderCompositeTrapezoids
-#define XRenderCompositeTriangles xsymtbl.XRenderCompositeTriangles
-#define XRenderCompositeTriStrip xsymtbl.XRenderCompositeTriStrip
-#define XRenderCompositeTriFan xsymtbl.XRenderCompositeTriFan
-#define XRenderCompositeDoublePoly xsymtbl.XRenderCompositeDoublePoly
-#define XRenderParseColor xsymtbl.XRenderParseColor
-#define XRenderCreateCursor xsymtbl.XRenderCreateCursor
-#define XRenderQueryFilters xsymtbl.XRenderQueryFilters
-#define XRenderSetPictureFilter xsymtbl.XRenderSetPictureFilter
-#define XRenderCreateAnimCursor xsymtbl.XRenderCreateAnimCursor
-#define XRenderAddTraps xsymtbl.XRenderAddTraps
-#define XRenderCreateSolidFill xsymtbl.XRenderCreateSolidFill
-#define XRenderCreateLinearGradient xsymtbl.XRenderCreateLinearGradient
-#define XRenderCreateRadialGradient xsymtbl.XRenderCreateRadialGradient
-#define XRenderCreateConicalGradient xsymtbl.XRenderCreateConicalGradient
+#define XRenderQueryExtension xsymtbl.XRenderQueryExtension
+#define XRenderSetPictureTransform xsymtbl.XRenderSetPictureTransform
 #endif
 
 typedef struct mwm_hints {
@@ -1893,7 +859,9 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 	r->x11.handle  = handle;
 
 #ifdef USE_XRENDER
-	r->x11.use_xrender = XRenderQueryExtension(handle->x11.display, &evbase, &erbase) ? 1 : 0;
+	if(xsymtbl.has_xrender) {
+		r->x11.use_xrender = XRenderQueryExtension(handle->x11.display, &evbase, &erbase) ? 1 : 0;
+	}
 #endif
 
 	r->x11.image = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), r->x11.depth, ZPixmap, 0, NULL, width, height, 32, 0);
@@ -2305,546 +1273,95 @@ static int MwLLX11CallInitImpl(void) {
 		return 1;
 	}
 
+	xsymtbl.has_xrender = MwFALSE;
 #if USE_XRENDER
 	xsymtbl.lib_xrender = MwDynamicOpen("libXrender.so");
-#endif
-	if(!xsymtbl.lib_xrender) {
-		return 1;
+	if(xsymtbl.lib_xrender) {
+		xsymtbl.has_xrender = MwTRUE;
 	}
+#endif
 
 #define X11_FUNC_LOAD(x) x = MwDynamicSymbol(xsymtbl.lib_xlib, #x)
 
-	X11_FUNC_LOAD(XLoadQueryFont);
-	X11_FUNC_LOAD(XQueryFont);
-	X11_FUNC_LOAD(XGetMotionEvents);
-	X11_FUNC_LOAD(XDeleteModifiermapEntry);
-	X11_FUNC_LOAD(XGetModifierMapping);
-	X11_FUNC_LOAD(XInsertModifiermapEntry);
-	X11_FUNC_LOAD(XNewModifiermap);
 	X11_FUNC_LOAD(XCreateImage);
-	X11_FUNC_LOAD(XInitImage);
-	X11_FUNC_LOAD(XGetImage);
-	X11_FUNC_LOAD(XGetSubImage);
 	X11_FUNC_LOAD(XOpenDisplay);
-	X11_FUNC_LOAD(XrmInitialize);
-	X11_FUNC_LOAD(XFetchBytes);
-	X11_FUNC_LOAD(XFetchBuffer);
-	X11_FUNC_LOAD(XGetAtomName);
-	X11_FUNC_LOAD(XGetAtomNames);
-	X11_FUNC_LOAD(XGetDefault);
-	X11_FUNC_LOAD(XDisplayName);
 	X11_FUNC_LOAD(XKeysymToString);
 	X11_FUNC_LOAD(XInternAtom);
-	X11_FUNC_LOAD(XInternAtoms);
-	X11_FUNC_LOAD(XCopyColormapAndFree);
-	X11_FUNC_LOAD(XCreateColormap);
 	X11_FUNC_LOAD(XCreatePixmapCursor);
-	X11_FUNC_LOAD(XCreateGlyphCursor);
-	X11_FUNC_LOAD(XCreateFontCursor);
-	X11_FUNC_LOAD(XLoadFont);
 	X11_FUNC_LOAD(XCreateGC);
-	X11_FUNC_LOAD(XGContextFromGC);
-	X11_FUNC_LOAD(XFlushGC);
 	X11_FUNC_LOAD(XCreatePixmap);
-	X11_FUNC_LOAD(XCreateBitmapFromData);
-	X11_FUNC_LOAD(XCreatePixmapFromBitmapData);
 	X11_FUNC_LOAD(XCreateSimpleWindow);
-	X11_FUNC_LOAD(XGetSelectionOwner);
-	X11_FUNC_LOAD(XCreateWindow);
-	X11_FUNC_LOAD(XListInstalledColormaps);
-	X11_FUNC_LOAD(XListFonts);
-	X11_FUNC_LOAD(XListFontsWithInfo);
-	X11_FUNC_LOAD(XGetFontPath);
-	X11_FUNC_LOAD(XListExtensions);
-	X11_FUNC_LOAD(XListProperties);
-	X11_FUNC_LOAD(XListHosts);
-	X11_FUNC_LOAD(XKeycodeToKeysym);
-	X11_FUNC_LOAD(XLookupKeysym);
-	X11_FUNC_LOAD(XGetKeyboardMapping);
-	X11_FUNC_LOAD(XStringToKeysym);
-	X11_FUNC_LOAD(XMaxRequestSize);
-	X11_FUNC_LOAD(XExtendedMaxRequestSize);
-	X11_FUNC_LOAD(XResourceManagerString);
-	X11_FUNC_LOAD(XScreenResourceString);
-	X11_FUNC_LOAD(XDisplayMotionBufferSize);
 	X11_FUNC_LOAD(XVisualIDFromVisual);
-	X11_FUNC_LOAD(XInitThreads);
-	X11_FUNC_LOAD(XFreeThreads);
-	X11_FUNC_LOAD(XLockDisplay);
-	X11_FUNC_LOAD(XUnlockDisplay);
-	X11_FUNC_LOAD(XInitExtension);
-	X11_FUNC_LOAD(XAddExtension);
-	X11_FUNC_LOAD(XFindOnExtensionList);
-	X11_FUNC_LOAD(XEHeadOfExtensionList);
 	X11_FUNC_LOAD(XRootWindow);
-	X11_FUNC_LOAD(XDefaultRootWindow);
-	X11_FUNC_LOAD(XRootWindowOfScreen);
-	X11_FUNC_LOAD(XDefaultVisual);
-	X11_FUNC_LOAD(XDefaultVisualOfScreen);
-	X11_FUNC_LOAD(XDefaultGC);
-	X11_FUNC_LOAD(XDefaultGCOfScreen);
-	X11_FUNC_LOAD(XBlackPixel);
-	X11_FUNC_LOAD(XWhitePixel);
-	X11_FUNC_LOAD(XAllPlanes);
-	X11_FUNC_LOAD(XBlackPixelOfScreen);
-	X11_FUNC_LOAD(XWhitePixelOfScreen);
-	X11_FUNC_LOAD(XNextRequest);
-	X11_FUNC_LOAD(XLastKnownRequestProcessed);
-	X11_FUNC_LOAD(XServerVendor);
-	X11_FUNC_LOAD(XDisplayString);
-	X11_FUNC_LOAD(XDefaultColormap);
-	X11_FUNC_LOAD(XDefaultColormapOfScreen);
-	X11_FUNC_LOAD(XDisplayOfScreen);
-	X11_FUNC_LOAD(XScreenOfDisplay);
-	X11_FUNC_LOAD(XDefaultScreenOfDisplay);
-	X11_FUNC_LOAD(XEventMaskOfScreen);
-	X11_FUNC_LOAD(XScreenNumberOfScreen);
-	X11_FUNC_LOAD(XSetErrorHandler);
-	X11_FUNC_LOAD(XSetIOErrorHandler);
-	X11_FUNC_LOAD(XSetIOErrorExitHandler);
-	X11_FUNC_LOAD(XListPixmapFormats);
-	X11_FUNC_LOAD(XListDepths);
-	X11_FUNC_LOAD(XReconfigureWMWindow);
-	X11_FUNC_LOAD(XGetWMProtocols);
 	X11_FUNC_LOAD(XSetWMProtocols);
-	X11_FUNC_LOAD(XIconifyWindow);
-	X11_FUNC_LOAD(XWithdrawWindow);
-	X11_FUNC_LOAD(XGetCommand);
-	X11_FUNC_LOAD(XGetWMColormapWindows);
-	X11_FUNC_LOAD(XSetWMColormapWindows);
-	X11_FUNC_LOAD(XFreeStringList);
 	X11_FUNC_LOAD(XSetTransientForHint);
-	X11_FUNC_LOAD(XActivateScreenSaver);
-	X11_FUNC_LOAD(XAddHost);
-	X11_FUNC_LOAD(XAddHosts);
-	X11_FUNC_LOAD(XAddToExtensionList);
-	X11_FUNC_LOAD(XAddToSaveSet);
 	X11_FUNC_LOAD(XAllocColor);
-	X11_FUNC_LOAD(XAllocColorCells);
-	X11_FUNC_LOAD(XAllocColorPlanes);
-	X11_FUNC_LOAD(XAllocNamedColor);
-	X11_FUNC_LOAD(XAllowEvents);
-	X11_FUNC_LOAD(XAutoRepeatOff);
-	X11_FUNC_LOAD(XAutoRepeatOn);
-	X11_FUNC_LOAD(XBell);
-	X11_FUNC_LOAD(XBitmapBitOrder);
-	X11_FUNC_LOAD(XBitmapPad);
-	X11_FUNC_LOAD(XBitmapUnit);
-	X11_FUNC_LOAD(XCellsOfScreen);
-	X11_FUNC_LOAD(XChangeActivePointerGrab);
-	X11_FUNC_LOAD(XChangeGC);
-	X11_FUNC_LOAD(XChangeKeyboardControl);
-	X11_FUNC_LOAD(XChangeKeyboardMapping);
-	X11_FUNC_LOAD(XChangePointerControl);
 	X11_FUNC_LOAD(XChangeProperty);
-	X11_FUNC_LOAD(XChangeSaveSet);
 	X11_FUNC_LOAD(XChangeWindowAttributes);
-	X11_FUNC_LOAD(XCheckIfEvent);
-	X11_FUNC_LOAD(XCheckMaskEvent);
-	X11_FUNC_LOAD(XCheckTypedEvent);
 	X11_FUNC_LOAD(XCheckTypedWindowEvent);
 	X11_FUNC_LOAD(XCheckWindowEvent);
-	X11_FUNC_LOAD(XCirculateSubwindows);
-	X11_FUNC_LOAD(XCirculateSubwindowsDown);
-	X11_FUNC_LOAD(XCirculateSubwindowsUp);
-	X11_FUNC_LOAD(XClearArea);
-	X11_FUNC_LOAD(XClearWindow);
 	X11_FUNC_LOAD(XCloseDisplay);
 	X11_FUNC_LOAD(XConfigureWindow);
-	X11_FUNC_LOAD(XConnectionNumber);
 	X11_FUNC_LOAD(XConvertSelection);
 	X11_FUNC_LOAD(XCopyArea);
-	X11_FUNC_LOAD(XCopyGC);
-	X11_FUNC_LOAD(XCopyPlane);
-	X11_FUNC_LOAD(XDefaultDepth);
-	X11_FUNC_LOAD(XDefaultDepthOfScreen);
 	X11_FUNC_LOAD(XDefaultScreen);
 	X11_FUNC_LOAD(XDefineCursor);
 	X11_FUNC_LOAD(XDeleteProperty);
 	X11_FUNC_LOAD(XDestroyWindow);
-	X11_FUNC_LOAD(XDestroySubwindows);
-	X11_FUNC_LOAD(XDoesBackingStore);
-	X11_FUNC_LOAD(XDoesSaveUnders);
-	X11_FUNC_LOAD(XDisableAccessControl);
-	X11_FUNC_LOAD(XDisplayCells);
-	X11_FUNC_LOAD(XDisplayHeight);
-	X11_FUNC_LOAD(XDisplayHeightMM);
-	X11_FUNC_LOAD(XDisplayKeycodes);
-	X11_FUNC_LOAD(XDisplayPlanes);
-	X11_FUNC_LOAD(XDisplayWidth);
-	X11_FUNC_LOAD(XDisplayWidthMM);
-	X11_FUNC_LOAD(XDrawArc);
-	X11_FUNC_LOAD(XDrawArcs);
-	X11_FUNC_LOAD(XDrawImageString);
-	X11_FUNC_LOAD(XDrawImageString16);
 	X11_FUNC_LOAD(XDrawLine);
-	X11_FUNC_LOAD(XDrawLines);
-	X11_FUNC_LOAD(XDrawPoint);
-	X11_FUNC_LOAD(XDrawPoints);
-	X11_FUNC_LOAD(XDrawRectangle);
-	X11_FUNC_LOAD(XDrawRectangles);
-	X11_FUNC_LOAD(XDrawSegments);
-	X11_FUNC_LOAD(XDrawString);
-	X11_FUNC_LOAD(XDrawString16);
-	X11_FUNC_LOAD(XDrawText);
-	X11_FUNC_LOAD(XDrawText16);
-	X11_FUNC_LOAD(XEnableAccessControl);
-	X11_FUNC_LOAD(XEventsQueued);
-	X11_FUNC_LOAD(XFetchName);
-	X11_FUNC_LOAD(XFillArc);
-	X11_FUNC_LOAD(XFillArcs);
 	X11_FUNC_LOAD(XFillPolygon);
-	X11_FUNC_LOAD(XFillRectangle);
-	X11_FUNC_LOAD(XFillRectangles);
-	X11_FUNC_LOAD(XFlush);
-	X11_FUNC_LOAD(XForceScreenSaver);
 	X11_FUNC_LOAD(XFree);
-	X11_FUNC_LOAD(XFreeColormap);
-	X11_FUNC_LOAD(XFreeColors);
 	X11_FUNC_LOAD(XFreeCursor);
-	X11_FUNC_LOAD(XFreeExtensionList);
-	X11_FUNC_LOAD(XFreeFont);
-	X11_FUNC_LOAD(XFreeFontInfo);
-	X11_FUNC_LOAD(XFreeFontNames);
-	X11_FUNC_LOAD(XFreeFontPath);
 	X11_FUNC_LOAD(XFreeGC);
-	X11_FUNC_LOAD(XFreeModifiermap);
 	X11_FUNC_LOAD(XFreePixmap);
-	X11_FUNC_LOAD(XGeometry);
-	X11_FUNC_LOAD(XGetErrorDatabaseText);
-	X11_FUNC_LOAD(XGetErrorText);
-	X11_FUNC_LOAD(XGetFontProperty);
-	X11_FUNC_LOAD(XGetGCValues);
 	X11_FUNC_LOAD(XGetGeometry);
-	X11_FUNC_LOAD(XGetIconName);
-	X11_FUNC_LOAD(XGetInputFocus);
-	X11_FUNC_LOAD(XGetKeyboardControl);
-	X11_FUNC_LOAD(XGetPointerControl);
-	X11_FUNC_LOAD(XGetPointerMapping);
-	X11_FUNC_LOAD(XGetScreenSaver);
-	X11_FUNC_LOAD(XGetTransientForHint);
 	X11_FUNC_LOAD(XGetWindowProperty);
 	X11_FUNC_LOAD(XGetWindowAttributes);
-	X11_FUNC_LOAD(XGrabButton);
-	X11_FUNC_LOAD(XGrabKey);
-	X11_FUNC_LOAD(XGrabKeyboard);
-	X11_FUNC_LOAD(XGrabPointer);
-	X11_FUNC_LOAD(XGrabServer);
-	X11_FUNC_LOAD(XHeightMMOfScreen);
-	X11_FUNC_LOAD(XHeightOfScreen);
-	X11_FUNC_LOAD(XIfEvent);
-	X11_FUNC_LOAD(XImageByteOrder);
-	X11_FUNC_LOAD(XInstallColormap);
-	X11_FUNC_LOAD(XKeysymToKeycode);
-	X11_FUNC_LOAD(XKillClient);
-	X11_FUNC_LOAD(XLookupColor);
-	X11_FUNC_LOAD(XLowerWindow);
-	X11_FUNC_LOAD(XMapRaised);
-	X11_FUNC_LOAD(XMapSubwindows);
 	X11_FUNC_LOAD(XMapWindow);
-	X11_FUNC_LOAD(XMaskEvent);
-	X11_FUNC_LOAD(XMaxCmapsOfScreen);
-	X11_FUNC_LOAD(XMinCmapsOfScreen);
-	X11_FUNC_LOAD(XMoveResizeWindow);
-	X11_FUNC_LOAD(XMoveWindow);
 	X11_FUNC_LOAD(XNextEvent);
-	X11_FUNC_LOAD(XNoOp);
-	X11_FUNC_LOAD(XParseColor);
-	X11_FUNC_LOAD(XParseGeometry);
-	X11_FUNC_LOAD(XPeekEvent);
-	X11_FUNC_LOAD(XPeekIfEvent);
 	X11_FUNC_LOAD(XPending);
-	X11_FUNC_LOAD(XPlanesOfScreen);
-	X11_FUNC_LOAD(XProtocolRevision);
-	X11_FUNC_LOAD(XProtocolVersion);
 	X11_FUNC_LOAD(XPutBackEvent);
 	X11_FUNC_LOAD(XPutImage);
-	X11_FUNC_LOAD(XQLength);
-	X11_FUNC_LOAD(XQueryBestCursor);
-	X11_FUNC_LOAD(XQueryBestSize);
-	X11_FUNC_LOAD(XQueryBestStipple);
-	X11_FUNC_LOAD(XQueryBestTile);
-	X11_FUNC_LOAD(XQueryColor);
-	X11_FUNC_LOAD(XQueryColors);
-	X11_FUNC_LOAD(XQueryExtension);
-	X11_FUNC_LOAD(XQueryKeymap);
 	X11_FUNC_LOAD(XQueryPointer);
-	X11_FUNC_LOAD(XQueryTextExtents);
-	X11_FUNC_LOAD(XQueryTextExtents16);
 	X11_FUNC_LOAD(XQueryTree);
-	X11_FUNC_LOAD(XRaiseWindow);
-	X11_FUNC_LOAD(XReadBitmapFile);
-	X11_FUNC_LOAD(XReadBitmapFileData);
-	X11_FUNC_LOAD(XRebindKeysym);
-	X11_FUNC_LOAD(XRecolorCursor);
-	X11_FUNC_LOAD(XRefreshKeyboardMapping);
-	X11_FUNC_LOAD(XRemoveFromSaveSet);
-	X11_FUNC_LOAD(XRemoveHost);
-	X11_FUNC_LOAD(XRemoveHosts);
 	X11_FUNC_LOAD(XReparentWindow);
-	X11_FUNC_LOAD(XResetScreenSaver);
-	X11_FUNC_LOAD(XResizeWindow);
-	X11_FUNC_LOAD(XRestackWindows);
-	X11_FUNC_LOAD(XRotateBuffers);
-	X11_FUNC_LOAD(XRotateWindowProperties);
-	X11_FUNC_LOAD(XScreenCount);
 	X11_FUNC_LOAD(XSelectInput);
 	X11_FUNC_LOAD(XSendEvent);
-	X11_FUNC_LOAD(XSetAccessControl);
-	X11_FUNC_LOAD(XSetArcMode);
-	X11_FUNC_LOAD(XSetBackground);
 	X11_FUNC_LOAD(XSetClipMask);
 	X11_FUNC_LOAD(XSetClipOrigin);
-	X11_FUNC_LOAD(XSetClipRectangles);
-	X11_FUNC_LOAD(XSetCloseDownMode);
-	X11_FUNC_LOAD(XSetCommand);
-	X11_FUNC_LOAD(XSetDashes);
-	X11_FUNC_LOAD(XSetFillRule);
-	X11_FUNC_LOAD(XSetFillStyle);
-	X11_FUNC_LOAD(XSetFont);
-	X11_FUNC_LOAD(XSetFontPath);
 	X11_FUNC_LOAD(XSetForeground);
-	X11_FUNC_LOAD(XSetFunction);
 	X11_FUNC_LOAD(XSetGraphicsExposures);
-	X11_FUNC_LOAD(XSetIconName);
 	X11_FUNC_LOAD(XSetInputFocus);
-	X11_FUNC_LOAD(XSetLineAttributes);
-	X11_FUNC_LOAD(XSetModifierMapping);
-	X11_FUNC_LOAD(XSetPlaneMask);
-	X11_FUNC_LOAD(XSetPointerMapping);
-	X11_FUNC_LOAD(XSetScreenSaver);
-	X11_FUNC_LOAD(XSetSelectionOwner);
-	X11_FUNC_LOAD(XSetState);
-	X11_FUNC_LOAD(XSetStipple);
-	X11_FUNC_LOAD(XSetSubwindowMode);
-	X11_FUNC_LOAD(XSetTSOrigin);
-	X11_FUNC_LOAD(XSetTile);
-	X11_FUNC_LOAD(XSetWindowBackground);
 	X11_FUNC_LOAD(XSetWindowBackgroundPixmap);
-	X11_FUNC_LOAD(XSetWindowBorder);
-	X11_FUNC_LOAD(XSetWindowBorderPixmap);
-	X11_FUNC_LOAD(XSetWindowBorderWidth);
-	X11_FUNC_LOAD(XSetWindowColormap);
-	X11_FUNC_LOAD(XStoreBuffer);
-	X11_FUNC_LOAD(XStoreBytes);
-	X11_FUNC_LOAD(XStoreColor);
-	X11_FUNC_LOAD(XStoreColors);
-	X11_FUNC_LOAD(XStoreName);
-	X11_FUNC_LOAD(XStoreNamedColor);
 	X11_FUNC_LOAD(XSync);
-	X11_FUNC_LOAD(XTextExtents);
-	X11_FUNC_LOAD(XTextExtents16);
-	X11_FUNC_LOAD(XTextWidth);
-	X11_FUNC_LOAD(XTextWidth16);
 	X11_FUNC_LOAD(XTranslateCoordinates);
-	X11_FUNC_LOAD(XUndefineCursor);
-	X11_FUNC_LOAD(XUngrabButton);
-	X11_FUNC_LOAD(XUngrabKey);
-	X11_FUNC_LOAD(XUngrabKeyboard);
-	X11_FUNC_LOAD(XUngrabPointer);
-	X11_FUNC_LOAD(XUngrabServer);
-	X11_FUNC_LOAD(XUninstallColormap);
-	X11_FUNC_LOAD(XUnloadFont);
-	X11_FUNC_LOAD(XUnmapSubwindows);
 	X11_FUNC_LOAD(XUnmapWindow);
-	X11_FUNC_LOAD(XVendorRelease);
 	X11_FUNC_LOAD(XWarpPointer);
-	X11_FUNC_LOAD(XWidthMMOfScreen);
-	X11_FUNC_LOAD(XWidthOfScreen);
-	X11_FUNC_LOAD(XWindowEvent);
-	X11_FUNC_LOAD(XWriteBitmapFile);
-	X11_FUNC_LOAD(XSupportsLocale);
 	X11_FUNC_LOAD(XSetLocaleModifiers);
-	X11_FUNC_LOAD(XOpenOM);
-	X11_FUNC_LOAD(XCloseOM);
-	X11_FUNC_LOAD(XSetOMValues);
-	X11_FUNC_LOAD(XGetOMValues);
-	X11_FUNC_LOAD(XDisplayOfOM);
-	X11_FUNC_LOAD(XLocaleOfOM);
-	X11_FUNC_LOAD(XCreateOC);
-	X11_FUNC_LOAD(XDestroyOC);
-	X11_FUNC_LOAD(XOMOfOC);
-	X11_FUNC_LOAD(XSetOCValues);
-	X11_FUNC_LOAD(XGetOCValues);
-	X11_FUNC_LOAD(XCreateFontSet);
-	X11_FUNC_LOAD(XFreeFontSet);
-	X11_FUNC_LOAD(XFontsOfFontSet);
-	X11_FUNC_LOAD(XBaseFontNameListOfFontSet);
-	X11_FUNC_LOAD(XLocaleOfFontSet);
-	X11_FUNC_LOAD(XContextDependentDrawing);
-	X11_FUNC_LOAD(XDirectionalDependentDrawing);
-	X11_FUNC_LOAD(XContextualDrawing);
-	X11_FUNC_LOAD(XExtentsOfFontSet);
-	X11_FUNC_LOAD(XmbTextEscapement);
-	X11_FUNC_LOAD(XwcTextEscapement);
-	X11_FUNC_LOAD(Xutf8TextEscapement);
-	X11_FUNC_LOAD(XmbTextExtents);
-	X11_FUNC_LOAD(XwcTextExtents);
-	X11_FUNC_LOAD(Xutf8TextExtents);
-	X11_FUNC_LOAD(XmbTextPerCharExtents);
-	X11_FUNC_LOAD(XwcTextPerCharExtents);
-	X11_FUNC_LOAD(Xutf8TextPerCharExtents);
-	X11_FUNC_LOAD(XmbDrawText);
-	X11_FUNC_LOAD(XwcDrawText);
-	X11_FUNC_LOAD(Xutf8DrawText);
-	X11_FUNC_LOAD(XmbDrawString);
-	X11_FUNC_LOAD(XwcDrawString);
-	X11_FUNC_LOAD(Xutf8DrawString);
-	X11_FUNC_LOAD(XmbDrawImageString);
-	X11_FUNC_LOAD(XwcDrawImageString);
-	X11_FUNC_LOAD(Xutf8DrawImageString);
 	X11_FUNC_LOAD(XOpenIM);
 	X11_FUNC_LOAD(XCloseIM);
-	X11_FUNC_LOAD(XGetIMValues);
-	X11_FUNC_LOAD(XSetIMValues);
-	X11_FUNC_LOAD(XDisplayOfIM);
-	X11_FUNC_LOAD(XLocaleOfIM);
 	X11_FUNC_LOAD(XCreateIC);
 	X11_FUNC_LOAD(XDestroyIC);
 	X11_FUNC_LOAD(XSetICFocus);
-	X11_FUNC_LOAD(XUnsetICFocus);
-	X11_FUNC_LOAD(XwcResetIC);
-	X11_FUNC_LOAD(XmbResetIC);
-	X11_FUNC_LOAD(Xutf8ResetIC);
-	X11_FUNC_LOAD(XSetICValues);
-	X11_FUNC_LOAD(XGetICValues);
-	X11_FUNC_LOAD(XIMOfIC);
-	X11_FUNC_LOAD(XFilterEvent);
-	X11_FUNC_LOAD(XmbLookupString);
-	X11_FUNC_LOAD(XwcLookupString);
-	X11_FUNC_LOAD(Xutf8LookupString);
-	X11_FUNC_LOAD(XVaCreateNestedList);
-	X11_FUNC_LOAD(XRegisterIMInstantiateCallback);
-	X11_FUNC_LOAD(XUnregisterIMInstantiateCallback);
-	X11_FUNC_LOAD(XInternalConnectionNumbers);
-	X11_FUNC_LOAD(XProcessInternalConnection);
-	X11_FUNC_LOAD(XAddConnectionWatch);
-	X11_FUNC_LOAD(XRemoveConnectionWatch);
-	X11_FUNC_LOAD(XSetAuthorization);
-	X11_FUNC_LOAD(_Xmbtowc);
-	X11_FUNC_LOAD(_Xwctomb);
-	X11_FUNC_LOAD(XGetEventData);
-	X11_FUNC_LOAD(XFreeEventData);
 
-	X11_FUNC_LOAD(XAllocClassHint);
-	X11_FUNC_LOAD(XAllocIconSize);
 	X11_FUNC_LOAD(XAllocSizeHints);
-	X11_FUNC_LOAD(XAllocStandardColormap);
-	X11_FUNC_LOAD(XAllocWMHints);
-	X11_FUNC_LOAD(XClipBox);
-	X11_FUNC_LOAD(XCreateRegion);
-	X11_FUNC_LOAD(XDefaultString);
-	X11_FUNC_LOAD(XDeleteContext);
-	X11_FUNC_LOAD(XDestroyRegion);
-	X11_FUNC_LOAD(XEmptyRegion);
-	X11_FUNC_LOAD(XEqualRegion);
-	X11_FUNC_LOAD(XFindContext);
-	X11_FUNC_LOAD(XGetClassHint);
-	X11_FUNC_LOAD(XGetIconSizes);
-	X11_FUNC_LOAD(XGetNormalHints);
-	X11_FUNC_LOAD(XGetRGBColormaps);
-	X11_FUNC_LOAD(XGetSizeHints);
-	X11_FUNC_LOAD(XGetStandardColormap);
-	X11_FUNC_LOAD(XGetTextProperty);
 	X11_FUNC_LOAD(XGetVisualInfo);
-	X11_FUNC_LOAD(XGetWMClientMachine);
-	X11_FUNC_LOAD(XGetWMHints);
-	X11_FUNC_LOAD(XGetWMIconName);
-	X11_FUNC_LOAD(XGetWMName);
 	X11_FUNC_LOAD(XGetWMNormalHints);
 	X11_FUNC_LOAD(XGetWMSizeHints);
-	X11_FUNC_LOAD(XGetZoomHints);
-	X11_FUNC_LOAD(XIntersectRegion);
-	X11_FUNC_LOAD(XConvertCase);
 	X11_FUNC_LOAD(XLookupString);
-	X11_FUNC_LOAD(XMatchVisualInfo);
-	X11_FUNC_LOAD(XOffsetRegion);
-	X11_FUNC_LOAD(XPointInRegion);
-	X11_FUNC_LOAD(XPolygonRegion);
-	X11_FUNC_LOAD(XRectInRegion);
-	X11_FUNC_LOAD(XSaveContext);
-	X11_FUNC_LOAD(XSetClassHint);
-	X11_FUNC_LOAD(XSetIconSizes);
-	X11_FUNC_LOAD(XSetNormalHints);
-	X11_FUNC_LOAD(XSetRGBColormaps);
-	X11_FUNC_LOAD(XSetSizeHints);
 	X11_FUNC_LOAD(XSetStandardProperties);
-	X11_FUNC_LOAD(XSetTextProperty);
-	X11_FUNC_LOAD(XSetWMClientMachine);
-	X11_FUNC_LOAD(XSetWMHints);
-	X11_FUNC_LOAD(XSetWMIconName);
-	X11_FUNC_LOAD(XSetWMName);
 	X11_FUNC_LOAD(XSetWMNormalHints);
-	X11_FUNC_LOAD(XSetWMProperties);
-	X11_FUNC_LOAD(XmbSetWMProperties);
-	X11_FUNC_LOAD(Xutf8SetWMProperties);
 	X11_FUNC_LOAD(XSetWMSizeHints);
-	X11_FUNC_LOAD(XSetRegion);
-	X11_FUNC_LOAD(XSetStandardColormap);
-	X11_FUNC_LOAD(XSetZoomHints);
-	X11_FUNC_LOAD(XShrinkRegion);
-	X11_FUNC_LOAD(XStringListToTextProperty);
-	X11_FUNC_LOAD(XSubtractRegion);
-	X11_FUNC_LOAD(XmbTextListToTextProperty);
-	X11_FUNC_LOAD(XwcTextListToTextProperty);
-	X11_FUNC_LOAD(Xutf8TextListToTextProperty);
-	X11_FUNC_LOAD(XwcFreeStringList);
-	X11_FUNC_LOAD(XTextPropertyToStringList);
-	X11_FUNC_LOAD(XmbTextPropertyToTextList);
-	X11_FUNC_LOAD(XwcTextPropertyToTextList);
-	X11_FUNC_LOAD(Xutf8TextPropertyToTextList);
-	X11_FUNC_LOAD(XUnionRectWithRegion);
-	X11_FUNC_LOAD(XUnionRegion);
-	X11_FUNC_LOAD(XWMGeometry);
-	X11_FUNC_LOAD(XXorRegion);
 
 #if USE_XRENDER
 #define XRENDER_FUNC_LOAD(x) x = MwDynamicSymbol(xsymtbl.lib_xrender, #x);
 
 	XRENDER_FUNC_LOAD(XRenderQueryExtension)
-	XRENDER_FUNC_LOAD(XRenderQueryVersion)
-	XRENDER_FUNC_LOAD(XRenderQueryFormats)
-	XRENDER_FUNC_LOAD(XRenderQuerySubpixelOrder)
-	XRENDER_FUNC_LOAD(XRenderSetSubpixelOrder)
-	XRENDER_FUNC_LOAD(XRenderFindVisualFormat)
-	XRENDER_FUNC_LOAD(XRenderFindFormat)
 	XRENDER_FUNC_LOAD(XRenderFindStandardFormat)
-	XRENDER_FUNC_LOAD(XRenderQueryPictIndexValues)
 	XRENDER_FUNC_LOAD(XRenderCreatePicture)
 	XRENDER_FUNC_LOAD(XRenderFreePicture)
-	XRENDER_FUNC_LOAD(XRenderChangePicture)
-	XRENDER_FUNC_LOAD(XRenderSetPictureClipRectangles)
-	XRENDER_FUNC_LOAD(XRenderSetPictureClipRegion)
 	XRENDER_FUNC_LOAD(XRenderSetPictureTransform)
 	XRENDER_FUNC_LOAD(XRenderComposite)
-	XRENDER_FUNC_LOAD(XRenderCreateGlyphSet)
-	XRENDER_FUNC_LOAD(XRenderReferenceGlyphSet)
-	XRENDER_FUNC_LOAD(XRenderFreeGlyphSet)
-	XRENDER_FUNC_LOAD(XRenderAddGlyphs)
-	XRENDER_FUNC_LOAD(XRenderFreeGlyphs)
-	XRENDER_FUNC_LOAD(XRenderCompositeString8)
-	XRENDER_FUNC_LOAD(XRenderCompositeString16)
-	XRENDER_FUNC_LOAD(XRenderCompositeString32)
-	XRENDER_FUNC_LOAD(XRenderCompositeText8)
-	XRENDER_FUNC_LOAD(XRenderCompositeText16)
-	XRENDER_FUNC_LOAD(XRenderCompositeText32)
-	XRENDER_FUNC_LOAD(XRenderFillRectangle)
-	XRENDER_FUNC_LOAD(XRenderFillRectangles)
-	XRENDER_FUNC_LOAD(XRenderCompositeTrapezoids)
-	XRENDER_FUNC_LOAD(XRenderCompositeTriangles)
-	XRENDER_FUNC_LOAD(XRenderCompositeTriStrip)
-	XRENDER_FUNC_LOAD(XRenderCompositeTriFan)
-	XRENDER_FUNC_LOAD(XRenderCompositeDoublePoly)
-	XRENDER_FUNC_LOAD(XRenderParseColor)
-	XRENDER_FUNC_LOAD(XRenderCreateCursor)
-	XRENDER_FUNC_LOAD(XRenderQueryFilters)
-	XRENDER_FUNC_LOAD(XRenderSetPictureFilter)
-	XRENDER_FUNC_LOAD(XRenderCreateAnimCursor)
-	XRENDER_FUNC_LOAD(XRenderAddTraps)
-	XRENDER_FUNC_LOAD(XRenderCreateSolidFill)
-	XRENDER_FUNC_LOAD(XRenderCreateLinearGradient)
-	XRENDER_FUNC_LOAD(XRenderCreateRadialGradient)
-	XRENDER_FUNC_LOAD(XRenderCreateConicalGradient)
 #endif
 	return 0;
 }
