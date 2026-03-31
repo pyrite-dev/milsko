@@ -794,6 +794,21 @@ int MwLibraryInit(void) {
 		if(calls[i]() == 0) return 0;
 	}
 
+	printf("[WARNING] No suitable GUI backend found! Enabled:"
+#ifdef USE_COCOA
+	       " Cocoa"
+#endif
+#ifdef USE_WAYLAND
+	       " Wayland"
+#endif
+#ifdef USE_X11
+	       " X11"
+#endif
+#ifdef USE_GDI
+	       " GDI"
+#endif
+	       "\n");
+
 	return 1;
 }
 

@@ -1,8 +1,12 @@
+my @enabled_backends=();
+
 if (param_get("wayland")) {
-    use_backend("wayland", "x11");
+    push(@enabled_backends,"wayland");
 }
-else {
-    use_backend("x11");
+if (param_get("x11")) {
+    push(@enabled_backends,"x11");
 }
+
+use_backend(@enabled_backends);
 
 1;

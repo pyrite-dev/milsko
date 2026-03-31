@@ -2301,10 +2301,16 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 
 static int MwLLX11CallInitImpl(void) {
 	xsymtbl.lib_xlib = MwDynamicOpen("libX11.so");
+	if(!xsymtbl.lib_xlib) {
+		return 1;
+	}
 
 #if USE_XRENDER
 	xsymtbl.lib_xrender = MwDynamicOpen("libXrender.so");
 #endif
+	if(!xsymtbl.lib_xrender) {
+		return 1;
+	}
 
 #define X11_FUNC_LOAD(x) x = MwDynamicSymbol(xsymtbl.lib_xlib, #x)
 

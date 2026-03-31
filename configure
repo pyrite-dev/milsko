@@ -47,6 +47,9 @@ param_set("shared",               1);
 param_set("static",               1);
 param_set("examples",             1);
 if($target eq "Linux") {
+    param_set("x11",          1);
+}
+if($target eq "Linux") {
     param_set("wayland",          1);
 }
 
