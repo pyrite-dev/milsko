@@ -8,13 +8,13 @@ if (param_get("classic-theme")) {
 if (grep(/^x11$/, @backends)) {
     add_cflags("-DUSE_X11");
     new_object("src/backend/x11.c");
-    add_libs("-lX11");
+    #add_libs("-lX11");
 
     $gl_libs = "-lGL -lGLU";
 
     if (param_get("xrender")) {
         add_cflags("-DUSE_XRENDER");
-        add_libs("-lXrender");
+        #add_libs("-lXrender");
     }
 }
 
