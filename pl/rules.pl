@@ -3,6 +3,10 @@ new_object("src/*.c");
 my $gl_libs = "";
 if (param_get("tiny")) {
     add_cflags("-Oz");
+    if(defined($ENV{CC}) && grep(/^clang$/, $ENV{CC})) {
+        add_libs("-flto=thin");
+        add_cflags("-flto=thin");
+    }
 }
 if (param_get("classic-theme")) {
     add_cflags("-DUSE_CLASSIC_THEME");
