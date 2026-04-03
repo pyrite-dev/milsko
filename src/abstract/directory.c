@@ -4,7 +4,7 @@
 typedef struct dir {
 	HANDLE		hFind;
 	WIN32_FIND_DATA ffd;
-	int		first;
+	int		next;
 } dir_t;
 #else
 typedef struct dir {
@@ -25,7 +25,7 @@ void* MwDirectoryOpen(const char* path) {
 		return NULL;
 	}
 	free(p);
-	dir->first = 1;
+	dir->next = 1;
 #else
 	if((dir->dir = opendir(path)) == NULL) {
 		free(dir);
@@ -54,14 +54,10 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	MwDirectoryEntry* entry = malloc(sizeof(*entry));
 #ifdef _WIN32
 	ULARGE_INTEGER* l;
-	if(dir->first) {
-		dir->first = 0;
-	} else if(FindNextFile(dir->hFind, &dir->ffd) == 0) {
-		free(entry);
-		return NULL;
-	}
-	entry->name = MwStringDuplicate(dir->ffd.cFileName);
 
+	if(!dir->next) return NULL;
+
+	entry->name = MwStringDuplicate(dir->ffd.cFileName);
 	if(dir->ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 		entry->type = MwDIRECTORY_DIRECTORY;
 	} else {
@@ -77,6 +73,8 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	l = (ULARGE_INTEGER*)&dir->ffd.ftLastWriteTime;
 
 	entry->mtime = l->QuadPart / 10000000 - 11644473600;
+	
+	dir->next = FindNextFile(dir->hFind, &dir->ffd);
 #else
 	struct dirent* d;
 	struct stat    s;
