@@ -18,7 +18,12 @@ void* MwDirectoryOpen(const char* path) {
 #ifdef _WIN32
 	char* p = malloc(strlen(path) + 2 + 1);
 	strcpy(p, path);
-	strcat(p, "/*");
+	if(strchr(path, '/') != NULL){
+		strcat(p, "/");
+	}else{
+		strcat(p, "\\");
+	}
+	strcat(p, "*");
 	if((dir->hFind = FindFirstFile(p, &dir->ffd)) == INVALID_HANDLE_VALUE) {
 		free(p);
 		free(dir);
