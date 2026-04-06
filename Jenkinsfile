@@ -50,7 +50,7 @@ pipeline {
 						sh("make -j4")
 					}
 				}
-				stage("Build for Windows 64-bit (MSVC)") {
+				stage("Build for Windows 32-bit (MSVC)") {
 					agent {
 						label "2012r2"
 					}
