@@ -7,6 +7,8 @@ examples/*/*.exe
 !examples/*/*.*
 *.exe
 *.o
+*.obj
+*.core
 *.so
 *.dll
 *.lib

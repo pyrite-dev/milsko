@@ -116,7 +116,7 @@ int MwTextHeight(MwWidget handle, MwFLFont ttf, const char* text) {
 
 void* MwFontLoad(unsigned char* data, unsigned int size) {
 	if(MwFLFontLoad)
-		return MwFLFontLoad(data, size, 16);
+		return MwFLFontLoad(data, size, 14);
 	return NULL;
 }
 
