@@ -19,6 +19,11 @@ static struct ft_table {
 	FT_Error (*FT_Load_Char)(FT_Face  face,
 				 FT_ULong char_code,
 				 FT_Int32 load_flags);
+	FT_Error (*FT_Get_Kerning)(FT_Face    face,
+				   FT_UInt    left_glyph,
+				   FT_UInt    right_glyph,
+				   FT_UInt    kern_mode,
+				   FT_Vector* akerning);
 	FT_Error (*FT_Done_Face)(FT_Face face);
 	FT_Error (*FT_Done_FreeType)(FT_Library library);
 
@@ -42,10 +47,12 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 
 	memset(px, 0, tw * th * 4);
 	while(text[0] != 0) {
-		int	   c;
-		FT_Bitmap* bmp;
-		int	   cy, cx;
-		int	   l = MwUTF8ToUTF32(text, &c);
+		FT_Bitmap*  bmp;
+		int	    cy, cx;
+		int	    c, c2;
+		int	    l = MwUTF8ToUTF32(text, &c);
+		FT_Vector   vec;
+		const char* old_text;
 		if(l <= 0) break;
 		text += l;
 
@@ -60,7 +67,7 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 
 		for(cy = 0; cy < bmp->rows; cy++) {
 			for(cx = 0; cx < bmp->width; cx++) {
-				int	       ox  = x + cx + ttf->face->glyph->bitmap_left;
+				int	       ox  = x + (ttf->face->glyph->metrics.horiBearingX / 64) + cx + ttf->face->glyph->bitmap_left;
 				int	       oy  = y + (ttf->face->height * HEIGHT / ttf->face->units_per_EM) - ttf->face->glyph->bitmap_top + cy + (ttf->face->descender * HEIGHT / ttf->face->units_per_EM);
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
 
@@ -71,7 +78,18 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 			}
 		}
 
-		x += ttf->face->glyph->metrics.horiAdvance / 64;
+		x += ceil(ttf->face->glyph->metrics.horiAdvance / 64);
+
+		old_text = text;
+		text += MwUTF8ToUTF32(text, &c2);
+
+		if(c2 != '\n') {
+			ft_table.FT_Get_Kerning(ttf->face, c, c2, FT_KERNING_DEFAULT, &vec);
+
+			x += ceil(vec.x / 64);
+		}
+
+		text = old_text;
 	}
 
 	p	 = MwLoadRaw(handle, px, tw, th);
@@ -91,10 +109,11 @@ static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
 	int tw = 0, mtw = 0;
 
 	while(text[0] != 0) {
-		int c;
-		int l = MwUTF8ToUTF32(text, &c);
-		if(l <= 0) break;
-		text += l;
+		int	    c, c2;
+		FT_Vector   vec;
+		const char* old_text;
+
+		text += MwUTF8ToUTF32(text, &c);
 		if(c == '\n') {
 			tw = 0;
 			continue;
@@ -102,15 +121,26 @@ static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
 
 		ft_table.FT_Load_Char(ttf->face, c, FT_LOAD_RENDER);
 
-		tw += ttf->face->glyph->metrics.horiAdvance / 64;
+		tw += ceil(ttf->face->glyph->metrics.horiAdvance / 64);
+
+		old_text = text;
+		text += MwUTF8ToUTF32(text, &c2);
+
+		if(c2 != '\n') {
+			ft_table.FT_Get_Kerning(ttf->face, c, c2, FT_KERNING_DEFAULT, &vec);
+
+			tw += ceil(vec.x / 64);
+		}
+
+		text = old_text;
 		if(tw > mtw) mtw = tw;
 	}
 
-	return mtw;
+	return mtw + 1;
 }
 
 static int ft2_MwTextHeight(MwFLFont ttf, int count) {
-	return (ttf->face->height * HEIGHT / ttf->face->units_per_EM) * count;
+	return ceil((ttf->face->height * HEIGHT / ttf->face->units_per_EM) * count);
 }
 
 static void* ft2_MwFontLoad(unsigned char* data, unsigned int size) {
@@ -146,6 +176,7 @@ int MWFL_FT2Setup(void) {
 	ft_table.FT_New_Memory_Face = MwDynamicSymbol(ftlib, "FT_New_Memory_Face");
 	ft_table.FT_Set_Pixel_Sizes = MwDynamicSymbol(ftlib, "FT_Set_Pixel_Sizes");
 	ft_table.FT_Load_Char	    = MwDynamicSymbol(ftlib, "FT_Load_Char");
+	ft_table.FT_Get_Kerning	    = MwDynamicSymbol(ftlib, "FT_Get_Kerning");
 	ft_table.FT_Done_Face	    = MwDynamicSymbol(ftlib, "FT_Done_Face");
 	ft_table.FT_Done_FreeType   = MwDynamicSymbol(ftlib, "FT_Done_FreeType");
 

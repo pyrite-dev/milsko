@@ -25,15 +25,17 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 
 	memset(px, 0, tw * th * 4);
 	while(text[0] != 0) {
-		int	       c;
+		int	       c, c2;
 		int	       x0, y0, x1, y1, cx, cy;
 		int	       ow, oh;
 		unsigned char* out;
+		int	       kern;
+		const char*    old_text;
 
 		text += MwUTF8ToUTF32(text, &c);
 		if(c == '\n') {
 			x = 0;
-			y += (ttf->ascent - ttf->descent) * ttf->scale;
+			y += ceil((ttf->ascent - ttf->descent) * ttf->scale);
 			continue;
 		}
 
@@ -47,8 +49,8 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 
 		for(cy = 0; cy < oh; cy++) {
 			for(cx = 0; cx < ow; cx++) {
-				int	       ox  = x + (lsb * ttf->scale) + cx;
-				int	       oy  = y + (ttf->ascent * ttf->scale) + y0 + cy;
+				int	       ox  = x + ceil(lsb * ttf->scale) + cx;
+				int	       oy  = y + ceil(ttf->ascent * ttf->scale) + y0 + cy;
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
 
 				opx[0] = color->common.red;
@@ -58,7 +60,18 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 			}
 		}
 
-		x += ax * ttf->scale;
+		x += ceil(ax * ttf->scale);
+
+		old_text = text;
+		text += MwUTF8ToUTF32(text, &c2);
+
+		if(c2 != '\n') {
+			kern = stbtt_GetCodepointKernAdvance(&ttf->font, c, c2);
+
+			x += ceil(kern * ttf->scale);
+		}
+
+		text = old_text;
 
 		free(out);
 	}
@@ -78,22 +91,41 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 
 static int stbtt_MwTextWidth(MwFLFont ttf, const char* text) {
 	int ax, lsb;
-	int tw = 0;
+	int tw = 0, mtw = 0;
 
 	while(text[0] != 0) {
-		int c;
+		int	    kern;
+		int	    c, c2;
+		const char* old_text;
+
 		text += MwUTF8ToUTF32(text, &c);
+		if(c == '\n') {
+			tw = 0;
+			continue;
+		}
 
 		stbtt_GetCodepointHMetrics(&ttf->font, c, &ax, &lsb);
 
-		tw += ax * ttf->scale;
+		tw += ceil(ax * ttf->scale);
+
+		old_text = text;
+		text += MwUTF8ToUTF32(text, &c2);
+
+		if(c2 != '\n') {
+			kern = stbtt_GetCodepointKernAdvance(&ttf->font, c, c2);
+
+			tw += ceil(kern * ttf->scale);
+		}
+
+		text = old_text;
+		if(tw > mtw) mtw = tw;
 	}
 
-	return tw;
+	return mtw + 1;
 }
 
 static int stbtt_MwTextHeight(MwFLFont ttf, int count) {
-	return (ttf->ascent - ttf->descent) * ttf->scale * count;
+	return ceil((ttf->ascent - ttf->descent) * ttf->scale * count);
 }
 
 static void* stbtt_MwFontLoad(unsigned char* data, unsigned int size) {

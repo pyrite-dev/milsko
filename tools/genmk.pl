@@ -121,7 +121,8 @@ sub generate {
     print(OUT "src${dir}Mw.dll: " . cobjs($dir) . "\n");
     print(  OUT "	\$(LD) \$(LDFLAGS) $c_dllout $dllout\$@ "
           . cobjs($dir, $prefobj)
-          . " $needlibs ${lib}opengl32.lib ${lib}gdi32.lib ${lib}user32.lib ${lib}advapi32.lib\n");
+          . " $needlibs ${lib}opengl32.lib ${lib}gdi32.lib ${lib}user32.lib ${lib}advapi32.lib\n"
+    );
     print(OUT "	$c_dllafter\n");
     print(OUT "\n");
 
