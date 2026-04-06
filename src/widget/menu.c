@@ -8,7 +8,7 @@ static void set_xywh(MwWidget handle) {
 	int diff   = MwDefaultBorderWidth(handle);
 	diff	   = 0;
 
-	height = MwTextHeight(handle, "M") + 10;
+	height = MwTextHeight(handle, NULL, "M") + 10;
 
 	MwVaApply(handle,
 		  MwNx, -diff,
@@ -71,8 +71,8 @@ static void destroy(MwWidget handle) {
 #define BEGIN_MENU_LOOP \
 	for(i = 0; i < arrlen(m->sub); i++) { \
 		int incr = m->sub[i]->name[0] == '?' ? 1 : 0; \
-		int tw	 = MwTextWidth(handle, m->sub[i]->name + incr); \
-		int th	 = MwTextHeight(handle, m->sub[i]->name + incr); \
+		int tw	 = MwTextWidth(handle, NULL, m->sub[i]->name + incr); \
+		int th	 = MwTextHeight(handle, NULL, m->sub[i]->name + incr); \
 		int in_area; \
 \
 		if(incr) { \
@@ -104,7 +104,7 @@ static void draw(MwWidget handle) {
 		MwDrawWidgetBack(handle, &r, base, 0, MwFALSE);
 	}
 
-	MwDrawText(handle, &p, m->sub[i]->name + incr, m->sub[i]->wsub != NULL || (in_area && handle->pressed) ? 1 : 0, MwALIGNMENT_BEGINNING, text);
+	MwDrawText(handle, MwFLBuildFont((m->sub[i]->wsub != NULL || (in_area && handle->pressed)) ? MwFLFlagBold : 0), &p, m->sub[i]->name + incr, MwALIGNMENT_BEGINNING, text);
 	END_MENU_LOOP;
 
 	MwLLFreeColor(text);

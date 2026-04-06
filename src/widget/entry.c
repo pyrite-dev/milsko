@@ -27,6 +27,7 @@ static void draw(MwWidget handle) {
 	MwLLColor   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	const char* str	 = MwGetText(handle, MwNtext);
 	MwLLPixmap  bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwFLFont    font = MwFLBuildFont(MwFLFlagMonospace);
 	if(str == NULL) str = "";
 
 	r.x	 = 0;
@@ -37,8 +38,8 @@ static void draw(MwWidget handle) {
 	MwDrawWidgetBack(handle, &r, base, 1, 1);
 	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 	if(str != NULL) {
-		int	w = MwTextWidth(handle, "M");
-		int	h = MwTextHeight(handle, "M");
+		int	w = MwTextWidth(handle, font, "M");
+		int	h = MwTextHeight(handle, font, "M");
 		MwPoint p;
 		char*	show;
 		int	len;
@@ -53,7 +54,7 @@ static void draw(MwWidget handle) {
 
 		len = (r.width - p.x * 2) / w;
 
-		if(len >= 0) {
+		if(len > 0) {
 			show = malloc(len * 4 + 1);
 			memset(show, 0, len * 4 + 1);
 
@@ -65,13 +66,13 @@ static void draw(MwWidget handle) {
 				for(i = 0; i < MwUTF8Length(str) - start; i++) show[i] = '*';
 			}
 
-			MwDrawText(handle, &p, show, 0, MwALIGNMENT_BEGINNING, text);
+			MwDrawText(handle, font, &p, show, MwALIGNMENT_BEGINNING, text);
 
 			textlen = (t->cursor - 1) % len + 1;
 			for(i = 0; i < textlen; i++) show[i] = 'M';
 			show[i] = 0;
 
-			currc.x	     = p.x + MwTextWidth(handle, show);
+			currc.x	     = p.x + MwTextWidth(handle, font, show);
 			currc.y	     = (r.height - h) / 2;
 			currc.width  = 1;
 			currc.height = h;

@@ -63,8 +63,8 @@ static void draw(MwWidget handle) {
 
 				p.y += 2 + 1;
 			} else {
-				int tw = MwTextWidth(handle, menu->sub[i]->name);
-				int th = MwTextHeight(handle, menu->sub[i]->name);
+				int tw = MwTextWidth(handle, NULL, menu->sub[i]->name);
+				int th = MwTextHeight(handle, NULL, menu->sub[i]->name);
 
 				if(menu->sub[i]->wsub != NULL) {
 					r.x	 = MwGetInteger(handle, MwNleftPadding);
@@ -77,7 +77,7 @@ static void draw(MwWidget handle) {
 				p.x = 5 + tw / 2 + MwGetInteger(handle, MwNleftPadding);
 
 				p.y += th / 2;
-				MwDrawText(handle, &p, menu->sub[i]->name, menu->sub[i]->wsub != NULL ? 1 : 0, MwALIGNMENT_CENTER, text);
+				MwDrawText(handle, MwFLBuildFont(menu->sub[i]->wsub != NULL ? MwFLFlagBold : 0), &p, menu->sub[i]->name, MwALIGNMENT_CENTER, text);
 
 				if(arrlen(menu->sub[i]->sub) > 0) {
 					MwRect tr;
@@ -110,13 +110,13 @@ static void click(MwWidget handle) {
 		rc.x = 5;
 		rc.y = 3;
 		for(i = 0; i < arrlen(menu->sub); i++) {
-			int tw = MwTextWidth(handle, menu->sub[i]->name);
+			int tw = MwTextWidth(handle, NULL, menu->sub[i]->name);
 			if(tw > ww) ww = tw;
 		}
 
 		rc.width = ww + 15;
 		for(i = 0; i < arrlen(menu->sub); i++) {
-			int th	  = MwTextHeight(handle, menu->sub[i]->name);
+			int th	  = MwTextHeight(handle, NULL, menu->sub[i]->name);
 			rc.height = th;
 
 			if(strcmp(menu->sub[i]->name, "----") == 0) {
@@ -209,8 +209,8 @@ static void mwSubMenuGetSizeImpl(MwWidget handle, MwMenu menu, MwRect* rect) {
 		if(strcmp(menu->sub[i]->name, "----") == 0) {
 			rect->height += 2 + 2;
 		} else {
-			int tw = MwTextWidth(handle, menu->sub[i]->name);
-			rect->height += MwTextHeight(handle, menu->sub[i]->name) + 3;
+			int tw = MwTextWidth(handle, NULL, menu->sub[i]->name);
+			rect->height += MwTextHeight(handle, NULL, menu->sub[i]->name) + 3;
 			if(tw > rect->width) {
 				rect->width = tw;
 			}

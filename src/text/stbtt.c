@@ -11,18 +11,16 @@ struct _MwFLFont {
 	int	       descent;
 };
 
-static int stbtt_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
-	MwFLFont       ttf = MwGetVoid(handle, bold ? MwNboldFont : MwNfont);
+static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwLLColor color) {
 	unsigned char* px;
 	int	       tw, th;
 	MwRect	       r;
 	MwLLPixmap     p;
 	int	       ax, lsb;
 	int	       x = 0, y = 0;
-	if(ttf == NULL) return 1;
 
-	tw = MwTextWidth(handle, text);
-	th = MwTextHeight(handle, text);
+	tw = MwTextWidth(handle, ttf, text);
+	th = MwTextHeight(handle, ttf, text);
 	px = malloc(tw * th * 4);
 
 	memset(px, 0, tw * th * 4);
@@ -71,12 +69,6 @@ static int stbtt_MwDrawText(MwWidget handle, MwPoint* point, const char* text, i
 	r.width	 = tw;
 	r.height = th;
 
-	if(align == MwALIGNMENT_CENTER) {
-		r.x -= tw / 2;
-	} else if(align == MwALIGNMENT_END) {
-		r.x -= tw;
-	}
-
 	MwLLDrawPixmap(handle->lowlevel, &r, p);
 	MwLLDestroyPixmap(p);
 	free(px);
@@ -84,11 +76,9 @@ static int stbtt_MwDrawText(MwWidget handle, MwPoint* point, const char* text, i
 	return 0;
 }
 
-static int stbtt_MwTextWidth(MwWidget handle, const char* text) {
-	MwFLFont ttf = MwGetVoid(handle, MwNfont);
-	int	 ax, lsb;
-	int	 tw = 0;
-	if(ttf == NULL) return -1;
+static int stbtt_MwTextWidth(MwFLFont ttf, const char* text) {
+	int ax, lsb;
+	int tw = 0;
 
 	while(text[0] != 0) {
 		int c;
@@ -102,10 +92,7 @@ static int stbtt_MwTextWidth(MwWidget handle, const char* text) {
 	return tw;
 }
 
-static int stbtt_MwTextHeight(MwWidget handle, int count) {
-	MwFLFont ttf = MwGetVoid(handle, MwNfont);
-	if(ttf == NULL) return -1;
-
+static int stbtt_MwTextHeight(MwFLFont ttf, int count) {
 	return (ttf->ascent - ttf->descent) * ttf->scale * count;
 }
 

@@ -102,7 +102,7 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 		left = 8 + 48 + 8;
 	}
 
-	th = MwTextHeight(handle, text);
+	th = MwTextHeight(handle, NULL, text);
 	(void)MwVaCreateWidget(MwLabelClass, "label", window, left, (h - th) / 2, w - left - 8, th,
 			       MwNtext, text,
 			       MwNalignment, MwALIGNMENT_BEGINNING,

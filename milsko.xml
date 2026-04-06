@@ -111,6 +111,9 @@
 		<struct defname="MwSizeHints" pointer="yes" name="sizeHints" />
 		<pointer name="font" />
 		<pointer name="boldFont" />
+		<pixmap name="backgroundPixmap" />
+		<pointer name="monospaceFont" />
+		<pointer name="boldMonospaceFont" />
 
 		<handler name="activate" />
 		<handler name="resize" />

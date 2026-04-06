@@ -51,7 +51,7 @@ static void draw(MwWidget handle) {
 		p.x = MwDefaultBorderWidth(handle) * 2 + 4;
 		p.y = MwGetInteger(handle, MwNheight) / 2;
 
-		MwDrawText(handle, &p, cb->list[MwGetInteger(handle, MwNvalue)], 0, MwALIGNMENT_BEGINNING, text);
+		MwDrawText(handle, NULL, &p, cb->list[MwGetInteger(handle, MwNvalue)], MwALIGNMENT_BEGINNING, text);
 	}
 
 	r = rc;
@@ -115,11 +115,11 @@ static void click(MwWidget handle) {
 		MwLLSetCursor(handle->lowlevel, &MwCursorArrow, &MwCursorArrowMask);
 
 		for(i = 0; i < arrlen(cb->list); i++) {
-			int l = MwTextWidth(handle, cb->list[i]) + MwDefaultBorderWidth(handle) * 2;
+			int l = MwTextWidth(handle, NULL, cb->list[i]) + MwDefaultBorderWidth(handle) * 2;
 			if(l > width) width = l;
 		}
 
-		cb->listbox = MwVaCreateWidget(MwListBoxClass, "listbox", handle, 0, MwGetInteger(handle, MwNheight), width, MwTextHeight(handle, "M") * ent + MwDefaultBorderWidth(handle) * 2 + MwTextHeight(handle, "M") / 4,
+		cb->listbox = MwVaCreateWidget(MwListBoxClass, "listbox", handle, 0, MwGetInteger(handle, MwNheight), width, MwTextHeight(handle, NULL, "M") * ent + MwDefaultBorderWidth(handle) * 2 + MwTextHeight(handle, NULL, "M") / 4,
 					       MwNsingleClickSelectable, 1,
 					       NULL);
 

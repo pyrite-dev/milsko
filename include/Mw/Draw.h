@@ -176,29 +176,31 @@ MWDECL void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int in
 /*!
  * @brief Draws a text
  * @param handle Widget
+ * @param ttf TTF, NULLable
  * @param point Center point of the text
  * @param text Text
- * @param bold Bold
  * @param align Align
  * @param color Color
  */
-MWDECL void MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color);
+MWDECL void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, int align, MwLLColor color);
 
 /*!
  * @brief Calculates a text width
  * @param handle Widget
  * @param text Text
+ * @param font Font, NULLable
  * @return Text width
  */
-MWDECL int MwTextWidth(MwWidget handle, const char* text);
+MWDECL int MwTextWidth(MwWidget handle, MwFLFont font, const char* text);
 
 /*!
  * @brief Calculates a text height
  * @param handle Widget
  * @param text Text
+ * @param font Font, NULLable
  * @return Text height
  */
-MWDECL int MwTextHeight(MwWidget handle, const char* text);
+MWDECL int MwTextHeight(MwWidget handle, MwFLFont font, const char* text);
 
 /* color.c */
 

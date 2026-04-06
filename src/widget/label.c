@@ -316,9 +316,9 @@ static void draw(MwWidget handle) {
 		if(align == MwALIGNMENT_CENTER) {
 			p.x = r.width / 2;
 		} else if(align == MwALIGNMENT_BEGINNING) {
-			p.x = MwTextWidth(handle, str) / 2;
+			p.x = MwTextWidth(handle, NULL, str) / 2;
 		} else if(align == MwALIGNMENT_END) {
-			p.x = r.width - MwTextWidth(handle, str) / 2;
+			p.x = r.width - MwTextWidth(handle, NULL, str) / 2;
 		}
 		p.y = r.height / 2;
 
@@ -326,11 +326,11 @@ static void draw(MwWidget handle) {
 
 		p.x += 1;
 		p.y += 1;
-		MwDrawText(handle, &p, str, MwGetInteger(handle, MwNbold), MwALIGNMENT_CENTER, shadow);
+		MwDrawText(handle, NULL, &p, str, MwALIGNMENT_CENTER, shadow);
 
 		p.x -= 1;
 		p.y -= 1;
-		MwDrawText(handle, &p, str, MwGetInteger(handle, MwNbold), MwALIGNMENT_CENTER, text);
+		MwDrawText(handle, NULL, &p, str, MwALIGNMENT_CENTER, text);
 	}
 
 	MwLLFreeColor(shadow);

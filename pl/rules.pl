@@ -3,7 +3,7 @@ new_object("src/*.c");
 my $gl_libs = "";
 if (param_get("tiny")) {
     add_cflags("-Oz");
-    if(defined($ENV{CC}) && grep(/^clang$/, $ENV{CC})) {
+    if (defined($ENV{CC}) && grep(/^clang$/, $ENV{CC})) {
         add_libs("-flto=thin");
         add_cflags("-flto=thin");
     }
@@ -68,7 +68,7 @@ if (grep(/^cocoa$/, @backends)) {
 
 if (param_get("stb-image")) {
     add_cflags("-DUSE_STB_IMAGE");
-    if(param_get("tiny")) {
+    if (param_get("tiny")) {
         add_cflags("-DSTB_IMAGE_STATIC");
         add_cflags("-DSTB_IMAGE_IMPLEMENTATION");
     }

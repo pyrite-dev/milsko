@@ -42,6 +42,7 @@
 #define MwNroundness "Iroundness"
 #define MwNisRounded "IisRounded"
 #define MwNdarkTheme "IdarkTheme"
+#define MwNuseMonospace "IuseMonospace"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
@@ -56,6 +57,8 @@
 #define MwNfont "Vfont"
 #define MwNboldFont "VboldFont"
 #define MwNbackgroundPixmap "VbackgroundPixmap"
+#define MwNmonospaceFont "VmonospaceFont"
+#define MwNboldMonospaceFont "VboldMonospaceFont"
 
 #define MwNactivateHandler "Cactivate"		     /* NULL/int* (MwListBox)/void* (MwTreeView) */
 #define MwNresizeHandler "Cresize"		     /* NULL */

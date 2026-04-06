@@ -4,7 +4,9 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-static struct {
+#define HEIGHT 14
+
+static struct ft_table {
 	FT_Error (*FT_Init_FreeType)(FT_Library* alibrary);
 	FT_Error (*FT_New_Memory_Face)(FT_Library     library,
 				       const FT_Byte* file_base,
@@ -27,17 +29,15 @@ struct _MwFLFont {
 	FT_Face	   face;
 	void*	   data;
 };
-static int ft2_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color) {
-	MwFLFont       ttf = MwGetVoid(handle, bold ? MwNboldFont : MwNfont);
+static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwLLColor color) {
 	int	       tw, th;
 	unsigned char* px;
 	MwLLPixmap     p;
 	MwRect	       r;
 	int	       x = 0, y = 0;
-	if(ttf == NULL) return 1;
 
-	tw = MwTextWidth(handle, text);
-	th = MwTextHeight(handle, text);
+	tw = MwTextWidth(handle, ttf, text);
+	th = MwTextHeight(handle, ttf, text);
 	px = malloc(tw * th * 4);
 
 	memset(px, 0, tw * th * 4);
@@ -51,7 +51,7 @@ static int ft2_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 
 		if(c == '\n') {
 			x = 0;
-			y += ttf->face->height * 14 / ttf->face->units_per_EM;
+			y += ttf->face->height * HEIGHT / ttf->face->units_per_EM;
 			continue;
 		}
 
@@ -61,7 +61,7 @@ static int ft2_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 		for(cy = 0; cy < bmp->rows; cy++) {
 			for(cx = 0; cx < bmp->width; cx++) {
 				int	       ox  = x + cx + ttf->face->glyph->bitmap_left;
-				int	       oy  = y + (ttf->face->height * 14 / ttf->face->units_per_EM) - ttf->face->glyph->bitmap_top + cy + (ttf->face->descender * 14 / ttf->face->units_per_EM);
+				int	       oy  = y + (ttf->face->height * HEIGHT / ttf->face->units_per_EM) - ttf->face->glyph->bitmap_top + cy + (ttf->face->descender * HEIGHT / ttf->face->units_per_EM);
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
 
 				opx[0] = color->common.red;
@@ -80,12 +80,6 @@ static int ft2_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 	r.width	 = tw;
 	r.height = th;
 
-	if(align == MwALIGNMENT_CENTER) {
-		r.x -= tw / 2;
-	} else if(align == MwALIGNMENT_END) {
-		r.x -= tw;
-	}
-
 	MwLLDrawPixmap(handle->lowlevel, &r, p);
 	MwLLDestroyPixmap(p);
 	free(px);
@@ -93,10 +87,8 @@ static int ft2_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int
 	return 0;
 }
 
-static int ft2_MwTextWidth(MwWidget handle, const char* text) {
-	MwFLFont ttf = MwGetVoid(handle, MwNfont);
-	int	 tw = 0, mtw = 0;
-	if(ttf == NULL) return -1;
+static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
+	int tw = 0, mtw = 0;
 
 	while(text[0] != 0) {
 		int c;
@@ -117,11 +109,8 @@ static int ft2_MwTextWidth(MwWidget handle, const char* text) {
 	return mtw;
 }
 
-static int ft2_MwTextHeight(MwWidget handle, int count) {
-	MwFLFont ttf = MwGetVoid(handle, MwNfont);
-	if(ttf == NULL) return -1;
-
-	return (ttf->face->height * 14 / ttf->face->units_per_EM) * count;
+static int ft2_MwTextHeight(MwFLFont ttf, int count) {
+	return (ttf->face->height * HEIGHT / ttf->face->units_per_EM) * count;
 }
 
 static void* ft2_MwFontLoad(unsigned char* data, unsigned int size) {
@@ -131,7 +120,7 @@ static void* ft2_MwFontLoad(unsigned char* data, unsigned int size) {
 	ft_table.FT_Init_FreeType(&ttf->library);
 	ft_table.FT_New_Memory_Face(ttf->library, ttf->data, size, 0, &ttf->face);
 
-	ft_table.FT_Set_Pixel_Sizes(ttf->face, 0, 14);
+	ft_table.FT_Set_Pixel_Sizes(ttf->face, 0, HEIGHT);
 
 	return ttf;
 }

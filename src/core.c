@@ -216,8 +216,10 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 
 #if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
 	if(IsFirstVisible(h)) {
-		h->root_font	 = MwFontLoad(MwTTFData, MwTTFDataSize);
-		h->root_boldfont = MwFontLoad(MwBoldTTFData, MwBoldTTFDataSize);
+		h->root_font	     = MwFontLoad(MwTTFData, MwTTFDataSize);
+		h->root_boldfont     = MwFontLoad(MwBoldTTFData, MwBoldTTFDataSize);
+		h->root_monofont     = MwFontLoad(MwMonospaceTTFData, MwMonospaceTTFDataSize);
+		h->root_boldmonofont = MwFontLoad(MwBoldMonospaceTTFData, MwBoldMonospaceTTFDataSize);
 	} else
 #endif
 	{
@@ -530,6 +532,7 @@ int MwGetInteger(MwWidget handle, const char* key) {
 #endif
 			if(strcmp(key, MwNisRounded) == 0) return inherit_integer(handle, key, 1);
 			if(strcmp(key, MwNdarkTheme) == 0) return inherit_integer(handle, key, 0);
+			if(strcmp(key, MwNuseMonospace) == 0) return inherit_integer(handle, key, 0);
 		}
 		return shget(handle->integer, key);
 	}
@@ -579,7 +582,7 @@ void* MwGetVoid(MwWidget handle, const char* key) {
 	if(v != NULL) return v;
 
 #if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2)
-	if(strcmp(key, MwNfont) == 0 || strcmp(key, MwNboldFont) == 0) {
+	if(strcmp(key, MwNfont) == 0 || strcmp(key, MwNboldFont) == 0 || strcmp(key, MwNmonospaceFont) == 0 || strcmp(key, MwNboldMonospaceFont) == 0) {
 		v = inherit_void(handle, key);
 
 		if(v == NULL) {
@@ -588,8 +591,12 @@ void* MwGetVoid(MwWidget handle, const char* key) {
 			while(w != NULL && v == NULL) {
 				if(strcmp(key, MwNfont) == 0) {
 					v = w->root_font;
-				} else {
+				} else if(strcmp(key, MwNboldFont) == 0) {
 					v = w->root_boldfont;
+				} else if(strcmp(key, MwNmonospaceFont) == 0) {
+					v = w->root_monofont;
+				} else if(strcmp(key, MwNboldMonospaceFont) == 0) {
+					v = w->root_boldmonofont;
 				}
 
 				w = w->parent;

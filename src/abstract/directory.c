@@ -18,9 +18,9 @@ void* MwDirectoryOpen(const char* path) {
 #ifdef _WIN32
 	char* p = malloc(strlen(path) + 2 + 1);
 	strcpy(p, path);
-	if(strchr(path, '/') != NULL){
+	if(strchr(path, '/') != NULL) {
 		strcat(p, "/");
-	}else{
+	} else {
 		strcat(p, "\\");
 	}
 	strcat(p, "*");
@@ -78,7 +78,7 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	l = (ULARGE_INTEGER*)&dir->ffd.ftLastWriteTime;
 
 	entry->mtime = l->QuadPart / 10000000 - 11644473600;
-	
+
 	dir->next = FindNextFile(dir->hFind, &dir->ffd);
 #else
 	struct dirent* d;

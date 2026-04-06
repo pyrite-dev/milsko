@@ -177,6 +177,10 @@ struct _MwLLTextDispatchTable {
 	void (*fontFree)(void* handle);
 };
 
+#define MwFLFlagMonospace (1 << 0)
+#define MwFLFlagBold (1 << 1)
+#define MwFLBuildFont(x) ((MwFLFont)(void*)(size_t)(x))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -246,9 +250,9 @@ MWDECL int MWFL_FT2Setup(void);
 MWDECL int MwFL_STBTTSetup(void);
 #endif
 
-MWDECL int (*MwFLDrawText)(MwWidget handle, MwPoint* point, const char* text, int bold, int align, MwLLColor color);
-MWDECL int (*MwFLTextWidth)(MwWidget handle, const char* text);
-MWDECL int (*MwFLTextHeight)(MwWidget handle, int count);
+MWDECL int (*MwFLDrawText)(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwLLColor color);
+MWDECL int (*MwFLTextWidth)(MwFLFont ttf, const char* text);
+MWDECL int (*MwFLTextHeight)(MwFLFont ttf, int count);
 MWDECL void* (*MwFLFontLoad)(unsigned char* data, unsigned int size);
 MWDECL void (*MwFLFontFree)(void* handle);
 

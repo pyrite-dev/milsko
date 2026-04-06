@@ -52,7 +52,7 @@ void MwStringPrintIntoBuffer(char* out, MwU32 size, const char* fmt, ...) {
 
 MWDECL MwBool MwStringIsKeyUTF8(MwU32 key) {
 	unsigned char bytes[sizeof(MwU32)];
-	int i;
+	int	      i;
 	memcpy(bytes, &key, sizeof(MwU32));
 
 	for(i = 0; i < sizeof(MwU32); i++) {

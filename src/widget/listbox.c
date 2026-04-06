@@ -129,8 +129,8 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 		int h = MwGetInteger(handle, MwNheight);
 
 		st = get_first_entry(handle->parent, lb);
-		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / (MwTextHeight(handle, "M") + Padding) + 2; i++) {
-			if(y <= m->point.y && m->point.y <= (y + MwTextHeight(handle, "M") + Padding)) {
+		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / (MwTextHeight(handle, NULL, "M") + Padding) + 2; i++) {
+			if(y <= m->point.y && m->point.y <= (y + MwTextHeight(handle, NULL, "M") + Padding)) {
 				unsigned long t;
 				int	      old = MwGetInteger(handle->parent, MwNvalue);
 
@@ -143,7 +143,7 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 
 				lb->click_time = t;
 			}
-			y += MwTextHeight(handle, "M") + Padding;
+			y += MwTextHeight(handle, NULL, "M") + Padding;
 		}
 
 		MwForceRender(lb->frame);
@@ -175,11 +175,11 @@ static void frame_mouse_move(MwWidget handle, void* user, void* call) {
 		int h = MwGetInteger(handle, MwNheight);
 
 		st = get_first_entry(handle->parent, lb);
-		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / (MwTextHeight(handle, "M") + Padding) + 2; i++) {
-			if(y <= p->y && p->y <= (y + MwTextHeight(handle, "M") + Padding)) {
+		for(i = 0; (st + i) < arrlen(lb->list) && i < (h - MwDefaultBorderWidth(handle) * 2) / (MwTextHeight(handle, NULL, "M") + Padding) + 2; i++) {
+			if(y <= p->y && p->y <= (y + MwTextHeight(handle, NULL, "M") + Padding)) {
 				MwSetInteger(handle->parent, MwNvalue, st + i);
 			}
-			y += MwTextHeight(handle, "M") + Padding;
+			y += MwTextHeight(handle, NULL, "M") + Padding;
 		}
 
 		MwForceRender(lb->frame);
@@ -216,7 +216,7 @@ static void frame_draw(MwWidget handle) {
 	st = get_first_entry(handle->parent, lb);
 
 	area = r.height - MwDefaultBorderWidth(handle) * 2;
-	ent  = area / (MwTextHeight(handle, "M") + Padding) + 2;
+	ent  = area / (MwTextHeight(handle, NULL, "M") + Padding) + 2;
 
 	for(i = st; i < arrlen(lb->list) && i < st + ent; i++) {
 		int selected = MwGetInteger(handle->parent, MwNvalue) == i ? 1 : 0;
@@ -227,20 +227,20 @@ static void frame_draw(MwWidget handle) {
 			r2.x	  = MwDefaultBorderWidth(handle) + MwGetInteger(handle->parent, MwNleftPadding);
 			r2.y	  = p.y;
 			r2.width  = r.width - r2.x;
-			r2.height = MwTextHeight(handle, "M") + Padding;
+			r2.height = MwTextHeight(handle, NULL, "M") + Padding;
 			MwDrawRect(handle, &r2, text2);
 			handle->bgcolor = text2;
 		}
 		if(lb->list[i].pixmap != NULL) {
 			MwRect r2;
-			int    h  = (lb->list[i].pixmap->common.height > (MwTextHeight(handle, "M") + Padding)) ? (MwTextHeight(handle, "M") + Padding) : lb->list[i].pixmap->common.height;
+			int    h  = (lb->list[i].pixmap->common.height > (MwTextHeight(handle, NULL, "M") + Padding)) ? (MwTextHeight(handle, NULL, "M") + Padding) : lb->list[i].pixmap->common.height;
 			r2.x	  = MwDefaultBorderWidth(handle);
-			r2.y	  = p.y + (MwTextHeight(handle, "M") + Padding - h) / 2;
+			r2.y	  = p.y + (MwTextHeight(handle, NULL, "M") + Padding - h) / 2;
 			r2.width  = h * lb->list[i].pixmap->common.width / lb->list[i].pixmap->common.height;
 			r2.height = h;
 			MwLLDrawPixmap(handle->lowlevel, &r2, lb->list[i].pixmap);
 		}
-		p.y += (MwTextHeight(handle, "M") + Padding) / 2;
+		p.y += (MwTextHeight(handle, NULL, "M") + Padding) / 2;
 		p.x = MwDefaultBorderWidth(handle) + MwGetInteger(handle->parent, MwNleftPadding);
 		for(j = 0; j < arrlen(lb->list[i].name); j++) {
 			char* t = lb->list[i].name[j];
@@ -250,8 +250,8 @@ static void frame_draw(MwWidget handle) {
 			if(t == NULL) t = "";
 
 			str = MwStringDuplicate(t);
-			if(MwUTF8Length(str) > (get_col_width(lb, j) - l) / MwTextWidth(handle, "M")) {
-				int ind	 = (get_col_width(lb, j) - l) / MwTextWidth(handle, "M");
+			if(MwUTF8Length(str) > (get_col_width(lb, j) - l) / MwTextWidth(handle, NULL, "M")) {
+				int ind	 = (get_col_width(lb, j) - l) / MwTextWidth(handle, NULL, "M");
 				str[ind] = 0;
 				if(ind > 3) memset(str + ind - 3, '.', 3);
 			}
@@ -259,26 +259,26 @@ static void frame_draw(MwWidget handle) {
 			if(j == (arrlen(lb->list[i].name) - 1)) p.x -= MwDefaultBorderWidth(handle);
 			if(arrlen(lb->alignment) <= j || lb->alignment[j] == MwALIGNMENT_BEGINNING) {
 				p.x += 4;
-				MwDrawText(handle, &p, str, 0, MwALIGNMENT_BEGINNING, selected ? base2 : text2);
+				MwDrawText(handle, NULL, &p, str, MwALIGNMENT_BEGINNING, selected ? base2 : text2);
 				p.x -= 4;
 				p.x += get_col_width(lb, j);
 
 			} else if(lb->alignment[j] == MwALIGNMENT_CENTER) {
 				p.x += (get_col_width(lb, j) - l) / 2;
-				MwDrawText(handle, &p, str, 0, MwALIGNMENT_CENTER, selected ? base2 : text2);
+				MwDrawText(handle, NULL, &p, str, MwALIGNMENT_CENTER, selected ? base2 : text2);
 				p.x += (get_col_width(lb, j) - l) / 2;
 				p.x += l;
 			} else if(lb->alignment[j] == MwALIGNMENT_END) {
 				p.x += get_col_width(lb, j);
 				p.x -= 4;
-				MwDrawText(handle, &p, str, 0, MwALIGNMENT_END, selected ? base2 : text2);
+				MwDrawText(handle, NULL, &p, str, MwALIGNMENT_END, selected ? base2 : text2);
 				p.x += 4;
 			}
 			free(str);
 
 			if(j == 0) p.x -= MwGetInteger(handle->parent, MwNleftPadding);
 		}
-		p.y += (MwTextHeight(handle, "M") + Padding) / 2;
+		p.y += (MwTextHeight(handle, NULL, "M") + Padding) / 2;
 		handle->bgcolor = NULL;
 	}
 
@@ -297,7 +297,7 @@ static void resize(MwWidget handle) {
 	int	  ih, y;
 	int	  m = 0;
 
-	y = MwGetInteger(handle, MwNhasHeading) ? (MwTextHeight(handle, "M") + MwDefaultBorderWidth(handle) * 2) : 0;
+	y = MwGetInteger(handle, MwNhasHeading) ? (MwTextHeight(handle, NULL, "M") + MwDefaultBorderWidth(handle) * 2) : 0;
 
 	if(lb->vscroll == NULL) {
 		lb->vscroll = MwVaCreateWidget(MwScrollBarClass, "vscroll", handle, w - 16, 0, 16, h, NULL);
@@ -316,7 +316,7 @@ static void resize(MwWidget handle) {
 
 	h -= y;
 
-	if(ih <= (h / (MwTextHeight(handle, "M") + Padding))) {
+	if(ih <= (h / (MwTextHeight(handle, NULL, "M") + Padding))) {
 		MwLLShow(lb->vscroll->lowlevel, 0);
 	} else {
 		MwLLShow(lb->vscroll->lowlevel, 1);
@@ -340,7 +340,7 @@ static void resize(MwWidget handle) {
 	h -= MwDefaultBorderWidth(handle) * 2;
 
 	MwVaApply(lb->vscroll,
-		  MwNareaShown, h / (MwTextHeight(handle, "M") + Padding),
+		  MwNareaShown, h / (MwTextHeight(handle, NULL, "M") + Padding),
 		  MwNmaxValue, ih,
 		  NULL);
 }
@@ -400,7 +400,7 @@ static void draw(MwWidget handle) {
 			r.x	 = x;
 			r.y	 = 0;
 			r.width	 = get_col_width(lb, i);
-			r.height = MwDefaultBorderWidth(handle) * 2 + MwTextHeight(handle, "M");
+			r.height = MwDefaultBorderWidth(handle) * 2 + MwTextHeight(handle, NULL, "M");
 			MwDrawFrame(handle, &r, base, 0, 0);
 
 			x += MwDefaultBorderWidth(handle);
@@ -408,15 +408,15 @@ static void draw(MwWidget handle) {
 			if(arrlen(lb->alignment) <= i || lb->alignment[i] == MwALIGNMENT_BEGINNING) {
 				p.x = 4 + x;
 				p.y = r.y + r.height / 2;
-				MwDrawText(handle, &p, lb->list[0].name[i], 0, MwALIGNMENT_BEGINNING, text);
+				MwDrawText(handle, NULL, &p, lb->list[0].name[i], MwALIGNMENT_BEGINNING, text);
 			} else if(lb->alignment[i] == MwALIGNMENT_CENTER) {
 				p.x = x + r.width / 2;
 				p.y = r.y + r.height / 2;
-				MwDrawText(handle, &p, lb->list[0].name[i], 0, MwALIGNMENT_CENTER, text);
+				MwDrawText(handle, NULL, &p, lb->list[0].name[i], MwALIGNMENT_CENTER, text);
 			} else if(lb->alignment[i] == MwALIGNMENT_END) {
 				p.x = x + r.width - 4;
 				p.y = r.y + r.height / 2;
-				MwDrawText(handle, &p, lb->list[0].name[i], 0, MwALIGNMENT_END, text);
+				MwDrawText(handle, NULL, &p, lb->list[0].name[i], MwALIGNMENT_END, text);
 			}
 
 			x += r.width;

@@ -42,6 +42,26 @@ MWDECL unsigned char MwBoldTTFData[];
  */
 MWDECL unsigned int MwBoldTTFDataSize;
 
+/*!
+ * @brief Default monospace TTF font data
+ */
+MWDECL unsigned char MwMonospaceTTFData[];
+
+/*!
+ * @brief Default monospace TTF font size
+ */
+MWDECL unsigned int MwMonospaceTTFDataSize;
+
+/*!
+ * @brief Default bold monospace TTF font data
+ */
+MWDECL unsigned char MwBoldMonospaceTTFData[];
+
+/*!
+ * @brief Default bold monospace TTF font size
+ */
+MWDECL unsigned int MwBoldMonospaceTTFDataSize;
+
 #ifdef __cplusplus
 }
 #endif
