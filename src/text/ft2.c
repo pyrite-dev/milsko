@@ -4,8 +4,6 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#define HEIGHT 14
-
 static struct ft_table {
 	FT_Error (*FT_Init_FreeType)(FT_Library* alibrary);
 	FT_Error (*FT_New_Memory_Face)(FT_Library     library,
@@ -33,6 +31,7 @@ struct _MwFLFont {
 	FT_Library library;
 	FT_Face	   face;
 	void*	   data;
+	int	   px;
 };
 static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwLLColor color) {
 	int	       tw, th;
@@ -58,7 +57,7 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 
 		if(c == '\n') {
 			x = 0;
-			y += ttf->face->height * HEIGHT / ttf->face->units_per_EM;
+			y += ttf->face->height * ttf->px / ttf->face->units_per_EM;
 			continue;
 		}
 
@@ -68,7 +67,7 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 		for(cy = 0; cy < bmp->rows; cy++) {
 			for(cx = 0; cx < bmp->width; cx++) {
 				int	       ox  = x + (ttf->face->glyph->metrics.horiBearingX / 64) + cx + ttf->face->glyph->bitmap_left;
-				int	       oy  = y + (ttf->face->height * HEIGHT / ttf->face->units_per_EM) - ttf->face->glyph->bitmap_top + cy + (ttf->face->descender * HEIGHT / ttf->face->units_per_EM);
+				int	       oy  = y + (ttf->face->height * ttf->px / ttf->face->units_per_EM) - ttf->face->glyph->bitmap_top + cy + (ttf->face->descender * ttf->px / ttf->face->units_per_EM);
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
 
 				opx[0] = color->common.red;
@@ -140,17 +139,18 @@ static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
 }
 
 static int ft2_MwTextHeight(MwFLFont ttf, int count) {
-	return ceil((ttf->face->height * HEIGHT / ttf->face->units_per_EM) * count);
+	return ceil((ttf->face->height * ttf->px / ttf->face->units_per_EM) * count);
 }
 
-static void* ft2_MwFontLoad(unsigned char* data, unsigned int size) {
+static void* ft2_MwFontLoad(unsigned char* data, unsigned int size, int px) {
 	MwFLFont ttf = malloc(sizeof(*ttf));
 	ttf->data    = malloc(size);
 	memcpy(ttf->data, data, size);
 	ft_table.FT_Init_FreeType(&ttf->library);
 	ft_table.FT_New_Memory_Face(ttf->library, ttf->data, size, 0, &ttf->face);
 
-	ft_table.FT_Set_Pixel_Sizes(ttf->face, 0, HEIGHT);
+	ttf->px = px;
+	ft_table.FT_Set_Pixel_Sizes(ttf->face, 0, ttf->px);
 
 	return ttf;
 }

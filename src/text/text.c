@@ -3,7 +3,7 @@
 int (*MwFLDrawText)(MwWidget handle, MwFLFont font, MwPoint* point, const char* text, MwLLColor color) = NULL;
 int (*MwFLTextWidth)(MwFLFont font, const char* text)						       = NULL;
 int (*MwFLTextHeight)(MwFLFont font, int count)							       = NULL;
-void* (*MwFLFontLoad)(unsigned char* data, unsigned int size)					       = NULL;
+void* (*MwFLFontLoad)(unsigned char* data, unsigned int size, int px)				       = NULL;
 void (*MwFLFontFree)(void* handle)								       = NULL;
 
 #if defined(USE_FREETYPE2) || defined(USE_STB_TRUETYPE)
@@ -116,7 +116,7 @@ int MwTextHeight(MwWidget handle, MwFLFont ttf, const char* text) {
 
 void* MwFontLoad(unsigned char* data, unsigned int size) {
 	if(MwFLFontLoad)
-		return MwFLFontLoad(data, size);
+		return MwFLFontLoad(data, size, 16);
 	return NULL;
 }
 

@@ -128,13 +128,13 @@ static int stbtt_MwTextHeight(MwFLFont ttf, int count) {
 	return ceil((ttf->ascent - ttf->descent) * ttf->scale * count);
 }
 
-static void* stbtt_MwFontLoad(unsigned char* data, unsigned int size) {
+static void* stbtt_MwFontLoad(unsigned char* data, unsigned int size, int px) {
 	MwFLFont ttf = malloc(sizeof(*ttf));
 	ttf->data    = malloc(size);
 	memcpy(ttf->data, data, size);
 	stbtt_InitFont(&ttf->font, ttf->data, 0);
 
-	ttf->scale = stbtt_ScaleForPixelHeight(&ttf->font, 16);
+	ttf->scale = stbtt_ScaleForMappingEmToPixels(&ttf->font, px);
 	stbtt_GetFontVMetrics(&ttf->font, &ttf->ascent, &ttf->descent, 0);
 
 	return ttf;

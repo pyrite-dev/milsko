@@ -253,7 +253,7 @@ MWDECL int MwFL_STBTTSetup(void);
 MWDECL int (*MwFLDrawText)(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwLLColor color);
 MWDECL int (*MwFLTextWidth)(MwFLFont ttf, const char* text);
 MWDECL int (*MwFLTextHeight)(MwFLFont ttf, int count);
-MWDECL void* (*MwFLFontLoad)(unsigned char* data, unsigned int size);
+MWDECL void* (*MwFLFontLoad)(unsigned char* data, unsigned int size, int px);
 MWDECL void (*MwFLFontFree)(void* handle);
 
 #ifdef __cplusplus
