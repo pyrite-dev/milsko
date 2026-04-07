@@ -207,6 +207,10 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 
 	if(parent == NULL) arrput(h->tick_list, h);
 
+#ifdef PERIODIC
+	if(parent == NULL) h->top_step = 1;
+#endif
+
 	if(h->lowlevel != NULL) {
 		h->lowlevel->common.user		  = h;
 		h->lowlevel->common.handler->draw	  = lldrawhandler;
@@ -409,9 +413,6 @@ static void clean_destroy_queue(MwWidget handle) {
 int MwStep(MwWidget handle) {
 	int	  i;
 	MwWidget* widgets = NULL;
-#ifdef PERIODIC
-	MwWidget w;
-#endif
 	if(setjmp(handle->before_step)) return 0;
 	for(i = 0; i < arrlen(handle->children); i++) {
 		arrput(widgets, handle->children[i]);
@@ -422,36 +423,9 @@ int MwStep(MwWidget handle) {
 
 	handle->prop_event = 0;
 
-#ifdef PERIODIC
-	handle->top_step = 1;
-	w		 = handle->parent;
-	while(w != NULL) {
-		if(w->top_step) {
-			handle->top_step = 0;
-
-			break;
-		}
-
-		w = w->parent;
-	}
-#endif
-
 	while(handle->lowlevel != NULL && MwLLPending(handle->lowlevel))
 		MwLLNextEvent(handle->lowlevel);
 
-#ifdef PERIODIC
-	if(handle->top_step) {
-		int i;
-
-		for(i = 0; i < arrlen(handle->draw_queue); i++) {
-			DRAW(handle->draw_queue[i]);
-		}
-
-		arrfree(handle->draw_queue);
-	}
-#endif
-
-	handle->top_step   = 0;
 	handle->prop_event = 1;
 
 	clean_destroy_queue(handle);
@@ -462,12 +436,28 @@ int MwStep(MwWidget handle) {
 	return 0;
 }
 
+void MwAfterStep(MwWidget handle) {
+#ifdef PERIODIC
+	if(handle->top_step) {
+		int i;
+
+		for(i = 0; i < arrlen(handle->draw_queue); i++) {
+			DRAW(handle->draw_queue[i]);
+		}
+
+		arrfree(handle->draw_queue);
+	}
+#else
+	(void)handle;
+#endif
+}
+
 int MwPending(MwWidget handle) {
 	int i;
 	for(i = 0; i < arrlen(handle->children); i++) {
 		if(MwPending(handle->children[i])) return 1;
 	}
-	return (arrlen(handle->draw_queue) > 0) || (arrlen(handle->destroy_queue) > 0) || (handle->widget_class == NULL ? 0 : MwLLPending(handle->lowlevel));
+	return (arrlen(handle->destroy_queue) > 0) || (handle->widget_class == NULL ? 0 : MwLLPending(handle->lowlevel));
 }
 
 void MwLoop(MwWidget handle) {
@@ -484,6 +474,7 @@ void MwLoop(MwWidget handle) {
 			if((v = MwStep(handle)) != 0) break;
 		}
 		if(v != 0) break;
+		MwAfterStep(handle);
 
 		for(i = 0; i < arrlen(handle->tick_list); i++) {
 			MwDispatch(handle->tick_list[i], tick);
