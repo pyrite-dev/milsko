@@ -9,6 +9,7 @@ static struct {
 	void*  lib_xrender;
 	MwBool has_xrender;
 
+	int (*XClearWindow)(Display* display, Window w);
 	XImage* (*XCreateImage)(Display*, Visual*, unsigned int, int, int, char*, unsigned int, unsigned int, int, int);
 	Display* (*XOpenDisplay)(_Xconst char*);
 	char* (*XKeysymToString)(KeySym);
@@ -101,6 +102,7 @@ static struct {
 #endif
 } xsymtbl;
 
+#define XClearWindow xsymtbl.XClearWindow
 #define XCreateIC xsymtbl.XCreateIC
 #define XFree xsymtbl.XFree
 #define XFreeCursor xsymtbl.XFreeCursor
@@ -452,6 +454,8 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 
 static void MwLLEndDrawImpl(MwLL handle) {
 	(void)handle;
+
+	XClearWindow(handle->x11.display, handle->x11.window);
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
@@ -1283,6 +1287,7 @@ static int MwLLX11CallInitImpl(void) {
 
 #define X11_FUNC_LOAD(x) x = MwDynamicSymbol(xsymtbl.lib_xlib, #x)
 
+	X11_FUNC_LOAD(XClearWindow);
 	X11_FUNC_LOAD(XCreateImage);
 	X11_FUNC_LOAD(XOpenDisplay);
 	X11_FUNC_LOAD(XKeysymToString);

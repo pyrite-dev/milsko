@@ -2,18 +2,51 @@
 
 #include "../external/stb_ds.h"
 
+#define PERIODIC
+
+#define DRAW(handle) \
+	{ \
+		MwLLBeginDraw(handle->lowlevel); \
+\
+		handle->bgcolor = NULL; \
+		MwDispatch(handle, draw); \
+		if(handle->draw_inject != NULL) handle->draw_inject(handle); \
+		MwDispatchUserHandler(handle, MwNdrawHandler, NULL); \
+\
+		MwLLEndDraw(handle->lowlevel); \
+	}
+
 static void lldrawhandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->common.user;
+#ifdef PERIODIC
+	MwWidget top;
+#endif
 
 	(void)data;
-	MwLLBeginDraw(handle);
 
-	h->bgcolor = NULL;
-	MwDispatch(h, draw);
-	if(h->draw_inject != NULL) h->draw_inject(h);
-	MwDispatchUserHandler(h, MwNdrawHandler, NULL);
+#ifdef PERIODIC
+	top = h;
+	while(top != NULL) {
+		if(top->top_step) {
+			break;
+		}
 
-	MwLLEndDraw(handle);
+		top = top->parent;
+	}
+
+	if(top == NULL) {
+		DRAW(h); /* fallback */
+	} else {
+		int i;
+
+		for(i = 0; i < arrlen(top->draw_queue); i++) {
+			if(top->draw_queue[i] == h) break;
+		}
+		if(i == arrlen(top->draw_queue)) arrput(top->draw_queue, h);
+	}
+#else
+	DRAW(h);
+#endif
 }
 
 static void lluphandler(MwLL handle, void* data) {
@@ -169,6 +202,9 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->bgcolor	 = NULL;
 	h->berserk	 = 0;
 
+	h->top_step   = 0;
+	h->draw_queue = NULL;
+
 	if(parent == NULL) arrput(h->tick_list, h);
 
 	if(h->lowlevel != NULL) {
@@ -255,6 +291,22 @@ MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget p
 static void MwFreeWidget(MwWidget handle) {
 	int	 i;
 	MwWidget root = handle;
+	MwWidget w;
+
+	w = handle;
+	while(w != NULL) {
+		if(w->top_step) break;
+		w = w->parent;
+	}
+
+	if(w != NULL) {
+		for(i = 0; i < arrlen(w->draw_queue); i++) {
+			if(w->draw_queue[i] == handle) {
+				arrdel(w->draw_queue, i);
+				i--;
+			}
+		}
+	}
 
 	handle->destroyed = 0;
 	MwDispatch(handle, destroy);
@@ -290,6 +342,8 @@ static void MwFreeWidget(MwWidget handle) {
 
 	arrfree(handle->destroy_queue);
 	arrfree(handle->tick_list);
+
+	arrfree(handle->draw_queue);
 
 	if(handle->root_font != NULL) MwFontFree(handle->root_font);
 	if(handle->root_boldfont != NULL) MwFontFree(handle->root_boldfont);
@@ -355,6 +409,9 @@ static void clean_destroy_queue(MwWidget handle) {
 int MwStep(MwWidget handle) {
 	int	  i;
 	MwWidget* widgets = NULL;
+#ifdef PERIODIC
+	MwWidget w;
+#endif
 	if(setjmp(handle->before_step)) return 0;
 	for(i = 0; i < arrlen(handle->children); i++) {
 		arrput(widgets, handle->children[i]);
@@ -365,9 +422,36 @@ int MwStep(MwWidget handle) {
 
 	handle->prop_event = 0;
 
+#ifdef PERIODIC
+	handle->top_step = 1;
+	w		 = handle->parent;
+	while(w != NULL) {
+		if(w->top_step) {
+			handle->top_step = 0;
+
+			break;
+		}
+
+		w = w->parent;
+	}
+#endif
+
 	while(handle->lowlevel != NULL && MwLLPending(handle->lowlevel))
 		MwLLNextEvent(handle->lowlevel);
 
+#ifdef PERIODIC
+	if(handle->top_step) {
+		int i;
+
+		for(i = 0; i < arrlen(handle->draw_queue); i++) {
+			DRAW(handle->draw_queue[i]);
+		}
+
+		arrfree(handle->draw_queue);
+	}
+#endif
+
+	handle->top_step   = 0;
 	handle->prop_event = 1;
 
 	clean_destroy_queue(handle);
@@ -383,7 +467,7 @@ int MwPending(MwWidget handle) {
 	for(i = 0; i < arrlen(handle->children); i++) {
 		if(MwPending(handle->children[i])) return 1;
 	}
-	return (arrlen(handle->destroy_queue) > 0 ? 1 : 0) || (handle->widget_class == NULL ? 0 : MwLLPending(handle->lowlevel));
+	return (arrlen(handle->draw_queue) > 0) || (arrlen(handle->destroy_queue) > 0) || (handle->widget_class == NULL ? 0 : MwLLPending(handle->lowlevel));
 }
 
 void MwLoop(MwWidget handle) {

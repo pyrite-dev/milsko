@@ -107,6 +107,9 @@ struct _MwWidget {
 	void* root_monofont;
 	void* root_boldmonofont;
 
+	int	  top_step;
+	MwWidget* draw_queue;
+
 	int berserk;
 };
 #endif
