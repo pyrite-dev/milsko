@@ -410,6 +410,22 @@ static void clean_destroy_queue(MwWidget handle) {
 	arrfree(handle->destroy_queue);
 }
 
+static void MwAfterStep(MwWidget handle) {
+#ifdef PERIODIC
+	if(handle->top_step) {
+		int i;
+
+		for(i = 0; i < arrlen(handle->draw_queue); i++) {
+			DRAW(handle->draw_queue[i]);
+		}
+
+		arrfree(handle->draw_queue);
+	}
+#else
+	(void)handle;
+#endif
+}
+
 int MwStep(MwWidget handle) {
 	int	  i;
 	MwWidget* widgets = NULL;
@@ -428,28 +444,14 @@ int MwStep(MwWidget handle) {
 
 	handle->prop_event = 1;
 
+	if(handle->top_step) MwAfterStep(handle);
+
 	clean_destroy_queue(handle);
 	if(handle->parent == NULL && handle->destroyed) {
 		MwFreeWidget(handle);
 		return 1;
 	}
 	return 0;
-}
-
-void MwAfterStep(MwWidget handle) {
-#ifdef PERIODIC
-	if(handle->top_step) {
-		int i;
-
-		for(i = 0; i < arrlen(handle->draw_queue); i++) {
-			DRAW(handle->draw_queue[i]);
-		}
-
-		arrfree(handle->draw_queue);
-	}
-#else
-	(void)handle;
-#endif
 }
 
 int MwPending(MwWidget handle) {
@@ -474,7 +476,6 @@ void MwLoop(MwWidget handle) {
 			if((v = MwStep(handle)) != 0) break;
 		}
 		if(v != 0) break;
-		MwAfterStep(handle);
 
 		for(i = 0; i < arrlen(handle->tick_list); i++) {
 			MwDispatch(handle->tick_list[i], tick);
