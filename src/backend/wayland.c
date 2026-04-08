@@ -1319,9 +1319,9 @@ static void buffer_setup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU3
 
 	pixman_color_t col = {0, 0, 0, 0xffff};
 
-	buffer->pixman_fb_front = pixman_image_create_bits(PIXMAN_a8b8g8r8,
+	buffer->pixman_fb_front = pixman_image_create_bits(PIXMAN_a8r8g8b8,
 							   width, height, buffer->buf, stride);
-	buffer->pixman_fb_back	= pixman_image_create_bits(PIXMAN_a8b8g8r8,
+	buffer->pixman_fb_back	= pixman_image_create_bits(PIXMAN_a8r8g8b8,
 							   width, height, buffer->buf_back, stride);
 
 	buffer->setup = MwTRUE;
@@ -2059,18 +2059,23 @@ static void MwLLEndDrawImpl(MwLL handle) {
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
 	int		   i;
-	pixman_color_t	   col	     = {color->common.red * 0xFF, color->common.green * 0xFF, color->common.blue * 0xFF, 0xffff};
+	pixman_color_t	   col	     = {color->common.blue * 0xFF, color->common.green * 0xFF, color->common.red * 0xFF, 0xffff};
 	pixman_triangle_t* triangles = malloc(sizeof(pixman_triangle_t) * points_count);
 	pixman_image_t*	   image     = pixman_image_create_solid_fill(&col);
 	memset(triangles, 0, sizeof(pixman_triangle_t) * points_count);
 
-	for(i = 0; i < points_count; i += 3) {
-		triangles[i].p1.x = pixman_double_to_fixed((double)points[i].x);
-		triangles[i].p1.y = pixman_double_to_fixed((double)points[i].y);
-		triangles[i].p2.x = pixman_double_to_fixed((double)points[i + 1].x);
-		triangles[i].p2.y = pixman_double_to_fixed((double)points[i + 1].y);
-		triangles[i].p3.x = pixman_double_to_fixed((double)points[i + 2].x);
-		triangles[i].p3.y = pixman_double_to_fixed((double)points[i + 2].y);
+	// todo: somebody smarter then me can do a real triangulation algorithim
+	for(i = 0; i < points_count; i++) {
+		triangles[i].p1.x = pixman_int_to_fixed(points[i].x);
+		triangles[i].p1.y = pixman_int_to_fixed(points[i].y);
+		if(i + 1 < points_count) {
+			triangles[i].p2.x = pixman_int_to_fixed(points[i + 1].x);
+			triangles[i].p2.y = pixman_int_to_fixed(points[i + 1].y);
+		}
+		if(i + 2 < points_count) {
+			triangles[i].p3.x = pixman_int_to_fixed(points[i + 2].x);
+			triangles[i].p3.y = pixman_int_to_fixed(points[i + 2].y);
+		}
 	}
 	pixman_composite_triangles(PIXMAN_OP_ATOP_REVERSE, image, handle->wayland.framebuffer.pixman_fb_back, PIXMAN_a8, 0, 0, 0, 0, points_count, triangles);
 
@@ -2226,7 +2231,7 @@ static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
 	if(r->wayland.img) {
 		pixman_image_unref(r->wayland.img);
 	}
-	r->wayland.img = pixman_image_create_bits(PIXMAN_a8b8g8r8, r->common.width, r->common.height, (MwU32*)r->common.raw, r->common.width * 4);
+	r->wayland.img = pixman_image_create_bits(PIXMAN_a8r8g8b8, r->common.width, r->common.height, (MwU32*)r->common.raw, r->common.width * 4);
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
