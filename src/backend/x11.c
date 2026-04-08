@@ -1276,7 +1276,7 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 }
 
 static int MwLLX11CallInitImpl(void) {
-	MwBool loadX11;
+	MwBool loadX11 = MwFALSE;
 	if(getenv("MILSKO_BACKEND")) {
 		loadX11 |=
 		    (strcmp(getenv("MILSKO_BACKEND"), "x11") == 0);

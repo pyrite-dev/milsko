@@ -39,10 +39,6 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	MwLLPixmap     p;
 	MwRect	       r;
 	int	       x = 0, y = 0;
-	float	       l1 = ttf->face->bbox.xMax - ttf->face->bbox.xMin;
-	float	       l2 =
-	    ttf->face->bbox.yMax - ttf->face->bbox.yMin;
-	float length = ttf->face->bbox.xMax;
 
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);
