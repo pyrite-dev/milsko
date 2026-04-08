@@ -228,8 +228,9 @@ struct _MwLLWaylandShmBuffer {
 	int    fd_back;
 	MwBool setup;
 
-	pixman_image_t* pixman_fb_front;
-	pixman_image_t* pixman_fb_back;
+	// pixman_image_t* pixman_fb_front;
+	pixman_image_t* pixman_fb;
+	int		width, height;
 };
 
 enum _MwLLWaylandType {

@@ -1263,8 +1263,10 @@ static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_proto
 static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 	(void)self;
 	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
+
 	// Yes this is needed every time, it's how we fix weston.
 	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
+
 	wl_surface_commit(buffer->surface);
 }
 
@@ -1319,10 +1321,11 @@ static void buffer_setup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU3
 
 	pixman_color_t col = {0, 0, 0, 0xffff};
 
-	buffer->pixman_fb_front = pixman_image_create_bits(PIXMAN_a8r8g8b8,
-							   width, height, buffer->buf, stride);
-	buffer->pixman_fb_back	= pixman_image_create_bits(PIXMAN_a8r8g8b8,
-							   width, height, buffer->buf_back, stride);
+	buffer->pixman_fb = pixman_image_create_bits(PIXMAN_a8r8g8b8,
+						     width, height, buffer->buf_back, stride);
+
+	buffer->width  = width;
+	buffer->height = height;
 
 	buffer->setup = MwTRUE;
 }
@@ -1337,8 +1340,7 @@ static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer) {
 	if(buffer->shm_pool_back) wl_shm_pool_destroy(buffer->shm_pool_back);
 	close(buffer->fd);
 	close(buffer->fd_back);
-	pixman_image_unref(buffer->pixman_fb_front);
-	pixman_image_unref(buffer->pixman_fb_back);
+	pixman_image_unref(buffer->pixman_fb);
 
 	buffer->setup = MwFALSE;
 }
@@ -2077,7 +2079,7 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 			triangles[i].p3.y = pixman_int_to_fixed(points[i + 2].y);
 		}
 	}
-	pixman_composite_triangles(PIXMAN_OP_ATOP_REVERSE, image, handle->wayland.framebuffer.pixman_fb_back, PIXMAN_a8, 0, 0, 0, 0, points_count, triangles);
+	pixman_composite_triangles(PIXMAN_OP_ATOP_REVERSE, image, handle->wayland.framebuffer.pixman_fb, PIXMAN_a8, 0, 0, 0, 0, points_count, triangles);
 
 	pixman_image_unref(image);
 
@@ -2248,11 +2250,11 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	pixman_image_composite32(PIXMAN_OP_ATOP,
 				 pixmap->wayland.img, /* src */
 				 NULL /* mask */,
-				 handle->wayland.framebuffer.pixman_fb_back, /* dest */
-				 0, 0,					     /* src_x, src_y */
-				 0, 0,					     /* mask_x, mask_y */
-				 rect->x, rect->y,			     /* dest_x, dest_y */
-				 width,					     /* width */
+				 handle->wayland.framebuffer.pixman_fb, /* dest */
+				 0, 0,					/* src_x, src_y */
+				 0, 0,					/* mask_x, mask_y */
+				 rect->x, rect->y,			/* dest_x, dest_y */
+				 width,					/* width */
 				 height /* height */);
 	return;
 }
