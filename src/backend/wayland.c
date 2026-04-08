@@ -4,6 +4,7 @@
 #include <sys/mman.h>
 
 #include "../../external/stb_ds.h"
+#include "pixman.h"
 
 /* TODO: find out what FreeBSD and such wants us to include */
 #ifdef __FreeBSD__
@@ -1264,7 +1265,7 @@ static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
 	// Yes this is needed every time, it's how we fix weston.
 	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
-    wl_surface_commit(buffer->surface);
+	wl_surface_commit(buffer->surface);
 }
 
 static void buffer_setup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height) {
@@ -1272,7 +1273,7 @@ static void buffer_setup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU3
 	char temp_name[]      = "/tmp/milsko-wl-shm-XXXXXX";
 	char temp_name_back[] = "/tmp/milsko-wl-shm-back-XXXXXX";
 
-	buffer->buf_size = width * height * 4;
+	buffer->buf_size = (width * height * 4) * sizeof(MwU32);
 
 	buffer->fd	= mkstemp(temp_name);
 	buffer->fd_back = mkstemp(temp_name_back);
@@ -1315,7 +1316,15 @@ static void buffer_setup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU3
 	}
 	buffer->shm_buffer	= wl_shm_pool_create_buffer(buffer->shm_pool, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
 	buffer->shm_buffer_back = wl_shm_pool_create_buffer(buffer->shm_pool_back, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
-	buffer->setup		= MwTRUE;
+
+	pixman_color_t col = {0, 0, 0, 0xffff};
+
+	buffer->pixman_fb_front = pixman_image_create_bits(PIXMAN_a8b8g8r8,
+							   width, height, buffer->buf, stride);
+	buffer->pixman_fb_back	= pixman_image_create_bits(PIXMAN_a8b8g8r8,
+							   width, height, buffer->buf_back, stride);
+
+	buffer->setup = MwTRUE;
 }
 
 static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer) {
@@ -1328,14 +1337,14 @@ static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer) {
 	if(buffer->shm_pool_back) wl_shm_pool_destroy(buffer->shm_pool_back);
 	close(buffer->fd);
 	close(buffer->fd_back);
+	pixman_image_unref(buffer->pixman_fb_front);
+	pixman_image_unref(buffer->pixman_fb_back);
+
 	buffer->setup = MwFALSE;
 }
 
 static void framebuffer_setup(struct _MwLLWayland* wayland) {
 	buffer_setup(&wayland->framebuffer, wayland->ww, wayland->wh);
-
-	wayland->front_cs    = cairo_image_surface_create_for_data(wayland->framebuffer.buf_back, CAIRO_FORMAT_ARGB32, wayland->ww, wayland->wh, 4 * wayland->ww);
-	wayland->front_cairo = cairo_create(wayland->front_cs);
 
 	memset(wayland->framebuffer.buf_back, 0, wayland->framebuffer.buf_size);
 	wl_surface_attach(wayland->framebuffer.surface, wayland->framebuffer.shm_buffer, 0, 0);
@@ -1346,8 +1355,6 @@ static void framebuffer_setup(struct _MwLLWayland* wayland) {
 };
 static void framebuffer_destroy(struct _MwLLWayland* wayland) {
 	buffer_destroy(&wayland->framebuffer);
-	cairo_destroy(wayland->front_cairo);
-	cairo_surface_destroy(wayland->front_cs);
 };
 
 static void backbuffer_setup(struct _MwLLWayland* wayland) {
@@ -1362,9 +1369,6 @@ static void backbuffer_setup(struct _MwLLWayland* wayland) {
 	}
 	buffer_setup(&wayland->backbuffer, w, h);
 
-	wayland->back_cs    = cairo_image_surface_create_for_data(wayland->backbuffer.buf_back, CAIRO_FORMAT_ARGB32, w, h, 4 * w);
-	wayland->back_cairo = cairo_create(wayland->back_cs);
-
 	memset(wayland->backbuffer.buf_back, 255, wayland->backbuffer.buf_size);
 	wl_surface_attach(wayland->backbuffer.surface, wayland->backbuffer.shm_buffer, 0, 0);
 	wl_surface_commit(wayland->backbuffer.surface);
@@ -1373,8 +1377,6 @@ static void backbuffer_setup(struct _MwLLWayland* wayland) {
 };
 static void backbuffer_destroy(struct _MwLLWayland* wayland) {
 	buffer_destroy(&wayland->backbuffer);
-	cairo_destroy(wayland->back_cairo);
-	cairo_surface_destroy(wayland->back_cs);
 };
 
 static void region_invalidate(MwLL handle) {
@@ -1751,15 +1753,6 @@ static void destroy_popup(MwLL r) {
 	r->wayland.configured = MwFALSE;
 }
 
-static void clip(MwLL handle) {
-	MwLL parent = handle->wayland.parent;
-	if(parent && handle->wayland.type == MWLL_WAYLAND_SUBLEVEL) {
-		cairo_reset_clip(handle->wayland.front_cairo);
-		cairo_rectangle(handle->wayland.front_cairo, 0, 0, (parent->wayland.ww + handle->wayland.x), (parent->wayland.wh + handle->wayland.y));
-		cairo_clip(handle->wayland.front_cairo);
-	}
-}
-
 static void wl_logger(const char* fmt, va_list args) {
 	vprintf(fmt, args);
 	raise(SIGTRAP);
@@ -1966,7 +1959,7 @@ refresh:
 
 static void MwLLBeginDrawImpl(MwLL handle) {
 	if(handle->wayland.type != MWLL_WAYLAND_TOPLEVEL) {
-		handle->wayland.selected_cairo = handle->wayland.front_cairo;
+		// handle->wayland.selected_cairo = handle->wayland.front_cairo;
 		return;
 	}
 
@@ -1974,34 +1967,34 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		int   x;
 		MwU32 w = handle->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;
 		MwU32 h = handle->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM;
-		cairo_set_line_width(handle->wayland.back_cairo, 4.0);
-		for(x = 0; x < w; x++) {
-			float placeholder = (float)x / (float)w;
-			cairo_set_source_rgb(handle->wayland.back_cairo, placeholder, 0.25, 0.25);
+		// cairo_set_line_width(handle->wayland.back_cairo, 4.0);
+		// for(x = 0; x < w; x++) {
+		// 	float placeholder = (float)x / (float)w;
+		// 	cairo_set_source_rgb(handle->wayland.back_cairo, placeholder, 0.25, 0.25);
 
-			cairo_move_to(handle->wayland.back_cairo, w - x, 0);
-			cairo_line_to(handle->wayland.back_cairo, w - x, CSD_BORDER_FRAME_TOP);
-			cairo_stroke(handle->wayland.back_cairo);
+		// 	cairo_move_to(handle->wayland.back_cairo, w - x, 0);
+		// 	cairo_line_to(handle->wayland.back_cairo, w - x, CSD_BORDER_FRAME_TOP);
+		// 	cairo_stroke(handle->wayland.back_cairo);
 
-			cairo_move_to(handle->wayland.back_cairo, x, CSD_BORDER_FRAME_TOP);
-			cairo_line_to(handle->wayland.back_cairo, x, h);
-			cairo_stroke(handle->wayland.back_cairo);
-		}
-		cairo_set_source_rgba(handle->wayland.back_cairo, 1, 1, 1, 0.5);
-		cairo_move_to(handle->wayland.back_cairo, 0, 0);
-		cairo_line_to(handle->wayland.back_cairo, 0, h);
-		cairo_stroke(handle->wayland.back_cairo);
-		cairo_move_to(handle->wayland.back_cairo, 0, 0);
-		cairo_line_to(handle->wayland.back_cairo, w, 0);
-		cairo_stroke(handle->wayland.back_cairo);
+		// 	cairo_move_to(handle->wayland.back_cairo, x, CSD_BORDER_FRAME_TOP);
+		// 	cairo_line_to(handle->wayland.back_cairo, x, h);
+		// 	cairo_stroke(handle->wayland.back_cairo);
+		// }
+		// cairo_set_source_rgba(handle->wayland.back_cairo, 1, 1, 1, 0.5);
+		// cairo_move_to(handle->wayland.back_cairo, 0, 0);
+		// cairo_line_to(handle->wayland.back_cairo, 0, h);
+		// cairo_stroke(handle->wayland.back_cairo);
+		// cairo_move_to(handle->wayland.back_cairo, 0, 0);
+		// cairo_line_to(handle->wayland.back_cairo, w, 0);
+		// cairo_stroke(handle->wayland.back_cairo);
 
-		cairo_set_source_rgba(handle->wayland.back_cairo, 0, 0, 0, 0.5);
-		cairo_move_to(handle->wayland.back_cairo, 0, h);
-		cairo_line_to(handle->wayland.back_cairo, w, h);
-		cairo_stroke(handle->wayland.back_cairo);
-		cairo_move_to(handle->wayland.back_cairo, w, 0);
-		cairo_line_to(handle->wayland.back_cairo, w, h);
-		cairo_stroke(handle->wayland.back_cairo);
+		// cairo_set_source_rgba(handle->wayland.back_cairo, 0, 0, 0, 0.5);
+		// cairo_move_to(handle->wayland.back_cairo, 0, h);
+		// cairo_line_to(handle->wayland.back_cairo, w, h);
+		// cairo_stroke(handle->wayland.back_cairo);
+		// cairo_move_to(handle->wayland.back_cairo, w, 0);
+		// cairo_line_to(handle->wayland.back_cairo, w, h);
+		// cairo_stroke(handle->wayland.back_cairo);
 
 		if(strlen(handle->wayland.title) != 0) {
 			int	       y, x;
@@ -2017,7 +2010,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 
 			memset(px, 0, tw * th * 4);
 
-			handle->wayland.selected_cairo = handle->wayland.back_cairo;
+			// handle->wayland.selected_cairo = handle->wayland.back_cairo;
 
 			while(handle->wayland.title[i]) {
 				int out;
@@ -2052,7 +2045,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		}
 		update_buffer(handle, &handle->wayland.backbuffer);
 	}
-	handle->wayland.selected_cairo = handle->wayland.front_cairo;
+	// handle->wayland.selected_cairo = handle->wayland.front_cairo;
 }
 
 static void MwLLEndDrawImpl(MwLL handle) {
@@ -2065,44 +2058,43 @@ static void MwLLEndDrawImpl(MwLL handle) {
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
-	int i;
+	int		   i;
+	pixman_color_t	   col	     = {color->common.red * 0xFF, color->common.green * 0xFF, color->common.blue * 0xFF, 0xffff};
+	pixman_triangle_t* triangles = malloc(sizeof(pixman_triangle_t) * points_count);
+	pixman_image_t*	   image     = pixman_image_create_solid_fill(&col);
+	memset(triangles, 0, sizeof(pixman_triangle_t) * points_count);
 
-	clip(handle);
-
-	cairo_set_source_rgba(handle->wayland.front_cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
-	cairo_new_path(handle->wayland.front_cairo);
-	for(i = 0; i < points_count; i++) {
-		if(i == 0) {
-			cairo_move_to(handle->wayland.front_cairo, points[i].x, points[i].y);
-		} else {
-			cairo_line_to(handle->wayland.front_cairo, points[i].x, points[i].y);
-		}
+	for(i = 0; i < points_count; i += 3) {
+		triangles[i].p1.x = pixman_double_to_fixed((double)points[i].x);
+		triangles[i].p1.y = pixman_double_to_fixed((double)points[i].y);
+		triangles[i].p2.x = pixman_double_to_fixed((double)points[i + 1].x);
+		triangles[i].p2.y = pixman_double_to_fixed((double)points[i + 1].y);
+		triangles[i].p3.x = pixman_double_to_fixed((double)points[i + 2].x);
+		triangles[i].p3.y = pixman_double_to_fixed((double)points[i + 2].y);
 	}
-	cairo_close_path(handle->wayland.front_cairo);
+	pixman_composite_triangles(PIXMAN_OP_ATOP_REVERSE, image, handle->wayland.framebuffer.pixman_fb_back, PIXMAN_a8, 0, 0, 0, 0, points_count, triangles);
 
-	cairo_fill(handle->wayland.front_cairo);
+	pixman_image_unref(image);
 
 	handle->wayland.events_pending = 1;
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
-	int i;
+	int		   i;
+	pixman_color_t	   col	     = {color->common.red * 0xFF, color->common.green * 0xFF, color->common.blue * 0xFF, 0xffff};
+	pixman_triangle_t* triangles = malloc(sizeof(pixman_triangle_t) * 3);
+	pixman_image_t*	   image     = pixman_image_create_solid_fill(&col);
 
-	clip(handle);
+	// for(i = 0; i < 3; i += 3) {
+	// 	triangles[i].p1.x = pixman_double_to_fixed((double)points[i].x);
+	// 	triangles[i].p1.y = pixman_double_to_fixed((double)points[i].y);
+	// 	triangles[i].p2.x = pixman_double_to_fixed((double)points[i + 1].x);
+	// 	triangles[i].p2.y = pixman_double_to_fixed((double)points[i + 1].y);
+	// 	triangles[i].p3.x = pixman_double_to_fixed((double)points[i].x);
+	// 	triangles[i].p3.y = pixman_double_to_fixed((double)points[i].y);
+	// }
 
-	cairo_set_antialias(handle->wayland.front_cairo, CAIRO_ANTIALIAS_NONE);
-	cairo_set_line_cap(handle->wayland.front_cairo, CAIRO_LINE_CAP_SQUARE);
-	cairo_set_source_rgba(handle->wayland.front_cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
-	cairo_new_path(handle->wayland.front_cairo);
-	for(i = 0; i < 2; i++) {
-		if(i == 0) {
-			cairo_move_to(handle->wayland.front_cairo, points[i].x, points[i].y);
-		} else {
-			cairo_line_to(handle->wayland.front_cairo, points[i].x, points[i].y);
-		}
-	}
-	cairo_close_path(handle->wayland.front_cairo);
-	cairo_stroke(handle->wayland.front_cairo);
+	pixman_image_unref(image);
 
 	handle->wayland.events_pending = 1;
 }
@@ -2206,15 +2198,22 @@ static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 }
 
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
-	MwLLPixmap r = malloc(sizeof(*r));
+	MwLLPixmap	   r = malloc(sizeof(*r));
+	pixman_transform_t transform;
+
 	(void)handle;
+	int stride = width * 4;
 
 	r->common.width	 = width;
 	r->common.height = height;
 	r->common.raw	 = malloc(4 * width * height);
 	memcpy(r->common.raw, data, 4 * width * height);
 
-	r->wayland.cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+	// pixman_transform_init_identity(&transform);
+
+	r->wayland.img = NULL;
+
+	// pixman_image_set_transform(r->wayland.img, &transform);
 
 	MwLLPixmapUpdate(r);
 
@@ -2224,54 +2223,33 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
 	int	       i;
 	unsigned char* d;
-
-	cairo_surface_flush(r->wayland.cs);
-	d = cairo_image_surface_get_data(r->wayland.cs);
-	for(i = 0; i < r->common.width * r->common.height * 4; i += 4) {
-		MwU32* p = (MwU32*)&d[i];
-		*p <<= 8;
-		*p |= r->common.raw[i + 3];
-		*p <<= 8;
-		*p |= r->common.raw[i + 0];
-		*p <<= 8;
-		*p |= r->common.raw[i + 1];
-		*p <<= 8;
-		*p |= r->common.raw[i + 2];
+	if(r->wayland.img) {
+		pixman_image_unref(r->wayland.img);
 	}
-	cairo_surface_mark_dirty(r->wayland.cs);
+	r->wayland.img = pixman_image_create_bits(PIXMAN_a8b8g8r8, r->common.width, r->common.height, (MwU32*)r->common.raw, r->common.width * 4);
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
-	cairo_surface_destroy(pixmap->wayland.cs);
 	free(pixmap->common.raw);
 	free(pixmap);
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	cairo_t*	 c;
-	cairo_surface_t* cs;
-	cairo_t*	 selected_cairo = handle->wayland.selected_cairo ? handle->wayland.selected_cairo : handle->wayland.front_cairo;
+	int width, height;
 
-	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, rect->width, rect->height);
-	c  = cairo_create(cs);
+	width  = pixman_image_get_width(pixmap->wayland.img);
+	height = pixman_image_get_height(pixmap->wayland.img);
 
-	clip(handle);
-
-	cairo_scale(c, (double)rect->width / pixmap->common.width, (double)rect->height / pixmap->common.height);
-
-	cairo_set_source_surface(c, pixmap->wayland.cs, 0, 0);
-	cairo_pattern_set_filter(cairo_get_source(c), CAIRO_FILTER_NEAREST);
-
-	cairo_paint(c);
-
-	cairo_set_source_surface(selected_cairo, cs, rect->x, rect->y);
-	cairo_paint(selected_cairo);
-
-	cairo_destroy(c);
-	cairo_surface_destroy(cs);
-
-	MwLLForceRender(handle);
-	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+	pixman_image_composite32(PIXMAN_OP_ATOP,
+				 pixmap->wayland.img, /* src */
+				 NULL /* mask */,
+				 handle->wayland.framebuffer.pixman_fb_back, /* dest */
+				 0, 0,					     /* src_x, src_y */
+				 0, 0,					     /* mask_x, mask_y */
+				 rect->x, rect->y,			     /* dest_x, dest_y */
+				 width,					     /* width */
+				 height /* height */);
+	return;
 }
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
@@ -2579,16 +2557,12 @@ static int MwLLWaylandCallInitImpl(void) {
 	 * - manually checking environment variables
 	 */
 #ifdef __linux__
-	MwBool loadWayland;
+	MwBool loadWayland = MwFALSE;
 	if(getenv("MILSKO_BACKEND")) {
-		loadWayland |=
+		loadWayland =
 		    (strcmp(getenv("MILSKO_BACKEND"), "wayland") == 0);
-	}
-	if(getenv("XDG_SESSION_TYPE")) {
-		loadWayland |= (strcmp(getenv("XDG_SESSION_TYPE"), "wayland") == 0);
-	}
-	if(getenv("WAYLAND_DISPLAY")) {
-		loadWayland |= (getenv("WAYLAND_DISPLAY") != NULL);
+	} else if(getenv("WAYLAND_DISPLAY") && !loadWayland) {
+		loadWayland = (getenv("WAYLAND_DISPLAY") != NULL);
 	}
 
 	if(loadWayland) {

@@ -38,6 +38,9 @@ if (grep(/^wayland$/, @backends)) {
         add_cflags("-DWAYLAND_LOAD_OPENGL");
     }
 
+    add_cflags("-I/usr/include/pixman-1");
+    add_libs("-lpixman-1");
+
     scan_wayland_protocol_core();
     scan_wayland_protocol("stable",   "xdg-shell",           "");
     scan_wayland_protocol("stable",   "viewporter",          "");
