@@ -2,7 +2,7 @@
 
 #include "../external/stb_ds.h"
 
-#define PERIODIC
+// #define PERIODIC
 
 #define DRAW(handle) \
 	{ \

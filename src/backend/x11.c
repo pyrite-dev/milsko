@@ -367,6 +367,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	XFree(xvi);
 
+#ifdef DO_XIM
 	XSetLocaleModifiers("");
 	if((r->x11.xim = XOpenIM(r->x11.display, 0, 0, 0)) == NULL) {
 		XSetLocaleModifiers("@im=none");
@@ -379,6 +380,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 			       XNFocusWindow, r->x11.window,
 			       NULL);
 	XSetICFocus(r->x11.xic);
+#endif
 
 	r->common.copy_buffer = 1;
 	r->common.type	      = MwLLBackendX11;
@@ -433,8 +435,10 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 static void MwLLDestroyImpl(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
+#ifdef DO_XIM
 	if(handle->x11.xic) XDestroyIC(handle->x11.xic);
 	if(handle->x11.xim) XCloseIM(handle->x11.xim);
+#endif
 
 	destroy_pixmap(handle);
 	XFreeGC(handle->x11.display, handle->x11.gc);
