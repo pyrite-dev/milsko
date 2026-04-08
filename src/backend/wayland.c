@@ -1262,7 +1262,9 @@ static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_proto
 static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 	(void)self;
 	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
-	wl_surface_commit(buffer->surface);
+	// Yes this is needed every time, it's how we fix weston.
+	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
+    wl_surface_commit(buffer->surface);
 }
 
 static void buffer_setup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height) {
