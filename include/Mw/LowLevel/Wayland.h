@@ -216,8 +216,6 @@ struct _MwLLWaylandShmBuffer {
 	struct wl_shm*	    shm;
 	struct wl_shm_pool* shm_pool;
 	struct wl_buffer*   shm_buffer;
-	struct wl_shm_pool* shm_pool_back;
-	struct wl_buffer*   shm_buffer_back;
 	struct wl_surface*  surface;
 	struct wl_output*   output;
 
@@ -225,7 +223,6 @@ struct _MwLLWaylandShmBuffer {
 	MwU32* buf_back;
 	MwU64  buf_size;
 	int    fd;
-	int    fd_back;
 	MwBool setup;
 
 	// pixman_image_t* pixman_fb_front;

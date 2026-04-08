@@ -1277,8 +1277,7 @@ static void buffer_setup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU3
 
 	buffer->buf_size = (width * height * 4) * sizeof(MwU32);
 
-	buffer->fd	= mkstemp(temp_name);
-	buffer->fd_back = mkstemp(temp_name_back);
+	buffer->fd = mkstemp(temp_name);
 
 	unlink(temp_name);
 	unlink(temp_name_back);
@@ -1288,38 +1287,21 @@ static void buffer_setup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU3
 		close(buffer->fd);
 		return;
 	}
-	if(posix_fallocate(buffer->fd_back, 0, buffer->buf_size) != 0) {
-		printf("failure setting up wl_shm: could not fallocate. %s.\n", strerror(errno));
-		close(buffer->fd_back);
-		return;
-	}
 	if(ftruncate(buffer->fd, buffer->buf_size) != 0) {
 		printf("failure setting up wl_shm: could not truncate. %s.\n", strerror(errno));
 		close(buffer->fd);
 		return;
 	}
-	if(ftruncate(buffer->fd_back, buffer->buf_size) != 0) {
-		printf("failure setting up wl_shm: could not truncate. %s.\n", strerror(errno));
-		close(buffer->fd_back);
-		return;
-	}
 
 	buffer->buf	 = mmap(NULL, buffer->buf_size, PROT_WRITE, MAP_SHARED, buffer->fd, 0);
-	buffer->buf_back = mmap(NULL, buffer->buf_size, PROT_WRITE, MAP_SHARED, buffer->fd_back, 0);
+	buffer->buf_back = malloc(buffer->buf_size);
 
 	fsync(buffer->fd);
-	fsync(buffer->fd_back);
 
 	if(!(buffer->shm_pool = wl_shm_create_pool(buffer->shm, buffer->fd, buffer->buf_size))) {
 		printf("failure setting up wl_shm: could not create pool.\n");
 	}
-	if(!(buffer->shm_pool_back = wl_shm_create_pool(buffer->shm, buffer->fd_back, buffer->buf_size))) {
-		printf("failure setting up wl_shm: could not create pool.\n");
-	}
-	buffer->shm_buffer	= wl_shm_pool_create_buffer(buffer->shm_pool, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
-	buffer->shm_buffer_back = wl_shm_pool_create_buffer(buffer->shm_pool_back, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
-
-	pixman_color_t col = {0, 0, 0, 0xffff};
+	buffer->shm_buffer = wl_shm_pool_create_buffer(buffer->shm_pool, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
 
 	buffer->pixman_fb = pixman_image_create_bits(PIXMAN_a8r8g8b8,
 						     width, height, buffer->buf_back, stride);
@@ -1335,11 +1317,10 @@ static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer) {
 		return;
 	}
 	if(buffer->shm_buffer) wl_buffer_destroy(buffer->shm_buffer);
-	if(buffer->shm_buffer_back) wl_buffer_destroy(buffer->shm_buffer_back);
 	if(buffer->shm_pool) wl_shm_pool_destroy(buffer->shm_pool);
-	if(buffer->shm_pool_back) wl_shm_pool_destroy(buffer->shm_pool_back);
+	munmap(buffer->buf, buffer->buf_size);
+	free(buffer->buf_back);
 	close(buffer->fd);
-	close(buffer->fd_back);
 	pixman_image_unref(buffer->pixman_fb);
 
 	buffer->setup = MwFALSE;
@@ -2292,7 +2273,7 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 
 			if(handle->wayland.configured) update_buffer(handle, handle->wayland.icon);
 
-			xdg_toplevel_icon_v1_add_buffer(icon, handle->wayland.icon->shm_buffer_back, 1);
+			xdg_toplevel_icon_v1_add_buffer(icon, handle->wayland.icon->shm_buffer, 1);
 
 			xdg_toplevel_icon_manager_v1_set_icon(icon_manager, handle->wayland.toplevel->xdg_top_level, icon);
 		}
