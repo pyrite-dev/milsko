@@ -218,7 +218,7 @@ static void frame_draw(MwWidget handle) {
 	st = get_first_entry(handle->parent, lb);
 
 	area = r.height - MwDefaultBorderWidth(handle) * 2;
-	ent  = area / (MwTextHeight(handle, NULL, "M") + Padding) + 2;
+	ent  = area / (MwTextHeight(handle, Font, "M") + Padding) + 2;
 
 	for(i = st; i < arrlen(lb->list) && i < st + ent; i++) {
 		int selected = MwGetInteger(handle->parent, MwNvalue) == i ? 1 : 0;
@@ -318,7 +318,7 @@ static void resize(MwWidget handle) {
 
 	h -= y;
 
-	if(ih <= (h / (MwTextHeight(handle, NULL, "M") + Padding))) {
+	if(ih <= (h / (MwTextHeight(handle, Font, "M") + Padding))) {
 		MwLLShow(lb->vscroll->lowlevel, 0);
 	} else {
 		MwLLShow(lb->vscroll->lowlevel, 1);
@@ -342,7 +342,7 @@ static void resize(MwWidget handle) {
 	h -= MwDefaultBorderWidth(handle) * 2;
 
 	MwVaApply(lb->vscroll,
-		  MwNareaShown, h / (MwTextHeight(handle, NULL, "M") + Padding),
+		  MwNareaShown, h / (MwTextHeight(handle, Font, "M") + Padding),
 		  MwNmaxValue, ih,
 		  NULL);
 }
