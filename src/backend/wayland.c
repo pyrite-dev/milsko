@@ -2570,8 +2570,24 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 }
 
 static int MwLLWaylandCallInitImpl(void) {
+	/*
+	 * Order of precedence:
+	 * - MILSKO_BACKEND
+	 * - XDG_SESSION_TYPE
+	 * - manually checking environment variables
+	 */
 #ifdef __linux__
-	if(strcmp(getenv("XDG_SESSION_TYPE"), "wayland") == 0) {
+	MwBool loadWayland;
+	if(getenv("MILSKO_BACKEND")) {
+		loadWayland |=
+		    (strcmp(getenv("MILSKO_BACKEND"), "wayland") == 0);
+	} else if(getenv("XDG_SESSION_TYPE")) {
+		loadWayland |= (strcmp(getenv("XDG_SESSION_TYPE"), "wayland") == 0);
+	} else if(getenv("WAYLAND_DISPLAY")) {
+		loadWayland |= (getenv("WAYLAND_DISPLAY") != NULL);
+	}
+
+	if(loadWayland) {
 		if(wayland_load_funcs()) {
 			return 1;
 		}

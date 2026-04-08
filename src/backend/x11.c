@@ -1276,6 +1276,20 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 }
 
 static int MwLLX11CallInitImpl(void) {
+	MwBool loadX11;
+	if(getenv("MILSKO_BACKEND")) {
+		loadX11 |=
+		    (strcmp(getenv("MILSKO_BACKEND"), "x11") == 0);
+	} else if(getenv("XDG_SESSION_TYPE")) {
+		loadX11 |= (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0);
+	} else if(getenv("DISPLAY")) {
+		loadX11 |= (getenv("DISPLAY") != NULL);
+	}
+
+	if(!loadX11) {
+		return 1;
+	}
+
 	xsymtbl.lib_xlib = MwDynamicOpen("libX11.so");
 	if(!xsymtbl.lib_xlib) {
 		return 1;
