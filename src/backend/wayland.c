@@ -2581,9 +2581,11 @@ static int MwLLWaylandCallInitImpl(void) {
 	if(getenv("MILSKO_BACKEND")) {
 		loadWayland |=
 		    (strcmp(getenv("MILSKO_BACKEND"), "wayland") == 0);
-	} else if(getenv("XDG_SESSION_TYPE")) {
+	}
+	if(getenv("XDG_SESSION_TYPE")) {
 		loadWayland |= (strcmp(getenv("XDG_SESSION_TYPE"), "wayland") == 0);
-	} else if(getenv("WAYLAND_DISPLAY")) {
+	}
+	if(getenv("WAYLAND_DISPLAY")) {
 		loadWayland |= (getenv("WAYLAND_DISPLAY") != NULL);
 	}
 

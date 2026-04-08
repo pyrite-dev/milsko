@@ -1280,9 +1280,11 @@ static int MwLLX11CallInitImpl(void) {
 	if(getenv("MILSKO_BACKEND")) {
 		loadX11 |=
 		    (strcmp(getenv("MILSKO_BACKEND"), "x11") == 0);
-	} else if(getenv("XDG_SESSION_TYPE")) {
+	}
+	if(getenv("XDG_SESSION_TYPE")) {
 		loadX11 |= (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0);
-	} else if(getenv("DISPLAY")) {
+	}
+	if(getenv("DISPLAY")) {
 		loadX11 |= (getenv("DISPLAY") != NULL);
 	}
 
