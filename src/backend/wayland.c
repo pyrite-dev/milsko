@@ -2391,15 +2391,16 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 			}
 			handle->wayland.icon->surface = wl_compositor_create_surface(handle->wayland.compositor);
 
+			buffer_setup(handle->wayland.icon, pixmap->common.width, pixmap->common.height);
+
 			wl_surface_attach(handle->wayland.icon->surface, handle->wayland.icon->shm_buffer, 0, 0);
 			wl_surface_commit(handle->wayland.icon->surface);
 
-			buffer_setup(handle->wayland.icon, pixmap->common.width, pixmap->common.height);
-
 			for(; i < size; i += 2) {
-				handle->wayland.icon->buf_back[i]     = pixmap->common.raw[i + 2];
-				handle->wayland.icon->buf_back[i + 1] = pixmap->common.raw[i + 1];
-				handle->wayland.icon->buf_back[i + 2] = pixmap->common.raw[i + 0];
+				MwU32* data			      = pixman_image_get_data(pixmap->wayland.img);
+				handle->wayland.icon->buf_back[i]     = data[i + 2];
+				handle->wayland.icon->buf_back[i + 1] = data[i + 1];
+				handle->wayland.icon->buf_back[i + 2] = data[i + 0];
 				handle->wayland.icon->buf_back[i + 3] = 255;
 			}
 
@@ -2429,39 +2430,41 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 		wl_surface_destroy(handle->wayland.cursor.surface);
 	}
 	buffer_setup(&handle->wayland.cursor, image->width, image->height);
-	memset(handle->wayland.cursor.buf_back, 0, handle->wayland.cursor.buf_size);
+	memset(handle->wayland.cursor.buf_back, 255, handle->wayland.cursor.buf_size);
 
 	xs = -mask->x + image->x;
 	ys = mask->height + mask->y;
 	ys = image->height + image->y - ys;
 
-	for(y = 0; y < mask->height; y++) {
-		unsigned int d = mask->data[y];
-		for(x = mask->width - 1; x >= 0; x--) {
-			int idx = ((y * image->width) + x) * 4;
+	/* currently broken */
+	/* 	for(y = 0; y < mask->height; y++) {
+			unsigned int d = mask->data[y];
+			for(x = mask->width - 1; x >= 0; x--) {
+				int idx = ((y * image->width) + x) * 4;
 
-			if(d & 1) {
-				handle->wayland.cursor.buf_back[idx + 3] = 255;
-			};
-			d = d >> 1;
+				if(d & 1) {
+					handle->wayland.cursor.buf_back[idx + 3] = 255;
+				};
+				d = d >> 1;
+			}
 		}
-	}
-	for(y = 0; y < image->height; y++) {
-		unsigned int d = image->data[y];
-		for(x = image->width - 1; x >= 0; x--) {
-			int px	= 0;
-			int idx = (((y + ys) * image->width) + (x + xs)) * 4;
+		for(y = 0; y < image->height; y++) {
+			unsigned int d = image->data[y];
+			for(x = image->width - 1; x >= 0; x--) {
+				int px	= 0;
+				int idx = (((y + ys) * image->width) + (x + xs)) * 4;
 
-			if(d & 1) {
-				px = 255;
-			};
+				if(d & 1) {
+					px = 255;
+				};
 
-			handle->wayland.cursor.buf_back[idx]	 = px;
-			handle->wayland.cursor.buf_back[idx + 1] = px;
-			handle->wayland.cursor.buf_back[idx + 2] = px;
-			d					 = d >> 1;
-		}
-	}
+				handle->wayland.cursor.buf_back[idx]	 = px;
+				handle->wayland.cursor.buf_back[idx + 1] = px;
+				handle->wayland.cursor.buf_back[idx + 2] = px;
+				handle->wayland.cursor.buf_back[idx + 3] = px;
+				d = d >> 1;
+			}
+		}*/
 
 	handle->wayland.cursor.surface = wl_compositor_create_surface(handle->wayland.compositor);
 	update_buffer(handle, &handle->wayland.cursor);
