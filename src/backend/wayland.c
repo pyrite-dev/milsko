@@ -69,8 +69,6 @@ static void new_protocol(void* data, struct wl_registry* registry,
 		/* we don't care for adding this protocol, we just use it to know if the compositor will let us have transparent surfaces */
 	} else if(strcmp(interface, "wp_alpha_modifier_v1") == 0) {
 		self->common.supports_transparency = MwTRUE;
-	} else {
-		// printf("unknown interface %s\n", interface);
 	}
 
 	WAYLAND_EVENT_OP_END(self);
@@ -1264,7 +1262,7 @@ static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 	(void)self;
 	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
 
-	// Yes this is needed every time, it's how we fix weston.
+	/* Yes this is needed every time, it's how we fix weston.*/
 	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
 
 	wl_surface_commit(buffer->surface);
@@ -1842,7 +1840,6 @@ static void MwLLDestroyImpl(MwLL handle) {
 	pthread_mutex_unlock(&handle->wayland.eventsMutex);
 	pthread_mutex_destroy(&handle->wayland.eventsMutex);
 
-	// framebuffer_destroy(&handle->wayland);
 	buffer_destroy(&handle->wayland.cursor);
 	wl_region_destroy(handle->wayland.region);
 
@@ -1942,7 +1939,6 @@ refresh:
 
 static void MwLLBeginDrawImpl(MwLL handle) {
 	if(handle->wayland.type != MWLL_WAYLAND_TOPLEVEL) {
-		// handle->wayland.selected_cairo = handle->wayland.front_cairo;
 		return;
 	}
 
@@ -1950,34 +1946,34 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		int   x;
 		MwU32 w = handle->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;
 		MwU32 h = handle->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM;
-		// cairo_set_line_width(handle->wayland.back_cairo, 4.0);
-		// for(x = 0; x < w; x++) {
-		// 	float placeholder = (float)x / (float)w;
-		// 	cairo_set_source_rgb(handle->wayland.back_cairo, placeholder, 0.25, 0.25);
+		/*  cairo_set_line_width(handle->wayland.back_cairo, 4.0);
+		 for(x = 0; x < w; x++) {
+			float placeholder = (float)x / (float)w;
+			cairo_set_source_rgb(handle->wayland.back_cairo, placeholder, 0.25, 0.25);
 
-		// 	cairo_move_to(handle->wayland.back_cairo, w - x, 0);
-		// 	cairo_line_to(handle->wayland.back_cairo, w - x, CSD_BORDER_FRAME_TOP);
-		// 	cairo_stroke(handle->wayland.back_cairo);
+			cairo_move_to(handle->wayland.back_cairo, w - x, 0);
+			cairo_line_to(handle->wayland.back_cairo, w - x, CSD_BORDER_FRAME_TOP);
+			cairo_stroke(handle->wayland.back_cairo);
 
-		// 	cairo_move_to(handle->wayland.back_cairo, x, CSD_BORDER_FRAME_TOP);
-		// 	cairo_line_to(handle->wayland.back_cairo, x, h);
-		// 	cairo_stroke(handle->wayland.back_cairo);
-		// }
-		// cairo_set_source_rgba(handle->wayland.back_cairo, 1, 1, 1, 0.5);
-		// cairo_move_to(handle->wayland.back_cairo, 0, 0);
-		// cairo_line_to(handle->wayland.back_cairo, 0, h);
-		// cairo_stroke(handle->wayland.back_cairo);
-		// cairo_move_to(handle->wayland.back_cairo, 0, 0);
-		// cairo_line_to(handle->wayland.back_cairo, w, 0);
-		// cairo_stroke(handle->wayland.back_cairo);
+			cairo_move_to(handle->wayland.back_cairo, x, CSD_BORDER_FRAME_TOP);
+			cairo_line_to(handle->wayland.back_cairo, x, h);
+			cairo_stroke(handle->wayland.back_cairo);
+		 }
+		 cairo_set_source_rgba(handle->wayland.back_cairo, 1, 1, 1, 0.5);
+		 cairo_move_to(handle->wayland.back_cairo, 0, 0);
+		 cairo_line_to(handle->wayland.back_cairo, 0, h);
+		 cairo_stroke(handle->wayland.back_cairo);
+		 cairo_move_to(handle->wayland.back_cairo, 0, 0);
+		 cairo_line_to(handle->wayland.back_cairo, w, 0);
+		 cairo_stroke(handle->wayland.back_cairo);
 
-		// cairo_set_source_rgba(handle->wayland.back_cairo, 0, 0, 0, 0.5);
-		// cairo_move_to(handle->wayland.back_cairo, 0, h);
-		// cairo_line_to(handle->wayland.back_cairo, w, h);
-		// cairo_stroke(handle->wayland.back_cairo);
-		// cairo_move_to(handle->wayland.back_cairo, w, 0);
-		// cairo_line_to(handle->wayland.back_cairo, w, h);
-		// cairo_stroke(handle->wayland.back_cairo);
+		 cairo_set_source_rgba(handle->wayland.back_cairo, 0, 0, 0, 0.5);
+		 cairo_move_to(handle->wayland.back_cairo, 0, h);
+		 cairo_line_to(handle->wayland.back_cairo, w, h);
+		 cairo_stroke(handle->wayland.back_cairo);
+		 cairo_move_to(handle->wayland.back_cairo, w, 0);
+		 cairo_line_to(handle->wayland.back_cairo, w, h);
+		 cairo_stroke(handle->wayland.back_cairo);*/
 
 		if(strlen(handle->wayland.title) != 0) {
 			int	       y, x;
@@ -1992,8 +1988,6 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 			assert(px);
 
 			memset(px, 0, tw * th * 4);
-
-			// handle->wayland.selected_cairo = handle->wayland.back_cairo;
 
 			while(handle->wayland.title[i]) {
 				int out;
@@ -2028,7 +2022,6 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		}
 		update_buffer(handle, &handle->wayland.backbuffer);
 	}
-	// handle->wayland.selected_cairo = handle->wayland.front_cairo;
 }
 
 static void MwLLEndDrawImpl(MwLL handle) {
@@ -2373,6 +2366,10 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 			       0, 0,				      /* mask_x, mask_y */
 			       rect->x, rect->y,		      /* dest_x, dest_y */
 			       rect->width, rect->height /* height */);
+
+	/* this seems worthless but this actually makes it a bit more responsive */
+	MwLLForceRender(handle);
+	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 }
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
@@ -2467,13 +2464,11 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	}
 
 	handle->wayland.cursor.surface = wl_compositor_create_surface(handle->wayland.compositor);
-	wl_surface_attach(handle->wayland.cursor.surface, handle->wayland.cursor.shm_buffer, 0, 0);
-	wl_surface_commit(handle->wayland.cursor.surface);
 	update_buffer(handle, &handle->wayland.cursor);
 
 	/* If there's currently a pointer, set it up. (Otherwise, it'll be setup during the pointer enter event) */
 	if(handle->wayland.pointer != NULL) {
-		// wl_pointer_set_cursor(handle->wayland.pointer, handle->wayland.pointer_serial, handle->wayland.cursor.surface, 0, 0);
+		wl_pointer_set_cursor(handle->wayland.pointer, handle->wayland.pointer_serial, handle->wayland.cursor.surface, 0, 0);
 	}
 }
 
