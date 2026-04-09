@@ -2101,7 +2101,7 @@ static void remove_tri(triangulation_state* s, int i) {
 	s->tris[i] = s->tris[--s->ntris];
 }
 
-static int delaunay(const int* src, int npts,
+static int delaunay(MwPoint* src, int npts,
 		    pixman_triangle_t* out, int out_size) {
 	triangulation_state s;
 	int		    si, i, j, k;
@@ -2110,10 +2110,7 @@ static int delaunay(const int* src, int npts,
 	if(npts < 3 || npts > MAXPTS) return -1;
 
 	s.npts = npts;
-	for(i = 0; i < npts; i++) {
-		s.pts[i].x = src[i * 2];
-		s.pts[i].y = src[i * 2 + 1];
-	}
+	memcpy(s.pts, src, npts * sizeof(MwPoint));
 
 	/* super-triangle */
 	mnx = mxx = s.pts[0].x;
@@ -2204,7 +2201,7 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 	pixman_image_t*	  image = pixman_image_create_solid_fill(&col);
 	pixman_triangle_t out[MAXTRI];
 
-	n = delaunay((int*)points, points_count, out, MAXTRI);
+	n = delaunay(points, points_count, out, MAXTRI);
 
 	pixman_composite_triangles(PIXMAN_OP_ATOP_REVERSE, image, handle->wayland.framebuffer.pixman_fb, PIXMAN_a8, 0, 0, 0, 0, points_count, out);
 
