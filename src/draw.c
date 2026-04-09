@@ -197,13 +197,11 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 	if(rect->width <= 0 || rect->height <= 0) return;
 
 	if(border) {
-		if(!handle->lowlevel->common.supports_transparency) {
-			MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
+		MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
 
-			if(c != NULL) {
-				MwDrawRect(handle, rect, c);
-				MwLLFreeColor(c);
-			}
+		if(c != NULL) {
+			MwDrawRect(handle, rect, c);
+			MwLLFreeColor(c);
 		}
 
 		MwDrawFrame(handle, rect, color, invert, rounded);

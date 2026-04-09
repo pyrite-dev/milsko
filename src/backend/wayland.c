@@ -2040,41 +2040,183 @@ static void MwLLEndDrawImpl(MwLL handle) {
 	}
 }
 
-static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
-	int		   i;
-	pixman_color_t	   col	     = {color->common.blue * 0xFF, color->common.green * 0xFF, color->common.red * 0xFF, 0xffff};
-	pixman_triangle_t* triangles = malloc(sizeof(pixman_triangle_t) * points_count);
-	pixman_image_t*	   image     = pixman_image_create_solid_fill(&col);
+#define MAXPTS 512
+#define MAXTRI (MAXPTS * 4)
+#define EPS 1e-7
 
-	for(int i = 1; i < points_count - 1; i++) {
-		triangles[i - 1] = (pixman_triangle_t){
-		    .p1 = {pixman_int_to_fixed(points[0].x), pixman_int_to_fixed(points[0].y)},
-		    .p2 = {pixman_int_to_fixed(points[i].x), pixman_int_to_fixed(points[i].y)},
-		    .p3 = {pixman_int_to_fixed(points[i + 1].x), pixman_int_to_fixed(points[i + 1].y)},
-		};
+#define PACK(dst, pts, idx) \
+	do { \
+		(dst).x = pixman_int_to_fixed((pts)[(idx)].x); \
+		(dst).y = pixman_int_to_fixed((pts)[(idx)].y); \
+	} while(0)
+
+typedef struct {
+	int    a, b, c;
+	double cx, cy, r2; /* circumcircle centre + radius^2 */
+} triangle;
+
+typedef struct {
+	MwPoint	 pts[MAXPTS + 3];
+	int	 npts;
+	triangle tris[MAXTRI];
+	int	 ntris;
+	int	 bad[MAXTRI];
+	int	 nbad;
+	MwPoint	 edges[MAXTRI * 3];
+	int	 nedges;
+} triangulation_state;
+
+static void circumcircle(triangulation_state* s, int t) {
+	double ax = s->pts[s->tris[t].a].x, ay = s->pts[s->tris[t].a].y;
+	double bx = s->pts[s->tris[t].b].x, by = s->pts[s->tris[t].b].y;
+	double cx = s->pts[s->tris[t].c].x, cy = s->pts[s->tris[t].c].y;
+	double D = 2.0 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
+	double ux, uy;
+	if(fabs(D) < EPS) {
+		s->tris[t].r2 = 1e30;
+		return;
 	}
-	pixman_composite_triangles(PIXMAN_OP_ATOP_REVERSE, image, handle->wayland.framebuffer.pixman_fb, PIXMAN_a8, 0, 0, 0, 0, points_count, triangles);
+	ux	      = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / D;
+	uy	      = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / D;
+	s->tris[t].cx = ux;
+	s->tris[t].cy = uy;
+	s->tris[t].r2 = (ax - ux) * (ax - ux) + (ay - uy) * (ay - uy);
+}
 
-	free(triangles);
+static int in_circumcircle(triangulation_state* s, int t, int p) {
+	double dx = s->pts[p].x - s->tris[t].cx;
+	double dy = s->pts[p].y - s->tris[t].cy;
+	return dx * dx + dy * dy < s->tris[t].r2 - EPS;
+}
+
+static void add_tri(triangulation_state* s, int a, int b, int c) {
+	s->tris[s->ntris].a = a;
+	s->tris[s->ntris].b = b;
+	s->tris[s->ntris].c = c;
+	circumcircle(s, s->ntris);
+	s->ntris++;
+}
+
+static void remove_tri(triangulation_state* s, int i) {
+	s->tris[i] = s->tris[--s->ntris];
+}
+
+static int delaunay(const int* src, int npts,
+		    pixman_triangle_t* out, int out_size) {
+	triangulation_state s;
+	int		    si, i, j, k;
+	double		    mnx, mxx, mny, mxy, dx, dy, dmx, mx, my;
+
+	if(npts < 3 || npts > MAXPTS) return -1;
+
+	s.npts = npts;
+	for(i = 0; i < npts; i++) {
+		s.pts[i].x = src[i * 2];
+		s.pts[i].y = src[i * 2 + 1];
+	}
+
+	/* super-triangle */
+	mnx = mxx = s.pts[0].x;
+	mny = mxy = s.pts[0].y;
+	for(i = 1; i < npts; i++) {
+		if(s.pts[i].x < mnx) mnx = s.pts[i].x;
+		if(s.pts[i].x > mxx) mxx = s.pts[i].x;
+		if(s.pts[i].y < mny) mny = s.pts[i].y;
+		if(s.pts[i].y > mxy) mxy = s.pts[i].y;
+	}
+	dx  = mxx - mnx;
+	dy  = mxy - mny;
+	dmx = (dx > dy) ? dx : dy;
+	mx  = (mnx + mxx) * 0.5;
+	my  = (mny + mxy) * 0.5;
+
+	si		= npts;
+	s.pts[si].x	= mx - 20.0 * dmx;
+	s.pts[si].y	= my - dmx;
+	s.pts[si + 1].x = mx;
+	s.pts[si + 1].y = my + 20.0 * dmx;
+	s.pts[si + 2].x = mx + 20.0 * dmx;
+	s.pts[si + 2].y = my - dmx;
+
+	s.ntris = 0;
+	add_tri(&s, si, si + 1, si + 2);
+
+	/* insert each point */
+	for(i = 0; i < npts; i++) {
+		s.nbad = 0;
+		for(j = 0; j < s.ntris; j++)
+			if(in_circumcircle(&s, j, i))
+				s.bad[s.nbad++] = j;
+
+		s.nedges = 0;
+		for(j = 0; j < s.nbad; j++) {
+			int ea[3][2];
+			ea[0][0] = s.tris[s.bad[j]].a;
+			ea[0][1] = s.tris[s.bad[j]].b;
+			ea[1][0] = s.tris[s.bad[j]].b;
+			ea[1][1] = s.tris[s.bad[j]].c;
+			ea[2][0] = s.tris[s.bad[j]].c;
+			ea[2][1] = s.tris[s.bad[j]].a;
+			for(k = 0; k < 3; k++) {
+				int m, shared = 0;
+				for(m = 0; m < s.nbad; m++) {
+					if(m == j) continue;
+					if((s.tris[s.bad[m]].a == ea[k][0] || s.tris[s.bad[m]].b == ea[k][0] || s.tris[s.bad[m]].c == ea[k][0]) &&
+					   (s.tris[s.bad[m]].a == ea[k][1] || s.tris[s.bad[m]].b == ea[k][1] || s.tris[s.bad[m]].c == ea[k][1])) {
+						shared = 1;
+						break;
+					}
+				}
+				if(!shared) {
+					s.edges[s.nedges].x = ea[k][0];
+					s.edges[s.nedges].y = ea[k][1];
+					s.nedges++;
+				}
+			}
+		}
+
+		for(j = s.nbad - 1; j >= 0; j--)
+			remove_tri(&s, s.bad[j]);
+
+		for(j = 0; j < s.nedges; j++)
+			add_tri(&s, s.edges[j].x, s.edges[j].y, i);
+	}
+
+	/* remove triangles touching the super-triangle */
+	for(i = s.ntris - 1; i >= 0; i--)
+		if(s.tris[i].a >= npts || s.tris[i].b >= npts || s.tris[i].c >= npts)
+			remove_tri(&s, i);
+
+	if(s.ntris > out_size) return -1;
+
+	/* pack into pixman_triangle_t */
+	for(i = 0; i < s.ntris; i++) {
+		PACK(out[i].p1, s.pts, s.tris[i].a);
+		PACK(out[i].p2, s.pts, s.tris[i].b);
+		PACK(out[i].p3, s.pts, s.tris[i].c);
+	}
+	return s.ntris;
+}
+
+static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
+	int		  n, i;
+	pixman_color_t	  col	= {color->common.red * 0xFF, color->common.green * 0xFF, color->common.blue * 0xFF, 0xffff};
+	pixman_image_t*	  image = pixman_image_create_solid_fill(&col);
+	pixman_triangle_t out[MAXTRI];
+
+	n = delaunay((int*)points, points_count, out, MAXTRI);
+
+	pixman_composite_triangles(PIXMAN_OP_ATOP_REVERSE, image, handle->wayland.framebuffer.pixman_fb, PIXMAN_a8, 0, 0, 0, 0, points_count, out);
+
 	pixman_image_unref(image);
 
 	handle->wayland.events_pending = 1;
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
-	int		   i;
-	pixman_color_t	   col	     = {color->common.red * 0xFF, color->common.green * 0xFF, color->common.blue * 0xFF, 0xffff};
-	pixman_triangle_t* triangles = malloc(sizeof(pixman_triangle_t) * 3);
-	pixman_image_t*	   image     = pixman_image_create_solid_fill(&col);
-
-	// for(i = 0; i < 3; i += 3) {
-	// 	triangles[i].p1.x = pixman_double_to_fixed((double)points[i].x);
-	// 	triangles[i].p1.y = pixman_double_to_fixed((double)points[i].y);
-	// 	triangles[i].p2.x = pixman_double_to_fixed((double)points[i + 1].x);
-	// 	triangles[i].p2.y = pixman_double_to_fixed((double)points[i + 1].y);
-	// 	triangles[i].p3.x = pixman_double_to_fixed((double)points[i].x);
-	// 	triangles[i].p3.y = pixman_double_to_fixed((double)points[i].y);
-	// }
+	int		i;
+	pixman_color_t	col   = {color->common.red * 0xFF, color->common.green * 0xFF, color->common.blue * 0xFF, 0xffff};
+	pixman_image_t* image = pixman_image_create_solid_fill(&col);
 
 	pixman_image_unref(image);
 
@@ -2208,7 +2350,7 @@ static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
 	if(r->wayland.img) {
 		pixman_image_unref(r->wayland.img);
 	}
-	r->wayland.img = pixman_image_create_bits(PIXMAN_a8r8g8b8, r->common.width, r->common.height, (MwU32*)r->common.raw, r->common.width * 4);
+	r->wayland.img = pixman_image_create_bits(PIXMAN_a8b8g8r8, r->common.width, r->common.height, (MwU32*)r->common.raw, r->common.width * 4);
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
@@ -2217,21 +2359,28 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	int width, height;
+	int		    width, height;
+	pixman_transform_t  transform;
+	pixman_transform_t  reverse;
+	struct pixman_box16 b;
+
+	pixman_transform_init_identity(&transform);
+
+	pixman_transform_scale(&transform, &reverse, pixman_double_to_fixed((double)pixmap->common.width / (double)rect->width), pixman_double_to_fixed((double)pixmap->common.height / (double)rect->height));
+
+	pixman_image_set_transform(pixmap->wayland.img, &transform);
 
 	width  = pixman_image_get_width(pixmap->wayland.img);
 	height = pixman_image_get_height(pixmap->wayland.img);
 
-	pixman_image_composite32(PIXMAN_OP_ATOP,
-				 pixmap->wayland.img, /* src */
-				 NULL /* mask */,
-				 handle->wayland.framebuffer.pixman_fb, /* dest */
-				 0, 0,					/* src_x, src_y */
-				 0, 0,					/* mask_x, mask_y */
-				 rect->x, rect->y,			/* dest_x, dest_y */
-				 width,					/* width */
-				 height /* height */);
-	return;
+	pixman_image_composite(PIXMAN_OP_OVER,
+			       pixmap->wayland.img, /* src */
+			       NULL /* mask */,
+			       handle->wayland.framebuffer.pixman_fb, /* dest */
+			       0, 0,				      /* src_x, src_y */
+			       0, 0,				      /* mask_x, mask_y */
+			       rect->x, rect->y,		      /* dest_x, dest_y */
+			       rect->width, rect->height /* height */);
 }
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	if(handle->wayland.type == MWLL_WAYLAND_TOPLEVEL) {
