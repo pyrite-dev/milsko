@@ -2203,7 +2203,7 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 
 	n = delaunay(points, points_count, out, MAXTRI);
 
-	pixman_composite_triangles(PIXMAN_OP_ATOP_REVERSE, image, handle->wayland.framebuffer.pixman_fb, PIXMAN_a8, 0, 0, 0, 0, points_count, out);
+	pixman_composite_triangles(PIXMAN_OP_OVER, image, handle->wayland.framebuffer.pixman_fb, PIXMAN_a8, 0, 0, 0, 0, points_count, out);
 
 	pixman_image_unref(image);
 

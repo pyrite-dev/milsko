@@ -143,7 +143,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounde
 			int    x      = (roundness + 2);
 			int    y      = rect->y + (roundness + 2);
 			double point  = ((i + (M_PI * 4)) / div);
-			double point2 = (((i + 2) + (M_PI * 4)) / div);
+			double point2 = (((i + 1) + (M_PI * 4)) / div);
 			r.x	      = (roundness + 4) - (sin(point) * roundness);
 			r.y	      = y + (cos(point) * roundness) + 1;
 			r.width	      = roundness;
