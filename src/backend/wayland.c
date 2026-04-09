@@ -2045,23 +2045,17 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 	pixman_color_t	   col	     = {color->common.blue * 0xFF, color->common.green * 0xFF, color->common.red * 0xFF, 0xffff};
 	pixman_triangle_t* triangles = malloc(sizeof(pixman_triangle_t) * points_count);
 	pixman_image_t*	   image     = pixman_image_create_solid_fill(&col);
-	memset(triangles, 0, sizeof(pixman_triangle_t) * points_count);
 
-	// todo: somebody smarter then me can do a real triangulation algorithim
-	for(i = 0; i < points_count; i++) {
-		triangles[i].p1.x = pixman_int_to_fixed(points[i].x);
-		triangles[i].p1.y = pixman_int_to_fixed(points[i].y);
-		if(i + 1 < points_count) {
-			triangles[i].p2.x = pixman_int_to_fixed(points[i + 1].x);
-			triangles[i].p2.y = pixman_int_to_fixed(points[i + 1].y);
-		}
-		if(i + 2 < points_count) {
-			triangles[i].p3.x = pixman_int_to_fixed(points[i + 2].x);
-			triangles[i].p3.y = pixman_int_to_fixed(points[i + 2].y);
-		}
+	for(int i = 1; i < points_count - 1; i++) {
+		triangles[i - 1] = (pixman_triangle_t){
+		    .p1 = {pixman_int_to_fixed(points[0].x), pixman_int_to_fixed(points[0].y)},
+		    .p2 = {pixman_int_to_fixed(points[i].x), pixman_int_to_fixed(points[i].y)},
+		    .p3 = {pixman_int_to_fixed(points[i + 1].x), pixman_int_to_fixed(points[i + 1].y)},
+		};
 	}
 	pixman_composite_triangles(PIXMAN_OP_ATOP_REVERSE, image, handle->wayland.framebuffer.pixman_fb, PIXMAN_a8, 0, 0, 0, 0, points_count, triangles);
 
+	free(triangles);
 	pixman_image_unref(image);
 
 	handle->wayland.events_pending = 1;
