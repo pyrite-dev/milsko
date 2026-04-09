@@ -2333,11 +2333,7 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 	r->common.raw	 = malloc(4 * width * height);
 	memcpy(r->common.raw, data, 4 * width * height);
 
-	// pixman_transform_init_identity(&transform);
-
 	r->wayland.img = NULL;
-
-	// pixman_image_set_transform(r->wayland.img, &transform);
 
 	MwLLPixmapUpdate(r);
 
@@ -2359,10 +2355,9 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	int		    width, height;
-	pixman_transform_t  transform;
-	pixman_transform_t  reverse;
-	struct pixman_box16 b;
+	int		   width, height;
+	pixman_transform_t transform;
+	pixman_transform_t reverse;
 
 	pixman_transform_init_identity(&transform);
 
