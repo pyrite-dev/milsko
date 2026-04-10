@@ -2032,171 +2032,142 @@ static void MwLLEndDrawImpl(MwLL handle) {
 		update_buffer(handle, &handle->wayland.framebuffer);
 	}
 }
+typedef struct pointf64 {
+	double x;
+	double y;
+} pointf64_t;
 
-#define MAXPTS 512
-#define MAXTRI (MAXPTS * 4)
-#define EPS 1e-7
+pixman_triangle_t* triangulate_polygon(pointf64_t* poly_points, int poly_points_count, int* tri_count_out) {
+	pixman_triangle_t* tris;
+	int*		   indices;
+	double		   ax, ay, bx, by, cx, cy, cross;
+	double		   px, py, d0x, d0y, d1x, d1y, d2x, d2y;
+	double		   t, u;
+	int		   n, i, j, prev, curr, next, count;
+	MwBool		   ear_found, is_ear;
 
-#define PACK(dst, pts, idx) \
-	do { \
-		(dst).x = pixman_int_to_fixed((pts)[(idx)].x); \
-		(dst).y = pixman_int_to_fixed((pts)[(idx)].y); \
-	} while(0)
+	*tri_count_out = 0;
 
-typedef struct {
-	int    a, b, c;
-	double cx, cy, r2; /* circumcircle centre + radius^2 */
-} triangle;
-
-typedef struct {
-	MwPoint	 pts[MAXPTS + 3];
-	int	 npts;
-	triangle tris[MAXTRI];
-	int	 ntris;
-	int	 bad[MAXTRI];
-	int	 nbad;
-	MwPoint	 edges[MAXTRI * 3];
-	int	 nedges;
-} triangulation_state;
-
-static void circumcircle(triangulation_state* s, int t) {
-	double ax = s->pts[s->tris[t].a].x, ay = s->pts[s->tris[t].a].y;
-	double bx = s->pts[s->tris[t].b].x, by = s->pts[s->tris[t].b].y;
-	double cx = s->pts[s->tris[t].c].x, cy = s->pts[s->tris[t].c].y;
-	double D = 2.0 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
-	double ux, uy;
-	if(fabs(D) < EPS) {
-		s->tris[t].r2 = 1e30;
-		return;
+	if(!poly_points || poly_points_count < 3) {
+		return NULL;
 	}
-	ux	      = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / D;
-	uy	      = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / D;
-	s->tris[t].cx = ux;
-	s->tris[t].cy = uy;
-	s->tris[t].r2 = (ax - ux) * (ax - ux) + (ay - uy) * (ay - uy);
-}
 
-static int in_circumcircle(triangulation_state* s, int t, int p) {
-	double dx = s->pts[p].x - s->tris[t].cx;
-	double dy = s->pts[p].y - s->tris[t].cy;
-	return dx * dx + dy * dy < s->tris[t].r2 - EPS;
-}
-
-static void add_tri(triangulation_state* s, int a, int b, int c) {
-	s->tris[s->ntris].a = a;
-	s->tris[s->ntris].b = b;
-	s->tris[s->ntris].c = c;
-	circumcircle(s, s->ntris);
-	s->ntris++;
-}
-
-static void remove_tri(triangulation_state* s, int i) {
-	s->tris[i] = s->tris[--s->ntris];
-}
-
-static int delaunay(MwPoint* src, int npts,
-		    pixman_triangle_t* out, int out_size) {
-	triangulation_state s;
-	int		    si, i, j, k;
-	double		    mnx, mxx, mny, mxy, dx, dy, dmx, mx, my;
-
-	if(npts < 3 || npts > MAXPTS) return -1;
-
-	s.npts = npts;
-	memcpy(s.pts, src, npts * sizeof(MwPoint));
-
-	/* super-triangle */
-	mnx = mxx = s.pts[0].x;
-	mny = mxy = s.pts[0].y;
-	for(i = 1; i < npts; i++) {
-		if(s.pts[i].x < mnx) mnx = s.pts[i].x;
-		if(s.pts[i].x > mxx) mxx = s.pts[i].x;
-		if(s.pts[i].y < mny) mny = s.pts[i].y;
-		if(s.pts[i].y > mxy) mxy = s.pts[i].y;
+	n	= poly_points_count;
+	indices = malloc(n * sizeof(int));
+	if(!indices) {
+		return NULL;
 	}
-	dx  = mxx - mnx;
-	dy  = mxy - mny;
-	dmx = (dx > dy) ? dx : dy;
-	mx  = (mnx + mxx) * 0.5;
-	my  = (mny + mxy) * 0.5;
+	for(i = 0; i < n; i++) {
+		indices[i] = i;
+	}
 
-	si		= npts;
-	s.pts[si].x	= mx - 20.0 * dmx;
-	s.pts[si].y	= my - dmx;
-	s.pts[si + 1].x = mx;
-	s.pts[si + 1].y = my + 20.0 * dmx;
-	s.pts[si + 2].x = mx + 20.0 * dmx;
-	s.pts[si + 2].y = my - dmx;
+	tris = malloc((n - 2) * sizeof(pixman_triangle_t));
+	if(!tris) {
+		free(indices);
+		return NULL;
+	}
 
-	s.ntris = 0;
-	add_tri(&s, si, si + 1, si + 2);
+	count = 0;
+	while(n > 2) {
+		ear_found = MwFALSE;
 
-	/* insert each point */
-	for(i = 0; i < npts; i++) {
-		s.nbad = 0;
-		for(j = 0; j < s.ntris; j++)
-			if(in_circumcircle(&s, j, i))
-				s.bad[s.nbad++] = j;
+		for(i = 0; i < n; i++) {
+			prev = (i + n - 1) % n;
+			curr = i;
+			next = (i + 1) % n;
+			ax   = (double)poly_points[indices[prev]].x;
+			ay   = (double)poly_points[indices[prev]].y;
+			bx   = (double)poly_points[indices[curr]].x;
+			by   = (double)poly_points[indices[curr]].y;
+			cx   = (double)poly_points[indices[next]].x;
+			cy   = (double)poly_points[indices[next]].y;
 
-		s.nedges = 0;
-		for(j = 0; j < s.nbad; j++) {
-			int ea[3][2];
-			ea[0][0] = s.tris[s.bad[j]].a;
-			ea[0][1] = s.tris[s.bad[j]].b;
-			ea[1][0] = s.tris[s.bad[j]].b;
-			ea[1][1] = s.tris[s.bad[j]].c;
-			ea[2][0] = s.tris[s.bad[j]].c;
-			ea[2][1] = s.tris[s.bad[j]].a;
-			for(k = 0; k < 3; k++) {
-				int m, shared = 0;
-				for(m = 0; m < s.nbad; m++) {
-					if(m == j) continue;
-					if((s.tris[s.bad[m]].a == ea[k][0] || s.tris[s.bad[m]].b == ea[k][0] || s.tris[s.bad[m]].c == ea[k][0]) &&
-					   (s.tris[s.bad[m]].a == ea[k][1] || s.tris[s.bad[m]].b == ea[k][1] || s.tris[s.bad[m]].c == ea[k][1])) {
-						shared = 1;
-						break;
-					}
+			cross = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
+			if(cross <= 0.0) {
+				continue;
+			}
+
+			is_ear = MwTRUE;
+			for(j = 0; j < n; j++) {
+				if(j == prev || j == curr || j == next) {
+					continue;
 				}
-				if(!shared) {
-					s.edges[s.nedges].x = ea[k][0];
-					s.edges[s.nedges].y = ea[k][1];
-					s.nedges++;
+
+				px  = (double)poly_points[indices[j]].x;
+				py  = (double)poly_points[indices[j]].y;
+				d0x = cx - ax;
+				d0y = cy - ay;
+				d1x = bx - ax;
+				d1y = by - ay;
+				d2x = px - ax;
+				d2y = py - ay;
+				t   = (d0x * d2y - d0y * d2x) / (d0x * d1y - d0y * d1x + 1e-10);
+				u   = (d1x * d2y - d1y * d2x) / (d0x * d1y - d0y * d1x + 1e-10);
+				if(t >= 0.0 && u >= 0.0 && (t + u) <= 1.0) {
+					is_ear = MwFALSE;
+					break;
 				}
+			}
+
+			if(is_ear) {
+				pixman_triangle_t* tri;
+
+				tri	  = &tris[count++];
+				tri->p1.x = pixman_int_to_fixed(poly_points[indices[prev]].x);
+				tri->p1.y = pixman_int_to_fixed(poly_points[indices[prev]].y);
+				tri->p2.x = pixman_int_to_fixed(poly_points[indices[curr]].x);
+				tri->p2.y = pixman_int_to_fixed(poly_points[indices[curr]].y);
+				tri->p3.x = pixman_int_to_fixed(poly_points[indices[next]].x);
+				tri->p3.y = pixman_int_to_fixed(poly_points[indices[next]].y);
+
+				for(j = curr; j < n - 1; j++) {
+					indices[j] = indices[j + 1];
+				}
+
+				n--;
+				ear_found = MwTRUE;
+				break;
 			}
 		}
 
-		for(j = s.nbad - 1; j >= 0; j--)
-			remove_tri(&s, s.bad[j]);
-
-		for(j = 0; j < s.nedges; j++)
-			add_tri(&s, s.edges[j].x, s.edges[j].y, i);
+		if(!ear_found) {
+			break;
+		}
 	}
 
-	/* remove triangles touching the super-triangle */
-	for(i = s.ntris - 1; i >= 0; i--)
-		if(s.tris[i].a >= npts || s.tris[i].b >= npts || s.tris[i].c >= npts)
-			remove_tri(&s, i);
+	free(indices);
 
-	if(s.ntris > out_size) return -1;
-
-	/* pack into pixman_triangle_t */
-	for(i = 0; i < s.ntris; i++) {
-		PACK(out[i].p1, s.pts, s.tris[i].a);
-		PACK(out[i].p2, s.pts, s.tris[i].b);
-		PACK(out[i].p3, s.pts, s.tris[i].c);
+	if(count == 0) {
+		free(tris);
+		return NULL;
 	}
-	return s.ntris;
+
+	if(count < poly_points_count - 2) {
+		pixman_triangle_t* shrunk;
+
+		shrunk = realloc(tris, count * sizeof(pixman_triangle_t));
+		if(shrunk) {
+			tris = shrunk;
+		}
+	}
+
+	*tri_count_out = count;
+	return tris;
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
-	int		  n, i;
-	pixman_color_t	  col	= {color->common.red * 0xFF, color->common.green * 0xFF, color->common.blue * 0xFF, 0xffff};
-	pixman_image_t*	  image = pixman_image_create_solid_fill(&col);
-	pixman_triangle_t out[MAXTRI];
+	int		   n, i;
+	pixman_color_t	   col	 = {color->common.red * 0xFF, color->common.green * 0xFF, color->common.blue * 0xFF, 0xffff};
+	pixman_image_t*	   image = pixman_image_create_solid_fill(&col);
+	pixman_triangle_t* triangles;
+	pointf64_t*	   f64points = malloc(points_count * sizeof(pointf64_t));
+	for(i = 0; i < points_count; i++) {
+		f64points[i].x = points[i].x;
+		f64points[i].y = points[i].y;
+	}
+	triangles = triangulate_polygon(f64points, points_count, &n);
 
-	n = delaunay(points, points_count, out, MAXTRI);
-
-	pixman_composite_triangles(PIXMAN_OP_OVER, image, handle->wayland.framebuffer.pixman_fb, PIXMAN_a8, 0, 0, 0, 0, points_count, out);
+	pixman_composite_triangles(PIXMAN_OP_OVER, image, handle->wayland.framebuffer.pixman_fb, PIXMAN_a8, 0, 0, 0, 0, n, triangles);
 
 	pixman_image_unref(image);
 
