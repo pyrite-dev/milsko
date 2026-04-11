@@ -26,6 +26,7 @@ static int is_bold(MwWidget handle, MwFLFont ttf) {
 	return s;
 }
 
+#ifdef TTF
 static int is_monospace(MwWidget handle, MwFLFont ttf) {
 	size_t u = (size_t)ttf;
 	int    s;
@@ -36,6 +37,7 @@ static int is_monospace(MwWidget handle, MwFLFont ttf) {
 	if(s == MwDEFAULT) return 0;
 	return s;
 }
+#endif
 
 #ifdef TTF
 
