@@ -1292,7 +1292,11 @@ static int MwLLX11CallInitImpl(void) {
 		return 1;
 	}
 
+#ifdef __APPLE__
+	xsymtbl.lib_xlib = MwDynamicOpen("libX11.dylib");
+#else
 	xsymtbl.lib_xlib = MwDynamicOpen("libX11.so");
+#endif
 	if(!xsymtbl.lib_xlib) {
 		return 1;
 	}
