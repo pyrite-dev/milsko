@@ -15,7 +15,7 @@ foreach(PATH IN LISTS EXAMPLES_GL_SOURCES)
 		${TARGET}
 		PRIVATE
 		Mw
-		OpenGL::GL
+		OpenGL::GL OpenGL::GLU
 	)
 	if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		target_link_libraries(
