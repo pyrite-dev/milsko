@@ -665,6 +665,9 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	NSSize		   sz	= [self->rep size];
 	MwLL		   ll	= [((MilskoFakePointer*)[[[[self window] contentView] subviews]
 	    objectAtIndex:0]) pointer];
+	NSRect		   bounds;
+	NSArray*	   subviews = [self subviews];
+	int		   i;
 
 	[super drawRect:dirtyRect];
 	if(!self->rep) {
@@ -683,8 +686,9 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 	[self->rep drawInRect:dirtyRect];
 
-	for(NSView* subview in [self subviews]) {
-		NSRect bounds = [subview bounds];
+	for(i = 0; i < [subviews count]; i++) {
+		NSView* subview = [subviews objectAtIndex:i];
+		bounds		= [subview bounds];
 		[subview drawRect:bounds];
 	}
 

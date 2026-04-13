@@ -86,18 +86,17 @@
 @end
 
 @interface MilskoCocoaView : NSView {
-	NSBitmapImageRep*	   rep;
-	NSGraphicsContext*	   context;
-	MwBool			   valid;
-	CGColorSpaceRef		   space;
-	CGDataProviderRef	   provider;
-	NSRect			   givenRect;
-	float			   x;
-	float			   y;
-	float			   width;
-	float			   height;
-	MwBool			   _child;
-	IBOutlet NSViewController* viewController;
+	NSBitmapImageRep*  rep;
+	NSGraphicsContext* context;
+	MwBool		   valid;
+	CGColorSpaceRef	   space;
+	CGDataProviderRef  provider;
+	NSRect		   givenRect;
+	float		   x;
+	float		   y;
+	float		   width;
+	float		   height;
+	MwBool		   _child;
 }
 
 - (void)initRepAndContextWithWidth:(float)w Height:(float)h;

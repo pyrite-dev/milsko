@@ -57,17 +57,26 @@
 #define M_PI 3.14159265
 #endif
 
+/* Windows */
 #if defined(_MILSKO) && defined(_WIN32)
 #define MWDECL extern __declspec(dllexport)
 #elif defined(_WIN32)
 #define MWDECL extern __declspec(dllimport)
+/* GCC/Clang */
+/* First check if we have __has_attribute and can check for the existence of visibility  */
 #elif defined(__has_attribute)
 #if __has_attribute(visibility)
 #define MWDECL extern __attribute__((visibility("default")))
 #else
 #define MWDECL extern
 #endif
+/* It might be that we're on an old version of GCC (like the one Apple ships with older versions of Mac OS).
+ * If we're on gcc 3 or above, assume it's there
+ */
+#elif __GNUC__ >= 3
+#define MWDECL extern __attribute__((visibility("default")))
 #else
+/* all else fails */
 #define MWDECL extern
 #endif
 
