@@ -654,17 +654,19 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	NSArray*	   subviews = [self subviews];
 	int		   i;
 
-	if(self->rep) {
-		[self->rep release];
-	}
-	if(dirtyRect.size.width && dirtyRect.size.height) {
-		[self initRepAndContextWithWidth:dirtyRect.size.width
-					  Height:dirtyRect.size.height];
-		self->width  = dirtyRect.size.width;
-		self->height = dirtyRect.size.height;
-	} else {
-		[pool release];
-		return;
+	if(self->width != dirtyRect.size.width || self->height != dirtyRect.size.height) {
+		if(self->rep) {
+			[self->rep release];
+		}
+		if(dirtyRect.size.width && dirtyRect.size.height) {
+			[self initRepAndContextWithWidth:dirtyRect.size.width
+						  Height:dirtyRect.size.height];
+			self->width  = dirtyRect.size.width;
+			self->height = dirtyRect.size.height;
+		} else {
+			[pool release];
+			return;
+		}
 	}
 
 	[self->rep drawInRect:[self bounds]];
