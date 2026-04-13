@@ -330,7 +330,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		frame = localRectFlip(frame, parent->cocoa.real->view);
 		[self->view setBounds:frame];
 	}
-	// [self->view setNeedsDisplay:true];
 	[self nudge];
 };
 - (void)setW:(int)w H:(int)h {
@@ -360,12 +359,10 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	MwLL h = [self->handle pointer];
 	if(_forceRender) {
 		MwLLDispatch(h, draw, NULL);
-		// [self->view setNeedsDisplay:true];
 		_forceRender = MwFALSE;
 	}
 	if(_eventsPending) {
 		MwLLDispatch(h, draw, NULL);
-		// [self->view setNeedsDisplay:true];
 		_eventsPending = MwFALSE;
 	}
 	[self sendClipboardEvent];
@@ -443,18 +440,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 };
 - (void)forceRender {
 	self->_forceRender = MwTRUE;
-	// NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	// NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
-	//                                     location:NSMakePoint(0, 0)
-	//                                modifierFlags:0
-	//                                    timestamp:0
-	//                                 windowNumber:0
-	//                                      context:nil
-	//                                      subtype:0
-	//                                        data1:0
-	//                                        data2:0];
-	// [NSApp postEvent:event atStart:YES];
-	// [pool release];
 };
 - (void)setCursor:(MwCursor*)image mask:(MwCursor*)mask {
 	int	       y, x, ys, xs;
@@ -670,8 +655,8 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	int		   i;
 
 	if(self->rep) {
-	    [self->rep release];
-    }
+		[self->rep release];
+	}
 	if(dirtyRect.size.width && dirtyRect.size.height) {
 		[self initRepAndContextWithWidth:dirtyRect.size.width
 					  Height:dirtyRect.size.height];
@@ -993,7 +978,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		if([ptr isKindOfClass:[MilskoFakePointer class]]) {
 			MwLL h = [(MilskoFakePointer*)ptr pointer];
 			MwLLDispatch(h, resize, NULL);
-			// MwLLDispatch(h, draw, NULL);
 		}
 	}
 	return frameSize;
@@ -1118,18 +1102,15 @@ static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 
 static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w,
 			    unsigned int* height) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h getX:x Y:y W:w H:height];
+	[handle->cocoa.real getX:x Y:y W:w H:height];
 }
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setX:x Y:y];
+	[handle->cocoa.real setX:x Y:y];
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int height) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setW:w H:height];
+	[handle->cocoa.real setW:w H:height];
 }
 
 static void MwLLFreeColorImpl(MwLLColor color) {
@@ -1141,13 +1122,11 @@ static int MwLLPendingImpl(MwLL handle) {
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h getNextEvent];
+	[handle->cocoa.real getNextEvent];
 }
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setTitle:title];
+	[handle->cocoa.real setTitle:title];
 }
 
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data,
@@ -1170,77 +1149,63 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data,
 }
 
 static void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {
-	MilskoCocoaPixmap* p = pixmap->cocoa.real;
-	[p updateWithData:pixmap->common.raw];
+	[pixmap->cocoa.real updateWithData:pixmap->common.raw];
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
-	MilskoCocoaPixmap* p = pixmap->cocoa.real;
-	[p destroy];
-	[p release];
+	[pixmap->cocoa.real destroy];
+	[pixmap->cocoa.real release];
 	free(pixmap);
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h drawPixmap:pixmap rect:rect];
+	[handle->cocoa.real drawPixmap:pixmap rect:rect];
 	MwLLForceRender(handle);
 }
 
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setIcon:pixmap];
+	[handle->cocoa.real setIcon:pixmap];
 }
 
 static void MwLLForceRenderImpl(MwLL handle) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h forceRender];
+	[handle->cocoa.real forceRender];
 }
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setCursor:image mask:mask];
+	[handle->cocoa.real setCursor:image mask:mask];
 }
 
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h detachWithPoint:point];
+	[handle->cocoa.real detachWithPoint:point];
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h show:show];
+	[handle->cocoa.real show:show];
 }
 
 static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h makePopupWithParent:parent];
+	[handle->cocoa.real makePopupWithParent:parent];
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx,
 				 int maxy) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setSizeHintsWithMinX:minx MinY:miny MaxX:maxx MaxY:maxy];
+	[handle->cocoa.real setSizeHintsWithMinX:minx MinY:miny MaxX:maxx MaxY:maxy];
 }
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h makeBorderless:toggle];
+	[handle->cocoa.real makeBorderless:toggle];
 }
 
 static void MwLLFocusImpl(MwLL handle) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h focus];
+	[handle->cocoa.real focus];
 }
 
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h grabPointer:toggle];
+	[handle->cocoa.real grabPointer:toggle];
 }
 
 static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setClipboard:text];
+	[handle->cocoa.real setClipboard:text];
 }
 
 static void MwLLGetClipboardImpl(MwLL handle) {
@@ -1248,19 +1213,15 @@ static void MwLLGetClipboardImpl(MwLL handle) {
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {
-
-	MilskoCocoa* h = handle->cocoa.real;
-	[h makeToolWindow];
+	[handle->cocoa.real makeToolWindow];
 }
 
 static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h getCursorCoord:point];
+	[handle->cocoa.real getCursorCoord:point];
 }
 
 static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h getScreenSize:rect];
+	[handle->cocoa.real getScreenSize:rect];
 }
 
 static void MwLLBeginStateChangeImpl(MwLL handle) {
