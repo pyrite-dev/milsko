@@ -116,8 +116,8 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 - (void)destroy {
 	free(self->buf);
 	[self->image removeRepresentation:self->rep];
-	[self->image dealloc];
-	[self->rep dealloc];
+	[self->image release];
+	[self->rep release];
 	self->image = NULL;
 	self->rep   = NULL;
 }
@@ -134,7 +134,9 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 			width:(int)width
 		       height:(int)height
 		       handle:(MwLL)r {
-	MilskoCocoa* c = [MilskoCocoa alloc];
+	MilskoCocoa*	   c	= [MilskoCocoa alloc];
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+
 	[c retain];
 
 	/*
@@ -156,7 +158,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		c->window = [[MilskoCocoaWindow alloc]
 		    initWithContentRect:rectFlip(c->rect)
 			      styleMask:(NSTitledWindowMask |
-					 NSTexturedBackgroundWindowMask |
 					 NSClosableWindowMask | NSMiniaturizableWindowMask |
 					 NSResizableWindowMask)
 				backing:NSBackingStoreBuffered
@@ -190,15 +191,12 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		NSRect rect = localRectFlip(c->rect, p->view);
 		c->view	    = [[MilskoCocoaView alloc] initWithFrame:rect];
 		[c->view setBounds:c->rect];
-
 		[c->view retain];
-		[c->view setNeedsDisplay:TRUE];
 		[c->view setChild];
 
 		[c->view addTrackingRect:c->rect owner:c->view userData:NULL assumeInside:MwFALSE];
 
 		[p->view addSubview:c->view];
-		[p->window setContentView:p->view];
 	}
 	[c->window setAcceptsMouseMovedEvents:MwTRUE];
 
@@ -219,6 +217,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 	c->pointerLocked = MwFALSE;
 
+	[pool release];
 	return c;
 }
 
@@ -331,7 +330,8 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		frame = localRectFlip(frame, parent->cocoa.real->view);
 		[self->view setBounds:frame];
 	}
-	self->_eventsPending = MwTRUE;
+	// [self->view setNeedsDisplay:true];
+	[self nudge];
 };
 - (void)setW:(int)w H:(int)h {
 	NSRect frame	  = [self->window frame];
@@ -346,7 +346,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	} else {
 		[self->window setFrame:frame display:YES animate:false];
 	}
-	self->_eventsPending = MwTRUE;
+	[self nudge];
 };
 - (int)pending {
 	NSAutoreleasePool* pool	     = [[NSAutoreleasePool alloc] init];
@@ -360,12 +360,12 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	MwLL h = [self->handle pointer];
 	if(_forceRender) {
 		MwLLDispatch(h, draw, NULL);
-		[self->view setNeedsDisplay:true];
+		// [self->view setNeedsDisplay:true];
 		_forceRender = MwFALSE;
 	}
 	if(_eventsPending) {
 		MwLLDispatch(h, draw, NULL);
-		[self->view setNeedsDisplay:true];
+		// [self->view setNeedsDisplay:true];
 		_eventsPending = MwFALSE;
 	}
 	[self sendClipboardEvent];
@@ -579,9 +579,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 };
 - (void)destroy {
 	[self->handle release];
-	[self->handle dealloc];
 	[self->window release];
-	[self->window dealloc];
 }
 
 - (MwLL)getParent {
@@ -596,7 +594,13 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 }
 
 - (void)nudge {
+	MwLL p		     = self->parent;
 	self->_eventsPending = MwTRUE;
+
+	if(p) {
+		[p->cocoa.real->view setNeedsDisplay:true];
+		p = p->cocoa.real->parent;
+	}
 }
 
 - (void)pushCursor {
@@ -661,15 +665,10 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	NSSize		   sz	= [self->rep size];
-	MwLL		   ll	= [((MilskoFakePointer*)[[[[self window] contentView] subviews]
-	    objectAtIndex:0]) pointer];
-	NSRect		   bounds;
+	NSAutoreleasePool* pool	    = [[NSAutoreleasePool alloc] init];
 	NSArray*	   subviews = [self subviews];
 	int		   i;
 
-	[super drawRect:dirtyRect];
 	if(!self->rep) {
 		if(dirtyRect.size.width && dirtyRect.size.height) {
 			[self initRepAndContextWithWidth:dirtyRect.size.width
@@ -682,22 +681,41 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		}
 	}
 
-	// MwLLDispatch(ll, draw, NULL);
-
-	[self->rep drawInRect:dirtyRect];
+	if(!_child)
+		[self->rep drawInRect:[self bounds]];
 
 	for(i = 0; i < [subviews count]; i++) {
-		NSView* subview = [subviews objectAtIndex:i];
-		bounds		= [subview bounds];
-		[subview drawRect:bounds];
+		MilskoCocoaView* subview = [subviews objectAtIndex:i];
+		NSRect		 bounds	 = [subview bounds];
+		if([subview respondsToSelector:@selector(drawRectSub:)]) {
+			[subview drawRectSub:bounds];
+		}
 	}
-
-	[self->rep bitmapData];
-
 	[pool release];
 }
 
+- (void)drawRectSub:(NSRect)dirtyRect {
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+
+	if(!self->rep) {
+		if(dirtyRect.size.width && dirtyRect.size.height) {
+			[self initRepAndContextWithWidth:dirtyRect.size.width
+						  Height:dirtyRect.size.height];
+			self->width  = dirtyRect.size.width;
+			self->height = dirtyRect.size.height;
+		} else {
+			[pool release];
+			return;
+		}
+	}
+
+	[self->rep drawInRect:dirtyRect];
+
+	[pool release];
+};
+
 - (void)initRepAndContextWithWidth:(float)w Height:(float)h {
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	self->rep =
 	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
 						    pixelsWide:w
@@ -712,10 +730,14 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	assert(self->rep);
 	[self->rep retain];
 
+	[self->rep setOpaque:MwFALSE];
+	[self->rep setAlpha:MwTRUE];
+
 	self->context =
 	    [NSGraphicsContext graphicsContextWithBitmapImageRep:self->rep];
 	assert(self->context);
 	[self->context retain];
+	[pool release];
 }
 
 - (void)destroy {
@@ -1142,11 +1164,7 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 }
 
 static int MwLLPendingImpl(MwLL handle) {
-	int p = [handle->cocoa.real pending];
-	if(p) {
-		MwLLDispatch(handle, draw, NULL);
-	}
-	return p;
+	return [handle->cocoa.real pending];
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
@@ -1186,7 +1204,7 @@ static void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 	MilskoCocoaPixmap* p = pixmap->cocoa.real;
 	[p destroy];
-	[p dealloc];
+	[p release];
 	free(pixmap);
 }
 

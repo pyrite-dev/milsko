@@ -104,7 +104,11 @@
 - (void)destroy;
 - (NSBitmapImageRep*)getRep;
 - (void)setChild;
+- (void)drawRectSub:(NSRect)dirtyRect;
+@end
 
+@interface MilskoCocoaSubView : MilskoCocoaView {
+}
 @end
 
 @interface MilskoCocoa : NSObject {
@@ -125,6 +129,8 @@
 
 	MwBool pointerLocked;
 	MwBool mouseMoved;
+
+	MwBool rejectFirstTest;
 }
 
 + (MilskoCocoa*)newWithParent:(MwLL)parent
