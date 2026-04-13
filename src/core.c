@@ -856,15 +856,15 @@ MwWidget MwGetParent(MwWidget handle) {
 typedef int (*call_t)(void);
 int MwLibraryInit(void) {
 	call_t calls[] = {
-/* x11 has higher priority then cocoa until it works */ 
+#ifdef USE_WAYLAND
+	    MwLLWaylandCallInit,
+#endif
+/* x11 has higher priority then cocoa until it works */
 #ifdef USE_X11
 	    MwLLX11CallInit,
 #endif
 #ifdef USE_COCOA
 	    MwLLCocoaCallInit,
-#endif
-#ifdef USE_WAYLAND
-	    MwLLWaylandCallInit,
 #endif
 #ifdef USE_GDI
 	    MwLLGDICallInit,

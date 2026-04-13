@@ -2575,7 +2575,6 @@ static int MwLLWaylandCallInitImpl(void) {
 	/*
 	 * Order of precedence:
 	 * - MILSKO_BACKEND
-	 * - XDG_SESSION_TYPE
 	 * - manually checking environment variables
 	 */
 #ifdef __linux__
@@ -2583,11 +2582,7 @@ static int MwLLWaylandCallInitImpl(void) {
 	if(getenv("MILSKO_BACKEND")) {
 		loadWayland |=
 		    (strcmp(getenv("MILSKO_BACKEND"), "wayland") == 0);
-	}
-	if(getenv("XDG_SESSION_TYPE")) {
-		loadWayland |= (strcmp(getenv("XDG_SESSION_TYPE"), "wayland") == 0);
-	}
-	if(getenv("WAYLAND_DISPLAY")) {
+	} else if(getenv("WAYLAND_DISPLAY")) {
 		loadWayland |= (getenv("WAYLAND_DISPLAY") != NULL);
 	}
 
