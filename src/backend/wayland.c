@@ -2113,12 +2113,12 @@ pixman_triangle_t* triangulate_polygon(pointf64_t* poly_points, int poly_points_
 				pixman_triangle_t* tri;
 
 				tri	  = &tris[count++];
-				tri->p1.x = pixman_int_to_fixed(poly_points[indices[prev]].x);
-				tri->p1.y = pixman_int_to_fixed(poly_points[indices[prev]].y);
-				tri->p2.x = pixman_int_to_fixed(poly_points[indices[curr]].x);
-				tri->p2.y = pixman_int_to_fixed(poly_points[indices[curr]].y);
-				tri->p3.x = pixman_int_to_fixed(poly_points[indices[next]].x);
-				tri->p3.y = pixman_int_to_fixed(poly_points[indices[next]].y);
+				tri->p1.x = pixman_double_to_fixed(poly_points[indices[prev]].x);
+				tri->p1.y = pixman_double_to_fixed(poly_points[indices[prev]].y);
+				tri->p2.x = pixman_double_to_fixed(poly_points[indices[curr]].x);
+				tri->p2.y = pixman_double_to_fixed(poly_points[indices[curr]].y);
+				tri->p3.x = pixman_double_to_fixed(poly_points[indices[next]].x);
+				tri->p3.y = pixman_double_to_fixed(poly_points[indices[next]].y);
 
 				for(j = curr; j < n - 1; j++) {
 					indices[j] = indices[j + 1];
@@ -2169,6 +2169,7 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 
 	pixman_composite_triangles(PIXMAN_OP_OVER, image, handle->wayland.framebuffer.pixman_fb, PIXMAN_a8, 0, 0, 0, 0, n, triangles);
 
+	free(triangles);
 	pixman_image_unref(image);
 
 	handle->wayland.events_pending = 1;
