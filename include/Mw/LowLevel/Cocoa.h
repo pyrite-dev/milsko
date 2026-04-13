@@ -104,7 +104,6 @@
 - (void)destroy;
 - (NSBitmapImageRep*)getRep;
 - (void)setChild;
-- (void)drawRectSub:(NSRect)dirtyRect;
 @end
 
 @interface MilskoCocoaSubView : MilskoCocoaView {

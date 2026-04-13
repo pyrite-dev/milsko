@@ -669,50 +669,23 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	NSArray*	   subviews = [self subviews];
 	int		   i;
 
-	if(!self->rep) {
-		if(dirtyRect.size.width && dirtyRect.size.height) {
-			[self initRepAndContextWithWidth:dirtyRect.size.width
-						  Height:dirtyRect.size.height];
-			self->width  = dirtyRect.size.width;
-			self->height = dirtyRect.size.height;
-		} else {
-			[pool release];
-			return;
-		}
+	if(self->rep) {
+	    [self->rep release];
+    }
+	if(dirtyRect.size.width && dirtyRect.size.height) {
+		[self initRepAndContextWithWidth:dirtyRect.size.width
+					  Height:dirtyRect.size.height];
+		self->width  = dirtyRect.size.width;
+		self->height = dirtyRect.size.height;
+	} else {
+		[pool release];
+		return;
 	}
 
-	if(!_child)
-		[self->rep drawInRect:[self bounds]];
+	[self->rep drawInRect:[self bounds]];
 
-	for(i = 0; i < [subviews count]; i++) {
-		MilskoCocoaView* subview = [subviews objectAtIndex:i];
-		NSRect		 bounds	 = [subview bounds];
-		if([subview respondsToSelector:@selector(drawRectSub:)]) {
-			[subview drawRectSub:bounds];
-		}
-	}
 	[pool release];
 }
-
-- (void)drawRectSub:(NSRect)dirtyRect {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
-	if(!self->rep) {
-		if(dirtyRect.size.width && dirtyRect.size.height) {
-			[self initRepAndContextWithWidth:dirtyRect.size.width
-						  Height:dirtyRect.size.height];
-			self->width  = dirtyRect.size.width;
-			self->height = dirtyRect.size.height;
-		} else {
-			[pool release];
-			return;
-		}
-	}
-
-	[self->rep drawInRect:dirtyRect];
-
-	[pool release];
-};
 
 - (void)initRepAndContextWithWidth:(float)w Height:(float)h {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
