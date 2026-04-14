@@ -49,7 +49,7 @@ static void draw(MwWidget handle) {
 		int	attr;
 		MwRect	currc;
 
-		p.x = (r.width - (r.width / w * w)) / 2 + (MwGetInteger(handle, MwNisRounded) ? MwGetInteger(handle, MwNroundness) : 0);
+		p.x = (r.width - (r.width / w * w)) / 2;
 		p.y = r.height / 2;
 
 		len = (r.width - p.x * 2) / w;

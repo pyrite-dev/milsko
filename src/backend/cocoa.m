@@ -64,554 +64,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	}
 };
 
-@implementation MilskoCocoaPixmap
-
-+ (MilskoCocoaPixmap*)newWithWidth:(int)width height:(int)height {
-	MilskoCocoaPixmap* p = [MilskoCocoaPixmap alloc];
-
-	p->width  = width;
-	p->height = height;
-	p->image  = NULL;
-
-	p->buf = malloc(width * height * 4);
-
-	p->rep =
-	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&p->buf
-						    pixelsWide:(int)width
-						    pixelsHigh:(int)height
-						 bitsPerSample:8
-					       samplesPerPixel:4
-						      hasAlpha:YES
-						      isPlanar:NO
-						colorSpaceName:NSDeviceRGBColorSpace
-						   bytesPerRow:(int)width * 4
-						  bitsPerPixel:32];
-	assert(p->rep);
-
-	p->image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
-	assert(p->image);
-	[p->image addRepresentation:p->rep];
-
-	return p;
-}
-- (void)updateWithData:(unsigned char*)_data {
-	memcpy(self->buf, _data, width * height * 4);
-	if(self->rep) {
-		[self->image removeRepresentation:self->rep];
-		[self->rep release];
-	}
-	self->rep =
-	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&self->buf
-						    pixelsWide:(int)width
-						    pixelsHigh:(int)height
-						 bitsPerSample:8
-					       samplesPerPixel:4
-						      hasAlpha:YES
-						      isPlanar:NO
-						colorSpaceName:NSDeviceRGBColorSpace
-						   bytesPerRow:(int)width * 4
-						  bitsPerPixel:32];
-	[self->image addRepresentation:self->rep];
-}
-- (void)destroy {
-	free(self->buf);
-	[self->image removeRepresentation:self->rep];
-	[self->image dealloc];
-	[self->rep dealloc];
-	self->image = NULL;
-	self->rep   = NULL;
-}
-- (NSImage*)image {
-	return self->image;
-}
-@end
-
-@implementation MilskoCocoa
-
-+ (MilskoCocoa*)newWithParent:(MwLL)parent
-			    x:(int)x
-			    y:(int)y
-			width:(int)width
-		       height:(int)height
-		       handle:(MwLL)r {
-	MilskoCocoa* c = [MilskoCocoa alloc];
-	[c retain];
-
-	/*
-	 * MacOS doesn't really have a "default" window position, you're actually
-	 * meant to center the window yourself, so if the user passes MwDEFAULT
-	 * respond appropriately. Also for child windows just have it be 0.
-	 */
-	if(x == MwDEFAULT) {
-		x = r ? ([[NSScreen mainScreen] frame].size.width / 2.) - (width / 2.) : 0;
-	}
-	if(y == MwDEFAULT) {
-		y = r ? ([[NSScreen mainScreen] frame].size.height / 2.) - (height / 2.)
-		      : 0;
-	}
-	c->application = [MilskoCocoaApplication sharedApplication];
-	c->rect	       = NSMakeRect(x, y, width, height);
-
-	if(parent == NULL) {
-		c->window = [[MilskoCocoaWindow alloc]
-		    initWithContentRect:rectFlip(c->rect)
-			      styleMask:(NSTitledWindowMask |
-					 NSTexturedBackgroundWindowMask |
-					 NSClosableWindowMask | NSMiniaturizableWindowMask |
-					 NSResizableWindowMask)
-				backing:NSBackingStoreBuffered
-				  defer:NO];
-		[c->window
-		    setDelegate:[[MilskoCocoaWindowDelegate alloc] initWithWin:c->window]];
-		[c->window retain];
-
-		[c->window makeKeyAndOrderFront:c->application];
-		[c->window makeFirstResponder:c->view];
-
-		c->view = [[MilskoCocoaView alloc] initWithFrame:c->rect];
-		[c->view retain];
-		[c->window setContentView:c->view];
-
-		if([c->application respondsToSelector:@selector(setActivationPolicy:)]) {
-			[c->application
-			    setActivationPolicy:0 /* NSApplicationActivationPolicyRegular */];
-		}
-		[c->application activateIgnoringOtherApps:MwTRUE];
-		[c->application setDelegate:[[MilskoCocoaApplicationDelegate alloc]
-						initWithAppl:c->application]];
-		[c->application retain];
-
-		[c->view addTrackingRect:c->rect owner:c->view userData:NULL assumeInside:MwFALSE];
-	} else {
-		MilskoCocoa* p = parent->cocoa.real;
-
-		c->window = p->window;
-
-		NSRect rect = localRectFlip(c->rect, p->view);
-		c->view	    = [[MilskoCocoaView alloc] initWithFrame:rect];
-		[c->view setBounds:c->rect];
-
-		[c->view retain];
-		[c->view setNeedsDisplay:TRUE];
-		[c->view setChild];
-
-		[c->view addTrackingRect:c->rect owner:c->view userData:NULL assumeInside:MwFALSE];
-
-		[p->view addSubview:c->view];
-		[p->window setContentView:p->view];
-	}
-	[c->window setAcceptsMouseMovedEvents:MwTRUE];
-
-	c->handle = [[MilskoFakePointer alloc] initWithFrame:NSMakeRect(0, 0, 1, 1)];
-	[c->handle retain];
-	[c->handle setPointer:r];
-	[c->view addSubview:c->handle];
-
-	c->modalSession = [c->application beginModalSessionForWindow:c->window];
-	c->parent	= parent;
-
-	c->_forceRender = MwTRUE;
-	c->strHash	= 0;
-
-	c->cursorPixmap = NULL;
-
-	[c->application finishLaunching];
-
-	c->pointerLocked = MwFALSE;
-
-	return c;
-}
-
-- (void)polygonWithPoints:(MwPoint*)points
-	     points_count:(int)points_count
-		    color:(MwLLColor)color {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	NSGraphicsContext* ctx	= [self->view context];
-	if(ctx) {
-		int	      i;
-		NSBezierPath* path = [NSBezierPath bezierPath];
-		/* whatever rect we use for coordinate flipping */
-		NSRect _rect = parent ? [self->view bounds] : [self->window frame];
-
-		NSColor* nscolor =
-		    [NSColor colorWithCalibratedRed:color->common.red / 255.
-					      green:color->common.green / 255.
-					       blue:color->common.blue / 255.
-					      alpha:1.0];
-
-		[NSGraphicsContext saveGraphicsState];
-		[NSGraphicsContext setCurrentContext:ctx];
-
-		[nscolor setFill];
-		for(i = 0; i < points_count; i++) {
-			NSPoint p = localPointFlip(NSMakePoint(points[i].x, points[i].y), self->view);
-			if(i == 0) {
-				[path moveToPoint:p];
-			} else {
-				[path lineToPoint:p];
-			}
-		}
-
-		[path closePath];
-		[path fill];
-
-		[NSGraphicsContext restoreGraphicsState];
-
-		[self->view setNeedsDisplay:YES];
-	}
-	[pool release];
-};
-- (void)lineWithPoints:(MwPoint*)points color:(MwLLColor)color {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	NSGraphicsContext* ctx	= [self->view context];
-	if(ctx) {
-		int	      i;
-		NSBezierPath* path = [NSBezierPath bezierPath];
-		/* whatever rect we use for coordinate flipping */
-		NSRect _rect = parent ? [self->view bounds] : [self->window frame];
-
-		NSColor* nscolor =
-		    [NSColor colorWithCalibratedRed:color->common.red / 255.
-					      green:color->common.green / 255.
-					       blue:color->common.blue / 255.
-					      alpha:1.0];
-
-		[NSGraphicsContext saveGraphicsState];
-		[NSGraphicsContext setCurrentContext:ctx];
-
-		[nscolor setFill];
-		for(i = 0; i < 2; i++) {
-			NSPoint p = localPointFlip(NSMakePoint(points[i].x, points[i].y), self->view);
-			if(i == 0) {
-				[path moveToPoint:p];
-			} else {
-				[path lineToPoint:p];
-			}
-		}
-
-		[path closePath];
-		[path stroke];
-
-		[NSGraphicsContext restoreGraphicsState];
-
-		[self->view setNeedsDisplay:YES];
-	}
-	[pool release];
-};
-- (void)getX:(int*)x Y:(int*)y W:(unsigned int*)w H:(unsigned int*)h {
-	NSRect frame;
-	if(parent) {
-		frame = [self->view frame];
-	} else {
-		frame = [self->window frame];
-	}
-	frame = rectFlip(frame);
-
-	*x = frame.origin.x;
-	*y = frame.origin.y;
-
-	*w = frame.size.width;
-	*h = frame.size.height;
-};
-- (void)setX:(int)x Y:(int)y {
-	NSRect frame;
-	if(parent) {
-		frame = [self->view frame];
-	} else {
-		frame = [self->window frame];
-	}
-
-	frame.origin.x = x;
-	frame.origin.y = y;
-
-	if(!parent) {
-		frame = rectFlip(frame);
-		[self->window setFrame:frame display:TRUE animate:TRUE];
-	} else {
-		frame = localRectFlip(frame, parent->cocoa.real->view);
-		[self->view setBounds:frame];
-	}
-	self->_eventsPending = MwTRUE;
-};
-- (void)setW:(int)w H:(int)h {
-	NSRect frame	  = [self->window frame];
-	frame.size.width  = w;
-	frame.size.height = h;
-
-	self->rect = frame;
-
-	[self->view setFrameSize:frame.size];
-	if(self->parent) {
-		[self->view setFrame:frame];
-	} else {
-		[self->window setFrame:frame display:YES animate:false];
-	}
-	self->_eventsPending = MwTRUE;
-};
-- (int)pending {
-	NSAutoreleasePool* pool	     = [[NSAutoreleasePool alloc] init];
-	MwBool		   isPending = [self->application pending];
-	[NSApp runModalSession:self->modalSession];
-	[pool release];
-	return _forceRender || _eventsPending || isPending;
-};
-
-- (void)getNextEvent {
-	MwLL h = [self->handle pointer];
-	if(_forceRender) {
-		MwLLDispatch(h, draw, NULL);
-		[self->view setNeedsDisplay:true];
-		_forceRender = MwFALSE;
-	}
-	if(_eventsPending) {
-		MwLLDispatch(h, draw, NULL);
-		[self->view setNeedsDisplay:true];
-		_eventsPending = MwFALSE;
-	}
-	[self sendClipboardEvent];
-
-	if(self->pointerLocked && [self->window isMainWindow] && self->lastEvent) {
-		struct CGPoint pos;
-		pos.x = [window frame].origin.x + [window frame].size.width / 2;
-		pos.y = [window frame].origin.y + [window frame].size.height / 2;
-
-		CGWarpMouseCursorPosition(pos);
-	}
-
-	[self->application updateWindows];
-};
-
-- (void)sendClipboardEvent {
-	/*NSAutoreleasePool* pool	      = [[NSAutoreleasePool alloc] init];
-	NSPasteboard*	   pasteboard = [NSPasteboard generalPasteboard];
-	NSArray*	   items      = @[
-		       @"public.utf8-plain-text",
-		       @"public.utf16-external-plain-text",
-		       @"com.apple.traditional-mac-plain-text",
-	];
-	MwLL this = self->handle.pointer;
-
-	if([pasteboard canReadItemWithDataConformingToTypes:items]) {
-		char*  data = NULL;
-		size_t size = 0;
-		for(NSPasteboardItem* item in [pasteboard pasteboardItems]) {
-			for(NSString* it in items) {
-				NSString* itemData = [item
-	stringForType:(NSString*)it]; if(itemData != NULL) { if(strHash != 0 &&
-	strHash != [itemData hash]) { char* text = malloc([itemData length]);
-						strncpy(text, [itemData UTF8String],
-	[itemData length]); MwLLDispatch(this, clipboard, text); printf("%s -> %p\n",
-	text, this); free(text);
-					}
-					strHash = [itemData hash];
-				}
-			}
-		}
-	}
-
-	[pool release];*/
-}
-
-- (void)setTitle:(const char*)title {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	[self->window
-	    setTitleWithRepresentedFilename:[NSString stringWithUTF8String:title]];
-	[pool release];
-};
-- (void)drawPixmap:(MwLLPixmap)pixmap rect:(MwRect*)_rect {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	MilskoCocoaPixmap* p	= pixmap->cocoa.real;
-	NSGraphicsContext* ctx	= [self->view context];
-	if(ctx) {
-		[NSGraphicsContext saveGraphicsState];
-		[NSGraphicsContext setCurrentContext:ctx];
-
-		[[p image]
-		    drawInRect:localRectFlip(NSMakeRect(_rect->x, _rect->y, _rect->width, _rect->height), self->view)
-		      fromRect:NSZeroRect
-		     operation:NSCompositeSourceOver
-		      fraction:1.0];
-
-		[NSGraphicsContext restoreGraphicsState];
-
-		[self->view setNeedsDisplay:YES];
-	}
-	[pool release];
-};
-- (void)setIcon:(MwLLPixmap)pixmap {
-	[self->application setApplicationIconImage:[pixmap->cocoa.real image]];
-};
-- (void)forceRender {
-	self->_forceRender = MwTRUE;
-	// NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	// NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
-	//                                     location:NSMakePoint(0, 0)
-	//                                modifierFlags:0
-	//                                    timestamp:0
-	//                                 windowNumber:0
-	//                                      context:nil
-	//                                      subtype:0
-	//                                        data1:0
-	//                                        data2:0];
-	// [NSApp postEvent:event atStart:YES];
-	// [pool release];
-};
-- (void)setCursor:(MwCursor*)image mask:(MwCursor*)mask {
-	int	       y, x, ys, xs;
-	unsigned char* di = malloc(image->width * image->height * 4);
-	memset(di, 0, image->width * image->height * 4);
-
-	if(self->cursorPixmap) {
-		[self->cursorPixmap destroy];
-	}
-	self->cursorPixmap =
-	    [MilskoCocoaPixmap newWithWidth:image->width
-				     height:image->height];
-
-	xs = -mask->x + image->x;
-	ys = MwCursorDataHeight + mask->y;
-	ys = MwCursorDataHeight + image->y - ys;
-
-	for(y = 0; y < mask->height; y++) {
-		unsigned int d = mask->data[y];
-		for(x = mask->width - 1; x >= 0; x--) {
-			int px	= 0;
-			int idx = ((y * mask->width) + x) * 4;
-
-			if(d & 1) {
-				di[idx + 3] = 255;
-			};
-			d = d >> 1;
-		}
-	}
-	for(y = 0; y < image->height; y++) {
-		unsigned int d = image->data[y];
-		for(x = image->width - 1; x >= 0; x--) {
-			int px	= 0;
-			int idx = ((y * image->width) + x) * 4;
-
-			if(d & 1) {
-				px = 255;
-			};
-
-			di[idx]	    = px;
-			di[idx + 1] = px;
-			di[idx + 2] = px;
-			d	    = d >> 1;
-		}
-	}
-
-	[self->cursorPixmap updateWithData:di];
-
-	self->cursor = [[NSCursor alloc]
-	    initWithImage:[self->cursorPixmap image]
-		  hotSpot:NSMakePoint(image->x, image->y + image->height)];
-	[self->cursor retain];
-
-	[self->cursor pop];
-	[self->cursor push];
-
-	free(di);
-};
-- (void)detachWithPoint:(MwPoint*)point {
-	[self->window setParentWindow:NULL];
-};
-- (void)show:(int)show {
-	(void)show;
-};
-- (void)makePopupWithParent:(MwLL)_parent {
-	(void)_parent;
-};
-- (void)setSizeHintsWithMinX:(int)minx
-			MinY:(int)miny
-			MaxX:(int)maxx
-			MaxY:(int)maxy {
-	[self->window setMinSize:NSMakeSize(minx, miny)];
-	[self->window setMaxSize:NSMakeSize(maxx, maxy)];
-};
-- (void)makeBorderless:(int)toggle {
-	MwU32 mask = [self->window styleMask];
-	if(toggle) {
-		mask ^= NSBorderlessWindowMask;
-		mask |= NSTitledWindowMask;
-	} else {
-		mask |= NSBorderlessWindowMask;
-		mask ^= NSTitledWindowMask;
-	}
-	[self->window initWithContentRect:self->rect
-				styleMask:mask
-				  backing:NSBackingStoreBuffered
-				    defer:NO];
-};
-- (void)focus {
-	[self->window makeMainWindow];
-};
-- (void)grabPointer:(int)toggle {
-	self->pointerLocked = toggle;
-};
-- (void)setClipboard:(const char*)text {
-	(void)text;
-	// TODO: find out how to do this while supporting 10.4
-	// NSAutoreleasePool* pool	      = [[NSAutoreleasePool alloc] init];
-	// NSPasteboard*	   pasteboard = [NSPasteboard generalPasteboard];
-	// [pasteboard declareTypes:[NSArray arrayWithObjects:NSPasteboardTypeString]
-	// owner:nil]; [pasteboard setString:[NSString stringWithUTF8String:text]
-	// forType:NSPasteboardTypeString]; [pool release];
-};
-- (void)makeToolWindow {
-	/* If my understand of what a "tool window" usually is is correct then I
-	 * highly doubt the Mac OS has this and if they did they probably outright
-	 * removed it along time ago is this kind of conflicts with modern UX. So
-	 * we'll just make it borderless idgaf */
-	[self makeBorderless:MwTRUE];
-};
-- (void)getCursorCoord:(MwPoint*)point {
-	NSPoint p = [NSEvent mouseLocation];
-	point->x  = p.x;
-	point->y  = p.y;
-};
-- (void)getScreenSize:(MwRect*)_rect {
-	NSScreen* screen = [self->window screen];
-	_rect->x	 = [screen frame].origin.x;
-	_rect->y	 = [screen frame].origin.y;
-	_rect->width	 = [screen frame].size.width;
-	_rect->height	 = [screen frame].size.height;
-};
-- (void)destroy {
-	[self->handle release];
-	[self->handle dealloc];
-	[self->window release];
-	[self->window dealloc];
-}
-
-- (MwLL)getParent {
-	return self->parent;
-}
-
-- (NSView*)getView {
-	return view;
-}
-- (NSWindow*)getWindow {
-	return window;
-}
-
-- (void)nudge {
-	self->_eventsPending = MwTRUE;
-}
-
-- (void)pushCursor {
-	[self->cursor push];
-}
-- (void)popCursor {
-	[self->cursor pop];
-}
-
-- (MilskoFakePointer*)getHandle {
-	return handle;
-}
-
-@end
-
 @implementation MilskoCocoaApplication
 - (void)sendEvent:(NSEvent*)event {
 	self->doPending = MwTRUE;
@@ -628,13 +80,12 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 @implementation MilskoCocoaView
 - (id)initWithFrame:(NSRect)frame {
-	givenRect   = frame;
-	x	    = frame.origin.x;
-	y	    = frame.origin.y;
-	width	    = frame.size.width;
-	height	    = frame.size.height;
-	self	    = [super initWithFrame:frame];
-	self->space = CGColorSpaceCreateDeviceRGB();
+	givenRect = frame;
+	x	  = frame.origin.x;
+	y	  = frame.origin.y;
+	width	  = frame.size.width;
+	height	  = frame.size.height;
+	self	  = [super initWithFrame:frame];
 
 	if(width == 0 || height == 0) {
 		self->rep     = NULL;
@@ -661,12 +112,10 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	NSSize		   sz	= [self->rep size];
-	MwLL		   ll	= [((MilskoFakePointer*)[[[[self window] contentView] subviews]
-	    objectAtIndex:0]) pointer];
+	NSAutoreleasePool* pool	    = [[NSAutoreleasePool alloc] init];
+	NSArray*	   subviews = [self subviews];
+	int		   i;
 
-	[super drawRect:dirtyRect];
 	if(!self->rep) {
 		if(dirtyRect.size.width && dirtyRect.size.height) {
 			[self initRepAndContextWithWidth:dirtyRect.size.width
@@ -679,23 +128,23 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		}
 	}
 
-	// MwLLDispatch(ll, draw, NULL);
+	[self->rep drawInRect:NSMakeRect(dirtyRect.origin.x, dirtyRect.origin.y, [self->rep pixelsWide], [self->rep pixelsHigh])];
 
-	[self->rep drawInRect:dirtyRect];
-
-	for(NSView* subview in [self subviews]) {
-		NSRect bounds = [subview bounds];
+	for(i = 0; i < [subviews count]; i++) {
+		MilskoCocoaView* subview = [subviews objectAtIndex:i];
+		NSRect		 bounds	 = [subview bounds];
 		[subview drawRect:bounds];
 	}
-
-	[self->rep bitmapData];
-
 	[pool release];
 }
 
 - (void)initRepAndContextWithWidth:(float)w Height:(float)h {
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	self->buf		= malloc(w * h * 4);
+	memset(self->buf, 255, w * h * 4);
+
 	self->rep =
-	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
+	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&self->buf
 						    pixelsWide:w
 						    pixelsHigh:h
 						 bitsPerSample:8
@@ -708,14 +157,17 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	assert(self->rep);
 	[self->rep retain];
 
+	[self->rep setOpaque:MwFALSE];
+	[self->rep setAlpha:MwTRUE];
+
 	self->context =
 	    [NSGraphicsContext graphicsContextWithBitmapImageRep:self->rep];
 	assert(self->context);
 	[self->context retain];
+	[pool release];
 }
 
 - (void)destroy {
-	CGColorSpaceRelease(self->space);
 	[self->rep release];
 	[self->context release];
 }
@@ -745,6 +197,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 - (void)handleKeyEvent:(NSEvent*)ev ll:(MwLL)ll down:(MwBool)isDown {
 	int ch;
+	/* todo: consolidate these values into the below switch case. */
 	enum {
 		kVK_ANSI_A	      = 0x00,
 		kVK_ANSI_S	      = 0x01,
@@ -968,20 +421,9 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 @end
 
 @implementation MilskoCocoaApplicationDelegate
-- (MilskoCocoaApplicationDelegate*)initWithAppl:(NSApplication*)_appl {
+- (MilskoCocoaApplicationDelegate*)initWithAppl:(MilskoCocoaApplication*)_appl {
 	self->appl = _appl;
 	return self;
-}
-- (void)applicationDidBecomeActive:(NSNotification*)notification {
-	[self->appl activateIgnoringOtherApps:true];
-	// printf("test\n");
-}
-- (void)applicationWillFinishLaunching:(NSNotification*)notification {
-	// printf("test\n");
-	// [self->appl activateIgnoringOtherApps:MwTRUE];
-}
-- (void)applicationDidFinishLaunching:(NSNotification*)notification {
-	// [self->appl activateIgnoringOtherApps:MwTRUE];
 }
 @end
 
@@ -994,7 +436,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		if([ptr isKindOfClass:[MilskoFakePointer class]]) {
 			MwLL h = [(MilskoFakePointer*)ptr pointer];
 			MwLLDispatch(h, resize, NULL);
-			// MwLLDispatch(h, draw, NULL);
 		}
 	}
 	return frameSize;
@@ -1009,22 +450,17 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	[self->w makeKeyAndOrderFront:nil];
 }
 
-- (void)windowDidResize:(NSNotification*)notification {
-	(void)notification;
-}
-
-// This will close/terminate the application when the main window is closed.
-- (void)windowWillClose:(NSNotification*)notification {
-	(void)notification;
-	// MilskoCocoa *window = notification.object;
-	// MwLL handle = [window getHandle].pointer;
-	// MwLLDispatch(handle, close, NULL);
-	[NSApp terminate:nil];
-}
-
 - (MilskoCocoaWindowDelegate*)initWithWin:(NSWindow*)win {
 	self->w = win;
 	return self;
+}
+
+- (void)windowWillClose:(NSNotification*)notification {
+	if([[[w contentView] subviews] count] != 0) {
+		MwLL h = [((MilskoFakePointer*)[[[w contentView] subviews]
+		    objectAtIndex:0]) pointer];
+		MwLLDispatch(h, close, NULL);
+	}
 }
 
 @end
@@ -1057,19 +493,234 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 @end
 
+@implementation MilskoCocoaPixmap
++ (MilskoCocoaPixmap*)newWithWidth:(int)width height:(int)height {
+	MilskoCocoaPixmap* p = [MilskoCocoaPixmap alloc];
+
+	p->width  = width;
+	p->height = height;
+	p->image  = NULL;
+
+	p->buf = malloc(width * height * 4);
+
+	p->rep =
+	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&p->buf
+						    pixelsWide:(int)width
+						    pixelsHigh:(int)height
+						 bitsPerSample:8
+					       samplesPerPixel:4
+						      hasAlpha:YES
+						      isPlanar:NO
+						colorSpaceName:NSDeviceRGBColorSpace
+						   bytesPerRow:(int)width * 4
+						  bitsPerPixel:32];
+	assert(p->rep);
+
+	p->image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
+	assert(p->image);
+	[p->image addRepresentation:p->rep];
+
+	return p;
+}
+- (void)updateWithData:(unsigned char*)_data {
+	memcpy(self->buf, _data, width * height * 4);
+	if(self->rep) {
+		[self->image removeRepresentation:self->rep];
+		[self->rep release];
+	}
+	self->rep =
+	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&self->buf
+						    pixelsWide:(int)width
+						    pixelsHigh:(int)height
+						 bitsPerSample:8
+					       samplesPerPixel:4
+						      hasAlpha:YES
+						      isPlanar:NO
+						colorSpaceName:NSDeviceRGBColorSpace
+						   bytesPerRow:(int)width * 4
+						  bitsPerPixel:32];
+	assert(self->rep);
+	[self->image addRepresentation:self->rep];
+}
+- (void)destroy {
+	free(self->buf);
+	[self->image removeRepresentation:self->rep];
+	[self->image release];
+	[self->rep release];
+	self->image = NULL;
+	self->rep   = NULL;
+}
+- (NSImage*)image {
+	return self->image;
+}
+@end
+
+@implementation MilskoCocoa
+- (void)sendClipboardEvent {
+	/*NSAutoreleasePool* pool	      = [[NSAutoreleasePool alloc] init];
+	NSPasteboard*	   pasteboard = [NSPasteboard generalPasteboard];
+	NSArray*	   items      = @[
+		       @"public.utf8-plain-text",
+		       @"public.utf16-external-plain-text",
+		       @"com.apple.traditional-mac-plain-text",
+	];
+	MwLL this = self->handle.pointer;
+
+	if([pasteboard canReadItemWithDataConformingToTypes:items]) {
+		char*  data = NULL;
+		size_t size = 0;
+		for(NSPasteboardItem* item in [pasteboard pasteboardItems]) {
+			for(NSString* it in items) {
+				NSString* itemData = [item
+	stringForType:(NSString*)it]; if(itemData != NULL) { if(strHash != 0 &&
+	strHash != [itemData hash]) { char* text = malloc([itemData length]);
+						strncpy(text, [itemData UTF8String],
+	[itemData length]); MwLLDispatch(this, clipboard, text); printf("%s -> %p\n",
+	text, this); free(text);
+					}
+					strHash = [itemData hash];
+				}
+			}
+		}
+	}
+
+	[pool release];*/
+}
+
+- (void)destroy {
+	[self->handle release];
+	[self->window release];
+}
+
+- (MwLL)getParent {
+	return self->parent;
+}
+
+- (NSView*)getView {
+	return view;
+}
+- (NSWindow*)getWindow {
+	return window;
+}
+
+- (void)nudge {
+	MwLL p		     = self->parent;
+	self->_eventsPending = MwTRUE;
+
+	if(p) {
+		[p->cocoa.real->view setNeedsDisplay:true];
+		p = p->cocoa.real->parent;
+	}
+}
+
+- (void)pushCursor {
+	[self->cursor push];
+}
+- (void)popCursor {
+	[self->cursor pop];
+}
+
+- (MilskoFakePointer*)getHandle {
+	return handle;
+}
+
+@end
+
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
-	MwLL r;
-	r = malloc(sizeof(*r));
+	MwLL		   r;
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	MilskoCocoa*	   c	= [MilskoCocoa alloc];
+	r			= malloc(sizeof(*r));
 
 	MwLLCreateCommon(r);
 
-	MilskoCocoa* o = [MilskoCocoa newWithParent:parent
-						  x:x
-						  y:y
-					      width:width
-					     height:height
-					     handle:r];
-	r->cocoa.real  = o;
+	[c retain];
+	c->application = (MilskoCocoaApplication*)[MilskoCocoaApplication sharedApplication];
+	[c->application retain];
+
+	/*
+	 * MacOS doesn't really have a "default" window position, you're actually
+	 * meant to center the window yourself, so if the user passes MwDEFAULT
+	 * respond appropriately. Also for child windows just have it be 0.
+	 */
+	if(x == MwDEFAULT) {
+		x = r ? ([[NSScreen mainScreen] frame].size.width / 2.) - (width / 2.) : 0;
+	}
+	if(y == MwDEFAULT) {
+		y = r ? ([[NSScreen mainScreen] frame].size.height / 2.) - (height / 2.)
+		      : 0;
+	}
+	c->rect = NSMakeRect(x, y, width, height);
+
+	if(parent == NULL) {
+		c->window = [[NSWindow alloc]
+		    initWithContentRect:rectFlip(c->rect)
+			      styleMask:(NSTitledWindowMask |
+					 NSClosableWindowMask | NSMiniaturizableWindowMask |
+					 NSResizableWindowMask)
+				backing:NSBackingStoreBuffered
+				  defer:NO];
+		[c->window
+		    setDelegate:[[MilskoCocoaWindowDelegate alloc] initWithWin:c->window]];
+		[c->window retain];
+
+		[c->window makeKeyAndOrderFront:c->application];
+		[c->window makeFirstResponder:c->view];
+
+		c->view = [[MilskoCocoaView alloc] initWithFrame:c->rect];
+		[c->view retain];
+		[c->window setContentView:c->view];
+
+		/* In order for our application to be front and center when launched, we need to use this function introduced in 10.5. There's no function that works on 10.4 or below as far as I know because what you're actually supposed to do is use a feature of XCode project files to modify the settings of the compiled app to set the activation policy. */
+		if([c->application respondsToSelector:@selector(setActivationPolicy:)]) {
+			[c->application
+			    setActivationPolicy:0 /* NSApplicationActivationPolicyRegular */];
+		}
+
+		[c->application activateIgnoringOtherApps:MwTRUE];
+		[c->application setDelegate:[[MilskoCocoaApplicationDelegate alloc]
+						initWithAppl:c->application]];
+		[c->application retain];
+
+		[c->view addTrackingRect:c->rect owner:c->view userData:NULL assumeInside:MwFALSE];
+		c->modalSession = [c->application beginModalSessionForWindow:c->window];
+	} else {
+		MilskoCocoa* p	  = parent->cocoa.real;
+		NSRect	     rect = localRectFlip(c->rect, p->view);
+
+		c->window = p->window;
+		c->view	  = [[MilskoCocoaView alloc] initWithFrame:rect];
+		[c->view setBounds:c->rect];
+		[c->view retain];
+		[c->view setChild];
+
+		[c->view addTrackingRect:c->rect owner:c->view userData:NULL assumeInside:MwFALSE];
+
+		[p->view addSubview:c->view];
+
+		c->modalSession = p->modalSession;
+	}
+	[c->window setAcceptsMouseMovedEvents:MwTRUE];
+
+	c->handle = [[MilskoFakePointer alloc] initWithFrame:NSMakeRect(0, 0, 1, 1)];
+	[c->handle retain];
+	[c->handle setPointer:r];
+	[c->view addSubview:c->handle];
+
+	c->parent = parent;
+
+	c->_forceRender = MwTRUE;
+	c->strHash	= 0;
+
+	c->cursorPixmap = NULL;
+
+	[c->application finishLaunching];
+
+	c->pointerLocked = MwFALSE;
+
+	[pool release];
+
+	r->cocoa.real = c;
 
 	return r;
 }
@@ -1094,13 +745,81 @@ static void MwLLEndDrawImpl(MwLL handle) {
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count,
 			    MwLLColor color) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h polygonWithPoints:points points_count:points_count color:color];
+	MilskoCocoa*	   self = handle->cocoa.real;
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	NSGraphicsContext* ctx	= [self->view context];
+	if(ctx) {
+		int	      i;
+		NSBezierPath* path = [NSBezierPath bezierPath];
+		/* whatever rect we use for coordinate flipping */
+		NSRect _rect = self->parent ? [self->view bounds] : [self->window frame];
+
+		NSColor* nscolor =
+		    [NSColor colorWithCalibratedRed:color->common.red / 255.
+					      green:color->common.green / 255.
+					       blue:color->common.blue / 255.
+					      alpha:1.0];
+
+		[NSGraphicsContext saveGraphicsState];
+		[NSGraphicsContext setCurrentContext:ctx];
+
+		[nscolor setFill];
+		for(i = 0; i < points_count; i++) {
+			NSPoint p = localPointFlip(NSMakePoint(points[i].x, points[i].y), self->view);
+			if(i == 0) {
+				[path moveToPoint:p];
+			} else {
+				[path lineToPoint:p];
+			}
+		}
+
+		[path closePath];
+		[path fill];
+
+		[NSGraphicsContext restoreGraphicsState];
+
+		[self->view setNeedsDisplay:YES];
+	}
+	[pool release];
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h lineWithPoints:points color:color];
+	MilskoCocoa*	   self = handle->cocoa.real;
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	NSGraphicsContext* ctx	= [self->view context];
+	if(ctx) {
+		int	      i;
+		NSBezierPath* path = [NSBezierPath bezierPath];
+		/* whatever rect we use for coordinate flipping */
+		NSRect _rect = self->parent ? [self->view bounds] : [self->window frame];
+
+		NSColor* nscolor =
+		    [NSColor colorWithCalibratedRed:color->common.red / 255.
+					      green:color->common.green / 255.
+					       blue:color->common.blue / 255.
+					      alpha:1.0];
+
+		[NSGraphicsContext saveGraphicsState];
+		[NSGraphicsContext setCurrentContext:ctx];
+
+		[nscolor setFill];
+		for(i = 0; i < 2; i++) {
+			NSPoint p = localPointFlip(NSMakePoint(points[i].x, points[i].y), self->view);
+			if(i == 0) {
+				[path moveToPoint:p];
+			} else {
+				[path lineToPoint:p];
+			}
+		}
+
+		[path closePath];
+		[path stroke];
+
+		[NSGraphicsContext restoreGraphicsState];
+
+		[self->view setNeedsDisplay:YES];
+	}
+	[pool release];
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
@@ -1118,19 +837,60 @@ static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 }
 
 static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w,
-			    unsigned int* height) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h getX:x Y:y W:w H:height];
+			    unsigned int* h) {
+	MilskoCocoa* self = handle->cocoa.real;
+	NSRect	     frame;
+	if(self->parent) {
+		frame = [self->view frame];
+	} else {
+		frame = [self->window frame];
+	}
+	frame = rectFlip(frame);
+
+	*x = frame.origin.x;
+	*y = frame.origin.y;
+
+	*w = frame.size.width;
+	*h = frame.size.height;
 }
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setX:x Y:y];
+	MilskoCocoa* self = handle->cocoa.real;
+	NSRect	     frame;
+	if(self->parent) {
+		frame = [self->view frame];
+	} else {
+		frame = [self->window frame];
+	}
+
+	frame.origin.x = x;
+	frame.origin.y = y;
+
+	if(!self->parent) {
+		frame = rectFlip(frame);
+		[self->window setFrame:frame display:MwTRUE animate:MwTRUE];
+	} else {
+		frame = localRectFlip(frame, self->parent->cocoa.real->view);
+		[self->view setBounds:frame];
+	}
+	[self nudge];
 }
 
-static void MwLLSetWHImpl(MwLL handle, int w, int height) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setW:w H:height];
+static void MwLLSetWHImpl(MwLL handle, int w, int h) {
+	MilskoCocoa* self  = handle->cocoa.real;
+	NSRect	     frame = [self->window frame];
+	frame.size.width   = w;
+	frame.size.height  = h;
+
+	self->rect = frame;
+
+	[self->view setFrameSize:frame.size];
+	if(self->parent) {
+		[self->view setFrame:frame];
+	} else {
+		[self->window setFrame:frame display:YES animate:false];
+	}
+	[self nudge];
 }
 
 static void MwLLFreeColorImpl(MwLLColor color) {
@@ -1138,28 +898,52 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 }
 
 static int MwLLPendingImpl(MwLL handle) {
-	int p = [handle->cocoa.real pending];
-	if(p) {
-		MwLLDispatch(handle, draw, NULL);
-	}
-	return p;
+	MilskoCocoa*	   self	     = handle->cocoa.real;
+	NSAutoreleasePool* pool	     = [[NSAutoreleasePool alloc] init];
+	MwBool		   isPending = [self->application pending];
+	[self->application runModalSession:self->modalSession];
+	[pool release];
+	return self->_forceRender || self->_eventsPending || isPending;
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h getNextEvent];
+	MilskoCocoa* self = handle->cocoa.real;
+	MwLL	     h	  = [self->handle pointer];
+	if(self->_forceRender) {
+		MwLLDispatch(h, draw, NULL);
+		self->_forceRender = MwFALSE;
+	}
+	if(self->_eventsPending) {
+		MwLLDispatch(h, draw, NULL);
+		self->_eventsPending = MwFALSE;
+	}
+	[self sendClipboardEvent];
+
+#ifdef __APPLE__
+	if(self->pointerLocked && [self->window isMainWindow] && self->lastEvent) {
+		struct CGPoint pos;
+		pos.x = [self->window frame].origin.x + [self->window frame].size.width / 2;
+		pos.y = [self->window frame].origin.y + [self->window frame].size.height / 2;
+
+		CGWarpMouseCursorPosition(pos);
+	}
+#endif
+
+	[self->application updateWindows];
 }
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setTitle:title];
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	[handle->cocoa.real->window
+	    setTitleWithRepresentedFilename:[NSString stringWithUTF8String:title]];
+	[pool release];
 }
 
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data,
 				       int width, int height) {
-	(void)handle;
-
 	MwLLPixmap r = malloc(sizeof(*r));
+
+	(void)handle;
 	memset(r, 0, sizeof(*r));
 
 	r->common.raw = malloc(4 * width * height);
@@ -1175,77 +959,153 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data,
 }
 
 static void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {
-	MilskoCocoaPixmap* p = pixmap->cocoa.real;
-	[p updateWithData:pixmap->common.raw];
+	MilskoCocoaPixmap* self = pixmap->cocoa.real;
+	memcpy(self->buf, pixmap->common.raw, pixmap->common.width * pixmap->common.height * 4);
+	[pixmap->cocoa.real updateWithData:pixmap->common.raw];
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
-	MilskoCocoaPixmap* p = pixmap->cocoa.real;
-	[p destroy];
-	[p dealloc];
+	[pixmap->cocoa.real destroy];
+	[pixmap->cocoa.real release];
 	free(pixmap);
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h drawPixmap:pixmap rect:rect];
+	MilskoCocoa*	   self = handle->cocoa.real;
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	MilskoCocoaPixmap* p	= pixmap->cocoa.real;
+	NSGraphicsContext* ctx	= [self->view context];
+	if(ctx) {
+		[NSGraphicsContext saveGraphicsState];
+		[NSGraphicsContext setCurrentContext:ctx];
+
+		[p->image
+		    drawInRect:localRectFlip(NSMakeRect(rect->x, rect->y, rect->width, rect->height), self->view)
+		      fromRect:NSZeroRect
+		     operation:NSCompositeSourceOver
+		      fraction:1.0];
+
+		[NSGraphicsContext restoreGraphicsState];
+
+		[self->view setNeedsDisplay:YES];
+	}
+	[pool release];
 	MwLLForceRender(handle);
 }
 
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setIcon:pixmap];
+	[handle->cocoa.real->application setApplicationIconImage:[pixmap->cocoa.real image]];
 }
 
 static void MwLLForceRenderImpl(MwLL handle) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h forceRender];
+	handle->cocoa.real->_forceRender = MwTRUE;
 }
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setCursor:image mask:mask];
+	MilskoCocoa*   self = handle->cocoa.real;
+	int	       y, x, ys, xs;
+	unsigned char* di = malloc(image->width * image->height * 4);
+	memset(di, 0, image->width * image->height * 4);
+
+	if(self->cursorPixmap) {
+		[self->cursorPixmap destroy];
+	}
+	self->cursorPixmap =
+	    [MilskoCocoaPixmap newWithWidth:image->width
+				     height:image->height];
+
+	xs = -mask->x + image->x;
+	ys = MwCursorDataHeight + mask->y;
+	ys = MwCursorDataHeight + image->y - ys;
+
+	for(y = 0; y < mask->height; y++) {
+		unsigned int d = mask->data[y];
+		for(x = mask->width - 1; x >= 0; x--) {
+			int px	= 0;
+			int idx = ((y * mask->width) + x) * 4;
+
+			if(d & 1) {
+				di[idx + 3] = 255;
+			};
+			d = d >> 1;
+		}
+	}
+	for(y = 0; y < image->height; y++) {
+		unsigned int d = image->data[y];
+		for(x = image->width - 1; x >= 0; x--) {
+			int px	= 0;
+			int idx = ((y * image->width) + x) * 4;
+
+			if(d & 1) {
+				px = 255;
+			};
+
+			di[idx]	    = px;
+			di[idx + 1] = px;
+			di[idx + 2] = px;
+			d	    = d >> 1;
+		}
+	}
+
+	[self->cursorPixmap updateWithData:di];
+
+	self->cursor = [[NSCursor alloc]
+	    initWithImage:[self->cursorPixmap image]
+		  hotSpot:NSMakePoint(image->x, image->y + image->height)];
+	[self->cursor retain];
+
+	[self->cursor pop];
+	[self->cursor push];
+
+	free(di);
 }
 
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h detachWithPoint:point];
+	[handle->cocoa.real->window setParentWindow:NULL];
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h show:show];
+	(void)show;
 }
 
 static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h makePopupWithParent:parent];
+	(void)parent;
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx,
 				 int maxy) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setSizeHintsWithMinX:minx MinY:miny MaxX:maxx MaxY:maxy];
+	MilskoCocoa* self = handle->cocoa.real;
+	[self->window setMinSize:NSMakeSize(minx, miny)];
+	[self->window setMaxSize:NSMakeSize(maxx, maxy)];
 }
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h makeBorderless:toggle];
+	MilskoCocoa* self = handle->cocoa.real;
+	MwU32	     mask = [self->window styleMask];
+	if(toggle) {
+		mask ^= NSBorderlessWindowMask;
+		mask |= NSTitledWindowMask;
+	} else {
+		mask |= NSBorderlessWindowMask;
+		mask ^= NSTitledWindowMask;
+	}
+	[self->window initWithContentRect:self->rect
+				styleMask:mask
+				  backing:NSBackingStoreBuffered
+				    defer:NO];
 }
 
 static void MwLLFocusImpl(MwLL handle) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h focus];
+	[handle->cocoa.real->application activateIgnoringOtherApps:MwTRUE];
 }
 
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h grabPointer:toggle];
+	handle->cocoa.real->pointerLocked = toggle;
 }
 
 static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h setClipboard:text];
+	(void)handle;
+	(void)text;
 }
 
 static void MwLLGetClipboardImpl(MwLL handle) {
@@ -1253,19 +1113,26 @@ static void MwLLGetClipboardImpl(MwLL handle) {
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {
-
-	MilskoCocoa* h = handle->cocoa.real;
-	[h makeToolWindow];
+	/* If my understand of what a "tool window" usually is is correct then I
+	 * highly doubt the Mac OS has this and if they did they probably outright
+	 * removed it along time ago is this kind of conflicts with modern UX. So
+	 * we'll just make it borderless idgaf */
+	MwLLMakeBorderlessImpl(handle, 1);
 }
 
 static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h getCursorCoord:point];
+	NSPoint p = [NSEvent mouseLocation];
+	point->x  = p.x;
+	point->y  = p.y;
 }
 
 static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
-	MilskoCocoa* h = handle->cocoa.real;
-	[h getScreenSize:rect];
+	MilskoCocoa* self   = handle->cocoa.real;
+	NSScreen*    screen = [self->window screen];
+	rect->x		    = [screen frame].origin.x;
+	rect->y		    = [screen frame].origin.y;
+	rect->width	    = [screen frame].size.width;
+	rect->height	    = [screen frame].size.height;
 }
 
 static void MwLLBeginStateChangeImpl(MwLL handle) {
@@ -1277,6 +1144,12 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 }
 
 static int MwLLCocoaCallInitImpl(void) {
+#ifndef __APPLE__
+	printf("Using GNUStep Backend\n");
+#endif
+
+	[MilskoCocoaApplication sharedApplication];
+
 	return 0;
 }
 

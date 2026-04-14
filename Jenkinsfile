@@ -7,7 +7,11 @@ pipeline {
 			when {
 				branch "master"
 			}
+			agent {
+				label "built-in"
+			}
 			steps {
+				sh("rm -rf include/Mw/LowLevel/Wayland")
 				sh("doxygen")
 				sh("rm -rf /var/www/milsko-doxygen")
 				sh("mv doxygen/html /var/www/milsko-doxygen")

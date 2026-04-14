@@ -2646,7 +2646,6 @@ static int MwLLWaylandCallInitImpl(void) {
 	/*
 	 * Order of precedence:
 	 * - MILSKO_BACKEND
-	 * - XDG_SESSION_TYPE
 	 * - manually checking environment variables
 	 */
 #ifdef __linux__

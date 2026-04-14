@@ -15,12 +15,6 @@
 #import <Foundation/Foundation.h>
 #import <Foundation/NSGeometry.h>
 
-#ifdef __APPLE__
-#import <CoreServices/CoreServices.h>
-#else
-#import <CoreGraphics/CoreGraphics.h>
-#endif
-
 @interface MilskoCocoaApplication : NSApplication {
 	MwBool doPending;
 }
@@ -40,9 +34,9 @@
 
 // Note: implements NSWindowDelegate
 @interface MilskoCocoaWindowDelegate : NSObject {
-	MilskoCocoaWindow* w;
+	NSWindow* w;
 }
-- (MilskoCocoaWindowDelegate*)initWithWin:(MilskoCocoaWindow*)win;
+- (MilskoCocoaWindowDelegate*)initWithWin:(NSWindow*)win;
 @end
 
 /*
@@ -67,6 +61,7 @@
 @end
 
 @interface MilskoCocoaPixmap : NSObject {
+      @public
 	MwBool		  valid;
 	int		  width;
 	int		  height;
@@ -86,18 +81,17 @@
 @end
 
 @interface MilskoCocoaView : NSView {
-	NSBitmapImageRep*	   rep;
-	NSGraphicsContext*	   context;
-	MwBool			   valid;
-	CGColorSpaceRef		   space;
-	CGDataProviderRef	   provider;
-	NSRect			   givenRect;
-	float			   x;
-	float			   y;
-	float			   width;
-	float			   height;
-	MwBool			   _child;
-	IBOutlet NSViewController* viewController;
+      @public
+	unsigned char*	   buf;
+	NSBitmapImageRep*  rep;
+	NSGraphicsContext* context;
+	MwBool		   valid;
+	NSRect		   givenRect;
+	float		   x;
+	float		   y;
+	float		   width;
+	float		   height;
+	MwBool		   _child;
 }
 
 - (void)initRepAndContextWithWidth:(float)w Height:(float)h;
@@ -105,14 +99,18 @@
 - (void)destroy;
 - (NSBitmapImageRep*)getRep;
 - (void)setChild;
+@end
 
+@interface MilskoCocoaSubView : MilskoCocoaView {
+}
 @end
 
 @interface MilskoCocoa : NSObject {
+      @public
 	MilskoCocoaApplication* application;
 	MwBool			_forceRender;
 	MwBool			_eventsPending;
-	MilskoCocoaWindow*	window;
+	NSWindow*		window;
 	NSRect			rect;
 	MilskoCocoaView*	view;
 	MwLL			parent;
@@ -126,55 +124,21 @@
 
 	MwBool pointerLocked;
 	MwBool mouseMoved;
-}
 
-+ (MilskoCocoa*)newWithParent:(MwLL)parent
-			    x:(int)x
-			    y:(int)y
-			width:(int)width
-		       height:(int)height
-		       handle:(MwLL)handle;
-- (void)polygonWithPoints:(MwPoint*)points
-	     points_count:(int)points_count
-		    color:(MwLLColor)color;
-- (void)lineWithPoints:(MwPoint*)points color:(MwLLColor)color;
-- (void)getX:(int*)x Y:(int*)y W:(unsigned int*)w H:(unsigned int*)h;
-- (void)setX:(int)x Y:(int)y;
-- (void)setW:(int)w H:(int)h;
-- (int)pending;
-- (void)getNextEvent;
-- (void)setTitle:(const char*)title;
-- (void)drawPixmap:(MwLLPixmap)pixmap rect:(MwRect*)rect;
-- (void)setIcon:(MwLLPixmap)pixmap;
-- (void)forceRender;
-- (void)setCursor:(MwCursor*)image mask:(MwCursor*)mask;
-- (void)detachWithPoint:(MwPoint*)point;
-- (void)show:(int)show;
-- (void)makePopupWithParent:(MwLL)parent;
-- (void)setSizeHintsWithMinX:(int)minx
-			MinY:(int)miny
-			MaxX:(int)maxx
-			MaxY:(int)maxy;
-- (void)makeBorderless:(int)toggle;
-- (void)focus;
-- (void)grabPointer:(int)toggle;
-- (void)setClipboard:(const char*)text;
-- (void)makeToolWindow;
-- (void)getCursorCoord:(MwPoint*)point;
-- (void)getScreenSize:(MwRect*)rect;
+	MwBool rejectFirstTest;
+}
 - (void)destroy;
 - (void)sendClipboardEvent;
 
 - (MwLL)getParent;
 - (NSView*)getView;
-- (MilskoCocoaWindow*)getWindow;
+- (NSWindow*)getWindow;
 - (void)nudge;
 
 - (void)pushCursor;
 - (void)popCursor;
 
 - (MilskoFakePointer*)getHandle;
-+ (void)eventCanceller:(MilskoCocoa*)this;
 
 @end
 #define OBJC(x) x

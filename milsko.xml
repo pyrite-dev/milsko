@@ -40,21 +40,7 @@
 		</struct>
 	</structs>
 	<!--
-		All widgets have:
-		 - MwNbackground
-		 - MwNsubBackground
-		 - MwNforeground
-		 - MwNsubForeground
-		 - MwNx
-		 - MwNy
-		 - MwNwidth
-		 - MwNheight
-		 - MwNborderWidth
-		 - MwNbackgroundPixmap
-		 - MwNratio
-		 - MwNfixedSize
-		 - MwNbitmapFont
-		 - MwNforceInverted
+		All widgets have properties that are common="yes".
 
 		Integer properties must be prefixed with I.
 		String properties must be prefixed with S.
@@ -62,10 +48,10 @@
 		Other properties must be prefixed with V.
 	-->
 	<properties>
-		<integer name="x" />
-		<integer name="y" />
-		<integer name="width" />
-		<integer name="height" />
+		<integer name="x" common="yes" />
+		<integer name="y" common="yes" />
+		<integer name="width" common="yes" />
+		<integer name="height" common="yes" />
 		<integer name="orientation" />
 		<integer name="minValue" />
 		<integer name="maxValue" />
@@ -80,38 +66,39 @@
 		<integer name="hasHeading" />
 		<integer name="hasBorder" />
 		<integer name="inverted" />
-		<integer name="modernLook" />
-		<integer name="waitMS" />
+		<integer name="modernLook" common="yes" />
+		<integer name="waitMS" common="yes" /> <!-- This is a special property, only applies to toplevel widget -->
 		<integer name="hideInput" />
 		<integer name="singleClickSelectable" />
 		<integer name="flat" />
 		<integer name="showArrows" />
 		<integer name="padding" />
-		<integer name="borderWidth" />
-		<integer name="ratio" />
-		<integer name="fixedSize" />
+		<integer name="borderWidth" common="yes" />
+		<integer name="ratio" common="yes" />
+		<integer name="fixedSize" common="yes" />
 		<integer name="margin" />
-		<integer name="bitmapFont" />
+		<integer name="bitmapFont" common="yes" />
 		<integer name="sevenSegment" />
 		<integer name="length" />
-		<integer name="forceInverted" />
+		<integer name="forceInverted" common="yes" />
 		<integer name="roundness" />
-		<integer name="isRounded" />
-		<integer name="darkTheme" />
+		<integer name="isRounded" common="yes" />
+		<integer name="darkTheme" common="yes" />
+		<integer name="useMonospace" common="yes" />
 
 		<string name="title" />
 		<string name="text" />
-		<string name="background" />
-		<string name="subBackground" />
-		<string name="foreground" />
-		<string name="subForeground" />
+		<string name="background" common="yes" />
+		<string name="subBackground" common="yes" />
+		<string name="foreground" common="yes" />
+		<string name="subForeground" common="yes" />
 
 		<pixmap name="pixmap" />
 		<pixmap name="iconPixmap" />
 		<struct defname="MwSizeHints" pointer="yes" name="sizeHints" />
 		<pointer name="font" />
 		<pointer name="boldFont" />
-		<pixmap name="backgroundPixmap" />
+		<pixmap name="backgroundPixmap" common="yes" />
 		<pointer name="monospaceFont" />
 		<pointer name="boldMonospaceFont" />
 

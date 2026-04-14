@@ -59,7 +59,7 @@ static void draw(MwWidget handle) {
 
 				rc.x += MwGetInteger(handle, MwNleftPadding);
 
-				MwDrawFrameEx(handle, &rc, base, 1, 1, 0, 0, 0);
+				MwDrawFrameEx(handle, &rc, base, 1, 1, 0, 0);
 
 				p.y += 2 + 1;
 			} else {

@@ -606,7 +606,6 @@ int MwGetInteger(MwWidget handle, const char* key) {
 #else
 			if(strcmp(key, MwNmodernLook) == 0) return inherit_integer(handle, key, 1);
 #endif
-			if(strcmp(key, MwNisRounded) == 0) return inherit_integer(handle, key, 1);
 			if(strcmp(key, MwNdarkTheme) == 0) return inherit_integer(handle, key, 0);
 			if(strcmp(key, MwNuseMonospace) == 0) return inherit_integer(handle, key, 0);
 		}
@@ -856,14 +855,15 @@ MwWidget MwGetParent(MwWidget handle) {
 typedef int (*call_t)(void);
 int MwLibraryInit(void) {
 	call_t calls[] = {
-#ifdef USE_COCOA
-	    MwLLCocoaCallInit,
-#endif
 #ifdef USE_WAYLAND
 	    MwLLWaylandCallInit,
 #endif
+/* x11 has higher priority then cocoa until it works */
 #ifdef USE_X11
 	    MwLLX11CallInit,
+#endif
+#ifdef USE_COCOA
+	    MwLLCocoaCallInit,
 #endif
 #ifdef USE_GDI
 	    MwLLGDICallInit,
