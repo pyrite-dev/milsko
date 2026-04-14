@@ -327,6 +327,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 - (void)handleKeyEvent:(NSEvent*)ev ll:(MwLL)ll down:(MwBool)isDown {
 	int ch;
+	/* todo: consolidate these values into the below switch case. */
 	enum {
 		kVK_ANSI_A	      = 0x00,
 		kVK_ANSI_S	      = 0x01,
@@ -682,10 +683,12 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		[c->view retain];
 		[c->window setContentView:c->view];
 
+		/* In order for our application to be front and center when launched, we need to use this function introduced in 10.5. There's no function that works on 10.4 or below as far as I know because what you're actually supposed to do is use a feature of XCode project files to modify the settings of the compiled app to set the activation policy. */
 		if([c->application respondsToSelector:@selector(setActivationPolicy:)]) {
 			[c->application
 			    setActivationPolicy:0 /* NSApplicationActivationPolicyRegular */];
 		}
+
 		[c->application activateIgnoringOtherApps:MwTRUE];
 		[c->application setDelegate:[[MilskoCocoaApplicationDelegate alloc]
 						initWithAppl:c->application]];
@@ -694,12 +697,11 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		[c->view addTrackingRect:c->rect owner:c->view userData:NULL assumeInside:MwFALSE];
 		c->modalSession = [c->application beginModalSessionForWindow:c->window];
 	} else {
-		MilskoCocoa* p = parent->cocoa.real;
+		MilskoCocoa* p	  = parent->cocoa.real;
+		NSRect	     rect = localRectFlip(c->rect, p->view);
 
 		c->window = p->window;
-
-		NSRect rect = localRectFlip(c->rect, p->view);
-		c->view	    = [[MilskoCocoaView alloc] initWithFrame:rect];
+		c->view	  = [[MilskoCocoaView alloc] initWithFrame:rect];
 		[c->view setBounds:c->rect];
 		[c->view retain];
 		[c->view setChild];
@@ -729,6 +731,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	c->pointerLocked = MwFALSE;
 
 	[pool release];
+
 	r->cocoa.real = c;
 
 	return r;
