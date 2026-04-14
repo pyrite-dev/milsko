@@ -325,7 +325,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 	if(!parent) {
 		frame = rectFlip(frame);
-		[self->window setFrame:frame display:TRUE animate:TRUE];
+		[self->window setFrame:frame display:MwTRUE animate:MwTRUE];
 	} else {
 		frame = localRectFlip(frame, parent->cocoa.real->view);
 		[self->view setBounds:frame];
@@ -367,6 +367,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	}
 	[self sendClipboardEvent];
 
+#ifdef __APPLE__
 	if(self->pointerLocked && [self->window isMainWindow] && self->lastEvent) {
 		struct CGPoint pos;
 		pos.x = [window frame].origin.x + [window frame].size.width / 2;
@@ -374,6 +375,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 		CGWarpMouseCursorPosition(pos);
 	}
+#endif
 
 	[self->application updateWindows];
 };
@@ -617,13 +619,12 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 @implementation MilskoCocoaView
 - (id)initWithFrame:(NSRect)frame {
-	givenRect   = frame;
-	x	    = frame.origin.x;
-	y	    = frame.origin.y;
-	width	    = frame.size.width;
-	height	    = frame.size.height;
-	self	    = [super initWithFrame:frame];
-	self->space = CGColorSpaceCreateDeviceRGB();
+	givenRect = frame;
+	x	  = frame.origin.x;
+	y	  = frame.origin.y;
+	width	  = frame.size.width;
+	height	  = frame.size.height;
+	self	  = [super initWithFrame:frame];
 
 	if(width == 0 || height == 0) {
 		self->rep     = NULL;
@@ -701,7 +702,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 }
 
 - (void)destroy {
-	CGColorSpaceRelease(self->space);
 	[self->rep release];
 	[self->context release];
 }

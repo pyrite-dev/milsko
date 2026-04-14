@@ -66,6 +66,7 @@ my %features = (
     "shared"               => "build shared library",
     "static"               => "build static library",
     "wayland"              => "enable wayland backend",
+    "gnustep"              => "use gnustep",
 );
 my @features_keys = (
     "1classic-theme", "1stb-image",
@@ -73,8 +74,15 @@ my @features_keys = (
     "1opengl",        "2xrender",
     "1vulkan",        "2vulkan-string-helper",
     "1shared",        "1static",
-    "1wayland",
+    "1wayland", "1gnustep",
 );
+
+if($target eq "Linux") {
+    param_set("x11", 1);
+    if(!param_get("tiny")){
+        param_set("wayland", 1);
+    }
+}
 
 foreach my $l (@ARGV) {
     if ($l =~ /^--with-([^=]+)=(.+)$/) {
@@ -138,12 +146,7 @@ foreach my $l (@ARGV) {
     }
 }
 
-if($target eq "Linux") {
-    param_set("x11", 1);
-    if(!param_get("tiny")){
-        param_set("wayland", 1);
-    }
-}
+
 
 if (-f "./pl/ostype/${target}.pl") {
     require("./pl/ostype/${target}.pl");

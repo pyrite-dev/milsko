@@ -55,7 +55,6 @@ sub new_object {
     my @l = glob($_[0]);
     foreach my $e (@l) {
         $e =~ s/\.(c|m)$/$object_suffix/;
-        print($e."\n");
         push(@library_targets, $e);
     }
 }

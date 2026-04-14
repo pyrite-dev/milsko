@@ -52,9 +52,13 @@ if (grep(/^wayland$/, @backends)) {
     $gl_libs = "-lGL -lGLU";
 }
 
-if (grep(/^cocoa$/, @backends)) {
+if (grep(/^cocoa$/, @backends) || param_get("gnustep")) {
     add_cflags("-DUSE_COCOA");
     new_object("src/backend/cocoa.m");
+
+    if(param_get("gnustep")){
+        add_ldflags("-lobjc -lgnustep-base -lm -lgnustep-gui");
+    }
 
     if (param_get("opengl")) {
         new_object("src/widget/opengl_cocoa.m");

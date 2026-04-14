@@ -15,12 +15,6 @@
 #import <Foundation/Foundation.h>
 #import <Foundation/NSGeometry.h>
 
-#ifdef __APPLE__
-#import <CoreServices/CoreServices.h>
-#else
-#import <CoreGraphics/CoreGraphics.h>
-#endif
-
 @interface MilskoCocoaApplication : NSApplication {
 	MwBool doPending;
 }
@@ -29,9 +23,9 @@
 
 // Note: implements NSApplicationDelegate
 @interface MilskoCocoaApplicationDelegate : NSObject {
-	MilskoCocoaApplication* appl;
+	NSApplication* appl;
 }
-- (MilskoCocoaApplicationDelegate*)initWithAppl:(MilskoCocoaApplication*)appl;
+- (MilskoCocoaApplicationDelegate*)initWithAppl:(NSApplication*)appl;
 @end
 
 @interface MilskoCocoaWindow : NSWindow {
@@ -40,7 +34,7 @@
 
 // Note: implements NSWindowDelegate
 @interface MilskoCocoaWindowDelegate : NSObject {
-	MilskoCocoaWindow* w;
+	NSWindow* w;
 }
 - (MilskoCocoaWindowDelegate*)initWithWin:(MilskoCocoaWindow*)win;
 @end
@@ -89,8 +83,6 @@
 	NSBitmapImageRep*  rep;
 	NSGraphicsContext* context;
 	MwBool		   valid;
-	CGColorSpaceRef	   space;
-	CGDataProviderRef  provider;
 	NSRect		   givenRect;
 	float		   x;
 	float		   y;
@@ -111,16 +103,16 @@
 @end
 
 @interface MilskoCocoa : NSObject {
-	MilskoCocoaApplication* application;
-	MwBool			_forceRender;
-	MwBool			_eventsPending;
-	MilskoCocoaWindow*	window;
-	NSRect			rect;
-	MilskoCocoaView*	view;
-	MwLL			parent;
-	MilskoFakePointer*	handle;
-	unsigned int		strHash;
-	NSEvent*		lastEvent;
+	NSApplication*	   application;
+	MwBool		   _forceRender;
+	MwBool		   _eventsPending;
+	MilskoCocoaWindow* window;
+	NSRect		   rect;
+	MilskoCocoaView*   view;
+	MwLL		   parent;
+	MilskoFakePointer* handle;
+	unsigned int	   strHash;
+	NSEvent*	   lastEvent;
 
 	MilskoCocoaPixmap* cursorPixmap;
 	NSCursor*	   cursor;
