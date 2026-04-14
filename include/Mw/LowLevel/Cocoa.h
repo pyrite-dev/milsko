@@ -23,9 +23,9 @@
 
 // Note: implements NSApplicationDelegate
 @interface MilskoCocoaApplicationDelegate : NSObject {
-	NSApplication* appl;
+	MilskoCocoaApplication* appl;
 }
-- (MilskoCocoaApplicationDelegate*)initWithAppl:(NSApplication*)appl;
+- (MilskoCocoaApplicationDelegate*)initWithAppl:(MilskoCocoaApplication*)appl;
 @end
 
 @interface MilskoCocoaWindow : NSWindow {
@@ -36,7 +36,7 @@
 @interface MilskoCocoaWindowDelegate : NSObject {
 	NSWindow* w;
 }
-- (MilskoCocoaWindowDelegate*)initWithWin:(MilskoCocoaWindow*)win;
+- (MilskoCocoaWindowDelegate*)initWithWin:(NSWindow*)win;
 @end
 
 /*
@@ -103,16 +103,16 @@
 @end
 
 @interface MilskoCocoa : NSObject {
-	NSApplication*	   application;
-	MwBool		   _forceRender;
-	MwBool		   _eventsPending;
-	MilskoCocoaWindow* window;
-	NSRect		   rect;
-	MilskoCocoaView*   view;
-	MwLL		   parent;
-	MilskoFakePointer* handle;
-	unsigned int	   strHash;
-	NSEvent*	   lastEvent;
+	MilskoCocoaApplication* application;
+	MwBool			_forceRender;
+	MwBool			_eventsPending;
+	NSWindow*		window;
+	NSRect			rect;
+	MilskoCocoaView*	view;
+	MwLL			parent;
+	MilskoFakePointer*	handle;
+	unsigned int		strHash;
+	NSEvent*		lastEvent;
 
 	MilskoCocoaPixmap* cursorPixmap;
 	NSCursor*	   cursor;
@@ -163,14 +163,13 @@
 
 - (MwLL)getParent;
 - (NSView*)getView;
-- (MilskoCocoaWindow*)getWindow;
+- (NSWindow*)getWindow;
 - (void)nudge;
 
 - (void)pushCursor;
 - (void)popCursor;
 
 - (MilskoFakePointer*)getHandle;
-+ (void)eventCanceller:(MilskoCocoa*)this;
 
 @end
 #define OBJC(x) x

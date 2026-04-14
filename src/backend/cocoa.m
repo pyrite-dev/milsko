@@ -136,8 +136,9 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		       handle:(MwLL)r {
 	MilskoCocoa*	   c	= [MilskoCocoa alloc];
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	[c retain];
+	c->application = (MilskoCocoaApplication*)[MilskoCocoaApplication sharedApplication];
+	[c->application retain];
 
 	/*
 	 * MacOS doesn't really have a "default" window position, you're actually
@@ -151,11 +152,10 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		y = r ? ([[NSScreen mainScreen] frame].size.height / 2.) - (height / 2.)
 		      : 0;
 	}
-	c->application = NSApp;
-	c->rect	       = NSMakeRect(x, y, width, height);
+	c->rect = NSMakeRect(x, y, width, height);
 
 	if(parent == NULL) {
-		c->window = [[MilskoCocoaWindow alloc]
+		c->window = [[NSWindow alloc]
 		    initWithContentRect:rectFlip(c->rect)
 			      styleMask:(NSTitledWindowMask |
 					 NSClosableWindowMask | NSMiniaturizableWindowMask |
@@ -183,6 +183,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		[c->application retain];
 
 		[c->view addTrackingRect:c->rect owner:c->view userData:NULL assumeInside:MwFALSE];
+		c->modalSession = [c->application beginModalSessionForWindow:c->window];
 	} else {
 		MilskoCocoa* p = parent->cocoa.real;
 
@@ -197,6 +198,8 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		[c->view addTrackingRect:c->rect owner:c->view userData:NULL assumeInside:MwFALSE];
 
 		[p->view addSubview:c->view];
+
+		c->modalSession = p->modalSession;
 	}
 	[c->window setAcceptsMouseMovedEvents:MwTRUE];
 
@@ -205,8 +208,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	[c->handle setPointer:r];
 	[c->view addSubview:c->handle];
 
-	c->modalSession = [c->application beginModalSessionForWindow:c->window];
-	c->parent	= parent;
+	c->parent = parent;
 
 	c->_forceRender = MwTRUE;
 	c->strHash	= 0;
@@ -350,7 +352,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 - (int)pending {
 	NSAutoreleasePool* pool	     = [[NSAutoreleasePool alloc] init];
 	MwBool		   isPending = [self->application pending];
-	[NSApp runModalSession:self->modalSession];
+	[self->application runModalSession:self->modalSession];
 	[pool release];
 	return _forceRender || _eventsPending || isPending;
 };
@@ -954,7 +956,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 @end
 
 @implementation MilskoCocoaApplicationDelegate
-- (MilskoCocoaApplicationDelegate*)initWithAppl:(NSApplication*)_appl {
+- (MilskoCocoaApplicationDelegate*)initWithAppl:(MilskoCocoaApplication*)_appl {
 	self->appl = _appl;
 	return self;
 }
@@ -1001,10 +1003,9 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 // This will close/terminate the application when the main window is closed.
 - (void)windowWillClose:(NSNotification*)notification {
 	(void)notification;
-	// MilskoCocoa *window = notification.object;
-	// MwLL handle = [window getHandle].pointer;
-	// MwLLDispatch(handle, close, NULL);
-	[NSApp terminate:nil];
+	MilskoCocoa* window = notification.object;
+	MwLL	     handle = [window getHandle].pointer;
+	MwLLDispatch(handle, close, NULL);
 }
 
 - (MilskoCocoaWindowDelegate*)initWithWin:(NSWindow*)win {
@@ -1235,7 +1236,9 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 }
 
 static int MwLLCocoaCallInitImpl(void) {
-	[NSApplication sharedApplication];
+	printf("Using GNUStep Backend\n");
+
+	[MilskoCocoaApplication sharedApplication];
 
 	return 0;
 }

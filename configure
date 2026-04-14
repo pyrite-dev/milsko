@@ -146,8 +146,6 @@ foreach my $l (@ARGV) {
     }
 }
 
-
-
 if (-f "./pl/ostype/${target}.pl") {
     require("./pl/ostype/${target}.pl");
 }

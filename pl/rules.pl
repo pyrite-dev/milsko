@@ -57,9 +57,10 @@ if (grep(/^cocoa$/, @backends) || param_get("gnustep")) {
     new_object("src/backend/cocoa.m");
 
     if(param_get("gnustep")){
-        add_incdir2("-I/usr/GNUstep/System/Library/Headers");
-        add_libdir("-L/usr/GNUstep/System/Library/Libraries");
-        add_ldflags("-fblocks -lobjc -lgnustep-base -lm -lgnustep-gui");
+        add_incdir("-I".`gnustep-config --variable=GNUSTEP_SYSTEM_HEADERS`);
+        add_libdir("-L".`gnustep-config --variable=GNUSTEP_SYSTEM_LIBRARIES`);
+        add_cflags("-fobjc-runtime=gnustep-2.0 -fblocks");
+        add_ldflags("-lobjc -lgnustep-base -lm -lgnustep-gui");
     }
 
     if (param_get("opengl")) {
