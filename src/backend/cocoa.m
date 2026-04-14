@@ -64,139 +64,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	}
 };
 
-@implementation MilskoCocoaPixmap
-
-+ (MilskoCocoaPixmap*)newWithWidth:(int)width height:(int)height {
-	MilskoCocoaPixmap* p = [MilskoCocoaPixmap alloc];
-
-	p->width  = width;
-	p->height = height;
-	p->image  = NULL;
-
-	p->buf = malloc(width * height * 4);
-
-	p->rep =
-	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&p->buf
-						    pixelsWide:(int)width
-						    pixelsHigh:(int)height
-						 bitsPerSample:8
-					       samplesPerPixel:4
-						      hasAlpha:YES
-						      isPlanar:NO
-						colorSpaceName:NSDeviceRGBColorSpace
-						   bytesPerRow:(int)width * 4
-						  bitsPerPixel:32];
-	assert(p->rep);
-
-	p->image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
-	assert(p->image);
-	[p->image addRepresentation:p->rep];
-
-	return p;
-}
-- (void)updateWithData:(unsigned char*)_data {
-	memcpy(self->buf, _data, width * height * 4);
-	if(self->rep) {
-		[self->image removeRepresentation:self->rep];
-		[self->rep release];
-	}
-	self->rep =
-	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&self->buf
-						    pixelsWide:(int)width
-						    pixelsHigh:(int)height
-						 bitsPerSample:8
-					       samplesPerPixel:4
-						      hasAlpha:YES
-						      isPlanar:NO
-						colorSpaceName:NSDeviceRGBColorSpace
-						   bytesPerRow:(int)width * 4
-						  bitsPerPixel:32];
-	[self->image addRepresentation:self->rep];
-}
-- (void)destroy {
-	free(self->buf);
-	[self->image removeRepresentation:self->rep];
-	[self->image release];
-	[self->rep release];
-	self->image = NULL;
-	self->rep   = NULL;
-}
-- (NSImage*)image {
-	return self->image;
-}
-@end
-
-@implementation MilskoCocoa
-- (void)sendClipboardEvent {
-	/*NSAutoreleasePool* pool	      = [[NSAutoreleasePool alloc] init];
-	NSPasteboard*	   pasteboard = [NSPasteboard generalPasteboard];
-	NSArray*	   items      = @[
-		       @"public.utf8-plain-text",
-		       @"public.utf16-external-plain-text",
-		       @"com.apple.traditional-mac-plain-text",
-	];
-	MwLL this = self->handle.pointer;
-
-	if([pasteboard canReadItemWithDataConformingToTypes:items]) {
-		char*  data = NULL;
-		size_t size = 0;
-		for(NSPasteboardItem* item in [pasteboard pasteboardItems]) {
-			for(NSString* it in items) {
-				NSString* itemData = [item
-	stringForType:(NSString*)it]; if(itemData != NULL) { if(strHash != 0 &&
-	strHash != [itemData hash]) { char* text = malloc([itemData length]);
-						strncpy(text, [itemData UTF8String],
-	[itemData length]); MwLLDispatch(this, clipboard, text); printf("%s -> %p\n",
-	text, this); free(text);
-					}
-					strHash = [itemData hash];
-				}
-			}
-		}
-	}
-
-	[pool release];*/
-}
-
-- (void)destroy {
-	[self->handle release];
-	[self->window release];
-}
-
-- (MwLL)getParent {
-	return self->parent;
-}
-
-- (NSView*)getView {
-	return view;
-}
-- (NSWindow*)getWindow {
-	return window;
-}
-
-- (void)nudge {
-	MwLL p		     = self->parent;
-	self->_eventsPending = MwTRUE;
-
-	if(p) {
-		[p->cocoa.real->view setNeedsDisplay:true];
-		p = p->cocoa.real->parent;
-	}
-}
-
-- (void)pushCursor {
-	[self->cursor push];
-}
-- (void)popCursor {
-	[self->cursor pop];
-}
-
-- (MilskoFakePointer*)getHandle {
-	return handle;
-}
-
-@end
-
 @implementation MilskoCocoaApplication
 - (void)sendEvent:(NSEvent*)event {
 	self->doPending = MwTRUE;
@@ -555,17 +422,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	self->appl = _appl;
 	return self;
 }
-- (void)applicationDidBecomeActive:(NSNotification*)notification {
-	[self->appl activateIgnoringOtherApps:true];
-	// printf("test\n");
-}
-- (void)applicationWillFinishLaunching:(NSNotification*)notification {
-	// printf("test\n");
-	// [self->appl activateIgnoringOtherApps:MwTRUE];
-}
-- (void)applicationDidFinishLaunching:(NSNotification*)notification {
-	// [self->appl activateIgnoringOtherApps:MwTRUE];
-}
 @end
 
 @implementation MilskoCocoaWindowDelegate
@@ -591,21 +447,17 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	[self->w makeKeyAndOrderFront:nil];
 }
 
-- (void)windowDidResize:(NSNotification*)notification {
-	(void)notification;
-}
-
-// This will close/terminate the application when the main window is closed.
-- (void)windowWillClose:(NSNotification*)notification {
-	(void)notification;
-	// MilskoCocoa* window = notification.object;
-	// MwLL	     handle = [window getHandle].pointer;
-	// MwLLDispatch(handle, close, NULL);
-}
-
 - (MilskoCocoaWindowDelegate*)initWithWin:(NSWindow*)win {
 	self->w = win;
 	return self;
+}
+
+- (void)windowWillClose:(NSNotification*)notification {
+	if([[[w contentView] subviews] count] != 0) {
+		MwLL h = [((MilskoFakePointer*)[[[w contentView] subviews]
+		    objectAtIndex:0]) pointer];
+		MwLLDispatch(h, close, NULL);
+	}
 }
 
 @end
@@ -634,6 +486,138 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 }
 - (BOOL)canBecomeMainWindow {
 	return true;
+}
+
+@end
+
+@implementation MilskoCocoaPixmap
++ (MilskoCocoaPixmap*)newWithWidth:(int)width height:(int)height {
+	MilskoCocoaPixmap* p = [MilskoCocoaPixmap alloc];
+
+	p->width  = width;
+	p->height = height;
+	p->image  = NULL;
+
+	p->buf = malloc(width * height * 4);
+
+	p->rep =
+	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&p->buf
+						    pixelsWide:(int)width
+						    pixelsHigh:(int)height
+						 bitsPerSample:8
+					       samplesPerPixel:4
+						      hasAlpha:YES
+						      isPlanar:NO
+						colorSpaceName:NSDeviceRGBColorSpace
+						   bytesPerRow:(int)width * 4
+						  bitsPerPixel:32];
+	assert(p->rep);
+
+	p->image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
+	assert(p->image);
+	[p->image addRepresentation:p->rep];
+
+	return p;
+}
+- (void)updateWithData:(unsigned char*)_data {
+	memcpy(self->buf, _data, width * height * 4);
+	if(self->rep) {
+		[self->image removeRepresentation:self->rep];
+		[self->rep release];
+	}
+	self->rep =
+	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&self->buf
+						    pixelsWide:(int)width
+						    pixelsHigh:(int)height
+						 bitsPerSample:8
+					       samplesPerPixel:4
+						      hasAlpha:YES
+						      isPlanar:NO
+						colorSpaceName:NSDeviceRGBColorSpace
+						   bytesPerRow:(int)width * 4
+						  bitsPerPixel:32];
+	[self->image addRepresentation:self->rep];
+}
+- (void)destroy {
+	free(self->buf);
+	[self->image removeRepresentation:self->rep];
+	[self->image release];
+	[self->rep release];
+	self->image = NULL;
+	self->rep   = NULL;
+}
+- (NSImage*)image {
+	return self->image;
+}
+@end
+
+@implementation MilskoCocoa
+- (void)sendClipboardEvent {
+	/*NSAutoreleasePool* pool	      = [[NSAutoreleasePool alloc] init];
+	NSPasteboard*	   pasteboard = [NSPasteboard generalPasteboard];
+	NSArray*	   items      = @[
+		       @"public.utf8-plain-text",
+		       @"public.utf16-external-plain-text",
+		       @"com.apple.traditional-mac-plain-text",
+	];
+	MwLL this = self->handle.pointer;
+
+	if([pasteboard canReadItemWithDataConformingToTypes:items]) {
+		char*  data = NULL;
+		size_t size = 0;
+		for(NSPasteboardItem* item in [pasteboard pasteboardItems]) {
+			for(NSString* it in items) {
+				NSString* itemData = [item
+	stringForType:(NSString*)it]; if(itemData != NULL) { if(strHash != 0 &&
+	strHash != [itemData hash]) { char* text = malloc([itemData length]);
+						strncpy(text, [itemData UTF8String],
+	[itemData length]); MwLLDispatch(this, clipboard, text); printf("%s -> %p\n",
+	text, this); free(text);
+					}
+					strHash = [itemData hash];
+				}
+			}
+		}
+	}
+
+	[pool release];*/
+}
+
+- (void)destroy {
+	[self->handle release];
+	[self->window release];
+}
+
+- (MwLL)getParent {
+	return self->parent;
+}
+
+- (NSView*)getView {
+	return view;
+}
+- (NSWindow*)getWindow {
+	return window;
+}
+
+- (void)nudge {
+	MwLL p		     = self->parent;
+	self->_eventsPending = MwTRUE;
+
+	if(p) {
+		[p->cocoa.real->view setNeedsDisplay:true];
+		p = p->cocoa.real->parent;
+	}
+}
+
+- (void)pushCursor {
+	[self->cursor push];
+}
+- (void)popCursor {
+	[self->cursor pop];
+}
+
+- (MilskoFakePointer*)getHandle {
+	return handle;
 }
 
 @end
@@ -953,9 +937,9 @@ static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data,
 				       int width, int height) {
-	(void)handle;
-
 	MwLLPixmap r = malloc(sizeof(*r));
+
+	(void)handle;
 	memset(r, 0, sizeof(*r));
 
 	r->common.raw = malloc(4 * width * height);
@@ -973,22 +957,7 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data,
 static void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {
 	MilskoCocoaPixmap* self = pixmap->cocoa.real;
 	memcpy(self->buf, pixmap->common.raw, pixmap->common.width * pixmap->common.height * 4);
-	if(self->rep) {
-		[self->image removeRepresentation:self->rep];
-		[self->rep release];
-	}
-	self->rep =
-	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&self->buf
-						    pixelsWide:(int)pixmap->common.width
-						    pixelsHigh:(int)pixmap->common.height
-						 bitsPerSample:8
-					       samplesPerPixel:4
-						      hasAlpha:YES
-						      isPlanar:NO
-						colorSpaceName:NSDeviceRGBColorSpace
-						   bytesPerRow:(int)pixmap->common.width * 4
-						  bitsPerPixel:32];
-	[self->image addRepresentation:self->rep];
+	[pixmap->cocoa.real updateWithData:pixmap->common.raw];
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
