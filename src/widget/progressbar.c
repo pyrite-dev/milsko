@@ -23,7 +23,7 @@ static void draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 
-	MwDrawFrame(handle, &r, base, 1, 0);
+	MwDrawFrame(handle, &r, base, 1);
 	MwDrawRect(handle, &r, base);
 	w = MwGetInteger(handle, MwNvalue) - MwGetInteger(handle, MwNminValue);
 	w = w / (MwGetInteger(handle, MwNmaxValue) - MwGetInteger(handle, MwNminValue));

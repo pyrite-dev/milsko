@@ -22,7 +22,7 @@ static void draw(MwWidget handle) {
 		fr.y	  = 0;
 		fr.width  = MwGetInteger(handle, MwNwidth);
 		fr.height = MwGetInteger(handle, MwNheight);
-		MwDrawFrame(handle, &fr, base, inverted, 0);
+		MwDrawFrame(handle, &fr, base, inverted);
 
 		rr.x	  = MwDefaultBorderWidth(handle);
 		rr.y	  = MwDefaultBorderWidth(handle);

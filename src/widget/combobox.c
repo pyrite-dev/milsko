@@ -72,7 +72,7 @@ static void draw(MwWidget handle) {
 
 	r.y += r.height;
 	r.height = MwDefaultBorderWidth(handle) * 2;
-	MwDrawFrame(handle, &r, base, 0, 0);
+	MwDrawFrame(handle, &r, base, 0);
 
 	MwLLFreeColor(text);
 	MwLLFreeColor(base);

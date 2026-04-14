@@ -64,7 +64,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 				const int len = 4;
 
 				MwDrawRect(handle, &r, col);
-				MwDrawFrame(handle, &r, base, tree->opened, 0);
+				MwDrawFrame(handle, &r, base, tree->opened);
 				if(tree->opened) {
 					l[0].x = r.x + (r.width - len) / 2;
 					l[0].y = r.y + r.height / 2;
@@ -91,7 +91,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 					MwLLLine(handle->lowlevel, &l[0], text);
 				}
 				r = r2;
-				MwDrawFrame(handle, &r, base, tree->opened, 0);
+				MwDrawFrame(handle, &r, base, tree->opened);
 
 				if(col != base) MwLLFreeColor(col);
 			} else {
@@ -183,7 +183,7 @@ static void frame_draw(MwWidget handle) {
 	p.x = MwDefaultBorderWidth(handle);
 	p.y = MwDefaultBorderWidth(handle);
 
-	MwDrawFrame(handle, &r, base, 1, 0);
+	MwDrawFrame(handle, &r, base, 1);
 	MwDrawRect(handle, &r, base2);
 
 	r = r2;
@@ -193,7 +193,7 @@ static void frame_draw(MwWidget handle) {
 		recursion(handle, tv->tree[i], tv->tree, base, text, base2, text2, &p, 0, LineSpace, &skip, &shared, 1, NULL);
 	}
 
-	MwDrawFrame(handle, &r, base, 1, 0);
+	MwDrawFrame(handle, &r, base, 1);
 
 	MwLLFreeColor(text2);
 	MwLLFreeColor(text);

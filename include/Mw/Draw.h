@@ -53,7 +53,7 @@ MWDECL void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color);
  * @param rect Rectangle area
  * @param color Color
  */
-MWDECL void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int rounded);
+MWDECL void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color);
 
 /*!
  * @brief Draws a frame
@@ -63,7 +63,7 @@ MWDECL void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color, int
  * @param invert Invert the 3D border color or not
  * @warning `rect` gets changed to the area of rectangle inside
  */
-MWDECL void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int rounded);
+MWDECL void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
 
 /*!
  * @brief Does the DrawFrame/DrawRect combo used for drawing widget.
@@ -96,7 +96,7 @@ MWDECL void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int i
  * @param rounded Rounded or not
  * @warning `rect` gets changed to the area of rectangle inside
  */
-MWDECL void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same, int rounded);
+MWDECL void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same);
 
 /*!
  * @brief Creates a pixmap from image
