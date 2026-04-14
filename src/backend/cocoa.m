@@ -151,7 +151,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		y = r ? ([[NSScreen mainScreen] frame].size.height / 2.) - (height / 2.)
 		      : 0;
 	}
-	c->application = [MilskoCocoaApplication sharedApplication];
+	c->application = NSApp;
 	c->rect	       = NSMakeRect(x, y, width, height);
 
 	if(parent == NULL) {
@@ -1235,6 +1235,8 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 }
 
 static int MwLLCocoaCallInitImpl(void) {
+	[NSApplication sharedApplication];
+
 	return 0;
 }
 
