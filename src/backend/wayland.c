@@ -1260,10 +1260,10 @@ static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_proto
 }
 
 static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
-	(void)self;
 	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
 	// Yes this is needed every time, it's how we fix weston.
-	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
+	if(self->wayland.configured)
+		wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
 	wl_surface_commit(buffer->surface);
 }
 
@@ -1338,7 +1338,8 @@ static void framebuffer_setup(struct _MwLLWayland* wayland) {
 	wayland->front_cairo = cairo_create(wayland->front_cs);
 
 	memset(wayland->framebuffer.buf_back, 0, wayland->framebuffer.buf_size);
-	wl_surface_attach(wayland->framebuffer.surface, wayland->framebuffer.shm_buffer, 0, 0);
+	if(wayland->configured)
+		wl_surface_attach(wayland->framebuffer.surface, wayland->framebuffer.shm_buffer, 0, 0);
 	wl_surface_commit(wayland->framebuffer.surface);
 
 	hang_until_configured((MwLL)wayland);
@@ -1366,7 +1367,8 @@ static void backbuffer_setup(struct _MwLLWayland* wayland) {
 	wayland->back_cairo = cairo_create(wayland->back_cs);
 
 	memset(wayland->backbuffer.buf_back, 255, wayland->backbuffer.buf_size);
-	wl_surface_attach(wayland->backbuffer.surface, wayland->backbuffer.shm_buffer, 0, 0);
+	if(wayland->configured)
+		wl_surface_attach(wayland->backbuffer.surface, wayland->backbuffer.shm_buffer, 0, 0);
 	wl_surface_commit(wayland->backbuffer.surface);
 	hang_until_configured((MwLL)wayland);
 	update_buffer((MwLL)wayland, &wayland->backbuffer);
@@ -2293,10 +2295,10 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 			}
 			handle->wayland.icon->surface = wl_compositor_create_surface(handle->wayland.compositor);
 
+			buffer_setup(handle->wayland.icon, pixmap->common.width, pixmap->common.height);
+
 			wl_surface_attach(handle->wayland.icon->surface, handle->wayland.icon->shm_buffer, 0, 0);
 			wl_surface_commit(handle->wayland.icon->surface);
-
-			buffer_setup(handle->wayland.icon, pixmap->common.width, pixmap->common.height);
 
 			for(; i < size; i += 2) {
 				handle->wayland.icon->buf_back[i]     = pixmap->common.raw[i + 2];
@@ -2392,6 +2394,9 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
+	if(!handle->wayland.configured) {
+		return;
+	}
 	/* Some guy on a mailing list said that "abusing" wl_surface_attach for this purpose is bad? This is documented behavior so please I beg of you let me know if there's a compositor that actually has a problem with this. */
 	if(handle->wayland.framebuffer.surface) {
 		wl_surface_attach(handle->wayland.framebuffer.surface, show ? handle->wayland.framebuffer.shm_buffer : NULL, 0, 0);
