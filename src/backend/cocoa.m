@@ -657,10 +657,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	NSArray*	   subviews = [self subviews];
 	int		   i;
 
-	if(self->width != dirtyRect.size.width || self->height != dirtyRect.size.height) {
-		if(self->rep) {
-			[self->rep release];
-		}
+	if(!self->rep) {
 		if(dirtyRect.size.width && dirtyRect.size.height) {
 			[self initRepAndContextWithWidth:dirtyRect.size.width
 						  Height:dirtyRect.size.height];
@@ -672,8 +669,13 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		}
 	}
 
-	[self->rep drawInRect:[self bounds]];
+	[self->rep drawInRect:NSMakeRect(dirtyRect.origin.x, dirtyRect.origin.y, [self->rep pixelsWide], [self->rep pixelsHigh])];
 
+	for(i = 0; i < [subviews count]; i++) {
+		MilskoCocoaView* subview = [subviews objectAtIndex:i];
+		NSRect		 bounds	 = [subview bounds];
+		[subview drawRect:bounds];
+	}
 	[pool release];
 }
 
@@ -1003,9 +1005,9 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 // This will close/terminate the application when the main window is closed.
 - (void)windowWillClose:(NSNotification*)notification {
 	(void)notification;
-	MilskoCocoa* window = notification.object;
-	MwLL	     handle = [window getHandle].pointer;
-	MwLLDispatch(handle, close, NULL);
+	// MilskoCocoa* window = notification.object;
+	// MwLL	     handle = [window getHandle].pointer;
+	// MwLLDispatch(handle, close, NULL);
 }
 
 - (MilskoCocoaWindowDelegate*)initWithWin:(NSWindow*)win {
@@ -1236,7 +1238,9 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 }
 
 static int MwLLCocoaCallInitImpl(void) {
+#ifndef __APPLE__
 	printf("Using GNUStep Backend\n");
+#endif
 
 	[MilskoCocoaApplication sharedApplication];
 
