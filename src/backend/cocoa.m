@@ -80,104 +80,99 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 @implementation MilskoCocoaView
 - (id)initWithFrame:(NSRect)frame {
-	givenRect = frame;
-	x	  = frame.origin.x;
-	y	  = frame.origin.y;
-	width	  = frame.size.width;
-	height	  = frame.size.height;
-	self	  = [super initWithFrame:frame];
-
-	if(width == 0 || height == 0) {
-		self->rep     = NULL;
-		self->context = NULL;
-	} else {
-		[self initRepAndContextWithWidth:width Height:height];
-	}
-
-	self->_child = MwFALSE;
-
+	[super initWithFrame:frame];
+	self->commands = NULL;
 	return self;
 }
 
 - (void)setChild {
 	self->_child = MwTRUE;
 }
-
-- (NSGraphicsContext*)context {
-	return self->context;
-}
-
-- (NSBitmapImageRep*)getRep {
-	return self->rep;
-}
+- (void)destroy {
+	arrfree(self->commands);
+};
 
 - (void)drawRect:(NSRect)dirtyRect {
 	NSAutoreleasePool* pool	    = [[NSAutoreleasePool alloc] init];
 	NSArray*	   subviews = [self subviews];
 	int		   i;
+	[super drawRect:dirtyRect];
 
-	if(!self->rep) {
-		if(dirtyRect.size.width && dirtyRect.size.height) {
-			[self initRepAndContextWithWidth:dirtyRect.size.width
-						  Height:dirtyRect.size.height];
-			self->width  = dirtyRect.size.width;
-			self->height = dirtyRect.size.height;
-		} else {
-			[pool release];
-			return;
+	for(i = 0; i < arrlen(self->commands); i++) {
+		draw_command* cmd = self->commands[i];
+		switch(cmd->type) {
+		case COCOA_DRAW_COMMAND_POLY: {
+			int	      i;
+			NSBezierPath* path = [NSBezierPath bezierPath];
+
+			NSColor* nscolor =
+			    [NSColor colorWithCalibratedRed:cmd->poly.color->common.red / 255.
+						      green:cmd->poly.color->common.green / 255.
+						       blue:cmd->poly.color->common.blue / 255.
+						      alpha:1.0];
+
+			[nscolor setFill];
+			for(i = 0; i < cmd->poly.points_count; i++) {
+				NSPoint p = localPointFlip(NSMakePoint(cmd->poly.points[i].x, cmd->poly.points[i].y), self);
+				if(i == 0) {
+					[path moveToPoint:p];
+				} else {
+					[path lineToPoint:p];
+				}
+			}
+
+			[path closePath];
+			[path fill];
+
+			free(cmd->poly.points);
+			MwLLFreeColor(cmd->poly.color);
+			free(cmd);
+
+		} break;
+
+		case COCOA_DRAW_COMMAND_LINES: {
+			int	      n;
+			NSBezierPath* path = [NSBezierPath bezierPath];
+
+			NSColor* nscolor =
+			    [NSColor colorWithCalibratedRed:cmd->lines.color->common.red / 255.
+						      green:cmd->lines.color->common.green / 255.
+						       blue:cmd->lines.color->common.blue / 255.
+						      alpha:1.0];
+
+			[nscolor setFill];
+			for(n = 0; n < 2; n++) {
+				NSPoint p = localPointFlip(NSMakePoint(cmd->lines.points[n].x, cmd->lines.points[n].y), self);
+				if(n == 0) {
+					[path moveToPoint:p];
+				} else {
+					[path lineToPoint:p];
+				}
+			}
+
+			[path closePath];
+			[path stroke];
+
+			free(cmd->lines.points);
+			MwLLFreeColor(cmd->lines.color);
+			free(cmd);
+		} break;
+
+		case COCOA_DRAW_COMMAND_PIXMAP: {
+			[cmd->pixmap.pixmap->cocoa.real.image
+			    drawInRect:localRectFlip(NSMakeRect(cmd->pixmap.rect.x, cmd->pixmap.rect.y, cmd->pixmap.rect.width, cmd->pixmap.rect.height), self)
+			      fromRect:NSZeroRect
+			     operation:NSCompositeSourceOver
+			      fraction:1.0];
+			MwLLDestroyPixmap(cmd->pixmap.pixmap);
+			free(cmd);
+		} break;
 		}
 	}
 
-	[self->rep drawInRect:NSMakeRect(dirtyRect.origin.x, dirtyRect.origin.y, [self->rep pixelsWide], [self->rep pixelsHigh])];
+	arrfree(self->commands);
 
-	for(i = 0; i < [subviews count]; i++) {
-		MilskoCocoaView* subview = [subviews objectAtIndex:i];
-		NSRect		 bounds	 = [subview bounds];
-		[subview drawRect:bounds];
-	}
 	[pool release];
-}
-
-- (void)initRepAndContextWithWidth:(float)w Height:(float)h {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	self->buf		= malloc(w * h * 4);
-	memset(self->buf, 255, w * h * 4);
-
-	self->rep =
-	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&self->buf
-						    pixelsWide:w
-						    pixelsHigh:h
-						 bitsPerSample:8
-					       samplesPerPixel:4
-						      hasAlpha:YES
-						      isPlanar:NO
-						colorSpaceName:NSDeviceRGBColorSpace
-						   bytesPerRow:w * 4
-						  bitsPerPixel:32];
-	assert(self->rep);
-	[self->rep retain];
-
-	[self->rep setOpaque:MwFALSE];
-	[self->rep setAlpha:MwTRUE];
-
-	self->context =
-	    [NSGraphicsContext graphicsContextWithBitmapImageRep:self->rep];
-	assert(self->context);
-	[self->context retain];
-	[pool release];
-}
-
-- (void)destroy {
-	[self->rep release];
-	[self->context release];
-}
-
-- (void)setFrameSize:(NSSize)newSize {
-	[super setFrameSize:newSize];
-	[self->rep setSize:newSize];
-
-	self->width  = newSize.width;
-	self->height = newSize.height;
 }
 
 - (BOOL)canBecomeKeyView {
@@ -745,81 +740,31 @@ static void MwLLEndDrawImpl(MwLL handle) {
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count,
 			    MwLLColor color) {
-	MilskoCocoa*	   self = handle->cocoa.real;
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	NSGraphicsContext* ctx	= [self->view context];
-	if(ctx) {
-		int	      i;
-		NSBezierPath* path = [NSBezierPath bezierPath];
-		/* whatever rect we use for coordinate flipping */
-		NSRect _rect = self->parent ? [self->view bounds] : [self->window frame];
+	draw_command* poly = malloc(sizeof(draw_command));
+	poly->type	   = COCOA_DRAW_COMMAND_POLY;
 
-		NSColor* nscolor =
-		    [NSColor colorWithCalibratedRed:color->common.red / 255.
-					      green:color->common.green / 255.
-					       blue:color->common.blue / 255.
-					      alpha:1.0];
+	poly->poly.color	= MwLLAllocColor(handle, color->common.red, color->common.blue, color->common.green);
+	poly->poly.points_count = points_count;
 
-		[NSGraphicsContext saveGraphicsState];
-		[NSGraphicsContext setCurrentContext:ctx];
+	poly->poly.points = malloc(sizeof(MwPoint) * points_count);
+	memcpy(poly->poly.points, points, sizeof(MwPoint) * points_count);
 
-		[nscolor setFill];
-		for(i = 0; i < points_count; i++) {
-			NSPoint p = localPointFlip(NSMakePoint(points[i].x, points[i].y), self->view);
-			if(i == 0) {
-				[path moveToPoint:p];
-			} else {
-				[path lineToPoint:p];
-			}
-		}
+	arrpush(handle->cocoa.real->view->commands, poly);
 
-		[path closePath];
-		[path fill];
-
-		[NSGraphicsContext restoreGraphicsState];
-
-		[self->view setNeedsDisplay:YES];
-	}
-	[pool release];
+	[handle->cocoa.real->view setNeedsDisplay:MwTRUE];
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
-	MilskoCocoa*	   self = handle->cocoa.real;
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	NSGraphicsContext* ctx	= [self->view context];
-	if(ctx) {
-		int	      i;
-		NSBezierPath* path = [NSBezierPath bezierPath];
-		/* whatever rect we use for coordinate flipping */
-		NSRect _rect = self->parent ? [self->view bounds] : [self->window frame];
+	draw_command* lines = malloc(sizeof(draw_command));
+	lines->type	    = COCOA_DRAW_COMMAND_LINES;
 
-		NSColor* nscolor =
-		    [NSColor colorWithCalibratedRed:color->common.red / 255.
-					      green:color->common.green / 255.
-					       blue:color->common.blue / 255.
-					      alpha:1.0];
+	lines->lines.color = MwLLAllocColor(handle, color->common.red, color->common.blue, color->common.green);
 
-		[NSGraphicsContext saveGraphicsState];
-		[NSGraphicsContext setCurrentContext:ctx];
+	lines->lines.points = malloc(sizeof(MwPoint) * 2);
+	memcpy(lines->lines.points, points, sizeof(MwPoint) * 2);
 
-		[nscolor setFill];
-		for(i = 0; i < 2; i++) {
-			NSPoint p = localPointFlip(NSMakePoint(points[i].x, points[i].y), self->view);
-			if(i == 0) {
-				[path moveToPoint:p];
-			} else {
-				[path lineToPoint:p];
-			}
-		}
-
-		[path closePath];
-		[path stroke];
-
-		[NSGraphicsContext restoreGraphicsState];
-
-		[self->view setNeedsDisplay:YES];
-	}
-	[pool release];
+	arrpush(handle->cocoa.real->view->commands, lines);
+	[handle->cocoa.real->view setNeedsDisplay:MwTRUE];
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
@@ -971,26 +916,15 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	MilskoCocoa*	   self = handle->cocoa.real;
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	MilskoCocoaPixmap* p	= pixmap->cocoa.real;
-	NSGraphicsContext* ctx	= [self->view context];
-	if(ctx) {
-		[NSGraphicsContext saveGraphicsState];
-		[NSGraphicsContext setCurrentContext:ctx];
+	draw_command* pix = malloc(sizeof(draw_command));
+	pix->type	  = COCOA_DRAW_COMMAND_PIXMAP;
 
-		[p->image
-		    drawInRect:localRectFlip(NSMakeRect(rect->x, rect->y, rect->width, rect->height), self->view)
-		      fromRect:NSZeroRect
-		     operation:NSCompositeSourceOver
-		      fraction:1.0];
+	pix->pixmap.rect = *rect;
+	/* copy the pixmap into a new object that we'll free later */
+	pix->pixmap.pixmap = MwLLCreatePixmap(handle, pixmap->common.raw, pixmap->common.width, pixmap->common.height);
 
-		[NSGraphicsContext restoreGraphicsState];
-
-		[self->view setNeedsDisplay:YES];
-	}
-	[pool release];
-	MwLLForceRender(handle);
+	arrpush(handle->cocoa.real->view->commands, pix);
+	[handle->cocoa.real->view setNeedsDisplay:MwTRUE];
 }
 
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {

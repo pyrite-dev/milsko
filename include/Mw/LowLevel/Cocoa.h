@@ -10,6 +10,29 @@
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
 
+typedef struct {
+	enum {
+		COCOA_DRAW_COMMAND_POLY = 0,
+		COCOA_DRAW_COMMAND_LINES,
+		COCOA_DRAW_COMMAND_PIXMAP,
+	} type;
+	union {
+		struct {
+			MwPoint*  points;
+			int	  points_count;
+			MwLLColor color;
+		} poly;
+		struct {
+			MwPoint*  points;
+			MwLLColor color;
+		} lines;
+		struct {
+			MwRect	   rect;
+			MwLLPixmap pixmap;
+		} pixmap;
+	};
+} draw_command;
+
 #ifdef __OBJC__
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
@@ -81,23 +104,13 @@
 @end
 
 @interface MilskoCocoaView : NSView {
+	MwBool _child;
+
       @public
-	unsigned char*	   buf;
-	NSBitmapImageRep*  rep;
-	NSGraphicsContext* context;
-	MwBool		   valid;
-	NSRect		   givenRect;
-	float		   x;
-	float		   y;
-	float		   width;
-	float		   height;
-	MwBool		   _child;
+	draw_command** commands;
 }
 
-- (void)initRepAndContextWithWidth:(float)w Height:(float)h;
-- (NSGraphicsContext*)context;
 - (void)destroy;
-- (NSBitmapImageRep*)getRep;
 - (void)setChild;
 @end
 
