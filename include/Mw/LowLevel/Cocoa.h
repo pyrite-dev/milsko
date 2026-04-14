@@ -81,6 +81,8 @@
 @end
 
 @interface MilskoCocoaView : NSView {
+      @public
+	unsigned char*	   buf;
 	NSBitmapImageRep*  rep;
 	NSGraphicsContext* context;
 	MwBool		   valid;

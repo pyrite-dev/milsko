@@ -140,8 +140,11 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 - (void)initRepAndContextWithWidth:(float)w Height:(float)h {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	self->buf		= malloc(w * h * 4);
+	memset(self->buf, 255, w * h * 4);
+
 	self->rep =
-	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
+	    [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:&self->buf
 						    pixelsWide:w
 						    pixelsHigh:h
 						 bitsPerSample:8
@@ -536,6 +539,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 						colorSpaceName:NSDeviceRGBColorSpace
 						   bytesPerRow:(int)width * 4
 						  bitsPerPixel:32];
+	assert(self->rep);
 	[self->image addRepresentation:self->rep];
 }
 - (void)destroy {
@@ -975,7 +979,7 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 		[NSGraphicsContext saveGraphicsState];
 		[NSGraphicsContext setCurrentContext:ctx];
 
-		[[p image]
+		[p->image
 		    drawInRect:localRectFlip(NSMakeRect(rect->x, rect->y, rect->width, rect->height), self->view)
 		      fromRect:NSZeroRect
 		     operation:NSCompositeSourceOver
