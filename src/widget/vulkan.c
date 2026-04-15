@@ -235,7 +235,7 @@ static int vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 		MwWaylandAlwaysRender = MwTRUE;
 	}
 #endif
-#ifdef USE_WAYLAND
+#ifdef USE_COCOA
 	if(handle->lowlevel->common.type == MwLLBackendCocoa) {
 		arrput(enabledExtensions, VK_EXT_METAL_SURFACE_EXTENSION_NAME);
 	}
