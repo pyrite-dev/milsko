@@ -409,7 +409,7 @@
 				<function name="MwGetClipboard">
     				<arguments>
     					<widget name="handle" />
-    					<struct defname="MwClipboardType" pointer="no" name="clipboard_type" />
+    					<enum defname="MwClipboardType" pointer="no" name="clipboard_type" />
     				</arguments>
 				</function>
 				<function name="MwSetClipboard">
