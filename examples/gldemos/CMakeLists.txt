@@ -10,7 +10,7 @@ foreach(PATH IN LISTS EXAMPLES_GL_SOURCES)
     if(${TARGET} STREQUAL "glutlayer")
 	    continue()
 	endif()
-	add_executable(${TARGET} WIN32 MACOSX_BUNDLE ${PATH})
+	add_executable(${TARGET} MACOSX_BUNDLE ${PATH})
 	target_link_libraries(
 		${TARGET}
 		PRIVATE
