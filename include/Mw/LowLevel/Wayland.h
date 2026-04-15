@@ -14,6 +14,7 @@
 #include <xkbcommon/xkbcommon.h>
 #include <cairo/cairo.h>
 #include <pthread.h>
+#include <dbus/dbus.h>
 
 MWDECL int MwLLWaylandCallInit(void);
 
@@ -35,8 +36,7 @@ typedef struct wayland_call_table {
 	void* lib;
 	void* xkb_lib;
 	void* cairo_lib;
-#if WAYLAND_LOAD_OPENGL
-#endif
+	void* dbus_lib;
 
 	int (*wl_display_dispatch_pending)(struct wl_display* display);
 	void (*wl_display_disconnect)(struct wl_display* display);
@@ -124,6 +124,21 @@ typedef struct wayland_call_table {
 					 cairo_filter_t	  filter);
 	void (*cairo_set_antialias)(cairo_t*, cairo_antialias_t);
 	void (*cairo_set_operator)(cairo_t* cr, cairo_operator_t op);
+
+	void (*dbus_error_init)(DBusError* error);
+	DBusConnection* (*dbus_bus_get)(DBusBusType type, DBusError* error);
+	dbus_bool_t (*dbus_error_is_set)(const DBusError* error);
+	void (*dbus_error_free)(DBusError* error);
+	DBusMessage* (*dbus_message_new_method_call)(const char* bus_name, const char* path, const char* iface, const char* method);
+	void (*dbus_message_iter_init_append)(DBusMessage* message, DBusMessageIter* iter);
+	dbus_bool_t (*dbus_message_iter_append_basic)(DBusMessageIter* iter, int type, const void* value);
+	DBusMessage* (*dbus_connection_send_with_reply_and_block)(DBusConnection* connection, DBusMessage* message, int timeout_milliseconds, DBusError* error);
+	void (*dbus_message_unref)(DBusMessage* message);
+	dbus_bool_t (*dbus_message_iter_init)(DBusMessage* message, DBusMessageIter* iter);
+	int (*dbus_message_iter_get_arg_type)(DBusMessageIter* iter);
+	void (*dbus_message_iter_recurse)(DBusMessageIter* iter, DBusMessageIter* sub);
+	void (*dbus_connection_unref)(DBusConnection* connection);
+	void (*dbus_message_iter_get_basic)(DBusMessageIter* iter, void* value);
 
 } wayland_call_table_t;
 
@@ -224,6 +239,34 @@ MwInline int wayland_load_funcs() {
 	CAIRO_FUNC(cairo_set_operator);
 	CAIRO_FUNC(cairo_pattern_set_filter);
 #undef CAIRO_FUNC
+
+	wl_call_tbl.dbus_lib = MwDynamicOpen("libdbus-1.so");
+	if(!wl_call_tbl.dbus_lib) {
+		fprintf(stderr, "[WARNING] Will not be able to detect dark theme: dbus library (libdbus-1.so) not found.\n");
+		return 0;
+	}
+
+#define DBUS_FUNC(x) \
+	wl_call_tbl.x = MwDynamicSymbol(wl_call_tbl.dbus_lib, #x); \
+	if(!x) { \
+		fprintf(stderr, "[WARNING] Will not be able to detect dark theme: dbus function %s (libdbus-1.so) not found.\n", #x); \
+		return 0; \
+	}
+
+	DBUS_FUNC(dbus_error_init);
+	DBUS_FUNC(dbus_bus_get);
+	DBUS_FUNC(dbus_error_is_set);
+	DBUS_FUNC(dbus_error_free);
+	DBUS_FUNC(dbus_message_new_method_call);
+	DBUS_FUNC(dbus_message_iter_init_append);
+	DBUS_FUNC(dbus_message_iter_append_basic);
+	DBUS_FUNC(dbus_connection_send_with_reply_and_block);
+	DBUS_FUNC(dbus_message_unref);
+	DBUS_FUNC(dbus_message_iter_init);
+	DBUS_FUNC(dbus_message_iter_get_arg_type);
+	DBUS_FUNC(dbus_message_iter_recurse);
+	DBUS_FUNC(dbus_connection_unref);
+	DBUS_FUNC(dbus_message_iter_get_basic);
 
 	return 0;
 }
@@ -435,6 +478,14 @@ struct _MwLLWayland {
 	struct zwp_relative_pointer_v1*		relative_pointer;
 	struct zwp_locked_pointer_v1*		locked_pointer;
 	MwBool					pointer_constrained;
+
+	MwBool		dark_theme_detection;
+	time_t		dbus_timer;
+	DBusConnection* dbus_conn;
+	DBusError	dbus_err;
+	DBusMessage*	dbus_msg;
+	DBusMessage*	dbus_reply;
+	DBusMessageIter dbus_args, dbus_variant, dbus_inner_variant;
 
 	/* clipboard related stuff.
 	 * Note that unlike most interfaces, we don't keep zwp_primary_selection stuff in a wayland_protocol_t because we use wl_data_device as a fallback and want to have it share memory space.*/

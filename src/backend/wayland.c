@@ -1816,6 +1816,101 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 		MwLLEndDraw(r);
 	}
 }
+
+static void dark_theme_detection_setup(MwLL handle) {
+	const char* namespace	     = "org.freedesktop.appearance";
+	const char* key		     = "color-scheme"; /* 0=no preference, 1=dark, 2=light */
+	MwU32	    value	     = 0;
+	int	    translated_value = 0;
+
+	if(!wl_call_tbl.dbus_lib) {
+		return;
+	}
+
+	time(&handle->wayland.dbus_timer);
+
+	wl_call_tbl.dbus_error_init(&handle->wayland.dbus_err);
+
+	handle->wayland.dbus_conn = wl_call_tbl.dbus_bus_get(0 /* DBUS_BUS_SESSION */, &handle->wayland.dbus_err);
+	if(wl_call_tbl.dbus_error_is_set(&handle->wayland.dbus_err)) {
+		fprintf(stderr, "[WARNING] Could not detect dark theme: Connection error: %s\n", handle->wayland.dbus_err.message);
+		wl_call_tbl.dbus_error_free(&handle->wayland.dbus_err);
+		return;
+	}
+	if(!handle->wayland.dbus_conn) {
+		fprintf(stderr, "[WARNING] Could not detect dark theme: Failed to connect to session bus\n");
+		return;
+	}
+
+	handle->wayland.dbus_msg = wl_call_tbl.dbus_message_new_method_call(
+	    "org.freedesktop.portal.Desktop",
+	    "/org/freedesktop/portal/desktop",
+	    "org.freedesktop.portal.Settings",
+	    "Read");
+	if(!handle->wayland.dbus_msg) {
+		fprintf(stderr, "[WARNING] Could not detect dark theme: Failed to create message\n");
+		return;
+	}
+
+	wl_call_tbl.dbus_message_iter_init_append(handle->wayland.dbus_msg, &handle->wayland.dbus_args);
+	wl_call_tbl.dbus_message_iter_append_basic(&handle->wayland.dbus_args, 's', &namespace);
+	wl_call_tbl.dbus_message_iter_append_basic(&handle->wayland.dbus_args, 's', &key);
+}
+
+static void detect_dark_theme(MwLL handle) {
+	const char* namespace = "org.freedesktop.appearance";
+	const char* key	      = "color-scheme"; /* 0=no preference, 1=dark, 2=light */
+	MwU32	    value     = 0;
+
+	if(!handle->wayland.dbus_conn) {
+		return;
+	}
+
+	handle->wayland.dbus_reply = wl_call_tbl.dbus_connection_send_with_reply_and_block(handle->wayland.dbus_conn, handle->wayland.dbus_msg, 100, &handle->wayland.dbus_err);
+
+	if(wl_call_tbl.dbus_error_is_set(&handle->wayland.dbus_err)) {
+		fprintf(stderr, "[WARNING] Could not detect dark theme: Send error: %s\n", handle->wayland.dbus_err.message);
+		wl_call_tbl.dbus_error_free(&handle->wayland.dbus_err);
+		return;
+	}
+	if(!handle->wayland.dbus_reply) {
+		fprintf(stderr, "[WARNING] Could not detect dark theme: No reply received\n");
+		return;
+	}
+
+	if(!wl_call_tbl.dbus_message_iter_init(handle->wayland.dbus_reply, &handle->wayland.dbus_args)) {
+		fprintf(stderr, "[WARNING] Could not detect dark theme: Reply has no arguments\n");
+		wl_call_tbl.dbus_message_unref(handle->wayland.dbus_reply);
+		return;
+	}
+
+	if(wl_call_tbl.dbus_message_iter_get_arg_type(&handle->wayland.dbus_args) != 'v') {
+		fprintf(stderr, "[WARNING] Could not detect dark theme: Expected outer variant\n");
+		wl_call_tbl.dbus_message_unref(handle->wayland.dbus_reply);
+		return;
+	}
+	wl_call_tbl.dbus_message_iter_recurse(&handle->wayland.dbus_args, &handle->wayland.dbus_variant);
+
+	/* Some portals wrap the value in a second variant */
+	if(wl_call_tbl.dbus_message_iter_get_arg_type(&handle->wayland.dbus_variant) == 'v') {
+		wl_call_tbl.dbus_message_iter_recurse(&handle->wayland.dbus_variant, &handle->wayland.dbus_inner_variant);
+		wl_call_tbl.dbus_message_iter_get_basic(&handle->wayland.dbus_inner_variant, &value);
+	} else {
+		wl_call_tbl.dbus_message_iter_get_basic(&handle->wayland.dbus_variant, &value);
+	}
+
+	MwLLDispatch(handle, dark_theme, &value);
+}
+
+static void dark_theme_detection_destroy(MwLL handle) {
+	if(!wl_call_tbl.dbus_lib) {
+		return;
+	}
+	if(handle->wayland.dbus_msg) wl_call_tbl.dbus_message_unref(handle->wayland.dbus_msg);
+	if(handle->wayland.dbus_reply) wl_call_tbl.dbus_message_unref(handle->wayland.dbus_reply);
+	if(handle->wayland.dbus_conn) wl_call_tbl.dbus_connection_unref(handle->wayland.dbus_conn);
+}
+
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL r;
 	r = malloc(sizeof(*r));
@@ -1823,6 +1918,11 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLLCreateCommon(r);
 
 	widget_setup(r, parent, x, y, width, height, MWLL_WAYLAND_UNKNOWN);
+
+	if(!parent) {
+		dark_theme_detection_setup(r);
+		r->wayland.dark_theme_detection = MwTRUE;
+	}
 
 	return r;
 }
@@ -1836,14 +1936,17 @@ static void MwLLDestroyImpl(MwLL handle) {
 	};
 	int select_ret;
 
+	event_loop(handle);
+	// wl_display_cancel_read(handle->wayland.display);
+
+	wl_flush(handle);
+
 	if(pthread_mutex_timedlock(&handle->wayland.eventsMutex, &t) != 0) {
 		printf("WARNING: Couldn't call MwLLDestroyImpl due to deadlock.\n");
 		return;
 	};
 
 	MwLLDestroyCommon(handle);
-
-	event_loop(handle);
 
 	/* sleep long enough that any active attempts to wait for the mutex will have given up and we can safely unlock/destroy it */
 	tv.tv_sec  = 0;
@@ -1855,7 +1958,10 @@ static void MwLLDestroyImpl(MwLL handle) {
 	pthread_mutex_unlock(&handle->wayland.eventsMutex);
 	pthread_mutex_destroy(&handle->wayland.eventsMutex);
 
-	// framebuffer_destroy(&handle->wayland);
+	if(!handle->wayland.dbus_conn) {
+		dark_theme_detection_destroy(handle);
+	}
+
 	buffer_destroy(&handle->wayland.cursor);
 	wl_region_destroy(handle->wayland.region);
 
@@ -1888,7 +1994,12 @@ static void MwLLDestroyImpl(MwLL handle) {
 	shfree(handle->wayland.wl_protocol_map);
 	shfree(handle->wayland.wl_protocol_setup_map);
 
-	free(handle);
+	wl_keyboard_destroy(handle->wayland.keyboard);
+	wl_pointer_destroy(handle->wayland.pointer);
+
+	wl_flush(handle);
+
+	// free(handle);
 
 	if(currentlyHeldWidget == handle) {
 		currentlyHeldWidget = NULL;
@@ -2130,6 +2241,14 @@ static int MwLLPendingImpl(MwLL handle) {
 	    .events = POLLOUT,
 	};
 	int pending = 0;
+
+	if(handle->wayland.dark_theme_detection) {
+		if(handle->wayland.dbus_conn) {
+			detect_dark_theme(handle);
+			handle->wayland.dark_theme_detection = MwFALSE;
+			MwLLDispatch(handle, draw, NULL);
+		}
+	}
 
 	if(!handle->wayland.did_initial_resize) {
 		recursive_dispatch_resize(handle);
@@ -2548,6 +2667,9 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 		wl_flush(handle);
 
 		widget_setup(handle, handle->wayland.parent, handle->wayland.detach_point.x, handle->wayland.detach_point.y, handle->wayland.ww, handle->wayland.wh, handle->wayland.type_to_be);
+
+		if(!handle->wayland.parent)
+			handle->wayland.dark_theme_detection = MwTRUE;
 
 		if(handle->common.user) {
 			MwWidget w = handle->common.user;
