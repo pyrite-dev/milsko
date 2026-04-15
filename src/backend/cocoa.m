@@ -793,7 +793,12 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w,
 	} else {
 		frame = [self->window frame];
 	}
-	frame = rectFlip(frame);
+
+	if(!self->parent) {
+		frame = rectFlip(frame);
+	} else {
+		frame = localRectFlip(frame, self->parent->cocoa.real->view);
+	}
 
 	*x = frame.origin.x;
 	*y = frame.origin.y;
