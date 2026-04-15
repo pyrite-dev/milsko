@@ -958,6 +958,6 @@ int MwGetCoordinateType(MwWidget handle) {
 	}
 }
 
-void MwGetClipboard(MwWidget handle) {
-	MwLLGetClipboard(handle->lowlevel);
+void MwGetClipboard(MwWidget handle, int clipboard_type) {
+	MwLLGetClipboard(handle->lowlevel, clipboard_type);
 }

@@ -439,7 +439,7 @@ struct _MwLLWayland {
 	/* clipboard related stuff.
 	 * Note that unlike most interfaces, we don't keep zwp_primary_selection stuff in a wayland_protocol_t because we use wl_data_device as a fallback and want to have it share memory space.*/
 
-	union {
+	struct {
 		struct wl_data_device_manager*			wl;
 		struct zwp_primary_selection_device_manager_v1* zwp;
 	} clipboard_manager;
@@ -451,7 +451,8 @@ struct _MwLLWayland {
 	MwBool supports_zwp;
 
 	uint32_t			clipboard_serial;
-	wl_clipboard_device_context_t** clipboard_devices;
+	wl_clipboard_device_context_t** clipboard_devices_wl;
+	wl_clipboard_device_context_t** clipboard_devices_zwp;
 
 	struct wl_pointer* pointer;
 	MwU32		   pointer_serial;

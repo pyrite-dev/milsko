@@ -234,8 +234,8 @@ MWDECL void (*MwLLEndStateChange)(MwLL handle);
 MWDECL void (*MwLLFocus)(MwLL handle);
 MWDECL void (*MwLLGrabPointer)(MwLL handle, int toggle);
 
-MWDECL void (*MwLLSetClipboard)(MwLL handle, const char* text);
-MWDECL void (*MwLLGetClipboard)(MwLL handle);
+MWDECL void (*MwLLSetClipboard)(MwLL handle, const char* text, int clipboard_type);
+MWDECL void (*MwLLGetClipboard)(MwLL handle, int clipboard_type);
 
 MWDECL void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
 MWDECL void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect);

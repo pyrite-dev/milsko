@@ -266,7 +266,7 @@ struct zwp_primary_selection_device_v1_listener zwp_primary_selection_device_v1_
     .selection	= zwp_primary_selection_device_v1_selection,
 };
 
-static void wl_clipboard_read(wl_clipboard_device_context_t* ctx) {
+static void wl_clipboard_read(wl_clipboard_device_context_t* ctx, int clipboard_type) {
 	int	       fds[2];
 	fd_set	       set;
 	char*	       buf = NULL;
@@ -282,7 +282,7 @@ static void wl_clipboard_read(wl_clipboard_device_context_t* ctx) {
 	timeout.tv_sec	= 0;
 	timeout.tv_usec = 100;
 
-	if(ctx->ll->wayland.supports_zwp) {
+	if(clipboard_type == MwClipboardPrimary) {
 		zwp_primary_selection_offer_v1_receive(ctx->offer.zwp, "text/plain", fds[1]);
 	} else if(ctx->offer.wl) {
 		wl_data_offer_receive(ctx->offer.wl, "text/plain", fds[1]);
@@ -427,7 +427,7 @@ static wayland_protocol_t* wl_data_device_manager_setup(MwU32 name, struct _MwLL
 
 static void wl_data_device_manager_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)data;
-	if(wayland->clipboard_manager.wl != NULL && !wayland->supports_zwp) {
+	if(wayland->clipboard_manager.wl != NULL) {
 		wl_data_device_manager_destroy(wayland->clipboard_manager.wl);
 		wl_data_source_destroy(wayland->clipboard_source.wl);
 		wayland->clipboard_manager.wl = NULL;
@@ -436,10 +436,6 @@ static void wl_data_device_manager_interface_destroy(struct _MwLLWayland* waylan
 
 /* zwp_primary_selection_device_manager_v1 setup function */
 static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	if(wayland->clipboard_manager.wl != NULL) {
-		wl_data_device_manager_interface_destroy(wayland, NULL);
-	}
-
 	wayland->clipboard_manager.zwp = wl_registry_bind(wayland->registry, name, &zwp_primary_selection_device_manager_v1_interface, 1);
 
 	wayland->clipboard_source.zwp = zwp_primary_selection_device_manager_v1_create_source(wayland->clipboard_manager.zwp);
@@ -621,10 +617,6 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 			break;
 		case BTN_MIDDLE:
 			p.button = MwLLMouseMiddle;
-			for(i = 0; i < arrlen(self->wayland.clipboard_devices); i++) {
-				wl_clipboard_read(
-				    self->wayland.clipboard_devices[i]);
-			}
 			break;
 		case BTN_RIGHT:
 			p.button = MwLLMouseRight;
@@ -840,14 +832,6 @@ static void keyboard_key(void*		     data,
 			}
 
 			if((self->wayland.mod_state & 4) == 4) {
-				/* clipboard paste */
-				if(key == 'V') {
-					int i;
-					for(i = 0; i < arrlen(self->wayland.clipboard_devices); i++) {
-						wl_clipboard_read(
-						    self->wayland.clipboard_devices[i]);
-					}
-				}
 				key |= MwLLControlMask;
 			}
 			if((self->wayland.mod_state & 8) == 8) {
@@ -913,8 +897,9 @@ wl_seat_name(void* data, struct wl_seat* wl_seat, const char* name) {
 /* `wl_seat.capabilities` callback */
 static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 				 MwU32 capabilities) {
-	MwLL			       self	  = data;
-	wl_clipboard_device_context_t* device_ctx = malloc(sizeof(wl_clipboard_device_context_t));
+	MwLL			       self	      = data;
+	wl_clipboard_device_context_t* device_ctx_zwp = NULL;
+	wl_clipboard_device_context_t* device_ctx_wl  = malloc(sizeof(wl_clipboard_device_context_t));
 
 	WAYLAND_EVENT_OP_START(self);
 
@@ -930,21 +915,23 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 
 	if(self->wayland.clipboard_manager.wl != NULL) {
 		if(self->wayland.supports_zwp) {
-			device_ctx->device.zwp = zwp_primary_selection_device_manager_v1_get_device(self->wayland.clipboard_manager.zwp, wl_seat);
-		} else {
-			device_ctx->device.wl = wl_data_device_manager_get_data_device(self->wayland.clipboard_manager.wl, wl_seat);
+			device_ctx_zwp		     = malloc(sizeof(wl_clipboard_device_context_t));
+			device_ctx_zwp->device.zwp   = zwp_primary_selection_device_manager_v1_get_device(self->wayland.clipboard_manager.zwp, wl_seat);
+			device_ctx_zwp->ll	     = self;
+			device_ctx_zwp->seat	     = wl_seat;
+			device_ctx_zwp->capabilities = capabilities;
 		}
-		device_ctx->ll		 = self;
-		device_ctx->seat	 = wl_seat;
-		device_ctx->capabilities = capabilities;
+		device_ctx_wl->device.wl    = wl_data_device_manager_get_data_device(self->wayland.clipboard_manager.wl, wl_seat);
+		device_ctx_wl->ll	    = self;
+		device_ctx_wl->seat	    = wl_seat;
+		device_ctx_wl->capabilities = capabilities;
 
 		if(self->wayland.supports_zwp) {
-			zwp_primary_selection_device_v1_add_listener(device_ctx->device.zwp, &zwp_primary_selection_device_v1_listener, device_ctx);
-		} else {
-			wl_data_device_add_listener(device_ctx->device.wl, &wl_data_device_listener, device_ctx);
+			zwp_primary_selection_device_v1_add_listener(device_ctx_zwp->device.zwp, &zwp_primary_selection_device_v1_listener, device_ctx_zwp);
+			arrpush(self->wayland.clipboard_devices_zwp, device_ctx_zwp);
 		}
-
-		arrpush(self->wayland.clipboard_devices, device_ctx);
+		wl_data_device_add_listener(device_ctx_wl->device.wl, &wl_data_device_listener, device_ctx_wl);
+		arrpush(self->wayland.clipboard_devices_wl, device_ctx_wl);
 	}
 
 	WAYLAND_EVENT_OP_END(self);
@@ -2471,33 +2458,48 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	}
 }
 
-static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
+static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type) {
+	int i;
+
 	if(handle->wayland.clipboard_buffer != NULL) {
 		free(handle->wayland.clipboard_buffer);
 	}
 	handle->wayland.clipboard_buffer = malloc(strlen(text));
 	strcpy(handle->wayland.clipboard_buffer, text);
 
-	if(handle->wayland.supports_zwp) {
-		int i;
-		for(i = 0; i < arrlen(handle->wayland.clipboard_devices); i++) {
-			wl_clipboard_device_context_t* device = handle->wayland.clipboard_devices[i];
-			zwp_primary_selection_device_v1_set_selection(device->device.zwp, handle->wayland.clipboard_source.zwp, handle->wayland.keyboard_serial);
+	if(clipboard_type == MwClipboardPrimary) {
+		if(handle->wayland.supports_zwp) {
+			for(i = 0; i < arrlen(handle->wayland.clipboard_devices_zwp); i++) {
+				wl_clipboard_device_context_t* device = handle->wayland.clipboard_devices_zwp[i];
+				zwp_primary_selection_device_v1_set_selection(device->device.zwp, handle->wayland.clipboard_source.zwp, handle->wayland.keyboard_serial);
+			}
+		} else {
+			printf("[WARNING] Primary clipboard requested for MwLLSetClipboard, but this Wayland compositor doesn't support it.\n");
 		}
 	} else {
-		int i;
-		for(i = 0; i < arrlen(handle->wayland.clipboard_devices); i++) {
-			wl_clipboard_device_context_t* device = handle->wayland.clipboard_devices[i];
+		for(i = 0; i < arrlen(handle->wayland.clipboard_devices_wl); i++) {
+			wl_clipboard_device_context_t* device = handle->wayland.clipboard_devices_wl[i];
 			wl_data_device_set_selection(device->device.wl, handle->wayland.clipboard_source.wl, handle->wayland.keyboard_serial);
 		}
 	}
 }
 
-static void MwLLGetClipboardImpl(MwLL handle) {
+static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
 	int i;
-	for(i = 0; i < arrlen(handle->wayland.clipboard_devices); i++) {
-		wl_clipboard_read(
-		    handle->wayland.clipboard_devices[i]);
+	if(clipboard_type == MwClipboardPrimary) {
+		if(handle->wayland.supports_zwp) {
+			for(i = 0; i < arrlen(handle->wayland.clipboard_devices_zwp); i++) {
+				wl_clipboard_read(
+				    handle->wayland.clipboard_devices_zwp[i], clipboard_type);
+			}
+		} else {
+			printf("[WARNING] Primary clipboard requested for MwLLSetClipboard, but this Wayland compositor doesn't support it.\n");
+		}
+	} else {
+		for(i = 0; i < arrlen(handle->wayland.clipboard_devices_wl); i++) {
+			wl_clipboard_read(
+			    handle->wayland.clipboard_devices_wl[i], clipboard_type);
+		}
 	}
 	return;
 }

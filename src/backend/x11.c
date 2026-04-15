@@ -1220,14 +1220,14 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	}
 }
 
-static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
+static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type) {
 	/* TODO */
 
 	(void)handle;
 	(void)text;
 }
 
-static void MwLLGetClipboardImpl(MwLL handle) {
+static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
 	if(handle->x11.clipboard_pending) return;
 
 	XConvertSelection(handle->x11.display, handle->x11.clipboard, handle->x11.utf8_string, handle->x11.selection, handle->x11.window, CurrentTime);

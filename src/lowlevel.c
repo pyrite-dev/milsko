@@ -45,8 +45,8 @@ void (*MwLLEndStateChange)(MwLL handle)	  = NULL;
 void (*MwLLFocus)(MwLL handle)			 = NULL;
 void (*MwLLGrabPointer)(MwLL handle, int toggle) = NULL;
 
-void (*MwLLSetClipboard)(MwLL handle, const char* text) = NULL;
-void (*MwLLGetClipboard)(MwLL handle)			= NULL;
+void (*MwLLSetClipboard)(MwLL handle, const char* text, int clipboard_type) = NULL;
+void (*MwLLGetClipboard)(MwLL, int clipboard_type)			    = NULL;
 
 void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point) = NULL;
 void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect)	= NULL;

@@ -362,10 +362,11 @@ MWDECL void MwGetScreenSize(MwWidget handle, MwRect* rect);
 MWDECL int MwGetCoordinateType(MwWidget handle);
 
 /*!
- * @brief Queue to get clipboard content
+ * @brief Queue to get clipboard content.
  * @param handle Widget
+ * @param clipboard_type The Clipboard Type to get. See MwClipboardType. This is ignored on backends that aren't X11/Wayland, so if you're unsure, just use MwClipboardMain
  */
-MWDECL void MwGetClipboard(MwWidget handle);
+MWDECL void MwGetClipboard(MwWidget handle, int clipboard_type);
 
 #ifdef __cplusplus
 }

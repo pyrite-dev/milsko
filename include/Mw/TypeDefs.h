@@ -239,4 +239,12 @@ enum MwCoordinateType {
 	MwCoordinatesLocal,
 };
 
+/* The clipboard type that MwGetClipboard should return */
+enum MwClipboardType {
+	/* the clipboard that is present on every platform that supports it */
+	MwClipboardMain = 0,
+	/* the "primary" clipboard that Wayland stores to emulate X11's behavior. */
+	MwClipboardPrimary,
+};
+
 #endif

@@ -113,7 +113,7 @@ static void key(MwWidget handle, int code) {
 	} else if(code == MwLLKeyEnter) {
 		MwDispatchUserHandler(handle, MwNactivateHandler, NULL);
 	} else if(code == (MwLLControlMask | 'v')) {
-		MwLLGetClipboard(handle->lowlevel);
+		MwLLGetClipboard(handle->lowlevel, MwClipboardMain);
 	} else if(!(code & MwLLKeyMask)) {
 		int incr = 0;
 		out	 = malloc(strlen(str) + 5 + 1);
@@ -132,6 +132,20 @@ static void key(MwWidget handle, int code) {
 
 	MwForceRender(handle);
 }
+
+#if defined(USE_X11) || defined(USE_WAYLAND)
+static void mouse_up(MwWidget handle, void* ptr) {
+	if(handle->lowlevel->common.type == MwLLBackendWayland || handle->lowlevel->common.type == MwLLBackendX11) {
+		MwLLMouse* mouse = ptr;
+		if(mouse->button == MwLLMouseMiddle) {
+			MwLLGetClipboard(handle->lowlevel, MwClipboardPrimary);
+		}
+	}
+	MwForceRender2(handle, NULL);
+}
+#else
+#define mouse_up MwForceRender2
+#endif
 
 static void prop_change(MwWidget handle, const char* prop) {
 	if(strcmp(prop, MwNtext) == 0 || strcmp(prop, MwNhideInput) == 0) MwForceRender(handle);
@@ -179,7 +193,7 @@ MwClassRec MwEntryClassRec = {
     NULL,	    /* parent_resize */
     prop_change,    /* prop_change */
     NULL,	    /* mouse_move */
-    MwForceRender2, /* mouse_up */
+    mouse_up,	    /* mouse_up */
     MwForceRender2, /* mouse_down */
     key,	    /* key */
     NULL,	    /* execute */

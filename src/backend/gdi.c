@@ -735,8 +735,9 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	}
 }
 
-static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
+static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type) {
 	HGLOBAL hg;
+	(void)clipboard_type;
 	if(OpenClipboard(handle->gdi.hWnd) != 0) {
 		char* lock;
 
@@ -753,7 +754,8 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
 	}
 }
 
-static void MwLLGetClipboardImpl(MwLL handle) {
+static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
+	(void)clipboard_type;
 	handle->gdi.get_clipboard = 1; /* nishi: we do this to make clipboard api work similar to other backends */
 }
 

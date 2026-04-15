@@ -1042,13 +1042,15 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	handle->cocoa.real->pointerLocked = toggle;
 }
 
-static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
+static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type) {
 	(void)handle;
 	(void)text;
+	(void)clipboard_type;
 }
 
-static void MwLLGetClipboardImpl(MwLL handle) {
+static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
 	(void)handle;
+	(void)clipboard_type;
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {
