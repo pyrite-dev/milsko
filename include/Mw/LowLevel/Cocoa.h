@@ -18,13 +18,13 @@ typedef struct {
 	} type;
 	union {
 		struct {
-			MwPoint*  points;
-			int	  points_count;
-			MwLLColor color;
+			MwPoint*		points;
+			int			points_count;
+			struct _MwLLCommonColor color;
 		} poly;
 		struct {
-			MwPoint*  points;
-			MwLLColor color;
+			MwPoint*		points;
+			struct _MwLLCommonColor color;
 		} lines;
 		struct {
 			MwRect	   rect;
@@ -107,7 +107,7 @@ typedef struct {
 	MwBool _child;
 
       @public
-	draw_command** commands;
+	draw_command* commands;
 }
 
 - (void)destroy;

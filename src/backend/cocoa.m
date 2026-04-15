@@ -99,21 +99,21 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	[super drawRect:dirtyRect];
 
 	for(i = 0; i < arrlen(self->commands); i++) {
-		draw_command* cmd = self->commands[i];
-		switch(cmd->type) {
+		draw_command cmd = self->commands[i];
+		switch(cmd.type) {
 		case COCOA_DRAW_COMMAND_POLY: {
 			int	      n;
 			NSBezierPath* path = [NSBezierPath bezierPath];
 
 			NSColor* nscolor =
-			    [NSColor colorWithCalibratedRed:cmd->poly.color->common.red / 255.
-						      green:cmd->poly.color->common.green / 255.
-						       blue:cmd->poly.color->common.blue / 255.
+			    [NSColor colorWithCalibratedRed:cmd.poly.color.red / 255.
+						      green:cmd.poly.color.green / 255.
+						       blue:cmd.poly.color.blue / 255.
 						      alpha:1.0];
 
 			[nscolor setFill];
-			for(n = 0; n < cmd->poly.points_count; n++) {
-				NSPoint p = localPointFlip(NSMakePoint(cmd->poly.points[n].x, cmd->poly.points[n].y), self);
+			for(n = 0; n < cmd.poly.points_count; n++) {
+				NSPoint p = localPointFlip(NSMakePoint(cmd.poly.points[n].x, cmd.poly.points[n].y), self);
 				if(n == 0) {
 					[path moveToPoint:p];
 				} else {
@@ -124,10 +124,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 			[path closePath];
 			[path fill];
 
-			free(cmd->poly.points);
-			MwLLFreeColor(cmd->poly.color);
-			free(cmd);
-
+			free(cmd.poly.points);
 		} break;
 
 		case COCOA_DRAW_COMMAND_LINES: {
@@ -135,14 +132,14 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 			NSBezierPath* path = [NSBezierPath bezierPath];
 
 			NSColor* nscolor =
-			    [NSColor colorWithCalibratedRed:cmd->lines.color->common.red / 255.
-						      green:cmd->lines.color->common.green / 255.
-						       blue:cmd->lines.color->common.blue / 255.
+			    [NSColor colorWithCalibratedRed:cmd.lines.color.red / 255.
+						      green:cmd.lines.color.green / 255.
+						       blue:cmd.lines.color.blue / 255.
 						      alpha:1.0];
 
 			[nscolor setFill];
 			for(n = 0; n < 2; n++) {
-				NSPoint p = localPointFlip(NSMakePoint(cmd->lines.points[n].x, cmd->lines.points[n].y), self);
+				NSPoint p = localPointFlip(NSMakePoint(cmd.lines.points[n].x, cmd.lines.points[n].y), self);
 				if(n == 0) {
 					[path moveToPoint:p];
 				} else {
@@ -153,19 +150,16 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 			[path closePath];
 			[path stroke];
 
-			free(cmd->lines.points);
-			MwLLFreeColor(cmd->lines.color);
-			free(cmd);
+			free(cmd.lines.points);
 		} break;
 
 		case COCOA_DRAW_COMMAND_PIXMAP: {
-			[cmd->pixmap.pixmap->cocoa.real->image
-			    drawInRect:localRectFlip(NSMakeRect(cmd->pixmap.rect.x, cmd->pixmap.rect.y, cmd->pixmap.rect.width, cmd->pixmap.rect.height), self)
+			[cmd.pixmap.pixmap->cocoa.real->image
+			    drawInRect:localRectFlip(NSMakeRect(cmd.pixmap.rect.x, cmd.pixmap.rect.y, cmd.pixmap.rect.width, cmd.pixmap.rect.height), self)
 			      fromRect:NSZeroRect
 			     operation:NSCompositeSourceOver
 			      fraction:1.0];
-			MwLLDestroyPixmap(cmd->pixmap.pixmap);
-			free(cmd);
+			MwLLDestroyPixmap(cmd.pixmap.pixmap);
 		} break;
 		}
 	}
@@ -742,32 +736,28 @@ static void MwLLEndDrawImpl(MwLL handle) {
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count,
 			    MwLLColor color) {
-	draw_command* poly = malloc(sizeof(draw_command));
-	poly->type	   = COCOA_DRAW_COMMAND_POLY;
+	draw_command poly;
+	poly.type = COCOA_DRAW_COMMAND_POLY;
 
-	poly->poly.color	= MwLLAllocColor(handle, color->common.red, color->common.green, color->common.blue);
-	poly->poly.points_count = points_count;
+	poly.poly.color	       = color->common;
+	poly.poly.points_count = points_count;
 
-	poly->poly.points = malloc(sizeof(MwPoint) * points_count);
-	memcpy(poly->poly.points, points, sizeof(MwPoint) * points_count);
+	poly.poly.points = malloc(sizeof(MwPoint) * points_count);
+	memcpy(poly.poly.points, points, sizeof(MwPoint) * points_count);
 
 	arrpush(handle->cocoa.real->view->commands, poly);
-
-	// [handle->cocoa.real->view setNeedsDisplay:MwTRUE];
-	// [handle->cocoa.real->view displayRect:[handle->cocoa.real->window frame]];
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
-	draw_command* lines = malloc(sizeof(draw_command));
-	lines->type	    = COCOA_DRAW_COMMAND_LINES;
+	draw_command lines;
+	lines.type = COCOA_DRAW_COMMAND_LINES;
 
-	lines->lines.color = MwLLAllocColor(handle, color->common.red, color->common.green, color->common.blue);
+	lines.lines.color = color->common;
 
-	lines->lines.points = malloc(sizeof(MwPoint) * 2);
-	memcpy(lines->lines.points, points, sizeof(MwPoint) * 2);
+	lines.lines.points = malloc(sizeof(MwPoint) * 2);
+	memcpy(lines.lines.points, points, sizeof(MwPoint) * 2);
 
 	arrpush(handle->cocoa.real->view->commands, lines);
-	// [handle->cocoa.real->view setNeedsDisplay:MwTRUE];
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
@@ -918,18 +908,20 @@ static void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
+	free(pixmap->common.raw);
 	[pixmap->cocoa.real destroy];
 	[pixmap->cocoa.real release];
 	free(pixmap);
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	draw_command* pix = malloc(sizeof(draw_command));
-	pix->type	  = COCOA_DRAW_COMMAND_PIXMAP;
+	draw_command pix;
+	pix.type = COCOA_DRAW_COMMAND_PIXMAP;
 
-	pix->pixmap.rect = *rect;
+	pix.pixmap.rect = *rect;
+
 	/* copy the pixmap into a new object that we'll free later */
-	pix->pixmap.pixmap = MwLLCreatePixmap(handle, pixmap->common.raw, pixmap->common.width, pixmap->common.height);
+	pix.pixmap.pixmap = MwLLCreatePixmap(handle, pixmap->common.raw, pixmap->common.width, pixmap->common.height);
 
 	arrpush(handle->cocoa.real->view->commands, pix);
 	// [handle->cocoa.real->view setNeedsDisplay:MwTRUE];
