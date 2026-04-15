@@ -51,18 +51,12 @@ void MwStringPrintIntoBuffer(char* out, MwU32 size, const char* fmt, ...) {
 };
 
 MWDECL MwBool MwStringIsKeyUTF8(MwU32 key) {
-	/* little endian */
-#if defined(__x86_64__) || defined(_M_X64) || defined(__i386) || defined(_M_IX86) || defined(__aarch64__) || defined(_M_ARM64)
-	unsigned char bytes[4] = {
-	    (key & 0x000000FF),
-	    (key & 0x0000FF00) >> 8,
-	    (key & 0x00FF0000) >> 16,
-	    (key & 0xFF000000) >> 24,
-	};
-#else
-#error Unspecified architecture! This error exists here because above it is endian-specific code. Add your architecture above.
-#endif
+	unsigned char bytes[4];
 	int i;
+	bytes[0] = (key & 0x000000FF);
+	bytes[1] = (key & 0x0000FF00) >> 8;
+	bytes[2] = (key & 0x00FF0000) >> 16;
+	bytes[3] = (key & 0xFF000000) >> 24;
 
 	for(i = 0; i < sizeof(MwU32); i++) {
 		if(( // ASCII

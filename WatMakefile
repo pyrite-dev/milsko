@@ -1,4 +1,4 @@
-CC = wcc386 -bt=nt -q -bd
+CC = wcc386 -bt=nt -q -bd -d3
 LD = wlink option quiet
 
 CFLAGS = -i=include -i=external/libz/include -d_MILSKO -dUSE_GDI -dUSE_STB_TRUETYPE -dUSE_STB_IMAGE -dSTBI_NO_SIMD
