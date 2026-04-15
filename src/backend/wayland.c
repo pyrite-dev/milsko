@@ -2583,7 +2583,7 @@ static int MwLLWaylandCallInitImpl(void) {
 	 * - manually checking environment variables
 	 */
 #ifdef __linux__
-	MwBool loadWayland;
+	MwBool loadWayland = MwFALSE;
 	if(getenv("MILSKO_BACKEND")) {
 		loadWayland |=
 		    (strcmp(getenv("MILSKO_BACKEND"), "wayland") == 0);
