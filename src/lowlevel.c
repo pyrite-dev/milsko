@@ -97,6 +97,7 @@ MwBool MwLLDBusFuncSetup(MwLLDBusFuncTable* tbl) {
 }
 #endif
 
+#ifdef USE_DBUS
 MwBool MwLLDBusNewContext(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx) {
 	if(!tbl->lib) {
 		return MwFALSE;
@@ -180,3 +181,4 @@ void MwLLDBusFreeContext(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx) {
 	if(ctx->dbus_reply) tbl->dbus_message_unref(ctx->dbus_reply);
 	if(ctx->dbus_conn) tbl->dbus_connection_unref(ctx->dbus_conn);
 };
+#endif
