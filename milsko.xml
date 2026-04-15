@@ -81,7 +81,6 @@
 		<integer name="sevenSegment" />
 		<integer name="length" />
 		<integer name="forceInverted" common="yes" />
-		<integer name="roundness" />
 		<integer name="isRounded" common="yes" />
 		<integer name="darkTheme" common="yes" />
 		<integer name="useMonospace" common="yes" />
