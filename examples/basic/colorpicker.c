@@ -1,4 +1,3 @@
-
 #include <Mw/Milsko.h>
 
 MwWidget cpicker;
@@ -28,7 +27,7 @@ void color_picker(MwWidget handle, void* user_data, void* call_data) {
 
 	MwAddUserHandler(cpicker, MwNcolorChosenHandler, color_callback, NULL);
 
-	MwSetText(cpicker, MwNbackground, MwGetInteger(cpicker, MwNdarkTheme) ? MwDefaultForeground : MwDefaultBackground);
+	MwSetText(cpicker, MwNbackground, MwGetInteger(cpicker, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
 }
 
 int main() {
@@ -41,7 +40,7 @@ int main() {
 	button = MwVaCreateWidget(MwButtonClass, "button", window, 160, 180, 320, 120,
 				  MwNtext, "change window background",
 				  NULL);
-	MwSetText(button, MwNbackground, MwGetInteger(button, MwNdarkTheme) ? MwDefaultForeground : MwDefaultBackground);
+	MwSetText(button, MwNbackground, MwGetInteger(button, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
 
 	MwAddUserHandler(button, MwNactivateHandler, color_picker, NULL);
 
