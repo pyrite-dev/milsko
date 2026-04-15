@@ -123,6 +123,7 @@ typedef struct wayland_call_table {
 	void (*cairo_pattern_set_filter)(cairo_pattern_t* pattern,
 					 cairo_filter_t	  filter);
 	void (*cairo_set_antialias)(cairo_t*, cairo_antialias_t);
+	void (*cairo_set_operator)(cairo_t* cr, cairo_operator_t op);
 
 } wayland_call_table_t;
 
@@ -220,6 +221,7 @@ MwInline int wayland_load_funcs() {
 	CAIRO_FUNC(cairo_stroke);
 	CAIRO_FUNC(cairo_set_source_surface);
 	CAIRO_FUNC(cairo_fill);
+	CAIRO_FUNC(cairo_set_operator);
 	CAIRO_FUNC(cairo_pattern_set_filter);
 #undef CAIRO_FUNC
 
@@ -277,6 +279,7 @@ MwInline int wayland_load_funcs() {
 #define cairo_stroke wl_call_tbl.cairo_stroke
 #define cairo_set_source_surface wl_call_tbl.cairo_set_source_surface
 #define cairo_fill wl_call_tbl.cairo_fill
+#define cairo_set_operator wl_call_tbl.cairo_set_operator
 #define cairo_pattern_set_filter wl_call_tbl.cairo_pattern_set_filter
 
 #ifndef WL_PROTOCOLS_DEFINED

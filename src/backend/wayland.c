@@ -2082,7 +2082,9 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 	}
 	cairo_close_path(handle->wayland.front_cairo);
 
+	cairo_set_operator(handle->wayland.front_cairo, CAIRO_OPERATOR_SOURCE);
 	cairo_fill(handle->wayland.front_cairo);
+	cairo_set_operator(handle->wayland.front_cairo, CAIRO_OPERATOR_OVER);
 
 	handle->wayland.events_pending = 1;
 }
@@ -2263,6 +2265,8 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 	cairo_set_source_surface(c, pixmap->wayland.cs, 0, 0);
 	cairo_pattern_set_filter(cairo_get_source(c), CAIRO_FILTER_NEAREST);
+
+	cairo_set_operator(handle->wayland.front_cairo, CAIRO_OPERATOR_OVER);
 
 	cairo_paint(c);
 
@@ -2577,11 +2581,6 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 }
 
 static int MwLLWaylandCallInitImpl(void) {
-	/*
-	 * Order of precedence:
-	 * - MILSKO_BACKEND
-	 * - manually checking environment variables
-	 */
 #ifdef __linux__
 	MwBool loadWayland = MwFALSE;
 	if(getenv("MILSKO_BACKEND")) {
