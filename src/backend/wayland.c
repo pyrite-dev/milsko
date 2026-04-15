@@ -1949,18 +1949,17 @@ static void MwLLDestroyImpl(MwLL handle) {
 	};
 	int select_ret;
 
+	event_loop(handle);
+	// wl_display_cancel_read(handle->wayland.display);
+
+	wl_flush(handle);
+
 	if(pthread_mutex_timedlock(&handle->wayland.eventsMutex, &t) != 0) {
 		printf("WARNING: Couldn't call MwLLDestroyImpl due to deadlock.\n");
 		return;
 	};
 
 	MwLLDestroyCommon(handle);
-
-	if(!handle->wayland.dbus_conn) {
-		dark_theme_detection_destroy(handle);
-	}
-
-	event_loop(handle);
 
 	/* sleep long enough that any active attempts to wait for the mutex will have given up and we can safely unlock/destroy it */
 	tv.tv_sec  = 0;
@@ -1972,7 +1971,10 @@ static void MwLLDestroyImpl(MwLL handle) {
 	pthread_mutex_unlock(&handle->wayland.eventsMutex);
 	pthread_mutex_destroy(&handle->wayland.eventsMutex);
 
-	// framebuffer_destroy(&handle->wayland);
+	if(!handle->wayland.dbus_conn) {
+		dark_theme_detection_destroy(handle);
+	}
+
 	buffer_destroy(&handle->wayland.cursor);
 	wl_region_destroy(handle->wayland.region);
 
@@ -2005,7 +2007,12 @@ static void MwLLDestroyImpl(MwLL handle) {
 	shfree(handle->wayland.wl_protocol_map);
 	shfree(handle->wayland.wl_protocol_setup_map);
 
-	free(handle);
+	wl_keyboard_destroy(handle->wayland.keyboard);
+	wl_pointer_destroy(handle->wayland.pointer);
+
+	wl_flush(handle);
+
+	// free(handle);
 
 	if(currentlyHeldWidget == handle) {
 		currentlyHeldWidget = NULL;
@@ -2252,6 +2259,7 @@ static int MwLLPendingImpl(MwLL handle) {
 		if(handle->wayland.dbus_conn) {
 			detect_dark_theme(handle);
 			handle->wayland.dark_theme_detection = MwFALSE;
+			MwLLDispatch(handle, draw, NULL);
 		}
 	}
 
