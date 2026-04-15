@@ -248,8 +248,9 @@ MwInline int wayland_load_funcs() {
 
 #define DBUS_FUNC(x) \
 	wl_call_tbl.x = MwDynamicSymbol(wl_call_tbl.dbus_lib, #x); \
-	if(!x) { \
-		fprintf(stderr, "[WARNING] Will not be able to detect dark theme: dbus function %s (libdbus-1.so) not found.\n", #x); \
+	if(!wl_call_tbl.x) { \
+		fprintf(stderr, "[WARNING] Will not be able to detect dark theme: dbus function %s not found.\n", #x); \
+		dlclose(wl_call_tbl.dbus_lib); \
 		return 0; \
 	}
 
