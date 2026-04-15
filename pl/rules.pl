@@ -49,7 +49,7 @@ if (grep(/^wayland$/, @backends)) {
     scan_wayland_protocol("unstable", "pointer-constraints", "-unstable-v1");
     scan_wayland_protocol("unstable", "relative-pointer",    "-unstable-v1");
 
-    add_cflags("-I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include");
+    add_cflags(`pkg-config --cflags dbus-1`);
 
     $gl_libs = "-lGL -lGLU";
 }
