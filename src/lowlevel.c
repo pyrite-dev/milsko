@@ -61,3 +61,122 @@ void MwLLCreateCommon(MwLL handle) {
 void MwLLDestroyCommon(MwLL handle) {
 	free(handle->common.handler);
 }
+
+#ifdef USE_DBUS
+MwBool MwLLDBusFuncSetup(MwLLDBusFuncTable* tbl) {
+	tbl->lib = MwDynamicOpen("libdbus-1.so");
+	if(!tbl->lib) {
+		fprintf(stderr, "[WARNING] dbus library (libdbus-1.so) not found, will not be able to check for any XDG settings.\n");
+		return MwFALSE;
+	}
+
+#define DBUS_FUNC(x) \
+	tbl->x = MwDynamicSymbol(tbl->lib, #x); \
+	if(!tbl->x) { \
+		fprintf(stderr, "[WARNING] dbus function %s not found, will not be able to check for any XDG settings.\n", #x); \
+		dlclose(tbl->lib); \
+		return MwFALSE; \
+	}
+
+	DBUS_FUNC(dbus_error_init);
+	DBUS_FUNC(dbus_bus_get);
+	DBUS_FUNC(dbus_error_is_set);
+	DBUS_FUNC(dbus_error_free);
+	DBUS_FUNC(dbus_message_new_method_call);
+	DBUS_FUNC(dbus_message_iter_init_append);
+	DBUS_FUNC(dbus_message_iter_append_basic);
+	DBUS_FUNC(dbus_connection_send_with_reply_and_block);
+	DBUS_FUNC(dbus_message_unref);
+	DBUS_FUNC(dbus_message_iter_init);
+	DBUS_FUNC(dbus_message_iter_get_arg_type);
+	DBUS_FUNC(dbus_message_iter_recurse);
+	DBUS_FUNC(dbus_connection_unref);
+	DBUS_FUNC(dbus_message_iter_get_basic);
+
+	return MwTRUE;
+}
+#endif
+
+MwBool MwLLDBusNewContext(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx) {
+	if(!tbl->lib) {
+		return MwFALSE;
+	}
+
+	tbl->dbus_error_init(&ctx->dbus_err);
+
+	ctx->dbus_conn = tbl->dbus_bus_get(DBUS_BUS_SESSION, &ctx->dbus_err);
+	if(tbl->dbus_error_is_set(&ctx->dbus_err)) {
+		fprintf(stderr, "[WARNING] Could not initialize dbus: Connection error: %s\n", ctx->dbus_err.message);
+		tbl->dbus_error_free(&ctx->dbus_err);
+		return MwFALSE;
+	}
+	if(!ctx->dbus_conn) {
+		fprintf(stderr, "[WARNING] Could not initialize dbus: Failed to connect to session bus\n");
+		return MwFALSE;
+	}
+	return MwTRUE;
+};
+
+MWDECL MwBool MwLLDBusPortalGet(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx, const char* portal, const char* namespace, const char* key, void* out) {
+	if(!ctx->dbus_conn) {
+		return MwFALSE;
+	}
+
+	ctx->dbus_msg = tbl->dbus_message_new_method_call(
+	    "org.freedesktop.portal.Desktop",
+	    "/org/freedesktop/portal/desktop",
+	    portal,
+	    "Read");
+	if(!ctx->dbus_msg) {
+		fprintf(stderr, "[WARNING] Couldn't get %s::%s: Failed to create message\n", namespace, key);
+		return MwFALSE;
+	}
+
+	tbl->dbus_message_iter_init_append(ctx->dbus_msg, &ctx->dbus_args);
+	tbl->dbus_message_iter_append_basic(&ctx->dbus_args, 's', &namespace);
+	tbl->dbus_message_iter_append_basic(&ctx->dbus_args, 's', &key);
+
+	ctx->dbus_reply = tbl->dbus_connection_send_with_reply_and_block(ctx->dbus_conn, ctx->dbus_msg, 100, &ctx->dbus_err);
+
+	if(tbl->dbus_error_is_set(&ctx->dbus_err)) {
+		fprintf(stderr, "[WARNING] Couldn't get %s::%s: Send error: %s\n", namespace, key, ctx->dbus_err.message);
+		tbl->dbus_error_free(&ctx->dbus_err);
+		return MwFALSE;
+	}
+	if(!ctx->dbus_reply) {
+		fprintf(stderr, "[WARNING] Couldn't get %s::%s: No reply received\n", namespace, key);
+		return MwFALSE;
+	}
+
+	if(!tbl->dbus_message_iter_init(ctx->dbus_reply, &ctx->dbus_args)) {
+		fprintf(stderr, "[WARNING] Couldn't get %s::%s: Reply has no arguments\n", namespace, key);
+		tbl->dbus_message_unref(ctx->dbus_reply);
+		return MwFALSE;
+	}
+
+	if(tbl->dbus_message_iter_get_arg_type(&ctx->dbus_args) != 'v') {
+		fprintf(stderr, "[WARNING] Couldn't get %s::%s: Expected outer variant\n", namespace, key);
+		tbl->dbus_message_unref(ctx->dbus_reply);
+		return MwFALSE;
+	}
+	tbl->dbus_message_iter_recurse(&ctx->dbus_args, &ctx->dbus_variant);
+
+	/* Some portals wrap the value in a second variant */
+	if(tbl->dbus_message_iter_get_arg_type(&ctx->dbus_variant) == 'v') {
+		tbl->dbus_message_iter_recurse(&ctx->dbus_variant, &ctx->dbus_inner_variant);
+		tbl->dbus_message_iter_get_basic(&ctx->dbus_inner_variant, out);
+	} else {
+		tbl->dbus_message_iter_get_basic(&ctx->dbus_variant, out);
+	}
+	tbl->dbus_message_unref(ctx->dbus_msg);
+
+	return MwTRUE;
+}
+
+void MwLLDBusFreeContext(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx) {
+	if(!tbl->lib) {
+		return;
+	}
+	if(ctx->dbus_reply) tbl->dbus_message_unref(ctx->dbus_reply);
+	if(ctx->dbus_conn) tbl->dbus_connection_unref(ctx->dbus_conn);
+};

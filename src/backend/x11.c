@@ -9,6 +9,9 @@ static struct {
 	void*  lib_xrender;
 	MwBool has_xrender;
 
+	MwLLDBusFuncTable dbus;
+	MwBool		  has_dbus;
+
 	int (*XClearWindow)(Display* display, Window w);
 	XImage* (*XCreateImage)(Display*, Visual*, unsigned int, int, int, char*, unsigned int, unsigned int, int, int);
 	Display* (*XOpenDisplay)(_Xconst char*);
@@ -308,6 +311,16 @@ static XVisualInfo* get_visual_info(Display* display) {
 	return XGetVisualInfo(display, VisualIDMask, &xvi, &n);
 }
 
+static void detect_dark_theme(MwLL handle) {
+	MwU32 value	 = 0;
+	MwU32 dark_theme = 0;
+	MwLLDBusPortalGet(&xsymtbl.dbus, &handle->x11.dbus, "org.freedesktop.portal.Settings", "org.freedesktop.appearance", "color-scheme", &value);
+
+	dark_theme = (value == 1) ? 1 : 0;
+
+	MwLLDispatch(handle, dark_theme, &dark_theme);
+}
+
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL	      r;
 	Window	      p;
@@ -429,6 +442,14 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		}
 	}
 
+#ifdef USE_DBUS
+	memset(&r->x11.dbus, 0, sizeof(r->x11.dbus));
+	if(!parent && xsymtbl.has_dbus) {
+		xsymtbl.has_dbus	    = MwLLDBusNewContext(&xsymtbl.dbus, &r->x11.dbus);
+		r->x11.dark_theme_detection = MwTRUE;
+	}
+#endif
+
 	return r;
 }
 
@@ -448,6 +469,10 @@ static void MwLLDestroyImpl(MwLL handle) {
 	XSync(handle->x11.display, False);
 
 	if(handle->x11.toplevel) XCloseDisplay(handle->x11.display);
+
+	if(!xsymtbl.has_dbus) {
+		MwLLDBusFreeContext(&xsymtbl.dbus, &handle->x11.dbus);
+	}
 
 	free(handle);
 }
@@ -606,6 +631,14 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 
 static int MwLLPendingImpl(MwLL handle) {
 	XEvent ev;
+
+	if(handle->x11.dark_theme_detection) {
+		if(xsymtbl.has_dbus) {
+			detect_dark_theme(handle);
+			handle->x11.dark_theme_detection = MwFALSE;
+			MwLLDispatch(handle, draw, NULL);
+		}
+	}
 
 	if(handle->x11.clipboard_pending && (MwTimeGetTick() - handle->x11.clipboard_time) >= ClipboardTimeout) {
 		return 1;
@@ -1388,6 +1421,8 @@ static int MwLLX11CallInitImpl(void) {
 	XRENDER_FUNC_LOAD(XRenderSetPictureTransform)
 	XRENDER_FUNC_LOAD(XRenderComposite)
 #endif
+
+	xsymtbl.has_dbus = MwLLDBusFuncSetup(&xsymtbl.dbus);
 	return 0;
 }
 

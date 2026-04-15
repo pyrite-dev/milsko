@@ -7,6 +7,8 @@ if (param_get("x11")) {
     push(@enabled_backends, "x11");
 }
 
+add_cflags("-DUSE_DBUS");
+
 use_backend(@enabled_backends);
 
 1;
