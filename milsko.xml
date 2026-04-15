@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!--
 	Basically, you have to implement 10+n types:
 	 - Integer (int)
@@ -67,7 +67,10 @@
 		<integer name="hasBorder" />
 		<integer name="inverted" />
 		<integer name="modernLook" common="yes" />
-		<integer name="waitMS" common="yes" /> <!-- This is a special property, only applies to toplevel widget -->
+		<integer
+            name="waitMS"
+            common="yes"
+        /> <!-- This is a special property, only applies to toplevel widget -->
 		<integer name="hideInput" />
 		<integer name="singleClickSelectable" />
 		<integer name="flat" />
@@ -145,6 +148,10 @@
 			<integer name="MwMB_ICONNEWS" />
 			<integer name="MwMB_ICONERROR" />
 			<integer name="MwMB_ICONCLOCK" />
+		</enumeration>
+		<enumeration name="MwClipboardType">
+		    <integer name="MwClipboardMain">0</integer>
+			<integer name="MwClipboardPrimary" />
 		</enumeration>
 	</enumerations>
 	<constants>
@@ -398,6 +405,19 @@
 						<widget name="handle" />
 						<struct defname="MwRect" pointer="yes" name="rect" />
 					</arguments>
+				</function>
+				<function name="MwGetClipboard">
+    				<arguments>
+    					<widget name="handle" />
+    					<struct defname="MwClipboardType" pointer="no" name="clipboard_type" />
+    				</arguments>
+				</function>
+				<function name="MwSetClipboard">
+    				<arguments>
+    					<widget name="handle" />
+                        <string name="text" />
+    					<enum defname="MwClipboardType" pointer="no" name="clipboard_type" />
+    				</arguments>
 				</function>
 			</functions>
 		</header>
