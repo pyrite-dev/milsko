@@ -28,7 +28,7 @@ void color_picker(MwWidget handle, void* user_data, void* call_data) {
 
 	MwAddUserHandler(cpicker, MwNcolorChosenHandler, color_callback, NULL);
 
-	MwSetText(cpicker, MwNbackground, MwDefaultBackground);
+	MwSetText(cpicker, MwNbackground, MwGetInteger(cpicker, MwNdarkTheme) ? MwDefaultForeground : MwDefaultBackground);
 }
 
 int main() {
@@ -41,7 +41,7 @@ int main() {
 	button = MwVaCreateWidget(MwButtonClass, "button", window, 160, 180, 320, 120,
 				  MwNtext, "change window background",
 				  NULL);
-	MwSetText(button, MwNbackground, MwDefaultBackground);
+	MwSetText(button, MwNbackground, MwGetInteger(button, MwNdarkTheme) ? MwDefaultForeground : MwDefaultBackground);
 
 	MwAddUserHandler(button, MwNactivateHandler, color_picker, NULL);
 
