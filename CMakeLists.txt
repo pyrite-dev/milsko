@@ -70,6 +70,11 @@ if(MW_TRY_VULKAN)
     if(HAVE_VULKAN_VULKAN_H)
         set(MW_BUILD_VULKAN ON)
         list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/vulkan.c")
+        target_compile_definitions(
+          Mw
+          PRIVATE
+          MW_VULKAN
+        )
         message(STATUS "Vulkan widget has been enabled")
     else()
         message(WARNING "Vulkan widget has been disabled")

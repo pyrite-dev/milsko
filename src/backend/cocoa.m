@@ -2,6 +2,11 @@
 #include "../../external/stb_ds.h"
 #include "Mw/LowLevel/Cocoa.h"
 
+#ifdef MW_VULKAN
+#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_metal.h>
+#endif
+
 #ifdef __clang__
 #pragma clang push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -1086,6 +1091,18 @@ static int MwLLCocoaCallInitImpl(void) {
 
 	return 0;
 }
+
+#ifdef MW_VULKAN
+VkMetalSurfaceCreateInfoEXT MwCocoaGetMetalSurfaceCreateInfo(MwWidget handle) {
+	VkMetalSurfaceCreateInfoEXT createInfo = {
+	    .sType  = VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT,
+	    .pNext  = NULL,
+	    .flags  = 0,
+	    .pLayer = (CAMetalLayer*)[handle->lowlevel->cocoa.real->view layer],
+	};
+	return createInfo;
+};
+#endif
 
 #include "call.c"
 CALL(Cocoa);

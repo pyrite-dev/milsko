@@ -26,6 +26,9 @@
 #ifdef USE_WAYLAND
 #include <vulkan/vulkan_wayland.h>
 #endif
+#ifdef USE_COCOA
+#include <vulkan/vulkan_metal.h>
+#endif
 
 #ifdef HAS_VK_ENUM_STRING_HELPER
 #include <vulkan/vk_enum_string_helper.h>
@@ -167,6 +170,8 @@ static void destroy(MwWidget handle) {
 static void* vulkan_lib_load() {
 #ifdef _WIN32
 	return MwDynamicOpen("vulkan-1.dll");
+#elif defined(__APPLE__)
+	return MwDynamicOpen("libvulkan.dylib");
 #else
 	return MwDynamicOpen("libvulkan.so");
 #endif
@@ -228,6 +233,11 @@ static int vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 		arrput(enabledExtensions, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 		/* take this opprutunity to set the widget to always render */
 		MwWaylandAlwaysRender = MwTRUE;
+	}
+#endif
+#ifdef USE_WAYLAND
+	if(handle->lowlevel->common.type == MwLLBackendCocoa) {
+		arrput(enabledExtensions, VK_EXT_METAL_SURFACE_EXTENSION_NAME);
 	}
 #endif
 
@@ -337,6 +347,16 @@ static int vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
 		    .surface = handle->lowlevel->wayland.framebuffer.surface,
 		};
 		VK_CMD(_vkCreateWaylandSurfaceKHR(o->vkInstance, &createInfo, NULL, &o->vkSurface));
+	}
+#endif
+#ifdef USE_COCOA
+	if(handle->lowlevel->common.type == MwLLBackendCocoa) {
+		VkMetalSurfaceCreateInfoEXT MwCocoaGetMetalSurfaceCreateInfo(MwWidget handle);
+		VkMetalSurfaceCreateInfoEXT inf = MwCocoaGetMetalSurfaceCreateInfo(handle);
+
+		LOAD_VK_FUNCTION(vkCreateMetalSurfaceEXT);
+
+		VK_CMD(_vkCreateMetalSurfaceEXT(o->vkInstance, &inf, NULL, &o->vkSurface));
 	}
 #endif
 	return 0;

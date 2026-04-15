@@ -131,6 +131,7 @@ if (param_get("opengl")) {
     new_object("src/widget/opengl.c");
 }
 if (param_get("vulkan")) {
+    add_cflags("-DMW_VULKAN");
     new_object("src/widget/vulkan.c");
 }
 
