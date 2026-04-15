@@ -602,7 +602,8 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	MwLL p		     = self->parent;
 	self->_eventsPending = MwTRUE;
 
-	if(p) {
+	while(p) {
+		MwLLDispatch(p, draw, NULL);
 		[p->cocoa.real->view setNeedsDisplay:true];
 		p = p->cocoa.real->parent;
 	}
@@ -752,7 +753,7 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count,
 
 	arrpush(handle->cocoa.real->view->commands, poly);
 
-	[handle->cocoa.real->view setNeedsDisplay:MwTRUE];
+	// [handle->cocoa.real->view setNeedsDisplay:MwTRUE];
 	// [handle->cocoa.real->view displayRect:[handle->cocoa.real->window frame]];
 }
 
@@ -766,7 +767,7 @@ static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	memcpy(lines->lines.points, points, sizeof(MwPoint) * 2);
 
 	arrpush(handle->cocoa.real->view->commands, lines);
-	[handle->cocoa.real->view setNeedsDisplay:MwTRUE];
+	// [handle->cocoa.real->view setNeedsDisplay:MwTRUE];
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
@@ -926,7 +927,7 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	pix->pixmap.pixmap = MwLLCreatePixmap(handle, pixmap->common.raw, pixmap->common.width, pixmap->common.height);
 
 	arrpush(handle->cocoa.real->view->commands, pix);
-	[handle->cocoa.real->view setNeedsDisplay:MwTRUE];
+	// [handle->cocoa.real->view setNeedsDisplay:MwTRUE];
 }
 
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {

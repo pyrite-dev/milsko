@@ -2,7 +2,7 @@
 
 #include "../external/stb_ds.h"
 
-#ifdef __APPLE__
+#ifdef USE_COCOA
 #define PERIODIC
 #endif
 
