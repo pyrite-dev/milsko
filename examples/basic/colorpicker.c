@@ -40,6 +40,7 @@ int main() {
 	button = MwVaCreateWidget(MwButtonClass, "button", window, 160, 180, 320, 120,
 				  MwNtext, "change window background",
 				  NULL);
+	MwSetText(button, MwNbackground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultBackground : MwDefaultDarkBackground);
 
 	MwAddUserHandler(button, MwNactivateHandler, color_picker, NULL);
 
