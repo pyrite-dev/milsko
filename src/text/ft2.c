@@ -69,16 +69,13 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 				int	       ox  = x + (ttf->face->glyph->metrics.horiBearingX / 64) + cx + ttf->face->glyph->bitmap_left;
 				int	       oy  = y + (ttf->face->height * ttf->px / ttf->face->units_per_EM) - ttf->face->glyph->bitmap_top + cy + (ttf->face->descender * ttf->px / ttf->face->units_per_EM);
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
-
-				if(opx[3] == 0) {
-					opx[0] = color->common.red;
-					opx[1] = color->common.green;
-					opx[2] = color->common.blue;
-					opx[3] = bmp->buffer[cy * bmp->pitch + cx];
+				opx[0]		   = color->common.red;
+				opx[1]		   = color->common.green;
+				opx[2]		   = color->common.blue;
+				/* overflow check */
+				if(opx[3] + bmp->buffer[cy * bmp->pitch + cx] < opx[3]) {
+					opx[3] = 255;
 				} else {
-					opx[0] = (opx[0] / color->common.red) / 255;
-					opx[1] = (opx[1] / color->common.green) / 255;
-					opx[2] = (opx[2] / color->common.blue) / 255;
 					opx[3] = bmp->buffer[cy * bmp->pitch + cx];
 				}
 			}

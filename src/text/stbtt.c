@@ -52,16 +52,13 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 				int	       ox  = x + ceil(lsb * ttf->scale) + cx;
 				int	       oy  = y + ceil(ttf->ascent * ttf->scale) + y0 + cy;
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
-
-				if(opx[3] == 0) {
-					opx[0] = color->common.red;
-					opx[1] = color->common.green;
-					opx[2] = color->common.blue;
-					opx[3] = out[cy * ow + cx];
+				opx[0]		   = color->common.red;
+				opx[1]		   = color->common.green;
+				opx[2]		   = color->common.blue;
+				/* overflow check */
+				if(opx[3] + out[cy * ow + cx] < opx[3]) {
+					opx[3] = 255;
 				} else {
-					opx[0] = (opx[0] / color->common.red) / 255;
-					opx[1] = (opx[1] / color->common.green) / 255;
-					opx[2] = (opx[2] / color->common.blue) / 255;
 					opx[3] = out[cy * ow + cx];
 				}
 			}
