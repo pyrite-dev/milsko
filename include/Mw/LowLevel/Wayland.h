@@ -479,6 +479,8 @@ struct _MwLLWayland {
 	struct zwp_locked_pointer_v1*		locked_pointer;
 	MwBool					pointer_constrained;
 
+	MwBool		dark_theme_detection;
+	time_t		dbus_timer;
 	DBusConnection* dbus_conn;
 	DBusError	dbus_err;
 	DBusMessage*	dbus_msg;
