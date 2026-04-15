@@ -1,7 +1,7 @@
 #include <Mw/Milsko.h>
 
 #define WIN_SIZE 464
-#define PICKER_SIZE 360
+#define PICKER_SIZE 364
 #define IMG_POS_X(w) ((w - PICKER_SIZE) / 2)
 #define IMG_POS_Y(h) ((h - PICKER_SIZE) / 2)
 #define SCROLL_BAR_WIDTH 16
@@ -104,11 +104,16 @@ static void color_picker_image_update(color_picker_t* picker) {
 			int    _y   = y - (PICKER_SIZE / 2);
 			double dist = sqrt(_x * _x + _y * _y);
 
-			if(dist >= 180.) {
+			if(dist >= 182.) {
 				picker->color_picker_image_data[i]     = 0;
 				picker->color_picker_image_data[i + 1] = 0;
 				picker->color_picker_image_data[i + 2] = 0;
 				picker->color_picker_image_data[i + 3] = 0;
+			} else if(dist >= 180.) {
+				picker->color_picker_image_data[i]     = dist;
+				picker->color_picker_image_data[i + 1] = dist;
+				picker->color_picker_image_data[i + 2] = dist;
+				picker->color_picker_image_data[i + 3] = 255;
 			} else {
 				MwHSV hsv_v;
 				MwRGB color;
