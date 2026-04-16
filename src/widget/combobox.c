@@ -89,7 +89,7 @@ static void listbox_activate(MwWidget handle, void* user, void* client) {
 
 	MwForceRender(handle->parent);
 
-	MwDispatchUserHandler(handle->parent, MwNchangedHandler, client);
+	MwDispatchUserHandler(handle->parent, MwNcomboBoxChangedHandler, client);
 
 	MwDestroyWidget(handle);
 }

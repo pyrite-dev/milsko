@@ -79,44 +79,44 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 			EndPaint(hWnd, &ps);
 		}
 	} else if(msg == WM_LBUTTONDOWN || msg == WM_MBUTTONDOWN || msg == WM_RBUTTONDOWN) {
-		MwLLMouse p;
+		MwMouse p;
 		p.point.x = LOWORD(lp);
 		p.point.y = HIWORD(lp);
 		if(msg == WM_LBUTTONDOWN) {
-			p.button = MwLLMouseLeft;
+			p.button = MwMOUSE_LEFT;
 		} else if(msg == WM_MBUTTONDOWN) {
-			p.button = MwLLMouseMiddle;
+			p.button = MwMOUSE_MIDDLE;
 		} else if(msg == WM_RBUTTONDOWN) {
-			p.button = MwLLMouseRight;
+			p.button = MwMOUSE_RIGHT;
 		}
 
 		SetCapture(hWnd);
 		SetFocus(hWnd);
 		MwLLDispatch(u->ll, down, &p);
 	} else if(msg == WM_LBUTTONUP || msg == WM_MBUTTONUP || msg == WM_RBUTTONUP) {
-		MwLLMouse p;
+		MwMouse p;
 		p.point.x = LOWORD(lp);
 		p.point.y = HIWORD(lp);
 		if(msg == WM_LBUTTONUP) {
-			p.button = MwLLMouseLeft;
+			p.button = MwMOUSE_LEFT;
 		} else if(msg == WM_MBUTTONUP) {
-			p.button = MwLLMouseMiddle;
+			p.button = MwMOUSE_MIDDLE;
 		} else if(msg == WM_RBUTTONUP) {
-			p.button = MwLLMouseRight;
+			p.button = MwMOUSE_RIGHT;
 		}
 
 		SetCapture(NULL);
 		MwLLDispatch(u->ll, up, &p);
 	} else if(msg == WM_MOUSEWHEEL) {
-		int	  d = GET_WHEEL_DELTA_WPARAM(wp);
-		MwLLMouse p;
+		int	d = GET_WHEEL_DELTA_WPARAM(wp);
+		MwMouse p;
 		p.point.x = LOWORD(lp);
 		p.point.y = HIWORD(lp);
 
 		if(d > 0) {
-			p.button = MwLLMouseWheelUp;
+			p.button = MwMOUSE_WHEELUP;
 		} else if(d < 0) {
-			p.button = MwLLMouseWheelDown;
+			p.button = MwMOUSE_WHEELDOWN;
 		}
 
 		MwLLDispatch(u->ll, down, &p);

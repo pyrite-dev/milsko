@@ -10,7 +10,6 @@
 #include <Mw/MachDep.h>
 
 typedef struct _MwLLHandler*	  MwLLHandler;
-typedef struct _MwLLMouse	  MwLLMouse;
 typedef struct _MwLLCommon*	  MwLLCommon;
 typedef struct _MwLLCommonColor*  MwLLCommonColor;
 typedef struct _MwLLCommonPixmap* MwLLCommonPixmap;
@@ -186,19 +185,6 @@ enum MwLLKeyEnum {
 
 #define MwLLControlMask MwLLKeyMask | (1 << 30)
 #define MwLLAltMask MwLLKeyMask | (1 << 29)
-
-enum MwLLMouseEnum {
-	MwLLMouseLeft = 1,
-	MwLLMouseMiddle,
-	MwLLMouseRight,
-	MwLLMouseWheelUp,
-	MwLLMouseWheelDown
-};
-
-struct _MwLLMouse {
-	MwPoint point;
-	int	button;
-};
 
 struct _MwLLHandler {
 	void (*draw)(MwLL handle, void* data);

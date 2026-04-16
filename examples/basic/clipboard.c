@@ -42,9 +42,9 @@ static void clipboard(MwWidget handle, void* user_data, void* call_data) {
 
 static void tick(MwWidget handle, void* user_data, void* call_data) {
 	cur_text = text1;
-	MwGetClipboard(handle, MwClipboardMain);
+	MwGetClipboard(handle, MwCLIPBOARD_MAIN);
 	cur_text = text2;
-	MwGetClipboard(handle, MwClipboardPrimary);
+	MwGetClipboard(handle, MwCLIPBOARD_PRIMARY);
 	MwForceRender(window);
 }
 

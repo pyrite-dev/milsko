@@ -38,6 +38,10 @@
 			<short name="green" unsigned="yes" />
 			<short name="blue" unsigned="yes" />
 		</struct>
+		<struct name="MwMouse">
+			<struct defname="MwPoint" name="point" />
+			<integer name="button" />
+		</struct>
 		<struct name="MwVulkanConfig">
 			<integer name="api_version" unsigned="yes" />
 			<integer name="vk_version" unsigned="yes" />
@@ -109,24 +113,55 @@
 		<pointer name="boldMonospaceFont" />
 
 		<handler name="activate" />
+		<handler name="listBoxActivate">
+			<integer pointer="yes" />
+		</handler>
+		<handler name="treeViewActivate">
+			<pointer />
+		</handler>
 		<handler name="resize" />
 		<handler name="tick" />
-		<handler name="menu" />
-		<handler name="mouseDown" />
-		<handler name="mouseUp" />
-		<handler name="mouseMove" />
+		<handler name="menu">
+			<pointer />
+		</handler>
+		<handler name="mouseDown">
+			<struct defname="MwMouse" pointer="yes" />
+		</handler>
+		<handler name="mouseUp">
+			<struct defname="MwMouse" pointer="yes" />
+		</handler>
+		<handler name="mouseMove">
+			<struct defname="MwPoint" pointer="yes" />
+		</handler>
 		<handler name="changed" />
-		<handler name="key" />
-		<handler name="keyRelease" />
+		<handler name="comboBoxChanged">
+			<integer pointer="yes" />
+		</handler>
+		<handler name="key">
+			<integer pointer="yes" />
+		</handler>
+		<handler name="keyRelease">
+			<integer pointer="yes" />
+		</handler>
 		<handler name="close" />
 		<handler name="focusIn" />
 		<handler name="focusOut" />
-		<handler name="fileChosen" />
-		<handler name="directoryChosen" />
-		<handler name="colorChosen" />
+		<handler name="fileChosen">
+			<string />
+		</handler>
+		<handler name="directoryChosen">
+			<string />
+		</handler>
+		<handler name="colorChosen">
+			<struct defname="MwRGB" pointer="yes" />
+		</handler>
 		<handler name="draw" />
-		<handler name="clipboard" />
-		<handler name="darkTheme" />
+		<handler name="clipboard">
+			<string />
+		</handler>
+		<handler name="darkTheme">
+			<integer pointer="yes" />
+		</handler>
 	</properties>
 	<enumerations>
 		<enumeration name="MwDIRECTION">
@@ -153,9 +188,20 @@
 			<integer name="MwMB_ICONERROR" />
 			<integer name="MwMB_ICONCLOCK" />
 		</enumeration>
-		<enumeration name="MwClipboardType">
-			<integer name="MwClipboardMain">0</integer>
-			<integer name="MwClipboardPrimary" />
+		<enumeration name="MwCOORDINATE">
+			<integer name="MwCOORDINATE_GLOBAL">0</integer>
+			<integer name="MwCOORDINATE_LOCAL" />
+		</enumeration>
+		<enumeration name="MwCLIPBOARD">
+			<integer name="MwCLIPBOARD_MAIN">0</integer>
+			<integer name="MwCLIPBOARD_PRIMARY" />
+		</enumeration>
+		<enumeration name="MwMOUSE">
+			<integer name="MwMOUSE_LEFT">1</integer>
+			<integer name="MwMOUSE_MIDDLE" />
+			<integer name="MwMOUSE_RIGHT" />
+			<integer name="MwMOUSE_WHEELUP" />
+			<integer name="MwMOUSE_WHEELDOWN" />
 		</enumeration>
 		<enumeration name="MwVulkanField">
         		<integer name="MwVulkanField_GetInstanceProcAddr">0</integer>

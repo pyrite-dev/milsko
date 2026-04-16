@@ -113,7 +113,7 @@ static void key(MwWidget handle, int code) {
 	} else if(code == MwLLKeyEnter) {
 		MwDispatchUserHandler(handle, MwNactivateHandler, NULL);
 	} else if(code == (MwLLControlMask | 'v')) {
-		MwLLGetClipboard(handle->lowlevel, MwClipboardMain);
+		MwLLGetClipboard(handle->lowlevel, MwCLIPBOARD_MAIN);
 	} else if(!(code & MwLLKeyMask)) {
 		int incr = 0;
 		out	 = malloc(strlen(str) + 5 + 1);
@@ -136,9 +136,9 @@ static void key(MwWidget handle, int code) {
 #if defined(USE_X11) || defined(USE_WAYLAND)
 static void mouse_up(MwWidget handle, void* ptr) {
 	if(handle->lowlevel->common.type == MwLLBackendWayland || handle->lowlevel->common.type == MwLLBackendX11) {
-		MwLLMouse* mouse = ptr;
-		if(mouse->button == MwLLMouseMiddle) {
-			MwLLGetClipboard(handle->lowlevel, MwClipboardPrimary);
+		MwMouse* mouse = ptr;
+		if(mouse->button == MwMOUSE_MIDDLE) {
+			MwLLGetClipboard(handle->lowlevel, MwCLIPBOARD_PRIMARY);
 		}
 	}
 	MwForceRender2(handle, NULL);

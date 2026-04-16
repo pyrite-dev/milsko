@@ -347,12 +347,12 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 }
 
 - (void)mouseMoved:(NSEvent*)ev {
-	MwLLMouse mouse;
-	NSPoint	  mousePoint = pointFlip([ev locationInWindow]);
-	MwLL this	     = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
-	mouse.button	     = MwLLMouseLeft;
-	mouse.point.x	     = mousePoint.x;
-	mouse.point.y	     = mousePoint.y;
+	MwMouse mouse;
+	NSPoint mousePoint = pointFlip([ev locationInWindow]);
+	MwLL this	   = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	mouse.button	   = MwMOUSE_LEFT;
+	mouse.point.x	   = mousePoint.x;
+	mouse.point.y	   = mousePoint.y;
 	MwLLDispatch(this, move, &mouse);
 	[this->cocoa.real nudge];
 	[super mouseMoved:ev];
@@ -362,51 +362,51 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 }
 
 - (void)mouseDown:(NSEvent*)ev {
-	MwLLMouse mouse;
-	NSPoint	  mousePoint = [ev locationInWindow];
-	MwLL this	     = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
-	mousePoint.y	     = [[ev window] frame].size.height - mousePoint.y;
-	mouse.button	     = MwLLMouseLeft;
-	mouse.point.x	     = mousePoint.x;
-	mouse.point.y	     = mousePoint.y;
+	MwMouse mouse;
+	NSPoint mousePoint = [ev locationInWindow];
+	MwLL this	   = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	mousePoint.y	   = [[ev window] frame].size.height - mousePoint.y;
+	mouse.button	   = MwMOUSE_LEFT;
+	mouse.point.x	   = mousePoint.x;
+	mouse.point.y	   = mousePoint.y;
 	MwLLDispatch(this, down, &mouse);
 	[this->cocoa.real nudge];
 	[super mouseDown:ev];
 }
 
 - (void)mouseUp:(NSEvent*)ev {
-	MwLLMouse mouse;
-	NSPoint	  mousePoint = [ev locationInWindow];
-	MwLL this	     = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
-	mousePoint.y	     = [[ev window] frame].size.height - mousePoint.y;
-	mouse.button	     = MwLLMouseLeft;
-	mouse.point.x	     = mousePoint.x;
-	mouse.point.y	     = mousePoint.y;
+	MwMouse mouse;
+	NSPoint mousePoint = [ev locationInWindow];
+	MwLL this	   = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	mousePoint.y	   = [[ev window] frame].size.height - mousePoint.y;
+	mouse.button	   = MwMOUSE_LEFT;
+	mouse.point.x	   = mousePoint.x;
+	mouse.point.y	   = mousePoint.y;
 	MwLLDispatch(this, up, &mouse);
 	[this->cocoa.real nudge];
 	[super mouseUp:ev];
 }
 - (void)rightMouseDown:(NSEvent*)ev {
-	MwLLMouse mouse;
-	NSPoint	  mousePoint = [ev locationInWindow];
-	MwLL this	     = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
-	mousePoint.y	     = [[ev window] frame].size.height - mousePoint.y;
-	mouse.button	     = MwLLMouseRight;
-	mouse.point.x	     = mousePoint.x;
-	mouse.point.y	     = mousePoint.y;
+	MwMouse mouse;
+	NSPoint mousePoint = [ev locationInWindow];
+	MwLL this	   = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	mousePoint.y	   = [[ev window] frame].size.height - mousePoint.y;
+	mouse.button	   = MwMOUSE_RIGHT;
+	mouse.point.x	   = mousePoint.x;
+	mouse.point.y	   = mousePoint.y;
 	MwLLDispatch(this, down, &mouse);
 	[this->cocoa.real nudge];
 	[super rightMouseDown:ev];
 }
 
 - (void)rightMouseUp:(NSEvent*)ev {
-	MwLLMouse mouse;
-	NSPoint	  mousePoint = [ev locationInWindow];
-	MwLL this	     = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
-	mousePoint.y	     = [[ev window] frame].size.height - mousePoint.y;
-	mouse.button	     = MwLLMouseRight;
-	mouse.point.x	     = mousePoint.x;
-	mouse.point.y	     = mousePoint.y;
+	MwMouse mouse;
+	NSPoint mousePoint = [ev locationInWindow];
+	MwLL this	   = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
+	mousePoint.y	   = [[ev window] frame].size.height - mousePoint.y;
+	mouse.button	   = MwMOUSE_RIGHT;
+	mouse.point.x	   = mousePoint.x;
+	mouse.point.y	   = mousePoint.y;
 	MwLLDispatch(this, up, &mouse);
 	[this->cocoa.real nudge];
 	[super rightMouseUp:ev];

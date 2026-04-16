@@ -694,38 +694,38 @@ static void MwLLNextEventImpl(MwLL handle) {
 			handle->x11.force_render = 0;
 			render			 = 1;
 		} else if(ev.type == ButtonPress) {
-			MwLLMouse p;
+			MwMouse p;
 			p.point.x = ev.xbutton.x;
 			p.point.y = ev.xbutton.y;
 			if(ev.xbutton.button == Button1) {
-				p.button = MwLLMouseLeft;
+				p.button = MwMOUSE_LEFT;
 			} else if(ev.xbutton.button == Button2) {
-				p.button = MwLLMouseMiddle;
+				p.button = MwMOUSE_MIDDLE;
 			} else if(ev.xbutton.button == Button3) {
-				p.button = MwLLMouseRight;
+				p.button = MwMOUSE_RIGHT;
 			} else if(ev.xbutton.button == Button4) {
-				p.button = MwLLMouseWheelUp;
+				p.button = MwMOUSE_WHEELUP;
 			} else if(ev.xbutton.button == Button5) {
-				p.button = MwLLMouseWheelDown;
+				p.button = MwMOUSE_WHEELDOWN;
 			}
 
 			XSetInputFocus(handle->x11.display, handle->x11.window, RevertToNone, CurrentTime);
 
 			MwLLDispatch(handle, down, &p);
 		} else if(ev.type == ButtonRelease) {
-			MwLLMouse p;
+			MwMouse p;
 			p.point.x = ev.xbutton.x;
 			p.point.y = ev.xbutton.y;
 			if(ev.xbutton.button == Button1) {
-				p.button = MwLLMouseLeft;
+				p.button = MwMOUSE_LEFT;
 			} else if(ev.xbutton.button == Button2) {
-				p.button = MwLLMouseMiddle;
+				p.button = MwMOUSE_MIDDLE;
 			} else if(ev.xbutton.button == Button3) {
-				p.button = MwLLMouseRight;
+				p.button = MwMOUSE_RIGHT;
 			} else if(ev.xbutton.button == Button4) {
-				p.button = MwLLMouseWheelUp;
+				p.button = MwMOUSE_WHEELUP;
 			} else if(ev.xbutton.button == Button5) {
-				p.button = MwLLMouseWheelDown;
+				p.button = MwMOUSE_WHEELDOWN;
 			}
 
 			MwLLDispatch(handle, up, &p);

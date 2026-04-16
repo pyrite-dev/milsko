@@ -221,7 +221,7 @@ static void layout(MwWidget handle) {
 					   MwNleftPadding, 16,
 					   NULL);
 		MwListBoxInsert(fc->nav, -1, p);
-		MwAddUserHandler(fc->nav, MwNactivateHandler, nav_activate, NULL);
+		MwAddUserHandler(fc->nav, MwNlistBoxActivateHandler, nav_activate, NULL);
 
 		MwListBoxDestroyPacket(p);
 	} else {
@@ -242,7 +242,7 @@ static void layout(MwWidget handle) {
 					     MwNhasHeading, 1,
 					     MwNleftPadding, 16,
 					     NULL);
-		MwAddUserHandler(fc->files, MwNactivateHandler, files_activate, NULL);
+		MwAddUserHandler(fc->files, MwNlistBoxActivateHandler, files_activate, NULL);
 	} else {
 		MwVaApply(fc->files,
 			  MwNx, wx,

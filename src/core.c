@@ -52,22 +52,23 @@ static void lldrawhandler(MwLL handle, void* data) {
 }
 
 static void lluphandler(MwLL handle, void* data) {
-	MwWidget   h = (MwWidget)handle->common.user;
-	MwLLMouse* p = data;
+	MwWidget h = (MwWidget)handle->common.user;
+	MwMouse* p = data;
 
-	if(p->button == MwLLMouseLeft) h->pressed = 0;
+	if(p->button == MwMOUSE_LEFT) h->pressed = 0;
 	h->mouse_point.x = p->point.x;
 	h->mouse_point.y = p->point.y;
 
-	if(p->button == MwLLMouseLeft) MwDispatch(h, click);
+	if(p->button == MwMOUSE_LEFT) MwDispatch(h, click);
 	MwDispatch3(h, mouse_up, data);
 	MwDispatchUserHandler(h, MwNmouseUpHandler, data);
 }
 
 static void lldownhandler(MwLL handle, void* data) {
-	MwWidget   h = (MwWidget)handle->common.user;
-	MwLLMouse* p = data;
-	if(p->button == MwLLMouseLeft) h->pressed = 1;
+	MwWidget h = (MwWidget)handle->common.user;
+	MwMouse* p = data;
+
+	if(p->button == MwMOUSE_LEFT) h->pressed = 1;
 	h->mouse_point.x = p->point.x;
 	h->mouse_point.y = p->point.y;
 
@@ -962,7 +963,7 @@ int MwGetCoordinateType(MwWidget handle) {
 	if(handle->parent == NULL || handle->parent->lowlevel == NULL) {
 		return handle->lowlevel->common.coordinate_type;
 	} else {
-		return MwCoordinatesLocal;
+		return MwCOORDINATE_LOCAL;
 	}
 }
 

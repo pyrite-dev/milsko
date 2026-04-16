@@ -119,7 +119,7 @@ static void recursive_dispatch_resize(MwLL handle) {
 };
 
 /* Recursively dispatch a move event to a widget and its children */
-static void recursive_dispatch_move(MwLL handle, MwLLMouse* p) {
+static void recursive_dispatch_move(MwLL handle, MwMouse* p) {
 	MwWidget h = (MwWidget)handle->common.user;
 	if(h) {
 		int i;
@@ -282,7 +282,7 @@ static void wl_clipboard_read(wl_clipboard_device_context_t* ctx, int clipboard_
 	timeout.tv_sec	= 0;
 	timeout.tv_usec = 100;
 
-	if(clipboard_type == MwClipboardPrimary) {
+	if(clipboard_type == MwCLIPBOARD_PRIMARY) {
 		zwp_primary_selection_offer_v1_receive(ctx->offer.zwp, "text/plain", fds[1]);
 	} else if(ctx->offer.wl) {
 		wl_data_offer_receive(ctx->offer.wl, "text/plain", fds[1]);
@@ -501,7 +501,7 @@ static void pointer_leave(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 	WAYLAND_EVENT_OP_END(self);
 };
 
-static void xdg_borderless_step(MwLL self, MwLLMouse p, MwU32 serial) {
+static void xdg_borderless_step(MwLL self, MwMouse p, MwU32 serial) {
 	if(self->wayland.type == MWLL_WAYLAND_TOPLEVEL && self->wayland.backbuffer.surface == curSurface) {
 		if(p.point.y >= (self->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM) - 5) {
 			if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 5) {
@@ -535,8 +535,8 @@ static void relative_pointer_motion(void*			    data,
 				    wl_fixed_t			    dy,
 				    wl_fixed_t			    dxUnaccel,
 				    wl_fixed_t			    dyUnaccel) {
-	MwLL	  self = data;
-	MwLLMouse p;
+	MwLL	self = data;
+	MwMouse p;
 
 	WAYLAND_EVENT_OP_START(self);
 
@@ -567,9 +567,9 @@ static void zwp_relative_pointer_manager_v1_interface_destroy(struct _MwLLWaylan
 /* `wl_pointer.motion` callback */
 static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time,
 			   wl_fixed_t surface_x, wl_fixed_t surface_y) {
-	MwLL	  self		 = data;
-	MwLL	  topmost_parent = self;
-	MwLLMouse p;
+	MwLL	self	       = data;
+	MwLL	topmost_parent = self;
+	MwMouse p;
 	(void)time;
 	(void)wl_pointer;
 
@@ -590,9 +590,9 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 /* `wl_pointer.button` callback */
 static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 serial, MwU32 time, MwU32 button, MwU32 state) {
-	MwLL	  self = data;
-	MwLLMouse p;
-	MwBool	  inArea = MwFALSE;
+	MwLL	self = data;
+	MwMouse p;
+	MwBool	inArea = MwFALSE;
 
 	(void)wl_pointer;
 	(void)serial;
@@ -613,13 +613,13 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 
 		switch(button) {
 		case BTN_LEFT:
-			p.button = MwLLMouseLeft;
+			p.button = MwMOUSE_LEFT;
 			break;
 		case BTN_MIDDLE:
-			p.button = MwLLMouseMiddle;
+			p.button = MwMOUSE_MIDDLE;
 			break;
 		case BTN_RIGHT:
-			p.button = MwLLMouseRight;
+			p.button = MwMOUSE_RIGHT;
 			break;
 		}
 		self->wayland.held_down = state == WL_POINTER_BUTTON_STATE_PRESSED;
@@ -1757,7 +1757,7 @@ static void wl_logger(const char* fmt, va_list args) {
 static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int height, enum _MwLLWaylandType ty) {
 	/* Wayland does not report global coordinates ever. Compositors are not even expected to have knowledge of this.
 	 */
-	r->common.coordinate_type = MwCoordinatesLocal;
+	r->common.coordinate_type = MwCOORDINATE_LOCAL;
 
 	r->common.type = MwLLBackendWayland;
 
@@ -2510,7 +2510,7 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_ty
 	handle->wayland.clipboard_buffer = malloc(strlen(text));
 	strcpy(handle->wayland.clipboard_buffer, text);
 
-	if(clipboard_type == MwClipboardPrimary) {
+	if(clipboard_type == MwCLIPBOARD_PRIMARY) {
 		if(handle->wayland.supports_zwp) {
 			for(i = 0; i < arrlen(handle->wayland.clipboard_devices_zwp); i++) {
 				wl_clipboard_device_context_t* device = handle->wayland.clipboard_devices_zwp[i];
@@ -2529,7 +2529,7 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_ty
 
 static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
 	int i;
-	if(clipboard_type == MwClipboardPrimary) {
+	if(clipboard_type == MwCLIPBOARD_PRIMARY) {
 		if(handle->wayland.supports_zwp) {
 			for(i = 0; i < arrlen(handle->wayland.clipboard_devices_zwp); i++) {
 				wl_clipboard_read(

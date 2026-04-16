@@ -28,6 +28,7 @@ typedef struct _MwTreeViewEntry	      MwTreeViewEntry;
 typedef struct _MwDirectoryEntry      MwDirectoryEntry;
 typedef struct _MwListBoxPacket	      MwListBoxPacket;
 typedef struct _MwBox*		      MwBox;
+typedef struct _MwMouse		      MwMouse;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
 #else
@@ -210,6 +211,11 @@ struct _MwBox {
 	int layout;
 };
 
+struct _MwMouse {
+	MwPoint point;
+	int	button;
+};
+
 struct _MwClass {
 	MwHandlerWithStatus	   create;
 	MwHandler		   destroy;
@@ -231,20 +237,6 @@ struct _MwClass {
 	void*			   reserved2;
 	void*			   reserved3;
 	void*			   reserved4;
-};
-
-/* Whether or not GetXY/SetXY works with global or local coordinates */
-enum MwCoordinateType {
-	MwCoordinatesGlobal = 0,
-	MwCoordinatesLocal,
-};
-
-/* The clipboard type that MwGetClipboard should return */
-enum MwClipboardType {
-	/* the clipboard that is present on every platform that supports it */
-	MwClipboardMain = 0,
-	/* the "primary" clipboard that Wayland stores to emulate X11's behavior. */
-	MwClipboardPrimary,
 };
 
 #endif

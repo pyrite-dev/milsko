@@ -232,15 +232,15 @@ void vulkan_setup(MwWidget handle) {
 	VkFenceCreateInfo		       fenceInfo	    = {};
 
 	int err		       = 0;
-	_vkGetInstanceProcAddr = MwVulkanGetField(handle, MwVulkanField_GetInstanceProcAddr, &err);
-	instance	       = MwVulkanGetField(handle, MwVulkanField_Instance, &err);
-	device		       = MwVulkanGetField(handle, MwVulkanField_LogicalDevice, &err);
-	physicalDevice	       = MwVulkanGetField(handle, MwVulkanField_PhysicalDevice, &err);
-	graphicsQueue	       = MwVulkanGetField(handle, MwVulkanField_GraphicsQueue, &err);
-	presentQueue	       = MwVulkanGetField(handle, MwVulkanField_PresentQueue, &err);
-	surface		       = MwVulkanGetField(handle, MwVulkanField_Surface, &err);
-	presentQueueIndex      = MwVulkanGetField(handle, MwVulkanField_PresentQueueIndex, &err);
-	graphicsQueueIndex     = MwVulkanGetField(handle, MwVulkanField_GraphicsQueueIndex, &err);
+	_vkGetInstanceProcAddr = MwVulkanGetField(handle, MwVULKANFIELD_GETINSTANCEPROCADDR, &err);
+	instance	       = MwVulkanGetField(handle, MwVULKANFIELD_INSTANCE, &err);
+	device		       = MwVulkanGetField(handle, MwVULKANFIELD_LOGICALDEVICE, &err);
+	physicalDevice	       = MwVulkanGetField(handle, MwVULKANFIELD_PHYSICALDEVICE, &err);
+	graphicsQueue	       = MwVulkanGetField(handle, MwVULKANFIELD_GRAPHICSQUEUE, &err);
+	presentQueue	       = MwVulkanGetField(handle, MwVULKANFIELD_PRESENTQUEUE, &err);
+	surface		       = MwVulkanGetField(handle, MwVULKANFIELD_SURFACE, &err);
+	presentQueueIndex      = MwVulkanGetField(handle, MwVULKANFIELD_PRESENTQUEUEINDEX, &err);
+	graphicsQueueIndex     = MwVulkanGetField(handle, MwVULKANFIELD_GRAPHICSQUEUEINDEX, &err);
 
 	LOAD_VK_FUNCTION(vkCreateShaderModule);
 	LOAD_VK_FUNCTION(vkCreatePipelineLayout);

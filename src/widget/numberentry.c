@@ -98,7 +98,7 @@ static void mouse_up(MwWidget handle, void* ptr) {
 	int	    h	= MwGetInteger(handle, MwNheight);
 	const char* str = MwGetText(handle, MwNtext);
 
-	if(((MwLLMouse*)ptr)->button != MwLLMouseLeft) return;
+	if(((MwMouse*)ptr)->button != MwMOUSE_LEFT) return;
 
 	if(e->mouse.x >= (w - e->right)) {
 		char s[512];
@@ -116,7 +116,7 @@ static void mouse_up(MwWidget handle, void* ptr) {
 static void mouse_down(MwWidget handle, void* ptr) {
 	MwEntry e = handle->internal;
 
-	if(((MwLLMouse*)ptr)->button != MwLLMouseLeft) return;
+	if(((MwMouse*)ptr)->button != MwMOUSE_LEFT) return;
 
 	e->mouse = handle->mouse_point;
 

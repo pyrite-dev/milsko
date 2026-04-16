@@ -523,23 +523,23 @@ static void* mwVulkanGetFieldImpl(MwWidget handle, int field, int* out) {
 	char	  buf[1024];
 
 	switch(field) {
-	case MwVulkanField_GetInstanceProcAddr:
+	case MwVULKANFIELD_GETINSTANCEPROCADDR:
 		return o->vkGetInstanceProcAddr;
-	case MwVulkanField_Instance:
+	case MwVULKANFIELD_INSTANCE:
 		return o->vkInstance;
-	case MwVulkanField_Surface:
+	case MwVULKANFIELD_SURFACE:
 		return o->vkSurface;
-	case MwVulkanField_PhysicalDevice:
+	case MwVULKANFIELD_PHYSICALDEVICE:
 		return o->vkPhysicalDevice;
-	case MwVulkanField_LogicalDevice:
+	case MwVULKANFIELD_LOGICALDEVICE:
 		return o->vkLogicalDevice;
-	case MwVulkanField_GraphicsQueueIndex:
+	case MwVULKANFIELD_GRAPHICSQUEUEINDEX:
 		return &o->vkGraphicsFamilyIDX;
-	case MwVulkanField_PresentQueueIndex:
+	case MwVULKANFIELD_PRESENTQUEUEINDEX:
 		return &o->vkPresentFamilyIDX;
-	case MwVulkanField_GraphicsQueue:
+	case MwVULKANFIELD_GRAPHICSQUEUE:
 		return o->vkGraphicsQueue;
-	case MwVulkanField_PresentQueue:
+	case MwVULKANFIELD_PRESENTQUEUE:
 		return o->vkPresentQueue;
 	default:
 		MwStringPrintIntoBuffer(buf, 1024, "Unknown vulkan field request (%d given)", field);

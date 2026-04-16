@@ -128,7 +128,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 				set_all(root, 0);
 				tree->selected = 1;
 				if(((t = MwTimeGetTick()) - tree->click_time) < MwDoubleClickTimeout || MwGetInteger(handle->parent, MwNsingleClickSelectable)) {
-					MwDispatchUserHandler(handle->parent, MwNactivateHandler, tree);
+					MwDispatchUserHandler(handle->parent, MwNtreeViewActivateHandler, tree);
 				}
 
 				tree->click_time = t;
@@ -213,11 +213,11 @@ static int recursive_length(MwTreeViewEntry** e) {
 
 static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 	MwTreeView tv	 = handle->parent->internal;
-	MwLLMouse* mouse = call;
+	MwMouse*   mouse = call;
 
 	(void)user;
 
-	if(mouse->button == MwLLMouseLeft) tv->pressed = mouse->point;
+	if(mouse->button == MwMOUSE_LEFT) tv->pressed = mouse->point;
 }
 
 static void resize(MwWidget handle);
@@ -227,11 +227,11 @@ static void frame_mouse_up(MwWidget handle, void* user, void* call) {
 	int	   shared = 0;
 	int	   skip	  = MwGetInteger(tv->vscroll, MwNvalue) * (MwGetInteger(tv->vscroll, MwNmaxValue) - MwGetInteger(tv->vscroll, MwNareaShown)) / MwGetInteger(tv->vscroll, MwNmaxValue);
 	MwPoint	   p;
-	MwLLMouse* mouse = call;
+	MwMouse*   mouse = call;
 
 	(void)user;
 
-	if(mouse->button == MwLLMouseLeft) {
+	if(mouse->button == MwMOUSE_LEFT) {
 		int i;
 		p.x = MwDefaultBorderWidth(tv->frame);
 		p.y = MwDefaultBorderWidth(tv->frame);

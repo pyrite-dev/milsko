@@ -73,45 +73,45 @@ MWDECL void MwVulkanConfigure(MwVulkanConfig* cfg);
 /*!
  * @brief Field that can be gotten from Vulkan.
  */
-typedef enum _MwVulkanField {
+enum MwVULKANFIELD {
 	/*!
 	 * @brief The address of the vulkan widget's vkGetInstanceProcAddr function (PFN_vkGetInstanceProcAddr)
 	 */
-	MwVulkanField_GetInstanceProcAddr = 0,
+	MwVULKANFIELD_GETINSTANCEPROCADDR = 0,
 	/*!
 	 * @brief The address of the vulkan widget's instance (VkInstance)
 	 */
-	MwVulkanField_Instance,
+	MwVULKANFIELD_INSTANCE,
 	/*!
 	 * @brief The address of the vulkan widget's surface (VkSurfaceKHR)
 	 */
-	MwVulkanField_Surface,
+	MwVULKANFIELD_SURFACE,
 	/*!
 	 * @brief The address of the vulkan widget's physical device (VkPhysicalDevice)
 	 */
-	MwVulkanField_PhysicalDevice,
+	MwVULKANFIELD_PHYSICALDEVICE,
 	/*!
 	 * @brief The address of the vulkan widget's logical device (VkDevice)
 	 */
-	MwVulkanField_LogicalDevice,
+	MwVULKANFIELD_LOGICALDEVICE,
 	/*!
 	 * @brief The address of the index that the vulkan widget uses for the graphics queue (uint32_t *)
 	 */
-	MwVulkanField_GraphicsQueueIndex,
+	MwVULKANFIELD_GRAPHICSQUEUEINDEX,
 	/*!
 	 * @brief The address of the index that the vulkan widget uses for the present queue (uint32_t *)
 	 */
-	MwVulkanField_PresentQueueIndex,
-	MwVulkanField_GraphicsQueue,
+	MwVULKANFIELD_PRESENTQUEUEINDEX,
+	MwVULKANFIELD_GRAPHICSQUEUE,
 	/*!
 	 * @brief The address of the vulkan widget's graphics queue (VkQueue)
 	 */
-	MwVulkanField_PresentQueue,
-} MwVulkanField;
+	MwVULKANFIELD_PRESENTQUEUE,
+};
 
 /*!
  * @brief Function for getting a field from within Vulkan.
- * @warning Consult the documentation for MwVulkanField to know what type is expected for out.
+ * @warning Consult the documentation for MwVULKANFIELD to know what type is expected for out.
  */
 MwInline void* MwVulkanGetField(MwWidget handle, int field, int* out) {
 	void* field_out;

@@ -51,12 +51,12 @@ static void tick(MwWidget handle, void* user, void* call) {
 }
 
 static void mouse(MwWidget handle, void* user, void* call) {
-	MwLLMouse* mouse = call;
+	MwMouse* mouse = call;
 
 	(void)handle;
 	(void)user;
 
-	if(mouse->button == MwLLMouseLeft) {
+	if(mouse->button == MwMOUSE_LEFT) {
 		t[ct].points[click * 2 + 0] = mouse->point.x;
 		t[ct].points[click * 2 + 1] = mouse->point.y;
 		click++;
@@ -82,7 +82,7 @@ static void mouse(MwWidget handle, void* user, void* call) {
 			for(i = 0; i < ct; i++) t[i] = old[i];
 			free(old);
 		}
-	} else if(mouse->button == MwLLMouseRight) {
+	} else if(mouse->button == MwMOUSE_RIGHT) {
 		if(click > 0) {
 			click = 0;
 		} else if(ct > 0) {

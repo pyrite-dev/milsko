@@ -99,4 +99,26 @@ enum MwMB_ICON {
  */
 #define MwMB_BUTTONYESNOCANCEL (MwMB_BUTTONYES | MwMB_BUTTONNO | MwMB_BUTTONCANCEL)
 
+/* Whether or not GetXY/SetXY works with global or local coordinates */
+enum MwCOORDINATE {
+	MwCOORDINATE_GLOBAL = 0,
+	MwCOORDINATE_LOCAL,
+};
+
+/* The clipboard type that MwGetClipboard should return */
+enum MwCLIPBOARD {
+	/* the clipboard that is present on every platform that supports it */
+	MwCLIPBOARD_MAIN = 0,
+	/* the "primary" clipboard that Wayland stores to emulate X11's behavior. */
+	MwCLIPBOARD_PRIMARY,
+};
+
+enum MwMOUSE {
+	MwMOUSE_LEFT = 1,
+	MwMOUSE_MIDDLE,
+	MwMOUSE_RIGHT,
+	MwMOUSE_WHEELUP,
+	MwMOUSE_WHEELDOWN
+};
+
 #endif

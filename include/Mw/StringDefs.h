@@ -60,24 +60,27 @@
 #define MwNmonospaceFont "VmonospaceFont"
 #define MwNboldMonospaceFont "VboldMonospaceFont"
 
-#define MwNactivateHandler "Cactivate"		     /* NULL/int* (MwListBox)/void* (MwTreeView) */
-#define MwNresizeHandler "Cresize"		     /* NULL */
-#define MwNtickHandler "Ctick"			     /* NULL */
-#define MwNmenuHandler "Cmenu"			     /* MwMenu */
-#define MwNmouseDownHandler "CmouseDown"	     /* MwLLMouse* */
-#define MwNmouseUpHandler "CmouseUp"		     /* same as MwNmouseDownHandler */
-#define MwNmouseMoveHandler "CmouseMove"	     /* MwPoint* */
-#define MwNchangedHandler "Cchanged"		     /* NULL/int* (MwComboBox) */
-#define MwNkeyHandler "Ckey"			     /* int* (MwLLKeyEnum or character code) */
-#define MwNkeyReleaseHandler "CkeyRelease"	     /* same as MwNkeyHandler */
-#define MwNcloseHandler "Cclose"		     /* NULL */
-#define MwNfocusInHandler "CfocusIn"		     /* NULL */
-#define MwNfocusOutHandler "CfocusOut"		     /* NULL */
-#define MwNfileChosenHandler "CfileChosen"	     /* char* */
-#define MwNdirectoryChosenHandler "CdirectoryChosen" /* char* */
-#define MwNcolorChosenHandler "CcolorChosen"	     /* MwRGB* */
-#define MwNdrawHandler "Cdraw"			     /* NULL */
-#define MwNclipboardHandler "Cclipboard"	     /* char* */
-#define MwNdarkThemeHandler "CdarkTheme"	     /* int* */
+#define MwNactivateHandler "Cactivate"		       /* NULL */
+#define MwNlistBoxActivateHandler "ClistBoxActivate"   /* int* */
+#define MwNtreeViewActivateHandler "CtreeViewActivate" /* void* */
+#define MwNresizeHandler "Cresize"		       /* NULL */
+#define MwNtickHandler "Ctick"			       /* NULL */
+#define MwNmenuHandler "Cmenu"			       /* MwMenu */
+#define MwNmouseDownHandler "CmouseDown"	       /* MwMouse* */
+#define MwNmouseUpHandler "CmouseUp"		       /* same as MwNmouseDownHandler */
+#define MwNmouseMoveHandler "CmouseMove"	       /* MwPoint* */
+#define MwNchangedHandler "Cchanged"		       /* NULL */
+#define MwNcomboBoxChangedHandler "CcomboBoxChanged"   /* int* */
+#define MwNkeyHandler "Ckey"			       /* int* (MwLLKeyEnum or character code) */
+#define MwNkeyReleaseHandler "CkeyRelease"	       /* same as MwNkeyHandler */
+#define MwNcloseHandler "Cclose"		       /* NULL */
+#define MwNfocusInHandler "CfocusIn"		       /* NULL */
+#define MwNfocusOutHandler "CfocusOut"		       /* NULL */
+#define MwNfileChosenHandler "CfileChosen"	       /* char* */
+#define MwNdirectoryChosenHandler "CdirectoryChosen"   /* char* */
+#define MwNcolorChosenHandler "CcolorChosen"	       /* MwRGB* */
+#define MwNdrawHandler "Cdraw"			       /* NULL */
+#define MwNclipboardHandler "Cclipboard"	       /* char* */
+#define MwNdarkThemeHandler "CdarkTheme"	       /* int* */
 
 #endif

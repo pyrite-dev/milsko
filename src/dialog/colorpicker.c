@@ -160,7 +160,7 @@ static void color_picker_image_update(color_picker_t* picker) {
 
 static void color_picker_click(MwWidget handle, void* user, void* call) {
 	color_picker_t* picker = user;
-	MwLLMouse*	mouse  = call;
+	MwMouse*	mouse  = call;
 	char		hexColor[8];
 	int		i;
 	char		fgColor[8];

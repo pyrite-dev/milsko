@@ -119,12 +119,12 @@ static void vscroll_changed(MwWidget handle, void* user, void* call) {
 }
 
 static void frame_mouse_down(MwWidget handle, void* user, void* call) {
-	MwListBox  lb = handle->parent->internal;
-	MwLLMouse* m  = call;
+	MwListBox lb = handle->parent->internal;
+	MwMouse*  m  = call;
 
 	(void)user;
 
-	if(m->button == MwLLMouseLeft) {
+	if(m->button == MwMOUSE_LEFT) {
 		int st = 0;
 		int i;
 		int y = MwDefaultBorderWidth(handle);
@@ -140,7 +140,7 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 
 				if((((t = MwTimeGetTick()) - lb->click_time) < MwDoubleClickTimeout && old == st + i) || MwGetInteger(handle->parent, MwNsingleClickSelectable)) {
 					int n = MwGetInteger(handle->parent, MwNvalue);
-					MwDispatchUserHandler(handle->parent, MwNactivateHandler, &n);
+					MwDispatchUserHandler(handle->parent, MwNlistBoxActivateHandler, &n);
 				}
 
 				lb->click_time = t;
@@ -154,12 +154,12 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 }
 
 static void frame_mouse_up(MwWidget handle, void* user, void* call) {
-	MwListBox  lb = handle->parent->internal;
-	MwLLMouse* m  = call;
+	MwListBox lb = handle->parent->internal;
+	MwMouse*  m  = call;
 
 	(void)user;
 
-	if(m->button == MwLLMouseLeft) {
+	if(m->button == MwMOUSE_LEFT) {
 		lb->pressed = 0;
 	}
 }
