@@ -9,7 +9,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	/* todo: how do we set parent windows? If we can't, what is our equivalant to MacOS's NSViews, Wayland's subsurfaces, etc.? */
 	SetRect(&r->cmacos.winRect, x, y, width, height);
-	r->cmacos.window = NewCWindow(nil, &r->cmacos.winRect, (ConstStr255Param) "\p", true,
+	r->cmacos.window = newcwindow(nil, &r->cmacos.winRect, "", true,
 				      documentProc, (WindowPtr)(-1), true, 0);
 	SetPort(r->cmacos.window);
 
