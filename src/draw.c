@@ -104,14 +104,13 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 
 void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	MwLLPixmap     pixmap;
-	int	       y, i;
+	int	       y;
 	double	       darken	  = 0.;
 	int	       ColorDiff  = get_color_diff(handle);
 	double	       darkenStep = (ColorDiff / 2.) / rect->height;
 	unsigned long  sz	  = 1 * rect->height * 4;
 	unsigned char* data	  = malloc(sz);
 	MwRect	       r	  = *rect;
-	double	       div;
 	if(rect->width <= 0 || rect->height <= 0) {
 		free(data);
 		return;
@@ -309,8 +308,7 @@ static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwLLColor color,
 
 static void frame_border_complex(MwWidget handle, MwRect* rect, MwLLColor lighter, MwLLColor darker, int invert, int border, int diff, int same) {
 	MwPoint p[7];
-	int	i;
-
+	
 	(void)diff;
 	(void)same;
 
