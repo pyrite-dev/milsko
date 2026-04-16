@@ -489,8 +489,8 @@ static int vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	return 0;
 }
 
-void MwVulkanConfigure(MwVulkanConfig cfg) {
-	vulkan_config = cfg;
+void MwVulkanConfigure(MwVulkanConfig* cfg) {
+	vulkan_config = *cfg;
 }
 
 void MwVulkanEnableExtension(const char* name) {
@@ -595,7 +595,7 @@ void MwVulkanEnableLayer(const char* ext_name) {
 	(void)ext_name;
 }
 
-void MwVulkanConfigure(MwVulkanConfig cfg) {
+void MwVulkanConfigure(MwVulkanConfig* cfg) {
 	(void)cfg;
 }
 

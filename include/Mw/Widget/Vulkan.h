@@ -68,7 +68,7 @@ typedef struct _MwVulkanConfig {
  * @warning This must be called before MwCreateWidget.
  * @warning The configuration provided will be used for future initializations of the Vulkan widget (unless it's changed)
  */
-MWDECL void MwVulkanConfigure(MwVulkanConfig cfg);
+MWDECL void MwVulkanConfigure(MwVulkanConfig* cfg);
 
 /*!
  * @brief Field that can be gotten from Vulkan.

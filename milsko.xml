@@ -38,6 +38,11 @@
 			<short name="green" unsigned="yes" />
 			<short name="blue" unsigned="yes" />
 		</struct>
+		<struct name="MwVulkanConfig">
+			<integer name="api_version" unsigned="yes" />
+			<integer name="vk_version" unsigned="yes" />
+			<integer name="validation_layers" />
+		</struct>
 	</structs>
 	<!--
 		All widgets have properties that are common="yes".
@@ -507,6 +512,20 @@
 						<pointer name="packet" />
 						<integer name="index" />
 						<pixmap name="icon" />
+					</arguments>
+				</function>
+			</functions>
+		</header>
+	
+		<!-- They are not alphabetically sorted for reasons -->
+		<header name="Widget/Vulkan.h">
+			<functions>
+				<function name="MwVulkanConfigure">
+					<return>
+						<pointer />
+					</return>
+					<arguments>
+						<struct defname="MwVulkanConfig" name="cfg" pointer="yes" />
 					</arguments>
 				</function>
 			</functions>
