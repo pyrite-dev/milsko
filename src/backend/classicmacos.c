@@ -7,12 +7,13 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	MwLLCreateCommon(r);
 
-	SetRect(&r->cmacos.winRect, 100, 100, width, height);
-
-	r->cmacos.window = NewCWindow(nil, &r->cmacos.winRect, (ConstStr255Param) "\p", true,
-				      documentProc, (WindowPtr)(-1), true, 0);
-
-	SetPort(r->cmacos.window);
+	if(!parent) {
+		SetRect(&r->cmacos.winRect, 100, 100, width, height);
+		r->cmacos.window = NewCWindow(nil, &r->cmacos.winRect, (ConstStr255Param) "\p", true,
+					      documentProc, (WindowPtr)(-1), true, 0);
+		SetPort(r->cmacos.window);
+		//
+	}
 
 	return r;
 }
@@ -32,10 +33,42 @@ static void MwLLEndDrawImpl(MwLL handle) {
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
-	int i;
+	int	   i;
+	PolyHandle p = OpenPoly();
+	RGBColor   col;
+
+	col.red	  = color->common.red;
+	col.green = color->common.green;
+	col.blue  = color->common.blue;
+
+	RGBBackColor(&col);
+	RGBForeColor(&col);
+
+	for(i = 0; i < points_count; i++) {
+		if(i == 0) {
+			MoveTo(points[i].x, points[i].y);
+		} else {
+			LineTo(points[i].x, points[i].y);
+		}
+	}
+
+	ClosePoly();
+	PaintPoly(p);
+	KillPoly(p);
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
+	RGBColor col;
+
+	col.red	  = color->common.red;
+	col.green = color->common.green;
+	col.blue  = color->common.blue;
+
+	RGBBackColor(&col);
+	RGBForeColor(&col);
+
+	MoveTo(points[0].x, points[0].y);
+	LineTo(points[1].x, points[1].y);
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
@@ -51,16 +84,20 @@ static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 }
 
 static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
-	*x = 0;
-	*y = 0;
-	*w = 0;
-	*h = 0;
+	Rect bounds;
+	GetWindowBounds(handle->cmacos.window, kWindowContentRgn, &bounds);
+	*x = bounds.left;
+	*y = bounds.top;
+	*w = bounds.right;
+	*h = bounds.bottom;
 }
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
+	MoveWindow(handle->cmacos.window, x, y, MwTRUE);
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
+	SizeWindow(handle->cmacos.window, w, h, MwTRUE);
 }
 
 static void MwLLFreeColorImpl(MwLLColor color) {
@@ -75,6 +112,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 }
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
+	setwtitle(handle->cmacos.window, title);
 }
 
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
@@ -109,6 +147,10 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
+	if(show)
+		ShowWindow(handle->cmacos.window);
+	else
+		HideWindow(handle->cmacos.window);
 }
 
 static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
@@ -121,6 +163,7 @@ static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
 }
 
 static void MwLLFocusImpl(MwLL handle) {
+	HiliteWindow(handle->cmacos.window, MwTRUE);
 }
 
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {

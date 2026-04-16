@@ -125,7 +125,7 @@ union _MwLL {
 	struct _MwLLCocoa cocoa;
 #endif
 #ifdef CLASSIC_MAC_OS
-    struct _MwLLClassicMacOS cmacos;
+	struct _MwLLClassicMacOS cmacos;
 #endif
 };
 
@@ -158,6 +158,9 @@ union _MwLLPixmap {
 #endif
 #ifdef USE_COCOA
 	struct _MwLLCocoaPixmap cocoa;
+#endif
+#ifdef CLASSIC_MAC_OS
+	struct _MwLLClassicMacOSPixmap cmacos;
 #endif
 };
 #endif

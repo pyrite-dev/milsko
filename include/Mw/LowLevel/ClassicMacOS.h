@@ -24,6 +24,7 @@ struct _MwLLClassicMacOSColor {
 
 struct _MwLLClassicMacOSPixmap {
 	struct _MwLLCommonPixmap common;
+	BitMap			 bmp;
 };
 
 MWDECL int MwLLClassicMacOSCallInit(void);
