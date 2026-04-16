@@ -260,7 +260,7 @@ foreach my $l (@library_targets) {
     }
 
     print(OUT "${l}: ${s}\n");
-    print(OUT "	\$(CC) $warn \$\(INCDIR\) \$(CFLAGS\) -c -o ${l} ${s}\n");
+    print(OUT "	\$(CC) $warn \$\(INCDIR) \$(CFLAGS\) -c -o ${l} ${s}\n");
 }
 print(OUT "\n");
 print(OUT "\n");
@@ -289,7 +289,7 @@ if (param_get("examples")) {
         }
         if (grep(/^cocoa$/, @backends)) {
             print(OUT
-"	\$(CC) -L./src -I\$\(INCDIR\) \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n"
+"	\$(CC) -L./src -I\$\(INCDIR) \$\(LIBDIR) -o ${l} ${s}${object_suffix} -lMw ${math} ${libs}\n"
             );
         }
         else {
