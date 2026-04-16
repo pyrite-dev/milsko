@@ -62,11 +62,6 @@ if(MW_TRY_OPENGL)
   find_package(OpenGL)
   if(OpenGL_FOUND)
     set(MW_BUILD_OPENGL ON)
-    target_compile_definitions(
-          Mw
-          PRIVATE
-          MW_OPENGL
-        )
     if(APPLE)
       list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl_cocoa.m")
     endif()
@@ -80,11 +75,6 @@ if(MW_TRY_VULKAN)
   check_include_files(vulkan/vulkan.h HAVE_VULKAN_VULKAN_H)
   if(HAVE_VULKAN_VULKAN_H)
     set(MW_BUILD_VULKAN ON)
-    target_compile_definitions(
-          Mw
-          PRIVATE
-          MW_VULKAN
-        )
     message(STATUS "Vulkan widget has been enabled")
   else()
     message(WARNING "Vulkan widget has been disabled")
@@ -363,6 +353,14 @@ target_link_libraries(
  ${LIBRARIES}
 )
 
+if(MW_BUILD_OPENGL)
+    target_compile_definitions(
+          Mw
+          PRIVATE
+          MW_OPENGL
+        )
+endif()
+
 if(MW_BUILD_VULKAN)
   check_include_files(vulkan/vk_enum_string_helper.h HAS_VK_ENUM_STRING_HELPER)
   if(HAS_VK_ENUM_STRING_HELPER)
@@ -372,6 +370,12 @@ if(MW_BUILD_VULKAN)
    HAS_VK_ENUM_STRING_HELPER
   )
   endif()
+
+  target_compile_definitions(
+        Mw
+          PRIVATE
+          MW_VULKAN
+        )
 endif()
 
 target_compile_definitions(
