@@ -203,16 +203,16 @@
 			<integer name="MwMOUSE_WHEELUP" />
 			<integer name="MwMOUSE_WHEELDOWN" />
 		</enumeration>
-		<enumeration name="MwVulkanField">
-        		<integer name="MwVulkanField_GetInstanceProcAddr">0</integer>
-		        <integer name="MwVulkanField_Instance" />
-        		<integer name="MwVulkanField_Surface" />
-		        <integer name="MwVulkanField_PhysicalDevice" />
-		        <integer name="MwVulkanField_LogicalDevice" />
-		        <integer name="MwVulkanField_GraphicsQueueIndex" />
-		        <integer name="MwVulkanField_PresentQueueIndex" />
-		        <integer name="MwVulkanField_GraphicsQueue" />
-		        <integer name="MwVulkanField_PresentQueue" />
+		<enumeration name="MwVULKANFIELD">
+        		<integer name="MwVULKANFIELD_GETINSTANCEPROCADDR">0</integer>
+		        <integer name="MwVULKANFIELD_INSTANCE" />
+        		<integer name="MwVULKANFIELD_SURFACE" />
+		        <integer name="MwVULKANFIELD_PHYSICALDEVICE" />
+		        <integer name="MwVULKANFIELD_LOGICALDEVICE" />
+		        <integer name="MwVULKANFIELD_GRAPHICSQUEUEINDEX" />
+		        <integer name="MwVULKANFIELD_PRESENTQUEUEINDEX" />
+		        <integer name="MwVULKANFIELD_GRAPHICSQUEUE" />
+		        <integer name="MwVULKANFIELD_PRESENTQUEUE" />
 		</enumeration>
 	</enumerations>
 	<constants>
