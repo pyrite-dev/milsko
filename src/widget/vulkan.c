@@ -4,9 +4,12 @@
  * ioixd maintains this file. nishi doesn't know vulkan at all
  */
 
-#ifdef MW_VULKAN
+#ifndef MW_VULKAN
+#define MW_VULKAN_NO_INCLUDE
+#endif
 #include <Mw/Widget/Vulkan.h>
 
+#ifdef MW_VULKAN
 #ifdef USE_GDI
 #define VK_USE_PLATFORM_WIN32_KHR 1
 #endif
@@ -498,7 +501,7 @@ void MwVulkanEnableLayer(const char* name) {
 	arrput(enabledLayers, name);
 }
 
-VkBool32 MwVulkanSupported(void) {
+int MwVulkanSupported(void) {
 	if(vulkan_supported == VULKAN_SUPPORTED_UNKNOWN) {
 		void* lib = vulkan_lib_load();
 		if(lib == NULL) {
@@ -509,9 +512,9 @@ VkBool32 MwVulkanSupported(void) {
 		}
 	}
 	if(vulkan_supported == VULKAN_SUPPORTED_YES) {
-		return VK_TRUE;
+		return 1;
 	} else {
-		return VK_FALSE;
+		return 0;
 	}
 };
 
@@ -582,7 +585,21 @@ MwClassRec MwVulkanClassRec = {
     NULL};
 MwClass MwVulkanClass = &MwVulkanClassRec;
 #else
-MWDECL MwClass MwVulkanClass;
-
 MwClass MwVulkanClass = NULL;
+
+void MwVulkanEnableExtension(const char* ext_name) {
+	(void)ext_name;
+}
+
+void MwVulkanEnableLayer(const char* ext_name) {
+	(void)ext_name;
+}
+
+void MwVulkanConfigure(MwVulkanConfig cfg) {
+	(void)cfg;
+}
+
+int MwVulkanSupported(void) {
+	return 0;
+}
 #endif

@@ -15,8 +15,10 @@
 #error Vulkan is unsupported on the requested platform.
 #endif
 
+#if !defined(MW_VULKAN_NO_INCLUDE)
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
+#endif
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
@@ -46,19 +48,19 @@ MWDECL void MwVulkanEnableLayer(const char* ext_name);
 /*!
  * @brief Configuration options that can be passed to setup Vulkan before a widget is created.
  */
-typedef struct MwVulkanConfig_T {
+typedef struct _MwVulkanConfig {
 	/*!
 	 * @brief Vulkan API version (default: VK_API_VERSION_1_0)
 	 */
-	uint32_t api_version;
+	MwU32 api_version;
 	/*!
 	 * @brief Vulkan version (default: VK_VERSION_1_0)
 	 */
-	uint32_t vk_version;
+	MwU32 vk_version;
 	/*!
 	 * @brief Whether or not to enable validation layers (default: false)
 	 */
-	VkBool32 validation_layers;
+	int validation_layers;
 } MwVulkanConfig;
 
 /*!
@@ -71,7 +73,7 @@ MWDECL void MwVulkanConfigure(MwVulkanConfig cfg);
 /*!
  * @brief Field that can be gotten from Vulkan.
  */
-typedef enum MwVulkanField_T {
+typedef enum _MwVulkanField {
 	/*!
 	 * @brief The address of the vulkan widget's vkGetInstanceProcAddr function (PFN_vkGetInstanceProcAddr)
 	 */
@@ -120,7 +122,7 @@ MwInline void* MwVulkanGetField(MwWidget handle, MwVulkanField field, int* out) 
 /*!
  * @brief Return whether Vulkan is installed on the target platform.
  */
-MWDECL VkBool32 MwVulkanSupported(void);
+MWDECL int MwVulkanSupported(void);
 
 #ifdef __cplusplus
 }

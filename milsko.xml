@@ -67,10 +67,6 @@
 		<integer name="hasBorder" />
 		<integer name="inverted" />
 		<integer name="modernLook" common="yes" />
-		<integer
-            name="waitMS"
-            common="yes"
-        /> <!-- This is a special property, only applies to toplevel widget -->
 		<integer name="hideInput" />
 		<integer name="singleClickSelectable" />
 		<integer name="flat" />
@@ -87,6 +83,9 @@
 		<integer name="isRounded" common="yes" />
 		<integer name="darkTheme" common="yes" />
 		<integer name="useMonospace" common="yes" />
+
+		<!-- waitMS is a special property, only applies to toplevel widget -->
+		<integer name="waitMS" common="yes" />
 
 		<string name="title" />
 		<string name="text" />
@@ -150,8 +149,19 @@
 			<integer name="MwMB_ICONCLOCK" />
 		</enumeration>
 		<enumeration name="MwClipboardType">
-		    <integer name="MwClipboardMain">0</integer>
+			<integer name="MwClipboardMain">0</integer>
 			<integer name="MwClipboardPrimary" />
+		</enumeration>
+		<enumeration name="MwVulkanField">
+        		<integer name="MwVulkanField_GetInstanceProcAddr">0</integer>
+		        <integer name="MwVulkanField_Instance" />
+        		<integer name="MwVulkanField_Surface" />
+		        <integer name="MwVulkanField_PhysicalDevice" />
+		        <integer name="MwVulkanField_LogicalDevice" />
+		        <integer name="MwVulkanField_GraphicsQueueIndex" />
+		        <integer name="MwVulkanField_PresentQueueIndex" />
+		        <integer name="MwVulkanField_GraphicsQueue" />
+		        <integer name="MwVulkanField_PresentQueue" />
 		</enumeration>
 	</enumerations>
 	<constants>
@@ -409,14 +419,14 @@
 				<function name="MwGetClipboard">
     				<arguments>
     					<widget name="handle" />
-    					<enum defname="MwClipboardType" pointer="no" name="clipboard_type" />
+    					<enumeration defname="MwClipboardType" name="clipboard_type" />
     				</arguments>
 				</function>
 				<function name="MwSetClipboard">
     				<arguments>
     					<widget name="handle" />
-                        <string name="text" />
-    					<enum defname="MwClipboardType" pointer="no" name="clipboard_type" />
+					<string name="text" />
+    					<enumeration defname="MwClipboardType" name="clipboard_type" />
     				</arguments>
 				</function>
 			</functions>
@@ -502,6 +512,8 @@
 			</functions>
 		</header>
 	</headers>
+
+	<!-- Widget functions are prefixed with mw<widget name> -->
 	<widgets>
 		<widget name="Box">
 			<properties>
@@ -721,14 +733,47 @@
 			</properties>
 			<functions>
 				<function name="Add">
-					<pointer name="parent" />
-					<pixmap name="pixmap" />
-					<string name="item" />
+					<arguments>
+						<pointer name="parent" />
+						<pixmap name="pixmap" />
+						<string name="item" />
+					</arguments>
 				</function>
 				<function name="Delete">
-					<pointer name="item" />
+					<arguments>
+						<pointer name="item" />
+					</arguments>
 				</function>
 				<function name="Reset" />
+			</functions>
+		</widget>
+
+		<!-- They are not alphabetically sorted for reasons -->
+		<widget name="OpenGL">
+			<functions>
+				<function name="MakeCurrent" />
+				<function name="GetProcAddress">
+					<return>
+						<pointer />
+					</return>
+					<arguments>
+						<string name="name" />
+					</arguments>
+				</function>
+				<function name="SwapBuffer" />
+			</functions>
+		</widget>
+		<widget name="Vulkan">
+			<functions>
+				<function name="GetField">
+					<return>
+						<pointer />
+					</return>
+					<arguments>
+						<enumeration defname="MwVulkanField" name="field">
+						<integer pointer="yes" name="out">
+					</arguments>
+				</function>
 			</functions>
 		</widget>
 	</widgets>

@@ -2,9 +2,12 @@
 
 #include <Mw/Milsko.h>
 
-#ifdef MW_OPENGL
+#ifndef MW_OPENGL
+#define MW_OPENGL_NO_INCLUDE
+#endif
 #include <Mw/Widget/OpenGL.h>
 
+#ifdef MW_OPENGL
 #ifdef USE_GDI
 typedef HGLRC(WINAPI* MWwglCreateContext)(HDC);
 typedef BOOL(WINAPI* MWwglMakeCurrent)(HDC, HGLRC);
