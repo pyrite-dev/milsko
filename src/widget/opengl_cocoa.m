@@ -111,7 +111,7 @@ static void func_handler(MwWidget handle, const char* name, void* out,
 
 @end
 
-MwClassRec MwOpenGLClassRec = {create,	     /* create */
+MwClassRec MwOpenGLClassRec = {wcreate,	     /* create */
 			       destroy,	     /* destroy */
 			       NULL,	     /* draw */
 			       NULL,	     /* click */
