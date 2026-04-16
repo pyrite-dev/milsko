@@ -381,7 +381,7 @@ static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 #ifdef USE_GDI
 	if(handle->lowlevel->common.type == MwLLBackendGDI) {
 		gdiopengl_t* o		       = handle->internal;
-		int (__stdcall *swap_interval_ext)(int) = NULL;
+		BOOL (APIENTRY *swap_interval_ext)(int) = NULL;
 
 		o->wglMakeCurrent(o->dc, o->gl);
 
