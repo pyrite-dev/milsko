@@ -518,7 +518,7 @@ int MwVulkanSupported(void) {
 	}
 };
 
-static void* mwVulkanGetFieldImpl(MwWidget handle, int field, int* out) {
+static void* mwVulkanGetFieldImpl(MwWidget handle, int field, int* err) {
 	vulkan_t* o = handle->internal;
 	char	  buf[1024];
 
@@ -544,21 +544,21 @@ static void* mwVulkanGetFieldImpl(MwWidget handle, int field, int* out) {
 	default:
 		MwStringPrintIntoBuffer(buf, 1024, "Unknown vulkan field request (%d given)", field);
 		MwDispatchError(1, buf);
-		if(out != NULL) {
-			*out = 1;
+		if(err != NULL) {
+			*err = 1;
 		}
 		return NULL;
 	}
-	if(out != NULL) {
-		*out = 0;
+	if(err != NULL) {
+		*err = 0;
 	}
 };
 
-static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
+static void func_handler(MwWidget handle, const char* name, void* output, va_list va) {
 	if(strcmp(name, "mwVulkanGetField") == 0) {
 		int  field   = va_arg(va, int);
 		int* err     = va_arg(va, int*);
-		*(void**)out = mwVulkanGetFieldImpl(handle, field, err);
+		*(void**)output = mwVulkanGetFieldImpl(handle, field, err);
 	}
 }
 

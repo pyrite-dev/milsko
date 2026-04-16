@@ -111,11 +111,11 @@ enum MwVULKANFIELD {
 
 /*!
  * @brief Function for getting a field from within Vulkan.
- * @warning Consult the documentation for MwVULKANFIELD to know what type is expected for out.
+ * @note Consult the documentation for MwVULKANFIELD to know what type is expected for output.
  */
-MwInline void* MwVulkanGetField(MwWidget handle, int field, int* out) {
+MwInline void* MwVulkanGetField(MwWidget handle, int field, int* err) {
 	void* field_out;
-	MwVaWidgetExecute(handle, "mwVulkanGetField", &field_out, field, out);
+	MwVaWidgetExecute(handle, "mwVulkanGetField", &field_out, field, err);
 	return field_out;
 }
 

@@ -822,7 +822,7 @@
 					</return>
 					<arguments>
 						<integer enumname="MwVulkanField" name="field" />
-						<integer pointer="yes" name="out" />
+						<integer pointer="yes" name="output" />
 					</arguments>
 				</function>
 			</functions>
