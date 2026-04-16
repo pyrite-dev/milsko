@@ -45,9 +45,6 @@ file(
  external/libz/src/*.c src/*.c src/cursor/*.c src/icon/*.c src/widget/*.c src/text/*.c src/text/font/*.c src/dialog/*.c src/abstract/*.c external/*.c
 )
 
-list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl.c")
-list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/vulkan.c")
-
 if(NOT MW_USE_STB_IMAGE)
   list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image.c")
 endif()
@@ -65,7 +62,11 @@ if(MW_TRY_OPENGL)
   find_package(OpenGL)
   if(OpenGL_FOUND)
     set(MW_BUILD_OPENGL ON)
-    list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl.c")
+    target_compile_definitions(
+          Mw
+          PRIVATE
+          MW_OPENGL
+        )
     if(APPLE)
       list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/opengl_cocoa.m")
     endif()
@@ -79,7 +80,6 @@ if(MW_TRY_VULKAN)
   check_include_files(vulkan/vulkan.h HAVE_VULKAN_VULKAN_H)
   if(HAVE_VULKAN_VULKAN_H)
     set(MW_BUILD_VULKAN ON)
-    list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/widget/vulkan.c")
     target_compile_definitions(
           Mw
           PRIVATE

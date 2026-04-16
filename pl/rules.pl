@@ -139,12 +139,14 @@ new_object("src/widget/treeview.c");
 new_object("src/widget/viewport.c");
 new_object("src/widget/window.c");
 
+new_object("src/widget/opengl.c");
+new_object("src/widget/vulkan.c");
+
 if (param_get("opengl")) {
-    new_object("src/widget/opengl.c");
+    add_cflags("-DMW_OPENGL");
 }
 if (param_get("vulkan")) {
     add_cflags("-DMW_VULKAN");
-    new_object("src/widget/vulkan.c");
 }
 
 new_object("src/dialog/*.c");

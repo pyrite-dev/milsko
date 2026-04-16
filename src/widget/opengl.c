@@ -1,6 +1,8 @@
 #ifndef __APPLE__
 
 #include <Mw/Milsko.h>
+
+#ifdef MW_OPENGL
 #include <Mw/Widget/OpenGL.h>
 
 #ifdef USE_GDI
@@ -516,5 +518,10 @@ MwClassRec MwOpenGLClassRec = {wcreate,	     /* create */
 			       NULL,	     /* clipboard */
 			       NULL, NULL, NULL, NULL};
 MwClass	   MwOpenGLClass    = &MwOpenGLClassRec;
+#else
+MWDECL MwClass MwOpenGLClass;
+
+MwClass MwOpenGLClass = NULL;
+#endif
 
 #endif

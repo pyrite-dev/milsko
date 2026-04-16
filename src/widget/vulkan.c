@@ -1,9 +1,11 @@
 #include <Mw/Milsko.h>
-#include <Mw/Widget/Vulkan.h>
 
 /**
  * ioixd maintains this file. nishi doesn't know vulkan at all
  */
+
+#ifdef MW_VULKAN
+#include <Mw/Widget/Vulkan.h>
 
 #ifdef USE_GDI
 #define VK_USE_PLATFORM_WIN32_KHR 1
@@ -165,6 +167,8 @@ static int _destroy(MwWidget handle) {
 
 static void destroy(MwWidget handle) {
 	int err = _destroy(handle);
+
+	(void)err;
 }
 
 static void* vulkan_lib_load() {
@@ -577,3 +581,8 @@ MwClassRec MwVulkanClassRec = {
     NULL,
     NULL};
 MwClass MwVulkanClass = &MwVulkanClassRec;
+#else
+MWDECL MwClass MwVulkanClass;
+
+MwClass MwVulkanClass = NULL;
+#endif
