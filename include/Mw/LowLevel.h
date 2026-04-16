@@ -106,6 +106,9 @@ MWDECL void   MwLLDBusFreeContext(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx);
 #ifdef USE_COCOA
 #include <Mw/LowLevel/Cocoa.h>
 #endif
+#ifdef CLASSIC_MAC_OS
+#include <Mw/LowLevel/ClassicMacOS.h>
+#endif
 
 union _MwLL {
 	struct _MwLLCommon common;
@@ -120,6 +123,9 @@ union _MwLL {
 #endif
 #ifdef USE_COCOA
 	struct _MwLLCocoa cocoa;
+#endif
+#ifdef CLASSIC_MAC_OS
+    struct _MwLLClassicMacOS cmacos;
 #endif
 };
 

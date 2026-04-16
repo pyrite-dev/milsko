@@ -12,6 +12,10 @@
 
 struct _MwLLClassicMacOS {
 	struct _MwLLCommon common;
+
+	WindowRef   window;
+	EventRecord event;
+	Rect	    winRect;
 };
 
 struct _MwLLClassicMacOSColor {

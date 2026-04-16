@@ -176,7 +176,7 @@ static void tick(MwWidget handle) {
 }
 
 MwClassRec MwViewportClassRec = {
-    create,	  /* create */
+    wcreate,	  /* create */
     destroy,	  /* destroy */
     draw,	  /* draw */
     NULL,	  /* click */

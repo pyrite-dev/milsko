@@ -44,7 +44,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 	}
 }
 MwClassRec MwWindowClassRec = {
-    create,	  /* create */
+    wcreate,	  /* create */
     NULL,	  /* destroy */
     draw,	  /* draw */
     NULL,	  /* click */

@@ -360,7 +360,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 }
 
 MwClassRec MwLabelClassRec = {
-    create,	  /* create */
+    wcreate,	  /* create */
     destroy,	  /* destroy */
     draw,	  /* draw */
     NULL,	  /* click */

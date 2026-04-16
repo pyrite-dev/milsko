@@ -128,7 +128,7 @@ static void prop_change(MwWidget handle, const char* prop) {
 }
 
 MwClassRec MwNumberEntryClassRec = {
-    create,	 /* create */
+    wcreate,	 /* create */
     destroy,	 /* destroy */
     draw,	 /* draw */
     NULL,	 /* click */

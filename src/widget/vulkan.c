@@ -556,7 +556,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 }
 
 MwClassRec MwVulkanClassRec = {
-    create,	  /* create */
+    wcreate,	  /* create */
     destroy,	  /* destroy */
     NULL,	  /* draw */
     NULL,	  /* click */

@@ -189,7 +189,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 }
 
 MwClassRec MwComboBoxClassRec = {
-    create,	    /* create */
+    wcreate,	    /* create */
     destroy,	    /* destroy */
     draw,	    /* draw */
     click,	    /* click */

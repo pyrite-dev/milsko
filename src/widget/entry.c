@@ -172,7 +172,7 @@ static void clipboard(MwWidget handle, const char* data) {
 }
 
 MwClassRec MwEntryClassRec = {
-    create,	    /* create */
+    wcreate,	    /* create */
     destroy,	    /* destroy */
     draw,	    /* draw */
     NULL,	    /* click */

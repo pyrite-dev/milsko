@@ -257,7 +257,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 }
 
 MwClassRec MwScrollBarClassRec = {
-    create,	    /* create */
+    wcreate,	    /* create */
     destroy,	    /* destroy */
     draw,	    /* draw */
     NULL,	    /* click */

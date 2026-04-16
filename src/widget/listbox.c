@@ -595,7 +595,7 @@ static void tick(MwWidget handle) {
 }
 
 MwClassRec MwListBoxClassRec = {
-    create,	  /* create */
+    wcreate,	  /* create */
     destroy,	  /* destroy */
     draw,	  /* draw */
     NULL,	  /* click */

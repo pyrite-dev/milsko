@@ -481,7 +481,7 @@ static void tick(MwWidget handle) {
 }
 
 MwClassRec MwTreeViewClassRec = {
-    create,	  /* create */
+    wcreate,	  /* create */
     destroy,	  /* destroy */
     draw,	  /* draw */
     NULL,	  /* click */

@@ -383,7 +383,7 @@ static void layout(MwWidget handle) {
 					      MwNtext, "Cancel",
 					      NULL);
 
-		MwAddUserHandler(fc->cancel, MwNactivateHandler, cancel, NULL);
+		MwAddUserHandler(fc->cancel, MwNactivateHandler, filecancel, NULL);
 	} else {
 		MwVaApply(fc->cancel,
 			  MwNx, wx,

@@ -5,6 +5,15 @@
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL r;
 
+	MwLLCreateCommon(r);
+
+	SetRect(&r->cmacos.winRect, 100, 100, width, height);
+
+	r->cmacos.window = NewCWindow(nil, &r->cmacos.winRect, (ConstStr255Param) "\p", true,
+				      documentProc, (WindowPtr)(-1), true, 0);
+
+	SetPort(r->cmacos.window);
+
 	return r;
 }
 
@@ -59,8 +68,7 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 }
 
 static int MwLLPendingImpl(MwLL handle) {
-
-	return 0;
+	return GetNextEvent(everyEvent, &handle->cmacos.event);
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
