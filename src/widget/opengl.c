@@ -380,8 +380,8 @@ static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 
 #ifdef USE_GDI
 	if(handle->lowlevel->common.type == MwLLBackendGDI) {
-		gdiopengl_t* o		       = handle->internal;
-		BOOL (APIENTRY *swap_interval_ext)(int) = NULL;
+		gdiopengl_t* o				= handle->internal;
+		BOOL(APIENTRY * swap_interval_ext)(int) = NULL;
 
 		o->wglMakeCurrent(o->dc, o->gl);
 
@@ -498,7 +498,7 @@ static void func_handler(MwWidget handle, const char* name, void* out,
 	}
 }
 
-MwClassRec MwOpenGLClassRec = {create,	     /* create */
+MwClassRec MwOpenGLClassRec = {wcreate,	     /* create */
 			       destroy,	     /* destroy */
 			       NULL,	     /* draw */
 			       NULL,	     /* click */
