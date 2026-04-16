@@ -43,7 +43,7 @@ void	      timerUpdateFunc(void) {
 long MwTimeGetTick(void) {
 	UnsignedWide h;
 	Microseconds(&h);
-	return *(long*)&h;
+	return h.lo;
 }
 void MwTimeSleep(int ms) {
 	tm.tmAddr     = NewTimerProc(timerUpdateFunc);
@@ -52,6 +52,8 @@ void MwTimeSleep(int ms) {
 
 	InsTime((QElemPtr)&tm);
 	PrimeTime((QElemPtr)&tm, 1);
+
+	DisposeTimerUPP(tm.tmAddr);
 }
 #elif defined(__unix__)
 long MwTimeGetTick(void) {

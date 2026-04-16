@@ -315,8 +315,6 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
    src/backend/classicmacos.c
   )
   if(PLATFORM MATCHES retroppc)
-  endif()
-  if(PLATFORM MATCHES retroppc)
     set_target_properties(Mw PROPERTIES COMPILE_FLAGS "-ffunction-sections -mcpu=601 -Os -Wall -Wextra -Wno-unused-parameter")
     set_target_properties(Mw PROPERTIES LINK_FLAGS "-Wl,-gc-sections")
   endif()
