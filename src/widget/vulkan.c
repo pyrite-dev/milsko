@@ -116,7 +116,7 @@ static int vulkan_instance_setup(MwWidget handle, vulkan_t* o);
 static int vulkan_surface_setup(MwWidget handle, vulkan_t* o);
 static int vulkan_devices_setup(MwWidget handle, vulkan_t* o);
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	vulkan_t* o = malloc(sizeof(*o));
 	int	  err;
 
@@ -556,7 +556,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 }
 
 MwClassRec MwVulkanClassRec = {
-    create,	  /* create */
+    wcreate,	  /* create */
     destroy,	  /* destroy */
     NULL,	  /* draw */
     NULL,	  /* click */

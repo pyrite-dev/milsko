@@ -1817,100 +1817,14 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 	}
 }
 
-static void dbus_setup(MwLL handle) {
-	MwU32 value	       = 0;
-	int   translated_value = 0;
-
-	if(!wl_call_tbl.dbus_lib) {
-		return;
-	}
-
-	time(&handle->wayland.dbus_timer);
-
-	wl_call_tbl.dbus_error_init(&handle->wayland.dbus_err);
-
-	handle->wayland.dbus_conn = wl_call_tbl.dbus_bus_get(0 /* DBUS_BUS_SESSION */, &handle->wayland.dbus_err);
-	if(wl_call_tbl.dbus_error_is_set(&handle->wayland.dbus_err)) {
-		fprintf(stderr, "[WARNING] Could not detect dark theme: Connection error: %s\n", handle->wayland.dbus_err.message);
-		wl_call_tbl.dbus_error_free(&handle->wayland.dbus_err);
-		return;
-	}
-	if(!handle->wayland.dbus_conn) {
-		fprintf(stderr, "[WARNING] Could not detect dark theme: Failed to connect to session bus\n");
-		return;
-	}
-}
-
-static void dbus_get(MwLL handle, const char* portal, const char* namespace, const char* key, void* out) {
-	if(!handle->wayland.dbus_conn) {
-		return;
-	}
-
-	handle->wayland.dbus_msg = wl_call_tbl.dbus_message_new_method_call(
-	    "org.freedesktop.portal.Desktop",
-	    "/org/freedesktop/portal/desktop",
-	    portal,
-	    "Read");
-	if(!handle->wayland.dbus_msg) {
-		fprintf(stderr, "[WARNING] Couldn't get %s::%s: Failed to create message\n", namespace, key);
-		return;
-	}
-
-	wl_call_tbl.dbus_message_iter_init_append(handle->wayland.dbus_msg, &handle->wayland.dbus_args);
-	wl_call_tbl.dbus_message_iter_append_basic(&handle->wayland.dbus_args, 's', &namespace);
-	wl_call_tbl.dbus_message_iter_append_basic(&handle->wayland.dbus_args, 's', &key);
-
-	handle->wayland.dbus_reply = wl_call_tbl.dbus_connection_send_with_reply_and_block(handle->wayland.dbus_conn, handle->wayland.dbus_msg, 100, &handle->wayland.dbus_err);
-
-	if(wl_call_tbl.dbus_error_is_set(&handle->wayland.dbus_err)) {
-		fprintf(stderr, "[WARNING] Couldn't get %s::%s: Send error: %s\n", namespace, key, handle->wayland.dbus_err.message);
-		wl_call_tbl.dbus_error_free(&handle->wayland.dbus_err);
-		return;
-	}
-	if(!handle->wayland.dbus_reply) {
-		fprintf(stderr, "[WARNING] Couldn't get %s::%s: No reply received\n", namespace, key);
-		return;
-	}
-
-	if(!wl_call_tbl.dbus_message_iter_init(handle->wayland.dbus_reply, &handle->wayland.dbus_args)) {
-		fprintf(stderr, "[WARNING] Couldn't get %s::%s: Reply has no arguments\n", namespace, key);
-		wl_call_tbl.dbus_message_unref(handle->wayland.dbus_reply);
-		return;
-	}
-
-	if(wl_call_tbl.dbus_message_iter_get_arg_type(&handle->wayland.dbus_args) != 'v') {
-		fprintf(stderr, "[WARNING] Couldn't get %s::%s: Expected outer variant\n", namespace, key);
-		wl_call_tbl.dbus_message_unref(handle->wayland.dbus_reply);
-		return;
-	}
-	wl_call_tbl.dbus_message_iter_recurse(&handle->wayland.dbus_args, &handle->wayland.dbus_variant);
-
-	/* Some portals wrap the value in a second variant */
-	if(wl_call_tbl.dbus_message_iter_get_arg_type(&handle->wayland.dbus_variant) == 'v') {
-		wl_call_tbl.dbus_message_iter_recurse(&handle->wayland.dbus_variant, &handle->wayland.dbus_inner_variant);
-		wl_call_tbl.dbus_message_iter_get_basic(&handle->wayland.dbus_inner_variant, out);
-	} else {
-		wl_call_tbl.dbus_message_iter_get_basic(&handle->wayland.dbus_variant, out);
-	}
-	wl_call_tbl.dbus_message_unref(handle->wayland.dbus_msg);
-}
-
 static void detect_dark_theme(MwLL handle) {
 	MwU32 value	 = 0;
 	MwU32 dark_theme = 0;
-	dbus_get(handle, "org.freedesktop.portal.Settings", "org.freedesktop.appearance", "color-scheme", &value);
+	MwLLDBusPortalGet(&wl_call_tbl.dbus, &handle->wayland.dbus, "org.freedesktop.portal.Settings", "org.freedesktop.appearance", "color-scheme", &value);
 
 	dark_theme = (value == 1) ? 1 : 0;
 
 	MwLLDispatch(handle, dark_theme, &dark_theme);
-}
-
-static void dbus_destroy(MwLL handle) {
-	if(!wl_call_tbl.dbus_lib) {
-		return;
-	}
-	if(handle->wayland.dbus_reply) wl_call_tbl.dbus_message_unref(handle->wayland.dbus_reply);
-	if(handle->wayland.dbus_conn) wl_call_tbl.dbus_connection_unref(handle->wayland.dbus_conn);
 }
 
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
@@ -1921,10 +1835,12 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	widget_setup(r, parent, x, y, width, height, MWLL_WAYLAND_UNKNOWN);
 
-	if(!parent) {
-		dbus_setup(r);
+#ifdef USE_DBUS
+	if(!parent && wl_call_tbl.has_dbus) {
+		wl_call_tbl.has_dbus		= MwLLDBusNewContext(&wl_call_tbl.dbus, &r->wayland.dbus);
 		r->wayland.dark_theme_detection = MwTRUE;
 	}
+#endif
 
 	return r;
 }
@@ -1960,8 +1876,8 @@ static void MwLLDestroyImpl(MwLL handle) {
 	pthread_mutex_unlock(&handle->wayland.eventsMutex);
 	pthread_mutex_destroy(&handle->wayland.eventsMutex);
 
-	if(!handle->wayland.dbus_conn) {
-		dbus_destroy(handle);
+	if(!wl_call_tbl.has_dbus) {
+		MwLLDBusFreeContext(&wl_call_tbl.dbus, &handle->wayland.dbus);
 	}
 
 	buffer_destroy(&handle->wayland.cursor);
@@ -2245,7 +2161,7 @@ static int MwLLPendingImpl(MwLL handle) {
 	int pending = 0;
 
 	if(handle->wayland.dark_theme_detection) {
-		if(handle->wayland.dbus_conn) {
+		if(wl_call_tbl.has_dbus) {
 			detect_dark_theme(handle);
 			handle->wayland.dark_theme_detection = MwFALSE;
 			MwLLDispatch(handle, draw, NULL);
@@ -2704,6 +2620,11 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 
 		handle->wayland.detatching = MwFALSE;
 	}
+}
+
+static void MwLLSetDarkThemeImpl(MwLL handle, int toggle){
+	(void)handle;
+	(void)toggle;
 }
 
 static int MwLLWaylandCallInitImpl(void) {

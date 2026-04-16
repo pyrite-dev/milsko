@@ -4,7 +4,7 @@
 
 #define Spacing 1
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwLabel lab = malloc(sizeof(*lab));
 
 	lab->segment	 = NULL;
@@ -360,7 +360,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 }
 
 MwClassRec MwLabelClassRec = {
-    create,	  /* create */
+    wcreate,	  /* create */
     destroy,	  /* destroy */
     draw,	  /* draw */
     NULL,	  /* click */

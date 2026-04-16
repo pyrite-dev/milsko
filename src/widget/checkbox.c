@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwSetDefault(handle);
 
 	MwSetInteger(handle, MwNchecked, 0);
@@ -38,7 +38,7 @@ static void prop_change(MwWidget handle, const char* key) {
 }
 
 MwClassRec MwCheckBoxClassRec = {
-    create,	    /* create */
+    wcreate,	    /* create */
     NULL,	    /* destroy */
     draw,	    /* draw */
     click,	    /* click */

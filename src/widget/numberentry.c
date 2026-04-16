@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	int	st;
 	MwEntry e;
 
@@ -128,7 +128,7 @@ static void prop_change(MwWidget handle, const char* prop) {
 }
 
 MwClassRec MwNumberEntryClassRec = {
-    create,	 /* create */
+    wcreate,	 /* create */
     destroy,	 /* destroy */
     draw,	 /* draw */
     NULL,	 /* click */

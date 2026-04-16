@@ -8,6 +8,14 @@ typedef struct userdata {
 	int   max_set;
 } userdata_t;
 
+static struct symtbl {
+	void* lib_dwmapi;
+
+	HRESULT (WINAPI *DwmSetWindowAttribute)(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
+} wsymtbl;
+
+#define DwmSetWindowAttribute wsymtbl.DwmSetWindowAttribute
+
 static void detect_darktheme(MwLL handle) {
 	DWORD dw;
 	DWORD sz = sizeof(dw);
@@ -25,6 +33,11 @@ static void detect_darktheme(MwLL handle) {
 	}
 
 	t = dw ? 0 : 1;
+
+	if(t && DwmSetWindowAttribute != NULL){
+		LPARAM style = GetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE);
+		if(!(style & WS_CHILD)) MwLLSetDarkTheme(handle, 1);
+	}
 
 	MwLLDispatch(handle, dark_theme, &t);
 }
@@ -265,7 +278,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->common.copy_buffer = 1;
 	r->common.type	      = MwLLBackendGDI;
 
-	r->gdi.get_clipboard = 1;
+	r->gdi.get_clipboard = 0;
 	if(parent == NULL) r->gdi.get_darktheme = 1;
 	r->gdi.force_render = 0;
 	r->gdi.grabbed	    = 0;
@@ -806,7 +819,20 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 	(void)handle;
 }
 
+static void MwLLSetDarkThemeImpl(MwLL handle, int toggle){
+	BOOL v = toggle ? TRUE : FALSE;
+
+	DwmSetWindowAttribute(handle->gdi.hWnd, 20, &v, sizeof(v));
+
+}
+
 static int MwLLGDICallInitImpl(void) {
+	memset(&wsymtbl, 0, sizeof(wsymtbl));
+
+	wsymtbl.lib_dwmapi = MwDynamicOpen("dwmapi.dll");
+
+	if(wsymtbl.lib_dwmapi != NULL) DwmSetWindowAttribute = MwDynamicSymbol(wsymtbl.lib_dwmapi, "DwmSetWindowAttribute");
+
 	/* TODO: check properly */
 	return 0;
 }

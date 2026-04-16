@@ -2,7 +2,7 @@
 
 #include "../../external/stb_ds.h"
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwBox b = malloc(sizeof(*b));
 	memset(b, 0, sizeof(*b));
 
@@ -135,7 +135,7 @@ static void children_update(MwWidget handle) {
 }
 
 MwClassRec MwBoxClassRec = {
-    create,		  /* create */
+    wcreate,		  /* create */
     destroy,		  /* destroy */
     draw,		  /* draw */
     NULL,		  /* click */

@@ -18,7 +18,7 @@ static void set_xywh(MwWidget handle) {
 		  NULL);
 }
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwMenu m = malloc(sizeof(*m));
 
 	m->name		 = NULL;
@@ -189,7 +189,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 }
 
 MwClassRec MwMenuClassRec = {
-    create,	   /* create */
+    wcreate,	   /* create */
     destroy,	   /* destroy */
     draw,	   /* draw */
     NULL,	   /* click */

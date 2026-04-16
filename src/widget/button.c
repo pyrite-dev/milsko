@@ -2,7 +2,7 @@
 
 #include "../../external/stb_ds.h"
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwSetDefault(handle);
 
 	MwSetInteger(handle, MwNflat, 0);
@@ -93,7 +93,7 @@ static void prop_change(MwWidget handle, const char* key) {
 }
 
 MwClassRec MwButtonClassRec = {
-    create,	    /* create */
+    wcreate,	    /* create */
     NULL,	    /* destroy */
     draw,	    /* draw */
     click,	    /* click */

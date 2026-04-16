@@ -20,7 +20,7 @@
 
 @end
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	void*	 r = NULL;
 	MwWidget w = handle;
 

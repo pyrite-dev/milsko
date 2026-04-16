@@ -2,7 +2,7 @@
 
 #include "../../external/stb_ds.h"
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwComboBox cb = malloc(sizeof(*cb));
 
 	cb->list	 = NULL;
@@ -189,7 +189,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 }
 
 MwClassRec MwComboBoxClassRec = {
-    create,	    /* create */
+    wcreate,	    /* create */
     destroy,	    /* destroy */
     draw,	    /* draw */
     click,	    /* click */

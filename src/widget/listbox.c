@@ -347,7 +347,7 @@ static void resize(MwWidget handle) {
 		  NULL);
 }
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwListBox lb = malloc(sizeof(*lb));
 	memset(lb, 0, sizeof(*lb));
 
@@ -595,7 +595,7 @@ static void tick(MwWidget handle) {
 }
 
 MwClassRec MwListBoxClassRec = {
-    create,	  /* create */
+    wcreate,	  /* create */
     destroy,	  /* destroy */
     draw,	  /* draw */
     NULL,	  /* click */

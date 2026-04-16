@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwSetDefault(handle);
 	MwVaApply(handle,
 		  MwNminValue, 0,
@@ -46,7 +46,7 @@ static void prop_change(MwWidget handle, const char* key) {
 }
 
 MwClassRec MwProgressBarClassRec = {
-    create,	 /* create */
+    wcreate,	 /* create */
     NULL,	 /* destroy */
     draw,	 /* draw */
     NULL,	 /* click */

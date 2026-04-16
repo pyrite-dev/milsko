@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwEntry t = malloc(sizeof(*t));
 
 	t->cursor	 = 0;
@@ -186,7 +186,7 @@ static void clipboard(MwWidget handle, const char* data) {
 }
 
 MwClassRec MwEntryClassRec = {
-    create,	    /* create */
+    wcreate,	    /* create */
     destroy,	    /* destroy */
     draw,	    /* draw */
     NULL,	    /* click */

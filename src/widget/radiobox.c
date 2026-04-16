@@ -2,7 +2,7 @@
 
 #include "../../external/stb_ds.h"
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwSetDefault(handle);
 
 	MwSetInteger(handle, MwNchecked, 0);
@@ -47,7 +47,7 @@ static void prop_change(MwWidget handle, const char* key) {
 }
 
 MwClassRec MwRadioBoxClassRec = {
-    create,	    /* create */
+    wcreate,	    /* create */
     NULL,	    /* destroy */
     draw,	    /* draw */
     click,	    /* click */

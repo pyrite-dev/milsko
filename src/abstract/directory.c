@@ -6,6 +6,10 @@ typedef struct dir {
 	WIN32_FIND_DATA ffd;
 	int		next;
 } dir_t;
+#elif defined(CLASSIC_MAC_OS)
+typedef struct dir {
+	int dummy;
+} dir_t;
 #else
 typedef struct dir {
 	DIR*  dir;
@@ -31,6 +35,8 @@ void* MwDirectoryOpen(const char* path) {
 	}
 	free(p);
 	dir->next = 1;
+#elif defined(CLASSIC_MAC_OS)
+/* todo */
 #else
 	if((dir->dir = opendir(path)) == NULL) {
 		free(dir);
@@ -47,6 +53,8 @@ void MwDirectoryClose(void* handle) {
 	dir_t* dir = handle;
 #ifdef _WIN32
 	FindClose(dir->hFind);
+#elif defined(CLASSIC_MAC_OS)
+/* todo */
 #else
 	closedir(dir->dir);
 	free(dir->base);
@@ -80,6 +88,8 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	entry->mtime = l->QuadPart / 10000000 - 11644473600;
 
 	dir->next = FindNextFile(dir->hFind, &dir->ffd);
+#elif defined(CLASSIC_MAC_OS)
+/* todo */
 #else
 	struct dirent* d;
 	struct stat    s;
@@ -123,6 +133,8 @@ char* MwDirectoryCurrent(void) {
 	GetCurrentDirectory(len, out);
 
 	return out;
+#elif CLASSIC_MAC_OS
+	return "";
 #else
 	return getcwd(NULL, 0);
 #endif

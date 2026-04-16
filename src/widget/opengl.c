@@ -101,7 +101,7 @@ typedef struct waylandopengl {
 } waylandopengl_t;
 #endif
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	void*	 r = NULL;
 	MwWidget w = handle;
 
@@ -381,7 +381,7 @@ static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 #ifdef USE_GDI
 	if(handle->lowlevel->common.type == MwLLBackendGDI) {
 		gdiopengl_t* o		       = handle->internal;
-		void (*swap_interval_ext)(int) = NULL;
+		BOOL (APIENTRY *swap_interval_ext)(int) = NULL;
 
 		o->wglMakeCurrent(o->dc, o->gl);
 

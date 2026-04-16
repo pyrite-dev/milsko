@@ -57,6 +57,12 @@ struct _MwLLX11 {
 	unsigned long blue_mask;
 	unsigned long blue_max;
 	unsigned long blue_shift;
+
+#ifdef USE_DBUS
+	MwLLDBusContext dbus;
+#endif
+
+	MwBool dark_theme_detection;
 };
 
 struct _MwLLX11Color {

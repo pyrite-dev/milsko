@@ -53,7 +53,7 @@ static void destroy(MwWidget handle) {
 	MwDestroyWidget(handle);
 }
 
-static void cancel(MwWidget handle, void* user, void* call) {
+static void filecancel(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
@@ -147,7 +147,7 @@ static void nav_activate(MwWidget handle, void* user, void* call) {
 	(void)user;
 
 	if(strcmp(e, "Home") == 0) {
-#ifdef _WIN32
+#if defined(_WIN32) || defined(CLASSIC_MAC_OS)
 #else
 		struct passwd* p = getpwuid(getuid());
 
@@ -383,7 +383,7 @@ static void layout(MwWidget handle) {
 					      MwNtext, "Cancel",
 					      NULL);
 
-		MwAddUserHandler(fc->cancel, MwNactivateHandler, cancel, NULL);
+		MwAddUserHandler(fc->cancel, MwNactivateHandler, filecancel, NULL);
 	} else {
 		MwVaApply(fc->cancel,
 			  MwNx, wx,

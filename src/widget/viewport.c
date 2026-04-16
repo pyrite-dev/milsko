@@ -74,7 +74,7 @@ static void resize(MwWidget handle) {
 		  NULL);
 }
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwViewport vp = malloc(sizeof(*vp));
 	memset(vp, 0, sizeof(*vp));
 
@@ -176,7 +176,7 @@ static void tick(MwWidget handle) {
 }
 
 MwClassRec MwViewportClassRec = {
-    create,	  /* create */
+    wcreate,	  /* create */
     destroy,	  /* destroy */
     draw,	  /* draw */
     NULL,	  /* click */

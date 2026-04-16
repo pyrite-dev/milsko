@@ -56,6 +56,43 @@ struct _MwLLCommonPixmap {
 	void*	       user;
 };
 
+#ifdef USE_DBUS
+typedef struct _MwLLDBusFuncTable {
+	void* lib;
+
+	void (*dbus_error_init)(DBusError* error);
+	DBusConnection* (*dbus_bus_get)(DBusBusType type, DBusError* error);
+	dbus_bool_t (*dbus_error_is_set)(const DBusError* error);
+	void (*dbus_error_free)(DBusError* error);
+	DBusMessage* (*dbus_message_new_method_call)(const char* bus_name, const char* path, const char* iface, const char* method);
+	void (*dbus_message_iter_init_append)(DBusMessage* message, DBusMessageIter* iter);
+	dbus_bool_t (*dbus_message_iter_append_basic)(DBusMessageIter* iter, int type, const void* value);
+	DBusMessage* (*dbus_connection_send_with_reply_and_block)(DBusConnection* connection, DBusMessage* message, int timeout_milliseconds, DBusError* error);
+	void (*dbus_message_unref)(DBusMessage* message);
+	dbus_bool_t (*dbus_message_iter_init)(DBusMessage* message, DBusMessageIter* iter);
+	int (*dbus_message_iter_get_arg_type)(DBusMessageIter* iter);
+	void (*dbus_message_iter_recurse)(DBusMessageIter* iter, DBusMessageIter* sub);
+	void (*dbus_connection_unref)(DBusConnection* connection);
+	void (*dbus_message_iter_get_basic)(DBusMessageIter* iter, void* value);
+} MwLLDBusFuncTable;
+
+typedef struct _MwLLDBusContext {
+	DBusConnection* dbus_conn;
+	DBusError	dbus_err;
+	DBusMessage*	dbus_msg;
+	DBusMessage*	dbus_reply;
+	DBusMessageIter dbus_args, dbus_variant, dbus_inner_variant;
+} MwLLDBusContext;
+
+/* setup the dbus func table. Returns false and prints a warning if dbus couldn't be found.  */
+MWDECL MwBool MwLLDBusFuncSetup(MwLLDBusFuncTable* tbl);
+
+MWDECL MwBool MwLLDBusNewContext(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx);
+MWDECL MwBool MwLLDBusPortalGet(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx, const char* portal, const char* namespace, const char* key, void* out);
+MWDECL void   MwLLDBusFreeContext(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx);
+
+#endif
+
 #ifdef _MILSKO
 #ifdef USE_X11
 #include <Mw/LowLevel/X11.h>
@@ -68,6 +105,9 @@ struct _MwLLCommonPixmap {
 #endif
 #ifdef USE_COCOA
 #include <Mw/LowLevel/Cocoa.h>
+#endif
+#ifdef CLASSIC_MAC_OS
+#include <Mw/LowLevel/ClassicMacOS.h>
 #endif
 
 union _MwLL {
@@ -83,6 +123,9 @@ union _MwLL {
 #endif
 #ifdef USE_COCOA
 	struct _MwLLCocoa cocoa;
+#endif
+#ifdef CLASSIC_MAC_OS
+    struct _MwLLClassicMacOS cmacos;
 #endif
 };
 
@@ -239,6 +282,8 @@ MWDECL void (*MwLLGetClipboard)(MwLL handle, int clipboard_type);
 
 MWDECL void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
 MWDECL void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect);
+
+MWDECL void (*MwLLSetDarkTheme)(MwLL handle, int toggle);
 
 /* font renderer */
 MWDECL void MwFLSetup(void);
