@@ -132,7 +132,7 @@ foreach my $l (@ARGV) {
     }
 }
 
-if($target ne "Darwin" and $target ne "ClassicMacOS") {
+if($target ne "Darwin" and $target ne "ClassicMacOS" and $target ne "Windows") {
     param_set("freetype2",        1);
     param_set("stb-truetype",     0);
 } else {
