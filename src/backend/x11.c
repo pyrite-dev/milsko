@@ -72,7 +72,7 @@ static struct symtbl {
 	char* (*XSetLocaleModifiers)(const char*);
 	XIM (*XOpenIM)(Display*, struct _XrmHashBucketRec*, char*, char*);
 	Status (*XCloseIM)(XIM);
-	XIC (*XCreateIC)(XIM, ...) _X_SENTINEL(0);
+	XIC (*XCreateIC)(XIM, ...);
 	void (*XDestroyIC)(XIC);
 	void (*XSetICFocus)(XIC);
 

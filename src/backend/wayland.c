@@ -132,34 +132,6 @@ static void recursive_dispatch_move(MwLL handle, MwMouse* p) {
 	}
 };
 
-/* Recursively dispatch a key event to a widget and its children */
-static void recursive_dispatch_key(MwLL handle, int* k) {
-	MwWidget h = (MwWidget)handle->common.user;
-	MwLLDispatch(handle, key, k);
-	if(h) {
-		int i;
-		for(i = 0; i < arrlen(h->children); i++) {
-			MwLLDispatch(h->children[i]->lowlevel, key, k);
-			if(arrlen(h->children[i]->children) > 0) {
-				recursive_dispatch_key(h->children[i]->lowlevel, k);
-			}
-		}
-	}
-};
-/* Recursively dispatch a key released event to a widget and its children */
-static void recursive_dispatch_key_released(MwLL handle, int* k) {
-	MwWidget h = (MwWidget)handle->common.user;
-	MwLLDispatch(handle, key_released, k);
-	if(h) {
-		int i;
-		for(i = 0; i < arrlen(h->children); i++) {
-			MwLLDispatch(h->children[i]->lowlevel, key_released, k);
-			if(arrlen(h->children[i]->children) > 0) {
-				recursive_dispatch_key_released(h->children[i]->lowlevel, k);
-			}
-		}
-	}
-};
 static void wl_offer(void*		   data,
 		     struct wl_data_offer* wl_data_offer,
 		     const char*	   mime_type) {
@@ -538,6 +510,12 @@ static void relative_pointer_motion(void*			    data,
 	MwLL	self = data;
 	MwMouse p;
 
+	(void)pointer;
+	(void)timeHi;
+	(void)timeLo;
+	(void)dx;
+	(void)dy;
+
 	WAYLAND_EVENT_OP_START(self);
 
 	p.point.x = wl_fixed_to_int(dxUnaccel);
@@ -609,8 +587,6 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 		inArea |= self->wayland.backbuffer.surface == curSurface;
 	}
 	if(inArea) {
-		int i;
-
 		switch(button) {
 		case BTN_LEFT:
 			p.button = MwMOUSE_LEFT;
@@ -741,8 +717,8 @@ static void keyboard_key(void*		     data,
 			 MwU32		     time,
 			 MwU32		     key,
 			 MwU32		     state) {
-	MwLL   self = data;
-	MwBool inArea;
+	MwLL   self   = data;
+	MwBool inArea = 0;
 
 	(void)wl_keyboard;
 	(void)serial;
@@ -760,7 +736,7 @@ static void keyboard_key(void*		     data,
 	if(inArea) {
 		xkb_layout_index_t  layout;
 		MwU32		    levels;
-		xkb_level_index_t   level;
+		xkb_level_index_t   level = 0;
 		const xkb_keysym_t* syms_out;
 		MwU32		    keycode = key + 8;
 		MwU64		    syms_num;
@@ -785,9 +761,8 @@ static void keyboard_key(void*		     data,
 		}
 
 		for(i = 0; i < syms_num; i++) {
-			int	    sym = syms_out[i];
-			int	    key = -1;
-			const char* name;
+			int sym = syms_out[i];
+			int key = -1;
 
 			switch(sym) {
 			case XKB_KEY_BackSpace:
@@ -1975,7 +1950,6 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 		setup_popup(handle, handle->wayland.x, handle->wayland.y, handle->wayland.parent);
 	}
 
-refresh:
 	region_setup(handle);
 
 	framebuffer_destroy(&handle->wayland);
