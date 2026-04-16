@@ -279,7 +279,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->common.copy_buffer = 1;
 	r->common.type	      = MwLLBackendGDI;
 
-	r->gdi.get_clipboard = 1;
+	r->gdi.get_clipboard = 0;
 	if(parent == NULL) r->gdi.get_darktheme = 1;
 	r->gdi.force_render = 0;
 	r->gdi.grabbed	    = 0;
