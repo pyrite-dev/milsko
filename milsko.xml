@@ -694,20 +694,6 @@
 				<property name="text" />
 			</properties>
 		</widget>
-		<widget name="OpenGL">
-			<functions>
-				<function name="MakeCurrent" />
-				<function name="GetProcAddress">
-					<return>
-						<pointer />
-					</return>
-					<arguments>
-						<string name="name" />
-					</arguments>
-				</function>
-				<function name="SwapBuffer" />
-			</functions>
-		</widget>
 		<widget name="ScrollBar">
 			<properties>
 				<property name="showArrows" />
