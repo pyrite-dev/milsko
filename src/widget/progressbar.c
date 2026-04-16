@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwSetDefault(handle);
 	MwVaApply(handle,
 		  MwNminValue, 0,

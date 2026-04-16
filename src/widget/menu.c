@@ -18,7 +18,7 @@ static void set_xywh(MwWidget handle) {
 		  NULL);
 }
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwMenu m = malloc(sizeof(*m));
 
 	m->name		 = NULL;

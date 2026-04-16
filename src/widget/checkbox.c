@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwSetDefault(handle);
 
 	MwSetInteger(handle, MwNchecked, 0);

@@ -297,7 +297,7 @@ static void resize(MwWidget handle) {
 		  NULL);
 }
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwTreeView tv = malloc(sizeof(*tv));
 	memset(tv, 0, sizeof(*tv));
 

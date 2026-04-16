@@ -2,7 +2,7 @@
 
 #include "../../external/stb_ds.h"
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwSetDefault(handle);
 
 	MwSetInteger(handle, MwNchecked, 0);

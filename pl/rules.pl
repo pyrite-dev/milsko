@@ -30,6 +30,13 @@ if (grep(/^gdi$/, @backends)) {
     $gl_libs = "-lopengl32 -lglu32";
 }
 
+if (grep(/^classicmacos$/, @backends)) {
+    #add_cflags("-DCLASSIC_MAC_OS");
+    new_object("src/backend/classicmacos.c");
+
+    $gl_libs = "";
+}
+
 if (grep(/^wayland$/, @backends)) {
     add_cflags("-DUSE_WAYLAND");
     new_object("src/backend/wayland.c");

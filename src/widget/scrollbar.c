@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwScrollBar scr = malloc(sizeof(*scr));
 
 	handle->internal = scr;
@@ -58,9 +58,9 @@ static void draw(MwWidget handle) {
 	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwLLColor   dark = MwLightenColor(handle, base, -64, -64, -64);
 	MwScrollBar scr	 = handle->internal;
-	int or ;
-	int	   uy, dy, ux, dx;
-	MwLLPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	int	    or;
+	int	    uy, dy, ux, dx;
+	MwLLPixmap  bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;

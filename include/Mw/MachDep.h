@@ -37,15 +37,26 @@
 #define GET_WHEEL_DELTA_WPARAM(x) ((short)HIWORD(x))
 #endif
 #endif
-
+#elif defined(CLASSIC_MAC_OS)
+#include <unistd.h>
+#include <MacTypes.h>
+#include <CFBundle.h>
+#include <CodeFragments.h>
+#include <Timer.h>
+#include <MacWindows.h>
+#include <TextEdit.h>
+#include <Dialogs.h>
 #else
 #include <unistd.h>
 #include <pwd.h>
-#include <dlfcn.h>
 #include <signal.h>
-#include <dirent.h>
 #include <fcntl.h>
 #include <limits.h>
+#endif
+
+#ifdef __unix__
+#include <dirent.h>
+#include <dlfcn.h>
 #endif
 
 #ifdef __APPLE__

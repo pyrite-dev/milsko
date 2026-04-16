@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwEntry t = malloc(sizeof(*t));
 
 	t->cursor	 = 0;

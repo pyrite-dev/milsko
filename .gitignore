@@ -19,3 +19,9 @@ examples/*/*.exe
 compile_flags.txt
 .cache
 .DS_Store
+
+*.pef
+*.dsk
+*.bin
+*.rsrc
+*.finf

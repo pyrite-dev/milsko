@@ -4,7 +4,7 @@
 
 #define Spacing 1
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwLabel lab = malloc(sizeof(*lab));
 
 	lab->segment	 = NULL;

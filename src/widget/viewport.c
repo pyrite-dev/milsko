@@ -74,7 +74,7 @@ static void resize(MwWidget handle) {
 		  NULL);
 }
 
-static int create(MwWidget handle) {
+static int wcreate(MwWidget handle) {
 	MwViewport vp = malloc(sizeof(*vp));
 	memset(vp, 0, sizeof(*vp));
 
