@@ -31,6 +31,7 @@ if (grep(/^gdi$/, @backends)) {
 }
 
 if (grep(/^classicmacos$/, @backends)) {
+
     #add_cflags("-DCLASSIC_MAC_OS");
     new_object("src/backend/classicmacos.c");
 
@@ -56,18 +57,20 @@ if (grep(/^wayland$/, @backends)) {
     scan_wayland_protocol("unstable", "pointer-constraints", "-unstable-v1");
     scan_wayland_protocol("unstable", "relative-pointer",    "-unstable-v1");
 
-    add_cflags(`pkg-config --cflags dbus-1`);
-
     $gl_libs = "-lGL -lGLU";
+}
+
+if (grep(/( |^)-DUSE_DBUS( |$)/, $cflags)) {
+    add_cflags(`pkg-config --cflags dbus-1`);
 }
 
 if (grep(/^cocoa$/, @backends) || param_get("gnustep")) {
     add_cflags("-DUSE_COCOA");
     new_object("src/backend/cocoa.m");
 
-    if(param_get("gnustep")){
-        add_incdir("-I".`gnustep-config --variable=GNUSTEP_SYSTEM_HEADERS`);
-        add_libdir("-L".`gnustep-config --variable=GNUSTEP_SYSTEM_LIBRARIES`);
+    if (param_get("gnustep")) {
+        add_incdir("-I" . `gnustep-config --variable=GNUSTEP_SYSTEM_HEADERS`);
+        add_libdir("-L" . `gnustep-config --variable=GNUSTEP_SYSTEM_LIBRARIES`);
         add_cflags("-fobjc-runtime=gnustep-2.0 -fblocks");
         add_ldflags("-lobjc -lgnustep-base -lm -lgnustep-gui");
     }

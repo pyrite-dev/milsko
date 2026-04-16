@@ -9,8 +9,10 @@ static struct symtbl {
 	void*  lib_xrender;
 	MwBool has_xrender;
 
+#ifdef USE_DBUS
 	MwLLDBusFuncTable dbus;
 	MwBool		  has_dbus;
+#endif
 
 	int (*XClearWindow)(Display* display, Window w);
 	XImage* (*XCreateImage)(Display*, Visual*, unsigned int, int, int, char*, unsigned int, unsigned int, int, int);
@@ -311,6 +313,7 @@ static XVisualInfo* get_visual_info(Display* display) {
 	return XGetVisualInfo(display, VisualIDMask, &xvi, &n);
 }
 
+#ifdef USE_DBUS
 static void detect_dark_theme(MwLL handle) {
 	MwU32 value	 = 0;
 	MwU32 dark_theme = 0;
@@ -320,6 +323,7 @@ static void detect_dark_theme(MwLL handle) {
 
 	MwLLDispatch(handle, dark_theme, &dark_theme);
 }
+#endif
 
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL	      r;
@@ -470,9 +474,11 @@ static void MwLLDestroyImpl(MwLL handle) {
 
 	if(handle->x11.toplevel) XCloseDisplay(handle->x11.display);
 
+#ifdef USE_DBUS
 	if(!xsymtbl.has_dbus) {
 		MwLLDBusFreeContext(&xsymtbl.dbus, &handle->x11.dbus);
 	}
+#endif
 
 	free(handle);
 }
@@ -633,11 +639,13 @@ static int MwLLPendingImpl(MwLL handle) {
 	XEvent ev;
 
 	if(handle->x11.dark_theme_detection) {
+		handle->x11.dark_theme_detection = MwFALSE;
+#ifdef USE_DBUS
 		if(xsymtbl.has_dbus) {
 			detect_dark_theme(handle);
-			handle->x11.dark_theme_detection = MwFALSE;
 			MwLLDispatch(handle, draw, NULL);
 		}
+#endif
 	}
 
 	if(handle->x11.clipboard_pending && (MwTimeGetTick() - handle->x11.clipboard_time) >= ClipboardTimeout) {
@@ -1258,9 +1266,12 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_ty
 
 	(void)handle;
 	(void)text;
+	(void)clipboard_type;
 }
 
 static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
+	(void)clipboard_type;
+
 	if(handle->x11.clipboard_pending) return;
 
 	XConvertSelection(handle->x11.display, handle->x11.clipboard, handle->x11.utf8_string, handle->x11.selection, handle->x11.window, CurrentTime);
@@ -1308,7 +1319,7 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 	MwLLShow(handle, 1);
 }
 
-static void MwLLSetDarkThemeImpl(MwLL handle, int toggle){
+static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)handle;
 	(void)toggle;
 }
@@ -1427,7 +1438,9 @@ static int MwLLX11CallInitImpl(void) {
 	XRENDER_FUNC_LOAD(XRenderComposite)
 #endif
 
+#ifdef USE_DBUS
 	xsymtbl.has_dbus = MwLLDBusFuncSetup(&xsymtbl.dbus);
+#endif
 	return 0;
 }
 

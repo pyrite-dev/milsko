@@ -55,7 +55,7 @@
 		MwLLGetCursorCoord = MwLLGetCursorCoordImpl; \
 		MwLLGetScreenSize  = MwLLGetScreenSizeImpl; \
 \
-		MwLLSetDarkTheme  = MwLLSetDarkThemeImpl; \
+		MwLLSetDarkTheme = MwLLSetDarkThemeImpl; \
 \
 		return 0; \
 	}

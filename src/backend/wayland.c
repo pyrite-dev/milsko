@@ -1817,6 +1817,7 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 	}
 }
 
+#ifdef USE_DBUS
 static void detect_dark_theme(MwLL handle) {
 	MwU32 value	 = 0;
 	MwU32 dark_theme = 0;
@@ -1826,6 +1827,7 @@ static void detect_dark_theme(MwLL handle) {
 
 	MwLLDispatch(handle, dark_theme, &dark_theme);
 }
+#endif
 
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL r;
@@ -1876,9 +1878,11 @@ static void MwLLDestroyImpl(MwLL handle) {
 	pthread_mutex_unlock(&handle->wayland.eventsMutex);
 	pthread_mutex_destroy(&handle->wayland.eventsMutex);
 
+#ifdef USE_DBUS
 	if(!wl_call_tbl.has_dbus) {
 		MwLLDBusFreeContext(&wl_call_tbl.dbus, &handle->wayland.dbus);
 	}
+#endif
 
 	buffer_destroy(&handle->wayland.cursor);
 	wl_region_destroy(handle->wayland.region);
@@ -2161,11 +2165,13 @@ static int MwLLPendingImpl(MwLL handle) {
 	int pending = 0;
 
 	if(handle->wayland.dark_theme_detection) {
+		handle->wayland.dark_theme_detection = MwFALSE;
+#ifdef USE_DBUS
 		if(wl_call_tbl.has_dbus) {
 			detect_dark_theme(handle);
-			handle->wayland.dark_theme_detection = MwFALSE;
 			MwLLDispatch(handle, draw, NULL);
 		}
+#endif
 	}
 
 	if(!handle->wayland.did_initial_resize) {
@@ -2622,7 +2628,7 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 	}
 }
 
-static void MwLLSetDarkThemeImpl(MwLL handle, int toggle){
+static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)handle;
 	(void)toggle;
 }

@@ -533,7 +533,7 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 		force_render_all(handle);
 	}
 
-	if(strcmp(key, MwNdarkTheme) == 0){
+	if(strcmp(key, MwNdarkTheme) == 0) {
 		MwWidget h = handle;
 
 		while(h->parent != NULL && h->parent->widget_class != NULL) h = h->parent;

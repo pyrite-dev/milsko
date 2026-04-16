@@ -308,7 +308,7 @@ static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwLLColor color,
 
 static void frame_border_complex(MwWidget handle, MwRect* rect, MwLLColor lighter, MwLLColor darker, int invert, int border, int diff, int same) {
 	MwPoint p[7];
-	
+
 	(void)diff;
 	(void)same;
 

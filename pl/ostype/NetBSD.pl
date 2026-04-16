@@ -4,4 +4,6 @@ add_libdir(
 use_backend("x11");
 add_libs("-lpthread");
 
+add_cflags("-DUSE_DBUS");
+
 1;

@@ -6,7 +6,7 @@
 #ifndef __MW_LOWLEVEL_H__
 #define __MW_LOWLEVEL_H__
 
-#include "Mw/BaseTypes.h"
+#include <Mw/BaseTypes.h>
 #include <Mw/MachDep.h>
 
 typedef struct _MwLLHandler*	  MwLLHandler;

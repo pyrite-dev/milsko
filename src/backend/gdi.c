@@ -11,7 +11,7 @@ typedef struct userdata {
 static struct symtbl {
 	void* lib_dwmapi;
 
-	HRESULT (WINAPI *DwmSetWindowAttribute)(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
+	HRESULT(WINAPI* DwmSetWindowAttribute)(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
 } wsymtbl;
 
 #define DwmSetWindowAttribute wsymtbl.DwmSetWindowAttribute
@@ -34,7 +34,7 @@ static void detect_darktheme(MwLL handle) {
 
 	t = dw ? 0 : 1;
 
-	if(t && DwmSetWindowAttribute != NULL){
+	if(t && DwmSetWindowAttribute != NULL) {
 		LPARAM style = GetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE);
 		if(!(style & WS_CHILD)) MwLLSetDarkTheme(handle, 1);
 	}
@@ -819,11 +819,10 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 	(void)handle;
 }
 
-static void MwLLSetDarkThemeImpl(MwLL handle, int toggle){
+static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	BOOL v = toggle ? TRUE : FALSE;
 
 	DwmSetWindowAttribute(handle->gdi.hWnd, 20, &v, sizeof(v));
-
 }
 
 static int MwLLGDICallInitImpl(void) {

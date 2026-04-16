@@ -1084,7 +1084,7 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 	MwLLShow(handle, 1);
 }
 
-static void MwLLSetDarkThemeImpl(MwLL handle, int toggle){
+static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)handle;
 	(void)toggle;
 }
