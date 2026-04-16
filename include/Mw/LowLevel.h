@@ -277,6 +277,8 @@ MWDECL void (*MwLLGetClipboard)(MwLL handle);
 MWDECL void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
 MWDECL void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect);
 
+MWDECL void (*MwLLSetDarkTheme)(MwLL handle, int toggle);
+
 /* font renderer */
 MWDECL void MwFLSetup(void);
 

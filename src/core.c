@@ -532,6 +532,14 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 	if(strcmp(key, MwNmodernLook) == 0 || strcmp(key, MwNdarkTheme) == 0 || strcmp(key, MwNbitmapFont) == 0) {
 		force_render_all(handle);
 	}
+
+	if(strcmp(key, MwNdarkTheme) == 0){
+		MwWidget h = handle;
+
+		while(h->parent != NULL && h->parent->widget_class != NULL) h = h->parent;
+
+		MwLLSetDarkTheme(h->lowlevel, n);
+	}
 }
 
 void MwSetText(MwWidget handle, const char* key, const char* value) {

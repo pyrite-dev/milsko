@@ -51,6 +51,8 @@ void (*MwLLGetClipboard)(MwLL handle)			= NULL;
 void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point) = NULL;
 void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect)	= NULL;
 
+void (*MwLLSetDarkTheme)(MwLL handle, int toggle) = NULL;
+
 void MwLLCreateCommon(MwLL handle) {
 	handle->common.handler = malloc(sizeof(*handle->common.handler));
 	memset(handle->common.handler, 0, sizeof(*handle->common.handler));

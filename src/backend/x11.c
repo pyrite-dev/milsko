@@ -4,7 +4,7 @@
 
 #define ClipboardTimeout 100
 
-static struct {
+static struct symtbl {
 	void*  lib_xlib;
 	void*  lib_xrender;
 	MwBool has_xrender;
@@ -1306,6 +1306,11 @@ static void MwLLBeginStateChangeImpl(MwLL handle) {
 
 static void MwLLEndStateChangeImpl(MwLL handle) {
 	MwLLShow(handle, 1);
+}
+
+static void MwLLSetDarkThemeImpl(MwLL handle, int toggle){
+	(void)handle;
+	(void)toggle;
 }
 
 static int MwLLX11CallInitImpl(void) {
