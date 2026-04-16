@@ -17,6 +17,8 @@
 wayland_call_table_t wl_call_tbl;
 MwBool		     MwWaylandAlwaysRender = MwFALSE;
 
+MwU32 wl_dark_theme = -1;
+
 /* Standard procedure before most event callbacks in Wayland ("most" because the setup ones don't need this). Wait for the Mutex to be freed, if we're deadlocking for longer then a quarter of a second then do nothing with the event. */
 #define WAYLAND_EVENT_OP_START(self) \
 	do { \
@@ -1779,14 +1781,21 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 }
 
 #ifdef USE_DBUS
+static void dark_theme_listener(MwLL handle, MwU32 new_value) {
+	wl_dark_theme = (new_value == 1) ? 1 : 0;
+
+	MwLLDispatch(handle, dark_theme, &wl_dark_theme);
+}
+
 static void detect_dark_theme(MwLL handle) {
 	MwU32 value	 = 0;
-	MwU32 dark_theme = 0;
+
 	MwLLDBusPortalGet(&wl_call_tbl.dbus, &handle->wayland.dbus, "org.freedesktop.portal.Settings", "org.freedesktop.appearance", "color-scheme", &value);
+	wl_dark_theme = (value == 1) ? 1 : 0;
 
-	dark_theme = (value == 1) ? 1 : 0;
+	MwLLDBusPortalWatch(&wl_call_tbl.dbus, &handle->wayland.dbus, "org.freedesktop.portal.Settings");
 
-	MwLLDispatch(handle, dark_theme, &dark_theme);
+	MwLLDispatch(handle, dark_theme, &wl_dark_theme);
 }
 #endif
 
@@ -2144,15 +2153,18 @@ static int MwLLPendingImpl(MwLL handle) {
 	};
 	int pending = 0;
 
-	if(handle->wayland.dark_theme_detection) {
-		handle->wayland.dark_theme_detection = MwFALSE;
 #ifdef USE_DBUS
-		if(wl_call_tbl.has_dbus) {
+	if(wl_call_tbl.has_dbus) {
+		if(handle->wayland.dark_theme_detection) {
+
+			handle->wayland.dark_theme_detection = MwFALSE;
 			detect_dark_theme(handle);
 			MwLLDispatch(handle, draw, NULL);
+		} else {
+			MwLLDBusPortalPoll(&wl_call_tbl.dbus, &handle->wayland.dbus, handle, "org.freedesktop.portal.Settings", "org.freedesktop.appearance", "color-scheme", &dark_theme_listener);
 		}
-#endif
 	}
+#endif
 
 	if(!handle->wayland.did_initial_resize) {
 		recursive_dispatch_resize(handle);

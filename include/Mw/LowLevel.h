@@ -83,11 +83,15 @@ typedef struct _MwLLDBusContext {
 	DBusMessageIter dbus_args, dbus_variant, dbus_inner_variant;
 } MwLLDBusContext;
 
+typedef void (*MwLLDBusPortalPollListener)(MwLL handle, MwU32 new_value);
+
 /* setup the dbus func table. Returns false and prints a warning if dbus couldn't be found.  */
 MWDECL MwBool MwLLDBusFuncSetup(MwLLDBusFuncTable* tbl);
 
 MWDECL MwBool MwLLDBusNewContext(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx);
 MWDECL MwBool MwLLDBusPortalGet(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx, const char* portal, const char* namespace, const char* key, void* out);
+MWDECL MwBool MwLLDBusPortalWatch(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx, const char* portal);
+MWDECL MwBool MwLLDBusPortalPoll(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx, MwLL handle, const char* portal, const char* namespace, const char* key, MwLLDBusPortalPollListener);
 MWDECL void   MwLLDBusFreeContext(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx);
 
 #endif
