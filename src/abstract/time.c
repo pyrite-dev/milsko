@@ -33,12 +33,12 @@ void MwTimeSleep(int ms) {
 	nanosleep(&ts, NULL);
 }
 #elif defined(CLASSIC_MAC_OS)
-static TMTask tm;
-static int    timer;
-void	      timerUpdateFunc(void) {
-	 timer += 1;
-	 PrimeTime((QElemPtr)&tm, 1);
-};
+// static TMTask tm;
+// static int    timer;
+// void	      timerUpdateFunc(void) {
+// 	 timer += 1;
+// 	 PrimeTime((QElemPtr)&tm, 1);
+// };
 
 long MwTimeGetTick(void) {
 	UnsignedWide h;
@@ -46,14 +46,14 @@ long MwTimeGetTick(void) {
 	return h.lo;
 }
 void MwTimeSleep(int ms) {
-	tm.tmAddr     = NewTimerProc(timerUpdateFunc);
-	tm.tmWakeUp   = 0;
-	tm.tmReserved = 0;
+	// tm.tmAddr     = NewTimerProc(timerUpdateFunc);
+	// tm.tmWakeUp   = 0;
+	// tm.tmReserved = 0;
 
-	InsTime((QElemPtr)&tm);
-	PrimeTime((QElemPtr)&tm, 1);
+	// InsTime((QElemPtr)&tm);
+	// PrimeTime((QElemPtr)&tm, 1);
 
-	DisposeTimerUPP(tm.tmAddr);
+	// DisposeTimerUPP(tm.tmAddr);
 }
 #elif defined(__unix__)
 long MwTimeGetTick(void) {
