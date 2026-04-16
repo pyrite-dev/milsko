@@ -113,7 +113,7 @@ typedef enum _MwVulkanField {
  * @brief Function for getting a field from within Vulkan.
  * @warning Consult the documentation for MwVulkanField to know what type is expected for out.
  */
-MwInline void* MwVulkanGetField(MwWidget handle, MwVulkanField field, int* out) {
+MwInline void* MwVulkanGetField(MwWidget handle, int field, int* out) {
 	void* field_out;
 	MwVaWidgetExecute(handle, "mwVulkanGetField", &field_out, field, out);
 	return field_out;

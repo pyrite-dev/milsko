@@ -518,7 +518,7 @@ int MwVulkanSupported(void) {
 	}
 };
 
-static void* mwVulkanGetFieldImpl(MwWidget handle, MwVulkanField field, int* out) {
+static void* mwVulkanGetFieldImpl(MwWidget handle, int field, int* out) {
 	vulkan_t* o = handle->internal;
 	char	  buf[1024];
 
@@ -556,9 +556,9 @@ static void* mwVulkanGetFieldImpl(MwWidget handle, MwVulkanField field, int* out
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	if(strcmp(name, "mwVulkanGetField") == 0) {
-		MwVulkanField field = va_arg(va, MwVulkanField);
-		int*	      err   = va_arg(va, int*);
-		*(void**)out	    = mwVulkanGetFieldImpl(handle, field, err);
+		int  field   = va_arg(va, int);
+		int* err     = va_arg(va, int*);
+		*(void**)out = mwVulkanGetFieldImpl(handle, field, err);
 	}
 }
 
