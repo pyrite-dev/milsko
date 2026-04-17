@@ -227,11 +227,11 @@
 		<integer name="MwMB_BUTTONNO">0x80</integer>
 	</constants>
 	<headers>
-		<header name="ColorChooser">
+		<header name="Dialog/ColorChooser">
 			<functions>
 				<function name="MwColorChooser">
 					<return>
-						<widget />
+						<widget type="Window" />
 					</return>
 					<arguments>
 						<widget name="handle" />
@@ -484,11 +484,34 @@
 				</function>
 			</functions>
 		</header>
-		<header name="FileChooser">
+		<header name="Dialog/FileChooser">
 			<functions>
 				<function name="MwFileChooser">
 					<return>
-						<widget />
+						<widget type="Window" />
+					</return>
+					<arguments>
+						<widget name="handle" />
+						<string name="title" />
+					</arguments>
+				</function>
+				<function name="MwFileChooserEx">
+					<return>
+						<widget type="Window" />
+					</return>
+					<arguments>
+						<widget name="handle" />
+						<string name="title" />
+						<integer name="dir" />
+					</arguments>
+				</function>
+			</functions>
+		</header>
+		<header name="Dialog/DirectoryChooser">
+			<functions>
+				<function name="MwDirectoryChooser">
+					<return>
+						<widget type="Window" />
 					</return>
 					<arguments>
 						<widget name="handle" />
@@ -497,11 +520,11 @@
 				</function>
 			</functions>
 		</header>
-		<header name="MessageBox">
+		<header name="Dialog/MessageBox">
 			<functions>
 				<function name="MwMessageBox">
 					<return>
-						<widget />
+						<widget type="Window" />
 					</return>
 					<arguments>
 						<widget name="handle" />
@@ -512,21 +535,21 @@
 				</function>
 				<function name="MwMessageBoxGetChild">
 					<return>
-						<widget />
+						<widget type="Button" />
 					</return>
 					<arguments>
-						<widget name="handle" />
+						<widget name="handle" type="Window" />
 						<integer name="child" />
 					</arguments>
 				</function>
 				<function name="MwMessageBoxDestroy">
 					<arguments>
-						<widget name="handle" />
+						<widget name="handle" type="Window" />
 					</arguments>
 				</function>
 			</functions>
 		</header>
-		<header name="Widget/ListBox.h">
+		<header name="Widget/ListBox">
 			<functions>
 				<function name="MwListBoxCreatePacket">
 					<return>
@@ -566,7 +589,7 @@
 		</header>
 	
 		<!-- They are not alphabetically sorted for reasons -->
-		<header name="Widget/Vulkan.h">
+		<header name="Widget/Vulkan">
 			<functions>
 				<function name="MwVulkanConfigure">
 					<return>
