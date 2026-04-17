@@ -66,11 +66,17 @@ typedef struct _MwLLDBusFuncTable {
 	DBusMessage* (*dbus_message_new_method_call)(const char* bus_name, const char* path, const char* iface, const char* method);
 	void (*dbus_message_iter_init_append)(DBusMessage* message, DBusMessageIter* iter);
 	dbus_bool_t (*dbus_message_iter_append_basic)(DBusMessageIter* iter, int type, const void* value);
+	void (*dbus_connection_flush)(DBusConnection* connection);
+	dbus_bool_t (*dbus_connection_read_write)(DBusConnection* connection, int timeout_milliseconds);
 	DBusMessage* (*dbus_connection_send_with_reply_and_block)(DBusConnection* connection, DBusMessage* message, int timeout_milliseconds, DBusError* error);
+	DBusMessage* (*dbus_connection_pop_message)(DBusConnection* connection);
+	void (*dbus_bus_add_match)(DBusConnection* connection, const char* rule, DBusError* error);
 	void (*dbus_message_unref)(DBusMessage* message);
 	dbus_bool_t (*dbus_message_iter_init)(DBusMessage* message, DBusMessageIter* iter);
+	dbus_bool_t (*dbus_message_is_signal)(DBusMessage* message, const char* iface, const char* signal_name);
 	int (*dbus_message_iter_get_arg_type)(DBusMessageIter* iter);
 	void (*dbus_message_iter_recurse)(DBusMessageIter* iter, DBusMessageIter* sub);
+	void (*dbus_message_iter_next)(DBusMessageIter* iter);
 	void (*dbus_connection_unref)(DBusConnection* connection);
 	void (*dbus_message_iter_get_basic)(DBusMessageIter* iter, void* value);
 } MwLLDBusFuncTable;
@@ -80,7 +86,6 @@ typedef struct _MwLLDBusContext {
 	DBusError	dbus_err;
 	DBusMessage*	dbus_msg;
 	DBusMessage*	dbus_reply;
-	DBusMessageIter dbus_args, dbus_variant, dbus_inner_variant;
 } MwLLDBusContext;
 
 typedef void (*MwLLDBusPortalPollListener)(MwLL handle, MwU32 new_value);
