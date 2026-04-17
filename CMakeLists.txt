@@ -309,6 +309,8 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
     set_target_properties(Mw PROPERTIES LINK_FLAGS "-Wl,-gc-sections")
   endif()
 
+  list(APPEND LIBRARIES InterfaceLib WindowsLib ThreadsLib)
+
   target_compile_definitions(
    Mw
    PRIVATE
@@ -354,7 +356,7 @@ target_link_libraries(
 )
 
 if(MW_BUILD_OPENGL)
-    target_compile_definitions(
+  target_compile_definitions(
           Mw
           PRIVATE
           MW_OPENGL

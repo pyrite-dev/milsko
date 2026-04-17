@@ -11,7 +11,7 @@
 #ifndef __MW_WIDGET_VULKAN_H__
 #define __MW_WIDGET_VULKAN_H__
 
-#if !defined(_WIN32) && !defined(__linux__) && !defined(__FreeBSD__) && !defined(__NetBSD__)
+#if defined(MW_VULKAN) && !defined(_WIN32) && !defined(__linux__) && !defined(__FreeBSD__) && !defined(__NetBSD__)
 #error Vulkan is unsupported on the requested platform.
 #endif
 

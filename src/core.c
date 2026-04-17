@@ -879,6 +879,9 @@ int MwLibraryInit(void) {
 #ifdef USE_GDI
 	    MwLLGDICallInit,
 #endif
+#ifdef CLASSIC_MAC_OS
+	    MwLLClassicMacOSCallInit,
+#endif
 	    NULL};
 	int i;
 
@@ -900,6 +903,9 @@ int MwLibraryInit(void) {
 #endif
 #ifdef USE_GDI
 	       " GDI"
+#endif
+#ifdef CLASSIC_MAC_OS
+	       " ClassicMacOS"
 #endif
 	       "\n");
 

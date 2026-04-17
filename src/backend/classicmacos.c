@@ -1,11 +1,23 @@
 #include <Mw/Milsko.h>
+#include <Threads.h>
+#include <QuickDraw.h>
 
 #include "../../external/stb_ds.h"
 
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL r;
-
+	r = malloc(sizeof(*r));
+	memset(r, 0, sizeof(*r));
 	MwLLCreateCommon(r);
+
+	r->cmacos.parent = parent;
+
+	if(x == MwDEFAULT) {
+		x = (qd.screenBits.bounds.right / 2) - (width / 2);
+	}
+	if(y == MwDEFAULT) {
+		y = (qd.screenBits.bounds.bottom / 2) - (height / 2);
+	}
 
 	/* todo: how do we set parent windows? If we can't, what is our equivalant to MacOS's NSViews, Wayland's subsurfaces, etc.? */
 	SetRect(&r->cmacos.winRect, x, y, width, height);
@@ -23,24 +35,26 @@ static void MwLLDestroyImpl(MwLL handle) {
 }
 
 static void MwLLBeginDrawImpl(MwLL handle) {
-	(void)handle;
 }
 
 static void MwLLEndDrawImpl(MwLL handle) {
-	(void)handle;
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
 	int	   i;
-	PolyHandle p = OpenPoly();
+	PolyHandle p;
 	RGBColor   col;
 
-	col.red	  = color->common.red;
-	col.green = color->common.green;
-	col.blue  = color->common.blue;
+	SetPort(handle->cmacos.window);
+	BeginUpdate(handle->cmacos.window);
 
-	RGBBackColor(&col);
+	p	  = OpenPoly();
+	col.red	  = color->common.red * 0x101;
+	col.green = color->common.green * 0x101;
+	col.blue  = color->common.blue * 0x101;
+
 	RGBForeColor(&col);
+	PenMode(patCopy);
 
 	for(i = 0; i < points_count; i++) {
 		if(i == 0) {
@@ -51,19 +65,23 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 	}
 
 	ClosePoly();
-	PaintPoly(p);
+	FillCPoly(p, &qd.ltGray);
 	KillPoly(p);
+
+	EndUpdate(handle->cmacos.window);
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	RGBColor col;
+	SetPort(handle->cmacos.window);
 
 	col.red	  = color->common.red;
 	col.green = color->common.green;
 	col.blue  = color->common.blue;
 
-	RGBBackColor(&col);
 	RGBForeColor(&col);
+
+	PenMode(patCopy);
 
 	MoveTo(points[0].x, points[0].y);
 	LineTo(points[1].x, points[1].y);
@@ -103,10 +121,133 @@ static void MwLLFreeColorImpl(MwLLColor color) {
 }
 
 static int MwLLPendingImpl(MwLL handle) {
-	return GetNextEvent(everyEvent, &handle->cmacos.event);
+	YieldToAnyThread();
+	return EventAvail(everyEvent, &handle->cmacos.event);
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
+	EventRecord event;
+	GetNextEvent(everyEvent, &event);
+
+	switch(event.what) {
+	case updateEvt: {
+	}
+	// MwLLDispatch(handle, draw, NULL);
+	break;
+	case osEvt:
+		break;
+	case mouseUp: {
+		// MwLLMouse m;
+		// m.button = MwLLMouseLeft;
+		// if(___curWindow->mouseButtonCallback != NULL) {
+		// 	int mods = MacModifiersToGLFWModifiers(event.modifiers);
+
+		// 	if(___curWindow->keyStateMap[MK_LCTRL] == 1) {
+		// 		___curWindow->mouseButtonCallback(
+		// 		    ___curWindow, GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE, mods);
+		// 	} else {
+		// 		___curWindow->mouseButtonCallback(
+		// 		    ___curWindow, GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE, mods);
+		// 	}
+		// }
+	}
+	case mouseDown: {
+		// // start with callback stuff
+		// if(___curWindow->mouseButtonCallback != NULL) {
+		// 	int mods = MacModifiersToGLFWModifiers(event.modifiers);
+
+		// 	if(___curWindow->keyStateMap[MK_LCTRL] == 1) {
+		// 		___curWindow->mouseButtonCallback(
+		// 		    ___curWindow, GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS, mods);
+		// 	} else {
+		// 		___curWindow->mouseButtonCallback(
+		// 		    ___curWindow, GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS, mods);
+		// 	}
+		// }
+
+		// then do system stuff
+		switch(FindWindow(event.where, &handle->cmacos.window)) {
+		case inDrag:
+			DragWindow(handle->cmacos.window, event.where, &qd.screenBits.bounds);
+			// if(___curWindow->windowPosCallback != NULL) {
+			// 	___curWindow->windowPosCallback(___curWindow, event.where.h,
+			// 					event.where.v);
+			// }
+			break;
+		case inGrow: {
+			long growResult =
+			    GrowWindow(handle->cmacos.window, event.where, &qd.screenBits.bounds);
+
+			int width  = growResult & 0xFFFF;
+			int height = growResult >> 16;
+
+			SizeWindow(handle->cmacos.window, growResult & 0xFFFF, growResult >> 16, true);
+
+			Rect rect;
+			GetWindowBounds(handle->cmacos.window, kWindowStructureRgn, &rect);
+			rect.right  = width;
+			rect.bottom = height;
+			SetWindowBounds(handle->cmacos.window, kWindowStructureRgn, &rect);
+
+			// ___curWindow->width  = width;
+			// ___curWindow->height = height;
+
+			// if(___curWindow->windowSizeCallback != NULL) {
+			// 	___curWindow->windowSizeCallback(___curWindow, width, height);
+			// }
+			// if(___curWindow->windowSetFramebufferSizeCallback != NULL) {
+			// 	___curWindow->windowSetFramebufferSizeCallback(___curWindow,
+			// 						       width, height);
+			// }
+		} break;
+
+		case inGoAway: {
+			if(TrackGoAway(handle->cmacos.window, event.where)) {
+				MwLLDispatch(handle, close, NULL);
+				// if(___curWindow->windowCloseCallback != NULL) {
+				// ___curWindow->windowCloseCallback(___curWindow);
+				// }
+				// ___curWindow->shouldClose = true;
+			}
+		} break;
+		}
+	}
+	case autoKey:
+	case keyDown:
+	case keyUp: {
+		// // key char stuff
+		// unsigned char ch = (event.message & charCodeMask);
+		// if(*___curWindow->charCallback != NULL) {
+		// 	___curWindow->charCallback(___curWindow, ch);
+		// }
+
+		// // key state map
+		// unsigned char key	       = (event.message & keyCodeMask) >> 8;
+		// ___curWindow->keyStateMap[key] = 0;
+		// if(event.what == keyDown || event.what == autoKey) {
+		// 	___curWindow->keyStateMap[key] &= 1;
+		// }
+
+		// if(*___curWindow->keyCallback != NULL) {
+		// 	int key	     = MacKeyToGLFWKey(event.message);
+		// 	int scancode = (event.message & adbAddrMask) >> 16;
+
+		// 	int mods = MacModifiersToGLFWModifiers(event.modifiers);
+
+		// 	int action;
+		// 	if(event.what == keyUp) {
+		// 		action = GLFW_RELEASE;
+		// 	} else {
+		// 		action = GLFW_PRESS;
+		// 	}
+		// 	___curWindow->keyCallback(___curWindow, key, scancode, action,
+		// 				  mods);
+		// }
+	}
+	}
+
+	FlushEvents(everyEvent, -1);
+	YieldToAnyThread();
 }
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
@@ -167,14 +308,14 @@ static void MwLLFocusImpl(MwLL handle) {
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 }
 
-static void MwLLSetClipboardImpl(MwLL handle, const char* text) {
+static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type) {
 	/* TODO */
 
 	(void)handle;
 	(void)text;
 }
 
-static void MwLLGetClipboardImpl(MwLL handle) {
+static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {
