@@ -5,6 +5,8 @@ AlignConsecutiveAssignments:
   Enabled: true
 AlignConsecutiveDeclarations:
   Enabled: true
+IndentAccessModifiers: true
+NamespaceIndentation: All
 IndentWidth: 8
 PointerAlignment: Left
 ColumnLimit: 0
