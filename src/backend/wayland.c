@@ -2430,7 +2430,7 @@ static void MwLLShowImpl(MwLL handle, int show) {
 static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 	(void)handle;
 	(void)parent;
-	/* Wayland doesn't have "popups" in the Milsko sense persay. xdg_popup is closer to ToolWindow and as such is what we use there. So just like the Mac backend, this is just left alone. */
+	/* Wayland doesn't have "popups" in the Milsko sense per se. xdg_popup is closer to ToolWindow and as such is what we use there. So just like the Mac backend, this is just left alone. */
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
