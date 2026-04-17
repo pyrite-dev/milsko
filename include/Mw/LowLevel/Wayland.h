@@ -454,6 +454,7 @@ struct _MwLLWayland {
 #endif
 
 	MwBool dark_theme_detection;
+	MwU32 dark_theme;
 
 	/* clipboard related stuff.
 	 * Note that unlike most interfaces, we don't keep zwp_primary_selection stuff in a wayland_protocol_t because we use wl_data_device as a fallback and want to have it share memory space.*/

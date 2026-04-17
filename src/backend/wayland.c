@@ -17,8 +17,6 @@
 wayland_call_table_t wl_call_tbl;
 MwBool		     MwWaylandAlwaysRender = MwFALSE;
 
-MwU32 wl_dark_theme = -1;
-
 /* Standard procedure before most event callbacks in Wayland ("most" because the setup ones don't need this). Wait for the Mutex to be freed, if we're deadlocking for longer then a quarter of a second then do nothing with the event. */
 #define WAYLAND_EVENT_OP_START(self) \
 	do { \
@@ -1782,20 +1780,20 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 
 #ifdef USE_DBUS
 static void dark_theme_listener(MwLL handle, MwU32 new_value) {
-	wl_dark_theme = (new_value == 1) ? 1 : 0;
+	handle->wayland.dark_theme = (new_value == 1) ? 1 : 0;
 
-	MwLLDispatch(handle, dark_theme, &wl_dark_theme);
+	MwLLDispatch(handle, dark_theme, &handle->wayland.dark_theme);
 }
 
 static void detect_dark_theme(MwLL handle) {
-	MwU32 value	 = 0;
+	MwU32 value = 0;
 
 	MwLLDBusPortalGet(&wl_call_tbl.dbus, &handle->wayland.dbus, "org.freedesktop.portal.Settings", "org.freedesktop.appearance", "color-scheme", &value);
-	wl_dark_theme = (value == 1) ? 1 : 0;
+	handle->wayland.dark_theme = (value == 1) ? 1 : 0;
 
 	MwLLDBusPortalWatch(&wl_call_tbl.dbus, &handle->wayland.dbus, "org.freedesktop.portal.Settings");
 
-	MwLLDispatch(handle, dark_theme, &wl_dark_theme);
+	MwLLDispatch(handle, dark_theme, &handle->wayland.dark_theme);
 }
 #endif
 
@@ -1811,6 +1809,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	if(!parent && wl_call_tbl.has_dbus) {
 		wl_call_tbl.has_dbus		= MwLLDBusNewContext(&wl_call_tbl.dbus, &r->wayland.dbus);
 		r->wayland.dark_theme_detection = MwTRUE;
+		r->wayland.dark_theme		= -1;
 	}
 #endif
 
@@ -2439,7 +2438,7 @@ static void MwLLShowImpl(MwLL handle, int show) {
 static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 	(void)handle;
 	(void)parent;
-	/* Wayland doesn't have "popups" in the Milsko sense persay. xdg_popup is closer to ToolWindow and as such is what we use there. So just like the Mac backend, this is just left alone. */
+	/* Wayland doesn't have "popups" in the Milsko sense per se. xdg_popup is closer to ToolWindow and as such is what we use there. So just like the Mac backend, this is just left alone. */
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {

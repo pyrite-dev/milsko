@@ -184,48 +184,48 @@ MWDECL MwBool MwLLDBusPortalWatch(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx, 
 	char filter_string[2048];
 	MwStringPrintIntoBuffer(filter_string, sizeof(filter_string), "type='%s',interface=%s", "signal", portal);
 
-    dbus_bus_add_match(ctx->dbus_conn, filter_string, &ctx->dbus_err);
-    dbus_connection_flush(ctx->dbus_conn);
+	dbus_bus_add_match(ctx->dbus_conn, filter_string, &ctx->dbus_err);
+	dbus_connection_flush(ctx->dbus_conn);
 
 	return MwTRUE;
 }
 
-// Technically this will swallow all other results, so this is not usable multiple times.
-// TODO: Use a hashmap instead
+/* Technically this will swallow all other results, so this is not usable multiple times.
+   TODO: Use a hashmap instead */
 MWDECL MwBool MwLLDBusPortalPoll(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx, MwLL handle, const char* portal, const char* namespace, const char* key, MwLLDBusPortalPollListener listener) {
-	DBusMessage* msg;
+	DBusMessage*	msg;
 	DBusMessageIter args, msg_value;
-	const char* msg_namespace;
-	const char* msg_key;
-	MwU32 msg_value_content;
+	const char*	msg_namespace;
+	const char*	msg_key;
+	MwU32		msg_value_content;
 
 	if(!ctx->dbus_conn) {
 		return MwFALSE;
 	}
 
- 	dbus_connection_read_write(ctx->dbus_conn, 0);
+	dbus_connection_read_write(ctx->dbus_conn, 0);
 	msg = dbus_connection_pop_message(ctx->dbus_conn);
 
-	if (NULL == msg) { 
+	if(NULL == msg) {
 		return MwFALSE;
 	}
 
-	// check if the message is a signal from the correct interface and with the correct name
-	if (dbus_message_is_signal(msg, portal, "SettingChanged")) {
-		// read the parameters
-		if (!dbus_message_iter_init(msg, &args))
-			fprintf(stderr, "[WARNING] Message has no arguments\n"); 
-		else if (DBUS_TYPE_STRING != dbus_message_iter_get_arg_type(&args)) 
-			fprintf(stderr, "[WARNING] Argument is not string\n"); 
+	/* check if the message is a signal from the correct interface and with the correct name */
+	if(dbus_message_is_signal(msg, portal, "SettingChanged")) {
+		/* read the parameters */
+		if(!dbus_message_iter_init(msg, &args))
+			fprintf(stderr, "[WARNING] Message has no arguments\n");
+		else if(DBUS_TYPE_STRING != dbus_message_iter_get_arg_type(&args))
+			fprintf(stderr, "[WARNING] Argument is not string\n");
 		else {
 			dbus_message_iter_get_basic(&args, &msg_namespace);
 
 			dbus_message_iter_next(&args);
 			dbus_message_iter_get_basic(&args, &msg_key);
 
-			// Check that key and namespace match
-			if (strcmp(msg_namespace, namespace) == 0 && strcmp(msg_key, key) == 0) {
-				// Assuming the value is a basic type
+			/* Check that key and namespace match */
+			if(strcmp(msg_namespace, namespace) == 0 && strcmp(msg_key, key) == 0) {
+				/* Assuming the value is a basic type */
 				dbus_message_iter_next(&args);
 				dbus_message_iter_recurse(&args, &msg_value);
 				dbus_message_iter_get_basic(&msg_value, &msg_value_content);
@@ -235,7 +235,7 @@ MWDECL MwBool MwLLDBusPortalPoll(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx, M
 		}
 	}
 
-	// free the message
+	/* free the message */
 	dbus_message_unref(msg);
 }
 
