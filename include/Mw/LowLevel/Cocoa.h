@@ -84,7 +84,7 @@ typedef struct {
 @end
 
 @interface MilskoCocoaPixmap : NSObject {
-      @public
+    @public
 	MwBool		  valid;
 	int		  width;
 	int		  height;
@@ -106,7 +106,7 @@ typedef struct {
 @interface MilskoCocoaView : NSView {
 	MwBool _child;
 
-      @public
+    @public
 	draw_command* commands;
 }
 
@@ -119,7 +119,7 @@ typedef struct {
 @end
 
 @interface MilskoCocoa : NSObject {
-      @public
+    @public
 	MilskoCocoaApplication* application;
 	MwBool			_forceRender;
 	MwBool			_eventsPending;

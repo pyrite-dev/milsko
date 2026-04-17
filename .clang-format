@@ -5,7 +5,7 @@ AlignConsecutiveAssignments:
   Enabled: true
 AlignConsecutiveDeclarations:
   Enabled: true
-IndentAccessModifiers: true
+AccessModifierOffset: -4
 NamespaceIndentation: All
 IndentWidth: 8
 PointerAlignment: Left

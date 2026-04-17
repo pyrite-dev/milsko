@@ -133,7 +133,7 @@ static void click(MwWidget handle) {
 		MwListBoxInsert(cb->listbox, -1, packet);
 		MwListBoxDestroyPacket(packet);
 
-		MwAddUserHandler(cb->listbox, MwNactivateHandler, listbox_activate, NULL);
+		MwAddUserHandler(cb->listbox, MwNlistBoxActivateHandler, listbox_activate, NULL);
 
 		p.x = 0;
 		p.y = MwGetInteger(handle, MwNheight);

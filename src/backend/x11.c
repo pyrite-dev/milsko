@@ -788,7 +788,9 @@ static void MwLLNextEventImpl(MwLL handle) {
 				} else {
 					n = s;
 				}
-			} else if(strcmp(str, "BackSpace") == 0) {
+			}
+
+			if(strcmp(str, "BackSpace") == 0) {
 				n = MwLLKeyBackSpace;
 			} else if(strcmp(str, "Left") == 0) {
 				n = MwLLKeyLeft;

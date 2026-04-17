@@ -231,6 +231,7 @@ int main() {
 	add(f);
 
 	f = frame("Entry", -PaddingContent, 24, MwEntryClass, NULL);
+	MwAddUserHandler(child(f), MwNchangedHandler, abort, NULL);
 	add(f);
 
 	f = frame("Label", -PaddingContent, -PaddingContent, MwLabelClass,

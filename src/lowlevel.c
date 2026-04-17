@@ -128,7 +128,7 @@ MwBool MwLLDBusNewContext(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx) {
 
 MWDECL MwBool MwLLDBusPortalGet(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx, const char* portal, const char* namespace, const char* key, void* out) {
 	DBusMessageIter dbus_args, dbus_variant, dbus_inner_variant;
-	char arg_type;
+	char		arg_type;
 	if(!ctx->dbus_conn) {
 		return MwFALSE;
 	}
@@ -182,7 +182,7 @@ MWDECL MwBool MwLLDBusPortalGet(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx, co
 			return MwFALSE;
 		}
 		tbl->dbus_message_iter_get_basic(&dbus_inner_variant, out);
-	} else if (arg_type == 'u') {
+	} else if(arg_type == 'u') {
 		tbl->dbus_message_iter_get_basic(&dbus_variant, out);
 	} else {
 		fprintf(stderr, "[WARNING] Couldn't get %s::%s: Expected variant or string, got: %c\n", namespace, key, arg_type);
@@ -277,7 +277,7 @@ MWDECL MwBool MwLLDBusPortalPoll(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx, M
 						return MwFALSE;
 					}
 					tbl->dbus_message_iter_get_basic(&msg_value_inner, &msg_value_content);
-				} else if (arg_type == 'u') {
+				} else if(arg_type == 'u') {
 					tbl->dbus_message_iter_get_basic(&msg_value, &msg_value_content);
 				} else {
 					fprintf(stderr, "[WARNING] Couldn't get %s::%s: Expected variant or string, got: %c\n", namespace, key, arg_type);

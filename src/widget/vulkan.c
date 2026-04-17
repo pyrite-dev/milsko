@@ -556,8 +556,8 @@ static void* mwVulkanGetFieldImpl(MwWidget handle, int field, int* err) {
 
 static void func_handler(MwWidget handle, const char* name, void* output, va_list va) {
 	if(strcmp(name, "mwVulkanGetField") == 0) {
-		int  field   = va_arg(va, int);
-		int* err     = va_arg(va, int*);
+		int  field	= va_arg(va, int);
+		int* err	= va_arg(va, int*);
 		*(void**)output = mwVulkanGetFieldImpl(handle, field, err);
 	}
 }

@@ -102,6 +102,7 @@ static void key(MwWidget handle, int code) {
 		MwUTF8Copy(str, t->cursor + 1, out, t->cursor, MwUTF8Length(str) - (t->cursor + 1));
 
 		MwSetText(handle, MwNtext, out);
+		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
 
 		free(out);
 	} else if(code == MwLLKeyLeft) {
@@ -124,6 +125,7 @@ static void key(MwWidget handle, int code) {
 		t->cursor++;
 
 		MwSetText(handle, MwNtext, out);
+		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
 
 		free(out);
 	}

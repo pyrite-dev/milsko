@@ -108,6 +108,8 @@ static void mouse_up(MwWidget handle, void* ptr) {
 			MwStringPrintIntoBuffer(s, 512, "%g", atof(str) + 1);
 		}
 		MwSetText(handle, MwNtext, s);
+
+		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
 	}
 
 	MwForceRender(handle);

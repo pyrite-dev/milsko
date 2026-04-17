@@ -112,7 +112,8 @@
 		<pixmap name="backgroundPixmap" common="yes" />
 		<pointer name="monospaceFont" />
 		<pointer name="boldMonospaceFont" />
-
+	</properties>
+	<handlers>
 		<handler name="activate" />
 		<handler name="listBoxActivate">
 			<integer pointer="yes" />
@@ -120,33 +121,33 @@
 		<handler name="treeViewActivate">
 			<pointer />
 		</handler>
-		<handler name="resize" />
-		<handler name="tick" />
+		<handler name="resize" common="yes" />
+		<handler name="tick" common="yes" />
 		<handler name="menu">
 			<pointer />
 		</handler>
-		<handler name="mouseDown">
+		<handler name="mouseDown" common="yes">
 			<struct defname="MwMouse" pointer="yes" />
 		</handler>
-		<handler name="mouseUp">
+		<handler name="mouseUp" common="yes">
 			<struct defname="MwMouse" pointer="yes" />
 		</handler>
-		<handler name="mouseMove">
+		<handler name="mouseMove" common="yes">
 			<struct defname="MwPoint" pointer="yes" />
 		</handler>
 		<handler name="changed" />
 		<handler name="comboBoxChanged">
 			<integer pointer="yes" />
 		</handler>
-		<handler name="key">
+		<handler name="key" common="yes">
 			<integer pointer="yes" />
 		</handler>
-		<handler name="keyRelease">
+		<handler name="keyRelease" common="yes">
 			<integer pointer="yes" />
 		</handler>
 		<handler name="close" />
-		<handler name="focusIn" />
-		<handler name="focusOut" />
+		<handler name="focusIn" common="yes" />
+		<handler name="focusOut" common="yes" />
 		<handler name="fileChosen">
 			<string />
 		</handler>
@@ -157,13 +158,13 @@
 			<struct defname="MwRGB" pointer="yes" />
 		</handler>
 		<handler name="draw" />
-		<handler name="clipboard">
+		<handler name="clipboard" common="yes">
 			<string />
 		</handler>
-		<handler name="darkTheme">
+		<handler name="darkTheme" common="yes">
 			<integer pointer="yes" />
 		</handler>
-	</properties>
+	</handlers>
 	<enumerations>
 		<enumeration name="MwDIRECTION">
 			<integer name="MwNORTH">0</integer>
@@ -598,17 +599,28 @@
 				<property name="padding" />
 				<property name="fillArea" />
 			</properties>
+			<handlers>
+				<handler name="activate" />
+				<handler name="changed" />
+			</handlers>
 		</widget>
 		<widget name="CheckBox">
 			<properties>
 				<property name="checked" />
 			</properties>
+			<handlers>
+				<handler name="changed" />
+			</handlers>
 		</widget>
 		<widget name="Entry">
 			<properties>
 				<property name="text" />
 				<property name="hideInput" />
 			</properties>
+			<handlers>
+				<handler name="activate" />
+				<handler name="changed" />
+			</handlers>
 		</widget>
 		<widget name="Frame">
 			<properties>
@@ -648,6 +660,9 @@
 				<property name="hasHeading" />
 				<property name="singleClickSelectable" />
 			</properties>
+			<handlers>
+				<handler name="listBoxActivate" />
+			</handlers>
 			<functions>
 				<function name="Insert">
 					<arguments>
@@ -678,6 +693,9 @@
 			</functions>
 		</widget>
 		<widget name="Menu">
+			<handlers>
+				<handler name="menu" />
+			</handlers>
 			<functions>
 				<function name="Add">
 					<return>
@@ -694,6 +712,10 @@
 			<properties>
 				<property name="text" />
 			</properties>
+			<handlers>
+				<handler name="activate" />
+				<handler name="changed" />
+			</handlers>
 		</widget>
 		<widget name="ScrollBar">
 			<properties>
@@ -704,6 +726,9 @@
 				<property name="maxValue" />
 				<property name="orientation" />
 			</properties>
+			<handlers>
+				<handler name="changed" />
+			</handlers>
 			<functions>
 				<function name="GetVisibleLength">
 					<return>
@@ -764,12 +789,18 @@
 			<properties>
 				<property name="checked" />
 			</properties>
+			<handlers>
+				<handler name="changed" />
+			</handlers>
 		</widget>
 		<widget name="ComboBox">
 			<properties>
 				<property name="areaShown" />
 				<property name="value" />
 			</properties>
+			<handlers>
+				<handler name="comboBoxChanged" />
+			</handlers>
 			<functions>
 				<function name="Add">
 					<integer name="index" />
@@ -782,6 +813,9 @@
 				<property name="leftPadding" />
 				<property name="singleClickSelectable" />
 			</properties>
+			<handlers>
+				<handler name="treeViewActivate" />
+			</handlers>
 			<functions>
 				<function name="Add">
 					<arguments>
