@@ -27,7 +27,7 @@ MWDECL MwWidget MwFileChooser(MwWidget handle, const char* title);
  * @param dir Show directory only or not
  * @return Widget
  */
-MwWidget MwFileChooserEx(MwWidget handle, const char* title, int dir);
+MWDECL MwWidget MwFileChooserEx(MwWidget handle, const char* title, int dir);
 
 #ifdef __cplusplus
 }
