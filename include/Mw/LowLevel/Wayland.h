@@ -41,6 +41,7 @@ typedef struct wayland_call_table {
 	MwBool		  has_dbus;
 #endif
 
+	int (*wl_display_dispatch)(struct wl_display* display);
 	int (*wl_display_dispatch_pending)(struct wl_display* display);
 	void (*wl_display_disconnect)(struct wl_display* display);
 	void (*wl_display_cancel_read)(struct wl_display* display);
@@ -58,6 +59,7 @@ typedef struct wayland_call_table {
 						   uint32_t		      flags, ...);
 	struct wl_display* (*wl_display_connect)(const char* name);
 	uint32_t (*wl_proxy_get_version)(struct wl_proxy* proxy);
+	struct wl_display* (*wl_display_connect_to_fd)(int fd);
 
 	struct xkb_context* (*xkb_context_new)(enum xkb_context_flags flags);
 	void (*xkb_context_unref)(struct xkb_context* context);
@@ -156,6 +158,7 @@ MwInline int wayland_load_funcs() {
 		return 1; \
 	};
 
+	WAYLAND_FUNC(wl_display_dispatch)
 	WAYLAND_FUNC(wl_display_dispatch_pending)
 	WAYLAND_FUNC(wl_display_disconnect)
 	WAYLAND_FUNC(wl_display_cancel_read)
@@ -170,6 +173,7 @@ MwInline int wayland_load_funcs() {
 	WAYLAND_FUNC(wl_proxy_marshal_flags)
 	WAYLAND_FUNC(wl_display_connect)
 	WAYLAND_FUNC(wl_proxy_get_version)
+	WAYLAND_FUNC(wl_display_connect_to_fd)
 
 #undef WAYLAND_FUNC
 
@@ -235,6 +239,7 @@ MwInline int wayland_load_funcs() {
 	return 0;
 }
 
+#define wl_display_dispatch wl_call_tbl.wl_display_dispatch
 #define wl_display_dispatch_pending wl_call_tbl.wl_display_dispatch_pending
 #define wl_display_disconnect wl_call_tbl.wl_display_disconnect
 #define wl_display_cancel_read wl_call_tbl.wl_display_cancel_read
@@ -249,6 +254,7 @@ MwInline int wayland_load_funcs() {
 #define wl_proxy_marshal_flags wl_call_tbl.wl_proxy_marshal_flags
 #define wl_display_connect wl_call_tbl.wl_display_connect
 #define wl_proxy_get_version wl_call_tbl.wl_proxy_get_version
+#define wl_display_connect_to_fd wl_call_tbl.wl_display_connect_to_fd
 
 #define xkb_state_unref wl_call_tbl.xkb_state_unref
 #define xkb_context_new wl_call_tbl.xkb_context_new
@@ -373,11 +379,11 @@ enum _MwLLWaylandType {
 };
 
 typedef struct wl_clipboard_device_context {
-	union {
+	struct {
 		struct wl_data_device*			wl;
 		struct zwp_primary_selection_device_v1* zwp;
 	} device;
-	union {
+	struct {
 		struct wl_data_offer*		       wl;
 		struct zwp_primary_selection_offer_v1* zwp;
 	} offer;
@@ -409,13 +415,13 @@ struct _MwLLWayland {
 
 	/* Map of Wayland interfaces to their relevant setup functions. */
 	struct {
-		const char*			   key;
+		char				   key[255];
 		wayland_protocol_callback_table_t* value;
 	}* wl_protocol_setup_map;
 
 	/* Map of Wayland interfaces to any information we keep about them once we've registered them. */
 	struct {
-		const char*	    key;
+		char		    key[255];
 		wayland_protocol_t* value;
 	}* wl_protocol_map;
 
