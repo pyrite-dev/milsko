@@ -92,6 +92,7 @@
 		<integer name="isRounded" common="yes" />
 		<integer name="darkTheme" common="yes" />
 		<integer name="useMonospace" common="yes" />
+		<integer name="fillArea" />
 
 		<!-- waitMS is a special property, only applies to toplevel widget -->
 		<integer name="waitMS" common="yes" />
@@ -702,7 +703,6 @@
 				<property name="minValue" />
 				<property name="maxValue" />
 				<property name="orientation" />
-				<property name="showArrows" />
 			</properties>
 			<functions>
 				<function name="GetVisibleLength">
