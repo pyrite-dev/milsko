@@ -227,9 +227,9 @@
 		<integer name="MwMB_BUTTONNO">0x80</integer>
 	</constants>
 	<headers>
-		<header name="Dialog/ColorChooser">
+		<header name="Dialog/ColorPicker">
 			<functions>
-				<function name="MwColorChooser">
+				<function name="MwColorPicker">
 					<return>
 						<widget type="Window" />
 					</return>
