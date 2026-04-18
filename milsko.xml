@@ -549,44 +549,6 @@
 				</function>
 			</functions>
 		</header>
-		<header name="Widget/ListBox">
-			<functions>
-				<function name="MwListBoxCreatePacket">
-					<return>
-						<pointer />
-					</return>
-				</function>
-				<function name="MwListBoxDestroyPacket">
-					<arguments>
-						<pointer name="packet" />
-					</arguments>
-				</function>
-				<function name="MwListBoxPacketInsert">
-					<return>
-						<integer />
-					</return>
-					<arguments>
-						<pointer name="packet" />
-						<integer name="index" />
-					</arguments>
-				</function>
-				<function name="MwListBoxPacketSet">
-					<arguments>
-						<pointer name="packet" />
-						<integer name="index" />
-						<integer name="col" />
-						<string name="text" />
-					</arguments>
-				</function>
-				<function name="MwListBoxPacketSetIcon">
-					<arguments>
-						<pointer name="packet" />
-						<integer name="index" />
-						<pixmap name="icon" />
-					</arguments>
-				</function>
-			</functions>
-		</header>
 	
 		<!-- They are not alphabetically sorted for reasons -->
 		<header name="Widget/Vulkan">
@@ -689,8 +651,15 @@
 			<functions>
 				<function name="Insert">
 					<arguments>
+						<integer name="row" />
+						<integer name="col" />
+						<string name="text" />
+					</arguments>
+				</function>
+				<function name="SetIcon">
+					<arguments>
 						<integer name="index" />
-						<pointer name="packet" />
+						<pixmap name="icon" />
 					</arguments>
 				</function>
 				<function name="Delete">

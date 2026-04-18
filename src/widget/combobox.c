@@ -101,7 +101,6 @@ static void click(MwWidget handle) {
 	if(cb->opened) {
 		MwPoint p;
 		int	i;
-		void*	packet;
 		int	width = MwGetInteger(handle, MwNwidth);
 		int	ent   = MwGetInteger(handle, MwNareaShown);
 
@@ -125,13 +124,9 @@ static void click(MwWidget handle) {
 
 		MwLLSetCursor(((MwListBox)cb->listbox->internal)->frame->lowlevel, &MwCursorArrow, &MwCursorArrowMask);
 
-		packet = MwListBoxCreatePacket();
 		for(i = 0; i < arrlen(cb->list); i++) {
-			int index = MwListBoxPacketInsert(packet, -1);
-			MwListBoxPacketSet(packet, index, 0, cb->list[i]);
+			MwListBoxInsert(cb->listbox, -1, 0, cb->list[i]);
 		}
-		MwListBoxInsert(cb->listbox, -1, packet);
-		MwListBoxDestroyPacket(packet);
 
 		MwAddUserHandler(cb->listbox, MwNlistBoxActivateHandler, listbox_activate, NULL);
 

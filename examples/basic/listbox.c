@@ -23,12 +23,11 @@ void activate(MwWidget handle, void* user, void* call) {
 }
 
 int main() {
-	MwWidget	 lb;
-	int		 len = sizeof(harvard) / sizeof(harvard[0]) - 1;
-	int		 i;
-	MwListBoxPacket* packet;
-	int		 index;
-	MwLLPixmap	 px;
+	MwWidget   lb;
+	int	   len = sizeof(harvard) / sizeof(harvard[0]) - 1;
+	int	   i;
+	int	   index;
+	MwLLPixmap px;
 
 	MwLibraryInit();
 
@@ -41,18 +40,15 @@ int main() {
 
 	MwSetInteger(lb, MwNleftPadding, 20);
 
-	packet = MwListBoxCreatePacket();
-	index  = MwListBoxPacketInsert(packet, -1);
-	MwListBoxPacketSet(packet, index, 0, "Harvard sentence");
-	MwListBoxPacketSet(packet, index, 1, "Length");
+	index = MwListBoxInsert(lb, -1, 0, "Harvard sentence");
+	MwListBoxInsert(lb, index, -1, "Length");
 
 	for(i = 0; i < len; i++) {
 		char sz[16];
 		MwStringPrintIntoBuffer(sz, 16, "%d", (int)strlen(harvard[i]));
-		index = MwListBoxPacketInsert(packet, -1);
-		MwListBoxPacketSetIcon(packet, index, px);
-		MwListBoxPacketSet(packet, index, 0, harvard[i]);
-		MwListBoxPacketSet(packet, index, 1, sz);
+		index = MwListBoxInsert(lb, -1, 0, harvard[i]);
+		MwListBoxInsert(lb, index, -1, sz);
+		MwListBoxSetIcon(lb, index, px);
 	}
 
 	MwAddUserHandler(lb, MwNactivateHandler, activate, NULL);
@@ -60,9 +56,6 @@ int main() {
 		  MwNhasHeading, 1,
 		  NULL);
 	MwListBoxSetWidth(lb, 0, -128);
-	MwListBoxInsert(lb, -1, packet);
-
-	MwListBoxDestroyPacket(packet);
 
 	MwLoop(wmain);
 }

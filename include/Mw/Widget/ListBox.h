@@ -19,50 +19,29 @@ extern "C" {
 MWDECL MwClass MwListBoxClass;
 
 /*!
- * @brief Creates a listbox packet
- * @return Packet
- */
-MWDECL MwListBoxPacket* MwListBoxCreatePacket(void);
-
-/*!
- * @brief Destroys a listbox packet
- * @param packet Packet
- */
-MWDECL void MwListBoxDestroyPacket(MwListBoxPacket* packet);
-
-/*!
- * @brief Inserts a new item to a packet
- * @param packet Packet
- * @param index Index
- * @return Index
- */
-MWDECL int MwListBoxPacketInsert(MwListBoxPacket* packet, int index);
-
-/*!
- * @brief Sets a column of item in a packet
- * @param packet Packet
- * @param index Index
+ * @brief Inserts item on the listbox
+ * @param handle Widget
+ * @param row Row
  * @param col Column
  * @param text Text
+ * @return Index
  */
-MWDECL void MwListBoxPacketSet(MwListBoxPacket* packet, int index, int col, const char* text);
+MwInline int MwListBoxInsert(MwWidget handle, int row, int col, const char* text) {
+	int out;
+
+	MwVaWidgetExecute(handle, "mwListBoxInsert", (void*)&out, row, col, text);
+
+	return out;
+}
 
 /*!
- * @brief Sets an icon of item in a packet
- * @param packet Packet
+ * @brief Sets the icon of the row
+ * @param handle Widget
  * @param index Index
  * @param icon Icon
  */
-MWDECL void MwListBoxPacketSetIcon(MwListBoxPacket* packet, int index, MwLLPixmap icon);
-
-/*!
- * @brief Inserts item on the listbox
- * @param handle Widget
- * @param index Index
- * @param packet Packet
- */
-MwInline void MwListBoxInsert(MwWidget handle, int index, void* packet) {
-	MwVaWidgetExecute(handle, "mwListBoxInsert", NULL, index, packet);
+MwInline void MwListBoxSetIcon(MwWidget handle, int index, MwLLPixmap icon) {
+	MwVaWidgetExecute(handle, "mwListBoxSetIcon", NULL, index, icon);
 }
 
 /*!

@@ -6,61 +6,6 @@
 
 #define Font MwFLBuildFont(MwFLFlagMonospace)
 
-MwListBoxPacket* MwListBoxCreatePacket(void) {
-	MwListBoxPacket* packet = malloc(sizeof(*packet));
-	memset(packet, 0, sizeof(*packet));
-
-	return packet;
-}
-
-void MwListBoxDestroyPacket(MwListBoxPacket* packet) {
-	int i;
-	int j;
-
-	for(i = 0; i < arrlen(packet->names); i++) {
-		for(j = 0; j < arrlen(packet->names[i]); j++) {
-			if(packet->names[i][j] != NULL) free(packet->names[i][j]);
-		}
-		arrfree(packet->names[i]);
-	}
-
-	arrfree(packet->names);
-	arrfree(packet->pixmaps);
-
-	free(packet);
-}
-
-int MwListBoxPacketInsert(MwListBoxPacket* packet, int index) {
-	int i;
-
-	if(index == -1) index = arrlen(packet->names);
-	for(i = arrlen(packet->names); i < index; i++) {
-		arrput(packet->names, NULL);
-		arrput(packet->pixmaps, NULL);
-	}
-
-	arrins(packet->names, index, NULL);
-	arrins(packet->pixmaps, index, NULL);
-
-	return index;
-}
-
-void MwListBoxPacketSet(MwListBoxPacket* packet, int index, int col, const char* text) {
-	char* t = text == NULL ? NULL : MwStringDuplicate(text);
-	int   i;
-
-	if(col == -1) col = arrlen(packet->names[index]);
-	for(i = arrlen(packet->names[index]); i < col; i++) {
-		arrput(packet->names[index], NULL);
-	}
-
-	arrins(packet->names[index], col, t);
-}
-
-void MwListBoxPacketSetIcon(MwListBoxPacket* packet, int index, MwLLPixmap icon) {
-	packet->pixmaps[index] = icon;
-}
-
 static int get_first_entry(MwWidget handle, MwListBox lb) {
 	int st = 0;
 	int y  = MwGetInteger(handle, MwNhasHeading) ? 1 : 0;
@@ -442,38 +387,11 @@ static void prop_change(MwWidget handle, const char* prop) {
 	}
 }
 
-static void mwListBoxInsertImpl(MwWidget handle, int index, MwListBoxPacket* packet) {
-	int	  i;
+static void mwListBoxInsertImpl(MwWidget handle, int row, int col, const char* text) {
 	MwListBox lb = handle->internal;
 	int	  old;
-	int	  max = 0;
-	if(index == -1) index = arrlen(lb->list);
-	old = index;
-
-	for(i = 0; i < arrlen(packet->names); i++) {
-		if(arrlen(packet->names[i]) > max) max = arrlen(packet->names[i]);
-	}
-
-	for(i = 0; i < arrlen(packet->names); i++) {
-		MwListBoxEntry entry;
-		char*	       name;
-		int	       j;
-
-		entry.name = NULL;
-		for(j = 0; j < max; j++) {
-			if(arrlen(packet->names[i]) > j && packet->names[i][j] != NULL) {
-				name = MwStringDuplicate(packet->names[i][j]);
-				arrput(entry.name, name);
-			} else {
-				arrput(entry.name, NULL);
-			}
-		}
-
-		entry.pixmap = packet->pixmaps[i];
-
-		arrins(lb->list, index, entry);
-		index++;
-	}
+	if(row == -1) row = arrlen(lb->list);
+	old = row;
 
 	resize(handle);
 	if(old < (MwGetInteger(lb->vscroll, MwNvalue) + MwGetInteger(lb->vscroll, MwNareaShown))) {
@@ -579,9 +497,10 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		mwListBoxSetAlignmentImpl(handle, index, alignment);
 	}
 	if(strcmp(name, "mwListBoxInsert") == 0) {
-		int		 index	= va_arg(va, int);
-		MwListBoxPacket* packet = va_arg(va, MwListBoxPacket*);
-		mwListBoxInsertImpl(handle, index, packet);
+		int	    row	 = va_arg(va, int);
+		int	    col	 = va_arg(va, int);
+		const char* text = va_arg(va, const char*);
+		mwListBoxInsertImpl(handle, row, col, text);
 	}
 }
 

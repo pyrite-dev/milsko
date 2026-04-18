@@ -145,12 +145,11 @@ static void menu_handler(MwWidget handle, void* user, void* call) {
 }
 
 int main() {
-	int		 i;
-	MwWidget	 f, w;
-	MwListBoxPacket* pkt;
-	int		 index;
-	MwMenu		 m, m2;
-	void*		 v;
+	int	 i;
+	MwWidget f, w;
+	int	 index;
+	MwMenu	 m, m2;
+	void*	 v;
 
 	MwLibraryInit();
 
@@ -242,13 +241,8 @@ int main() {
 		      MwNhasHeading, 1,
 		      NULL);
 	w     = child(f);
-	pkt   = MwListBoxCreatePacket();
-	index = MwListBoxPacketInsert(pkt, -1);
-	MwListBoxPacketSet(pkt, index, 0, "Epic title...");
-	index = MwListBoxPacketInsert(pkt, -1);
-	MwListBoxPacketSet(pkt, index, 0, "Hello");
-	MwListBoxInsert(w, -1, pkt);
-	MwListBoxDestroyPacket(pkt);
+	index = MwListBoxInsert(w, -1, 0, "Epic title...");
+	index = MwListBoxInsert(w, -1, 0, "Hello");
 	add(f);
 
 	f = frame("NumberEntry", -PaddingContent, 24, MwNumberEntryClass, NULL);
