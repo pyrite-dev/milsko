@@ -216,7 +216,7 @@ static void layout(MwWidget handle) {
 					   MwNleftPadding, 16,
 					   NULL);
 
-		index = MwListBoxInsert(fc->nav, -1, 0, "Home");
+		index = MwListBoxSet(fc->nav, -1, 0, "Home");
 		MwListBoxSetIcon(fc->nav, index, fc->computer);
 
 		MwAddUserHandler(fc->nav, MwNlistBoxActivateHandler, nav_activate, NULL);
@@ -462,9 +462,9 @@ static void scan(MwWidget handle, const char* path, int record) {
 	MwListBoxSetWidth(fc->files, 1, 128);
 	MwListBoxSetWidth(fc->files, 2, 0);
 
-	index = MwListBoxInsert(fc->files, -1, 0, "Name");
-	MwListBoxInsert(fc->files, index, -1, "Date modified");
-	MwListBoxInsert(fc->files, index, -1, "Size");
+	index = MwListBoxSet(fc->files, -1, 0, "Name");
+	MwListBoxSet(fc->files, index, -1, "Date modified");
+	MwListBoxSet(fc->files, index, -1, "Size");
 
 	for(i = 0; i < arrlen(fc->entries); i++) {
 		if(strcmp(fc->entries[i]->name, ".") == 0 || strcmp(fc->entries[i]->name, "..") == 0) continue;
@@ -473,9 +473,9 @@ static void scan(MwWidget handle, const char* path, int record) {
 
 			MwStringTime(date, fc->entries[i]->mtime);
 
-			index = MwListBoxInsert(fc->files, -1, 0, fc->entries[i]->name);
-			MwListBoxInsert(fc->files, index, -1, date);
-			MwListBoxInsert(fc->files, index, -1, NULL);
+			index = MwListBoxSet(fc->files, -1, 0, fc->entries[i]->name);
+			MwListBoxSet(fc->files, index, -1, date);
+			MwListBoxSet(fc->files, index, -1, NULL);
 			MwListBoxSetIcon(fc->files, index, fc->dir);
 
 			arrput(fc->sorted_entries, fc->entries[i]);
@@ -489,9 +489,9 @@ static void scan(MwWidget handle, const char* path, int record) {
 			MwStringTime(date, fc->entries[i]->mtime);
 			MwStringSize(size, fc->entries[i]->size);
 
-			index = MwListBoxInsert(fc->files, -1, 0, fc->entries[i]->name);
-			MwListBoxInsert(fc->files, index, -1, date);
-			MwListBoxInsert(fc->files, index, -1, size);
+			index = MwListBoxSet(fc->files, -1, 0, fc->entries[i]->name);
+			MwListBoxSet(fc->files, index, -1, date);
+			MwListBoxSet(fc->files, index, -1, size);
 			MwListBoxSetIcon(fc->files, index, fc->file);
 
 			arrput(fc->sorted_entries, fc->entries[i]);

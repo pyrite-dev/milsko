@@ -26,7 +26,6 @@ typedef struct _MwLabelSegment	      MwLabelSegment;
 typedef struct _MwListBoxEntry	      MwListBoxEntry;
 typedef struct _MwTreeViewEntry	      MwTreeViewEntry;
 typedef struct _MwDirectoryEntry      MwDirectoryEntry;
-typedef struct _MwListBoxPacket	      MwListBoxPacket;
 typedef struct _MwBox*		      MwBox;
 typedef struct _MwMouse		      MwMouse;
 #ifdef _MILSKO
@@ -200,11 +199,6 @@ struct _MwDirectoryEntry {
 	int	 type;
 	MwOffset size;
 	time_t	 mtime;
-};
-
-struct _MwListBoxPacket {
-	MwLLPixmap* pixmaps;
-	char***	    names;
 };
 
 struct _MwBox {

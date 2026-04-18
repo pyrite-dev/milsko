@@ -26,10 +26,10 @@ MWDECL MwClass MwListBoxClass;
  * @param text Text
  * @return Index
  */
-MwInline int MwListBoxInsert(MwWidget handle, int row, int col, const char* text) {
+MwInline int MwListBoxSet(MwWidget handle, int row, int col, const char* text) {
 	int out;
 
-	MwVaWidgetExecute(handle, "mwListBoxInsert", (void*)&out, row, col, text);
+	MwVaWidgetExecute(handle, "mwListBoxSet", (void*)&out, row, col, text);
 
 	return out;
 }

@@ -40,18 +40,18 @@ int main() {
 
 	MwSetInteger(lb, MwNleftPadding, 20);
 
-	index = MwListBoxInsert(lb, -1, 0, "Harvard sentence");
-	MwListBoxInsert(lb, index, -1, "Length");
+	index = MwListBoxSet(lb, -1, 0, "Harvard sentence");
+	MwListBoxSet(lb, index, -1, "Length");
 
 	for(i = 0; i < len; i++) {
 		char sz[16];
 		MwStringPrintIntoBuffer(sz, 16, "%d", (int)strlen(harvard[i]));
-		index = MwListBoxInsert(lb, -1, 0, harvard[i]);
-		MwListBoxInsert(lb, index, -1, sz);
+		index = MwListBoxSet(lb, -1, 0, harvard[i]);
+		MwListBoxSet(lb, index, -1, sz);
 		MwListBoxSetIcon(lb, index, px);
 	}
 
-	MwAddUserHandler(lb, MwNactivateHandler, activate, NULL);
+	MwAddUserHandler(lb, MwNlistBoxActivateHandler, activate, NULL);
 	MwVaApply(lb,
 		  MwNhasHeading, 1,
 		  NULL);

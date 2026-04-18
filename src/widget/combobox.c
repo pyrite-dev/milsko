@@ -125,7 +125,7 @@ static void click(MwWidget handle) {
 		MwLLSetCursor(((MwListBox)cb->listbox->internal)->frame->lowlevel, &MwCursorArrow, &MwCursorArrowMask);
 
 		for(i = 0; i < arrlen(cb->list); i++) {
-			MwListBoxInsert(cb->listbox, -1, 0, cb->list[i]);
+			MwListBoxSet(cb->listbox, -1, 0, cb->list[i]);
 		}
 
 		MwAddUserHandler(cb->listbox, MwNlistBoxActivateHandler, listbox_activate, NULL);

@@ -387,16 +387,62 @@ static void prop_change(MwWidget handle, const char* prop) {
 	}
 }
 
-static void mwListBoxInsertImpl(MwWidget handle, int row, int col, const char* text) {
+static void redrawIfNeeded(MwWidget handle, int row) {
 	MwListBox lb = handle->internal;
-	int	  old;
-	if(row == -1) row = arrlen(lb->list);
-	old = row;
 
-	resize(handle);
-	if(old < (MwGetInteger(lb->vscroll, MwNvalue) + MwGetInteger(lb->vscroll, MwNareaShown))) {
+	if(MwGetInteger(lb->vscroll, MwNvalue) <= row && row <= (MwGetInteger(lb->vscroll, MwNvalue) + MwGetInteger(lb->vscroll, MwNareaShown))) {
 		MwForceRender(lb->frame);
 	}
+}
+
+static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text) {
+	MwListBox      lb = handle->internal;
+	MwListBoxEntry entry;
+	char*	       t = text == NULL ? NULL : MwStringDuplicate(text);
+	if(row == -1) row = arrlen(lb->list);
+
+	entry.name   = NULL;
+	entry.pixmap = NULL;
+	if(row < arrlen(lb->list)) {
+		entry = lb->list[row];
+	}
+
+	if(col == -1) col = arrlen(entry.name);
+	arrins(entry.name, col, t);
+
+	if(row < arrlen(lb->list)) {
+		lb->list[row] = entry;
+	} else {
+		arrins(lb->list, row, entry);
+	}
+
+	if(row >= arrlen(lb->list)) resize(handle);
+	redrawIfNeeded(handle, row);
+
+	return row;
+}
+
+static void mwListBoxSetIconImpl(MwWidget handle, int index, MwLLPixmap icon) {
+	MwListBox      lb = handle->internal;
+	MwListBoxEntry entry;
+	if(index == -1) index = arrlen(lb->list);
+
+	entry.name   = NULL;
+	entry.pixmap = NULL;
+	if(index < arrlen(lb->list)) {
+		entry = lb->list[index];
+	}
+
+	entry.pixmap = icon;
+
+	if(index < arrlen(lb->list)) {
+		lb->list[index] = entry;
+	} else {
+		arrins(lb->list, index, entry);
+	}
+
+	if(index >= arrlen(lb->list)) resize(handle);
+	redrawIfNeeded(handle, index);
 }
 
 static void mwListBoxDeleteImpl(MwWidget handle, int index) {
@@ -496,11 +542,16 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		int alignment = va_arg(va, int);
 		mwListBoxSetAlignmentImpl(handle, index, alignment);
 	}
-	if(strcmp(name, "mwListBoxInsert") == 0) {
+	if(strcmp(name, "mwListBoxSet") == 0) {
 		int	    row	 = va_arg(va, int);
 		int	    col	 = va_arg(va, int);
 		const char* text = va_arg(va, const char*);
-		mwListBoxInsertImpl(handle, row, col, text);
+		*(int*)out	 = mwListBoxSetImpl(handle, row, col, text);
+	}
+	if(strcmp(name, "mwListBoxSetIcon") == 0) {
+		int	   index = va_arg(va, int);
+		MwLLPixmap icon	 = va_arg(va, MwLLPixmap);
+		mwListBoxSetIconImpl(handle, index, icon);
 	}
 }
 
