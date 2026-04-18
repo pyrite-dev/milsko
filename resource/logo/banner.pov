@@ -4,11 +4,19 @@
 object {
 	text {
 		ttf "resource/font/IBMPlexSerif.ttf",
+#ifdef(NODEJS)
+		"for Node.JS",
+#else
 		"Milsko Toolkit",
+#end
 		1, 0
 	}
 	scale 2
+#ifdef(NODEJS)
+	translate <5, -1, -1>
+#else
 	translate <2.5, -1, -1>
+#end
 	pigment {
 		color White
 	}
