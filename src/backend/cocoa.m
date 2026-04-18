@@ -1,3 +1,10 @@
+/*
+ * some implementation notes to know:
+ * - Mac really does not like immediate mode drawing, there was some trick I tried where I rendered to a bitmap context but it was very slow. So instead we just convert it to a commands system which gets cleared out whenever MacOS Actually draws the window.
+ * - We override NSApplication to intercept sendEvent and know when an event has been sent. When it is, doPending is sent. The appropriate "pending" function then returns whether that's set (before resetting it).
+ * - We want the application to be *functional* on old MacOS, at a minimum of 10.4. There's obviously points where newer functions will have to be used, and in that case we use ObjC's "respondsToSelector" function to know if we can call the newer function.
+ */
+
 #include <Mw/Milsko.h>
 #include "../../external/stb_ds.h"
 #include "Mw/LowLevel/Cocoa.h"
@@ -12,6 +19,7 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
+/* Coordinate flipping function (global, rect) */
 static NSRect rectFlip(NSRect originFrame) {
 	NSScreen* zeroScreen	   = [[NSScreen screens] objectAtIndex:0];
 	double	  screenHeight	   = [zeroScreen frame].size.height;
@@ -23,10 +31,12 @@ static NSRect rectFlip(NSRect originFrame) {
 	return destinationFrame;
 }
 
-static NSPoint pointFlip(NSPoint point) {
+/* Coordinate flipping function (global, point) */
+static inline NSPoint pointFlip(NSPoint point) {
 	return rectFlip(NSMakeRect(point.x, point.y, 0, 0)).origin;
 }
 
+/* Coordinate flipping function (local to view; rect) */
 static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 	float  viewHeight = [view bounds].size.height;
 	NSRect destinationFrame =
@@ -36,7 +46,9 @@ static NSRect localRectFlip(NSRect originFrame, NSView* view) {
 		       originFrame.size.width, originFrame.size.height);
 	return destinationFrame;
 }
-static NSPoint localPointFlip(NSPoint point, NSView* view) {
+
+/* Coordinate flipping function (local to view; point) */
+static inline NSPoint localPointFlip(NSPoint point, NSView* view) {
 	return localRectFlip(NSMakeRect(point.x, point.y, 0, 0), view).origin;
 }
 
@@ -551,6 +563,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 @implementation MilskoCocoa
 - (void)sendClipboardEvent {
+	/* Either uncomment this and make it use respondsToSelector and/or find out what the api proceeding NSPasteboard is. */
 	/*NSAutoreleasePool* pool	      = [[NSAutoreleasePool alloc] init];
 	NSPasteboard*	   pasteboard = [NSPasteboard generalPasteboard];
 	NSArray*	   items      = @[
@@ -639,11 +652,10 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	 * respond appropriately. Also for child windows just have it be 0.
 	 */
 	if(x == MwDEFAULT) {
-		x = r ? ([[NSScreen mainScreen] frame].size.width / 2.) - (width / 2.) : 0;
+		x = parent ? 0 : ([[NSScreen mainScreen] frame].size.width / 2.) - (width / 2.);
 	}
 	if(y == MwDEFAULT) {
-		y = r ? ([[NSScreen mainScreen] frame].size.height / 2.) - (height / 2.)
-		      : 0;
+		y = parent ? 0 : ([[NSScreen mainScreen] frame].size.height / 2.) - (height / 2.);
 	}
 	c->rect = NSMakeRect(x, y, width, height);
 
@@ -929,7 +941,6 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	pix.pixmap.pixmap = MwLLCreatePixmap(handle, pixmap->common.raw, pixmap->common.width, pixmap->common.height);
 
 	arrpush(handle->cocoa.real->view->commands, pix);
-	// [handle->cocoa.real->view setNeedsDisplay:MwTRUE];
 }
 
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {

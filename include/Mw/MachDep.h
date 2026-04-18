@@ -54,7 +54,7 @@
 #include <limits.h>
 #endif
 
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
 #include <dirent.h>
 #include <dlfcn.h>
 #endif
