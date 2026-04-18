@@ -45,6 +45,7 @@ param_set("vulkan-string-helper", 1);
 param_set("shared",               1);
 param_set("static",               1);
 param_set("examples",             1);
+param_set("dbus", 1);
 
 
 my %features = (
@@ -60,6 +61,7 @@ my %features = (
     "static"               => "build static library",
     "wayland"              => "enable wayland backend",
     "gnustep"              => "use gnustep",
+    "dbus" => "use DBus on supported platform"
 );
 my @features_keys = (
     "1classic-theme", "1stb-image",
@@ -68,6 +70,7 @@ my @features_keys = (
     "1vulkan",        "2vulkan-string-helper",
     "1shared",        "1static",
     "1wayland", "1gnustep",
+    "1dbus"
 );
 
 foreach my $l (@ARGV) {

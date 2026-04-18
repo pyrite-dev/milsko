@@ -241,8 +241,8 @@ int main() {
 		      MwNhasHeading, 1,
 		      NULL);
 	w     = child(f);
-	index = MwListBoxInsert(w, -1, 0, "Epic title...");
-	index = MwListBoxInsert(w, -1, 0, "Hello");
+	index = MwListBoxSet(w, -1, 0, "Epic title...");
+	index = MwListBoxSet(w, -1, 0, "Hello");
 	add(f);
 
 	f = frame("NumberEntry", -PaddingContent, 24, MwNumberEntryClass, NULL);

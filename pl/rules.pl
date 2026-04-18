@@ -60,6 +60,10 @@ if (grep(/^wayland$/, @backends)) {
     $gl_libs = "-lGL -lGLU";
 }
 
+if (not(param_get("dbus"))) {
+    $cflags =~ s/( |^)-DUSE_DBUS( |$)/ /;
+}
+
 if (grep(/( |^)-DUSE_DBUS( |$)/, $cflags)) {
     add_cflags(`pkg-config --cflags dbus-1`);
 }

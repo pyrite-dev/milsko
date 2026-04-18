@@ -19,7 +19,7 @@ extern "C" {
 MWDECL MwClass MwListBoxClass;
 
 /*!
- * @brief Inserts item on the listbox
+ * @brief Sets item on the listbox
  * @param handle Widget
  * @param row Row
  * @param col Column
