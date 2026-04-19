@@ -73,6 +73,21 @@ my @features_keys = (
     "1dbus"
 );
 
+if($target ne "Darwin" and $target ne "ClassicMacOS" and $target ne "Windows") {
+    param_set("freetype2",        1);
+    param_set("stb-truetype",     0);
+} else {
+    param_set("freetype2",        0);
+    param_set("stb-truetype",     0);
+}
+
+if($target eq "Linux") {
+    param_set("x11", 1);
+    if(!param_get("tiny")){
+        param_set("wayland", 1);
+    }
+}
+
 foreach my $l (@ARGV) {
     if ($l =~ /^--with-([^=]+)=(.+)$/) {
         param_set($1, $2);
@@ -132,21 +147,6 @@ foreach my $l (@ARGV) {
             print("  $flag" . (" " x (32 - length($flag))) . "${do}${feat}\n");
         }
         exit(0);
-    }
-}
-
-if($target ne "Darwin" and $target ne "ClassicMacOS" and $target ne "Windows") {
-    param_set("freetype2",        1);
-    param_set("stb-truetype",     0);
-} else {
-    param_set("freetype2",        0);
-    param_set("stb-truetype",     0);
-}
-
-if($target eq "Linux") {
-    param_set("x11", 1);
-    if(!param_get("tiny")){
-        param_set("wayland", 1);
     }
 }
 
