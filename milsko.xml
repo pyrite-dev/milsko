@@ -554,11 +554,6 @@
 						<integer name="child" />
 					</arguments>
 				</function>
-				<function name="MwMessageBoxDestroy">
-					<arguments>
-						<widget name="handle" type="Window" />
-					</arguments>
-				</function>
 			</functions>
 		</header>
 	

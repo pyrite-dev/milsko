@@ -91,6 +91,7 @@ struct _MwWidget {
 	void* internal;
 	void* opaque;
 	void (*draw_inject)(MwWidget handle);
+	void (*destroy_inject)(MwWidget handle);
 
 	MwIntegerKeyValue*     integer;
 	MwTextKeyValue*	       text;

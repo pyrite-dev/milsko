@@ -18,6 +18,18 @@ static void spawn_button(MwWidget handle, int x, int y, int id, const char* text
 	handle->opaque = mb;
 }
 
+static void messagebox_destroy_inject(MwWidget handle) {
+	void* px;
+
+	if((px = MwGetVoid(handle, MwNpixmap)) != NULL) MwLLDestroyPixmap(px);
+}
+
+static void messagebox_close(MwWidget handle, void* user, void* call) {
+	(void)user;
+	(void)call;
+	MwDestroyWidget(handle);
+}
+
 MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsigned int flag) {
 	MwWidget    window;
 	int	    w, h;
@@ -106,6 +118,9 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	MwLLMakePopup(window->lowlevel, handle == NULL ? NULL : handle->lowlevel);
 	MwLLEndStateChange(window->lowlevel);
 
+	MwAddUserHandler(window, MwNcloseHandler, messagebox_close, NULL);
+	window->destroy_inject = messagebox_destroy_inject;
+
 	return window;
 }
 
@@ -113,11 +128,4 @@ MwWidget MwMessageBoxGetChild(MwWidget handle, int child) {
 	msgbox_t* mb = handle->opaque;
 
 	return hmget(mb, child);
-}
-
-void MwMessageBoxDestroy(MwWidget handle) {
-	void* px;
-
-	if((px = MwGetVoid(handle, MwNpixmap)) != NULL) MwLLDestroyPixmap(px);
-	MwDestroyWidget(handle);
 }

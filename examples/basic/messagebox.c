@@ -3,7 +3,7 @@
 void ok(MwWidget handle, void* user, void* call) {
 	(void)handle;
 	(void)call;
-	MwMessageBoxDestroy(user);
+	MwDestroyWidget(user);
 }
 
 void spawn(MwWidget handle, void* user, void* call) {

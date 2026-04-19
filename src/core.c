@@ -200,6 +200,7 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	h->destroy_queue = NULL;
 	h->prop_event	 = 1;
 	h->draw_inject	 = NULL;
+	h->destroy_inject = NULL;
 	h->tick_list	 = NULL;
 	h->destroyed	 = 0;
 	h->bgcolor	 = NULL;
@@ -317,6 +318,7 @@ static void MwFreeWidget(MwWidget handle) {
 
 	handle->destroyed = 0;
 	MwDispatch(handle, destroy);
+	if(handle->destroy_inject != NULL) handle->destroy_inject(handle);
 
 	for(i = 0; i < arrlen(handle->children); i++) {
 		MwFreeWidget(handle->children[i]);
