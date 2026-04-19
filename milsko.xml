@@ -494,6 +494,14 @@
     						<integer enumname="MwClipboardType" name="clipboard_type" />
     					</arguments>
 				</function>
+				<function name="MwGetClass">
+					<return>
+						<class />
+					</return>
+    					<arguments>
+    						<widget name="handle" />
+    					</arguments>
+				</function>
 			</functions>
 		</header>
 		<header name="Dialog/FileChooser">
