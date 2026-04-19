@@ -756,6 +756,13 @@
 					<arguments>
 						<pointer name="menu" />
 						<struct defname="MwPoint" pointer="yes" name="point" />
+						<integer name="diff_calc" />
+					</arguments>
+				</function>
+				<function name="GetSize">
+					<arguments>
+						<pointer name="menu" />
+						<struct defname="MwRect" pointer="yes" name="rect" />
 					</arguments>
 				</function>
 			</functions>

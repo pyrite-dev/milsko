@@ -8,6 +8,8 @@ static int wcreate(MwWidget handle) {
 	MwSetDefault(handle);
 	MwSetInteger(handle, MwNleftPadding, 0);
 
+	handle->internal = NULL;
+
 	return 0;
 }
 
