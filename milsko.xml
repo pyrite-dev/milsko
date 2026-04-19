@@ -205,17 +205,6 @@
 			<integer name="MwMOUSE_WHEELUP" />
 			<integer name="MwMOUSE_WHEELDOWN" />
 		</enumeration>
-		<enumeration name="MwVULKANFIELD">
-        		<integer name="MwVULKANFIELD_GETINSTANCEPROCADDR">0</integer>
-		        <integer name="MwVULKANFIELD_INSTANCE" />
-        		<integer name="MwVULKANFIELD_SURFACE" />
-		        <integer name="MwVULKANFIELD_PHYSICALDEVICE" />
-		        <integer name="MwVULKANFIELD_LOGICALDEVICE" />
-		        <integer name="MwVULKANFIELD_GRAPHICSQUEUEINDEX" />
-		        <integer name="MwVULKANFIELD_PRESENTQUEUEINDEX" />
-		        <integer name="MwVULKANFIELD_GRAPHICSQUEUE" />
-		        <integer name="MwVULKANFIELD_PRESENTQUEUE" />
-		</enumeration>
 		<enumeration name="MwKEY">
 			<integer name="MwKEY_BACKSPACE">0x80000001</integer>
 			<integer name="MwKEY_LEFT" />
