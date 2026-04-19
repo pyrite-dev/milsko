@@ -759,6 +759,11 @@
 				<property name="hasBorder" />
 				<property name="inverted" />
 			</properties>
+			<handlers>
+				<handler name="colorChosen" />
+				<handler name="fileChosen" />
+				<handler name="directoryChosen" />
+			</handlers>
 			<functions>
 				<function name="MakeBorderless" />
 			</functions>
