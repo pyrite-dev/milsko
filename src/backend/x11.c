@@ -815,10 +815,10 @@ static void MwLLNextEventImpl(MwLL handle) {
 			}
 
 			if(n != MwKEY_CONTROL && ev.xkey.state & ControlMask) {
-				n |= MwKEY_CONTROL_MASK;
+				n |= MwKEY_CONTROL_FLAG;
 			}
 			if(n != MwKEY_ALT && ev.xkey.state & Mod1Mask) {
-				n |= MwKEY_ALT_MASK;
+				n |= MwKEY_ALT_FLAG;
 			}
 
 			if(n != -1) {

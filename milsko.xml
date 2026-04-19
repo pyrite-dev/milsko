@@ -216,15 +216,44 @@
 		        <integer name="MwVULKANFIELD_GRAPHICSQUEUE" />
 		        <integer name="MwVULKANFIELD_PRESENTQUEUE" />
 		</enumeration>
+		<enumeration name="MwKEY">
+			<integer name="MwKEY_BACKSPACE">0x80000001</integer>
+			<integer name="MwKEY_LEFT" />
+			<integer name="MwKEY_RIGHT" />
+			<integer name="MwKEY_UP" />
+			<integer name="MwKEY_DOWN" />
+			<integer name="MwKEY_ENTER" />
+			<integer name="MwKEY_ESCAPE" />
+			<integer name="MwKEY_LEFTSHIFT" />
+			<integer name="MwKEY_RIGHTSHIFT" />
+			<integer name="MwKEY_ALT" />
+			<integer name="MwKEY_CONTROL" />
+		</enumeration>
+		<enumeration name="MwVULKANFIELD">
+        		<integer name="MwVULKANFIELD_GETINSTANCEPROCADDR">0</integer>
+		        <integer name="MwVULKANFIELD_INSTANCE" />
+        		<integer name="MwVULKANFIELD_SURFACE" />
+		        <integer name="MwVULKANFIELD_PHYSICALDEVICE" />
+		        <integer name="MwVULKANFIELD_LOGICALDEVICE" />
+		        <integer name="MwVULKANFIELD_GRAPHICSQUEUEINDEX" />
+		        <integer name="MwVULKANFIELD_PRESENTQUEUEINDEX" />
+		        <integer name="MwVULKANFIELD_GRAPHICSQUEUE" />
+		        <integer name="MwVULKANFIELD_PRESENTQUEUE" />
+		</enumeration>
 	</enumerations>
 	<constants>
 		<integer name="MwDEFAULT">0x0fffffff</integer>
+
 		<integer name="MwMB_ICONMASK">0xf</integer>
 		<integer name="MwMB_BUTTONMASK">0xf0</integer>
 		<integer name="MwMB_BUTTONOK">0x10</integer>
 		<integer name="MwMB_BUTTONCANCEL">0x20</integer>
 		<integer name="MwMB_BUTTONYES">0x40</integer>
 		<integer name="MwMB_BUTTONNO">0x80</integer>
+
+		<integer name="MwKEY_FLAG">0x80000000</integer>
+		<integer name="MwKEY_CONTROL_FLAG">0xc0000000</integer>
+		<integer name="MwKEY_ALT_FLAG">0xa0000000</integer>
 	</constants>
 	<headers>
 		<header name="Dialog/ColorPicker">

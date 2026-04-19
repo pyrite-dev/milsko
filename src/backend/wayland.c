@@ -807,10 +807,10 @@ static void keyboard_key(void*		     data,
 			}
 
 			if((self->wayland.mod_state & 4) == 4) {
-				key |= MwKEY_CONTROL_MASK;
+				key |= MwKEY_CONTROL_FLAG;
 			}
 			if((self->wayland.mod_state & 8) == 8) {
-				key |= MwKEY_ALT_MASK;
+				key |= MwKEY_ALT_FLAG;
 			}
 
 			if(key != -1) {

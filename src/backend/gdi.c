@@ -166,13 +166,13 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		const int base = 'A' - 1;
 
 		if(n != 0x1b && n <= 0x1f) {
-			n = (n + base) | MwKEY_CONTROL_MASK;
+			n = (n + base) | MwKEY_CONTROL_FLAG;
 			if(!(GetKeyState(VK_LSHIFT) || GetKeyState(VK_RSHIFT))) n += 0x20;
 		}
-		if(HIBYTE(VkKeyScan(wp)) & 2) n |= MwKEY_CONTROL_MASK;
-		if(msg == WM_SYSCHAR) n |= MwKEY_ALT_MASK;
+		if(HIBYTE(VkKeyScan(wp)) & 2) n |= MwKEY_CONTROL_FLAG;
+		if(msg == WM_SYSCHAR) n |= MwKEY_ALT_FLAG;
 
-		if((0x20 <= n && n <= 0x7f) || (n & MwKEY_MASK)) MwLLDispatch(u->ll, key, &n);
+		if((0x20 <= n && n <= 0x7f) || (n & MwKEY_FLAG)) MwLLDispatch(u->ll, key, &n);
 	} else if(msg == WM_SETFOCUS) {
 		MwLLDispatch(u->ll, focus_in, NULL);
 	} else if(msg == WM_KILLFOCUS) {
@@ -193,7 +193,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		if(wp == VK_CONTROL) n = MwKEY_CONTROL;
 
 		if((msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP) && n != -1 && wp != VK_MENU) {
-			n |= MwKEY_ALT_MASK;
+			n |= MwKEY_ALT_FLAG;
 		}
 		if(n != -1) {
 			if(msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN) {
