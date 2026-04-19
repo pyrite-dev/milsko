@@ -18,12 +18,6 @@ static void spawn_button(MwWidget handle, int x, int y, int id, const char* text
 	handle->opaque = mb;
 }
 
-static void messagebox_close(MwWidget handle, void* user, void* call) {
-	(void)user;
-	(void)call;
-	MwMessageBoxDestroy(handle);
-}
-
 MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsigned int flag) {
 	MwWidget    window;
 	int	    w, h;
@@ -111,8 +105,6 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	MwLLBeginStateChange(window->lowlevel);
 	MwLLMakePopup(window->lowlevel, handle == NULL ? NULL : handle->lowlevel);
 	MwLLEndStateChange(window->lowlevel);
-
-	MwAddUserHandler(window, MwNcloseHandler, messagebox_close, NULL);
 
 	return window;
 }

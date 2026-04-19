@@ -13,6 +13,7 @@ void spawn(MwWidget handle, void* user, void* call) {
 	(void)call;
 
 	MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, ok, mb);
+	MwAddUserHandler(mb, MwNcloseHandler, ok, mb);
 }
 
 void spawn2(MwWidget handle, void* user, void* call) {
@@ -22,6 +23,7 @@ void spawn2(MwWidget handle, void* user, void* call) {
 	(void)call;
 
 	MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, ok, mb);
+	MwAddUserHandler(mb, MwNcloseHandler, ok, mb);
 }
 
 void spawn3(MwWidget handle, void* user, void* call) {
@@ -33,6 +35,7 @@ void spawn3(MwWidget handle, void* user, void* call) {
 	for(i = 0; i <= MwMB_ICONCLOCK; i++) {
 		MwWidget mb = MwMessageBox(user, "messagebox test", "title", i | MwMB_BUTTONOK);
 		MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, ok, mb);
+		MwAddUserHandler(mb, MwNcloseHandler, ok, mb);
 	}
 }
 

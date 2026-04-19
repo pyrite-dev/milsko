@@ -782,6 +782,7 @@
 				<handler name="colorChosen" />
 				<handler name="fileChosen" />
 				<handler name="directoryChosen" />
+				<handler name="close" />
 			</handlers>
 			<functions>
 				<function name="MakeBorderless" />
