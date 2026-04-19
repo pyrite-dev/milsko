@@ -664,7 +664,7 @@
 				<handler name="listBoxActivate" />
 			</handlers>
 			<functions>
-				<function name="Insert">
+				<function name="Set">
 					<arguments>
 						<integer name="row" />
 						<integer name="col" />

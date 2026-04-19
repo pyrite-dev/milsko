@@ -17,6 +17,7 @@ sky_sphere {
 	}
 }
 
+union {
 object {
 	Cube
 	translate <-1, 0, 1>
@@ -55,6 +56,9 @@ object {
 	pigment {
 		color Red
 	}
+}
+
+rotate <0, clock * 360, 0>
 }
 
 plane {
