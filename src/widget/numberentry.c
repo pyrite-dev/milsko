@@ -75,7 +75,7 @@ static void key(MwWidget handle, int code) {
 		ok = 1;
 	} else if(code == '.' && strchr(str, (int)'.') == NULL) {
 		ok = 1;
-	} else if(code == MwLLKeyBackSpace || code == MwLLKeyLeft || code == MwLLKeyRight) {
+	} else if(code == MwKEY_BACKSPACE || code == MwKEY_LEFT || code == MwKEY_RIGHT) {
 		ok = 1;
 	}
 

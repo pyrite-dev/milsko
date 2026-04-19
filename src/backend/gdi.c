@@ -166,13 +166,13 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		const int base = 'A' - 1;
 
 		if(n != 0x1b && n <= 0x1f) {
-			n = (n + base) | MwLLControlMask;
+			n = (n + base) | MwKEY_CONTROL_MASK;
 			if(!(GetKeyState(VK_LSHIFT) || GetKeyState(VK_RSHIFT))) n += 0x20;
 		}
-		if(HIBYTE(VkKeyScan(wp)) & 2) n |= MwLLControlMask;
-		if(msg == WM_SYSCHAR) n |= MwLLAltMask;
+		if(HIBYTE(VkKeyScan(wp)) & 2) n |= MwKEY_CONTROL_MASK;
+		if(msg == WM_SYSCHAR) n |= MwKEY_ALT_MASK;
 
-		if((0x20 <= n && n <= 0x7f) || (n & MwLLKeyMask)) MwLLDispatch(u->ll, key, &n);
+		if((0x20 <= n && n <= 0x7f) || (n & MwKEY_MASK)) MwLLDispatch(u->ll, key, &n);
 	} else if(msg == WM_SETFOCUS) {
 		MwLLDispatch(u->ll, focus_in, NULL);
 	} else if(msg == WM_KILLFOCUS) {
@@ -180,20 +180,20 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	} else if(msg == WM_KEYDOWN || msg == WM_KEYUP || msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP) {
 		int n = -1;
 		if(wp == VK_MENU && msg == WM_KEYUP) return 0;
-		if(wp == VK_LEFT) n = MwLLKeyLeft;
-		if(wp == VK_RIGHT) n = MwLLKeyRight;
-		if(wp == VK_UP) n = MwLLKeyUp;
-		if(wp == VK_DOWN) n = MwLLKeyDown;
-		if(wp == VK_RETURN) n = MwLLKeyEnter;
-		if(wp == VK_BACK) n = MwLLKeyBackSpace;
-		if(wp == VK_ESCAPE) n = MwLLKeyEscape;
-		if(wp == VK_LSHIFT) n = MwLLKeyLeftShift;
-		if(wp == VK_RSHIFT) n = MwLLKeyRightShift;
-		if(wp == VK_MENU) n = MwLLKeyAlt;
-		if(wp == VK_CONTROL) n = MwLLKeyControl;
+		if(wp == VK_LEFT) n = MwKEY_LEFT;
+		if(wp == VK_RIGHT) n = MwKEY_RIGHT;
+		if(wp == VK_UP) n = MwKEY_UP;
+		if(wp == VK_DOWN) n = MwKEY_DOWN;
+		if(wp == VK_RETURN) n = MwKEY_ENTER;
+		if(wp == VK_BACK) n = MwKEY_BACKSPACE;
+		if(wp == VK_ESCAPE) n = MwKEY_ESCAPE;
+		if(wp == VK_LSHIFT) n = MwKEY_LEFTSHIFT;
+		if(wp == VK_RSHIFT) n = MwKEY_RIGHTSHIFT;
+		if(wp == VK_MENU) n = MwKEY_ALT;
+		if(wp == VK_CONTROL) n = MwKEY_CONTROL;
 
 		if((msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP) && n != -1 && wp != VK_MENU) {
-			n |= MwLLAltMask;
+			n |= MwKEY_ALT_MASK;
 		}
 		if(n != -1) {
 			if(msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN) {

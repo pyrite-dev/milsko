@@ -231,13 +231,13 @@ static void init(void) {
 static void key(int k) {
 	(void)k;
 
-	if(k == MwLLKeyLeft) {
+	if(k == MwKEY_LEFT) {
 		view_roty += 5.0;
-	} else if(k == MwLLKeyRight) {
+	} else if(k == MwKEY_RIGHT) {
 		view_roty -= 5.0;
-	} else if(k == MwLLKeyUp) {
+	} else if(k == MwKEY_UP) {
 		view_rotx += 5.0;
-	} else if(k == MwLLKeyDown) {
+	} else if(k == MwKEY_DOWN) {
 		view_rotx -= 5.0;
 	}
 }

@@ -177,24 +177,6 @@ union _MwLLPixmap {
 #define MwLLDispatch(x, y, z) \
 	if(x->common.handler != NULL && x->common.handler->y != NULL) x->common.handler->y(x, z)
 
-#define MwLLKeyMask (1 << 31)
-enum MwLLKeyEnum {
-	MwLLKeyBackSpace = MwLLKeyMask | 1,
-	MwLLKeyLeft,
-	MwLLKeyRight,
-	MwLLKeyUp,
-	MwLLKeyDown,
-	MwLLKeyEnter,
-	MwLLKeyEscape,
-	MwLLKeyLeftShift,
-	MwLLKeyRightShift,
-	MwLLKeyAlt,
-	MwLLKeyControl
-};
-
-#define MwLLControlMask MwLLKeyMask | (1 << 30)
-#define MwLLAltMask MwLLKeyMask | (1 << 29)
-
 struct _MwLLHandler {
 	void (*draw)(MwLL handle, void* data);
 	void (*up)(MwLL handle, void* data);

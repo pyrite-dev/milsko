@@ -766,39 +766,39 @@ static void keyboard_key(void*		     data,
 
 			switch(sym) {
 			case XKB_KEY_BackSpace:
-				key = MwLLKeyBackSpace;
+				key = MwKEY_BACKSPACE;
 				break;
 			case XKB_KEY_Left:
-				key = MwLLKeyLeft;
+				key = MwKEY_LEFT;
 				break;
 			case XKB_KEY_Right:
-				key = MwLLKeyRight;
+				key = MwKEY_RIGHT;
 				break;
 			case XKB_KEY_Up:
-				key = MwLLKeyUp;
+				key = MwKEY_UP;
 				break;
 			case XKB_KEY_Down:
-				key = MwLLKeyDown;
+				key = MwKEY_DOWN;
 				break;
 			case XKB_KEY_Return:
-				key = MwLLKeyEnter;
+				key = MwKEY_ENTER;
 				break;
 			case XKB_KEY_Escape:
-				key = MwLLKeyEscape;
+				key = MwKEY_ESCAPE;
 				break;
 			case XKB_KEY_Shift_L:
-				key = MwLLKeyLeftShift;
+				key = MwKEY_LEFTSHIFT;
 				break;
 			case XKB_KEY_Shift_R:
-				key = MwLLKeyRightShift;
+				key = MwKEY_RIGHTSHIFT;
 				break;
 			case XKB_KEY_Alt_L:
 			case XKB_KEY_Alt_R:
-				key = MwLLKeyAlt;
+				key = MwKEY_ALT;
 				break;
 			case XKB_KEY_Control_L:
 			case XKB_KEY_Control_R:
-				key = MwLLKeyControl;
+				key = MwKEY_CONTROL;
 				break;
 			default:
 				if(MwStringIsKeyUTF8(sym)) {
@@ -807,10 +807,10 @@ static void keyboard_key(void*		     data,
 			}
 
 			if((self->wayland.mod_state & 4) == 4) {
-				key |= MwLLControlMask;
+				key |= MwKEY_CONTROL_MASK;
 			}
 			if((self->wayland.mod_state & 8) == 8) {
-				key |= MwLLAltMask;
+				key |= MwKEY_ALT_MASK;
 			}
 
 			if(key != -1) {

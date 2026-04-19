@@ -791,34 +791,34 @@ static void MwLLNextEventImpl(MwLL handle) {
 			}
 
 			if(strcmp(str, "BackSpace") == 0) {
-				n = MwLLKeyBackSpace;
+				n = MwKEY_BACKSPACE;
 			} else if(strcmp(str, "Left") == 0) {
-				n = MwLLKeyLeft;
+				n = MwKEY_LEFT;
 			} else if(strcmp(str, "Right") == 0) {
-				n = MwLLKeyRight;
+				n = MwKEY_RIGHT;
 			} else if(strcmp(str, "Up") == 0) {
-				n = MwLLKeyUp;
+				n = MwKEY_UP;
 			} else if(strcmp(str, "Down") == 0) {
-				n = MwLLKeyDown;
+				n = MwKEY_DOWN;
 			} else if(strcmp(str, "Return") == 0) {
-				n = MwLLKeyEnter;
+				n = MwKEY_ENTER;
 			} else if(strcmp(str, "Escape") == 0) {
-				n = MwLLKeyEscape;
+				n = MwKEY_ESCAPE;
 			} else if(strcmp(str, "Shift_L") == 0) {
-				n = MwLLKeyLeftShift;
+				n = MwKEY_LEFTSHIFT;
 			} else if(strcmp(str, "Shift_R") == 0) {
-				n = MwLLKeyRightShift;
+				n = MwKEY_RIGHTSHIFT;
 			} else if(strcmp(str, "Alt_L") == 0 || strcmp(str, "Alt_R") == 0) {
-				n = MwLLKeyAlt;
+				n = MwKEY_ALT;
 			} else if(strcmp(str, "Control_R") == 0 || strcmp(str, "Control_R") == 0) {
-				n = MwLLKeyControl;
+				n = MwKEY_CONTROL;
 			}
 
-			if(n != MwLLKeyControl && ev.xkey.state & ControlMask) {
-				n |= MwLLControlMask;
+			if(n != MwKEY_CONTROL && ev.xkey.state & ControlMask) {
+				n |= MwKEY_CONTROL_MASK;
 			}
-			if(n != MwLLKeyAlt && ev.xkey.state & Mod1Mask) {
-				n |= MwLLAltMask;
+			if(n != MwKEY_ALT && ev.xkey.state & Mod1Mask) {
+				n |= MwKEY_ALT_MASK;
 			}
 
 			if(n != -1) {

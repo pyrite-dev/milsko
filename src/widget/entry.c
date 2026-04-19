@@ -92,7 +92,7 @@ static void key(MwWidget handle, int code) {
 	char*	    out;
 	if(str == NULL) str = "";
 
-	if(code == MwLLKeyBackSpace) {
+	if(code == MwKEY_BACKSPACE) {
 		if(t->cursor == 0) return;
 		out = malloc(strlen(str) + 1);
 
@@ -105,17 +105,17 @@ static void key(MwWidget handle, int code) {
 		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
 
 		free(out);
-	} else if(code == MwLLKeyLeft) {
+	} else if(code == MwKEY_LEFT) {
 		if(t->cursor == 0) return;
 		t->cursor--;
-	} else if(code == MwLLKeyRight) {
+	} else if(code == MwKEY_RIGHT) {
 		if(t->cursor == MwUTF8Length(str)) return;
 		t->cursor++;
-	} else if(code == MwLLKeyEnter) {
+	} else if(code == MwKEY_ENTER) {
 		MwDispatchUserHandler(handle, MwNactivateHandler, NULL);
-	} else if(code == (MwLLControlMask | 'v')) {
+	} else if(code == (MwKEY_CONTROL_MASK | 'v')) {
 		MwLLGetClipboard(handle->lowlevel, MwCLIPBOARD_MAIN);
-	} else if(!(code & MwLLKeyMask)) {
+	} else if(!(code & MwKEY_MASK)) {
 		int incr = 0;
 		out	 = malloc(strlen(str) + 5 + 1);
 		incr += MwUTF8Copy(str, 0, out, 0, t->cursor);
