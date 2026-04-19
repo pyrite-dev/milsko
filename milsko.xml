@@ -230,6 +230,7 @@
 		        <integer name="MwVULKANFIELD_PRESENTQUEUE" />
 		</enumeration>
 	</enumerations>
+	<!-- You can assume all constants are unsigned -->
 	<constants>
 		<integer name="MwDEFAULT">0x0fffffff</integer>
 
