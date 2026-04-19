@@ -78,7 +78,7 @@ if($target ne "Darwin" and $target ne "ClassicMacOS" and $target ne "Windows") {
     param_set("stb-truetype",     0);
 } else {
     param_set("freetype2",        0);
-    param_set("stb-truetype",     0);
+    param_set("stb-truetype",     1);
 }
 
 if($target eq "Linux") {
