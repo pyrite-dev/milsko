@@ -665,6 +665,9 @@
 			</handlers>
 			<functions>
 				<function name="Set">
+					<return>
+						<integer />
+					</return>
 					<arguments>
 						<integer name="row" />
 						<integer name="col" />
