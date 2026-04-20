@@ -583,16 +583,6 @@
 						<struct defname="MwVulkanConfig" name="cfg" pointer="yes" />
 					</arguments>
 				</function>
-				<function name="MwVulkanEnableExtension">
-					<arguments>
-						<string name="ext_name" />
-					</arguments>
-				</function>
-				<function name="MwVulkanEnableLayer">
-					<arguments>
-						<string name="ext_name" />
-					</arguments>
-				</function>
 			</functions>
 		</header>
 	</headers>
