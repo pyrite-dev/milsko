@@ -340,8 +340,8 @@ static void MwFreeWidget(MwWidget handle) {
 	}
 
 	handle->destroyed = 0;
-	MwDispatch(handle, destroy);
 	if(handle->destroy_inject != NULL) handle->destroy_inject(handle);
+	MwDispatch(handle, destroy);
 
 	for(i = 0; i < arrlen(handle->children); i++) {
 		MwFreeWidget(handle->children[i]);
@@ -392,6 +392,8 @@ static void destroy_children(MwWidget handle) {
 }
 
 void MwDestroyWidget(MwWidget handle) {
+	if(handle->destroyed) return;
+
 	if(handle->parent != NULL) {
 		int i;
 		for(i = 0; i < arrlen(handle->parent->destroy_queue); i++) {
@@ -457,7 +459,6 @@ static void MwAfterStep(MwWidget handle) {
 int MwStep(MwWidget handle) {
 	int	  i;
 	MwWidget* widgets = NULL;
-	if(setjmp(handle->before_step)) return 0;
 	for(i = 0; i < arrlen(handle->children); i++) {
 		arrput(widgets, handle->children[i]);
 	}
@@ -857,10 +858,6 @@ void MwDispatchError(int code, const char* message) {
 #endif
 		exit(1);
 	}
-}
-
-void MwGetBeforeStep(MwWidget handle, jmp_buf* jmpbuf) {
-	memcpy(jmpbuf, &handle->before_step, sizeof(*jmpbuf));
 }
 
 void MwForceRender(MwWidget handle) {

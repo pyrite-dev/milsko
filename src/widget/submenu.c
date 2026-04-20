@@ -102,7 +102,6 @@ static void draw(MwWidget handle) {
 
 static void click(MwWidget handle) {
 	MwWidget w = handle;
-	jmp_buf	 jmp;
 	MwMenu	 menu = handle->internal;
 
 	if(arrlen(menu->sub) > 0) {
@@ -152,7 +151,6 @@ static void click(MwWidget handle) {
 					MwForceRender(handle);
 				} else if(strcmp(menu->sub[i]->name, "----") != 0 && arrlen(menu->sub[i]->sub) == 0) {
 					while(w->parent->widget_class == MwSubMenuClass) w = w->parent;
-					MwGetBeforeStep(w, &jmp);
 
 					MwDestroyWidget(w);
 					((MwMenu)w->internal)->wsub = NULL;

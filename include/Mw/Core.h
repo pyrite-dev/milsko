@@ -247,13 +247,6 @@ MWDECL void MwSetErrorHandler(MwErrorHandler handler, void* user_data);
 MWDECL void MwDispatchError(int code, const char* message);
 
 /*!
- * @brief Gets the before_step of widget
- * @param handle Widget
- * @param jmpbuf jmp_buf
- */
-MWDECL void MwGetBeforeStep(MwWidget handle, jmp_buf* jmpbuf);
-
-/*!
  * @brief Forcefully makes widget render
  * @param handle Widget
  */

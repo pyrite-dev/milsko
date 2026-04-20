@@ -9,7 +9,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <setjmp.h>
 #include <sys/types.h>
 #include <assert.h>
 #include <math.h>

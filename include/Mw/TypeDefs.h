@@ -35,6 +35,7 @@ typedef void* MwWidget;
 #endif
 typedef void (*MwHandler)(MwWidget handle);
 typedef int (*MwHandlerWithStatus)(MwWidget handle);
+typedef void (*MwHandlerProps)(MwWidget handle, const char** key);
 typedef void (*MwHandlerProp)(MwWidget handle, const char* key);
 typedef void (*MwHandlerChildrenProp)(MwWidget handle, MwWidget child, const char* key);
 typedef void (*MwHandlerKey)(MwWidget handle, int key);
@@ -85,7 +86,6 @@ struct _MwWidget {
 	int	pressed;
 	MwPoint mouse_point;
 	int	close;
-	jmp_buf before_step;
 	int	prop_event;
 
 	void* internal;
@@ -228,10 +228,10 @@ struct _MwClass {
 	MwHandler		   children_update;
 	MwHandlerChildrenProp	   children_prop_change;
 	MwHandlerClipboardReceived clipboard;
+	MwHandlerProps		   props_change;
 	void*			   reserved1;
 	void*			   reserved2;
 	void*			   reserved3;
-	void*			   reserved4;
 };
 
 #endif

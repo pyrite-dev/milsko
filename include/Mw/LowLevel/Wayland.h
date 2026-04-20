@@ -434,7 +434,7 @@ struct _MwLLWayland {
 	}* wl_protocol_map;
 
 	MwBool has_decorations;
-	char   title[255];
+	char   title[256];
 
 	struct xkb_context* xkb_context;
 	struct xkb_keymap*  xkb_keymap;
