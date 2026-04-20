@@ -110,6 +110,7 @@
 		<!-- Early string properties -->
 		<string name="vulkanExtension" early="yes" />
 		<string name="vulkanLayer" early="yes" />
+		<!-- Early void properties -->
 		<struct
             defname="MwVulkanConfig"
             early="yes"
