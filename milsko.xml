@@ -110,13 +110,6 @@
 		<!-- Early string properties -->
 		<string name="vulkanExtension" early="yes" />
 		<string name="vulkanLayer" early="yes" />
-		<!-- Early void properties -->
-		<struct
-            defname="MwVulkanConfig"
-            early="yes"
-            pointer="yes"
-            name="vulkanConfig"
-        />
 
 		<pixmap name="pixmap" />
 		<pixmap name="iconPixmap" />
@@ -126,6 +119,14 @@
 		<pixmap name="backgroundPixmap" common="yes" />
 		<pointer name="monospaceFont" />
 		<pointer name="boldMonospaceFont" />
+
+		<!-- Early void properties -->
+		<struct
+            defname="MwVulkanConfig"
+            early="yes"
+            pointer="yes"
+            name="vulkanConfig"
+        />
 	</properties>
 	<handlers>
 		<handler name="activate" />
@@ -577,10 +578,6 @@
 					</arguments>
 				</function>
 			</functions>
-		</header>
-
-		<!-- They are not alphabetically sorted for reasons -->
-		<header name="Widget/Vulkan">
 		</header>
 	</headers>
 
