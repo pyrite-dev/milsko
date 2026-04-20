@@ -408,6 +408,8 @@ struct _MwLLWayland {
 	enum _MwLLWaylandType type;
 	enum _MwLLWaylandType type_to_be;
 
+	MwRect clipping_rect;
+
 	MwBool	detatching;
 	MwPoint detach_point;
 

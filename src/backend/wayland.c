@@ -1349,14 +1349,14 @@ static void region_invalidate(MwLL handle) {
 }
 static void region_setup(MwLL handle) {
 	MwLL parent = handle->wayland.parent;
-	int  width  = handle->wayland.ww;
-	int  height = handle->wayland.wh;
+	int  width  = (handle->wayland.clipping_rect.width == 0) ? handle->wayland.ww : handle->wayland.clipping_rect.width;
+	int  height = (handle->wayland.clipping_rect.height == 0) ? handle->wayland.wh : handle->wayland.clipping_rect.height;
 
 	if(!handle->wayland.configured) {
 		return;
 	}
 
-	wl_region_add(handle->wayland.o_region, 0, 0, width, height);
+	// wl_region_add(handle->wayland.o_region, 0, 0, width, height);
 
 	if(handle->wayland.type == MWLL_WAYLAND_POPUP) {
 		wl_region_add(handle->wayland.region, 0, 0, width + abs(handle->wayland.x), height + abs(handle->wayland.y));
@@ -1716,10 +1716,49 @@ static void destroy_popup(MwLL r) {
 }
 
 static void clip(MwLL handle) {
-	MwLL parent = handle->wayland.parent;
-	if(parent && handle->wayland.type == MWLL_WAYLAND_SUBLEVEL) {
+	int   i;
+	int   w, h, x, y, cx, cy;
+	MwLL  toplevel = handle->wayland.parent;
+	MwLL* ws       = NULL;
+
+	arrpush(ws, handle);
+	while(toplevel) {
+		arrpush(ws, toplevel);
+		if(!toplevel->wayland.parent) {
+			break;
+		}
+		toplevel = toplevel->wayland.parent;
+	}
+	if(toplevel) {
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+		w  = toplevel->wayland.ww;
+		h  = toplevel->wayland.wh;
+		x  = 0;
+		y  = 0;
+		cx = 0;
+		cy = 0;
+		// # ws is traversed result
+		// # ws[ws.length - 1] is ignored bc it's toplevel
+		for(i = arrlen(ws) - 2; i >= 0; i--) {
+			;
+			x += ws[i]->wayland.x;
+			y += ws[i]->wayland.y;
+			cx = cx - ws[i]->wayland.x;
+			cy = cy - ws[i]->wayland.y;
+			w  = MIN(x + ws[i]->wayland.ww, w);
+			h  = MIN(y + ws[i]->wayland.wh, h);
+		}
+		cx = MAX(cx, 0);
+		cy = MAX(cy, 0);
+
+		handle->wayland.clipping_rect.x	     = cx;
+		handle->wayland.clipping_rect.y	     = cy;
+		handle->wayland.clipping_rect.width  = w;
+		handle->wayland.clipping_rect.height = h;
+		region_setup(handle);
 		cairo_reset_clip(handle->wayland.front_cairo);
-		cairo_rectangle(handle->wayland.front_cairo, 0, 0, (parent->wayland.ww + handle->wayland.x), (parent->wayland.wh + handle->wayland.y));
+		cairo_rectangle(handle->wayland.front_cairo, cx, cy, w, h);
 		cairo_clip(handle->wayland.front_cairo);
 	}
 }
