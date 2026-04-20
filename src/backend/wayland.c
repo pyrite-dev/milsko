@@ -1746,14 +1746,12 @@ static void clip(MwLL handle) {
 		for(i = arrlen(ws) - 2; i >= 0; i--) {
 			x += ws[i]->wayland.x;
 			y += ws[i]->wayland.y;
-			w  = MIN(ws[i]->wayland.ww - ws[i]->wayland.x, w);
-			h  = MIN(ws[i]->wayland.wh - ws[i]->wayland.y, h);
+			w  = MIN(ws[i]->wayland.ww - MAX(-x, 0), w);
+			h  = MIN(ws[i]->wayland.wh - MAX(-y, 0), h);
 		}
-		cx = -x;
-		cy = -y;
 
-		cx = MAX(cx, 0); 
-		cy = MAX(cy, 0);
+		cx = MAX(-x, 0);
+		cy = MAX(-y, 0);
 
 		arrfree(ws);
 
