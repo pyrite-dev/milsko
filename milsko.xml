@@ -574,6 +574,11 @@
 
 		<!-- They are not alphabetically sorted for reasons -->
 		<header name="Widget/Vulkan">
+    		<struct name="MwVulkanConfig">
+   			    <integer name="api_version" />
+         	    <integer name="vk_version" />
+    			<integer name="validation_layers" />
+    		</struct>
 		</header>
 	</headers>
 
