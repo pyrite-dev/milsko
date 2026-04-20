@@ -431,6 +431,8 @@ static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 				   o->egl_context)) {
 			printf("ERROR: eglMakeCurrent, %0X\n", eglGetError());
 		}
+
+		MwLLForceRender(handle->lowlevel);
 	}
 #endif
 }

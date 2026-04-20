@@ -1720,6 +1720,7 @@ static void clip(MwLL handle) {
 	int   w, h, x, y, cx, cy;
 	MwLL  toplevel = handle->wayland.parent;
 	MwLL* ws       = NULL;
+	return;
 
 	arrput(ws, handle);
 	while(toplevel) {
@@ -1868,7 +1869,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	}
 #endif
 
-	if(parent != NULL){
+	if(parent != NULL) {
 		arrput(parent->wayland.children, r);
 	}
 
@@ -1949,9 +1950,9 @@ static void MwLLDestroyImpl(MwLL handle) {
 
 	wl_flush(handle);
 
-	if(handle->wayland.parent != NULL){
-		for(i = 0; i < arrlen(handle->wayland.parent->wayland.children); i++){
-			if(handle->wayland.parent->wayland.children[i] == handle){
+	if(handle->wayland.parent != NULL) {
+		for(i = 0; i < arrlen(handle->wayland.parent->wayland.children); i++) {
+			if(handle->wayland.parent->wayland.children[i] == handle) {
 				arrdel(handle->wayland.parent->wayland.children, i);
 				break;
 			}
@@ -1974,7 +1975,7 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 	*h = handle->wayland.wh;
 }
 
-static void recursive_render(MwLL handle){
+static void recursive_render(MwLL handle) {
 	int i;
 
 	for(i = 0; i < arrlen(handle->wayland.children); i++) recursive_render(handle->wayland.children[i]);
@@ -2030,6 +2031,9 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	framebuffer_setup(&handle->wayland);
 	backbuffer_destroy(&handle->wayland);
 	backbuffer_setup(&handle->wayland);
+
+	recursive_render(handle);
+
 	MwLLDispatch(handle, draw, NULL);
 	handle->wayland.events_pending = 1;
 }
