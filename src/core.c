@@ -302,7 +302,8 @@ MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget p
 	MwWidget h;
 
 	h = MwCreateWidget_Internal(widget_class, name, parent, x, y, width, height, 1, va);
-
+    MwVaListApply(h, va);
+  
 	return h;
 }
 
