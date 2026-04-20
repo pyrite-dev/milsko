@@ -85,6 +85,9 @@ MwVulkanConfig vulkan_config = {
 		return 1; \
 	}
 
+const char** enabledExtensions;
+const char** enabledLayers;
+
 typedef enum vulkan_supported_state_t {
 	VULKAN_SUPPORTED_UNKNOWN,
 	VULKAN_SUPPORTED_YES,
