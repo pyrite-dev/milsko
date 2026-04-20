@@ -1721,9 +1721,9 @@ static void clip(MwLL handle) {
 	MwLL  toplevel = handle->wayland.parent;
 	MwLL* ws       = NULL;
 
-	arrpush(ws, handle);
+	arrput(ws, handle);
 	while(toplevel) {
-		arrpush(ws, toplevel);
+		arrput(ws, toplevel);
 		if(!toplevel->wayland.parent) {
 			break;
 		}
@@ -1741,7 +1741,6 @@ static void clip(MwLL handle) {
 		// # ws is traversed result
 		// # ws[ws.length - 1] is ignored bc it's toplevel
 		for(i = arrlen(ws) - 2; i >= 0; i--) {
-			;
 			x += ws[i]->wayland.x;
 			y += ws[i]->wayland.y;
 			cx = cx - ws[i]->wayland.x;
@@ -1752,11 +1751,14 @@ static void clip(MwLL handle) {
 		cx = MAX(cx, 0);
 		cy = MAX(cy, 0);
 
+		arrfree(ws);
+
 		handle->wayland.clipping_rect.x	     = cx;
 		handle->wayland.clipping_rect.y	     = cy;
 		handle->wayland.clipping_rect.width  = w;
 		handle->wayland.clipping_rect.height = h;
 		region_setup(handle);
+
 		cairo_reset_clip(handle->wayland.front_cairo);
 		cairo_rectangle(handle->wayland.front_cairo, cx, cy, w, h);
 		cairo_clip(handle->wayland.front_cairo);
@@ -1866,6 +1868,10 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	}
 #endif
 
+	if(parent != NULL){
+		arrput(parent->wayland.children, r);
+	}
+
 	return r;
 }
 
@@ -1943,6 +1949,17 @@ static void MwLLDestroyImpl(MwLL handle) {
 
 	wl_flush(handle);
 
+	if(handle->wayland.parent != NULL){
+		for(i = 0; i < arrlen(handle->wayland.parent->wayland.children); i++){
+			if(handle->wayland.parent->wayland.children[i] == handle){
+				arrdel(handle->wayland.parent->wayland.children, i);
+				break;
+			}
+		}
+	}
+
+	arrfree(handle->wayland.children);
+
 	// free(handle);
 
 	if(currentlyHeldWidget == handle) {
@@ -1957,6 +1974,14 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 	*h = handle->wayland.wh;
 }
 
+static void recursive_render(MwLL handle){
+	int i;
+
+	for(i = 0; i < arrlen(handle->wayland.children); i++) recursive_render(handle->wayland.children[i]);
+
+	MwLLForceRender(handle);
+}
+
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	region_invalidate(handle);
 	handle->wayland.x = x;
@@ -1965,6 +1990,8 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 		wl_subsurface_set_position(handle->wayland.sublevel->subsurface, x, y);
 	}
 	region_setup(handle);
+
+	recursive_render(handle);
 
 	MwLLDispatch(handle, draw, NULL);
 }
@@ -2008,6 +2035,13 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 }
 
 static void MwLLBeginDrawImpl(MwLL handle) {
+	cairo_save(handle->wayland.front_cairo);
+	cairo_set_source_rgba(handle->wayland.front_cairo, 0, 0, 0, 0);
+	cairo_set_operator(handle->wayland.front_cairo, CAIRO_OPERATOR_SOURCE);
+	cairo_rectangle(handle->wayland.front_cairo, 0, 0, handle->wayland.ww, handle->wayland.wh);
+	cairo_fill(handle->wayland.front_cairo);
+	cairo_restore(handle->wayland.front_cairo);
+
 	if(handle->wayland.type != MWLL_WAYLAND_TOPLEVEL) {
 		handle->wayland.selected_cairo = handle->wayland.front_cairo;
 		return;

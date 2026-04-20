@@ -118,6 +118,8 @@ typedef struct wayland_call_table {
 	void (*cairo_paint)(cairo_t* cr);
 	void (*cairo_surface_flush)(cairo_surface_t* surface);
 	void (*cairo_clip)(cairo_t* cr);
+	void (*cairo_save)(cairo_t* cr);
+	void (*cairo_restore)(cairo_t* cr);
 	void (*cairo_surface_mark_dirty)(cairo_surface_t* surface);
 	void (*cairo_stroke)(cairo_t* cr);
 	void (*cairo_set_source_surface)(cairo_t*	  cr,
@@ -224,6 +226,8 @@ MwInline int wayland_load_funcs() {
 	CAIRO_FUNC(cairo_paint);
 	CAIRO_FUNC(cairo_surface_flush);
 	CAIRO_FUNC(cairo_clip);
+	CAIRO_FUNC(cairo_save);
+	CAIRO_FUNC(cairo_restore);
 	CAIRO_FUNC(cairo_surface_mark_dirty);
 	CAIRO_FUNC(cairo_stroke);
 	CAIRO_FUNC(cairo_set_source_surface);
@@ -288,6 +292,8 @@ MwInline int wayland_load_funcs() {
 #define cairo_paint wl_call_tbl.cairo_paint
 #define cairo_surface_flush wl_call_tbl.cairo_surface_flush
 #define cairo_clip wl_call_tbl.cairo_clip
+#define cairo_save wl_call_tbl.cairo_save
+#define cairo_restore wl_call_tbl.cairo_restore
 #define cairo_surface_mark_dirty wl_call_tbl.cairo_surface_mark_dirty
 #define cairo_stroke wl_call_tbl.cairo_stroke
 #define cairo_set_source_surface wl_call_tbl.cairo_set_source_surface
@@ -499,6 +505,7 @@ struct _MwLLWayland {
 	MwU32 mw, mh; /* Monitor width and height as advertised by wl_output.mode */
 
 	MwLL parent;
+	MwLL* children;
 
 	MwBool force_render;
 	MwBool did_event_loop_early;
