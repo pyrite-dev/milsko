@@ -889,6 +889,10 @@
 			</functions>
 		</widget>
 		<widget name="Vulkan">
+			<properties>
+				<property name="vulkanExtension" />
+				<property name="vulkanLayer" />
+			</properties>
 			<functions>
 				<function name="GetField">
 					<return>
