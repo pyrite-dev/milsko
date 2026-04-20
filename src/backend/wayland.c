@@ -1162,21 +1162,24 @@ static void xdg_toplevel_configure(void*		data,
 	self->wayland.ww = width;
 	self->wayland.wh = height;
 
-	xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, 0, 0, self->wayland.ww, self->wayland.wh);
+	if(self->wayland.resizing == 0) {
+		xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, 0, 0, self->wayland.ww, self->wayland.wh);
 
-	backbuffer_destroy(&self->wayland);
-	backbuffer_setup(&self->wayland);
-	framebuffer_destroy(&self->wayland);
-	framebuffer_setup(&self->wayland);
+		backbuffer_destroy(&self->wayland);
+		backbuffer_setup(&self->wayland);
+		framebuffer_destroy(&self->wayland);
+		framebuffer_setup(&self->wayland);
 
-	region_setup(self);
-	MwLLDispatch(self, resize, NULL);
+		region_setup(self);
+		MwLLDispatch(self, resize, NULL);
 
-	recursive_dispatch_resize(self);
+		recursive_dispatch_resize(self);
 
-	if(self->wayland.pointer_constrained) {
-		zwp_locked_pointer_v1_set_cursor_position_hint(self->wayland.locked_pointer, 0, CSD_BORDER_FRAME_TOP);
-		wl_surface_commit(self->wayland.framebuffer.surface);
+		if(self->wayland.pointer_constrained) {
+			zwp_locked_pointer_v1_set_cursor_position_hint(self->wayland.locked_pointer, 0, CSD_BORDER_FRAME_TOP);
+			wl_surface_commit(self->wayland.framebuffer.surface);
+		}
+		self->wayland.resizing = 1;
 	}
 };
 
@@ -2219,6 +2222,8 @@ static int MwLLPendingImpl(MwLL handle) {
 	    .events = POLLOUT,
 	};
 	int pending = 0;
+
+	handle->wayland.resizing = 0;
 
 #ifdef USE_DBUS
 	if(wl_call_tbl.has_dbus) {

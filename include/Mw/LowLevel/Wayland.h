@@ -502,9 +502,11 @@ struct _MwLLWayland {
 	MwU32	ww, wh;	       /* Window position */
 	MwPoint cur_mouse_pos; /* Currently known mouse position */
 
+	int resizing;
+
 	MwU32 mw, mh; /* Monitor width and height as advertised by wl_output.mode */
 
-	MwLL parent;
+	MwLL  parent;
 	MwLL* children;
 
 	MwBool force_render;
