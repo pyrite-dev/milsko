@@ -1720,7 +1720,6 @@ static void clip(MwLL handle) {
 	int   w, h, x, y, cx, cy;
 	MwLL  toplevel = handle->wayland.parent;
 	MwLL* ws       = NULL;
-	return;
 
 	arrput(ws, handle);
 	while(toplevel) {
@@ -2026,14 +2025,12 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	}
 
 	region_setup(handle);
+	recursive_render(handle);
 
 	framebuffer_destroy(&handle->wayland);
 	framebuffer_setup(&handle->wayland);
 	backbuffer_destroy(&handle->wayland);
 	backbuffer_setup(&handle->wayland);
-
-	recursive_render(handle);
-
 	MwLLDispatch(handle, draw, NULL);
 	handle->wayland.events_pending = 1;
 }
