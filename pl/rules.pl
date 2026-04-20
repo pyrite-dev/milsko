@@ -83,7 +83,7 @@ if (grep(/^cocoa$/, @backends) || param_get("gnustep")) {
         new_object("src/widget/opengl_cocoa.m");
     }
 
-# tim cook my man literally everybody and their mother who knows what opengl is knows its deprecated on macos and i'm not having you spam the console with this
+# John Apple my man literally everybody and their mother who knows what opengl is knows its deprecated on macos and i'm not having you spam the console with this
     add_cflags("-DGL_SILENCE_DEPRECATION");
 
     $gl_libs = "-framework OpenGL";
