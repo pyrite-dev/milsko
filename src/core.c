@@ -209,6 +209,9 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 	h->bgcolor	  = NULL;
 	h->berserk	  = 0;
 
+    h->internal = NULL;
+    h->opaque = NULL;
+
 	h->top_step   = 0;
 	h->draw_queue = NULL;
 
