@@ -1741,17 +1741,16 @@ static void clip(MwLL handle) {
 		y  = 0;
 		cx = 0;
 		cy = 0;
-		// # ws is traversed result
-		// # ws[ws.length - 1] is ignored bc it's toplevel
+		// ws is traversed result
+		// ws[ws.length - 1] is ignored bc it's toplevel
 		for(i = arrlen(ws) - 2; i >= 0; i--) {
 			x += ws[i]->wayland.x;
 			y += ws[i]->wayland.y;
+			cx += MAX(-ws[i]->wayland.x, 0);
+			cy += MAX(-ws[i]->wayland.y, 0);
 			w  = MIN(ws[i]->wayland.ww - MAX(-x, 0), w);
 			h  = MIN(ws[i]->wayland.wh - MAX(-y, 0), h);
 		}
-
-		cx = MAX(-x, 0);
-		cy = MAX(-y, 0);
 
 		arrfree(ws);
 
