@@ -51,8 +51,9 @@
 #define MwNforeground "Sforeground"
 #define MwNsubForeground "SsubForeground"
 
-#define MwNvulkanExtension "SEvulkanExtension"
-#define MwNvulkanLayer "SEvulkanLayer"
+#define MwNvulkanExtension "SEvulkanExtension" /* char* */
+#define MwNvulkanLayer "SEvulkanLayer"	       /* char* */
+#define MwNvulkanConfig "VEvulkanConfig"       /* MwVulkanConfig */
 
 #define MwNpixmap "Vpixmap"
 #define MwNiconPixmap "ViconPixmap"

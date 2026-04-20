@@ -34,7 +34,7 @@ extern "C" {
 MWDECL MwClass MwVulkanClass;
 
 /*!
- * @brief Configuration options that can be passed to setup Vulkan before a widget is created.
+ * @brief Configuration options that can be passed to setup parts of the Vulkan widget.
  */
 typedef struct _MwVulkanConfig {
 	/*!
@@ -50,13 +50,6 @@ typedef struct _MwVulkanConfig {
 	 */
 	int validation_layers;
 } MwVulkanConfig;
-
-/*!
- * @brief Configure Vulkan prior to initializing the widget.
- * @warning This must be called before MwCreateWidget.
- * @warning The configuration provided will be used for future initializations of the Vulkan widget (unless it's changed)
- */
-MWDECL void MwVulkanConfigure(MwVulkanConfig* cfg);
 
 /*!
  * @brief Field that can be gotten from Vulkan.

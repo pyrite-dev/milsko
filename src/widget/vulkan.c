@@ -44,12 +44,6 @@
 
 #include "../../external/stb_ds.h"
 
-MwVulkanConfig vulkan_config = {
-    .api_version       = VK_API_VERSION_1_0,
-    .vk_version	       = VK_VERSION_1_0,
-    .validation_layers = VK_FALSE,
-};
-
 /* convienence macro for handling vulkan errors */
 #ifdef HAS_VK_ENUM_STRING_HELPER
 #define VK_CMD(func) \
@@ -85,9 +79,6 @@ MwVulkanConfig vulkan_config = {
 		return 1; \
 	}
 
-const char** enabledExtensions;
-const char** enabledLayers;
-
 typedef enum vulkan_supported_state_t {
 	VULKAN_SUPPORTED_UNKNOWN,
 	VULKAN_SUPPORTED_YES,
@@ -102,6 +93,8 @@ typedef struct vulkan {
 	VkInstance		  vkInstance;
 	VkSurfaceKHR		  vkSurface;
 
+	MwVulkanConfig vulkan_config;
+
 	VkPhysicalDevice vkPhysicalDevice;
 	VkDevice	 vkLogicalDevice;
 	VkQueue		 vkGraphicsQueue;
@@ -115,6 +108,10 @@ typedef struct vulkan {
 	int	     vkInstanceExtensionCount;
 	int	     vkDeviceExtensionCount;
 	int	     vkLayerCount;
+
+	const char** enabledExtensions;
+	const char** enabledLayers;
+
 } vulkan_t;
 
 static int vulkan_instance_setup(MwWidget handle, vulkan_t* o);
@@ -122,27 +119,33 @@ static int vulkan_surface_setup(MwWidget handle, vulkan_t* o);
 static int vulkan_devices_setup(MwWidget handle, vulkan_t* o);
 
 static int wcreate(MwWidget handle) {
-	vulkan_t* o = malloc(sizeof(*o));
-	int	  err;
+	int err;
+	if(!handle->internal) {
+		vulkan_t* o;
+		handle->internal = malloc(sizeof(vulkan_t));
+		memset(handle->internal, 0, sizeof(vulkan_t));
 
-	memset(o, 0, sizeof(*o));
+		o				   = handle->internal;
+		o->vulkan_config.api_version	   = VK_API_VERSION_1_0;
+		o->vulkan_config.vk_version	   = VK_VERSION_1_0;
+		o->vulkan_config.validation_layers = VK_FALSE;
+	}
 
-	err = vulkan_instance_setup(handle, o);
+	err = vulkan_instance_setup(handle, handle->internal);
 	if(err != 0) {
 		return 1;
 	}
-	err = vulkan_surface_setup(handle, o);
+	err = vulkan_surface_setup(handle, handle->internal);
 	if(err != 0) {
 		return 1;
 	}
-	err = vulkan_devices_setup(handle, o);
+	err = vulkan_devices_setup(handle, handle->internal);
 	if(err != 0) {
 		return 1;
 	}
 
 	handle->lowlevel->common.copy_buffer = 0;
 
-	handle->internal = o;
 	MwSetDefault(handle);
 
 	return 0;
@@ -185,8 +188,8 @@ static void* vulkan_lib_load() {
 }
 
 static int vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
-	uint32_t      vulkan_version  = vulkan_config.vk_version;
-	uint32_t      api_version     = vulkan_config.api_version;
+	uint32_t      vulkan_version  = o->vulkan_config.vk_version;
+	uint32_t      api_version     = o->vulkan_config.api_version;
 	uint32_t      extension_count = 0;
 	uint32_t      layer_count     = 0;
 	unsigned long i		      = 0;
@@ -224,27 +227,27 @@ static int vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	VK_ASSERT(_vkCreateInstance);
 
 	/* setup enabled extensions */
-	arrput(enabledExtensions, VK_KHR_SURFACE_EXTENSION_NAME);
+	arrput(o->enabledExtensions, VK_KHR_SURFACE_EXTENSION_NAME);
 #ifdef USE_GDI
 	if(handle->lowlevel->common.type == MwLLBackendGDI) {
-		arrput(enabledExtensions, VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+		arrput(o->enabledExtensions, VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 	}
 #endif
 #ifdef USE_X11
 	if(handle->lowlevel->common.type == MwLLBackendX11) {
-		arrput(enabledExtensions, VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+		arrput(o->enabledExtensions, VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
 	}
 #endif
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
-		arrput(enabledExtensions, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
+		arrput(o->enabledExtensions, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 		/* take this opprutunity to set the widget to always render */
 		MwWaylandAlwaysRender = MwTRUE;
 	}
 #endif
 #ifdef USE_COCOA
 	if(handle->lowlevel->common.type == MwLLBackendCocoa) {
-		arrput(enabledExtensions, VK_EXT_METAL_SURFACE_EXTENSION_NAME);
+		arrput(o->enabledExtensions, VK_EXT_METAL_SURFACE_EXTENSION_NAME);
 	}
 #endif
 
@@ -252,11 +255,11 @@ static int vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	VK_CMD(_vkEnumerateInstanceExtensionProperties(NULL, &extension_count, NULL));
 	ext_props = malloc(sizeof(VkExtensionProperties) * extension_count);
 	VK_CMD(_vkEnumerateInstanceExtensionProperties(NULL, &extension_count, ext_props));
-	o->vkInstanceExtensions = malloc(sizeof(const char*) * (arrlen(enabledExtensions) + 1));
+	o->vkInstanceExtensions = malloc(sizeof(const char*) * (arrlen(o->enabledExtensions) + 1));
 
 	for(i = 0; i < extension_count; i++) {
-		for(n = 0; n < (unsigned long)arrlen(enabledExtensions); n++) {
-			if(strcmp(ext_props[i].extensionName, enabledExtensions[n]) == 0) {
+		for(n = 0; n < (unsigned long)arrlen(o->enabledExtensions); n++) {
+			if(strcmp(ext_props[i].extensionName, o->enabledExtensions[n]) == 0) {
 				printf("[Vulkan Widget] Enabling extension %s\n", ext_props[i].extensionName);
 				o->vkInstanceExtensions[o->vkInstanceExtensionCount] = ext_props[i].extensionName;
 				o->vkInstanceExtensionCount++;
@@ -278,14 +281,14 @@ static int vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	VK_CMD(_vkEnumerateInstanceLayerProperties(&layer_count, NULL));
 	layer_props = malloc(sizeof(VkLayerProperties) * layer_count);
 	VK_CMD(_vkEnumerateInstanceLayerProperties(&layer_count, layer_props));
-	o->vkLayers = malloc(256 * (arrlen(enabledLayers) + 1));
+	o->vkLayers = malloc(256 * (arrlen(o->enabledLayers) + 1));
 
-	if(vulkan_config.validation_layers) {
-		arrput(enabledLayers, "VK_LAYER_KHRONOS_validation");
+	if(o->vulkan_config.validation_layers) {
+		arrput(o->enabledLayers, "VK_LAYER_KHRONOS_validation");
 	}
 	for(i = 0; i < layer_count; i++) {
-		for(n = 0; n < (unsigned long)arrlen(enabledLayers); n++) {
-			if(strcmp(layer_props[i].layerName, enabledLayers[n]) == 0) {
+		for(n = 0; n < (unsigned long)arrlen(o->enabledLayers); n++) {
+			if(strcmp(layer_props[i].layerName, o->enabledLayers[n]) == 0) {
 				printf("[Vulkan Widget] Enabling layer %s\n", layer_props[i].layerName);
 				o->vkLayers[o->vkLayerCount] = layer_props[i].layerName;
 				o->vkLayerCount++;
@@ -452,11 +455,11 @@ static int vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	VK_CMD(_vkEnumerateDeviceExtensionProperties(o->vkPhysicalDevice, NULL, &extension_count, NULL));
 	ext_props = malloc(sizeof(VkExtensionProperties) * extension_count);
 	VK_CMD(_vkEnumerateDeviceExtensionProperties(o->vkPhysicalDevice, NULL, &extension_count, ext_props));
-	o->vkDeviceExtensions = malloc(sizeof(const char*) * (arrlen(enabledExtensions) + 1));
+	o->vkDeviceExtensions = malloc(sizeof(const char*) * (arrlen(o->enabledExtensions) + 1));
 
 	for(i = 0; i < extension_count; i++) {
-		for(n = 0; n < (unsigned long)arrlen(enabledExtensions); n++) {
-			if(strcmp(ext_props[i].extensionName, enabledExtensions[n]) == 0) {
+		for(n = 0; n < (unsigned long)arrlen(o->enabledExtensions); n++) {
+			if(strcmp(ext_props[i].extensionName, o->enabledExtensions[n]) == 0) {
 				o->vkDeviceExtensions[o->vkDeviceExtensionCount] = ext_props[i].extensionName;
 				o->vkDeviceExtensionCount++;
 				break;
@@ -487,10 +490,6 @@ static int vulkan_devices_setup(MwWidget handle, vulkan_t* o) {
 	}
 	free(devices);
 	return 0;
-}
-
-void MwVulkanConfigure(MwVulkanConfig* cfg) {
-	vulkan_config = *cfg;
 }
 
 int MwVulkanSupported(void) {
@@ -548,15 +547,25 @@ static void* mwVulkanGetFieldImpl(MwWidget handle, int field, int* err) {
 
 static void prop_change(MwWidget handle, const char* prop) {
 	vulkan_t* o = (vulkan_t*)handle->internal;
+	if(!o) {
+		handle->internal = malloc(sizeof(vulkan_t));
+		o		 = (vulkan_t*)handle->internal;
+		memset(o, 0, sizeof(vulkan_t));
+		o->vulkan_config.api_version	   = VK_API_VERSION_1_0;
+		o->vulkan_config.vk_version	   = VK_VERSION_1_0;
+		o->vulkan_config.validation_layers = VK_FALSE;
+	}
 
 	if(strcmp(prop, MwNvulkanExtension) == 0) {
 		char* str = MwStringDuplicate(MwGetText(handle, MwNvulkanExtension));
 
-		arrput(enabledExtensions, str);
+		arrput(o->enabledExtensions, str);
 	} else if(strcmp(prop, MwNvulkanLayer) == 0) {
 		char* str = MwStringDuplicate(MwGetText(handle, MwNvulkanExtension));
 
-		arrput(enabledLayers, str);
+		arrput(o->enabledLayers, str);
+	} else if(strcmp(prop, MwNvulkanConfig) == 0) {
+		memcpy(&o->vulkan_config, MwGetVoid(handle, MwNvulkanConfig), sizeof(MwVulkanConfig));
 	}
 }
 
