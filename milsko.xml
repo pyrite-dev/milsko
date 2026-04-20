@@ -110,7 +110,12 @@
 		<!-- Early string properties -->
 		<string name="vulkanExtension" early="yes" />
 		<string name="vulkanLayer" early="yes" />
-		<struct defname="MwvulkanConfig" name="vulkanConfig" early="yes" />
+		<struct
+            defname="MwVulkanConfig"
+            early="yes"
+            pointer="yes"
+            name="vulkanConfig"
+        />
 
 		<pixmap name="pixmap" />
 		<pixmap name="iconPixmap" />
