@@ -303,9 +303,18 @@ MwWidget MwVaCreateWidget(MwClass widget_class, const char* name, MwWidget paren
 
 MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va) {
 	MwWidget h;
+    va_list va2;
+
+#ifdef va_copy
+    va_copy(va2, va);
+#else
+    va2 = va;
+#endif
 
 	h = MwCreateWidget_Internal(widget_class, name, parent, x, y, width, height, 1, va);
-    MwVaListApply(h, va);
+    MwVaListApply(h, va2);
+
+    va_end(va2);
   
 	return h;
 }
