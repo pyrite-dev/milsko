@@ -310,23 +310,23 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		KEY_CASE(kVK_ANSI_Backslash, '/')
 		KEY_CASE(kVK_ANSI_Comma, ',')
 		KEY_CASE(kVK_ANSI_Equal, '=')
-		KEY_CASE(kVK_Escape, MwLLKeyEscape)
+		KEY_CASE(kVK_Escape, MwKEY_ESCAPE)
 		KEY_CASE(kVK_ANSI_LeftBracket, '[')
 		KEY_CASE(kVK_ANSI_Minus, '-')
 		KEY_CASE(kVK_ANSI_Period, '.')
-		KEY_CASE(kVK_Return, MwLLKeyEnter)
+		KEY_CASE(kVK_Return, MwKEY_ENTER)
 		KEY_CASE(kVK_ANSI_RightBracket, ']')
 		KEY_CASE(kVK_ANSI_Semicolon, ';')
 		KEY_CASE(kVK_ANSI_Slash, '\\')
 		KEY_CASE(kVK_Space, ' ')
-		KEY_CASE(kVK_Control, MwLLKeyControl)
-		KEY_CASE(kVK_RightControl, MwLLKeyControl)
-		KEY_CASE(kVK_Shift, MwLLKeyLeftShift)
-		KEY_CASE(kVK_RightShift, MwLLKeyRightShift)
-		KEY_CASE(kVK_DownArrow, MwLLKeyDown)
-		KEY_CASE(kVK_LeftArrow, MwLLKeyLeft)
-		KEY_CASE(kVK_RightArrow, MwLLKeyRight)
-		KEY_CASE(kVK_UpArrow, MwLLKeyUp)
+		KEY_CASE(kVK_Control, MwKEY_CONTROL)
+		KEY_CASE(kVK_RightControl, MwKEY_CONTROL)
+		KEY_CASE(kVK_Shift, MwKEY_LEFTSHIFT)
+		KEY_CASE(kVK_RightShift, MwKEY_RIGHTSHIFT)
+		KEY_CASE(kVK_DownArrow, MwKEY_DOWN)
+		KEY_CASE(kVK_LeftArrow, MwKEY_LEFT)
+		KEY_CASE(kVK_RightArrow, MwKEY_RIGHT)
+		KEY_CASE(kVK_UpArrow, MwKEY_UP)
 	}
 	if(isDown) {
 		recursive_dispatch_key(ll, &ch);
@@ -697,7 +697,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 		c->window = p->window;
 		c->view	  = [[MilskoCocoaView alloc] initWithFrame:rect];
-		[c->view setBounds:c->rect];
+		[c->view setFrame:rect];
 		[c->view retain];
 		[c->view setChild];
 
