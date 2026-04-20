@@ -493,14 +493,6 @@ void MwVulkanConfigure(MwVulkanConfig* cfg) {
 	vulkan_config = *cfg;
 }
 
-void MwVulkanEnableExtension(const char* name) {
-	arrput(enabledExtensions, name);
-}
-
-void MwVulkanEnableLayer(const char* name) {
-	arrput(enabledLayers, name);
-}
-
 int MwVulkanSupported(void) {
 	if(vulkan_supported == VULKAN_SUPPORTED_UNKNOWN) {
 		void* lib = vulkan_lib_load();
@@ -552,7 +544,20 @@ static void* mwVulkanGetFieldImpl(MwWidget handle, int field, int* err) {
 	if(err != NULL) {
 		*err = 0;
 	}
-};
+}
+
+static void prop_change(MwWidget handle, const char* prop) {
+	/* TODO: make this local to widgets, not global */
+	if(strcmp(prop, MwNvulkanExtension) == 0) {
+		char* str = MwStringDuplicate(MwGetText(handle, MwNvulkanExtension));
+
+		arrput(enabledExtensions, str);
+	} else if(strcmp(prop, MwNvulkanLayer) == 0) {
+		char* str = MwStringDuplicate(MwGetText(handle, MwNvulkanExtension));
+
+		arrput(enabledLayers, str);
+	}
+}
 
 static void func_handler(MwWidget handle, const char* name, void* output, va_list va) {
 	if(strcmp(name, "mwVulkanGetField") == 0) {
@@ -568,7 +573,7 @@ MwClassRec MwVulkanClassRec = {
     NULL,	  /* draw */
     NULL,	  /* click */
     NULL,	  /* parent_resize */
-    NULL,	  /* prop_change */
+    prop_change,  /* prop_change */
     NULL,	  /* mouse_move */
     NULL,	  /* mouse_up */
     NULL,	  /* mouse_down */
@@ -586,14 +591,6 @@ MwClassRec MwVulkanClassRec = {
 MwClass MwVulkanClass = &MwVulkanClassRec;
 #else
 MwClass MwVulkanClass = NULL;
-
-void MwVulkanEnableExtension(const char* ext_name) {
-	(void)ext_name;
-}
-
-void MwVulkanEnableLayer(const char* ext_name) {
-	(void)ext_name;
-}
 
 void MwVulkanConfigure(MwVulkanConfig* cfg) {
 	(void)cfg;

@@ -34,18 +34,6 @@ extern "C" {
 MWDECL MwClass MwVulkanClass;
 
 /*!
- * @brief Add an extension to the list of extensions to enable prior to initialization.
- * @warning This must be called before MwCreateWidget.
- */
-MWDECL void MwVulkanEnableExtension(const char* ext_name);
-
-/*!
- * @brief Add an layer to the list of layers to enable prior to initialization.
- * @warning This must be called before MwCreateWidget.
- */
-MWDECL void MwVulkanEnableLayer(const char* ext_name);
-
-/*!
  * @brief Configuration options that can be passed to setup Vulkan before a widget is created.
  */
 typedef struct _MwVulkanConfig {

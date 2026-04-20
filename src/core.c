@@ -18,6 +18,9 @@
 		MwLLEndDraw(handle->lowlevel); \
 	}
 
+static void	MwVaListApply_Internal(MwWidget handle, va_list va, int only_early);
+static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, int do_prop, va_list prop);
+
 static void lldrawhandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->common.user;
 #ifdef PERIODIC
@@ -177,7 +180,7 @@ static void lldarkthemehandler(MwLL handle, void* data) {
 	}
 }
 
-MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
+static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, int do_prop, va_list prop) {
 	MwWidget h = malloc(sizeof(*h));
 
 	h->name = MwStringDuplicate(name);
@@ -194,17 +197,17 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	} else {
 		h->lowlevel = NULL;
 	}
-	h->widget_class	 = widget_class;
-	h->pressed	 = 0;
-	h->close	 = 0;
-	h->destroy_queue = NULL;
-	h->prop_event	 = 1;
-	h->draw_inject	 = NULL;
+	h->widget_class	  = widget_class;
+	h->pressed	  = 0;
+	h->close	  = 0;
+	h->destroy_queue  = NULL;
+	h->prop_event	  = 1;
+	h->draw_inject	  = NULL;
 	h->destroy_inject = NULL;
-	h->tick_list	 = NULL;
-	h->destroyed	 = 0;
-	h->bgcolor	 = NULL;
-	h->berserk	 = 0;
+	h->tick_list	  = NULL;
+	h->destroyed	  = 0;
+	h->bgcolor	  = NULL;
+	h->berserk	  = 0;
 
 	h->top_step   = 0;
 	h->draw_queue = NULL;
@@ -243,6 +246,8 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	shdefault(h->handler, NULL);
 	shdefault(h->data, NULL);
 
+	if(do_prop) MwVaListApply_Internal(h, prop, 1);
+
 	h->prop_event = 0;
 	if(MwDispatch2(h, create) != 0) {
 		h->widget_class = NULL;
@@ -274,6 +279,12 @@ MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent,
 	if(h->parent != NULL) MwDispatch(h->parent, children_update);
 
 	return h;
+}
+
+MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
+	va_list dummy;
+
+	return MwCreateWidget_Internal(widget_class, name, parent, x, y, width, height, 0, dummy);
 }
 
 MwWidget MwVaCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, ...) {
@@ -704,13 +715,15 @@ void MwVaApply(MwWidget handle, ...) {
 	va_end(va);
 }
 
-void MwVaListApply(MwWidget handle, va_list va) {
+static void MwVaListApply_Internal(MwWidget handle, va_list va, int only_early) {
 	char* key;
 	int   x = MwDEFAULT, y = MwDEFAULT, w = MwDEFAULT, h = MwDEFAULT;
 
 	while((key = va_arg(va, char*)) != NULL) {
 		if(key[0] == 'I') {
 			int n = va_arg(va, int);
+			if(only_early && key[1] != 'E') continue;
+
 			if(strcmp(key, MwNx) == 0) {
 				x = n;
 			} else if(strcmp(key, MwNy) == 0) {
@@ -724,12 +737,17 @@ void MwVaListApply(MwWidget handle, va_list va) {
 			}
 		} else if(key[0] == 'S') {
 			char* t = va_arg(va, char*);
+			if(only_early && key[1] != 'E') continue;
+
 			MwSetText(handle, key, t);
 		} else if(key[0] == 'C') {
 			MwUserHandler h = va_arg(va, MwUserHandler);
+			if(only_early && key[1] != 'E') continue;
+
 			MwAddUserHandler(handle, key, h, NULL);
 		} else if(key[0] == 'V') {
 			void* v = va_arg(va, void*);
+			if(only_early && key[1] != 'E') continue;
 			MwSetVoid(handle, key, v);
 		}
 	}
@@ -759,6 +777,10 @@ void MwVaListApply(MwWidget handle, va_list va) {
 			MwSetInteger(handle, MwNheight, h);
 		}
 	}
+}
+
+void MwVaListApply(MwWidget handle, va_list va) {
+	MwVaListApply_Internal(handle, va, 0);
 }
 
 void MwSetDefault(MwWidget handle) {

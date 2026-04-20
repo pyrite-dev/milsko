@@ -624,9 +624,9 @@ int main() {
 				  MwNtitle, "hello world",
 				  NULL);
 
-	MwVulkanEnableExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
-	vulkan = MwCreateWidget(MwVulkanClass, "vulkan", window, 50, 50, ow, oh);
+	vulkan = MwVaCreateWidget(MwVulkanClass, "vulkan", window, 50, 50, ow, oh,
+				  MwNvulkanExtension, VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+				  NULL);
 
 	MwAddUserHandler(window, MwNtickHandler, tick, NULL);
 

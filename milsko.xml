@@ -55,6 +55,9 @@
 		String properties must be prefixed with S.
 		Handler properties must be prefixed with C.
 		Other properties must be prefixed with V.
+
+		"Early" properties must have letter "E" as 2nd letter.
+		e.g. vulkanExtension would be SEvulkanExtension
 	-->
 	<properties>
 		<integer name="x" common="yes" />
@@ -103,6 +106,10 @@
 		<string name="subBackground" common="yes" />
 		<string name="foreground" common="yes" />
 		<string name="subForeground" common="yes" />
+
+		<!-- Early string properties -->
+		<string name="vulkanExtension" early="yes" />
+		<string name="vulkanLayer" early="yes" />
 
 		<pixmap name="pixmap" />
 		<pixmap name="iconPixmap" />
