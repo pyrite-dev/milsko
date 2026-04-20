@@ -571,19 +571,9 @@
 				</function>
 			</functions>
 		</header>
-	
+
 		<!-- They are not alphabetically sorted for reasons -->
 		<header name="Widget/Vulkan">
-			<functions>
-				<function name="MwVulkanConfigure">
-					<return>
-						<pointer />
-					</return>
-					<arguments>
-						<struct defname="MwVulkanConfig" name="cfg" pointer="yes" />
-					</arguments>
-				</function>
-			</functions>
 		</header>
 	</headers>
 
@@ -882,6 +872,7 @@
 			<properties>
 				<property name="vulkanExtension" />
 				<property name="vulkanLayer" />
+				<property name="vulkanConfig" />
 			</properties>
 			<functions>
 				<function name="GetField">
