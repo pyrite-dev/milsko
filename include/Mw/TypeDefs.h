@@ -35,7 +35,7 @@ typedef void* MwWidget;
 #endif
 typedef void (*MwHandler)(MwWidget handle);
 typedef int (*MwHandlerWithStatus)(MwWidget handle);
-typedef void (*MwHandlerProps)(MwWidget handle, const char** key);
+typedef void (*MwHandlerProps)(MwWidget handle, char** key);
 typedef void (*MwHandlerProp)(MwWidget handle, const char* key);
 typedef void (*MwHandlerChildrenProp)(MwWidget handle, MwWidget child, const char* key);
 typedef void (*MwHandlerKey)(MwWidget handle, int key);

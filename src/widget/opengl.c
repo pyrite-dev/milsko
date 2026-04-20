@@ -521,7 +521,8 @@ MwClassRec MwOpenGLClassRec = {wcreate,	     /* create */
 			       NULL,	     /* children_update */
 			       NULL,	     /* children_prop_change */
 			       NULL,	     /* clipboard */
-			       NULL, NULL, NULL, NULL};
+			       NULL,	     /* props_change */
+			       NULL, NULL, NULL};
 MwClass	   MwOpenGLClass    = &MwOpenGLClassRec;
 #else
 MWDECL MwClass MwOpenGLClass;

@@ -1748,8 +1748,8 @@ static void clip(MwLL handle) {
 			y += ws[i]->wayland.y;
 			cx += MAX(-ws[i]->wayland.x, 0);
 			cy += MAX(-ws[i]->wayland.y, 0);
-			w  = MIN(ws[i]->wayland.ww - MAX(-x, 0), w);
-			h  = MIN(ws[i]->wayland.wh - MAX(-y, 0), h);
+			w = MIN(ws[i]->wayland.ww - MAX(-x, 0), w);
+			h = MIN(ws[i]->wayland.wh - MAX(-y, 0), h);
 		}
 
 		arrfree(ws);
@@ -1761,7 +1761,7 @@ static void clip(MwLL handle) {
 		region_setup(handle);
 
 		cairo_reset_clip(handle->wayland.front_cairo);
-		if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL){
+		if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
 			cairo_rectangle(handle->wayland.front_cairo, cx, cy, w, h);
 			cairo_clip(handle->wayland.front_cairo);
 		}
@@ -1994,7 +1994,7 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	}
 	region_setup(handle);
 
-	recursive_render(handle);
+	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) recursive_render(handle);
 
 	MwLLDispatch(handle, draw, NULL);
 }
@@ -2028,7 +2028,7 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	}
 
 	region_setup(handle);
-	recursive_render(handle);
+	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) recursive_render(handle);
 
 	framebuffer_destroy(&handle->wayland);
 	framebuffer_setup(&handle->wayland);

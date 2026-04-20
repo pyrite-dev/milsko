@@ -331,10 +331,6 @@ static void draw(MwWidget handle) {
 	MwLLFreeColor(c);
 }
 
-static void prop_change(MwWidget handle, const char* prop) {
-	if(strcmp(prop, MwNwidth) == 0 || strcmp(prop, MwNheight) == 0) resize(handle);
-}
-
 static void* mwTreeViewAddImpl(MwWidget handle, void* parent, MwLLPixmap pixmap, const char* item) {
 	MwTreeView	 tv = handle->internal;
 	MwTreeViewEntry* t  = malloc(sizeof(*t));
@@ -480,13 +476,24 @@ static void tick(MwWidget handle) {
 	}
 }
 
+static void props_change(MwWidget handle, char** props) {
+	int i;
+	int rsz = 0;
+
+	for(i = 0; props[i] != NULL; i++) {
+		if(strcmp(props[i], MwNwidth) == 0 || strcmp(props[i], MwNheight) == 0) rsz = 1;
+	}
+
+	if(rsz) resize(handle);
+}
+
 MwClassRec MwTreeViewClassRec = {
     wcreate,	  /* create */
     destroy,	  /* destroy */
     draw,	  /* draw */
     NULL,	  /* click */
     NULL,	  /* parent_resize */
-    prop_change,  /* prop_change */
+    NULL,	  /* prop_change */
     NULL,	  /* mouse_move */
     NULL,	  /* mouse_up */
     NULL,	  /* mouse_down */
@@ -497,7 +504,7 @@ MwClassRec MwTreeViewClassRec = {
     NULL,	  /* children_update */
     NULL,	  /* children_prop_change */
     NULL,	  /* clipboard */
-    NULL,
+    props_change, /* props_change */
     NULL,
     NULL,
     NULL};

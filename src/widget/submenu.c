@@ -101,7 +101,7 @@ static void draw(MwWidget handle) {
 }
 
 static void click(MwWidget handle) {
-	MwWidget w = handle;
+	MwWidget w    = handle;
 	MwMenu	 menu = handle->internal;
 
 	if(arrlen(menu->sub) > 0) {
@@ -257,7 +257,7 @@ MwClassRec MwSubMenuClassRec = {
     NULL,	    /* children_update */
     NULL,	    /* children_prop_change */
     NULL,	    /* clipboard */
-    NULL,
+    NULL,	    /* props_change */
     NULL,
     NULL,
     NULL};

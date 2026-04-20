@@ -377,7 +377,6 @@ static void draw(MwWidget handle) {
 }
 
 static void prop_change(MwWidget handle, const char* prop) {
-	if(strcmp(prop, MwNwidth) == 0 || strcmp(prop, MwNheight) == 0 || strcmp(prop, MwNhasHeading) == 0) resize(handle);
 	if(strcmp(prop, MwNleftPadding) == 0) {
 		MwListBox lb = handle->internal;
 		MwForceRender(lb->frame);
@@ -564,6 +563,17 @@ static void tick(MwWidget handle) {
 	}
 }
 
+static void props_change(MwWidget handle, char** props) {
+	int i;
+	int rsz = 0;
+
+	for(i = 0; props[i] != NULL; i++) {
+		if(strcmp(props[i], MwNwidth) == 0 || strcmp(props[i], MwNheight) == 0 || strcmp(props[i], MwNhasHeading) == 0) rsz = 1;
+	}
+
+	if(rsz) resize(handle);
+}
+
 MwClassRec MwListBoxClassRec = {
     wcreate,	  /* create */
     destroy,	  /* destroy */
@@ -581,7 +591,7 @@ MwClassRec MwListBoxClassRec = {
     NULL,	  /* children_update */
     NULL,	  /* children_prop_change */
     NULL,	  /* clipboard */
-    NULL,
+    props_change, /* props_change */
     NULL,
     NULL,
     NULL};

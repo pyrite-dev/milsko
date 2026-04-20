@@ -78,7 +78,6 @@ static void layout(MwWidget handle) {
 static void draw(MwWidget handle) {
 	MwRect	  r;
 	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwBox	  b    = handle->internal;
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -92,12 +91,6 @@ static void draw(MwWidget handle) {
 	MwDrawRect(handle, &r, base);
 
 	MwLLFreeColor(base);
-
-	if(b->layout) {
-		layout(handle);
-
-		b->layout = 0;
-	}
 }
 
 static void prop_change(MwWidget handle, const char* key) {
@@ -117,6 +110,16 @@ static void children_prop_change(MwWidget handle, MwWidget child, const char* ke
 		b->layout = 1;
 
 		MwForceRender(handle);
+	}
+}
+
+static void tick(MwWidget handle) {
+	MwBox b = handle->internal;
+
+	if(b->layout) {
+		layout(handle);
+
+		b->layout = 0;
 	}
 }
 
@@ -146,12 +149,12 @@ MwClassRec MwBoxClassRec = {
     NULL,		  /* mouse_down */
     NULL,		  /* key */
     NULL,		  /* execute */
-    NULL,		  /* tick */
+    tick,		  /* tick */
     resize,		  /* resize */
     children_update,	  /* children_update */
     children_prop_change, /* children_prop_change */
     NULL,		  /* clipboard */
-    NULL,
+    NULL,		  /* props_change */
     NULL,
     NULL,
     NULL};

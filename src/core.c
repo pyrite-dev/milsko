@@ -209,8 +209,8 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 	h->bgcolor	  = NULL;
 	h->berserk	  = 0;
 
-    h->internal = NULL;
-    h->opaque = NULL;
+	h->internal = NULL;
+	h->opaque   = NULL;
 
 	h->top_step   = 0;
 	h->draw_queue = NULL;
@@ -303,19 +303,19 @@ MwWidget MwVaCreateWidget(MwClass widget_class, const char* name, MwWidget paren
 
 MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va) {
 	MwWidget h;
-    va_list va2;
+	va_list	 va2;
 
 #ifdef va_copy
-    va_copy(va2, va);
+	va_copy(va2, va);
 #else
-    va2 = va;
+	va2 = va;
 #endif
 
 	h = MwCreateWidget_Internal(widget_class, name, parent, x, y, width, height, 1, va);
-    MwVaListApply(h, va2);
+	MwVaListApply(h, va2);
 
-    va_end(va2);
-  
+	va_end(va2);
+
 	return h;
 }
 
@@ -550,6 +550,13 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 		shput(handle->integer, key, n);
 	}
 	if(handle->prop_event) {
+		char** keys = NULL;
+
+		arrput(keys, (char*)key);
+		arrput(keys, NULL);
+		MwDispatch3(handle, props_change, keys);
+		arrfree(keys);
+
 		MwDispatch3(handle, prop_change, key);
 		if(handle->parent != NULL) MwDispatch4(handle->parent, children_prop_change, handle, key);
 	}
@@ -584,6 +591,13 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 		}
 	}
 	if(handle->prop_event) {
+		char** keys = NULL;
+
+		arrput(keys, (char*)key);
+		arrput(keys, NULL);
+		MwDispatch3(handle, props_change, keys);
+		arrfree(keys);
+
 		MwDispatch3(handle, prop_change, key);
 		if(handle->parent != NULL) MwDispatch4(handle->parent, children_prop_change, handle, key);
 	}
@@ -605,6 +619,13 @@ void MwSetVoid(MwWidget handle, const char* key, void* value) {
 		shput(handle->data, key, value);
 	}
 	if(handle->prop_event) {
+		char** keys = NULL;
+
+		arrput(keys, (char*)key);
+		arrput(keys, NULL);
+		MwDispatch3(handle, props_change, keys);
+		arrfree(keys);
+
 		MwDispatch3(handle, prop_change, key);
 		if(handle->parent != NULL) MwDispatch4(handle->parent, children_prop_change, handle, key);
 	}
@@ -729,10 +750,18 @@ void MwVaApply(MwWidget handle, ...) {
 }
 
 static void MwVaListApply_Internal(MwWidget handle, va_list va, int only_early) {
-	char* key;
-	int   x = MwDEFAULT, y = MwDEFAULT, w = MwDEFAULT, h = MwDEFAULT;
+	char*  key;
+	int    x = MwDEFAULT, y = MwDEFAULT, w = MwDEFAULT, h = MwDEFAULT;
+	char** keys = NULL;
+	int    old  = handle->prop_event;
+	int    i;
 
+	handle->prop_event = 0;
 	while((key = va_arg(va, char*)) != NULL) {
+		if(!only_early || key[1] == 'E') {
+			arrput(keys, key);
+		}
+
 		if(key[0] == 'I') {
 			int n = va_arg(va, int);
 			if(only_early && key[1] != 'E') continue;
@@ -790,6 +819,18 @@ static void MwVaListApply_Internal(MwWidget handle, va_list va, int only_early) 
 			MwSetInteger(handle, MwNheight, h);
 		}
 	}
+	handle->prop_event = old;
+
+	arrput(keys, NULL);
+
+	if(handle->prop_event) {
+		for(i = 0; keys[i] != NULL; i++) {
+			MwDispatch3(handle, prop_change, keys[i]);
+		}
+		MwDispatch3(handle, props_change, keys);
+	}
+
+	arrfree(keys);
 }
 
 void MwVaListApply(MwWidget handle, va_list va) {

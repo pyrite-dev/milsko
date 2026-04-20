@@ -376,7 +376,7 @@ MwClassRec MwLabelClassRec = {
     NULL,	  /* children_update */
     NULL,	  /* children_prop_change */
     NULL,	  /* clipboard */
-    NULL,
+    NULL,	  /* props_change */
     NULL,
     NULL,
     NULL};

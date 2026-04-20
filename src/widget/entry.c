@@ -204,7 +204,7 @@ MwClassRec MwEntryClassRec = {
     NULL,	    /* children_update */
     NULL,	    /* children_prop_change */
     clipboard,	    /* clipboard */
-    NULL,
+    NULL,	    /* props_change */
     NULL,
     NULL,
     NULL};
