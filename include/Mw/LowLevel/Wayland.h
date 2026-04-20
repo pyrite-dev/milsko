@@ -378,10 +378,10 @@ struct _MwLLWaylandShmBuffer {
 };
 
 enum _MwLLWaylandType {
-	MWLL_WAYLAND_UNKNOWN = 0,
-	MWLL_WAYLAND_TOPLEVEL,
-	MWLL_WAYLAND_SUBLEVEL,
-	MWLL_WAYLAND_POPUP,
+	MwLL_WAYLAND_UNKNOWN = 0,
+	MwLL_WAYLAND_TOPLEVEL,
+	MwLL_WAYLAND_SUBLEVEL,
+	MwLL_WAYLAND_POPUP,
 };
 
 typedef struct wl_clipboard_device_context {
