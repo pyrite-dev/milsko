@@ -287,6 +287,8 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height) {
 	va_list dummy;
 
+	memset(&dummy, 0, sizeof(dummy));
+
 	return MwCreateWidget_Internal(widget_class, name, parent, x, y, width, height, 0, dummy);
 }
 
