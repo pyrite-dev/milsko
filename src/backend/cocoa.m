@@ -131,6 +131,8 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 			[nscolor setFill];
 			for(n = 0; n < cmd.poly.points_count; n++) {
 				NSPoint p = localPointFlip(NSMakePoint(cmd.poly.points[n].x, cmd.poly.points[n].y), self);
+				p.x += [self bounds].origin.x;
+				p.y += [self bounds].origin.y;
 				if(n == 0) {
 					[path moveToPoint:p];
 				} else {
@@ -157,6 +159,8 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 			[nscolor setFill];
 			for(n = 0; n < 2; n++) {
 				NSPoint p = localPointFlip(NSMakePoint(cmd.lines.points[n].x, cmd.lines.points[n].y), self);
+				p.x += [self bounds].origin.x;
+				p.y += [self bounds].origin.y;
 				if(n == 0) {
 					[path moveToPoint:p];
 				} else {
@@ -171,8 +175,11 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		} break;
 
 		case COCOA_DRAW_COMMAND_PIXMAP: {
+			NSRect rect = localRectFlip(NSMakeRect(cmd.pixmap.rect.x, cmd.pixmap.rect.y, cmd.pixmap.rect.width, cmd.pixmap.rect.height), self);
+			rect.origin.x += [self bounds].origin.x;
+			rect.origin.y += [self bounds].origin.y;
 			[cmd.pixmap.pixmap->cocoa.real->image
-			    drawInRect:localRectFlip(NSMakeRect(cmd.pixmap.rect.x, cmd.pixmap.rect.y, cmd.pixmap.rect.width, cmd.pixmap.rect.height), self)
+			    drawInRect:rect
 			      fromRect:NSZeroRect
 			     operation:NSCompositeSourceOver
 			      fraction:1.0];
@@ -184,6 +191,10 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	arrfree(self->commands);
 
 	[pool release];
+}
+
+- (BOOL)isFlipped {
+	return NO;
 }
 
 - (BOOL)canBecomeKeyView {
@@ -366,7 +377,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	mouse.point.x	   = mousePoint.x;
 	mouse.point.y	   = mousePoint.y;
 	MwLLDispatch(this, move, &mouse);
-	[this->cocoa.real nudge];
 	[super mouseMoved:ev];
 }
 - (BOOL)mouseDownCanMoveWindow {
@@ -382,7 +392,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	mouse.point.x	   = mousePoint.x;
 	mouse.point.y	   = mousePoint.y;
 	MwLLDispatch(this, down, &mouse);
-	[this->cocoa.real nudge];
 	[super mouseDown:ev];
 }
 
@@ -395,7 +404,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	mouse.point.x	   = mousePoint.x;
 	mouse.point.y	   = mousePoint.y;
 	MwLLDispatch(this, up, &mouse);
-	[this->cocoa.real nudge];
 	[super mouseUp:ev];
 }
 - (void)rightMouseDown:(NSEvent*)ev {
@@ -407,7 +415,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	mouse.point.x	   = mousePoint.x;
 	mouse.point.y	   = mousePoint.y;
 	MwLLDispatch(this, down, &mouse);
-	[this->cocoa.real nudge];
 	[super rightMouseDown:ev];
 }
 
@@ -420,7 +427,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	mouse.point.x	   = mousePoint.x;
 	mouse.point.y	   = mousePoint.y;
 	MwLLDispatch(this, up, &mouse);
-	[this->cocoa.real nudge];
 	[super rightMouseUp:ev];
 }
 
@@ -466,6 +472,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 		MwLL h = [((MilskoFakePointer*)[[[w contentView] subviews]
 		    objectAtIndex:0]) pointer];
 		MwLLDispatch(h, close, NULL);
+		h->cocoa.real->isClosing = MwTRUE;
 	}
 }
 
@@ -611,14 +618,33 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 }
 
 - (void)nudge {
-	MwLL p		     = self->parent;
-	self->_eventsPending = MwTRUE;
+	MwLL	 topmost_parent = [self->handle pointer];
+	MwWidget h;
 
-	while(p) {
-		MwLLDispatch(p, draw, NULL);
-		[p->cocoa.real->view setNeedsDisplay:true];
-		p = p->cocoa.real->parent;
+	while(topmost_parent->cocoa.real->parent) topmost_parent = topmost_parent->cocoa.real->parent;
+
+	if(!topmost_parent->cocoa.real->isClosing)
+		self->_eventsPending = MwTRUE;
+
+	[topmost_parent->cocoa.real->view setNeedsDisplay:true];
+	MwLLDispatch(topmost_parent, draw, NULL);
+
+	h = (MwWidget)topmost_parent->common.user;
+	if(h) {
+		int i;
+		for(i = 0; i < arrlen(h->children); i++) {
+			[h->children[i]->lowlevel->cocoa.real->view setNeedsDisplay:true];
+			MwLLDispatch(h->children[i]->lowlevel, draw, NULL);
+		}
 	}
+
+	// MwLL p		     = self->parent;
+	// self->_eventsPending = MwTRUE;
+
+	// while(p) {
+	// 	MwLLDispatch(p, draw, NULL);
+	// 	p = p->cocoa.real->parent;
+	// }
 }
 
 - (void)pushCursor {
@@ -697,7 +723,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 		c->window = p->window;
 		c->view	  = [[MilskoCocoaView alloc] initWithFrame:rect];
-		[c->view setFrame:rect];
+		[c->view setBounds:rect];
 		[c->view retain];
 		[c->view setChild];
 
@@ -727,6 +753,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	[pool release];
 
+	c->isClosing = MwFALSE;
+
 	r->cocoa.real = c;
 
 	return r;
@@ -748,7 +776,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 
 static void MwLLEndDrawImpl(MwLL handle) {
 	(void)handle;
-	[handle->cocoa.real->view displayRect:[handle->cocoa.real->window frame]];
+	// [handle->cocoa.real->view displayRect:[handle->cocoa.real->window frame]];
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count,
@@ -763,6 +791,8 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count,
 	memcpy(poly.poly.points, points, sizeof(MwPoint) * points_count);
 
 	arrpush(handle->cocoa.real->view->commands, poly);
+
+	[handle->cocoa.real nudge];
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
@@ -775,6 +805,8 @@ static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	memcpy(lines.lines.points, points, sizeof(MwPoint) * 2);
 
 	arrpush(handle->cocoa.real->view->commands, lines);
+
+	[handle->cocoa.real nudge];
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
@@ -828,7 +860,7 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 
 	if(!self->parent) {
 		frame = rectFlip(frame);
-		[self->window setFrame:frame display:MwTRUE animate:MwTRUE];
+		[self->window setFrame:frame display:MwTRUE animate:false];
 	} else {
 		frame = localRectFlip(frame, self->parent->cocoa.real->view);
 		[self->view setFrame:frame];
@@ -837,10 +869,16 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
-	MilskoCocoa* self  = handle->cocoa.real;
-	NSRect	     frame = [self->window frame];
-	frame.size.width   = w;
-	frame.size.height  = h;
+	MilskoCocoa* self = handle->cocoa.real;
+	NSRect	     frame;
+	if(self->parent) {
+		frame = [self->view frame];
+	} else {
+		frame = [self->window frame];
+	}
+
+	frame.size.width  = w;
+	frame.size.height = h;
 
 	self->rect = frame;
 
@@ -861,6 +899,7 @@ static int MwLLPendingImpl(MwLL handle) {
 	MilskoCocoa*	   self	     = handle->cocoa.real;
 	NSAutoreleasePool* pool	     = [[NSAutoreleasePool alloc] init];
 	MwBool		   isPending = [self->application pending];
+
 	[self->application runModalSession:self->modalSession];
 	[pool release];
 	return self->_forceRender || self->_eventsPending || isPending;
@@ -941,6 +980,8 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	pix.pixmap.pixmap = MwLLCreatePixmap(handle, pixmap->common.raw, pixmap->common.width, pixmap->common.height);
 
 	arrpush(handle->cocoa.real->view->commands, pix);
+
+	[handle->cocoa.real nudge];
 }
 
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {

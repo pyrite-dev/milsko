@@ -123,6 +123,7 @@ typedef struct {
 	MilskoCocoaApplication* application;
 	MwBool			_forceRender;
 	MwBool			_eventsPending;
+	MwBool			isClosing;
 	NSWindow*		window;
 	NSRect			rect;
 	MilskoCocoaView*	view;
