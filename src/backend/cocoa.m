@@ -19,6 +19,16 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
+/*
+ * GNUStep has the modal session be a global singleton and once we assign it we can't do any more. This breaks several widgets.
+ * I barely care about supporting this so we'll just not support that, sorry.
+ */
+#ifndef __APPLE__
+static bool canAssignModalSession = MwTRUE;
+#else
+#define canAssignModalSession 1
+#endif
+
 /* Coordinate flipping function (global, rect) */
 static NSRect rectFlip(NSRect originFrame) {
 	NSScreen* zeroScreen	   = [[NSScreen screens] objectAtIndex:0];
@@ -204,14 +214,6 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	return YES;
 }
 
-- (NSView*)hitTest:(NSPoint)aPoint {
-	if(self->_child) {
-		return NSPointInRect(aPoint, [self bounds]) ? self : nil;
-	} else {
-		return [super hitTest:aPoint];
-	}
-}
-
 - (void)handleKeyEvent:(NSEvent*)ev ll:(MwLL)ll down:(MwBool)isDown {
 	int ch;
 	/* todo: consolidate these values into the below switch case. */
@@ -371,7 +373,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 - (void)mouseMoved:(NSEvent*)ev {
 	MwMouse mouse;
-	NSPoint mousePoint = pointFlip([ev locationInWindow]);
+	NSPoint mousePoint = [ev locationInWindow];
 	MwLL this	   = [((MilskoFakePointer*)[[self subviews] objectAtIndex:0]) pointer];
 	mouse.button	   = MwMOUSE_LEFT;
 	mouse.point.x	   = mousePoint.x;
@@ -443,11 +445,14 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 - (NSSize)windowWillResize:(NSWindow*)win toSize:(NSSize)frameSize;
 {
-	if([[[win contentView] subviews] count] >= 1) {
-		NSView* ptr = [[[win contentView] subviews] objectAtIndex:0];
+	int	   i;
+	NSUInteger placeholder = [[[win contentView] subviews] count];
+	for(i = 0; i < placeholder; i++) {
+		NSView* ptr = [[[win contentView] subviews] objectAtIndex:i];
 		if([ptr isKindOfClass:[MilskoFakePointer class]]) {
 			MwLL h = [(MilskoFakePointer*)ptr pointer];
 			MwLLDispatch(h, resize, NULL);
+			break;
 		}
 	}
 	return frameSize;
@@ -716,7 +721,13 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		[c->application retain];
 
 		[c->view addTrackingRect:c->rect owner:c->view userData:NULL assumeInside:MwFALSE];
-		c->modalSession = [c->application beginModalSessionForWindow:c->window];
+		if(canAssignModalSession)
+			c->modalSession = [c->application beginModalSessionForWindow:c->window];
+
+#ifndef __APPLE__
+		canAssignModalSession = MwFALSE;
+#endif
+
 	} else {
 		MilskoCocoa* p	  = parent->cocoa.real;
 		NSRect	     rect = localRectFlip(c->rect, p->view);
@@ -864,8 +875,9 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	} else {
 		frame = localRectFlip(frame, self->parent->cocoa.real->view);
 		[self->view setFrame:frame];
+		[self->view setBounds:frame];
 	}
-	[self nudge];
+	MwLLForceRender(handle);
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
@@ -885,10 +897,11 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	[self->view setFrameSize:frame.size];
 	if(self->parent) {
 		[self->view setFrame:frame];
+		[self->view setBounds:frame];
 	} else {
 		[self->window setFrame:frame display:YES animate:false];
 	}
-	[self nudge];
+	MwLLForceRender(handle);
 }
 
 static void MwLLFreeColorImpl(MwLLColor color) {
@@ -900,9 +913,11 @@ static int MwLLPendingImpl(MwLL handle) {
 	NSAutoreleasePool* pool	     = [[NSAutoreleasePool alloc] init];
 	MwBool		   isPending = [self->application pending];
 
-	[self->application runModalSession:self->modalSession];
+	if(self->modalSession) {
+		[self->application runModalSession:self->modalSession];
+	}
 	[pool release];
-	return self->_forceRender || self->_eventsPending || isPending;
+	return !self->isClosing && (self->_forceRender || self->_eventsPending || isPending);
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
@@ -913,7 +928,6 @@ static void MwLLNextEventImpl(MwLL handle) {
 		self->_forceRender = MwFALSE;
 	}
 	if(self->_eventsPending) {
-		MwLLDispatch(h, draw, NULL);
 		self->_eventsPending = MwFALSE;
 	}
 	[self sendClipboardEvent];
@@ -1052,7 +1066,8 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 }
 
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
-	[handle->cocoa.real->window setParentWindow:NULL];
+	(void)handle;
+	(void)point;
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
