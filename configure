@@ -73,13 +73,23 @@ my @features_keys = (
     "1dbus"
 );
 
-if($target ne "Darwin" and $target ne "ClassicMacOS" and $target ne "Windows") {
-    param_set("freetype2",        1);
-    param_set("stb-truetype",     0);
-} else {
-    param_set("freetype2",        0);
-    param_set("stb-truetype",     1);
+sub def_platform {
+	if($target ne "Darwin" and $target ne "ClassicMacOS" and $target ne "Windows") {
+	    param_set("freetype2",        1);
+	    param_set("stb-truetype",     0);
+	} else {
+	    param_set("freetype2",        0);
+	    param_set("stb-truetype",     1);
+	}
 }
+
+foreach my $l (@ARGV) {
+    if ($l =~ /^--target=(.+)$/) {
+        $target = $1;
+    }
+}
+
+def_platform();
 
 if($target eq "Linux") {
     param_set("x11", 1);
@@ -97,9 +107,6 @@ foreach my $l (@ARGV) {
     }
     elsif ($l =~ /^--(?:without|disable)-(.+)$/) {
         param_set($1, 0);
-    }
-    elsif ($l =~ /^--target=(.+)$/) {
-        $target = $1;
     }
     elsif ($l =~ /^--host=(.+)$/) {
         $host = $1 . "-";
