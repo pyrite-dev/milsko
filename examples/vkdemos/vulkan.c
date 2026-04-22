@@ -66,7 +66,7 @@ VkSwapchainCreateInfoKHR swapchainCreateInfo = {};
 	PFN_##name _##name = (PFN_##name)_vkGetInstanceProcAddr(instance, #name); \
 	assert(_##name);
 
-void tick(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI tick(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
 	(void)call_data;

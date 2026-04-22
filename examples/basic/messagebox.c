@@ -1,12 +1,12 @@
 #include <Mw/Milsko.h>
 
-void ok(MwWidget handle, void* user, void* call) {
+void MWAPI ok(MwWidget handle, void* user, void* call) {
 	(void)handle;
 	(void)call;
 	MwDestroyWidget(user);
 }
 
-void spawn(MwWidget handle, void* user, void* call) {
+void MWAPI spawn(MwWidget handle, void* user, void* call) {
 	MwWidget mb = MwMessageBox(user, "news has arrived!", "title", MwMB_ICONNEWS | MwMB_BUTTONOK);
 
 	(void)handle;
@@ -16,7 +16,7 @@ void spawn(MwWidget handle, void* user, void* call) {
 	MwAddUserHandler(mb, MwNcloseHandler, ok, mb);
 }
 
-void spawn2(MwWidget handle, void* user, void* call) {
+void MWAPI spawn2(MwWidget handle, void* user, void* call) {
 	MwWidget mb = MwMessageBox(user, "something went wrong!", "title", MwMB_ICONERROR | MwMB_BUTTONOK);
 
 	(void)handle;
@@ -26,7 +26,7 @@ void spawn2(MwWidget handle, void* user, void* call) {
 	MwAddUserHandler(mb, MwNcloseHandler, ok, mb);
 }
 
-void spawn3(MwWidget handle, void* user, void* call) {
+void MWAPI spawn3(MwWidget handle, void* user, void* call) {
 	int i;
 
 	(void)handle;

@@ -16,20 +16,20 @@ extern "C" {
  * @param path Path
  * @return Handle
  */
-MWDECL void* MwDynamicOpen(const char* path);
+MWDECL void* MWAPI MwDynamicOpen(const char* path);
 
 /*!
  * @brief Gets a symbol from the dynamic library
  * @param handle Handle
  * @param symbol Symbol
  */
-MWDECL void* MwDynamicSymbol(void* handle, const char* symbol);
+MWDECL void* MWAPI MwDynamicSymbol(void* handle, const char* symbol);
 
 /*!
  * @brief Closes a dynamic library
  * @param handle Handle
  */
-MWDECL void MwDynamicClose(void* handle);
+MWDECL void MWAPI MwDynamicClose(void* handle);
 
 #ifdef __cplusplus
 }

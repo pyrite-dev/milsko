@@ -78,7 +78,7 @@ static void draw(MwWidget handle) {
 	MwLLFreeColor(base);
 }
 
-static void listbox_activate(MwWidget handle, void* user, void* client) {
+static void MWAPI listbox_activate(MwWidget handle, void* user, void* client) {
 	MwComboBox cb = handle->parent->internal;
 
 	(void)user;

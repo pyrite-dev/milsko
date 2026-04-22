@@ -913,6 +913,16 @@ void MwForceRender2(MwWidget handle, void* ptr) {
 	MwForceRender(handle);
 }
 
+void MwForceRender_Internal(MwWidget handle) {
+	MwForceRender(handle);
+}
+
+void MwForceRender2_Internal(MwWidget handle, void* ptr) {
+	(void)ptr;
+
+	MwForceRender(handle);
+}
+
 void MwAddTickList(MwWidget handle) {
 	MwWidget root = handle;
 	while(root->parent != NULL) root = root->parent;

@@ -15,13 +15,13 @@ extern "C" {
  * @brief Sleeps for milliseconds
  * @param ms Milliseconds
  */
-MWDECL void MwTimeSleep(int ms);
+MWDECL void MWAPI MwTimeSleep(int ms);
 
 /*!
  * @brief Gets a monotonic time
  * @return Monotonic time
  */
-MWDECL long MwTimeGetTick(void);
+MWDECL long MWAPI MwTimeGetTick(void);
 
 #ifdef __cplusplus
 }

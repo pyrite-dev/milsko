@@ -4,13 +4,13 @@
 
 MwWidget wmain;
 
-void destroy(MwWidget handle, void* user, void* call) {
+void MWAPI destroy(MwWidget handle, void* user, void* call) {
 	(void)handle;
 	(void)call;
 	MwDestroyWidget(user);
 }
 
-void activate(MwWidget handle, void* user, void* call) {
+void MWAPI activate(MwWidget handle, void* user, void* call) {
 	char	 msg[256];
 	MwWidget msgbox;
 

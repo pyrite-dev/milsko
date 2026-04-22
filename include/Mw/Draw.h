@@ -19,14 +19,14 @@ extern "C" {
  * @param text Color text
  * @return Color
  */
-MWDECL MwLLColor MwParseColor(MwWidget handle, const char* text);
+MWDECL MwLLColor MWAPI MwParseColor(MwWidget handle, const char* text);
 
 /*!
  * @brief Parses a color text
  * @param text Color text
  * @param rgb RGB
  */
-MWDECL void MwParseColorNoAllocate(const char* text, MwRGB* rgb);
+MWDECL void MWAPI MwParseColorNoAllocate(const char* text, MwRGB* rgb);
 
 /*!
  * @brief Lighten a color
@@ -37,7 +37,7 @@ MWDECL void MwParseColorNoAllocate(const char* text, MwRGB* rgb);
  * @param b Blue
  * @return Color
  */
-MWDECL MwLLColor MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, int b);
+MWDECL MwLLColor MWAPI MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, int b);
 
 /*!
  * @brief Draws a filled rectangle
@@ -45,7 +45,7 @@ MWDECL MwLLColor MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, 
  * @param rect Rectangle area
  * @param color Color
  */
-MWDECL void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color);
+MWDECL void MWAPI MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color);
 
 /*!
  * @brief Draws a filled rectangle that fades to a darker color
@@ -53,7 +53,7 @@ MWDECL void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color);
  * @param rect Rectangle area
  * @param color Color
  */
-MWDECL void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color);
+MWDECL void MWAPI MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color);
 
 /*!
  * @brief Draws a frame
@@ -63,7 +63,7 @@ MWDECL void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color);
  * @param invert Invert the 3D border color or not
  * @warning `rect` gets changed to the area of rectangle inside
  */
-MWDECL void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
+MWDECL void MWAPI MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
 
 /*!
  * @brief Does the DrawFrame/DrawRect combo used for drawing widget.
@@ -73,7 +73,7 @@ MWDECL void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int inve
  * @param invert Invert the 3D border color or not
  * @warning `rect` gets changed to the area of rectangle inside
  */
-MWDECL void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border);
+MWDECL void MWAPI MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border);
 
 /*!
  * @brief Draws a triangle
@@ -82,7 +82,7 @@ MWDECL void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int
  * @param color Color
  * @param invert Invert the 3D border color or not
  */
-MWDECL void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction);
+MWDECL void MWAPI MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction);
 
 /*!
  * @brief Draws a frame with specified border width
@@ -96,7 +96,7 @@ MWDECL void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int i
  * @param rounded Rounded or not
  * @warning `rect` gets changed to the area of rectangle inside
  */
-MWDECL void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same);
+MWDECL void MWAPI MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same);
 
 /*!
  * @brief Creates a pixmap from image
@@ -104,7 +104,7 @@ MWDECL void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int in
  * @param path Path
  * @return Pixmap
  */
-MWDECL MwLLPixmap MwLoadImage(MwWidget handle, const char* path);
+MWDECL MwLLPixmap MWAPI MwLoadImage(MwWidget handle, const char* path);
 
 /*!
  * @brief Get color components
@@ -113,7 +113,7 @@ MWDECL MwLLPixmap MwLoadImage(MwWidget handle, const char* path);
  * @param green Pointer to green color
  * @param blue Pointer to blue color
  */
-MWDECL void MwColorGet(MwLLColor color, int* red, int* green, int* blue);
+MWDECL void MWAPI MwColorGet(MwLLColor color, int* red, int* green, int* blue);
 
 /*!
  * @brief Creates a pixmap from raw data
@@ -123,28 +123,28 @@ MWDECL void MwColorGet(MwLLColor color, int* red, int* green, int* blue);
  * @param height Height
  * @return Pixmap
  */
-MWDECL MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height);
+MWDECL MwLLPixmap MWAPI MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height);
 
 /*!
  * @brief Updates a pixmap using raw data
  * @param pixmap Pixmap to update
  * @param rgb RGBA data
  */
-MWDECL void MwPixmapReloadRaw(MwLLPixmap pixmap, unsigned char* rgb);
+MWDECL void MWAPI MwPixmapReloadRaw(MwLLPixmap pixmap, unsigned char* rgb);
 
 /*!
  * @brief Gets the raw data of pixmap
  * @param pixmap Pixmap
  * @return RFBA data
  */
-MWDECL unsigned char* MwPixmapGetRaw(MwLLPixmap pixmap);
+MWDECL unsigned char* MWAPI MwPixmapGetRaw(MwLLPixmap pixmap);
 
 /*!
  * @brief Gets the size of pixmap
  * @param pixmap Pixmap
  * @param rect Size
  */
-MWDECL void MwPixmapGetSize(MwLLPixmap pixmap, MwRect* rect);
+MWDECL void MWAPI MwPixmapGetSize(MwLLPixmap pixmap, MwRect* rect);
 
 /*!
  * @brief Creates a pixmap from XPM data
@@ -152,7 +152,7 @@ MWDECL void MwPixmapGetSize(MwLLPixmap pixmap, MwRect* rect);
  * @param data Data
  * @return Pixmap
  */
-MWDECL MwLLPixmap MwLoadXPM(MwWidget handle, char** data);
+MWDECL MwLLPixmap MWAPI MwLoadXPM(MwWidget handle, char** data);
 
 /*!
  * @brief Creates a pixmap from icon data
@@ -160,7 +160,7 @@ MWDECL MwLLPixmap MwLoadXPM(MwWidget handle, char** data);
  * @param data Data
  * @return Pixmap
  */
-MWDECL MwLLPixmap MwLoadIcon(MwWidget handle, MwU32* data);
+MWDECL MwLLPixmap MWAPI MwLoadIcon(MwWidget handle, MwU32* data);
 
 /*!
  * @brief Draws a diamond
@@ -169,7 +169,7 @@ MWDECL MwLLPixmap MwLoadIcon(MwWidget handle, MwU32* data);
  * @param color Color
  * @param invert Invert the 3D border color or not
  */
-MWDECL void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
+MWDECL void MWAPI MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
 
 /* text.c */
 
@@ -182,7 +182,7 @@ MWDECL void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int in
  * @param align Align
  * @param color Color
  */
-MWDECL void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, int align, MwLLColor color);
+MWDECL void MWAPI MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, int align, MwLLColor color);
 
 /*!
  * @brief Calculates a text width
@@ -191,7 +191,7 @@ MWDECL void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char
  * @param font Font, NULLable
  * @return Text width
  */
-MWDECL int MwTextWidth(MwWidget handle, MwFLFont font, const char* text);
+MWDECL int MWAPI MwTextWidth(MwWidget handle, MwFLFont font, const char* text);
 
 /*!
  * @brief Calculates a text height
@@ -200,7 +200,7 @@ MWDECL int MwTextWidth(MwWidget handle, MwFLFont font, const char* text);
  * @param font Font, NULLable
  * @return Text height
  */
-MWDECL int MwTextHeight(MwWidget handle, MwFLFont font, const char* text);
+MWDECL int MWAPI MwTextHeight(MwWidget handle, MwFLFont font, const char* text);
 
 /* color.c */
 
@@ -210,14 +210,14 @@ MWDECL int MwTextHeight(MwWidget handle, MwFLFont font, const char* text);
  * @param color Color name
  * @return Color
  */
-MWDECL MwLLColor MwParseColorName(MwWidget handle, const char* color);
+MWDECL MwLLColor MWAPI MwParseColorName(MwWidget handle, const char* color);
 
 /*!
  * @brief Parses a color name
  * @param color Color name
  * @param rgb RGB
  */
-MWDECL void MwParseColorNameNoAllocate(const char* color, MwRGB* rgb);
+MWDECL void MWAPI MwParseColorNameNoAllocate(const char* color, MwRGB* rgb);
 
 #ifdef __cplusplus
 }

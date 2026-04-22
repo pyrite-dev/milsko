@@ -11,7 +11,7 @@ MwWidget boxes[32];
 int	 n = 0, row = -1;
 MwMenu	 e;
 
-static void resize(MwWidget handle, void* user, void* call) {
+static void MWAPI resize(MwWidget handle, void* user, void* call) {
 	int w = MwGetInteger(window, MwNwidth);
 	int h = MwGetInteger(window, MwNheight);
 
@@ -47,7 +47,7 @@ static void add(MwWidget w) {
 	}
 }
 
-static void resize_content(MwWidget handle, void* user, void* call) {
+static void MWAPI resize_content(MwWidget handle, void* user, void* call) {
 	MwWidget* ws = MwGetChildren(handle);
 	if(ws != NULL) {
 		int pw = MwGetInteger(ws[0], "IpWidth");
@@ -76,7 +76,7 @@ static void resize_content(MwWidget handle, void* user, void* call) {
 	}
 }
 
-static void resize_frame(MwWidget handle, void* user, void* call) {
+static void MWAPI resize_frame(MwWidget handle, void* user, void* call) {
 	MwWidget* ws = MwGetChildren(handle);
 	if(ws != NULL) {
 		int w = MwGetInteger(handle, MwNwidth);
@@ -140,7 +140,7 @@ static MwWidget child(MwWidget w) {
 	return MwGetVoid(w, "VhandledWidget");
 }
 
-static void menu_handler(MwWidget handle, void* user, void* call) {
+static void MWAPI menu_handler(MwWidget handle, void* user, void* call) {
 	if(call == e) MwDestroyWidget(window);
 }
 

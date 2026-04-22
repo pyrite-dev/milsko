@@ -18,14 +18,14 @@ extern "C" {
  * @brief output Output
  * @return Bytes this multibyte takes
  */
-MWDECL int MwUTF8ToUTF32(const char* input, int* output);
+MWDECL int MWAPI MwUTF8ToUTF32(const char* input, int* output);
 
 /*!
  * @brief Calculates UTF-8 string length
  * @brief input Input
  * @return Length
  */
-MWDECL int MwUTF8Length(const char* input);
+MWDECL int MWAPI MwUTF8Length(const char* input);
 
 /*!
  * @brief Copies UTF-8 string to other string
@@ -36,7 +36,7 @@ MWDECL int MwUTF8Length(const char* input);
  * @brief len Length
  * @return Copied length in bytes
  */
-MWDECL int MwUTF8Copy(const char* src, int srcskip, char* dst, int dstskip, int len);
+MWDECL int MWAPI MwUTF8Copy(const char* src, int srcskip, char* dst, int dstskip, int len);
 
 /*!
  * @brief Converts UTF-32 to UTF-8
@@ -44,7 +44,7 @@ MWDECL int MwUTF8Copy(const char* src, int srcskip, char* dst, int dstskip, int 
  * @brief output Output
  * @return Bytes this wide byte takes
  */
-MWDECL int MwUTF32ToUTF8(int input, char* output);
+MWDECL int MWAPI MwUTF32ToUTF8(int input, char* output);
 
 #ifdef __cplusplus
 }

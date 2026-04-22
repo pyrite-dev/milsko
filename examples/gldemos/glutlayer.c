@@ -9,7 +9,7 @@ static void reshape(int width, int height);
 static void init(void);
 static void key(int k);
 
-static void tick(MwWidget handle, void* user, void* client) {
+static void MWAPI tick(MwWidget handle, void* user, void* client) {
 	(void)handle;
 	(void)user;
 	(void)client;
@@ -20,7 +20,7 @@ static void tick(MwWidget handle, void* user, void* client) {
 	MwOpenGLSwapBuffer(opengl);
 }
 
-static void resize(MwWidget handle, void* user, void* client) {
+static void MWAPI resize(MwWidget handle, void* user, void* client) {
 	int ww, wh;
 
 	(void)user;
@@ -37,7 +37,7 @@ static void resize(MwWidget handle, void* user, void* client) {
 	reshape(ww, wh);
 }
 
-static void key_pressed(MwWidget handle, void* user, void* client) {
+static void MWAPI key_pressed(MwWidget handle, void* user, void* client) {
 	(void)handle;
 	(void)user;
 

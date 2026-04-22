@@ -103,7 +103,7 @@ MwInline void* MwVulkanGetField(MwWidget handle, int field, int* err) {
 /*!
  * @brief Return whether Vulkan is installed on the target platform.
  */
-MWDECL int MwVulkanSupported(void);
+MWDECL int MWAPI MwVulkanSupported(void);
 
 #ifdef __cplusplus
 }

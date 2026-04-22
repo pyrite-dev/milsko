@@ -17,7 +17,7 @@ extern "C" {
  * @param str String
  * @return String
  */
-MWDECL char* MwStringDuplicate(const char* str);
+MWDECL char* MWAPI MwStringDuplicate(const char* str);
 
 /*!
  * @brief Concatenates 2 strings
@@ -25,21 +25,21 @@ MWDECL char* MwStringDuplicate(const char* str);
  * @param str2 String
  * @return String
  */
-MWDECL char* MwStringConcat(const char* str1, const char* str2);
+MWDECL char* MWAPI MwStringConcat(const char* str1, const char* str2);
 
 /*!
  * @brief Converts size to string
  * @param out Output
  * @param size Size
  */
-MWDECL void MwStringSize(char* out, MwOffset size);
+MWDECL void MWAPI MwStringSize(char* out, MwOffset size);
 
 /*!
  * @brief Converts time to string
  * @param out Output
  * @param t Time
  */
-MWDECL void MwStringTime(char* out, time_t t);
+MWDECL void MWAPI MwStringTime(char* out, time_t t);
 
 /*!
  * @brief Prints up to n characters into a bufferMwStringPrintIntoBuffer.
@@ -47,14 +47,14 @@ MWDECL void MwStringTime(char* out, time_t t);
  * @param out Buffer
  * @param size Max size
  */
-MWDECL void MwStringPrintIntoBuffer(char* out, MwU32 size, const char* fmt, ...);
+MWDECL void MWAPI MwStringPrintIntoBuffer(char* out, MwU32 size, const char* fmt, ...);
 
 /*!
  * @brief Check if the given key is UTF8
  * @param key Input
  * @return whether its utf8
  */
-MWDECL MwBool MwStringIsKeyUTF8(MwU32 key);
+MWDECL MwBool MWAPI MwStringIsKeyUTF8(MwU32 key);
 
 #ifdef __cplusplus
 }

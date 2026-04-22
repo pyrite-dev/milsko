@@ -94,6 +94,12 @@
 #define MWDECL extern
 #endif
 
+#if defined(_WIN32)
+#define MWAPI __cdecl
+#else
+#define MWAPI
+#endif
+
 #define MwInline static __inline
 
 #endif

@@ -20,14 +20,14 @@ extern "C" {
  * @param flag Flag
  * @return Widget
  */
-MWDECL MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsigned int flag);
+MWDECL MwWidget MWAPI MwMessageBox(MwWidget handle, const char* text, const char* title, unsigned int flag);
 
 /*!
  * @brief Gets a child of the message box
  * @param handle Widget
  * @param child Child
  */
-MWDECL MwWidget MwMessageBoxGetChild(MwWidget handle, int child);
+MWDECL MwWidget MWAPI MwMessageBoxGetChild(MwWidget handle, int child);
 
 #ifdef __cplusplus
 }

@@ -14,7 +14,7 @@ double	 deg = 0;
 
 int ww, wh;
 
-void handler(MwWidget w, void* user, void* client) {
+void MWAPI handler(MwWidget w, void* user, void* client) {
 	int    i;
 	double cdeg = deg;
 
@@ -44,7 +44,7 @@ void handler(MwWidget w, void* user, void* client) {
 	deg += 120.0 / (1000.0 / MwWaitMS);
 }
 
-void resize(MwWidget w, void* user, void* client) {
+void MWAPI resize(MwWidget w, void* user, void* client) {
 	(void)w;
 	(void)user;
 	(void)client;

@@ -60,7 +60,7 @@ extern "C" {
  * @brief Initializes the Milsko Toolkit
  * @return `0` if successful
  */
-MWDECL int MwLibraryInit(void);
+MWDECL int MWAPI MwLibraryInit(void);
 
 /*!
  * @brief Creates a widget
@@ -73,7 +73,7 @@ MWDECL int MwLibraryInit(void);
  * @param height Height
  * @return Widget
  */
-MWDECL MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height);
+MWDECL MwWidget MWAPI MwCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height);
 
 /*!
  * @brief Creates a widget
@@ -87,7 +87,7 @@ MWDECL MwWidget MwCreateWidget(MwClass widget_class, const char* name, MwWidget 
  * @param ... Same with MwVaApply
  * @return Widget
  */
-MWDECL MwWidget MwVaCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, ...);
+MWDECL MwWidget MWAPI MwVaCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, ...);
 
 /*!
  * @brief Creates a widget
@@ -101,13 +101,13 @@ MWDECL MwWidget MwVaCreateWidget(MwClass widget_class, const char* name, MwWidge
  * @param va Same with MwVaListApply
  * @return Widget
  */
-MWDECL MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va);
+MWDECL MwWidget MWAPI MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, va_list va);
 
 /*!
  * @brief Destroys the widget and its child widgets
  * @param handle Widget
  */
-MWDECL void MwDestroyWidget(MwWidget handle);
+MWDECL void MWAPI MwDestroyWidget(MwWidget handle);
 
 /*!
  * @brief Executes a method specific to the widget (varadic version).
@@ -115,7 +115,7 @@ MWDECL void MwDestroyWidget(MwWidget handle);
  * @param handle Widget
  * @param ... Widget function arguments.
  */
-MWDECL void MwVaWidgetExecute(MwWidget handle, const char* func_name, void* out, ...);
+MWDECL void MWAPI MwVaWidgetExecute(MwWidget handle, const char* func_name, void* out, ...);
 
 /*!
  * @brief Executes a method specific to the widget (va_list version).
@@ -123,27 +123,27 @@ MWDECL void MwVaWidgetExecute(MwWidget handle, const char* func_name, void* out,
  * @param handle Widget
  * @param va Widget function arguments.
  */
-MWDECL void MwVaListWidgetExecute(MwWidget handle, const char* func_name, void* out, va_list va);
+MWDECL void MWAPI MwVaListWidgetExecute(MwWidget handle, const char* func_name, void* out, va_list va);
 
 /*!
  * @brief Runs the main loop
  * @param handle Widget
  */
-MWDECL void MwLoop(MwWidget handle);
+MWDECL void MWAPI MwLoop(MwWidget handle);
 
 /*!
  * @brief Runs the single step
  * @param handle Widget
  * @return `0` if successful
  */
-MWDECL int MwStep(MwWidget handle);
+MWDECL int MWAPI MwStep(MwWidget handle);
 
 /*!
  * @brief Check if any event is pending
  * @param handle Widget
  * @return `1` if any event is pending
  */
-MWDECL int MwPending(MwWidget handle);
+MWDECL int MWAPI MwPending(MwWidget handle);
 
 /*!
  * @brief Sets an integer property
@@ -151,7 +151,7 @@ MWDECL int MwPending(MwWidget handle);
  * @param key Key
  * @param n Value
  */
-MWDECL void MwSetInteger(MwWidget handle, const char* key, int n);
+MWDECL void MWAPI MwSetInteger(MwWidget handle, const char* key, int n);
 
 /*!
  * @brief Sets a text property
@@ -159,7 +159,7 @@ MWDECL void MwSetInteger(MwWidget handle, const char* key, int n);
  * @param key Key
  * @param value Value
  */
-MWDECL void MwSetText(MwWidget handle, const char* key, const char* value);
+MWDECL void MWAPI MwSetText(MwWidget handle, const char* key, const char* value);
 
 /*!
  * @brief Sets a void pointer property
@@ -167,7 +167,7 @@ MWDECL void MwSetText(MwWidget handle, const char* key, const char* value);
  * @param key Key
  * @param value Value
  */
-MWDECL void MwSetVoid(MwWidget handle, const char* key, void* value);
+MWDECL void MWAPI MwSetVoid(MwWidget handle, const char* key, void* value);
 
 /*!
  * @brief Gets the integer property
@@ -175,7 +175,7 @@ MWDECL void MwSetVoid(MwWidget handle, const char* key, void* value);
  * @param key Key
  * @return Value
  */
-MWDECL int MwGetInteger(MwWidget handle, const char* key);
+MWDECL int MWAPI MwGetInteger(MwWidget handle, const char* key);
 
 /*!
  * @brief Gets the text property
@@ -183,7 +183,7 @@ MWDECL int MwGetInteger(MwWidget handle, const char* key);
  * @param key Key
  * @return Value
  */
-MWDECL const char* MwGetText(MwWidget handle, const char* key);
+MWDECL const char* MWAPI MwGetText(MwWidget handle, const char* key);
 
 /*!
  * @brief Gets the void pointer property
@@ -191,28 +191,28 @@ MWDECL const char* MwGetText(MwWidget handle, const char* key);
  * @param key Key
  * @return Value
  */
-MWDECL void* MwGetVoid(MwWidget handle, const char* key);
+MWDECL void* MWAPI MwGetVoid(MwWidget handle, const char* key);
 
 /*!
  * @brief Sets the default property
  * @param handle Widget
  * @warning This is called when widget is created
  */
-MWDECL void MwSetDefault(MwWidget handle);
+MWDECL void MWAPI MwSetDefault(MwWidget handle);
 
 /*!
  * @brief Sets the properties
  * @param handle Widget
  * @param ... Properties
  */
-MWDECL void MwVaApply(MwWidget handle, ...);
+MWDECL void MWAPI MwVaApply(MwWidget handle, ...);
 
 /*!
  * @brief Sets properties
  * @param handle Widget
  * @param va Properties
  */
-MWDECL void MwVaListApply(MwWidget handle, va_list va);
+MWDECL void MWAPI MwVaListApply(MwWidget handle, va_list va);
 
 /*!
  * @brief Sets a user handler
@@ -221,7 +221,7 @@ MWDECL void MwVaListApply(MwWidget handle, va_list va);
  * @param handler Handler
  * @param user_data User data passed to handler
  */
-MWDECL void MwAddUserHandler(MwWidget handle, const char* key, MwUserHandler handler, void* user_data);
+MWDECL void MWAPI MwAddUserHandler(MwWidget handle, const char* key, MwUserHandler handler, void* user_data);
 
 /*!
  * @brief Dispatches the user handler
@@ -229,7 +229,7 @@ MWDECL void MwAddUserHandler(MwWidget handle, const char* key, MwUserHandler han
  * @param key Key
  * @param handler_data Handler data passed to handler
  */
-MWDECL void MwDispatchUserHandler(MwWidget handle, const char* key, void* handler_data);
+MWDECL void MWAPI MwDispatchUserHandler(MwWidget handle, const char* key, void* handler_data);
 
 /*!
  * @brief Sets an error handler
@@ -237,52 +237,52 @@ MWDECL void MwDispatchUserHandler(MwWidget handle, const char* key, void* handle
  * @param handler Handler
  * @param user_data User data passed to handler
  */
-MWDECL void MwSetErrorHandler(MwErrorHandler handler, void* user_data);
+MWDECL void MWAPI MwSetErrorHandler(MwErrorHandler handler, void* user_data);
 
 /*!
  * @brief Dispatches the error handler
  * @param code Error code
  * @param message Error message
  */
-MWDECL void MwDispatchError(int code, const char* message);
+MWDECL void MWAPI MwDispatchError(int code, const char* message);
 
 /*!
  * @brief Forcefully makes widget render
  * @param handle Widget
  */
-MWDECL void MwForceRender(MwWidget handle);
+MWDECL void MWAPI MwForceRender(MwWidget handle);
 
 /*!
  * @brief Forcefully makes widget render
  * @param handle Widget
  * @param ptr Ignored
  */
-MWDECL void MwForceRender2(MwWidget handle, void* ptr);
+MWDECL void MWAPI MwForceRender2(MwWidget handle, void* ptr);
 
 /*!
  * @brief Adds an widget to tick handler list
  * @param handle Widget
  */
-MWDECL void MwAddTickList(MwWidget handle);
+MWDECL void MWAPI MwAddTickList(MwWidget handle);
 
 /*!
  * @brief Focus the widget
  * @param handle Widget
  */
-MWDECL void MwFocus(MwWidget handle);
+MWDECL void MWAPI MwFocus(MwWidget handle);
 
 /*!
  * @brief Grabs the pointer
  * @param handle Widget
  * @param toggle Toggle
  */
-MWDECL void MwGrabPointer(MwWidget handle, int toggle);
+MWDECL void MWAPI MwGrabPointer(MwWidget handle, int toggle);
 
 /*!
  * @brief Hides the cursor
  * @param handle Widget
  */
-MWDECL void MwHideCursor(MwWidget handle);
+MWDECL void MWAPI MwHideCursor(MwWidget handle);
 
 /*!
  * @brief Toggles the dark theme
@@ -290,76 +290,84 @@ MWDECL void MwHideCursor(MwWidget handle);
  * @param toggle Toggle
  * @deprecated Use MwNdarkTheme instead
  */
-MWDECL void MwSetDarkTheme(MwWidget handle, int toggle);
+MWDECL void MWAPI MwSetDarkTheme(MwWidget handle, int toggle);
 
 /*!
  * @brief Gets the parent widget
  * @param handle Widget
  * @return Parent widget
  */
-MWDECL MwWidget MwGetParent(MwWidget handle);
+MWDECL MwWidget MWAPI MwGetParent(MwWidget handle);
 
 /*!
  * @brief Show widget
  * @param handle Widget
  * @param toggle Toggle
  */
-MWDECL void MwShow(MwWidget handle, int toggle);
+MWDECL void MWAPI MwShow(MwWidget handle, int toggle);
 
 /*!
  * @brief Reparents widget
  * @param handle Widget
  * @param new_parent New parent
  */
-MWDECL void MwReparent(MwWidget handle, MwWidget new_parent);
+MWDECL void MWAPI MwReparent(MwWidget handle, MwWidget new_parent);
 
 /*!
  * @brief Gets class of widget
  * @param handle Widget
  * @return Class
  */
-MWDECL MwClass MwGetClass(MwWidget handle);
+MWDECL MwClass MWAPI MwGetClass(MwWidget handle);
 
 /*!
  * @brief Gets name of widget
  * @param handle Widget
  * @return Name
  */
-MWDECL const char* MwGetName(MwWidget handle);
+MWDECL const char* MWAPI MwGetName(MwWidget handle);
 
 /*!
  * @brief Gets children of widget
  * @param handle Widget
  * @return Children (NULL-terminated array)
  */
-MWDECL MwWidget* MwGetChildren(MwWidget handle);
+MWDECL MwWidget* MWAPI MwGetChildren(MwWidget handle);
 
 /*!
  * @brief Gets the cursor coordinate
  * @param handle Widget
  * @param point Point
  */
-MWDECL void MwGetCursorCoord(MwWidget handle, MwPoint* point);
+MWDECL void MWAPI MwGetCursorCoord(MwWidget handle, MwPoint* point);
 
 /*!
  * @brief Gets the screen size
  * @param handle Widget
  * @param rect Rectangle
  */
-MWDECL void MwGetScreenSize(MwWidget handle, MwRect* rect);
+MWDECL void MWAPI MwGetScreenSize(MwWidget handle, MwRect* rect);
 
 /*!
  * @brief Reports whether a widget reports global or local coordinates upon GetXY/SetXY. Anything with a parent reports local, and most backends report global coordinates being supported for top level windows, but some (Wayland) do not.
  * @param handle Widget
  */
-MWDECL int MwGetCoordinateType(MwWidget handle);
+MWDECL int MWAPI MwGetCoordinateType(MwWidget handle);
 
 /*!
  * @brief Queue to get clipboard content.
  * @param handle Widget
  * @param clipboard_type The Clipboard Type to get. See MwClipboardType. This is ignored on backends that aren't X11/Wayland, so if you're unsure, just use MwClipboardMain
  */
-MWDECL void MwGetClipboard(MwWidget handle, int clipboard_type);
+MWDECL void MWAPI MwGetClipboard(MwWidget handle, int clipboard_type);
+
+#ifdef _MILSKO
+MWDECL void MwForceRender_Internal(MwWidget handle);
+MWDECL void MwForceRender2_Internal(MwWidget handle, void* ptr);
+
+#define MwForceRender MwForceRender_Internal
+#define MwForceRender2 MwForceRender2_Internal
+#endif
 
 #ifdef __cplusplus
 }

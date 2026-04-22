@@ -2,7 +2,7 @@
 
 MwWidget vp;
 
-static void resize(MwWidget handle, void* user, void* call) {
+static void MWAPI resize(MwWidget handle, void* user, void* call) {
 	int w = MwGetInteger(handle, MwNwidth);
 	int h = MwGetInteger(handle, MwNheight);
 

@@ -6,7 +6,7 @@
 #define LineSpace 16
 #define LinePadding 4
 
-static void vscroll_changed(MwWidget handle, void* user, void* call) {
+static void MWAPI vscroll_changed(MwWidget handle, void* user, void* call) {
 	MwTreeView tv = handle->parent->internal;
 
 	(void)user;
@@ -211,7 +211,7 @@ static int recursive_length(MwTreeViewEntry** e) {
 	return l;
 }
 
-static void frame_mouse_down(MwWidget handle, void* user, void* call) {
+static void MWAPI frame_mouse_down(MwWidget handle, void* user, void* call) {
 	MwTreeView tv	 = handle->parent->internal;
 	MwMouse*   mouse = call;
 
@@ -222,7 +222,7 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 
 static void resize(MwWidget handle);
 
-static void frame_mouse_up(MwWidget handle, void* user, void* call) {
+static void MWAPI frame_mouse_up(MwWidget handle, void* user, void* call) {
 	MwTreeView tv	  = handle->parent->internal;
 	int	   shared = 0;
 	int	   skip	  = MwGetInteger(tv->vscroll, MwNvalue) * (MwGetInteger(tv->vscroll, MwNmaxValue) - MwGetInteger(tv->vscroll, MwNareaShown)) / MwGetInteger(tv->vscroll, MwNmaxValue);

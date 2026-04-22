@@ -6,7 +6,7 @@ int	 ow, oh;
 double	 deg = 0;
 double	 dir = 1;
 
-void resize(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI resize(MwWidget handle, void* user_data, void* call_data) {
 	unsigned int w, h;
 
 	(void)user_data;
@@ -27,7 +27,7 @@ void resize(MwWidget handle, void* user_data, void* call_data) {
 		  NULL);
 }
 
-void tick(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI tick(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
 	(void)call_data;
@@ -61,7 +61,7 @@ void tick(MwWidget handle, void* user_data, void* call_data) {
 	deg += 120.0 / (1000.0 / MwWaitMS) * dir;
 }
 
-void activate(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI activate(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
 	(void)call_data;

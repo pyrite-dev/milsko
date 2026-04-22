@@ -54,7 +54,7 @@ static int get_col_width(MwListBox lb, int ind) {
 	return 0;
 }
 
-static void vscroll_changed(MwWidget handle, void* user, void* call) {
+static void MWAPI vscroll_changed(MwWidget handle, void* user, void* call) {
 	MwListBox lb = handle->parent->internal;
 
 	(void)user;
@@ -63,7 +63,7 @@ static void vscroll_changed(MwWidget handle, void* user, void* call) {
 	lb->changed = 1;
 }
 
-static void frame_mouse_down(MwWidget handle, void* user, void* call) {
+static void MWAPI frame_mouse_down(MwWidget handle, void* user, void* call) {
 	MwListBox lb = handle->parent->internal;
 	MwMouse*  m  = call;
 
@@ -98,7 +98,7 @@ static void frame_mouse_down(MwWidget handle, void* user, void* call) {
 	}
 }
 
-static void frame_mouse_up(MwWidget handle, void* user, void* call) {
+static void MWAPI frame_mouse_up(MwWidget handle, void* user, void* call) {
 	MwListBox lb = handle->parent->internal;
 	MwMouse*  m  = call;
 
@@ -109,7 +109,7 @@ static void frame_mouse_up(MwWidget handle, void* user, void* call) {
 	}
 }
 
-static void frame_mouse_move(MwWidget handle, void* user, void* call) {
+static void MWAPI frame_mouse_move(MwWidget handle, void* user, void* call) {
 	MwListBox lb = handle->parent->internal;
 	MwPoint*  p  = call;
 

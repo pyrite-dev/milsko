@@ -18,13 +18,13 @@ extern "C" {
  * @param size Data size
  * @return Font handle
  */
-MWDECL void* MwFontLoad(unsigned char* data, unsigned int size);
+MWDECL void* MWAPI MwFontLoad(unsigned char* data, unsigned int size);
 
 /*!
  * @brief Frees a font handle
  * @param handle Handle
  */
-MWDECL void MwFontFree(void* handle);
+MWDECL void MWAPI MwFontFree(void* handle);
 
 #ifdef __cplusplus
 }

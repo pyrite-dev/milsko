@@ -4,7 +4,7 @@ MwWidget cpicker;
 MwWidget window;
 MwWidget button;
 
-void color_callback(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI color_callback(MwWidget handle, void* user_data, void* call_data) {
 	char   hexColor[8];
 	MwRGB* rgb = call_data;
 
@@ -18,7 +18,7 @@ void color_callback(MwWidget handle, void* user_data, void* call_data) {
 	MwSetText(window, MwNbackground, hexColor);
 }
 
-void color_picker(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI color_picker(MwWidget handle, void* user_data, void* call_data) {
 	MwWidget cpicker = MwColorPicker(window, "cpicker");
 
 	(void)handle;

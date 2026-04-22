@@ -2,7 +2,7 @@
 
 MwWidget window, box;
 
-void resize(MwWidget handle, void* user, void* client) {
+void MWAPI resize(MwWidget handle, void* user, void* client) {
 	int ww = MwGetInteger(handle, MwNwidth);
 	int wh = MwGetInteger(handle, MwNheight);
 

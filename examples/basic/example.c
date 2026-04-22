@@ -2,7 +2,7 @@
 
 MwWidget window, menu, button, button2, button3, button4, button5, button6;
 
-void handler(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI handler(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
 	(void)call_data;
@@ -10,7 +10,7 @@ void handler(MwWidget handle, void* user_data, void* call_data) {
 	printf("hello world!\n");
 }
 
-void handler_theme(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI handler_theme(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
 	(void)call_data;
@@ -20,7 +20,7 @@ void handler_theme(MwWidget handle, void* user_data, void* call_data) {
 		  NULL);
 }
 
-void handler_look(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI handler_look(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
 	(void)call_data;
@@ -30,7 +30,7 @@ void handler_look(MwWidget handle, void* user_data, void* call_data) {
 		  NULL);
 }
 
-void handler_font(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI handler_font(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
 	(void)user_data;
 	(void)call_data;
@@ -40,7 +40,7 @@ void handler_font(MwWidget handle, void* user_data, void* call_data) {
 		  NULL);
 }
 
-void resize(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI resize(MwWidget handle, void* user_data, void* call_data) {
 	unsigned int w, h, mh;
 
 	(void)user_data;

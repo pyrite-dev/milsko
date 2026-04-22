@@ -13,7 +13,7 @@ double deg2rad(double deg) {
 	return (360.0 - deg) / 180.0 * M_PI;
 }
 
-void tick(MwWidget handle, void* user, void* call) {
+void MWAPI tick(MwWidget handle, void* user, void* call) {
 	time_t t = time(NULL);
 	int    i;
 	double rad;
@@ -104,7 +104,7 @@ void tick(MwWidget handle, void* user, void* call) {
 	MwOpenGLSwapBuffer(opengl);
 }
 
-void resize(MwWidget handle, void* user, void* call) {
+void MWAPI resize(MwWidget handle, void* user, void* call) {
 	int w = MwGetInteger(handle, MwNwidth);
 	int h = MwGetInteger(handle, MwNheight);
 

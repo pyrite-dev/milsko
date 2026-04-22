@@ -61,7 +61,7 @@ MWDECL const int MwDefaultShadow;
  * @brief Gets default border width
  * @param handle Widget
  */
-MWDECL int MwDefaultBorderWidth(MwWidget handle);
+MWDECL int MWAPI MwDefaultBorderWidth(MwWidget handle);
 
 #ifdef __cplusplus
 }

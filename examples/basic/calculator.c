@@ -7,7 +7,7 @@ MwWidget inp;
 double stack[512];
 int    sp = 0;
 
-static void resize(MwWidget handle, void* client, void* user) {
+static void MWAPI resize(MwWidget handle, void* client, void* user) {
 	int ww = MwGetInteger(handle, MwNwidth);
 	int wh = MwGetInteger(handle, MwNheight) - MwGetInteger(inp, MwNheight);
 	int i;
@@ -30,7 +30,7 @@ static void resize(MwWidget handle, void* client, void* user) {
 	}
 }
 
-static void activate(MwWidget handle, void* client, void* user) {
+static void MWAPI activate(MwWidget handle, void* client, void* user) {
 	const char* n = MwGetText(handle, MwNtext);
 
 	if(('0' <= n[0] && n[0] <= '9') || n[0] == '.') {

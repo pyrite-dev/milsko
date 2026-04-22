@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-static void vscroll_changed(MwWidget handle, void* user, void* call) {
+static void MWAPI vscroll_changed(MwWidget handle, void* user, void* call) {
 	MwViewport vp = user;
 
 	(void)handle;
@@ -9,7 +9,7 @@ static void vscroll_changed(MwWidget handle, void* user, void* call) {
 	vp->vchanged = 1;
 }
 
-static void hscroll_changed(MwWidget handle, void* user, void* call) {
+static void MWAPI hscroll_changed(MwWidget handle, void* user, void* call) {
 	MwViewport vp = user;
 
 	(void)handle;

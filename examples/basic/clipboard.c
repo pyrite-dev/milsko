@@ -2,7 +2,7 @@
 
 MwWidget window, instructions, text1, text2, cur_text;
 
-static void resize(MwWidget handle, void* user_data, void* call_data) {
+static void MWAPI resize(MwWidget handle, void* user_data, void* call_data) {
 	unsigned int w, h;
 
 	(void)user_data;
@@ -28,7 +28,7 @@ static void resize(MwWidget handle, void* user_data, void* call_data) {
 		  MwNheight, h - 125 - 50 * 3,
 		  NULL);
 }
-static void clipboard(MwWidget handle, void* user_data, void* call_data) {
+static void MWAPI clipboard(MwWidget handle, void* user_data, void* call_data) {
 	char* clipboard = call_data;
 
 	(void)handle;
@@ -40,7 +40,7 @@ static void clipboard(MwWidget handle, void* user_data, void* call_data) {
 	}
 }
 
-static void tick(MwWidget handle, void* user_data, void* call_data) {
+static void MWAPI tick(MwWidget handle, void* user_data, void* call_data) {
 	cur_text = text1;
 	MwGetClipboard(handle, MwCLIPBOARD_MAIN);
 	cur_text = text2;

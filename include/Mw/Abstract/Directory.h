@@ -17,32 +17,32 @@ extern "C" {
  * @param path Path
  * @return Handle
  */
-MWDECL void* MwDirectoryOpen(const char* path);
+MWDECL void* MWAPI MwDirectoryOpen(const char* path);
 
 /*!
  * @brief Closes a directory
  * @param handle Handle
  */
-MWDECL void MwDirectoryClose(void* handle);
+MWDECL void MWAPI MwDirectoryClose(void* handle);
 
 /*!
  * @brief Reads a directory
  * @param handle Handle
  * @return Directory entry
  */
-MWDECL MwDirectoryEntry* MwDirectoryRead(void* handle);
+MWDECL MwDirectoryEntry* MWAPI MwDirectoryRead(void* handle);
 
 /*!
  * @brief Frees a directory entry
  * @param entry Entry
  */
-MWDECL void MwDirectoryFreeEntry(MwDirectoryEntry* entry);
+MWDECL void MWAPI MwDirectoryFreeEntry(MwDirectoryEntry* entry);
 
 /*!
  * @brief Gets a current directory
  * @param Directory
  */
-MWDECL char* MwDirectoryCurrent(void);
+MWDECL char* MWAPI MwDirectoryCurrent(void);
 
 /*!
  * @brief Joins 2 paths
@@ -50,7 +50,7 @@ MWDECL char* MwDirectoryCurrent(void);
  * @param b Path
  * @return Path
  */
-MWDECL char* MwDirectoryJoin(char* a, char* b);
+MWDECL char* MWAPI MwDirectoryJoin(char* a, char* b);
 
 #ifdef __cplusplus
 }

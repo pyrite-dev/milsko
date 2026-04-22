@@ -53,35 +53,35 @@ static void destroy(MwWidget handle) {
 	MwDestroyWidget(handle);
 }
 
-static void filecancel(MwWidget handle, void* user, void* call) {
+static void MWAPI filecancel(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
 	destroy(handle->parent);
 }
 
-static void cancel_window(MwWidget handle, void* user, void* call) {
+static void MWAPI cancel_window(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
 	destroy(handle);
 }
 
-static void okay(MwWidget handle, void* user, void* call) {
+static void MWAPI okay(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
 	destroy(handle->parent);
 }
 
-static void msgbox_okay(MwWidget handle, void* user, void* call) {
+static void MWAPI msgbox_okay(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
 	MwDestroyWidget(handle->parent);
 }
 
-static void files_activate(MwWidget handle, void* user, void* call) {
+static void MWAPI files_activate(MwWidget handle, void* user, void* call) {
 	int	       index = *(int*)call;
 	filechooser_t* fc    = handle->parent->opaque;
 
@@ -104,7 +104,7 @@ static void files_activate(MwWidget handle, void* user, void* call) {
 	}
 }
 
-static void okay_activate(MwWidget handle, void* user, void* call) {
+static void MWAPI okay_activate(MwWidget handle, void* user, void* call) {
 	filechooser_t* fc = handle->parent->opaque;
 	char*	       t  = (char*)MwGetText(fc->filename, MwNtext);
 	struct stat    s;
@@ -140,7 +140,7 @@ static void okay_activate(MwWidget handle, void* user, void* call) {
 	if(p != NULL) free(p);
 }
 
-static void nav_activate(MwWidget handle, void* user, void* call) {
+static void MWAPI nav_activate(MwWidget handle, void* user, void* call) {
 	int	    index = *(int*)call;
 	const char* e	  = MwListBoxGet(handle, index);
 
@@ -156,7 +156,7 @@ static void nav_activate(MwWidget handle, void* user, void* call) {
 	}
 }
 
-static void addr_up_activate(MwWidget handle, void* user, void* call) {
+static void MWAPI addr_up_activate(MwWidget handle, void* user, void* call) {
 	filechooser_t* fc = handle->parent->opaque;
 	char*	       p  = MwDirectoryJoin(fc->path, "..");
 
@@ -168,7 +168,7 @@ static void addr_up_activate(MwWidget handle, void* user, void* call) {
 	free(p);
 }
 
-static void addr_back_activate(MwWidget handle, void* user, void* call) {
+static void MWAPI addr_back_activate(MwWidget handle, void* user, void* call) {
 	filechooser_t* fc = handle->parent->opaque;
 
 	(void)user;
@@ -181,7 +181,7 @@ static void addr_back_activate(MwWidget handle, void* user, void* call) {
 	}
 }
 
-static void addr_fwd_activate(MwWidget handle, void* user, void* call) {
+static void MWAPI addr_fwd_activate(MwWidget handle, void* user, void* call) {
 	filechooser_t* fc = handle->parent->opaque;
 
 	(void)user;
@@ -192,7 +192,7 @@ static void addr_fwd_activate(MwWidget handle, void* user, void* call) {
 	}
 }
 
-static void addr_activate(MwWidget handle, void* user, void* call) {
+static void MWAPI addr_activate(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
@@ -390,7 +390,7 @@ static void layout(MwWidget handle) {
 	}
 }
 
-static void resize(MwWidget handle, void* user, void* call) {
+static void MWAPI resize(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 

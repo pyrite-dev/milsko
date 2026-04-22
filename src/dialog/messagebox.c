@@ -24,7 +24,7 @@ static void messagebox_destroy_inject(MwWidget handle) {
 	if((px = MwGetVoid(handle, MwNpixmap)) != NULL) MwLLDestroyPixmap(px);
 }
 
-static void messagebox_close(MwWidget handle, void* user, void* call) {
+static void MWAPI messagebox_close(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 	MwDestroyWidget(handle);

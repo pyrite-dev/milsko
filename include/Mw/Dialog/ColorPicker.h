@@ -18,7 +18,7 @@ extern "C" {
  * @param title Title text
  * @return Widget
  */
-MWDECL MwWidget MwColorPicker(MwWidget handle, const char* title);
+MWDECL MwWidget MWAPI MwColorPicker(MwWidget handle, const char* title);
 
 #ifdef __cplusplus
 }

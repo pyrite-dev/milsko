@@ -17,7 +17,7 @@ int	    ct	  = 0;
 int	    click = 0;
 int	    mx, my;
 
-static void tick(MwWidget handle, void* user, void* call) {
+static void MWAPI tick(MwWidget handle, void* user, void* call) {
 	int i;
 	int w = MwGetInteger(opengl, MwNwidth);
 	int h = MwGetInteger(opengl, MwNheight);
@@ -50,7 +50,7 @@ static void tick(MwWidget handle, void* user, void* call) {
 	MwOpenGLSwapBuffer(opengl);
 }
 
-static void mouse(MwWidget handle, void* user, void* call) {
+static void MWAPI mouse(MwWidget handle, void* user, void* call) {
 	MwMouse* mouse = call;
 
 	(void)handle;
@@ -91,7 +91,7 @@ static void mouse(MwWidget handle, void* user, void* call) {
 	}
 }
 
-static void mouse_move(MwWidget handle, void* user, void* call) {
+static void MWAPI mouse_move(MwWidget handle, void* user, void* call) {
 	MwPoint* point = call;
 
 	(void)handle;
