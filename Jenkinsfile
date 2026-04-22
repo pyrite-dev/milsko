@@ -42,6 +42,8 @@ pipeline {
 						sh("./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross --target=Windows --host=i686-w64-mingw32")
 						sh("make clean")
 						sh("make -j4")
+						sh("mv src/Mw.dll Mw32.dll")
+						archiveArtifacts("Mw32.dll")
 					}
 				}
 				stage("Build for Windows 64-bit") {
@@ -52,6 +54,8 @@ pipeline {
 						sh("./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross --target=Windows --host=x86_64-w64-mingw32")
 						sh("make clean")
 						sh("make -j4")
+						sh("mv src/Mw.dll Mw64.dll")
+						archiveArtifacts("Mw64.dll")
 					}
 				}
 				stage("Build for Windows 32-bit (MSVC)") {
@@ -61,6 +65,8 @@ pipeline {
 					steps {
 						bat("nmake -f NTMakefile clean")
 						bat("nmake -f NTMakefile")
+						bat("move /y src\\Mw.dll MwWatcom32.dll")
+						archiveArtifacts("MwWatcom32.dll")
 					}
 				}
 			}
