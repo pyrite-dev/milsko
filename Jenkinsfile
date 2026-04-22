@@ -29,6 +29,7 @@ pipeline {
 						label "built-in"
 					}
 					steps {
+						sh("rm -f *.so")
 						sh("./configure --enable-opengl --enable-vulkan --without-vulkan-string-helper")
 						sh("make clean")
 						sh("make -j4")
@@ -41,6 +42,7 @@ pipeline {
 						label "built-in"
 					}
 					steps {
+						sh("rm -f *.dll *.dll.a")
 						sh("./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross --target=Windows --host=i686-w64-mingw32")
 						sh("make clean")
 						sh("make -j4")
@@ -54,6 +56,7 @@ pipeline {
 						label "built-in"
 					}
 					steps {
+						sh("rm -f *.dll *.dll.a")
 						sh("./configure --enable-opengl --enable-stb-truetype --disable-freetype2 --cross --target=Windows --host=x86_64-w64-mingw32")
 						sh("make clean")
 						sh("make -j4")
@@ -67,11 +70,12 @@ pipeline {
 						label "2012r2"
 					}
 					steps {
+						bat("del /s *.dll *.lib")
 						bat("nmake -f NTMakefile clean")
 						bat("nmake -f NTMakefile")
-						bat("move /y src\\Mw.dll MwWatcom32.dll")
-						bat("move /y src\\Mw.lib MwWatcom32.lib")
-						archiveArtifacts("MwWatcom32.dll,MwWatcom32.lib")
+						bat("move /y src\\Mw.dll MwMSVC32.dll")
+						bat("move /y src\\Mw.lib MwMSVC32.lib")
+						archiveArtifacts("MwMSVC32.dll,MwMSVC32.lib")
 					}
 				}
 			}
