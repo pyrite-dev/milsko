@@ -32,6 +32,8 @@ pipeline {
 						sh("./configure --enable-opengl --enable-vulkan --without-vulkan-string-helper")
 						sh("make clean")
 						sh("make -j4")
+						sh("mv src/libMw.so libMw64.so")
+						archiveArtifacts("libMw64.so")
 					}
 				}
 				stage("Build for Windows 32-bit") {
@@ -43,7 +45,8 @@ pipeline {
 						sh("make clean")
 						sh("make -j4")
 						sh("mv src/Mw.dll Mw32.dll")
-						archiveArtifacts("Mw32.dll")
+						sh("mv src/libMw.dll.a libMw32.dll.a")
+						archiveArtifacts("Mw32.dll,libMw32.dll.a")
 					}
 				}
 				stage("Build for Windows 64-bit") {
@@ -55,7 +58,8 @@ pipeline {
 						sh("make clean")
 						sh("make -j4")
 						sh("mv src/Mw.dll Mw64.dll")
-						archiveArtifacts("Mw64.dll")
+						sh("mv src/libMw.dll.a libMw64.dll.a")
+						archiveArtifacts("Mw64.dll,libMw64.dll.a")
 					}
 				}
 				stage("Build for Windows 32-bit (MSVC)") {
@@ -66,7 +70,8 @@ pipeline {
 						bat("nmake -f NTMakefile clean")
 						bat("nmake -f NTMakefile")
 						bat("move /y src\\Mw.dll MwWatcom32.dll")
-						archiveArtifacts("MwWatcom32.dll")
+						bat("move /y src\\Mw.lib MwWatcom32.lib")
+						archiveArtifacts("MwWatcom32.dll,MwWatcom32.lib")
 					}
 				}
 			}
