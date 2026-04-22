@@ -903,10 +903,12 @@ void MwDispatchError(int code, const char* message) {
 	}
 }
 
+#undef MwForceRender
 void MwForceRender(MwWidget handle) {
 	MwLLForceRender(handle->lowlevel);
 }
 
+#undef MwForceRender2
 void MwForceRender2(MwWidget handle, void* ptr) {
 	(void)ptr;
 
