@@ -43,8 +43,8 @@ typedef void (*MwHandlerMouse)(MwWidget handle, void* ptr);
 typedef void (*MwHandlerExecute)(MwWidget handle, const char* name, void* out, va_list args);
 typedef void (*MwHandlerClipboardReceived)(MwWidget handle, const char* data);
 
-typedef void (MWAPI *MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
-typedef void (MWAPI *MwErrorHandler)(int code, const char* message, void* user_data);
+typedef void(MWAPI* MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
+typedef void(MWAPI* MwErrorHandler)(int code, const char* message, void* user_data);
 
 struct _MwTextKeyValue {
 	char* key;

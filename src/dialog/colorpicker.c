@@ -191,7 +191,7 @@ static void MWAPI color_picker_click(MwWidget handle, void* user, void* call) {
 	MwSetText(picker->color_display_text, MwNtext, hexColor);
 }
 static void MWAPI color_picker_on_change_value(MwWidget handle, void* user,
-					 void* call) {
+					       void* call) {
 	color_picker_t* picker = user;
 
 	int value = MwGetInteger(handle, MwNvalue);
@@ -207,7 +207,7 @@ static void MWAPI color_picker_on_change_value(MwWidget handle, void* user,
 }
 
 static void MWAPI color_picker_tick(MwWidget handle, void* user,
-			      void* call) {
+				    void* call) {
 	color_picker_t* picker = user;
 
 	(void)handle;
@@ -225,7 +225,7 @@ static void color_picker_destroy(color_picker_t* picker) {
 }
 
 static void MWAPI color_picker_close(MwWidget handle, void* user,
-			       void* call) {
+				     void* call) {
 	color_picker_t* picker = user;
 
 	(void)call;
@@ -235,7 +235,7 @@ static void MWAPI color_picker_close(MwWidget handle, void* user,
 }
 
 static void MWAPI color_display_text_change(MwWidget handle, void* user,
-				      void* call) {
+					    void* call) {
 	color_picker_t* picker = user;
 	char		hexColor[9];
 	char		fgColor[9];
@@ -266,7 +266,7 @@ static void MWAPI color_display_text_change(MwWidget handle, void* user,
 }
 
 static void MWAPI color_picker_finish(MwWidget handle, void* user,
-				void* call) {
+				      void* call) {
 	color_picker_t* picker = user;
 
 	(void)call;

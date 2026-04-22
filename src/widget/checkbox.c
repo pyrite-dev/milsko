@@ -17,6 +17,15 @@ static void draw(MwWidget handle) {
 	r.y	 = 0;
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
+	MwDrawRect(handle, &r, base);
+
+	if(r.width < r.height) {
+		r.height = r.width;
+	} else {
+		r.width = r.height;
+	}
+	r.x = (MwGetInteger(handle, MwNwidth) - r.width) / 2;
+	r.y = (MwGetInteger(handle, MwNheight) - r.height) / 2;
 
 	MwDrawWidgetBack(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0, MwTRUE);
 	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
@@ -50,7 +59,7 @@ MwClassRec MwCheckBoxClassRec = {
     NULL,	    /* key */
     NULL,	    /* execute */
     NULL,	    /* tick */
-    NULL,	    /* resize */
+    MwForceRender,  /* resize */
     NULL,	    /* children_update */
     NULL,	    /* children_prop_change */
     NULL,	    /* clipboard */

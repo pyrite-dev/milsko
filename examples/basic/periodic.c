@@ -145,8 +145,8 @@ static void MWAPI menu_handler(MwWidget handle, void* user, void* call) {
 }
 
 int main() {
-	int	 i;
-	MwWidget f, w;
+	int	 i, j;
+	MwWidget f, w, b;
 	int	 index;
 	MwMenu	 m, m2;
 	void*	 v;
@@ -223,6 +223,30 @@ int main() {
 			     MwNtext, "The Periodic Table of Milsko Widgets",
 			     MwNratio, Columns - 2,
 			     NULL));
+
+	for(i = 0; i < 2; i++) {
+		f = frame(i == 0 ? "CheckBox" : "RadioBox", -PaddingContent, -PaddingContent, MwBoxClass,
+			  MwNmargin, PaddingContent,
+			  NULL);
+		w = child(f);
+		b = MwVaCreateWidget(MwBoxClass, "box1", w, 0, 0, 0, 0,
+				     MwNorientation, MwVERTICAL,
+				     MwNfixedSize, 16,
+				     NULL);
+		for(j = 0; j < 5; j++) MwCreateWidget(i == 0 ? MwCheckBoxClass : MwRadioBoxClass, i == 0 ? "cb" : "rb", b, 0, 0, 0, 0);
+		b = MwVaCreateWidget(MwBoxClass, "box1", w, 0, 0, 0, 0,
+				     MwNorientation, MwVERTICAL,
+				     NULL);
+		for(j = 0; j < 5; j++) {
+			char buf[32];
+			sprintf(buf, "%sBox %d", i == 0 ? "Check" : "Radio", j + 1);
+			MwVaCreateWidget(MwLabelClass, "label", b, 0, 0, 0, 0,
+					 MwNtext, buf,
+					 MwNalignment, MwALIGNMENT_BEGINNING,
+					 NULL);
+		}
+		add(f);
+	}
 
 	f = frame("ComboBox", -PaddingContent, 24, MwComboBoxClass, NULL);
 	w = child(f);

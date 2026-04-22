@@ -237,16 +237,16 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
 
 	p[0].x = rect->x + rect->width / 2;
-	p[0].y = border;
+	p[0].y = rect->y + border;
 
 	p[1].x = rect->x + rect->width - border;
-	p[1].y = rect->height / 2;
+	p[1].y = rect->y + rect->height / 2;
 
 	p[2].x = rect->x + rect->width / 2;
 	p[2].y = rect->y + rect->height - border;
 
 	p[3].x = rect->x + border;
-	p[3].y = rect->height / 2;
+	p[3].y = rect->y + rect->height / 2;
 
 	MwLLPolygon(handle->lowlevel, p, 4, col);
 

@@ -19,9 +19,17 @@ static void draw(MwWidget handle) {
 	r.y	 = 0;
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
-
 	MwDrawRect(handle, &r, base);
 	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
+
+	if(r.width < r.height) {
+		r.height = r.width;
+	} else {
+		r.width = r.height;
+	}
+	r.x = (MwGetInteger(handle, MwNwidth) - r.width) / 2;
+	r.y = (MwGetInteger(handle, MwNheight) - r.height) / 2;
+
 	MwDrawDiamond(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0);
 
 	MwLLFreeColor(base);
