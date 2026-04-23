@@ -154,8 +154,8 @@ static void mouse_down(MwWidget handle, void* ptr) {
 }
 
 static void mouse_move(MwWidget handle) {
-	MENU_LOOP_DECL;
 	int matched = 0;
+	MENU_LOOP_DECL;
 
 	MENU_LOOP_INIT;
 
