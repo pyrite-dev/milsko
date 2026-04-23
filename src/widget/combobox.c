@@ -183,12 +183,19 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 	}
 }
 
+static void parent_resize(MwWidget handle) {
+	MwComboBox cb = handle->internal;
+	if(cb->opened) {
+		click(handle);
+	}
+}
+
 MwClassRec MwComboBoxClassRec = {
     wcreate,	    /* create */
     destroy,	    /* destroy */
     draw,	    /* draw */
     click,	    /* click */
-    NULL,	    /* parent_resize */
+    parent_resize,  /* parent_resize */
     prop_change,    /* prop_change */
     NULL,	    /* mouse_move */
     MwForceRender2, /* mouse_up */
