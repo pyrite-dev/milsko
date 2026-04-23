@@ -456,6 +456,7 @@ struct _MwLLWayland {
 	struct zwp_relative_pointer_v1*		relative_pointer;
 	struct zwp_locked_pointer_v1*		locked_pointer;
 	MwBool					pointer_constrained;
+	MwBool					valid;
 
 #ifdef USE_DBUS
 	MwLLDBusContext dbus;
@@ -519,11 +520,10 @@ struct _MwLLWayland {
 	struct _MwLLWaylandShmBuffer  cursor;
 	struct _MwLLWaylandShmBuffer* icon;
 
-	/*
-	Events mutex. Any time a keyboard/mouse event happens, we try to lock this for 100 milliseconds, then give up if we can't do it. This is used in conjunction with some code in the MwLLDestroyImpl to make sure that destroy is NEVER interferes with an ongoing event.
-
-	IOI_XD: This sounds like a hilariously rare edge case, so it's almost funnier that this happened with 100% certainty for me and I spent day(s) trying to figure out what was happening. */
 	pthread_mutex_t eventsMutex;
+
+	int cancelEvent;
+	int numCallbacksRunning;
 
 	uint32_t last_time;
 
