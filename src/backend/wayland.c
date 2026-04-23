@@ -1751,13 +1751,13 @@ static void clip(MwLL handle) {
 			x += ws[i]->wayland.x;
 			y += ws[i]->wayland.y;
 
-			for(j = i - 1; j >= 0; j--){
+			for(j = i - 1; j >= 0; j--) {
 				if(ws[j]->wayland.x > cx) l = 1;
 				if(ws[j]->wayland.y > cy) l = 1;
 				if(l) break;
 			}
 
-			if(!l){
+			if(!l) {
 				cx = MAX(cx, ws[i]->wayland.x);
 				cy = MAX(cy, ws[i]->wayland.y);
 			}

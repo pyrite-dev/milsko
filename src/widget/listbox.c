@@ -189,9 +189,9 @@ static void frame_draw(MwWidget handle) {
 		}
 		p.x = MwDefaultBorderWidth(handle) + MwGetInteger(handle->parent, MwNleftPadding);
 		for(j = 0; j < arrlen(lb->list[i].name); j++) {
-			char* t = lb->list[i].name[j];
-			char* str;
-			int   l = (j == 0 ? MwGetInteger(handle->parent, MwNleftPadding) : 0);
+			char*	t = lb->list[i].name[j];
+			char*	str;
+			int	l  = (j == 0 ? MwGetInteger(handle->parent, MwNleftPadding) : 0);
 			MwPoint p2 = p;
 
 			p2.y += (MwTextHeight(handle, Font, "M") + Padding) / 2;
@@ -200,11 +200,11 @@ static void frame_draw(MwWidget handle) {
 
 			str = MwStringDuplicate(t);
 			if(MwUTF8Length(str) > (get_col_width(lb, j) - l) / MwTextWidth(handle, Font, "M")) {
-				int ind = (get_col_width(lb, j) - l) / MwTextWidth(handle, Font, "M");
+				int ind	 = (get_col_width(lb, j) - l) / MwTextWidth(handle, Font, "M");
 				int seek = 0;
-				int l = 0;
+				int l	 = 0;
 
-				while(str[seek] != 0){
+				while(str[seek] != 0) {
 					int cp;
 					seek += MwUTF8ToUTF32(str + seek, &cp);
 
@@ -411,7 +411,7 @@ static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text)
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
 	char*	       t = text == NULL ? NULL : MwStringDuplicate(text);
-	int new = 0;
+	int new		 = 0;
 	if(row == -1) row = arrlen(lb->list);
 
 	entry.name   = NULL;

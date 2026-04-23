@@ -145,17 +145,20 @@ static void MWAPI menu_handler(MwWidget handle, void* user, void* call) {
 }
 
 int main() {
-	int	 i, j;
-	MwWidget f, w, b;
-	int	 index;
-	MwMenu	 m, m2;
-	void*	 v;
+	int	   i, j;
+	MwWidget   f, w, b;
+	MwLLPixmap px;
+	int	   index;
+	MwMenu	   m, m2;
+	void*	   v;
 
 	MwLibraryInit();
 
 	window = MwVaCreateWidget(MwWindowClass, "window", NULL, MwDEFAULT, MwDEFAULT, 800, 800,
 				  MwNtitle, "Milsko Periodic Table",
 				  NULL);
+
+	px = MwLoadIcon(window, MwIconError);
 
 	menu = MwCreateWidget(MwMenuClass, "menu", window, 0, 0, 0, 0);
 
@@ -256,6 +259,12 @@ int main() {
 	f = frame("Entry", -PaddingContent, 24, MwEntryClass, NULL);
 	add(f);
 
+	f = frame("Image", -PaddingContent, -PaddingContent, MwImageClass,
+		  MwNpixmap, px,
+		  NULL);
+	w = child(f);
+	add(f);
+
 	f = frame("Label", -PaddingContent, -PaddingContent, MwLabelClass,
 		  MwNtext, "Epic text",
 		  NULL);
@@ -292,6 +301,14 @@ int main() {
 	v = MwTreeViewAdd(w, v, NULL, "ghi");
 	add(f);
 
+	f = frame("Viewport", -PaddingContent, -PaddingContent, MwViewportClass, NULL);
+	w = child(f);
+	MwViewportSetSize(w, 256, 256);
+	MwVaCreateWidget(MwButtonClass, "btn", MwViewportGetViewport(w), 64, 64, 128, 128,
+			 MwNtext, "Thing",
+			 NULL);
+	add(f);
+
 	if(n != 0) newrow();
 	if(n == 0) MwDestroyWidget(boxes[row]);
 
@@ -300,4 +317,6 @@ int main() {
 	resize(window, NULL, NULL);
 
 	MwLoop(window);
+
+	MwLLDestroyPixmap(px);
 }
