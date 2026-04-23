@@ -1018,9 +1018,11 @@ void MwReparent(MwWidget handle, MwWidget new_parent) {
 	}
 
 	handle->parent = new_parent;
-	arrput(new_parent->children, handle);
+	if(new_parent != NULL) {
+		arrput(new_parent->children, handle);
 
-	MwDispatch(handle->parent, children_update);
+		MwDispatch(handle->parent, children_update);
+	}
 
 	MwForceRender(handle);
 }
