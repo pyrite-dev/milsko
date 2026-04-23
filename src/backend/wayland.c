@@ -47,14 +47,14 @@ static void undestroy(MwLL self) {
 
 #define WIDGET_CHECK(handle) \
 	if(!handle->wayland.valid) { \
-		printf("[WARNING] Operation on invalid widget at line %d\n", __LINE__); \
+		/*printf("[WARNING] Operation on invalid widget at line %d\n", __LINE__);*/ \
 		return; \
 	}
 
 /* Standard procedure before event callbacks in Wayland  */
 #define WAYLAND_EVENT_OP_START(self) \
 	if(is_destroyed(self)) { \
-		printf("[WARNING] Operation on invalid widget at line %d\n", __LINE__); \
+		/*printf("[WARNING] Operation on invalid widget at line %d\n", __LINE__);*/ \
 		return; \
 	}
 
@@ -479,6 +479,7 @@ static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 
 	(void)surface_x;
 	(void)surface_y;
+	(void)wl_pointer;
 
 	WAYLAND_EVENT_OP_START(self);
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
@@ -1957,13 +1958,9 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 }
 
 static void MwLLDestroyImpl(MwLL handle) {
-	int		i;
-	struct timeval	tv;
-	struct timespec t = {
-	    .tv_sec  = 0,
-	    .tv_nsec = 0,
-	};
-	int select_ret;
+	int	       i;
+	struct timeval tv;
+	int	       select_ret;
 
 	event_loop(handle);
 	// wl_display_cancel_read(handle->wayland.display);
