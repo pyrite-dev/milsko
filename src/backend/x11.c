@@ -962,38 +962,43 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 	free(pixmap);
 }
 
+#define DO_XRENDER(dest_px, src, format, bpp) \
+	{ \
+		Picture		   src_pic, dest_pic; \
+		XRenderPictFormat* fmt	  = XRenderFindStandardFormat(handle->x11.display, format); \
+		Pixmap		   src_px = XCreatePixmap(handle->x11.display, handle->x11.window, pixmap->common.width, pixmap->common.height, bpp); \
+		GC		   gc	  = XCreateGC(handle->x11.display, src_px, 0, NULL); \
+\
+		dest_px = XCreatePixmap(handle->x11.display, handle->x11.window, rect->width, rect->height, bpp); \
+\
+		XPutImage(handle->x11.display, src_px, gc, src, 0, 0, 0, 0, pixmap->common.width, pixmap->common.height); \
+\
+		src_pic	 = XRenderCreatePicture(handle->x11.display, src_px, fmt, 0, &attr); \
+		dest_pic = XRenderCreatePicture(handle->x11.display, dest_px, fmt, 0, &attr); \
+\
+		XRenderSetPictureTransform(handle->x11.display, src_pic, &m); \
+		XRenderComposite(handle->x11.display, PictOpSrc, src_pic, 0, dest_pic, 0, 0, 0, 0, 0, 0, rect->width, rect->height); \
+\
+		XRenderFreePicture(handle->x11.display, src_pic); \
+		XRenderFreePicture(handle->x11.display, dest_pic); \
+		XFreePixmap(handle->x11.display, src_px); \
+	}
+
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	if(rect->width <= 0 || rect->height <= 0 || pixmap->common.width <= 0 || pixmap->common.height <= 0) return;
 #ifdef USE_XRENDER
 	if(pixmap->x11.image != NULL && pixmap->x11.use_xrender) {
-		Pixmap			 px	= XCreatePixmap(handle->x11.display, handle->x11.window, pixmap->common.width, pixmap->common.height, pixmap->x11.depth);
-		Pixmap			 mask	= XCreatePixmap(handle->x11.display, handle->x11.window, rect->width, rect->height, 1);
-		Pixmap			 pxsrc	= XCreatePixmap(handle->x11.display, handle->x11.window, rect->width, rect->height, pixmap->x11.depth);
-		GC			 maskgc = XCreateGC(handle->x11.display, mask, 0, NULL);
-		XRenderPictFormat*	 format = XRenderFindStandardFormat(handle->x11.display, PictStandardRGB24);
+		Pixmap			 px;
+		Pixmap			 mask;
 		XRenderPictureAttributes attr;
-		Picture			 src, dest;
 		XTransform		 m;
-		double			 xsc = (double)pixmap->common.width / rect->width;
-		double			 ysc = (double)pixmap->common.height / rect->height;
-		char*			 dm  = malloc(rect->width * rect->height * 4);
-		XImage*			 destmask;
-		int			 y, x;
+		double			 xsc;
+		double			 ysc;
 
-		destmask = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, dm, rect->width, rect->height, 32, rect->width * 4);
+		memset(&attr, 0, sizeof(attr));
 
-		for(y = 0; y < (int)rect->height; y++) {
-			for(x = 0; x < (int)rect->width; x++) {
-				int sy = y * pixmap->common.height / rect->height;
-				int sx = x * pixmap->common.width / rect->width;
-				sy     = (int)sy;
-				sx     = (int)sx;
-
-				XPutPixel(destmask, x, y, XGetPixel(pixmap->x11.mask, sx, sy));
-			}
-		}
-
-		XPutImage(handle->x11.display, mask, maskgc, destmask, 0, 0, 0, 0, rect->width, rect->height);
+		xsc = (double)pixmap->common.width / rect->width;
+		ysc = (double)pixmap->common.height / rect->height;
 
 		m.matrix[0][0] = XDoubleToFixed(xsc);
 		m.matrix[0][1] = XDoubleToFixed(0);
@@ -1007,30 +1012,16 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 		m.matrix[2][1] = XDoubleToFixed(0);
 		m.matrix[2][2] = XDoubleToFixed(1.0);
 
-		memset(&attr, 0, sizeof(attr));
-
-		XPutImage(handle->x11.display, px, handle->x11.gc, pixmap->x11.image, 0, 0, 0, 0, pixmap->common.width, pixmap->common.height);
-
-		src  = XRenderCreatePicture(handle->x11.display, px, format, 0, &attr);
-		dest = XRenderCreatePicture(handle->x11.display, pxsrc, format, 0, &attr);
-
-		XRenderSetPictureTransform(handle->x11.display, src, &m);
-		XRenderComposite(handle->x11.display, PictOpSrc, src, 0, dest, 0, 0, 0, 0, 0, 0, rect->width, rect->height);
-
-		XRenderFreePicture(handle->x11.display, src);
-		XRenderFreePicture(handle->x11.display, dest);
+		DO_XRENDER(px, pixmap->x11.image, PictStandardRGB24, pixmap->x11.depth);
+		DO_XRENDER(mask, pixmap->x11.mask, PictStandardA1, 1);
 
 		XSetClipMask(handle->x11.display, handle->x11.gc, mask);
 		XSetClipOrigin(handle->x11.display, handle->x11.gc, rect->x, rect->y);
-		XCopyArea(handle->x11.display, pxsrc, handle->x11.pixmap, handle->x11.gc, 0, 0, rect->width, rect->height, rect->x, rect->y);
+		XCopyArea(handle->x11.display, px, handle->x11.pixmap, handle->x11.gc, 0, 0, rect->width, rect->height, rect->x, rect->y);
 		XSetClipMask(handle->x11.display, handle->x11.gc, None);
 
-		XDestroyImage(destmask);
-
-		XFreeGC(handle->x11.display, maskgc);
 		XFreePixmap(handle->x11.display, mask);
 		XFreePixmap(handle->x11.display, px);
-		XFreePixmap(handle->x11.display, pxsrc);
 	} else
 #endif
 	    if(pixmap->x11.image != NULL) {
