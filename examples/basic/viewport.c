@@ -35,7 +35,7 @@ int main() {
 //			 MwNpixmap, px,
 //			 NULL);
 	MwViewportSetSize(vp, 1024, 1024);
-	MwCreateWidget(MwButtonClass, "btn", MwViewportGetViewport(vp), 256, 256, 128, 128);
+	MwCreateWidget(MwButtonClass, "btn", MwViewportGetViewport(vp), -64, 256, 128, 128);
 
 	MwAddUserHandler(w, MwNresizeHandler, resize, NULL);
 
