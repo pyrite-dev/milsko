@@ -1735,6 +1735,7 @@ static void clip(MwLL handle) {
 	if(toplevel) {
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+		/* i seriously have no fucking idea how this works, do not ask me how this really works (nishi) */
 		x  = 0;
 		y  = 0;
 		cx = 0;
@@ -1744,11 +1745,22 @@ static void clip(MwLL handle) {
 		// ws is traversed result
 		// ws[ws.length - 1] is ignored bc it's toplevel
 		for(i = arrlen(ws) - 2; i >= 0; i--) {
+			int j;
+			int l = 0;
+
 			x += ws[i]->wayland.x;
 			y += ws[i]->wayland.y;
 
-			cx = MAX(cx, ws[i]->wayland.x);
-			cy = MAX(cy, ws[i]->wayland.y);
+			for(j = i - 1; j >= 0; j--){
+				if(ws[j]->wayland.x > cx) l = 1;
+				if(ws[j]->wayland.y > cy) l = 1;
+				if(l) break;
+			}
+
+			if(!l){
+				cx = MAX(cx, ws[i]->wayland.x);
+				cy = MAX(cy, ws[i]->wayland.y);
+			}
 
 			mx = MIN(mx, x + ws[i]->wayland.ww);
 			my = MIN(my, y + ws[i]->wayland.wh);
