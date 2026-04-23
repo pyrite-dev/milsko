@@ -468,7 +468,7 @@ static void scan(MwWidget handle, const char* path, int record) {
 	for(i = 0; i < arrlen(fc->entries); i++) {
 		if(strcmp(fc->entries[i]->name, ".") == 0 || strcmp(fc->entries[i]->name, "..") == 0) continue;
 		if(fc->entries[i]->type == MwDIRECTORY_DIRECTORY) {
-			char date[128];
+			char  date[128];
 			char* n = MwACPToUTF8(fc->entries[i]->name);
 
 			MwStringTime(date, fc->entries[i]->mtime);
@@ -477,7 +477,7 @@ static void scan(MwWidget handle, const char* path, int record) {
 			MwListBoxSet(fc->files, index, -1, date);
 			MwListBoxSet(fc->files, index, -1, NULL);
 			MwListBoxSetIcon(fc->files, index, fc->dir);
-			
+
 			free(n);
 
 			arrput(fc->sorted_entries, fc->entries[i]);
@@ -485,8 +485,8 @@ static void scan(MwWidget handle, const char* path, int record) {
 	}
 	for(i = 0; i < arrlen(fc->entries); i++) {
 		if(fc->entries[i]->type == MwDIRECTORY_FILE && !fc->dir_only) {
-			char date[128];
-			char size[128];
+			char  date[128];
+			char  size[128];
 			char* n = MwACPToUTF8(fc->entries[i]->name);
 
 			MwStringTime(date, fc->entries[i]->mtime);
