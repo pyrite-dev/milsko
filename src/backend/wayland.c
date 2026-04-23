@@ -54,6 +54,7 @@ static void undestroy(MwLL self) {
 /* Standard procedure before event callbacks in Wayland  */
 #define WAYLAND_EVENT_OP_START(self) \
 	if(is_destroyed(self)) { \
+		printf("[WARNING] Operation on invalid widget at line %d\n", __LINE__); \
 		return; \
 	} \
 	pthread_mutex_lock(&self->wayland.eventsMutex);
@@ -1934,10 +1935,6 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	}
 #endif
 
-	if(parent != NULL) {
-		arrput(parent->wayland.children, r);
-	}
-
 	return r;
 }
 
@@ -2014,17 +2011,6 @@ static void MwLLDestroyImpl(MwLL handle) {
 
 	wl_flush(handle);
 
-	if(handle->wayland.parent != NULL) {
-		for(i = 0; i < arrlen(handle->wayland.parent->wayland.children); i++) {
-			if(handle->wayland.parent->wayland.children[i] == handle) {
-				arrdel(handle->wayland.parent->wayland.children, i);
-				break;
-			}
-		}
-	}
-
-	arrfree(handle->wayland.children);
-
 	free(handle);
 
 	pthread_mutex_lock(&destroyedWidgetsTableMutex);
@@ -2054,7 +2040,7 @@ static void recursive_render(MwLL handle) {
 	int i;
 	WIDGET_CHECK(handle);
 
-	for(i = 0; i < arrlen(handle->wayland.children); i++) recursive_render(handle->wayland.children[i]);
+	for(i = 0; i < arrlen(((MwWidget)handle->common.user)->children); i++) recursive_render(((MwWidget)handle->common.user)->children[i]->lowlevel);
 
 	MwLLForceRender(handle);
 }
@@ -2301,7 +2287,8 @@ static int MwLLPendingImpl(MwLL handle) {
 	    .events = POLLOUT,
 	};
 	int pending = 0;
-	if(!handle->wayland.valid) {
+
+	if(is_destroyed(handle) || !handle->wayland.valid) {
 		return 0;
 	}
 

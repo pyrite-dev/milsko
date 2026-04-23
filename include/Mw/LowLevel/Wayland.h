@@ -507,8 +507,7 @@ struct _MwLLWayland {
 
 	MwU32 mw, mh; /* Monitor width and height as advertised by wl_output.mode */
 
-	MwLL  parent;
-	MwLL* children;
+	MwLL parent;
 
 	MwBool force_render;
 	MwBool did_event_loop_early;
