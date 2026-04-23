@@ -2075,18 +2075,8 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	MwLLDispatch(handle, draw, NULL);
 }
 
-static void MwLLSetWHImpl(MwLL handle, int w, int h) {
-	WIDGET_CHECK(handle);
+static void actually_set_wh(MwLL handle) {
 	region_invalidate(handle);
-
-	/* Prevent an integer underflow when the w/h is too low */
-	if((w < 2 || h < 2)) {
-		handle->wayland.ww = 2;
-		handle->wayland.wh = 2;
-	} else {
-		handle->wayland.ww = w;
-		handle->wayland.wh = h;
-	}
 
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL && handle->wayland.configured) {
 		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
@@ -2112,6 +2102,24 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	backbuffer_destroy(&handle->wayland);
 	backbuffer_setup(&handle->wayland);
 	MwLLDispatch(handle, draw, NULL);
+}
+
+static void MwLLSetWHImpl(MwLL handle, int w, int h) {
+	WIDGET_CHECK(handle);
+
+	/* Prevent an integer underflow when the w/h is too low */
+	if((w < 2 || h < 2)) {
+		handle->wayland.ww = 2;
+		handle->wayland.wh = 2;
+	} else {
+		handle->wayland.ww = w;
+		handle->wayland.wh = h;
+	}
+
+	if(!handle->wayland.setting_wh) {
+		handle->wayland.setting_wh = 1;
+	}
+
 	handle->wayland.events_pending = 1;
 }
 
@@ -2308,6 +2316,11 @@ static int MwLLPendingImpl(MwLL handle) {
 	}
 
 	handle->wayland.resizing = 0;
+
+	if(handle->wayland.setting_wh) {
+		actually_set_wh(handle);
+		handle->wayland.setting_wh = 0;
+	}
 
 #ifdef USE_DBUS
 	if(wl_call_tbl.has_dbus) {
