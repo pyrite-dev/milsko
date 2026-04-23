@@ -471,7 +471,7 @@ static void zwp_pointer_constraints_v1_interface_destroy(struct _MwLLWayland* wa
 	(void)data;
 }
 
-static struct wl_surface* curSurface;
+static struct wl_surface* curSurface = NULL;
 
 /* `wl_pointer.enter` callback */
 static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
@@ -485,8 +485,6 @@ static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 	curSurface = surface;
 
 	self->wayland.pointer_serial = serial;
-
-	wl_pointer_set_cursor(wl_pointer, serial, self->wayland.cursor.surface, 0, 0);
 
 	WAYLAND_EVENT_OP_END(self);
 };
@@ -1259,8 +1257,7 @@ static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_proto
 static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
 	// Yes this is needed every time, it's how we fix weston.
-	if(self->wayland.configured)
-		wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
+	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
 	wl_surface_commit(buffer->surface);
 }
 
@@ -2550,7 +2547,7 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 
 	/* If there's currently a pointer, set it up. (Otherwise, it'll be setup during the pointer enter event) */
 	if(handle->wayland.pointer != NULL) {
-		// wl_pointer_set_cursor(handle->wayland.pointer, handle->wayland.pointer_serial, handle->wayland.cursor.surface, 0, 0);
+		wl_pointer_set_cursor(handle->wayland.pointer, handle->wayland.pointer_serial, handle->wayland.cursor.surface, 0, 0);
 	}
 }
 
