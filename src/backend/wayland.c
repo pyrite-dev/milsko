@@ -56,11 +56,10 @@ static void undestroy(MwLL self) {
 	if(is_destroyed(self)) { \
 		printf("[WARNING] Operation on invalid widget at line %d\n", __LINE__); \
 		return; \
-	} \
-	pthread_mutex_lock(&self->wayland.eventsMutex);
+	}
 
 /* Footer for WAYLAND_EVENT_OP_START */
-#define WAYLAND_EVENT_OP_END(self) pthread_mutex_unlock(&self->wayland.eventsMutex);
+#define WAYLAND_EVENT_OP_END(self)
 
 /* Setup the framebuffer with the saved width/height */
 static void framebuffer_setup(struct _MwLLWayland* wayland);
@@ -485,6 +484,7 @@ static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 	curSurface = surface;
 
 	self->wayland.pointer_serial = serial;
+	wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
 
 	WAYLAND_EVENT_OP_END(self);
 };
@@ -1257,7 +1257,8 @@ static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_proto
 static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
 	// Yes this is needed every time, it's how we fix weston.
-	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
+	if(self->wayland.configured)
+		wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
 	wl_surface_commit(buffer->surface);
 }
 
@@ -1950,9 +1951,6 @@ static void MwLLDestroyImpl(MwLL handle) {
 	wl_flush(handle);
 
 	handle->wayland.cancelEvent = MwTRUE;
-	while(pthread_mutex_trylock(&handle->wayland.eventsMutex)) {
-		printf("h\n");
-	};
 
 	MwLLDestroyCommon(handle);
 
@@ -2498,6 +2496,10 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	int x, y, xs, ys;
 
 	WIDGET_CHECK(handle);
+
+	if(handle->wayland.parent) {
+		return;
+	}
 
 	if(handle->wayland.cursor.setup) {
 		buffer_destroy(&handle->wayland.cursor);
