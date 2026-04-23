@@ -44,9 +44,18 @@ static void undestroy(MwLL self) {
 	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
 	return;
 }
+
+#define WIDGET_CHECK(handle) \
+	if(!handle->wayland.valid) { \
+		printf("[WARNING] Operation on invalid widget at line %d\n", __LINE__); \
+		return; \
+	}
+
 /* Standard procedure before event callbacks in Wayland  */
 #define WAYLAND_EVENT_OP_START(self) \
-	if(is_destroyed(self)) return; \
+	if(is_destroyed(self)) { \
+		return; \
+	} \
 	pthread_mutex_lock(&self->wayland.eventsMutex);
 
 /* Footer for WAYLAND_EVENT_OP_START */
@@ -1600,12 +1609,6 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(compositor);
 
-	if(is_destroyed(parent) || is_destroyed(r)) {
-		printf("H\n");
-		r->wayland.valid = MwFALSE;
-		return;
-	}
-
 	r->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(r->wayland.sublevel->subcompositor, r->wayland.framebuffer.surface, parent_surface);
 
 	wl_subsurface_set_desync(r->wayland.sublevel->subsurface);
@@ -1843,7 +1846,12 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 	r->wayland.x	  = x;
 	r->wayland.y	  = y;
 	r->wayland.parent = parent;
-	r->wayland.valid  = MwTRUE;
+	if(is_destroyed(parent)) {
+		r->wayland.valid = MwFALSE;
+		return;
+	} else {
+		r->wayland.valid = MwTRUE;
+	}
 
 	if(ty == MwLL_WAYLAND_UNKNOWN) {
 		if(parent == NULL) {
@@ -1867,9 +1875,7 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 		}
 	}
 
-	if(!r->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(r);
 
 	framebuffer_setup(&r->wayland);
 	backbuffer_setup(&r->wayland);
@@ -2046,9 +2052,7 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 
 static void recursive_render(MwLL handle) {
 	int i;
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 
 	for(i = 0; i < arrlen(handle->wayland.children); i++) recursive_render(handle->wayland.children[i]);
 
@@ -2056,9 +2060,7 @@ static void recursive_render(MwLL handle) {
 }
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	region_invalidate(handle);
 	handle->wayland.x = x;
 	handle->wayland.y = y;
@@ -2073,9 +2075,7 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	region_invalidate(handle);
 
 	/* Prevent an integer underflow when the w/h is too low */
@@ -2115,9 +2115,7 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 }
 
 static void MwLLBeginDrawImpl(MwLL handle) {
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	cairo_save(handle->wayland.front_cairo);
 	cairo_set_source_rgba(handle->wayland.front_cairo, 0, 0, 0, 0);
 	cairo_set_operator(handle->wayland.front_cairo, CAIRO_OPERATOR_SOURCE);
@@ -2226,9 +2224,7 @@ static void MwLLEndDrawImpl(MwLL handle) {
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
 	int i;
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 
 	clip(handle);
 
@@ -2252,9 +2248,7 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	int i;
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 
 	clip(handle);
 
@@ -2362,9 +2356,7 @@ static int MwLLPendingImpl(MwLL handle) {
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	if(!MwWaylandAlwaysRender) {
 		if(handle->wayland.did_event_loop_early) {
 			handle->wayland.did_event_loop_early = MwFALSE;
@@ -2384,9 +2376,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 }
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		xdg_toplevel_set_title(handle->wayland.toplevel->xdg_top_level, title);
 	}
@@ -2443,9 +2433,7 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_t*	 c;
 	cairo_surface_t* cs;
 	cairo_t*	 selected_cairo = handle->wayland.selected_cairo ? handle->wayland.selected_cairo : handle->wayland.front_cairo;
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 
 	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, rect->width, rect->height);
 	c  = cairo_create(cs);
@@ -2471,9 +2459,7 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 }
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		if(WAYLAND_GET_INTERFACE(handle->wayland, xdg_toplevel_icon_manager_v1) != NULL) {
 			struct xdg_toplevel_icon_manager_v1* icon_manager = WAYLAND_GET_INTERFACE(handle->wayland, xdg_toplevel_icon_manager_v1)->context;
@@ -2515,9 +2501,7 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 }
 
 static void MwLLForceRenderImpl(MwLL handle) {
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 
 	handle->wayland.force_render = MwTRUE;
@@ -2529,9 +2513,7 @@ static void MwLLForceRenderImpl(MwLL handle) {
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	int x, y, xs, ys;
 
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 
 	if(handle->wayland.cursor.setup) {
 		buffer_destroy(&handle->wayland.cursor);
@@ -2588,9 +2570,7 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	MwLL p = handle->wayland.parent;
 	int  x = 0, y = 0;
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	while(p != NULL) {
 		x += p->wayland.x;
 		y += p->wayland.y;
@@ -2607,9 +2587,7 @@ static void MwLLShowImpl(MwLL handle, int show) {
 	if(!handle->wayland.configured) {
 		return;
 	}
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	/* Some guy on a mailing list said that "abusing" wl_surface_attach for this purpose is bad? This is documented behavior so please I beg of you let me know if there's a compositor that actually has a problem with this. */
 	if(handle->wayland.framebuffer.surface) {
 		wl_surface_attach(handle->wayland.framebuffer.surface, show ? handle->wayland.framebuffer.shm_buffer : NULL, 0, 0);
@@ -2628,9 +2606,7 @@ static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		xdg_toplevel_set_min_size(handle->wayland.toplevel->xdg_top_level, minx, miny);
 		xdg_toplevel_set_max_size(handle->wayland.toplevel->xdg_top_level, maxx, maxy);
@@ -2639,9 +2615,7 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
 	(void)toggle;
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		if(WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1) != NULL) {
 			zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1)->context;
@@ -2662,9 +2636,7 @@ static void MwLLFocusImpl(MwLL handle) {
 
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	MwLL topmost_parent = handle;
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 	if(handle->wayland.pointer_constraints && handle->wayland.relative_pointer_manager) {
 		if(toggle) {
@@ -2691,9 +2663,7 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 
 static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type) {
 	int i;
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 
 	if(handle->wayland.clipboard_buffer != NULL) {
 		free(handle->wayland.clipboard_buffer);
@@ -2720,9 +2690,7 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_ty
 
 static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
 	int i;
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 	if(clipboard_type == MwCLIPBOARD_PRIMARY) {
 		if(handle->wayland.supports_zwp) {
 			for(i = 0; i < arrlen(handle->wayland.clipboard_devices_zwp); i++) {
@@ -2742,25 +2710,19 @@ static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
 }
 
 static void MwLLMakeToolWindowImpl(MwLL handle) {
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 
 	handle->wayland.type_to_be = MwLL_WAYLAND_POPUP;
 }
 
 static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 
 	*point = handle->wayland.cur_mouse_pos;
 }
 
 static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 
 	rect->x	     = 0;
 	rect->y	     = 0;
@@ -2774,9 +2736,7 @@ static void MwLLBeginStateChangeImpl(MwLL handle) {
 }
 
 static void MwLLEndStateChangeImpl(MwLL handle) {
-	if(!handle->wayland.valid) {
-		return;
-	}
+	WIDGET_CHECK(handle);
 
 	if(handle->wayland.detatching) {
 		MwLL topmost_parent = handle->wayland.parent;
