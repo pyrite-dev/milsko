@@ -23,7 +23,7 @@ int main() {
 
 	w = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480, MwNtitle, "test", NULL);
 
-	vp = MwCreateWidget(MwViewportClass, "vp", w, 5 + 100, 5 + 100, 640 - 10 - 100, 480 - 10 - 100);
+	vp = MwCreateWidget(MwViewportClass, "vp", w, 5 + 50, 5 + 50, 640 - 10 - 100, 480 - 10 - 100);
 
 	px = MwLoadImage(vp, "examples/picture.png");
 
@@ -31,10 +31,11 @@ int main() {
 
 	if(px == NULL) px = MwLoadImage(vp, "picture.png");
 
-	MwVaCreateWidget(MwImageClass, "image", MwViewportGetViewport(vp), 0, 0, 1024, 1024,
-			 MwNpixmap, px,
-			 NULL);
+//	MwVaCreateWidget(MwImageClass, "image", MwViewportGetViewport(vp), 0, 0, 1024, 1024,
+//			 MwNpixmap, px,
+//			 NULL);
 	MwViewportSetSize(vp, 1024, 1024);
+	MwCreateWidget(MwButtonClass, "btn", MwViewportGetViewport(vp), 256, 256, 128, 128);
 
 	MwAddUserHandler(w, MwNresizeHandler, resize, NULL);
 

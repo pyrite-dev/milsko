@@ -1720,7 +1720,7 @@ static void destroy_popup(MwLL r) {
 
 static void clip(MwLL handle) {
 	int   i;
-	int   w, h, x, y, cx, cy;
+	int   x, y, cx, cy, mx, my;
 	MwLL  toplevel = handle->wayland.parent;
 	MwLL* ws       = NULL;
 
@@ -1735,34 +1735,33 @@ static void clip(MwLL handle) {
 	if(toplevel) {
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
-		w  = toplevel->wayland.ww;
-		h  = toplevel->wayland.wh;
 		x  = 0;
 		y  = 0;
 		cx = 0;
 		cy = 0;
+		mx = toplevel->wayland.ww;
+		my = toplevel->wayland.wh;
 		// ws is traversed result
 		// ws[ws.length - 1] is ignored bc it's toplevel
 		for(i = arrlen(ws) - 2; i >= 0; i--) {
 			x += ws[i]->wayland.x;
 			y += ws[i]->wayland.y;
-			cx += MAX(-ws[i]->wayland.x, 0);
-			cy += MAX(-ws[i]->wayland.y, 0);
-			w = MIN(ws[i]->wayland.ww - MAX(-x, 0), w);
-			h = MIN(ws[i]->wayland.wh - MAX(-y, 0), h);
+
+			mx = MIN(mx, x + ws[i]->wayland.ww);
+			my = MIN(my, y + ws[i]->wayland.wh);
 		}
 
 		arrfree(ws);
 
-		handle->wayland.clipping_rect.x	     = cx;
-		handle->wayland.clipping_rect.y	     = cy;
-		handle->wayland.clipping_rect.width  = w;
-		handle->wayland.clipping_rect.height = h;
+		handle->wayland.clipping_rect.x	     = cx - x;
+		handle->wayland.clipping_rect.y	     = cy - y;
+		handle->wayland.clipping_rect.width  = mx - cx;
+		handle->wayland.clipping_rect.height = my - cy;
 		region_setup(handle);
 
 		cairo_reset_clip(handle->wayland.front_cairo);
 		if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
-			cairo_rectangle(handle->wayland.front_cairo, cx, cy, w, h);
+			cairo_rectangle(handle->wayland.front_cairo, cx - x, cy - y, mx - cx, my - cy);
 			cairo_clip(handle->wayland.front_cairo);
 		}
 	}
