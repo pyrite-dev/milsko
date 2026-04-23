@@ -16,6 +16,10 @@
 #include <ctype.h>
 #include <time.h>
 #include <sys/stat.h>
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199409L
+#include <wchar.h>
+#define MW_HAS_WCHAR
+#endif
 #ifdef _WIN32
 #include <direct.h>
 

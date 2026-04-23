@@ -50,28 +50,27 @@ static void destroy(MwWidget handle) {
 	MwLLDestroyPixmap(fc->up);
 	MwLLDestroyPixmap(fc->computer);
 	free(handle->opaque);
-	MwDestroyWidget(handle);
 }
 
 static void MWAPI filecancel(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	destroy(handle->parent);
+	MwDestroyWidget(handle->parent);
 }
 
 static void MWAPI cancel_window(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	destroy(handle);
+	MwDestroyWidget(handle);
 }
 
 static void MWAPI okay(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	destroy(handle->parent);
+	MwDestroyWidget(handle->parent);
 }
 
 static void MWAPI msgbox_okay(MwWidget handle, void* user, void* call) {
@@ -470,13 +469,16 @@ static void scan(MwWidget handle, const char* path, int record) {
 		if(strcmp(fc->entries[i]->name, ".") == 0 || strcmp(fc->entries[i]->name, "..") == 0) continue;
 		if(fc->entries[i]->type == MwDIRECTORY_DIRECTORY) {
 			char date[128];
+			char* n = MwACPToUTF8(fc->entries[i]->name);
 
 			MwStringTime(date, fc->entries[i]->mtime);
 
-			index = MwListBoxSet(fc->files, -1, 0, fc->entries[i]->name);
+			index = MwListBoxSet(fc->files, -1, 0, n);
 			MwListBoxSet(fc->files, index, -1, date);
 			MwListBoxSet(fc->files, index, -1, NULL);
 			MwListBoxSetIcon(fc->files, index, fc->dir);
+			
+			free(n);
 
 			arrput(fc->sorted_entries, fc->entries[i]);
 		}
@@ -485,14 +487,17 @@ static void scan(MwWidget handle, const char* path, int record) {
 		if(fc->entries[i]->type == MwDIRECTORY_FILE && !fc->dir_only) {
 			char date[128];
 			char size[128];
+			char* n = MwACPToUTF8(fc->entries[i]->name);
 
 			MwStringTime(date, fc->entries[i]->mtime);
 			MwStringSize(size, fc->entries[i]->size);
 
-			index = MwListBoxSet(fc->files, -1, 0, fc->entries[i]->name);
+			index = MwListBoxSet(fc->files, -1, 0, n);
 			MwListBoxSet(fc->files, index, -1, date);
 			MwListBoxSet(fc->files, index, -1, size);
 			MwListBoxSetIcon(fc->files, index, fc->file);
+
+			free(n);
 
 			arrput(fc->sorted_entries, fc->entries[i]);
 		}
@@ -541,6 +546,8 @@ MwWidget MwFileChooserEx(MwWidget handle, const char* title, int dir) {
 		  NULL);
 
 	window->opaque = fc;
+
+	window->destroy_inject = destroy;
 
 	layout(window);
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);

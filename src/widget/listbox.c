@@ -187,45 +187,58 @@ static void frame_draw(MwWidget handle) {
 			r2.height = h;
 			MwLLDrawPixmap(handle->lowlevel, &r2, lb->list[i].pixmap);
 		}
-		p.y += (MwTextHeight(handle, Font, "M") + Padding) / 2;
 		p.x = MwDefaultBorderWidth(handle) + MwGetInteger(handle->parent, MwNleftPadding);
 		for(j = 0; j < arrlen(lb->list[i].name); j++) {
 			char* t = lb->list[i].name[j];
 			char* str;
 			int   l = (j == 0 ? MwGetInteger(handle->parent, MwNleftPadding) : 0);
+			MwPoint p2 = p;
+
+			p2.y += (MwTextHeight(handle, Font, "M") + Padding) / 2;
 
 			if(t == NULL) t = "";
 
 			str = MwStringDuplicate(t);
 			if(MwUTF8Length(str) > (get_col_width(lb, j) - l) / MwTextWidth(handle, Font, "M")) {
-				int ind	 = (get_col_width(lb, j) - l) / MwTextWidth(handle, Font, "M");
-				str[ind] = 0;
-				if(ind > 3) memset(str + ind - 3, '.', 3);
+				int ind = (get_col_width(lb, j) - l) / MwTextWidth(handle, Font, "M");
+				int seek = 0;
+				int l = 0;
+
+				while(str[seek] != 0){
+					int cp;
+					seek += MwUTF8ToUTF32(str + seek, &cp);
+
+					l++;
+					if(l == ind) break;
+				}
+
+				memset(str + seek, '.', 3);
+				str[seek + 3] = 0;
 			}
 
 			if(j == (arrlen(lb->list[i].name) - 1)) p.x -= MwDefaultBorderWidth(handle);
 			if(arrlen(lb->alignment) <= j || lb->alignment[j] == MwALIGNMENT_BEGINNING) {
 				p.x += 4;
-				MwDrawText(handle, Font, &p, str, MwALIGNMENT_BEGINNING, selected ? base2 : text2);
+				MwDrawText(handle, Font, &p2, str, MwALIGNMENT_BEGINNING, selected ? base2 : text2);
 				p.x -= 4;
 				p.x += get_col_width(lb, j);
 
 			} else if(lb->alignment[j] == MwALIGNMENT_CENTER) {
 				p.x += (get_col_width(lb, j) - l) / 2;
-				MwDrawText(handle, Font, &p, str, MwALIGNMENT_CENTER, selected ? base2 : text2);
+				MwDrawText(handle, Font, &p2, str, MwALIGNMENT_CENTER, selected ? base2 : text2);
 				p.x += (get_col_width(lb, j) - l) / 2;
 				p.x += l;
 			} else if(lb->alignment[j] == MwALIGNMENT_END) {
 				p.x += get_col_width(lb, j);
 				p.x -= 4;
-				MwDrawText(handle, Font, &p, str, MwALIGNMENT_END, selected ? base2 : text2);
+				MwDrawText(handle, Font, &p2, str, MwALIGNMENT_END, selected ? base2 : text2);
 				p.x += 4;
 			}
 			free(str);
 
 			if(j == 0) p.x -= MwGetInteger(handle->parent, MwNleftPadding);
 		}
-		p.y += (MwTextHeight(handle, Font, "M") + Padding) / 2;
+		p.y += MwTextHeight(handle, Font, "M") + Padding;
 		handle->bgcolor = NULL;
 	}
 
@@ -244,7 +257,7 @@ static void resize(MwWidget handle) {
 	int	  ih, y;
 	int	  m = 0;
 
-	y = MwGetInteger(handle, MwNhasHeading) ? (MwTextHeight(handle, NULL, "M") + MwDefaultBorderWidth(handle) * 2) : 0;
+	y = MwGetInteger(handle, MwNhasHeading) ? (MwTextHeight(handle, Font, "M") + MwDefaultBorderWidth(handle) * 2) : 0;
 
 	if(lb->vscroll == NULL) {
 		lb->vscroll = MwVaCreateWidget(MwScrollBarClass, "vscroll", handle, w - 16, 0, 16, h, NULL);
@@ -347,7 +360,7 @@ static void draw(MwWidget handle) {
 			r.x	 = x;
 			r.y	 = 0;
 			r.width	 = get_col_width(lb, i);
-			r.height = MwDefaultBorderWidth(handle) * 2 + MwTextHeight(handle, NULL, "M");
+			r.height = MwDefaultBorderWidth(handle) * 2 + MwTextHeight(handle, Font, "M");
 			MwDrawFrame(handle, &r, base, 0);
 
 			x += MwDefaultBorderWidth(handle);
@@ -398,6 +411,7 @@ static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text)
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
 	char*	       t = text == NULL ? NULL : MwStringDuplicate(text);
+	int new = 0;
 	if(row == -1) row = arrlen(lb->list);
 
 	entry.name   = NULL;
@@ -413,9 +427,10 @@ static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text)
 		lb->list[row] = entry;
 	} else {
 		arrins(lb->list, row, entry);
+		new = 1;
 	}
 
-	if(row >= arrlen(lb->list)) resize(handle);
+	if(new) resize(handle);
 	redrawIfNeeded(handle, row);
 
 	return row;
@@ -424,6 +439,7 @@ static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text)
 static void mwListBoxSetIconImpl(MwWidget handle, int index, MwLLPixmap icon) {
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
+	int new = 0;
 	if(index == -1) index = arrlen(lb->list);
 
 	entry.name   = NULL;
@@ -438,9 +454,10 @@ static void mwListBoxSetIconImpl(MwWidget handle, int index, MwLLPixmap icon) {
 		lb->list[index] = entry;
 	} else {
 		arrins(lb->list, index, entry);
+		new = 1;
 	}
 
-	if(index >= arrlen(lb->list)) resize(handle);
+	if(new) resize(handle);
 	redrawIfNeeded(handle, index);
 }
 
