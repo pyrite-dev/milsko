@@ -1754,8 +1754,6 @@ static void clip(MwLL handle) {
 			my = MIN(my, y + ws[i]->wayland.wh);
 		}
 
-		cx = cy = 50;
-
 		if(mx < cx) mx = cx;
 		if(my < cy) my = cy;
 
