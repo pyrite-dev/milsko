@@ -476,15 +476,20 @@ static struct wl_surface* curSurface = NULL;
 static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
 			  struct wl_surface* surface, wl_fixed_t surface_x,
 			  wl_fixed_t surface_y) {
-	MwLL self = data;
+	MwLL self	    = data;
+	MwLL topmost_parent = self;
+
 	(void)surface_x;
 	(void)surface_y;
 
 	WAYLAND_EVENT_OP_START(self);
+	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
+
 	curSurface = surface;
 
 	self->wayland.pointer_serial = serial;
-	wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
+
+	wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, topmost_parent->wayland.cursor.surface, 0, 0);
 
 	WAYLAND_EVENT_OP_END(self);
 };
@@ -576,6 +581,8 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	MwLL	self	       = data;
 	MwLL	topmost_parent = self;
 	MwMouse p;
+	MwBool	inArea = MwFALSE;
+
 	(void)time;
 	(void)wl_pointer;
 
@@ -591,6 +598,16 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 		MwLLDispatch(currentlyHeldWidget, down, &p);
 	}
 
+	if(self->wayland.framebuffer.surface) {
+		inArea |= self->wayland.framebuffer.surface == curSurface;
+	}
+
+	if(self->wayland.backbuffer.surface) {
+		inArea |= self->wayland.backbuffer.surface == curSurface;
+	}
+	if(inArea) {
+		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
+	}
 	WAYLAND_EVENT_OP_END(self);
 };
 
@@ -2497,10 +2514,6 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 
 	WIDGET_CHECK(handle);
 
-	if(handle->wayland.parent) {
-		return;
-	}
-
 	if(handle->wayland.cursor.setup) {
 		buffer_destroy(&handle->wayland.cursor);
 		wl_surface_destroy(handle->wayland.cursor.surface);
@@ -2546,11 +2559,6 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	wl_surface_attach(handle->wayland.cursor.surface, handle->wayland.cursor.shm_buffer, 0, 0);
 	wl_surface_commit(handle->wayland.cursor.surface);
 	update_buffer(handle, &handle->wayland.cursor);
-
-	/* If there's currently a pointer, set it up. (Otherwise, it'll be setup during the pointer enter event) */
-	if(handle->wayland.pointer != NULL) {
-		wl_pointer_set_cursor(handle->wayland.pointer, handle->wayland.pointer_serial, handle->wayland.cursor.surface, 0, 0);
-	}
 }
 
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {

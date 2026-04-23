@@ -11,7 +11,6 @@ static int wcreate(MwWidget handle) {
 	MwSetDefault(handle);
 
 	MwLLSetCursor(handle->lowlevel, &MwCursorText, &MwCursorTextMask);
-	MwSetInteger(handle, MwNroundness, 5);
 
 	return 0;
 }
