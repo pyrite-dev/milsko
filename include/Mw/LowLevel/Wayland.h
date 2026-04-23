@@ -60,6 +60,7 @@ typedef struct wayland_call_table {
 	struct wl_display* (*wl_display_connect)(const char* name);
 	uint32_t (*wl_proxy_get_version)(struct wl_proxy* proxy);
 	struct wl_display* (*wl_display_connect_to_fd)(int fd);
+	int (*wl_display_get_error)(struct wl_display* display);
 
 	struct xkb_context* (*xkb_context_new)(enum xkb_context_flags flags);
 	void (*xkb_context_unref)(struct xkb_context* context);
@@ -176,6 +177,7 @@ MwInline int wayland_load_funcs() {
 	WAYLAND_FUNC(wl_display_connect)
 	WAYLAND_FUNC(wl_proxy_get_version)
 	WAYLAND_FUNC(wl_display_connect_to_fd)
+	WAYLAND_FUNC(wl_display_get_error)
 
 #undef WAYLAND_FUNC
 
@@ -259,6 +261,7 @@ MwInline int wayland_load_funcs() {
 #define wl_display_connect wl_call_tbl.wl_display_connect
 #define wl_proxy_get_version wl_call_tbl.wl_proxy_get_version
 #define wl_display_connect_to_fd wl_call_tbl.wl_display_connect_to_fd
+#define wl_display_get_error wl_call_tbl.wl_display_get_error
 
 #define xkb_state_unref wl_call_tbl.xkb_state_unref
 #define xkb_context_new wl_call_tbl.xkb_context_new
@@ -423,13 +426,13 @@ struct _MwLLWayland {
 
 	/* Map of Wayland interfaces to their relevant setup functions. */
 	struct {
-		char				   key[255];
+		char*				   key;
 		wayland_protocol_callback_table_t* value;
 	}* wl_protocol_setup_map;
 
 	/* Map of Wayland interfaces to any information we keep about them once we've registered them. */
 	struct {
-		char		    key[255];
+		char*		    key;
 		wayland_protocol_t* value;
 	}* wl_protocol_map;
 

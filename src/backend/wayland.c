@@ -91,9 +91,7 @@ static void new_protocol(void* data, struct wl_registry* registry,
 
 	wayland_protocol_callback_table_t* cb = shget(self->wayland.wl_protocol_setup_map, interface);
 	if(cb != NULL) {
-		char* inter = malloc(strlen(interface) + 1);
-		strcpy(inter, interface);
-		shput(self->wayland.wl_protocol_map, inter, cb->setup(name, data));
+		shput(self->wayland.wl_protocol_map, interface, cb->setup(name, data));
 		/* we don't care for adding this protocol, we just use it to know if the compositor will let us have transparent surfaces */
 	} else if(strcmp(interface, "wp_alpha_modifier_v1") == 0) {
 		self->common.supports_transparency = MwTRUE;
@@ -1174,7 +1172,7 @@ static int event_loop(MwLL handle) {
 static void hang_until_configured(MwLL handle) {
 	while(!handle->wayland.configured) {
 		if(wl_display_roundtrip(handle->wayland.display) == -1) {
-			printf("roundtrip failed\n");
+			printf("roundtrip failed: %d\n", wl_display_get_error(handle->wayland.display));
 			raise(SIGTRAP);
 			return;
 		}
@@ -1334,6 +1332,8 @@ static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer) {
 	if(!buffer->setup) {
 		return;
 	}
+	if(buffer->buf) munmap(buffer->buf, buffer->buf_size);
+	if(buffer->buf_back) munmap(buffer->buf_back, buffer->buf_size);
 	if(buffer->shm_buffer) wl_buffer_destroy(buffer->shm_buffer);
 	if(buffer->shm_buffer_back) wl_buffer_destroy(buffer->shm_buffer_back);
 	if(buffer->shm_pool) wl_shm_pool_destroy(buffer->shm_pool);
@@ -1464,6 +1464,9 @@ static void setup_callbacks(struct _MwLLWayland* wayland) {
 	wayland->registry_listener.global_remove = protocol_removed;
 	wayland->wl_protocol_setup_map		 = NULL;
 	wayland->wl_protocol_map		 = NULL;
+
+	sh_new_arena(wayland->wl_protocol_map);
+	sh_new_arena(wayland->wl_protocol_setup_map);
 
 	WL_INTERFACE(wl_shm);
 	WL_INTERFACE(wl_compositor);
@@ -1618,7 +1621,7 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 
 	wl_registry_add_listener(r->wayland.registry, &r->wayland.registry_listener, r);
 	if(wl_display_roundtrip(r->wayland.display) == -1) {
-		printf("roundtrip failed\n");
+		printf("roundtrip failed: %d\n", wl_display_get_error(r->wayland.display));
 		raise(SIGTRAP);
 		return;
 	}
@@ -1705,7 +1708,7 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	r->wayland.registry = wl_display_get_registry(r->wayland.display);
 	wl_registry_add_listener(r->wayland.registry, &r->wayland.registry_listener, r);
 	if(wl_display_roundtrip(r->wayland.display) == -1) {
-		printf("roundtrip failed\n");
+		printf("roundtrip failed: %d\n", wl_display_get_error(r->wayland.display));
 		raise(SIGTRAP);
 		return;
 	}

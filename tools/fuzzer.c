@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-#define WIDGET_AMOUNT 1
+#define WIDGET_AMOUNT 16
 
 int main() {
 	MwWidget window, widget;
@@ -9,7 +9,7 @@ int main() {
 
 	window = MwCreateWidget(MwWindowClass, "window", NULL, 0, 0, 400, 400);
 
-	while(true) {
+	while(MwPending(window)) {
 		int	r = rand() % WIDGET_AMOUNT;
 		MwClass cls;
 		switch(r) {
@@ -46,38 +46,35 @@ int main() {
 		case 10:
 			cls = MwNumberEntryClass;
 			break;
-		case 12:
+		case 11:
 			cls = MwProgressBarClass;
 			break;
-		case 13:
+		case 12:
 			cls = MwRadioBoxClass;
 			break;
-		case 14:
+		case 13:
 			cls = MwScrollBarClass;
 			break;
-		case 15:
+		case 14:
 			cls = MwSeparatorClass;
 			break;
-		// case 16:
-		// cls = MwSubMenuClass;
-		// break;
-		case 17:
+
+		case 15:
 			cls = MwTreeViewClass;
 			break;
-		case 18:
+		case 16:
 			cls = MwViewportClass;
 			break;
 		default:
 			cls = NULL;
 			break;
 		}
+		printf("%d\n", r);
 		if(cls) {
 			widget = MwCreateWidget(cls, "Cls", window, 0, 0, 100, 100);
 		}
 
-		if(MwPending(window)) {
-			MwStep(window);
-		}
+		MwStep(window);
 		if(cls) {
 			MwDestroyWidget(widget);
 		}
