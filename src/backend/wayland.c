@@ -1747,8 +1747,10 @@ static void clip(MwLL handle) {
 			x += ws[i]->wayland.x;
 			y += ws[i]->wayland.y;
 
-			cx = MAX(cx, ws[i]->wayland.x);
-			cy = MAX(cy, ws[i]->wayland.x);
+			if(i > 0){
+				cx = MAX(cx, ws[i]->wayland.x);
+				cy = MAX(cy, ws[i]->wayland.y);
+			}
 			mx = MIN(mx, x + ws[i]->wayland.ww);
 			my = MIN(my, y + ws[i]->wayland.wh);
 		}
