@@ -605,6 +605,8 @@ HCURSOR MwLLGDICreateCursor(MwCursor* image, MwCursor* mask) {
 	ys = mask->height + mask->y;
 	ys = image->height + image->y - ys;
 
+	if(ys < 0) ys = -ys;
+
 	memset(dmask, 0xff, (MwCursorDataHeight / 8) * MwCursorDataHeight);
 	memset(dimage, 0, (MwCursorDataHeight / 8) * MwCursorDataHeight);
 

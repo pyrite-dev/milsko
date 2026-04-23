@@ -1124,6 +1124,8 @@ Cursor MwLLX11CreateCursor(Display* display, MwCursor* image, MwCursor* mask) {
 	ys = mask->height + mask->y;
 	ys = image->height + image->y - ys;
 
+	if(ys < 0) ys = -ys;
+
 	memset(cimage->data, 0, cimage->bytes_per_line * cimage->height);
 	memset(cmask->data, 0, cmask->bytes_per_line * cmask->height);
 	for(y = 0; y < mask->height; y++) {

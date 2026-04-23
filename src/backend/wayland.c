@@ -1754,7 +1754,15 @@ static void clip(MwLL handle) {
 			my = MIN(my, y + ws[i]->wayland.wh);
 		}
 
+		cx = cy = 50;
+
+		if(mx < cx) mx = cx;
+		if(my < cy) my = cy;
+
 		arrfree(ws);
+
+		if(mx < cx) mx = cx;
+		if(my < cy) my = cy;
 
 		handle->wayland.clipping_rect.x	     = cx - x;
 		handle->wayland.clipping_rect.y	     = cy - y;
@@ -2432,17 +2440,19 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 		buffer_destroy(&handle->wayland.cursor);
 		wl_surface_destroy(handle->wayland.cursor.surface);
 	}
-	buffer_setup(&handle->wayland.cursor, image->width, image->height);
+	buffer_setup(&handle->wayland.cursor, mask->width, mask->height);
 	memset(handle->wayland.cursor.buf_back, 0, handle->wayland.cursor.buf_size);
 
 	xs = -mask->x + image->x;
 	ys = mask->height + mask->y;
 	ys = image->height + image->y - ys;
 
+	if(ys < 0) ys = -ys;
+
 	for(y = 0; y < mask->height; y++) {
 		unsigned int d = mask->data[y];
 		for(x = mask->width - 1; x >= 0; x--) {
-			int idx = ((y * image->width) + x) * 4;
+			int idx = ((y * mask->width) + x) * 4;
 
 			if(d & 1) {
 				handle->wayland.cursor.buf_back[idx + 3] = 255;
@@ -2454,7 +2464,7 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 		unsigned int d = image->data[y];
 		for(x = image->width - 1; x >= 0; x--) {
 			int px	= 0;
-			int idx = (((y + ys) * image->width) + (x + xs)) * 4;
+			int idx = (((y + ys) * mask->width) + (x + xs)) * 4;
 
 			if(d & 1) {
 				px = 255;
