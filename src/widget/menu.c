@@ -57,7 +57,7 @@ static void destroy(MwWidget handle) {
 	MwPoint p; \
 	MwRect	r; \
 	int	rx; \
-	int in_area; \
+	int	in_area;
 
 #define MENU_LOOP_INIT \
 	p.x = 5; \
