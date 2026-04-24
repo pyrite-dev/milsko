@@ -159,6 +159,15 @@ static void recursive_dispatch_move(MwLL handle, MwMouse* p) {
 	}
 };
 
+static void recursive_render(MwLL handle) {
+	int i;
+	WIDGET_CHECK(handle);
+
+	for(i = 0; i < arrlen(((MwWidget)handle->common.user)->children); i++) recursive_render(((MwWidget)handle->common.user)->children[i]->lowlevel);
+
+	MwLLForceRender(handle);
+}
+
 static void wl_offer(void*		   data,
 		     struct wl_data_offer* wl_data_offer,
 		     const char*	   mime_type) {
@@ -2048,15 +2057,6 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 	*h = handle->wayland.wh;
 }
 
-static void recursive_render(MwLL handle) {
-	int i;
-	WIDGET_CHECK(handle);
-
-	for(i = 0; i < arrlen(((MwWidget)handle->common.user)->children); i++) recursive_render(((MwWidget)handle->common.user)->children[i]->lowlevel);
-
-	MwLLForceRender(handle);
-}
-
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	WIDGET_CHECK(handle);
 	region_invalidate(handle);
@@ -2794,10 +2794,7 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 			}
 		}
 
-		MwLLForceRender(handle);
-		if(handle->wayland.parent != NULL) {
-			MwLLForceRender(handle->wayland.parent);
-		}
+		recursive_render(handle);
 
 		handle->wayland.events_pending = 1;
 
