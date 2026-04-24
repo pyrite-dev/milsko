@@ -1787,7 +1787,7 @@ static void clip(MwLL handle) {
 	arrput(ws, handle);
 	while(toplevel) {
 		arrput(ws, toplevel);
-		if(!toplevel->wayland.parent) {
+		if(!toplevel->wayland.parent || toplevel->wayland.is_toplevel) {
 			break;
 		}
 		toplevel = toplevel->wayland.parent;
@@ -1841,7 +1841,7 @@ static void clip(MwLL handle) {
 		region_setup(handle);
 
 		cairo_reset_clip(handle->wayland.front_cairo);
-		if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
+		if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL && !handle->wayland.is_toplevel) {
 			cairo_rectangle(handle->wayland.front_cairo, cx - x, cy - y, mx - cx, my - cy);
 			cairo_clip(handle->wayland.front_cairo);
 		}
@@ -1952,6 +1952,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	if(is_destroyed(r)) {
 		undestroy(r);
 	}
+
+	r->wayland.is_toplevel = parent == NULL;
 
 	widget_setup(r, parent, x, y, width, height, MwLL_WAYLAND_UNKNOWN);
 
@@ -2514,6 +2516,7 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 
 static void MwLLForceRenderImpl(MwLL handle) {
 	WIDGET_CHECK(handle);
+	if(handle->wayland.force_render) return;
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 
 	handle->wayland.force_render = MwTRUE;
@@ -2768,6 +2771,8 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 		wl_flush(handle);
 
 		widget_setup(handle, handle->wayland.parent, handle->wayland.detach_point.x, handle->wayland.detach_point.y, handle->wayland.ww, handle->wayland.wh, handle->wayland.type_to_be);
+
+		handle->wayland.is_toplevel = MwTRUE;
 
 		if(!handle->wayland.parent)
 			handle->wayland.dark_theme_detection = MwTRUE;

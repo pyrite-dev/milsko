@@ -424,6 +424,8 @@ struct _MwLLWayland {
 
 	MwBool did_initial_resize;
 
+	MwBool is_toplevel;
+
 	/* Map of Wayland interfaces to their relevant setup functions. */
 	struct {
 		char*				   key;
