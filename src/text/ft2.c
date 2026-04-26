@@ -123,7 +123,6 @@ static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
 		text = old_text;
 	}
 
-	tw -= ttf->face->glyph->advance.x >> 6;
 	tw += ttf->face->glyph->bitmap_left + ttf->face->glyph->bitmap.width;
 
 	return tw + 1;
