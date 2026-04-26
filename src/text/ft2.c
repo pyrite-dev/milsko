@@ -49,11 +49,10 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 		FT_Bitmap*  bmp;
 		int	    cy, cx;
 		int	    c, c2;
-		int	    l = MwUTF8ToUTF32(text, &c);
 		FT_Vector   vec;
 		const char* old_text;
-		if(l <= 0) break;
-		text += l;
+
+		text += MwUTF8ToUTF32(text, &c);
 
 		ft_table.FT_Load_Char(ttf->face, c, FT_LOAD_RENDER);
 		bmp = &ttf->face->glyph->bitmap;
@@ -124,6 +123,7 @@ static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
 		text = old_text;
 	}
 
+	tw -= ttf->face->glyph->advance.x >> 6;
 	tw += ttf->face->glyph->bitmap_left + ttf->face->glyph->bitmap.width;
 
 	return tw + 1;

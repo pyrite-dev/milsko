@@ -70,7 +70,6 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 	char*	last  = input;
 	int	cp;
 
-	if(strlen(text) == 0) return;
 #ifdef TTF
 	if(ttf <= MwFLBuildFont(0xff)) ttf = assume_ttf(handle, ttf);
 #endif
@@ -93,6 +92,14 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 					line[i] = 0;
 					break;
 				}
+			}
+
+			if(strlen(line) == 0) {
+				free(line);
+
+				last = input;
+
+				continue;
 			}
 
 			p.x = point->x;

@@ -199,16 +199,24 @@ static void frame_draw(MwWidget handle) {
 
 			str = MwStringDuplicate(t);
 			if(MwUTF8Length(str) > (get_col_width(lb, j) - l) / MwTextWidth(handle, Font, "M")) {
-				int ind	 = (get_col_width(lb, j) - l) / MwTextWidth(handle, Font, "M") - 3;
-				int seek = 0;
-				int l	 = 0;
+				int   ind  = (get_col_width(lb, j) - l) / MwTextWidth(handle, Font, "M") - 3;
+				int   seek = 0;
+				int   l	   = 0;
+				char* old  = str;
+
+				if(ind < 0) ind = 0;
+
+				str = malloc(strlen(old) + 5);
+				strcpy(str, old);
+				free(old);
 
 				while(str[seek] != 0) {
 					int cp;
+					if(l == ind) break;
+
 					seek += MwUTF8ToUTF32(str + seek, &cp);
 
 					l++;
-					if(l == ind) break;
 				}
 
 				memset(str + seek, '.', 3);
