@@ -72,7 +72,7 @@ static void draw(MwWidget handle) {
 			show[i] = 0;
 
 			currc.x	     = p.x + MwTextWidth(handle, font, show);
-			currc.y	     = (r.height - h) / 2;
+			currc.y	     = (r.height - h) / 2 + MwDefaultBorderWidth(handle);
 			currc.width  = 1;
 			currc.height = h;
 			MwDrawRect(handle, &currc, text);
