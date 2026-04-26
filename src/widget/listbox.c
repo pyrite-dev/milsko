@@ -260,7 +260,7 @@ static void frame_draw(MwWidget handle) {
 	MwLLFreeColor(base);
 }
 
-static void resize(MwWidget handle) {
+static void resize(MwWidget handle, int no_resize) {
 	MwListBox lb = handle->internal;
 	int	  w  = MwGetInteger(handle, MwNwidth);
 	int	  h  = MwGetInteger(handle, MwNheight);
@@ -272,7 +272,7 @@ static void resize(MwWidget handle) {
 	if(lb->vscroll == NULL) {
 		lb->vscroll = MwVaCreateWidget(MwScrollBarClass, "vscroll", handle, w - 16, 0, 16, h, NULL);
 		MwAddUserHandler(lb->vscroll, MwNchangedHandler, vscroll_changed, NULL);
-	} else {
+	} else if(!no_resize){
 		MwVaApply(lb->vscroll,
 			  MwNx, w - 16,
 			  MwNy, 0,
@@ -299,7 +299,7 @@ static void resize(MwWidget handle) {
 		MwAddUserHandler(lb->frame, MwNmouseDownHandler, frame_mouse_down, NULL);
 		MwAddUserHandler(lb->frame, MwNmouseUpHandler, frame_mouse_up, NULL);
 		MwAddUserHandler(lb->frame, MwNmouseMoveHandler, frame_mouse_move, NULL);
-	} else {
+	} else  if(!no_resize){
 		MwVaApply(lb->frame,
 			  MwNx, 0,
 			  MwNy, y,
@@ -328,7 +328,7 @@ static int wcreate(MwWidget handle) {
 	MwSetInteger(handle, MwNleftPadding, 0);
 	MwSetInteger(handle, MwNvalue, -1);
 
-	resize(handle);
+	resize(handle, 0);
 	lb->list       = NULL;
 	lb->click_time = 0;
 	lb->width      = NULL;
@@ -440,7 +440,7 @@ static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text)
 		new = 1;
 	}
 
-	if(new) resize(handle);
+	if(new) resize(handle, 1);
 	redrawIfNeeded(handle, row);
 
 	return row;
@@ -467,7 +467,7 @@ static void mwListBoxSetIconImpl(MwWidget handle, int index, MwLLPixmap icon) {
 		new = 1;
 	}
 
-	if(new) resize(handle);
+	if(new) resize(handle, 1);
 	redrawIfNeeded(handle, index);
 }
 
@@ -489,7 +489,7 @@ static void mwListBoxDeleteImpl(MwWidget handle, int index) {
 		MwSetInteger(handle, MwNvalue, -1);
 	}
 
-	resize(handle);
+	resize(handle, 1);
 	if(index < (MwGetInteger(lb->vscroll, MwNvalue) + MwGetInteger(lb->vscroll, MwNareaShown))) {
 		MwForceRender(lb->frame);
 	}
@@ -511,7 +511,7 @@ static void mwListBoxResetImpl(MwWidget handle) {
 
 	MwSetInteger(lb->vscroll, MwNvalue, 0);
 
-	resize(handle);
+	resize(handle, 0);
 	MwForceRender(lb->frame);
 }
 
@@ -598,7 +598,7 @@ static void props_change(MwWidget handle, char** props) {
 		if(strcmp(props[i], MwNwidth) == 0 || strcmp(props[i], MwNheight) == 0 || strcmp(props[i], MwNhasHeading) == 0) rsz = 1;
 	}
 
-	if(rsz) resize(handle);
+	if(rsz) resize(handle, 0);
 }
 
 MwClassRec MwListBoxClassRec = {
