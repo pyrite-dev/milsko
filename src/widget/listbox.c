@@ -193,14 +193,13 @@ static void frame_draw(MwWidget handle) {
 			char*	str;
 			int	l  = (j == 0 ? MwGetInteger(handle->parent, MwNleftPadding) : 0);
 			MwPoint p2 = p;
-
 			p2.y += (MwTextHeight(handle, Font, "M") + Padding) / 2;
 
 			if(t == NULL) t = "";
 
 			str = MwStringDuplicate(t);
 			if(MwUTF8Length(str) > (get_col_width(lb, j) - l) / MwTextWidth(handle, Font, "M")) {
-				int ind	 = (get_col_width(lb, j) - l) / MwTextWidth(handle, Font, "M");
+				int ind	 = (get_col_width(lb, j) - l) / MwTextWidth(handle, Font, "M") - 3;
 				int seek = 0;
 				int l	 = 0;
 
@@ -219,18 +218,21 @@ static void frame_draw(MwWidget handle) {
 			if(j == (arrlen(lb->list[i].name) - 1)) p.x -= MwDefaultBorderWidth(handle);
 			if(arrlen(lb->alignment) <= j || lb->alignment[j] == MwALIGNMENT_BEGINNING) {
 				p.x += 4;
+				p2.x = p.x;
 				MwDrawText(handle, Font, &p2, str, MwALIGNMENT_BEGINNING, selected ? base2 : text2);
 				p.x -= 4;
 				p.x += get_col_width(lb, j);
 
 			} else if(lb->alignment[j] == MwALIGNMENT_CENTER) {
 				p.x += (get_col_width(lb, j) - l) / 2;
+				p2.x = p.x;
 				MwDrawText(handle, Font, &p2, str, MwALIGNMENT_CENTER, selected ? base2 : text2);
 				p.x += (get_col_width(lb, j) - l) / 2;
 				p.x += l;
 			} else if(lb->alignment[j] == MwALIGNMENT_END) {
 				p.x += get_col_width(lb, j);
 				p.x -= 4;
+				p2.x = p.x;
 				MwDrawText(handle, Font, &p2, str, MwALIGNMENT_END, selected ? base2 : text2);
 				p.x += 4;
 			}
@@ -410,8 +412,8 @@ static void redrawIfNeeded(MwWidget handle, int row) {
 static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text) {
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
-	char*	       t   = text == NULL ? NULL : MwStringDuplicate(text);
-	int	       new = 0;
+	char*	       t = text == NULL ? NULL : MwStringDuplicate(text);
+	int new		 = 0;
 	if(row == -1) row = arrlen(lb->list);
 
 	entry.name   = NULL;
@@ -439,7 +441,7 @@ static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text)
 static void mwListBoxSetIconImpl(MwWidget handle, int index, MwLLPixmap icon) {
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
-	int	       new = 0;
+	int new = 0;
 	if(index == -1) index = arrlen(lb->list);
 
 	entry.name   = NULL;
