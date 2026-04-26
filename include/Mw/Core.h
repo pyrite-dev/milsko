@@ -361,6 +361,20 @@ MWDECL int MWAPI MwGetCoordinateType(MwWidget handle);
  */
 MWDECL void MWAPI MwGetClipboard(MwWidget handle, int clipboard_type);
 
+/*!
+ * @brief Set user pointer.
+ * @param handle Widget
+ * @param user User pointer
+ */
+MWDECL void MWAPI MwSetUser(MwWidget handle, void* user);
+
+/*!
+ * @brief Get user pointer.
+ * @param handle Widget
+ * @return User pointer
+ */
+MWDECL void* MWAPI MwGetUser(MwWidget handle);
+
 #ifdef _MILSKO
 MWDECL void MwForceRender_Internal(MwWidget handle);
 MWDECL void MwForceRender2_Internal(MwWidget handle, void* ptr);

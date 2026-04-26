@@ -211,6 +211,7 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 
 	h->internal = NULL;
 	h->opaque   = NULL;
+	h->user = NULL;
 
 	h->top_step   = 0;
 	h->draw_queue = NULL;
@@ -1065,4 +1066,12 @@ int MwGetCoordinateType(MwWidget handle) {
 
 void MwGetClipboard(MwWidget handle, int clipboard_type) {
 	MwLLGetClipboard(handle->lowlevel, clipboard_type);
+}
+
+void MwSetUser(MwWidget handle, void* user){
+	handle->user = user;
+}
+
+void* MwGetUser(MwWidget handle){
+	return handle->user;
 }

@@ -90,6 +90,7 @@ struct _MwWidget {
 
 	void* internal;
 	void* opaque;
+	void* user;
 	void (*draw_inject)(MwWidget handle);
 	void (*destroy_inject)(MwWidget handle);
 
