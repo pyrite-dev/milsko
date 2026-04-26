@@ -397,8 +397,8 @@ typedef struct wl_clipboard_device_context {
 		struct zwp_primary_selection_offer_v1* zwp;
 	} offer;
 
-	MwLL		ll;
-	struct wl_seat* seat;
+	MwLL ll;
+	// struct wl_seat* seat;
 } wl_clipboard_device_context_t;
 
 struct _MwLLWayland {
@@ -482,6 +482,7 @@ struct _MwLLWayland {
 	} clipboard_source;
 	char*  clipboard_buffer;
 	MwBool supports_zwp;
+	MwBool zwp_setup;
 
 	uint32_t			clipboard_serial;
 	wl_clipboard_device_context_t** clipboard_devices_wl;

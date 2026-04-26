@@ -78,6 +78,8 @@ static void region_invalidate(MwLL handle);
 static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer);
 
 static void setup_clipboard(MwLL self, struct wl_seat* wl_seat);
+static void setup_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
+static int  event_loop(MwLL handle);
 
 /* Get the registered interface from r, or NULL if it doesn't currently have it. */
 #define WAYLAND_GET_INTERFACE(handle, inter) shget(handle.wl_protocol_map, inter##_interface.name)
@@ -433,6 +435,14 @@ static wayland_protocol_t* wl_data_device_manager_setup(MwU32 name, struct _MwLL
 
 	wl_data_source_add_listener(wayland->clipboard_source.wl, &wl_data_source_listener, wayland);
 
+	while(!wayland->pointer_seat) {
+		if(wl_display_roundtrip(wayland->display) == -1) {
+			printf("roundtrip failed: %d\n", wl_display_get_error(wayland->display));
+			raise(SIGTRAP);
+			return NULL;
+		}
+	}
+
 	if(wayland->pointer_seat) {
 		setup_clipboard((MwLL)wayland, wayland->pointer_seat);
 	}
@@ -464,6 +474,18 @@ static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 n
 	zwp_primary_selection_source_v1_add_listener(wayland->clipboard_source.zwp, &zwp_primary_selection_source_v1_listener, wayland);
 
 	wayland->supports_zwp = MwTRUE;
+
+	while(!wayland->pointer_seat) {
+		if(wl_display_roundtrip(wayland->display) == -1) {
+			printf("roundtrip failed: %d\n", wl_display_get_error(wayland->display));
+			raise(SIGTRAP);
+			return NULL;
+		}
+	}
+
+	if(wayland->pointer_seat) {
+		setup_zwp_clipboard((MwLL)wayland, wayland->pointer_seat);
+	}
 
 	return NULL;
 }
@@ -915,26 +937,22 @@ static void keyboard_modifiers(void*		   data,
 	WAYLAND_EVENT_OP_END(self);
 };
 
-static void setup_clipboard(MwLL self, struct wl_seat* wl_seat) {
+static void setup_zwp_clipboard(MwLL self, struct wl_seat* wl_seat) {
 	wl_clipboard_device_context_t* device_ctx_zwp = NULL;
-	wl_clipboard_device_context_t* device_ctx_wl  = malloc(sizeof(wl_clipboard_device_context_t));
+	device_ctx_zwp				      = malloc(sizeof(wl_clipboard_device_context_t));
+	memset(device_ctx_zwp, 0, sizeof(wl_clipboard_device_context_t));
+	device_ctx_zwp->device.zwp = zwp_primary_selection_device_manager_v1_get_device(self->wayland.clipboard_manager.zwp, wl_seat);
+	device_ctx_zwp->ll	   = self;
+	zwp_primary_selection_device_v1_add_listener(device_ctx_zwp->device.zwp, &zwp_primary_selection_device_v1_listener, device_ctx_zwp);
+	arrpush(self->wayland.clipboard_devices_zwp, device_ctx_zwp);
+}
+static void setup_clipboard(MwLL self, struct wl_seat* wl_seat) {
+	wl_clipboard_device_context_t* device_ctx_wl = malloc(sizeof(wl_clipboard_device_context_t));
 	memset(device_ctx_wl, 0, sizeof(wl_clipboard_device_context_t));
-
-	if(self->wayland.supports_zwp) {
-		device_ctx_zwp		   = malloc(sizeof(wl_clipboard_device_context_t));
-		device_ctx_zwp->device.zwp = zwp_primary_selection_device_manager_v1_get_device(self->wayland.clipboard_manager.zwp, wl_seat);
-		device_ctx_zwp->ll	   = self;
-		device_ctx_zwp->seat	   = wl_seat;
-	}
 
 	device_ctx_wl->device.wl = wl_data_device_manager_get_data_device(self->wayland.clipboard_manager.wl, wl_seat);
 	device_ctx_wl->ll	 = self;
-	device_ctx_wl->seat	 = wl_seat;
 
-	if(self->wayland.supports_zwp) {
-		zwp_primary_selection_device_v1_add_listener(device_ctx_zwp->device.zwp, &zwp_primary_selection_device_v1_listener, device_ctx_zwp);
-		arrpush(self->wayland.clipboard_devices_zwp, device_ctx_zwp);
-	}
 	wl_data_device_add_listener(device_ctx_wl->device.wl, &wl_data_device_listener, device_ctx_wl);
 	arrpush(self->wayland.clipboard_devices_wl, device_ctx_wl);
 };
@@ -970,9 +988,6 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 		self->wayland.pointer_seat = wl_seat;
 		self->wayland.pointer	   = wl_seat_get_pointer(wl_seat);
 		wl_pointer_add_listener(self->wayland.pointer, &pointer_listener, data);
-	}
-	if(self->wayland.clipboard_manager.wl != NULL) {
-		setup_clipboard(self, wl_seat);
 	}
 	WAYLAND_EVENT_OP_END(self);
 };
