@@ -52,9 +52,9 @@
 #define MwNforeground "Sforeground"
 #define MwNsubForeground "SsubForeground"
 
-#define MwNvulkanExtension "SEvulkanExtension" /* char* */
-#define MwNvulkanLayer "SEvulkanLayer"	       /* char* */
-#define MwNvulkanConfig "VEvulkanConfig"       /* MwVulkanConfig */
+#define MwNvulkanExtension "SEvulkanExtension"
+#define MwNvulkanLayer "SEvulkanLayer"
+#define MwNvulkanConfig "VEvulkanConfig"
 
 #define MwNpixmap "Vpixmap"
 #define MwNiconPixmap "ViconPixmap"
@@ -65,27 +65,27 @@
 #define MwNmonospaceFont "VmonospaceFont"
 #define MwNboldMonospaceFont "VboldMonospaceFont"
 
-#define MwNactivateHandler "Cactivate"		       /* NULL */
-#define MwNlistBoxActivateHandler "ClistBoxActivate"   /* int* */
-#define MwNtreeViewActivateHandler "CtreeViewActivate" /* void* */
-#define MwNresizeHandler "Cresize"		       /* NULL */
-#define MwNtickHandler "Ctick"			       /* NULL */
-#define MwNmenuHandler "Cmenu"			       /* MwMenu */
-#define MwNmouseDownHandler "CmouseDown"	       /* MwMouse* */
-#define MwNmouseUpHandler "CmouseUp"		       /* same as MwNmouseDownHandler */
-#define MwNmouseMoveHandler "CmouseMove"	       /* MwPoint* */
-#define MwNchangedHandler "Cchanged"		       /* NULL */
-#define MwNcomboBoxChangedHandler "CcomboBoxChanged"   /* int* */
-#define MwNkeyHandler "Ckey"			       /* int* (MwLLKeyEnum or character code) */
-#define MwNkeyReleaseHandler "CkeyRelease"	       /* same as MwNkeyHandler */
-#define MwNcloseHandler "Cclose"		       /* NULL */
-#define MwNfocusInHandler "CfocusIn"		       /* NULL */
-#define MwNfocusOutHandler "CfocusOut"		       /* NULL */
-#define MwNfileChosenHandler "CfileChosen"	       /* char* */
-#define MwNdirectoryChosenHandler "CdirectoryChosen"   /* char* */
-#define MwNcolorChosenHandler "CcolorChosen"	       /* MwRGB* */
-#define MwNdrawHandler "Cdraw"			       /* NULL */
-#define MwNclipboardHandler "Cclipboard"	       /* char* */
-#define MwNdarkThemeHandler "CdarkTheme"	       /* int* */
+#define MwNactivateHandler "Cactivate"
+#define MwNlistBoxActivateHandler "ClistBoxActivate"
+#define MwNtreeViewActivateHandler "CtreeViewActivate"
+#define MwNresizeHandler "Cresize"
+#define MwNtickHandler "Ctick"
+#define MwNmenuHandler "Cmenu"
+#define MwNmouseDownHandler "CmouseDown"
+#define MwNmouseUpHandler "CmouseUp"
+#define MwNmouseMoveHandler "CmouseMove"
+#define MwNchangedHandler "Cchanged"
+#define MwNcomboBoxChangedHandler "CcomboBoxChanged"
+#define MwNkeyHandler "Ckey"
+#define MwNkeyReleaseHandler "CkeyRelease"
+#define MwNcloseHandler "Cclose"
+#define MwNfocusInHandler "CfocusIn"
+#define MwNfocusOutHandler "CfocusOut"
+#define MwNfileChosenHandler "CfileChosen"
+#define MwNdirectoryChosenHandler "CdirectoryChosen"
+#define MwNcolorChosenHandler "CcolorChosen"
+#define MwNdrawHandler "Cdraw"
+#define MwNclipboardHandler "Cclipboard"
+#define MwNdarkThemeHandler "CdarkTheme"
 
 #endif
