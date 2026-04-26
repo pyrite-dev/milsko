@@ -43,6 +43,7 @@
 #define MwNisRounded "IisRounded"
 #define MwNdarkTheme "IdarkTheme"
 #define MwNuseMonospace "IuseMonospace"
+#define MwNdarkThemeAutomatic "IdarkThemeAutomatic"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

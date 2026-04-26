@@ -96,6 +96,7 @@
 		<integer name="darkTheme" common="yes" />
 		<integer name="useMonospace" common="yes" />
 		<integer name="fillArea" />
+		<integer name="darkThemeAutomatic" common="yes" />
 
 		<!-- waitMS is a special property, only applies to toplevel widget -->
 		<integer name="waitMS" common="yes" />

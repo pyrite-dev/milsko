@@ -170,10 +170,12 @@ static void llclipboardhandler(MwLL handle, void* data) {
 static void lldarkthemehandler(MwLL handle, void* data) {
 	MwWidget h   = (MwWidget)handle->common.user;
 	int*	 ptr = data;
+	int	 s;
 
-	if(IsFirstVisible(h)) {
+	if(IsFirstVisible(h) && (shgeti(h->integer, MwNdarkTheme) == -1 || ((s = MwGetInteger(h, MwNdarkThemeAutomatic)) != MwDEFAULT && s))) {
 		MwVaApply(h,
 			  MwNdarkTheme, *ptr,
+			  MwNdarkThemeAutomatic, 1,
 			  NULL);
 
 		MwDispatchUserHandler(h, MwNdarkThemeHandler, data);
@@ -572,6 +574,8 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 
 	if(strcmp(key, MwNdarkTheme) == 0) {
 		MwWidget h = handle;
+
+		shdel(h->integer, MwNdarkThemeAutomatic);
 
 		while(h->parent != NULL && h->parent->widget_class != NULL) h = h->parent;
 
