@@ -2106,6 +2106,10 @@ static void actually_set_wh(MwLL handle) {
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	WIDGET_CHECK(handle);
 
+	if(handle->wayland.ww == w && handle->wayland.wh == h) {
+		return;
+	}
+
 	/* Prevent an integer underflow when the w/h is too low */
 	if((w < 2 || h < 2)) {
 		handle->wayland.ww = 2;
