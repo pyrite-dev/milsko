@@ -81,7 +81,7 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 			}
 		}
 
-		x += (ttf->face->glyph->advance.x >> 6) + (ttf->face->glyph->metrics.horiBearingX >> 6);
+		x += (ttf->face->glyph->advance.x >> 6);
 
 		old_text = text;
 		text += MwUTF8ToUTF32(text, &c2);
@@ -109,7 +109,7 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 }
 
 static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
-	int tw = 0, mtw = 0;
+	int tw = 0;
 
 	while(text[0] != 0) {
 		int	    c, c2;
@@ -117,29 +117,22 @@ static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
 		const char* old_text;
 
 		text += MwUTF8ToUTF32(text, &c);
-		if(c == '\n') {
-			tw = 0;
-			continue;
-		}
 
 		ft_table.FT_Load_Char(ttf->face, c, FT_LOAD_DEFAULT);
 
-		tw += (ttf->face->glyph->advance.x >> 6) + (ttf->face->glyph->metrics.horiBearingX >> 6);
+		tw += (ttf->face->glyph->advance.x >> 6);
 
 		old_text = text;
 		text += MwUTF8ToUTF32(text, &c2);
 
-		if(c2 != '\n') {
-			ft_table.FT_Get_Kerning(ttf->face, c, c2, FT_KERNING_DEFAULT, &vec);
+		ft_table.FT_Get_Kerning(ttf->face, c, c2, FT_KERNING_DEFAULT, &vec);
 
-			tw += vec.x >> 6;
-		}
+		tw += vec.x >> 6;
 
 		text = old_text;
-		if(tw > mtw) mtw = tw;
 	}
 
-	return mtw + 1;
+	return tw + 1;
 }
 
 static int ft2_MwTextHeight(MwFLFont ttf, int count) {
