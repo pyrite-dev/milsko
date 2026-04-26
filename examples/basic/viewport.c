@@ -31,13 +31,10 @@ int main() {
 
 	if(px == NULL) px = MwLoadImage(vp, "picture.png");
 
-	//	MwVaCreateWidget(MwImageClass, "image", MwViewportGetViewport(vp), 0, 0, 1024, 1024,
-	//			 MwNpixmap, px,
-	//			 NULL);
+	MwVaCreateWidget(MwImageClass, "image", MwViewportGetViewport(vp), 0, 0, 1024, 1024,
+			 MwNpixmap, px,
+			 NULL);
 	MwViewportSetSize(vp, 1024, 1024);
-	MwWidget f = MwCreateWidget(MwFrameClass, "fr", MwViewportGetViewport(vp), 256, 256, 128, 128);
-	f	   = MwCreateWidget(MwFrameClass, "fr", f, 0, 0, 128, 128);
-	MwCreateWidget(MwButtonClass, "btn", f, 64, 64, 128, 128);
 
 	MwAddUserHandler(w, MwNresizeHandler, resize, NULL);
 

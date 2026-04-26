@@ -2516,7 +2516,6 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 
 static void MwLLForceRenderImpl(MwLL handle) {
 	WIDGET_CHECK(handle);
-	if(handle->wayland.force_render) return;
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 
 	handle->wayland.force_render = MwTRUE;
