@@ -272,7 +272,7 @@ static void resize(MwWidget handle, int no_resize) {
 	if(lb->vscroll == NULL) {
 		lb->vscroll = MwVaCreateWidget(MwScrollBarClass, "vscroll", handle, w - 16, 0, 16, h, NULL);
 		MwAddUserHandler(lb->vscroll, MwNchangedHandler, vscroll_changed, NULL);
-	} else if(!no_resize){
+	} else if(!no_resize) {
 		MwVaApply(lb->vscroll,
 			  MwNx, w - 16,
 			  MwNy, 0,
@@ -299,7 +299,7 @@ static void resize(MwWidget handle, int no_resize) {
 		MwAddUserHandler(lb->frame, MwNmouseDownHandler, frame_mouse_down, NULL);
 		MwAddUserHandler(lb->frame, MwNmouseUpHandler, frame_mouse_up, NULL);
 		MwAddUserHandler(lb->frame, MwNmouseMoveHandler, frame_mouse_move, NULL);
-	} else  if(!no_resize){
+	} else if(!no_resize) {
 		MwVaApply(lb->frame,
 			  MwNx, 0,
 			  MwNy, y,
