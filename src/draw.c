@@ -179,6 +179,9 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 
 		MwDrawFrame(handle, rect, color, invert);
 	}
+
+	if(rect->width <= 0 || rect->height <= 0) return;
+
 	col = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
 	if(MwGetInteger(handle, MwNmodernLook)) {
 		MwDrawRectFading(handle, rect, col);

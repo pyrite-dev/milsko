@@ -1,7 +1,6 @@
 #include <Mw/Milsko.h>
 
 #include "../../external/stb_ds.h"
-#include "Mw/TypeDefs.h"
 
 static void set_xywh(MwWidget handle) {
 	int height = 0;

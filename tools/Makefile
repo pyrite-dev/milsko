@@ -1,7 +1,7 @@
 CC = gcc
-CFLAGS = `freetype-config --cflags`
+CFLAGS = `pkg-config --cflags freetype2` -I../include
 LDFLAGS =
-LIBS = `freetype-config --libs`
+LIBS = `pkg-config --libs freetype2`
 
 .PHONY: all clean
 .SUFFIXES: .c .o
@@ -9,7 +9,7 @@ LIBS = `freetype-config --libs`
 all: fuzzer font
 
 fuzzer: fuzzer.o
-	$(CC) -g -L../src/ -Wl,-R../src -lMw -o $@ fuzzer.o
+	$(CC) -g -L../src/ -Wl,-R../src -o $@ fuzzer.o -lMw
 
 font: font.o
 	$(CC) $(LDFLAGS) -o $@ font.o $(LIBS)

@@ -405,8 +405,9 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->x11.width  = width;
 	r->x11.height = height;
 
-	r->x11.grabbed	    = 0;
-	r->x11.force_render = 0;
+	r->x11.grabbed		    = 0;
+	r->x11.force_render	    = 0;
+	r->x11.dark_theme_detection = 0;
 
 	r->x11.colormap	    = DefaultColormap(r->x11.display, XDefaultScreen(r->x11.display));
 	r->x11.wm_delete    = XInternAtom(r->x11.display, "WM_DELETE_WINDOW", False);
