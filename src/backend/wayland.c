@@ -2017,8 +2017,6 @@ static void MwLLDestroyImpl(MwLL handle) {
 		} else if(handle->wayland.type == MwLL_WAYLAND_POPUP) {
 			destroy_popup(handle);
 		}
-		wl_keyboard_destroy(handle->wayland.keyboard);
-		wl_pointer_destroy(handle->wayland.pointer);
 	}
 
 	for(i = 0; i < shlen(handle->wayland.wl_protocol_setup_map); i++) {
