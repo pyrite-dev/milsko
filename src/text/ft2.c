@@ -66,7 +66,7 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 
 		for(cy = 0; cy < bmp->rows; cy++) {
 			for(cx = 0; cx < bmp->width; cx++) {
-				int	       ox  = x + (ttf->face->glyph->metrics.horiBearingX >> 6) + cx + ttf->face->glyph->bitmap_left;
+				int	       ox  = x + cx + (ttf->face->glyph->metrics.horiBearingX >> 6) + ttf->face->glyph->bitmap_left;
 				int	       oy  = y + (ttf->face->height * ttf->px / ttf->face->units_per_EM) - ttf->face->glyph->bitmap_top + cy + (ttf->face->descender * ttf->px / ttf->face->units_per_EM);
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
 				opx[0]		   = color->common.red;
@@ -120,7 +120,7 @@ static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
 
 		ft_table.FT_Load_Char(ttf->face, c, FT_LOAD_DEFAULT);
 
-		tw += (ttf->face->glyph->advance.x >> 6);
+		tw += ttf->face->glyph->advance.x >> 6;
 
 		old_text = text;
 		text += MwUTF8ToUTF32(text, &c2);
@@ -131,6 +131,8 @@ static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
 
 		text = old_text;
 	}
+
+	tw += ttf->face->glyph->bitmap_left + ttf->face->glyph->bitmap.width;
 
 	return tw + 1;
 }

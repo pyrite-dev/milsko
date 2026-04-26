@@ -96,10 +96,12 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 static int stbtt_MwTextWidth(MwFLFont ttf, const char* text) {
 	int ax, lsb;
 	int tw = 0;
+	int c;
+	int x0, y0, x1, y1;
 
 	while(text[0] != 0) {
 		int	    kern;
-		int	    c, c2;
+		int	    c2;
 		const char* old_text;
 
 		text += MwUTF8ToUTF32(text, &c);
@@ -117,6 +119,9 @@ static int stbtt_MwTextWidth(MwFLFont ttf, const char* text) {
 
 		text = old_text;
 	}
+
+	stbtt_GetCodepointBitmapBox(&ttf->font, c, ttf->scale, ttf->scale, &x0, &y0, &x1, &y1);
+	tw += x1;
 
 	return tw + 1;
 }
