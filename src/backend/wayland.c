@@ -76,6 +76,9 @@ static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer);
 static void region_setup(MwLL handle);
 static void region_invalidate(MwLL handle);
 static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer);
+
+static void setup_clipboard(MwLL self, struct wl_seat* wl_seat);
+
 /* Get the registered interface from r, or NULL if it doesn't currently have it. */
 #define WAYLAND_GET_INTERFACE(handle, inter) shget(handle.wl_protocol_map, inter##_interface.name)
 
@@ -290,7 +293,7 @@ static void wl_clipboard_read(wl_clipboard_device_context_t* ctx, int clipboard_
 	timeout.tv_sec	= 0;
 	timeout.tv_usec = 100;
 
-	if(clipboard_type == MwCLIPBOARD_PRIMARY) {
+	if(clipboard_type == MwCLIPBOARD_PRIMARY && ctx->offer.zwp) {
 		zwp_primary_selection_offer_v1_receive(ctx->offer.zwp, "text/plain", fds[1]);
 	} else if(ctx->offer.wl) {
 		wl_data_offer_receive(ctx->offer.wl, "text/plain", fds[1]);
@@ -429,6 +432,10 @@ static wayland_protocol_t* wl_data_device_manager_setup(MwU32 name, struct _MwLL
 	wl_data_source_offer(wayland->clipboard_source.wl, "UTF8_STRING");
 
 	wl_data_source_add_listener(wayland->clipboard_source.wl, &wl_data_source_listener, wayland);
+
+	if(wayland->pointer_seat) {
+		setup_clipboard((MwLL)wayland, wayland->pointer_seat);
+	}
 
 	return NULL;
 }
@@ -908,6 +915,30 @@ static void keyboard_modifiers(void*		   data,
 	WAYLAND_EVENT_OP_END(self);
 };
 
+static void setup_clipboard(MwLL self, struct wl_seat* wl_seat) {
+	wl_clipboard_device_context_t* device_ctx_zwp = NULL;
+	wl_clipboard_device_context_t* device_ctx_wl  = malloc(sizeof(wl_clipboard_device_context_t));
+	memset(device_ctx_wl, 0, sizeof(wl_clipboard_device_context_t));
+
+	if(self->wayland.supports_zwp) {
+		device_ctx_zwp		   = malloc(sizeof(wl_clipboard_device_context_t));
+		device_ctx_zwp->device.zwp = zwp_primary_selection_device_manager_v1_get_device(self->wayland.clipboard_manager.zwp, wl_seat);
+		device_ctx_zwp->ll	   = self;
+		device_ctx_zwp->seat	   = wl_seat;
+	}
+
+	device_ctx_wl->device.wl = wl_data_device_manager_get_data_device(self->wayland.clipboard_manager.wl, wl_seat);
+	device_ctx_wl->ll	 = self;
+	device_ctx_wl->seat	 = wl_seat;
+
+	if(self->wayland.supports_zwp) {
+		zwp_primary_selection_device_v1_add_listener(device_ctx_zwp->device.zwp, &zwp_primary_selection_device_v1_listener, device_ctx_zwp);
+		arrpush(self->wayland.clipboard_devices_zwp, device_ctx_zwp);
+	}
+	wl_data_device_add_listener(device_ctx_wl->device.wl, &wl_data_device_listener, device_ctx_wl);
+	arrpush(self->wayland.clipboard_devices_wl, device_ctx_wl);
+};
+
 struct wl_keyboard_listener keyboard_listener = {
     .keymap    = keyboard_keymap,
     .enter     = keyboard_enter,
@@ -927,10 +958,7 @@ wl_seat_name(void* data, struct wl_seat* wl_seat, const char* name) {
 /* `wl_seat.capabilities` callback */
 static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 				 MwU32 capabilities) {
-	MwLL			       self	      = data;
-	wl_clipboard_device_context_t* device_ctx_zwp = NULL;
-	wl_clipboard_device_context_t* device_ctx_wl  = malloc(sizeof(wl_clipboard_device_context_t));
-	memset(device_ctx_wl, 0, sizeof(wl_clipboard_device_context_t));
+	MwLL self = data;
 
 	WAYLAND_EVENT_OP_START(self);
 
@@ -943,28 +971,9 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 		self->wayland.pointer	   = wl_seat_get_pointer(wl_seat);
 		wl_pointer_add_listener(self->wayland.pointer, &pointer_listener, data);
 	}
-
 	if(self->wayland.clipboard_manager.wl != NULL) {
-		if(self->wayland.supports_zwp) {
-			device_ctx_zwp		     = malloc(sizeof(wl_clipboard_device_context_t));
-			device_ctx_zwp->device.zwp   = zwp_primary_selection_device_manager_v1_get_device(self->wayland.clipboard_manager.zwp, wl_seat);
-			device_ctx_zwp->ll	     = self;
-			device_ctx_zwp->seat	     = wl_seat;
-			device_ctx_zwp->capabilities = capabilities;
-		}
-		device_ctx_wl->device.wl    = wl_data_device_manager_get_data_device(self->wayland.clipboard_manager.wl, wl_seat);
-		device_ctx_wl->ll	    = self;
-		device_ctx_wl->seat	    = wl_seat;
-		device_ctx_wl->capabilities = capabilities;
-
-		if(self->wayland.supports_zwp) {
-			zwp_primary_selection_device_v1_add_listener(device_ctx_zwp->device.zwp, &zwp_primary_selection_device_v1_listener, device_ctx_zwp);
-			arrpush(self->wayland.clipboard_devices_zwp, device_ctx_zwp);
-		}
-		wl_data_device_add_listener(device_ctx_wl->device.wl, &wl_data_device_listener, device_ctx_wl);
-		arrpush(self->wayland.clipboard_devices_wl, device_ctx_wl);
+		setup_clipboard(self, wl_seat);
 	}
-
 	WAYLAND_EVENT_OP_END(self);
 };
 

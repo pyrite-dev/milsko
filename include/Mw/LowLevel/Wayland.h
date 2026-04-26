@@ -399,7 +399,6 @@ typedef struct wl_clipboard_device_context {
 
 	MwLL		ll;
 	struct wl_seat* seat;
-	MwU32		capabilities;
 } wl_clipboard_device_context_t;
 
 struct _MwLLWayland {
