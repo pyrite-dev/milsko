@@ -930,6 +930,7 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 	MwLL			       self	      = data;
 	wl_clipboard_device_context_t* device_ctx_zwp = NULL;
 	wl_clipboard_device_context_t* device_ctx_wl  = malloc(sizeof(wl_clipboard_device_context_t));
+	memset(device_ctx_wl, 0, sizeof(wl_clipboard_device_context_t));
 
 	WAYLAND_EVENT_OP_START(self);
 
