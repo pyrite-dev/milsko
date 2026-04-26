@@ -1,6 +1,6 @@
 my @enabled_backends = ();
 
-if (param_get("wayland")) {
+if (param_get("wayland") && not(param_get("tiny"))) {
     push(@enabled_backends, "wayland");
 }
 if (param_get("x11")) {

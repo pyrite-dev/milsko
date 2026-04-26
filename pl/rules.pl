@@ -4,9 +4,15 @@ my $gl_libs = "";
 if (param_get("tiny")) {
     add_cflags("-Oz");
     if (defined($ENV{CC}) && grep(/^clang$/, $ENV{CC})) {
-        add_libs("-flto=thin");
-        add_cflags("-flto=thin");
+        add_libs("-flto=full");
+        add_cflags("-flto=full");
     }
+    add_cflags("-fdata-sections -ffunction-sections");
+    add_libs("-Wl,--gc-sections");
+
+    # these don't actually disable either, they're here for the final output.
+    param_set("wayland", 0);
+    param_set("dbus", 0);
 }
 if (param_get("classic-theme")) {
     add_cflags("-DUSE_CLASSIC_THEME");
@@ -60,7 +66,7 @@ if (grep(/^wayland$/, @backends)) {
     $gl_libs = "-lGL -lGLU";
 }
 
-if (not(param_get("dbus"))) {
+if (not(param_get("dbus")) && not(param_get("tiny"))) {
     $cflags =~ s/( |^)-DUSE_DBUS( |$)/ /;
 }
 

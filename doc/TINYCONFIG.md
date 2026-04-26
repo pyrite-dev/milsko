@@ -5,4 +5,5 @@ Milsko's configure script supports the `--tiny` option for building the tiniest 
 - Add `-Oz` to the cflags
 - (clang only) add `-flto=thin` to the cflags and linker flags
 - Build stb-image with `STB_IMAGE_STATIC` (this is why you get warnings with stb_image when you use it)
-- Disable the Wayland backend
+- (Linux) Disable the Wayland backend
+- (Linux) Disable dbus integration
