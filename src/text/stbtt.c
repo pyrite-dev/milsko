@@ -33,11 +33,6 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 		const char*    old_text;
 
 		text += MwUTF8ToUTF32(text, &c);
-		if(c == '\n') {
-			x = 0;
-			y += ceil((ttf->ascent - ttf->descent) * ttf->scale);
-			continue;
-		}
 
 		stbtt_GetCodepointHMetrics(&ttf->font, c, &ax, &lsb);
 
@@ -69,11 +64,9 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 		old_text = text;
 		text += MwUTF8ToUTF32(text, &c2);
 
-		if(c2 != '\n') {
-			kern = stbtt_GetCodepointKernAdvance(&ttf->font, c, c2);
+		kern = stbtt_GetCodepointKernAdvance(&ttf->font, c, c2);
 
-			x += ceil(kern * ttf->scale);
-		}
+		x += ceil(kern * ttf->scale);
 
 		text = old_text;
 

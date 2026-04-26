@@ -15,6 +15,21 @@ void (*MwFLFontFree)(void* handle)								       = NULL;
 
 static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, MwLLColor color);
 
+static int count_nl(const char* text) {
+	int c = 1;
+	int i = 0;
+	while(text[i] != 0) {
+		int out;
+		int l = MwUTF8ToUTF32(text + i, &out);
+		if(l == 0) break;
+		i += l;
+
+		if(out == '\n') c++;
+	}
+
+	return c;
+}
+
 static int is_bold(MwWidget handle, MwFLFont ttf) {
 	size_t u = (size_t)ttf;
 	int    s;
@@ -50,24 +65,56 @@ static MwFLFont assume_ttf(MwWidget handle, MwFLFont ttf) {
 #endif
 
 void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, int align, MwLLColor color) {
-	MwPoint p = *point;
+	MwPoint p     = *point;
+	char*	input = (char*)text;
+	char*	last  = input;
+	int	cp;
 
 	if(strlen(text) == 0) return;
 #ifdef TTF
 	if(ttf <= MwFLBuildFont(0xff)) ttf = assume_ttf(handle, ttf);
 #endif
 
-	if(align == MwALIGNMENT_CENTER) {
-		p.x -= MwTextWidth(handle, ttf, text) / 2;
-	} else if(align == MwALIGNMENT_END) {
-		p.x -= MwTextWidth(handle, ttf, text);
-	}
+	p.y -= MwTextHeight(handle, ttf, text) / 2 - (MwTextHeight(handle, ttf, text) / count_nl(text)) / 2;
+
+	while(*input != 0) {
+		input += MwUTF8ToUTF32(input, &cp);
+
+		if(*input == 0 || cp == '\n') {
+			char* line = malloc(input - last + 1);
+			int   i;
+
+			memcpy(line, last, input - last);
+
+			line[input - last] = 0;
+
+			for(i = 0; line[i] != 0; i++) {
+				if(line[i] == '\r' || line[i] == '\n') {
+					line[i] = 0;
+					break;
+				}
+			}
+
+			p.x = point->x;
+			if(align == MwALIGNMENT_CENTER) {
+				p.x -= MwTextWidth(handle, ttf, line) / 2;
+			} else if(align == MwALIGNMENT_END) {
+				p.x -= MwTextWidth(handle, ttf, line);
+			}
 
 #ifdef TTF
-	if(MwFLDrawText)
-		if(MwGetInteger(handle, MwNbitmapFont) || ttf == NULL || MwFLDrawText(handle, ttf, &p, text, color))
+			if(MwFLDrawText)
+				if(MwGetInteger(handle, MwNbitmapFont) || ttf == NULL || MwFLDrawText(handle, ttf, &p, line, color))
 #endif
-			bitmap_MwDrawText(handle, &p, text, is_bold(handle, ttf), color);
+					bitmap_MwDrawText(handle, &p, line, is_bold(handle, ttf), color);
+
+			p.y += MwTextHeight(handle, ttf, line);
+
+			free(line);
+
+			last = input;
+		}
+	}
 }
 
 int MwTextWidth(MwWidget handle, MwFLFont ttf, const char* text) {
@@ -113,7 +160,7 @@ int MwTextWidth(MwWidget handle, MwFLFont ttf, const char* text) {
 
 			free(line);
 
-			last = input + 1;
+			last = input;
 		}
 	}
 
@@ -121,8 +168,7 @@ int MwTextWidth(MwWidget handle, MwFLFont ttf, const char* text) {
 }
 
 int MwTextHeight(MwWidget handle, MwFLFont ttf, const char* text) {
-	int c = 1;
-	int i = 0;
+	int c = count_nl(text);
 #ifdef TTF
 	int st;
 #endif
@@ -135,14 +181,6 @@ int MwTextHeight(MwWidget handle, MwFLFont ttf, const char* text) {
 	(void)ttf;
 #endif
 
-	while(text[i] != 0) {
-		int out;
-		int l = MwUTF8ToUTF32(text + i, &out);
-		if(l == 0) break;
-		i += l;
-
-		if(out == '\n') c++;
-	}
 #ifdef TTF
 	if(MwFLTextHeight)
 		if(!MwGetInteger(handle, MwNbitmapFont) && ttf != NULL && (st = MwFLTextHeight(ttf, c)) != -1) return st;

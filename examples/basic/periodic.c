@@ -266,7 +266,7 @@ int main() {
 	add(f);
 
 	f = frame("Label", -PaddingContent, -PaddingContent, MwLabelClass,
-		  MwNtext, "Epic text\nI am newline too!",
+		  MwNtext, "Epic text\nNewline can be used too!",
 		  NULL);
 	add(f);
 

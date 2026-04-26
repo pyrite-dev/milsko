@@ -55,12 +55,6 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 		if(l <= 0) break;
 		text += l;
 
-		if(c == '\n') {
-			x = 0;
-			y += ttf->face->height * ttf->px / ttf->face->units_per_EM;
-			continue;
-		}
-
 		ft_table.FT_Load_Char(ttf->face, c, FT_LOAD_RENDER);
 		bmp = &ttf->face->glyph->bitmap;
 
@@ -86,11 +80,9 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 		old_text = text;
 		text += MwUTF8ToUTF32(text, &c2);
 
-		if(c2 != '\n') {
-			ft_table.FT_Get_Kerning(ttf->face, c, c2, FT_KERNING_DEFAULT, &vec);
+		ft_table.FT_Get_Kerning(ttf->face, c, c2, FT_KERNING_DEFAULT, &vec);
 
-			x += vec.x >> 6;
-		}
+		x += vec.x >> 6;
 
 		text = old_text;
 	}
