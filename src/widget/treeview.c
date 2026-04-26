@@ -220,7 +220,7 @@ static void MWAPI frame_mouse_down(MwWidget handle, void* user, void* call) {
 	if(mouse->button == MwMOUSE_LEFT) tv->pressed = mouse->point;
 }
 
-static void resize(MwWidget handle);
+static void resize(MwWidget handle, int no_resize);
 
 static void MWAPI frame_mouse_up(MwWidget handle, void* user, void* call) {
 	MwTreeView tv	  = handle->parent->internal;
@@ -239,12 +239,12 @@ static void MWAPI frame_mouse_up(MwWidget handle, void* user, void* call) {
 			if(shared > (MwGetInteger(tv->frame, MwNheight) / MwTextHeight(tv->frame, NULL, "M"))) break;
 			recursion(tv->frame, tv->tree[i], tv->tree, NULL, NULL, NULL, NULL, &p, 0, LineSpace, &skip, &shared, 0, &tv->pressed);
 		}
-		resize(handle->parent);
+		resize(handle->parent, 1);
 		MwForceRender(tv->frame);
 	}
 }
 
-static void resize(MwWidget handle) {
+static void resize(MwWidget handle, int no_resize) {
 	MwTreeView tv = handle->internal;
 	int	   w  = MwGetInteger(handle, MwNwidth);
 	int	   h  = MwGetInteger(handle, MwNheight);
@@ -255,7 +255,7 @@ static void resize(MwWidget handle) {
 		tv->vscroll = MwCreateWidget(MwScrollBarClass, "vscroll", handle, w - 16, 0, 16, h);
 		MwAddUserHandler(tv->vscroll, MwNchangedHandler, vscroll_changed, NULL);
 		MwSetInteger(tv->vscroll, MwNvalue, 5);
-	} else {
+	} else if(!no_resize) {
 		MwVaApply(tv->vscroll,
 			  MwNx, w - 16,
 			  MwNy, 0,
@@ -282,7 +282,7 @@ static void resize(MwWidget handle) {
 		tv->frame->draw_inject = frame_draw;
 		MwAddUserHandler(tv->frame, MwNmouseDownHandler, frame_mouse_down, NULL);
 		MwAddUserHandler(tv->frame, MwNmouseUpHandler, frame_mouse_up, NULL);
-	} else {
+	} else if(!no_resize) {
 		MwVaApply(tv->frame,
 			  MwNx, 0,
 			  MwNy, 0,
@@ -308,7 +308,7 @@ static int wcreate(MwWidget handle) {
 	MwSetInteger(handle, MwNsingleClickSelectable, 0);
 	MwSetInteger(handle, MwNleftPadding, 0);
 
-	resize(handle);
+	resize(handle, 0);
 	tv->changed = 0;
 
 	return 0;
@@ -350,7 +350,7 @@ static void* mwTreeViewAddImpl(MwWidget handle, void* parent, MwLLPixmap pixmap,
 
 		arrput(e->tree, t);
 	}
-	resize(handle);
+	resize(handle, 1);
 	MwForceRender(tv->frame);
 
 	return t;
@@ -383,7 +383,7 @@ static void mwTreeViewResetImpl(MwWidget handle) {
 
 	free_all(tv->tree);
 	tv->tree = NULL;
-	resize(handle);
+	resize(handle, 1);
 	MwForceRender(tv->frame);
 }
 
@@ -403,7 +403,7 @@ static void mwTreeViewSetLabelImpl(MwWidget handle, void* item, const char* labe
 	e->label = MwStringDuplicate(label);
 
 	if(e->parent == NULL || (e->parent != NULL && e->parent->opened)) {
-		resize(handle);
+		resize(handle, 1);
 		MwForceRender(tv->frame);
 	}
 }
@@ -415,7 +415,7 @@ static void mwTreeViewSetPixmapImpl(MwWidget handle, void* item, MwLLPixmap pixm
 	e->pixmap = pixmap;
 
 	if(e->parent == NULL || (e->parent != NULL && e->parent->opened)) {
-		resize(handle);
+		resize(handle, 1);
 		MwForceRender(tv->frame);
 	}
 }
@@ -427,7 +427,7 @@ static void mwTreeViewSetOpenedImpl(MwWidget handle, void* item, int opened) {
 	e->opened = opened;
 
 	if(e->parent == NULL || (e->parent != NULL && e->parent->opened)) {
-		resize(handle);
+		resize(handle, 1);
 		MwForceRender(tv->frame);
 	}
 }
@@ -484,7 +484,7 @@ static void props_change(MwWidget handle, char** props) {
 		if(strcmp(props[i], MwNwidth) == 0 || strcmp(props[i], MwNheight) == 0) rsz = 1;
 	}
 
-	if(rsz) resize(handle);
+	if(rsz) resize(handle, 0);
 }
 
 MwClassRec MwTreeViewClassRec = {
