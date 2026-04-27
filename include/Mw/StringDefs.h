@@ -39,7 +39,6 @@
 #define MwNsevenSegment "IsevenSegment"
 #define MwNlength "Ilength"
 #define MwNforceInverted "IforceInverted"
-#define MwNroundness "Iroundness"
 #define MwNisRounded "IisRounded"
 #define MwNdarkTheme "IdarkTheme"
 #define MwNuseMonospace "IuseMonospace"
