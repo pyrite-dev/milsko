@@ -278,8 +278,10 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 	} else
 #endif
 	{
-		h->root_font	 = NULL;
-		h->root_boldfont = NULL;
+		h->root_font	     = NULL;
+		h->root_boldfont     = NULL;
+		h->root_monofont     = NULL;
+		h->root_boldmonofont = NULL;
 	}
 
 	if(h->parent != NULL) MwDispatch(h->parent, children_update);
@@ -324,7 +326,7 @@ MwWidget MwVaListCreateWidget(MwClass widget_class, const char* name, MwWidget p
 	return h;
 }
 
-static void MwFreeWidget(MwWidget handle) {
+void MwFreeWidget(MwWidget handle) {
 	int	 i;
 	MwWidget root = handle;
 	MwWidget w;
@@ -351,6 +353,7 @@ static void MwFreeWidget(MwWidget handle) {
 	for(i = 0; i < arrlen(handle->children); i++) {
 		MwFreeWidget(handle->children[i]);
 	}
+	arrfree(handle->children);
 
 	while(root->parent != NULL) root = root->parent;
 	for(i = 0; i < arrlen(root->tick_list); i++) {
@@ -384,6 +387,8 @@ static void MwFreeWidget(MwWidget handle) {
 
 	if(handle->root_font != NULL) MwFontFree(handle->root_font);
 	if(handle->root_boldfont != NULL) MwFontFree(handle->root_boldfont);
+	if(handle->root_monofont != NULL) MwFontFree(handle->root_monofont);
+	if(handle->root_boldmonofont != NULL) MwFontFree(handle->root_boldmonofont);
 
 	free(handle);
 }

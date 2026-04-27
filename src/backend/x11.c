@@ -1164,6 +1164,9 @@ Cursor MwLLX11CreateCursor(Display* display, MwCursor* image, MwCursor* mask) {
 	XDestroyImage(cimage);
 	XDestroyImage(cmask);
 
+	XFreeGC(display, imagegc);
+	XFreeGC(display, maskgc);
+
 	return cur;
 }
 

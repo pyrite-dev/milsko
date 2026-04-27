@@ -309,6 +309,8 @@ static void draw(MwWidget handle) {
 		r.width = w;
 		MwLLDrawPixmap(handle->lowlevel, &r, px);
 
+		free(raw);
+
 		MwLLDestroyPixmap(px);
 	} else {
 		r.width -= MwGetInteger(handle, MwNleftPadding);

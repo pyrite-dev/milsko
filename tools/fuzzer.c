@@ -15,7 +15,7 @@ char*	      int_params[] = {/*MwNx, MwNy, MwNwidth, MwNheight,*/ MwNorientation,
 unsigned long maxxes[]	   = {UINT8_MAX, UINT16_MAX, UINT32_MAX, UINT64_MAX};
 
 int main() {
-	int	      i;
+	int	      i, j = 0;
 	char	      input;
 	MwWidget      window, widget;
 	unsigned long upper_limit;
@@ -49,14 +49,14 @@ get_input:
 
 	window = MwCreateWidget(MwWindowClass, "window", NULL, 0, 0, 400, 400);
 
-	while(MwPending(window)) {
+	while(MwPending(window) && j < 50) {
 		int class_num = rand() % (sizeof(classes) / sizeof(cls_pair_t));
 		widget	      = MwCreateWidget(*classes[class_num].cls, classes[class_num].name, window, 0, 0, 100, 100);
 
 		printf("%s\n", classes[class_num].name);
 		/* apply int params with random scale */
 		for(i = 0; i < (sizeof(int_params) / sizeof(void*)); i++) {
-			unsigned long number = rand() % UINT8_MAX;
+			unsigned long number = rand() % upper_limit;
 			printf("> %s = %lu\n", int_params[i], number);
 			MwVaApply(widget, int_params[i], number, NULL);
 		}
@@ -65,5 +65,9 @@ get_input:
 		MwDestroyWidget(widget);
 
 		printf("\n");
+
+		j++;
 	}
+	
+	MwFreeWidget(window);
 }

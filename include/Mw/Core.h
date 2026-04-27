@@ -375,6 +375,14 @@ MWDECL void MWAPI MwSetUser(MwWidget handle, void* user);
  */
 MWDECL void* MWAPI MwGetUser(MwWidget handle);
 
+/*!
+ * @brief Free the widget
+ * @param handle Widget
+ * @warning This is used internally!
+ * @note You can call this on toplevel widget safely if you're sure no event loops will be ran, e.g. after `MwLoop`.
+ */
+MWDECL void MWAPI MwFreeWidget(MwWidget handle);
+
 #ifdef _MILSKO
 MWDECL void MwForceRender_Internal(MwWidget handle);
 MWDECL void MwForceRender2_Internal(MwWidget handle, void* ptr);

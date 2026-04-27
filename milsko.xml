@@ -518,6 +518,25 @@
     						<widget name="handle" />
     					</arguments>
 				</function>
+				<function name="MwSetUser">
+    					<arguments>
+    						<widget name="handle" />
+						<pointer name="user" />
+    					</arguments>
+				</function>
+				<function name="MwGetUser">
+					<return>
+						<pointer />
+					</return>
+    					<arguments>
+    						<widget name="handle" />
+    					</arguments>
+				</function>
+				<function name="MwFreeWidget">
+    					<arguments>
+    						<widget name="handle" />
+    					</arguments>
+				</function>
 			</functions>
 		</header>
 		<header name="Dialog/FileChooser">
