@@ -840,7 +840,18 @@ static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 }
 
 static MwBool MwLLDoModernImpl(MwLL handle) {
+	OSVERSIONINFO osvi;
+
 	(void)handle;
+
+	osvi.dwOSVersionInfoSize = sizeof(osvi);
+
+	GetVersionEx(&osvi);
+
+	if(osvi.dwMajorVersion < 5 || (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion < 1)) {
+		return MwFALSE;
+	}
+
 	return MwTRUE;
 }
 
