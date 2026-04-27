@@ -295,11 +295,11 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
  PRIVATE
  src/backend/nococoa.m
 )
-  target_compile_definitions(
-  Mw
-  PRIVATE
-  USE_COCOA
- )
+  #  target_compile_definitions(
+  #  Mw
+  #  PRIVATE
+  #  USE_COCOA
+  # )
   list(APPEND LIBRARIES objc)
   target_link_options(
   Mw
