@@ -340,6 +340,11 @@ static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)toggle;
 }
 
+static MwBool MwLLDoModernImpl(MwLL handle) {
+	(void)handle;
+	return MwFALSE;
+}
+
 static int MwLLClassicMacOSCallInitImpl(void) {
 	InitGraf(&qd.thePort);
 	InitFonts();

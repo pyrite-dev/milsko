@@ -674,7 +674,7 @@ int MwGetInteger(MwWidget handle, const char* key) {
 #ifdef USE_CLASSIC_THEME
 			if(strcmp(key, MwNmodernLook) == 0) return inherit_integer(handle, key, 0);
 #else
-			if(strcmp(key, MwNmodernLook) == 0) return inherit_integer(handle, key, 1);
+			if(strcmp(key, MwNmodernLook) == 0) return inherit_integer(handle, key, MwLLDoModern(handle->lowlevel));
 #endif
 			if(strcmp(key, MwNdarkTheme) == 0) return inherit_integer(handle, key, 0);
 			if(strcmp(key, MwNuseMonospace) == 0) return inherit_integer(handle, key, 0);

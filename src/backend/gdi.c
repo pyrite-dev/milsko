@@ -839,6 +839,11 @@ static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	DwmSetWindowAttribute(handle->gdi.hWnd, 20, &v, sizeof(v));
 }
 
+static MwBool MwLLDoModernImpl(MwLL handle) {
+	(void)handle;
+	return MwTRUE;
+}
+
 static int MwLLGDICallInitImpl(void) {
 	memset(&wsymtbl, 0, sizeof(wsymtbl));
 

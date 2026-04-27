@@ -300,12 +300,20 @@ MWDECL void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
 MWDECL void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect);
 
 /*!
- * @brief Set dark theme
+ * @brief Set any extra parameters for dark theme
  * @param handle Handle
  * @param toggle Toggle
  * @warning Do not run `handle->common.handler->dark_theme` when this function gets called
+ * @warning This is for stuff like, i.e. setting the accent color on modern Windows. The user themselves sets dark theme with MwNdarkTheme.
  */
 MWDECL void (*MwLLSetDarkTheme)(MwLL handle, int toggle);
+
+/*!
+ * @brief Whether or not the platform should default to modern theme.
+ * @param handle Handle
+ * @return whether to default.
+ */
+MWDECL MwBool (*MwLLDoModern)(MwLL handle);
 
 /* font renderer */
 MWDECL void MwFLSetup(void);

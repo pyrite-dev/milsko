@@ -1449,5 +1449,10 @@ static int MwLLX11CallInitImpl(void) {
 	return 0;
 }
 
+static MwBool MwLLDoModernImpl(MwLL handle) {
+	(void)handle;
+	return MwTRUE;
+}
+
 #include "call.c"
 CALL(X11);

@@ -1156,6 +1156,11 @@ static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)toggle;
 }
 
+static MwBool MwLLDoModernImpl(MwLL handle) {
+	(void)handle;
+	return MwTRUE;
+}
+
 static int MwLLCocoaCallInitImpl(void) {
 #ifndef __APPLE__
 	printf("Using GNUStep Backend\n");

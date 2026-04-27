@@ -56,6 +56,6 @@
 		MwLLGetScreenSize  = MwLLGetScreenSizeImpl; \
 \
 		MwLLSetDarkTheme = MwLLSetDarkThemeImpl; \
-\
+		MwLLDoModern	 = MwLLDoModernImpl; \
 		return 0; \
 	}

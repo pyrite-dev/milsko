@@ -2851,5 +2851,10 @@ static int MwLLWaylandCallInitImpl(void) {
 	return 1;
 }
 
+static MwBool MwLLDoModernImpl(MwLL handle) {
+	(void)handle;
+	return MwTRUE;
+}
+
 #include "call.c"
 CALL(Wayland);
