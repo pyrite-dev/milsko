@@ -11,14 +11,17 @@ typedef struct cls_pair {
 } cls_pair_t;
 
 cls_pair_t    classes[]	   = {H(MwBoxClass), H(MwButtonClass), H(MwCheckBoxClass), H(MwComboBoxClass), H(MwEntryClass), H(MwFrameClass), H(MwImageClass), H(MwLabelClass), H(MwListBoxClass), H(MwMenuClass), H(MwNumberEntryClass), H(MwProgressBarClass), H(MwRadioBoxClass), H(MwScrollBarClass), H(MwSeparatorClass), H(MwTreeViewClass), H(MwViewportClass)};
-char*	      int_params[] = {/*MwNx, MwNy, MwNwidth, MwNheight,*/ MwNorientation, MwNminValue, MwNmaxValue, MwNvalue, MwNchangedBy, MwNareaShown, MwNchecked, MwNalignment, MwNbold, MwNmain, MwNleftPadding, MwNhasHeading, MwNhasBorder, MwNinverted, MwNmodernLook, MwNwaitMS, MwNhideInput, MwNsingleClickSelectable, MwNflat, MwNshowArrows, MwNpadding, MwNborderWidth, MwNfillArea, MwNratio, MwNfixedSize, MwNmargin, MwNbitmapFont, MwNsevenSegment, MwNlength, MwNforceInverted, MwNroundness, MwNisRounded, MwNdarkTheme};
+char*	      int_params[] = {/*MwNx, MwNy, MwNwidth, MwNheight,*/ MwNorientation, MwNminValue, MwNmaxValue, MwNvalue, MwNchangedBy, MwNareaShown, MwNchecked, MwNalignment, MwNbold, MwNmain, MwNleftPadding, MwNhasHeading, MwNhasBorder, MwNinverted, MwNmodernLook, MwNwaitMS, MwNhideInput, MwNsingleClickSelectable, MwNflat, MwNshowArrows, MwNpadding, MwNborderWidth, MwNfillArea, MwNratio, MwNfixedSize, MwNmargin, MwNbitmapFont, MwNsevenSegment, MwNlength, MwNforceInverted, MwNisRounded, MwNdarkTheme};
 unsigned long maxxes[]	   = {UINT8_MAX, UINT16_MAX, UINT32_MAX, UINT64_MAX};
 
 int main() {
-	int	      i, j = 0;
+	int	      i, j = 0, max = 0;
 	char	      input;
 	MwWidget      window, widget;
 	unsigned long upper_limit;
+
+	printf("How many iteration do you want to do? Type -1 if you wanna run it forever.\n");
+	scanf("%d", &max);
 
 	printf("What upper limit of int params do you want to test?\n");
 	for(i = 0; i < (sizeof(maxxes) / sizeof(unsigned long)); i++) {
@@ -49,7 +52,7 @@ get_input:
 
 	window = MwCreateWidget(MwWindowClass, "window", NULL, 0, 0, 400, 400);
 
-	while(MwPending(window) && j < 50) {
+	while(MwPending(window) && (max == -1 || j < max)) {
 		int class_num = rand() % (sizeof(classes) / sizeof(cls_pair_t));
 		widget	      = MwCreateWidget(*classes[class_num].cls, classes[class_num].name, window, 0, 0, 100, 100);
 
@@ -68,6 +71,6 @@ get_input:
 
 		j++;
 	}
-	
+
 	MwFreeWidget(window);
 }
