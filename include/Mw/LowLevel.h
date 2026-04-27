@@ -218,7 +218,17 @@ MWDECL void (*MwLLDestroy)(MwLL handle);
 
 MWDECL void (*MwLLPolygon)(MwLL handle, MwPoint* points, int points_count, MwLLColor color);
 MWDECL void (*MwLLLine)(MwLL handle, MwPoint* points, MwLLColor color);
+
+/*!
+ * @brief Begin drawing sequence
+ * @param handle Handle
+ */
 MWDECL void (*MwLLBeginDraw)(MwLL handle);
+
+/*!
+ * @brief End drawing sequence
+ * @param handle Handle
+ */
 MWDECL void (*MwLLEndDraw)(MwLL handle);
 
 MWDECL MwLLColor (*MwLLAllocColor)(MwLL handle, int r, int g, int b);
@@ -243,18 +253,44 @@ MWDECL void (*MwLLSetIcon)(MwLL handle, MwLLPixmap pixmap);
 MWDECL void (*MwLLForceRender)(MwLL handle);
 
 MWDECL void (*MwLLSetCursor)(MwLL handle, MwCursor* image, MwCursor* mask);
+
+/*!
+ * @brief Detach handle and make it toplevel window
+ * @param handle Handle
+ * @param point Point to be detached at, relative from the parent handle
+ */
 MWDECL void (*MwLLDetach)(MwLL handle, MwPoint* point);
 MWDECL void (*MwLLShow)(MwLL handle, int show);
 
 MWDECL void (*MwLLSetSizeHints)(MwLL handle, int minx, int miny, int maxx, int maxy);
 MWDECL void (*MwLLMakeBorderless)(MwLL handle, int toggle);
+
+/*!
+ * @brief Make handle "tool" window, e.g. Submenu, combobox menu, and etc.
+ * @param handle Handle
+ */
 MWDECL void (*MwLLMakeToolWindow)(MwLL handle);
 MWDECL void (*MwLLMakePopup)(MwLL handle, MwLL parent);
 
+/*!
+ * @brief Begin changing state (has to be called before `MwLLSetSizeHints`, `MwLLMakeBorderless`, `MwLLMakeToolWindow`, and `MwLLMakePopup`)
+ * @param handle Handle
+ */
 MWDECL void (*MwLLBeginStateChange)(MwLL handle);
+
+/*!
+ * @brief End changing state
+ * @param handle Handle
+ */
 MWDECL void (*MwLLEndStateChange)(MwLL handle);
 
 MWDECL void (*MwLLFocus)(MwLL handle);
+
+/*!
+ * @brief Grab pointer, and keep moving pointer to center of handle
+ * @param handle Handle
+ * @param toggle Toggle
+ */
 MWDECL void (*MwLLGrabPointer)(MwLL handle, int toggle);
 
 MWDECL void (*MwLLSetClipboard)(MwLL handle, const char* text, int clipboard_type);
@@ -263,6 +299,12 @@ MWDECL void (*MwLLGetClipboard)(MwLL handle, int clipboard_type);
 MWDECL void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
 MWDECL void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect);
 
+/*!
+ * @brief Set dark theme
+ * @param handle Handle
+ * @param toggle Toggle
+ * @warning Do not run `handle->common.handler->dark_theme` when this function gets called
+ */
 MWDECL void (*MwLLSetDarkTheme)(MwLL handle, int toggle);
 
 /* font renderer */

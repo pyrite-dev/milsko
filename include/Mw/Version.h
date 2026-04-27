@@ -8,7 +8,7 @@
 /*!
  * @brief Major version
  */
-#define MwMAJOR 0
+#define MwMAJOR 1
 
 /*!
  * @brief Minor version
@@ -16,8 +16,18 @@
 #define MwMINOR 0
 
 /*!
+ * @brief Patchlevel of version, calculated by `patchlevel_alphabet - 'a'`
+ */
+#define MwPATCH 0
+
+/*!
  * @brief Version in string
  */
-#define MwVERSION "pre-1.0"
+#define MwVERSION "1.0"
+
+/*!
+ * @brief Version in string
+ */
+MWDECL const char* MwVersionString;
 
 #endif

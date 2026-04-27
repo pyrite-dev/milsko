@@ -1087,3 +1087,5 @@ void MwSetUser(MwWidget handle, void* user) {
 void* MwGetUser(MwWidget handle) {
 	return handle->user;
 }
+
+const char* MwVersionString = MwVERSION;
