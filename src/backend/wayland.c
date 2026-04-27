@@ -18,7 +18,8 @@ wayland_call_table_t wl_call_tbl;
 MwBool		     MwWaylandAlwaysRender = MwFALSE;
 
 static pthread_mutex_t destroyedWidgetsTableMutex;
-static MwLL*	       destroyedWidgetsTable;
+/* So Wayland, bless its soul; it keeps using callbacks LONG after they should not only be destroyed but the widget doesn't even exist anymore. Naturally, this causes use after free. so we fight fire with fire in the worst code i've ever written: by storing the freed pointers here, we disallow wayland from ever using them again. if something else is created that takes this slot, we remove it from the table.  */
+static MwLL* destroyedWidgetsTable;
 
 static MwBool is_destroyed(MwLL self) {
 	int i;
@@ -364,7 +365,8 @@ static void wl_data_source_listener_cancelled(void*		     data,
 
 	WAYLAND_EVENT_OP_START(self);
 
-	wl_data_source_destroy(wl_data_source);
+	if(wl_data_source)
+		wl_data_source_destroy(wl_data_source);
 
 	self->wayland.clipboard_source.wl = wl_data_device_manager_create_data_source(self->wayland.clipboard_manager.wl);
 
@@ -454,8 +456,11 @@ static void wl_data_device_manager_interface_destroy(struct _MwLLWayland* waylan
 	(void)data;
 	if(wayland->clipboard_manager.wl != NULL) {
 		wl_data_device_manager_destroy(wayland->clipboard_manager.wl);
-		wl_data_source_destroy(wayland->clipboard_source.wl);
 		wayland->clipboard_manager.wl = NULL;
+	}
+	if(wayland->clipboard_source.wl) {
+		// wl_data_source_destroy(wayland->clipboard_source.wl);
+		wayland->clipboard_source.wl = NULL;
 	}
 }
 
@@ -2057,11 +2062,11 @@ static void MwLLDestroyImpl(MwLL handle) {
 
 	wl_flush(handle);
 
-	free(handle);
-
 	pthread_mutex_lock(&destroyedWidgetsTableMutex);
 	arrput(destroyedWidgetsTable, handle);
 	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
+
+	free(handle);
 
 	if(currentlyHeldWidget == handle) {
 		currentlyHeldWidget = NULL;
@@ -2474,6 +2479,11 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_t*	 c;
 	cairo_surface_t* cs;
 	cairo_t*	 selected_cairo = handle->wayland.selected_cairo ? handle->wayland.selected_cairo : handle->wayland.front_cairo;
+
+	if(rect->width <= 0 || rect->height <= 0 || pixmap->common.width <= 0 || pixmap->common.height <= 0) return;
+	if(rect->width >= INT16_MAX) rect->width = INT16_MAX;
+	if(rect->height >= INT16_MAX) rect->height = INT16_MAX;
+
 	WIDGET_CHECK(handle);
 
 	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, rect->width, rect->height);
