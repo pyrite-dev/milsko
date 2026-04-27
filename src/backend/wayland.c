@@ -1440,20 +1440,9 @@ static void region_setup(MwLL handle) {
 	if(handle->wayland.type == MwLL_WAYLAND_POPUP) {
 		wl_region_add(handle->wayland.region, 0, 0, width + abs(handle->wayland.x), height + abs(handle->wayland.y));
 	} else {
-		if(parent) {
-			if(width - handle->wayland.x > parent->wayland.ww) {
-				width = parent->wayland.ww - handle->wayland.x;
-			}
-			if(height - handle->wayland.y > parent->wayland.wh) {
-				height = parent->wayland.wh - handle->wayland.y;
-			}
-		} else {
-			if(!handle->wayland.has_decorations) {
-				width += CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;
-				height += CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM;
-			}
-		}
-		wl_region_add(handle->wayland.region, 0, 0, width, height);
+		wl_region_subtract(handle->wayland.region, 0, 0, width + abs(handle->wayland.x), height + abs(handle->wayland.y));
+		wl_region_add(handle->wayland.region, handle->wayland.clipping_rect.x, handle->wayland.clipping_rect.y, handle->wayland.clipping_rect.width, handle->wayland.clipping_rect.height);
+		// wl_region_add(handle->wayland.region, 0, 0, width, height);
 	}
 
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
