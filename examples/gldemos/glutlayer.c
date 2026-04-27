@@ -53,18 +53,21 @@ int main() {
 				  MwNtitle, TITLE,
 				  NULL);
 	opengl = MwCreateWidget(MwOpenGLClass, "opengl", window, 50, 50, 400, 400);
+	if(!opengl) {
+		MwMessageBox(NULL, "Unable to create OpenGL window.", "Error", MwMB_ICONERROR);
+	} else {
+		MwOpenGLMakeCurrent(opengl);
 
-	MwOpenGLMakeCurrent(opengl);
+		init();
+		reshape(400, 400);
 
-	init();
-	reshape(400, 400);
+		MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
+		MwAddUserHandler(opengl, MwNtickHandler, tick, NULL);
 
-	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
-	MwAddUserHandler(opengl, MwNtickHandler, tick, NULL);
+		MwAddTickList(opengl);
 
-	MwAddTickList(opengl);
-
-	MwAddUserHandler(opengl, MwNkeyHandler, key_pressed, NULL);
+		MwAddUserHandler(opengl, MwNkeyHandler, key_pressed, NULL);
+	}
 
 	MwLoop(window);
 }
