@@ -18,7 +18,7 @@
 /*!
  * @brief Patchlevel of version, calculated by `patchlevel_alphabet - 'a'`
  */
-#define MwPATCH 'a'
+#define MwPATCH 1
 
 /*!
  * @brief Version in string
