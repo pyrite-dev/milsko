@@ -9,7 +9,7 @@ object {
 		1, 0
 	}
 	scale 5
-	translate <7.5, -1, 1>
+	translate <7.5, 0, 1>
 	pigment {
 		color Red
 	}
