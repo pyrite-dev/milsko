@@ -989,8 +989,8 @@ int MwLibraryInit(void) {
 	}
 
 #ifdef __APPLE__
-	void MwNoCocoaErrorMessage();
-	MwNoCocoaErrorMessage();
+	void MwLLNoCocoaErrorMessage(void);
+	MwLLNoCocoaErrorMessage();
 #else
 	printf("[WARNING] No suitable GUI backend found! Enabled:"
 #ifdef USE_COCOA
