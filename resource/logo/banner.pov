@@ -1,11 +1,11 @@
 #declare BASE = 1;
 #include "resource/logo/logo.pov"
 
-#ifdef(VERSION_10)
+#ifdef(VERSION)
 object {
 	text {
 		ttf "resource/font/IBMPlexSerif.ttf",
-		"1.0",
+		VERSION,
 		1, 0
 	}
 	scale 5
