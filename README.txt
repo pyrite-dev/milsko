@@ -8,7 +8,6 @@ distributions and building instructions for Milsko GUI Toolkit.
 
   Milsko requires either 
   * A Windows environment with GDI (so anything NT or 9x) 
-  * A MacOS environment with Cocoa (10.4 or above supported) 
   * A Unix-like environment with X11 for runtime. 
 
   To build Milsko for Windows, you must have one of following compilers: 
@@ -63,8 +62,10 @@ D. MinGW-w64/GCC/Clang
 
 1) Determine if you need Vulkan and/or OpenGL. 
 
-2) Run `./configure'. 
-   For help, run `./configure --help'. 
+2) Either: 
+   a.) Run `./configure'. For help, run `./configure --help'. 
+   b.) Use CMake; i.e. `cmake -B build`. (if contributing, name the build 
+folder build as that's what's included in the .gitignore) 
 
 3) Run `make'. 
 
