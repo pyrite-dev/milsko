@@ -708,7 +708,8 @@ static void MwLLNextEventImpl(MwLL handle) {
 				p.button = MwMOUSE_WHEELDOWN;
 			}
 
-			XSetInputFocus(handle->x11.display, handle->x11.window, RevertToNone, CurrentTime);
+			/* this really shouldn't be in this function but it might be needed for enforcing click-to-focus. check later. */
+			/* XSetInputFocus(handle->x11.display, handle->x11.window, RevertToNone, CurrentTime);*/
 
 			MwLLDispatch(handle, down, &p);
 		} else if(ev.type == ButtonRelease) {
@@ -1200,7 +1201,9 @@ static void MwLLShowImpl(MwLL handle, int show) {
 	if(show) {
 		wait_map(handle, 1);
 
+#ifndef ALLOW_SLOPPY_FOCUS
 		XSetInputFocus(handle->x11.display, handle->x11.window, RevertToNone, CurrentTime);
+#endif
 	} else {
 		wait_unmap(handle, 1);
 	}

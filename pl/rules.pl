@@ -110,6 +110,10 @@ else {
 if (param_get("stb-truetype")) {
     add_cflags("-DUSE_STB_TRUETYPE");
 }
+if (param_get("allow-sloppy-focus")) {
+    add_cflags("-DALLOW_SLOPPY_FOCUS");
+}
+
 
 add_incdir("-Iexternal/libz/include");
 

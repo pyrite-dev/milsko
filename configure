@@ -47,6 +47,8 @@ param_set("static",               1);
 param_set("examples",             1);
 param_set("dbus", 1);
 
+# (option that only makes sense on x11)
+param_set("allow-sloppy-focus", 0);
 
 my %features = (
     "classic-theme"        => "use classic theme",
@@ -61,7 +63,8 @@ my %features = (
     "static"               => "build static library",
     "wayland"              => "enable wayland backend",
     "gnustep"              => "use gnustep",
-    "dbus" => "use DBus on supported platform"
+    "dbus" => "use DBus on supported platform",
+    "allow-sloppy-focus" => "prevent the x11 backend from using XSetInputFocus to enforce click-to-focus"
 );
 my @features_keys = (
     "1classic-theme", "1stb-image",
@@ -81,6 +84,12 @@ sub def_platform {
 	    param_set("freetype2",        0);
 	    param_set("stb-truetype",     1);
 	}
+	if($target eq "Linux") {
+        param_set("x11", 1);
+        if(!param_get("tiny")){
+            param_set("wayland", 1);
+        }
+    }
 }
 
 foreach my $l (@ARGV) {
@@ -91,12 +100,6 @@ foreach my $l (@ARGV) {
 
 def_platform();
 
-if($target eq "Linux") {
-    param_set("x11", 1);
-    if(!param_get("tiny")){
-        param_set("wayland", 1);
-    }
-}
 
 foreach my $l (@ARGV) {
     if ($l =~ /^--with-([^=]+)=(.+)$/) {
