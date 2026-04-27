@@ -100,11 +100,11 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 }
 
 static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
-	int tw = 0;
+	int	  tw = 0;
+	FT_Vector vec;
 
 	while(text[0] != 0) {
 		int	    c, c2;
-		FT_Vector   vec;
 		const char* old_text;
 
 		text += MwUTF8ToUTF32(text, &c);
@@ -123,7 +123,11 @@ static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
 		text = old_text;
 	}
 
-	tw += ttf->face->glyph->bitmap_left + ttf->face->glyph->bitmap.width;
+	if(tw > 0) {
+		tw -= vec.x >> 6;
+		tw -= ttf->face->glyph->advance.x >> 6;
+		tw += ttf->face->glyph->bitmap_left + ttf->face->glyph->bitmap.width;
+	}
 
 	return tw + 1;
 }

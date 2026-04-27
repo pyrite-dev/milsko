@@ -91,9 +91,9 @@ static int stbtt_MwTextWidth(MwFLFont ttf, const char* text) {
 	int tw = 0;
 	int c;
 	int x0, y0, x1, y1;
+	int kern;
 
 	while(text[0] != 0) {
-		int	    kern;
 		int	    c2;
 		const char* old_text;
 
@@ -113,8 +113,13 @@ static int stbtt_MwTextWidth(MwFLFont ttf, const char* text) {
 		text = old_text;
 	}
 
-	stbtt_GetCodepointBitmapBox(&ttf->font, c, ttf->scale, ttf->scale, &x0, &y0, &x1, &y1);
-	tw += x1;
+	if(tw > 0) {
+		tw -= ceil(kern * ttf->scale);
+		tw -= ceil(ax * ttf->scale);
+		stbtt_GetCodepointBitmapBox(&ttf->font, c, ttf->scale, ttf->scale, &x0, &y0, &x1, &y1);
+		tw += ceil(lsb * ttf->scale);
+		tw += x1 - x0;
+	}
 
 	return tw + 1;
 }
