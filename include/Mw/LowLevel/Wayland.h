@@ -139,19 +139,31 @@ extern wayland_call_table_t wl_call_tbl;
 extern MwBool		    MwWaylandAlwaysRender;
 /* defined inline right here so that it doesn't conflict with the other macros */
 MwInline int wayland_load_funcs() {
+#ifdef __APPLE__
+	wl_call_tbl.lib = MwDynamicOpen("libwayland-client.dylib");
+#else
 	wl_call_tbl.lib = MwDynamicOpen("libwayland-client.so");
+#endif
 	if(!wl_call_tbl.lib) {
-		printf("(libwayland-client.so not found, falling back to X11)\n");
+		printf("(libwayland-client not found, falling back to X11)\n");
 		return 1;
 	}
+#ifdef __APPLE__
+	wl_call_tbl.xkb_lib = MwDynamicOpen("libxkbcommon.dylib");
+#else
 	wl_call_tbl.xkb_lib = MwDynamicOpen("libxkbcommon.so");
+#endif
 	if(!wl_call_tbl.xkb_lib) {
-		printf("(libxkbcommon.so not found, cannot use Wayland backend.)\n");
+		printf("(libxkbcommon not found, cannot use Wayland backend.)\n");
 		return 1;
 	}
+#ifdef __APPLE__
+	wl_call_tbl.cairo_lib = MwDynamicOpen("libcairo.dylib");
+#else
 	wl_call_tbl.cairo_lib = MwDynamicOpen("libcairo.so");
+#endif
 	if(!wl_call_tbl.cairo_lib) {
-		printf("(libcairo.so not found, cannot use Wayland backend.)\n");
+		printf("(libcairo not found, cannot use Wayland backend.)\n");
 		return 1;
 	}
 #define WAYLAND_FUNC(x) \
