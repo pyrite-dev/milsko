@@ -1,82 +1,68 @@
 #include <Mw/Milsko.h>
+#include <Mw/StringDefs.h>
 
 #define WIDGET_AMOUNT 16
 
+#define H(h) {&h, #h}
+
+typedef struct cls_pair {
+	MwClass*    cls;
+	const char* name;
+} cls_pair_t;
+
+cls_pair_t    classes[]	   = {H(MwBoxClass), H(MwButtonClass), H(MwCheckBoxClass), H(MwComboBoxClass), H(MwEntryClass), H(MwFrameClass), H(MwImageClass), H(MwLabelClass), H(MwListBoxClass), H(MwMenuClass), H(MwNumberEntryClass), H(MwProgressBarClass), H(MwRadioBoxClass), H(MwScrollBarClass), H(MwSeparatorClass), H(MwTreeViewClass), H(MwViewportClass)};
+char*	      int_params[] = {/*MwNx, MwNy, MwNwidth, MwNheight,*/ MwNorientation, MwNminValue, MwNmaxValue, MwNvalue, MwNchangedBy, MwNareaShown, MwNchecked, MwNalignment, MwNbold, MwNmain, MwNleftPadding, MwNhasHeading, MwNhasBorder, MwNinverted, MwNmodernLook, MwNwaitMS, MwNhideInput, MwNsingleClickSelectable, MwNflat, MwNshowArrows, MwNpadding, MwNborderWidth, MwNfillArea, MwNratio, MwNfixedSize, MwNmargin, MwNbitmapFont, MwNsevenSegment, MwNlength, MwNforceInverted, MwNroundness, MwNisRounded, MwNdarkTheme};
+unsigned long maxxes[]	   = {UINT8_MAX, UINT16_MAX, UINT32_MAX, UINT64_MAX};
+
 int main() {
-	MwWidget window, widget;
+	int	      i;
+	char	      input;
+	MwWidget      window, widget;
+	unsigned long upper_limit;
+
+	printf("What upper limit of int params do you want to test?\n");
+	for(i = 0; i < (sizeof(maxxes) / sizeof(unsigned long)); i++) {
+		printf("%d) %lu\n", i, maxxes[i]);
+	}
+get_input:
+	input = getchar();
+	switch(input) {
+	case '0':
+		upper_limit = maxxes[0];
+		break;
+	case '1':
+		upper_limit = maxxes[1];
+		break;
+	case '2':
+		upper_limit = maxxes[2];
+		break;
+	case '3':
+		upper_limit = maxxes[3];
+		break;
+	default:
+		printf("Invalid value. Pick 0-3.\n");
+		goto get_input;
+	}
 
 	MwLibraryInit();
 
 	window = MwCreateWidget(MwWindowClass, "window", NULL, 0, 0, 400, 400);
 
 	while(MwPending(window)) {
-		int	r = rand() % WIDGET_AMOUNT;
-		MwClass cls;
-		switch(r) {
-		case 0:
-			cls = MwBoxClass;
-			break;
-		case 1:
-			cls = MwButtonClass;
-			break;
-		case 2:
-			cls = MwCheckBoxClass;
-			break;
-		case 3:
-			cls = MwComboBoxClass;
-			break;
-		case 4:
-			cls = MwEntryClass;
-			break;
-		case 5:
-			cls = MwFrameClass;
-			break;
-		case 6:
-			cls = MwImageClass;
-			break;
-		case 7:
-			cls = MwLabelClass;
-			break;
-		case 8:
-			cls = MwListBoxClass;
-			break;
-		case 9:
-			cls = MwMenuClass;
-			break;
-		case 10:
-			cls = MwNumberEntryClass;
-			break;
-		case 11:
-			cls = MwProgressBarClass;
-			break;
-		case 12:
-			cls = MwRadioBoxClass;
-			break;
-		case 13:
-			cls = MwScrollBarClass;
-			break;
-		case 14:
-			cls = MwSeparatorClass;
-			break;
+		int class_num = rand() % (sizeof(classes) / sizeof(cls_pair_t));
+		widget	      = MwCreateWidget(*classes[class_num].cls, classes[class_num].name, window, 0, 0, 100, 100);
 
-		case 15:
-			cls = MwTreeViewClass;
-			break;
-		case 16:
-			cls = MwViewportClass;
-			break;
-		default:
-			cls = NULL;
-			break;
-		}
-		printf("%d\n", r);
-		if(cls) {
-			widget = MwCreateWidget(cls, "Cls", window, 0, 0, 100, 100);
+		printf("%s\n", classes[class_num].name);
+		/* apply int params with random scale */
+		for(i = 0; i < (sizeof(int_params) / sizeof(void*)); i++) {
+			unsigned long number = rand() % UINT8_MAX;
+			printf("> %s = %lu\n", int_params[i], number);
+			MwVaApply(widget, int_params[i], number, NULL);
+			MwStep(window);
 		}
 
-		MwStep(window);
-		if(cls) {
-			MwDestroyWidget(widget);
-		}
+		MwDestroyWidget(widget);
+
+		printf("\n");
 	}
 }
