@@ -8,7 +8,7 @@ distributions and building instructions for Milsko GUI Toolkit.
 
   Milsko requires either 
   * A Windows environment with GDI (so anything NT or 9x) 
-  * A Unix-like environment with X11 for runtime. 
+  * A Unix-like environment with Wayland and/or X11 for runtime. 
 
   To build Milsko for Windows, you must have one of following compilers: 
   * Visual C++ 6.0 or newer 
