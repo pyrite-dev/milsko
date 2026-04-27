@@ -981,11 +981,14 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 		XRenderFreePicture(handle->x11.display, src_pic); \
 		XRenderFreePicture(handle->x11.display, dest_pic); \
 		XFreePixmap(handle->x11.display, src_px); \
-        XFreeGC(handle->x11.display, gc); \
+		XFreeGC(handle->x11.display, gc); \
 	}
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	if(rect->width <= 0 || rect->height <= 0 || pixmap->common.width <= 0 || pixmap->common.height <= 0) return;
+	if(rect->width >= INT16_MAX) rect->width = INT16_MAX;
+	if(rect->height >= INT16_MAX) rect->height = INT16_MAX;
+
 #ifdef USE_XRENDER
 	if(pixmap->x11.image != NULL && pixmap->x11.use_xrender) {
 		Pixmap			 px;
