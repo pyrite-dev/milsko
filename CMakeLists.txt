@@ -285,11 +285,16 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   -static-libgcc
  )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  #  target_sources(
+  #  Mw
+  #  PRIVATE
+  #  src/backend/cocoa.m
+  # )
   target_sources(
-  Mw
-  PRIVATE
-  src/backend/cocoa.m
- )
+ Mw
+ PRIVATE
+ src/backend/nococoa.m
+)
   target_compile_definitions(
   Mw
   PRIVATE
