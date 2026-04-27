@@ -1,6 +1,25 @@
 #declare BASE = 1;
 #include "resource/logo/logo.pov"
 
+#ifdef(VERSION_10)
+object {
+	text {
+		ttf "resource/font/IBMPlexSerif.ttf",
+		"1.0",
+		1, 0
+	}
+	scale 5
+	translate <7.5, -1, 1>
+	pigment {
+		color Red
+	}
+	finish {
+		phong 1
+		reflection 0.3
+	}
+}
+#end
+
 object {
 	text {
 		ttf "resource/font/IBMPlexSerif.ttf",
