@@ -551,9 +551,14 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	HDC   hmdc = CreateCompatibleDC(handle->gdi.hDC);
+	HDC hmdc = CreateCompatibleDC(handle->gdi.hDC);
+#ifdef USE_PLGBLT
 	POINT p[3];
+#endif
 
+	SetStretchBltMode(handle->gdi.hDC, HALFTONE);
+
+#ifdef USE_PLGBLT
 	p[0].x = rect->x;
 	p[0].y = rect->y;
 
@@ -565,8 +570,15 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 	SelectObject(hmdc, pixmap->gdi.hBitmap);
 
-	SetStretchBltMode(handle->gdi.hDC, HALFTONE);
-	PlgBlt(handle->gdi.hDC, p, hmdc, 0, 0, pixmap->common.width, pixmap->common.height, pixmap->gdi.hMask, 0, 0);
+	if(PlgBlt(handle->gdi.hDC, p, hmdc, 0, 0, pixmap->common.width, pixmap->common.height, pixmap->gdi.hMask, 0, 0) == 0)
+#endif
+	{
+		SelectObject(hmdc, pixmap->gdi.hMask2);
+		StretchBlt(handle->gdi.hDC, rect->x, rect->y, rect->width, rect->height, hmdc, 0, 0, pixmap->common.width, pixmap->common.height, SRCAND);
+
+		SelectObject(hmdc, pixmap->gdi.hBitmap);
+		StretchBlt(handle->gdi.hDC, rect->x, rect->y, rect->width, rect->height, hmdc, 0, 0, pixmap->common.width, pixmap->common.height, SRCPAINT);
+	}
 
 	DeleteDC(hmdc);
 }
