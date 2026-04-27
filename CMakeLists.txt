@@ -131,17 +131,18 @@ if(MW_USE_STB_TRUETYPE)
 endif()
 
 if(MW_USE_FREETYPE2)
-  target_compile_definitions(
+  find_package(Freetype)
+  if(Freetype_FOUND)
+    target_compile_definitions(
   Mw
   PRIVATE
   USE_FREETYPE2
  )
 
-  find_package(PkgConfig)
-  pkg_check_modules(FT2 REQUIRED freetype2)
-  list(APPEND INCLUDE_DIRS ${FT2_INCLUDE_DIRS})
-  list(APPEND LIBRARY_DIRS ${FT2_LIBRARY_DIRS})
-  list(APPEND LIBRARIES ${FT2_LIBRARIES})
+    list(APPEND INCLUDE_DIRS ${FT2_INCLUDE_DIRS})
+    list(APPEND LIBRARY_DIRS ${FT2_LIBRARY_DIRS})
+    list(APPEND LIBRARIES ${FT2_LIBRARIES})
+  endif()
 endif()
 
 if(MW_USE_WAYLAND)
@@ -196,6 +197,8 @@ if(MW_USE_WAYLAND)
             COMMAND_ECHO STDOUT
         )
   endfunction()
+
+
 
   check_include_files(wayland-client.h HAVE_WL_H)
   check_include_files(xkbcommon/xkbcommon.h HAVE_XKBCOMMON_H)
@@ -318,25 +321,52 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
   )
 else()
   find_package(PkgConfig)
-  pkg_check_modules(X11 REQUIRED x11)
-  pkg_check_modules(XRENDER REQUIRED xrender)
+  find_package(X11)
+  pkg_check_modules(DBUS dbus-1)
 
   target_sources(
   Mw
   PRIVATE
   src/backend/x11.c
  )
-  target_compile_definitions(
-  Mw
-  PRIVATE
-  USE_X11
- )
-  list(APPEND INCLUDE_DIRS ${X11_INCLUDE_DIRS} ${XRENDER_INCLUDE_DIRS})
-  list(APPEND LIBRARY_DIRS ${X11_LIBRARY_DIRS} ${XRENDER_LIBRARY_DIRS})
-  list(APPEND LIBRARIES ${X11_LIBRARIES} ${XRENDER_LIBRARIES} m)
+
+  if(${X11_FOUND})
+    list(APPEND INCLUDE_DIRS ${X11_INCLUDE_DIRS})
+    list(APPEND LIBRARY_DIRS ${X11_LIBRARY_DIRS})
+    list(APPEND LIBRARIES ${X11_LIBRARIES} m)
+    target_compile_definitions(
+      Mw
+      PRIVATE
+      USE_X11
+    )
+  endif()
+  if(${X11_Xrender_FOUND})
+    list(APPEND INCLUDE_DIRS ${XRENDER_INCLUDE_DIRS})
+    list(APPEND LIBRARY_DIRS ${XRENDER_LIBRARY_DIRS})
+    list(APPEND LIBRARIES ${XRENDER_LIBRARIES} m)
+    target_compile_definitions(
+      Mw
+      PRIVATE
+      USE_XRENDER
+    )
+  endif()
+
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     list(APPEND LIBRARIES dl)
   endif()
+endif()
+
+find_package(DBus1)
+
+if(${DBus1_FOUND})
+  list(APPEND INCLUDE_DIRS ${DBUS_INCLUDE_DIRS})
+  list(APPEND LIBRARY_DIRS ${DBUS_LIBRARY_DIRS})
+  list(APPEND LIBRARIES ${DBUS_LIBRARIES})
+  target_compile_definitions(
+    Mw
+    PRIVATE
+    USE_DBUS
+  )
 endif()
 
 target_include_directories(

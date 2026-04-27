@@ -979,6 +979,11 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 		wl_pointer_add_listener(self->wayland.pointer, &pointer_listener, data);
 	}
 	WAYLAND_EVENT_OP_END(self);
+
+	if(self->wayland.clipboard_manager.wl)
+		setup_clipboard(self, self->wayland.pointer_seat);
+	if(self->wayland.clipboard_manager.zwp)
+		setup_zwp_clipboard(self, self->wayland.pointer_seat);
 };
 
 static void output_geometry(void*	      data,
