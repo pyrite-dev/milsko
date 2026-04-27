@@ -1,4 +1,5 @@
 #include <Mw/Milsko.h>
+#import <AppKit/AppKit.h>
 
 void MwLLNoCocoaErrorMessage(void) {
 	NSAlert* alert = [[NSAlert alloc] init];
