@@ -18,12 +18,12 @@
 /*!
  * @brief Patchlevel of version, calculated by `patchlevel_alphabet - 'a'`
  */
-#define MwPATCH 0
+#define MwPATCH 'a'
 
 /*!
  * @brief Version in string
  */
-#define MwVERSION "1.0"
+#define MwVERSION "1.0a"
 
 /*!
  * @brief Version in string
