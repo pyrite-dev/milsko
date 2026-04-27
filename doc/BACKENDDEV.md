@@ -11,6 +11,7 @@ The basic process of creating a new Milsko backend is
 - Creating a new impl file in `src/backend`
   - Backends actually return a table of function pointers that you have to implement with static functions. Your file should end with `#include "call.c"` and then `CALL(BackendName);`, and somewhere you should have the impl for `MwLLBackendNameCallInitImpl(void)`.
 - Add `MwLLBackendNameCallInitImpl` to the `MwLibraryInit` impl in `src/core.c`.
+- Add a new enum variation to `MwLLBackends` in `Mw/Include/LowLevel.h`; your impl of `MwLLCreateImpl` will set `common.type` to this so the user can check which backend they're on (important for platforms with multiple supported backends).
 - Either
   - a.) Modify `CMakeLists.txt` for your platform.
   - b.) Add a new perl file in `pl/ostype` that `./configure` can reference, and modify `pl/rules.pl`; If you don't know how to use perl it's fine, just copy a file like the `Linux.pl` or `Windows.pl`, the functions you'll have to change for your platform are self explanatory. Ensure it ends with `1;`.
