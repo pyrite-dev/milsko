@@ -981,6 +981,7 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 		XRenderFreePicture(handle->x11.display, src_pic); \
 		XRenderFreePicture(handle->x11.display, dest_pic); \
 		XFreePixmap(handle->x11.display, src_px); \
+        XFreeGC(handle->x11.display, gc);
 	}
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
