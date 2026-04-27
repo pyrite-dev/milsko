@@ -84,11 +84,14 @@ sub def_platform {
 	    param_set("freetype2",        0);
 	    param_set("stb-truetype",     1);
 	}
-	if($target eq "Linux") {
+	if($target eq "Linux" || $target eq "FreeBSD") {
         param_set("x11", 1);
         if(!param_get("tiny")){
             param_set("wayland", 1);
         }
+    }
+    if($target eq "NetBSD" || $target eq "OpenBSD") {
+        param_set("x11", 1);
     }
 }
 

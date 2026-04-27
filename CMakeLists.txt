@@ -35,7 +35,7 @@ else()
   option(MW_USE_FREETYPE2 "Use FreeType 2" ON)
 endif()
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+if(${CMAKE_SYSTEM_NAME} STREQUAL Linux OR ${CMAKE_SYSTEM_NAME} STREQUAL FreeBSD)
   option(MW_USE_WAYLAND "Enable Wayland backend" ON)
 endif()
 
