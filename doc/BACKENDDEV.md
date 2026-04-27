@@ -8,6 +8,7 @@ The basic process of creating a new Milsko backend is
   - `struct _MwLLBackendNamePixmap`: Self-explanatory. This is also used for the soft gradients in the modern theme.
   - `MwLLBackendNameCallInitImpl(void)` called by `MwLibraryInit` to address and platform globals.
   - Note that all of those structs are actually unions. They should all start with their `MwLLCommon...` equivalants.
+- Fill out `Mw/LowLevel.h` appopriately, adding an include to your new file and the structs in the appropriate unions. These need to be guarded by a `USE_BACKENDNAME` macro which you'll define later when you modify the build system.
 - Creating a new impl file in `src/backend`
   - Backends actually return a table of function pointers that you have to implement with static functions. Your file should end with `#include "call.c"` and then `CALL(BackendName);`, and somewhere you should have the impl for `MwLLBackendNameCallInitImpl(void)`.
 - Add `MwLLBackendNameCallInitImpl` to the `MwLibraryInit` impl in `src/core.c`.
