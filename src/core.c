@@ -967,7 +967,6 @@ int MwLibraryInit(void) {
 #ifdef USE_WAYLAND
 	    MwLLWaylandCallInit,
 #endif
-/* x11 has higher priority then cocoa until it works */
 #ifdef USE_X11
 	    MwLLX11CallInit,
 #endif
@@ -989,6 +988,10 @@ int MwLibraryInit(void) {
 		if(calls[i]() == 0) return 0;
 	}
 
+#ifdef __APPLE__
+	void MwNoCocoaErrorMessage();
+	MwNoCocoaErrorMessage();
+#else
 	printf("[WARNING] No suitable GUI backend found! Enabled:"
 #ifdef USE_COCOA
 	       " Cocoa"
@@ -1006,7 +1009,7 @@ int MwLibraryInit(void) {
 	       " ClassicMacOS"
 #endif
 	       "\n");
-
+#endif
 	return 1;
 }
 
