@@ -437,14 +437,6 @@ static wayland_protocol_t* wl_data_device_manager_setup(MwU32 name, struct _MwLL
 
 	wl_data_source_add_listener(wayland->clipboard_source.wl, &wl_data_source_listener, wayland);
 
-	while(!wayland->pointer_seat) {
-		if(wl_display_roundtrip(wayland->display) == -1) {
-			printf("roundtrip failed: %d\n", wl_display_get_error(wayland->display));
-			raise(SIGTRAP);
-			return NULL;
-		}
-	}
-
 	if(wayland->pointer_seat) {
 		setup_clipboard((MwLL)wayland, wayland->pointer_seat);
 	}
@@ -479,14 +471,6 @@ static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 n
 	zwp_primary_selection_source_v1_add_listener(wayland->clipboard_source.zwp, &zwp_primary_selection_source_v1_listener, wayland);
 
 	wayland->supports_zwp = MwTRUE;
-
-	while(!wayland->pointer_seat) {
-		if(wl_display_roundtrip(wayland->display) == -1) {
-			printf("roundtrip failed: %d\n", wl_display_get_error(wayland->display));
-			raise(SIGTRAP);
-			return NULL;
-		}
-	}
 
 	if(wayland->pointer_seat) {
 		setup_zwp_clipboard((MwLL)wayland, wayland->pointer_seat);
@@ -2436,6 +2420,9 @@ static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
 	MwLLPixmap r = malloc(sizeof(*r));
 	(void)handle;
+
+	if(width >= INT16_MAX) width = INT16_MAX;
+	if(height >= INT16_MAX) height = INT16_MAX;
 
 	r->common.width	 = width;
 	r->common.height = height;
