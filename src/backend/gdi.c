@@ -550,6 +550,7 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 	free(pixmap);
 }
 
+#define USE_PLGBLT
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	HDC hmdc = CreateCompatibleDC(handle->gdi.hDC);
 #ifdef USE_PLGBLT
