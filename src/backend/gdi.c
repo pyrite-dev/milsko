@@ -837,7 +837,8 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	BOOL v = toggle ? TRUE : FALSE;
 
-	DwmSetWindowAttribute(handle->gdi.hWnd, 20, &v, sizeof(v));
+	if(DwmSetWindowAttribute)
+		DwmSetWindowAttribute(handle->gdi.hWnd, 20, &v, sizeof(v));
 }
 
 static MwBool MwLLDoModernImpl(MwLL handle) {
