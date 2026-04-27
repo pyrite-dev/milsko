@@ -40,8 +40,9 @@ get_input:
 		upper_limit = maxxes[3];
 		break;
 	default:
-		printf("Invalid value. Pick 0-3.\n");
-		goto get_input;
+		upper_limit = maxxes[0];
+		// printf("Invalid value. Pick 0-3.\n");
+		// goto get_input;
 	}
 
 	MwLibraryInit();
@@ -58,8 +59,8 @@ get_input:
 			unsigned long number = rand() % UINT8_MAX;
 			printf("> %s = %lu\n", int_params[i], number);
 			MwVaApply(widget, int_params[i], number, NULL);
-			MwStep(window);
 		}
+		MwStep(window);
 
 		MwDestroyWidget(widget);
 
