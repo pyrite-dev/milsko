@@ -58,6 +58,8 @@ class MwWindow : public BWindow {
 	MwWindow(BRect rc, window_type type, uint32 flags);
 
 	void MessageReceived(BMessage* message);
+
+	bool QuitRequested();
 };
 
 typedef BBitmap MwBBitmap;
@@ -93,6 +95,7 @@ enum BWIN_MW_WHAT {
 
 enum MwLLHAIKU_EVENT {
 	MwLLHAIKU_EVENT_DRAW = 0,
+	MwLLHAIKU_EVENT_CLOSE,
 	MwLLHAIKU_EVENT_MOUSEDOWN,
 	MwLLHAIKU_EVENT_MOUSEUP,
 	MwLLHAIKU_EVENT_MOUSEMOVED

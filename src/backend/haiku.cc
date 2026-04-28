@@ -324,6 +324,19 @@ void MwWindow::MessageReceived(BMessage* message) {
 	}
 }
 
+bool MwWindow::QuitRequested() {
+	MwLLHaikuEvent ev;
+	MwView*	       v = (MwView*)this->ChildAt(0);
+
+	ev.type = MwLLHAIKU_EVENT_CLOSE;
+
+	v->locker->Lock();
+	arrput(v->handle->haiku.events, ev);
+	v->locker->Unlock();
+
+	return false;
+}
+
 struct app_param {
 	MwRect rc;
 	MwLL   handle;
@@ -530,6 +543,8 @@ void MwLLNextEventImpl(MwLL handle) {
 
 		if(ev->type == MwLLHAIKU_EVENT_DRAW) {
 			MwLLDispatch(handle, draw, NULL);
+		} else if(ev->type == MwLLHAIKU_EVENT_CLOSE) {
+			MwLLDispatch(handle, close, NULL);
 		} else if(ev->type == MwLLHAIKU_EVENT_MOUSEDOWN) {
 			MwLLDispatch(handle, down, &m);
 		} else if(ev->type == MwLLHAIKU_EVENT_MOUSEUP) {
