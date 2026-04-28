@@ -48,7 +48,7 @@ void MwDynamicClose(void* handle) {
 	// CFragConnectionID connID = (CFragConnectionID)handle;
 	// CloseConnection(&connID);
 }
-#elif defined(__unix__) || defined(__APPLE__)
+#elif defined(__unix__) || defined(__APPLE__) || defined(__HAIKU__)
 void* MwDynamicOpen(const char* path) {
 	return dlopen(path, RTLD_LOCAL | RTLD_LAZY);
 }

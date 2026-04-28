@@ -77,7 +77,7 @@ my @features_keys = (
 );
 
 sub def_platform {
-	if($target ne "Darwin" and $target ne "ClassicMacOS" and $target ne "Windows") {
+	if($target ne "Darwin" and $target ne "ClassicMacOS" and $target ne "Windows" and $target ne "Haiku") {
 	    param_set("freetype2",        1);
 	    param_set("stb-truetype",     0);
 	} else {
@@ -263,6 +263,9 @@ foreach my $l (@library_targets) {
 
     if ($l =~ /cocoa/) {
         $s =~ s/$o$/.m/;
+    }
+    elsif ($l =~ /haiku/) {
+	$s =~ s/$o$/.cxx/;
     }
     else {
         $s =~ s/$o$/.c/;

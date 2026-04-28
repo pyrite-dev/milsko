@@ -95,6 +95,10 @@ if (grep(/^cocoa$/, @backends) || param_get("gnustep")) {
     $gl_libs = "-framework OpenGL";
 }
 
+if (grep(/^haiku$/, @backends)) {
+	new_object("src/backend/haiku.cxx");
+}
+
 if (param_get("stb-image")) {
     add_cflags("-DUSE_STB_IMAGE");
     if (param_get("tiny")) {

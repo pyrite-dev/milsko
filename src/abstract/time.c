@@ -55,7 +55,7 @@ void MwTimeSleep(int ms) {
 
 	// DisposeTimerUPP(tm.tmAddr);
 }
-#elif defined(__unix__)
+#elif defined(__unix__) || defined(__HAIKU__)
 long MwTimeGetTick(void) {
 	struct timespec ts;
 	long		n = 0;

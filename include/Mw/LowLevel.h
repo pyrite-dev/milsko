@@ -30,6 +30,7 @@ enum MwLLBackends {
 	MwLLBackendGDI,
 	MwLLBackendWayland,
 	MwLLBackendCocoa,
+	MwLLBackendHaiku
 };
 
 struct _MwLLCommon {
@@ -117,6 +118,9 @@ MWDECL void   MwLLDBusFreeContext(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx);
 #ifdef CLASSIC_MAC_OS
 #include <Mw/LowLevel/ClassicMacOS.h>
 #endif
+#ifdef USE_HAIKU
+#include <Mw/LowLevel/Haiku.h>
+#endif
 
 union _MwLL {
 	struct _MwLLCommon common;
@@ -135,6 +139,9 @@ union _MwLL {
 #ifdef CLASSIC_MAC_OS
 	struct _MwLLClassicMacOS cmacos;
 #endif
+#ifdef USE_HAIKU
+	struct _MwLLHaiku haiku;
+#endif
 };
 
 union _MwLLColor {
@@ -150,6 +157,9 @@ union _MwLLColor {
 #endif
 #ifdef USE_COCOA
 	struct _MwLLCocoaColor cocoa;
+#endif
+#ifdef USE_HAIKU
+	struct _MwLLHaikuColor haiku;
 #endif
 };
 
@@ -169,6 +179,9 @@ union _MwLLPixmap {
 #endif
 #ifdef CLASSIC_MAC_OS
 	struct _MwLLClassicMacOSPixmap cmacos;
+#endif
+#ifdef USE_HAIKU
+	struct _MwLLHaikuPixmap haiku;
 #endif
 };
 #endif
