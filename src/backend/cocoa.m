@@ -128,7 +128,8 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	for(i = 0; i < arrlen(self->commands); i++) {
 		draw_command cmd = self->commands[i];
 		switch(cmd.type) {
-		case COCOA_DRAW_COMMAND_POLY: {
+		case COCOA_DRAW_COMMAND_POLY:
+		{
 			int	      n;
 			NSBezierPath* path = [NSBezierPath bezierPath];
 
@@ -156,7 +157,8 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 			free(cmd.poly.points);
 		} break;
 
-		case COCOA_DRAW_COMMAND_LINES: {
+		case COCOA_DRAW_COMMAND_LINES:
+		{
 			int	      n;
 			NSBezierPath* path = [NSBezierPath bezierPath];
 
@@ -184,7 +186,8 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 			free(cmd.lines.points);
 		} break;
 
-		case COCOA_DRAW_COMMAND_PIXMAP: {
+		case COCOA_DRAW_COMMAND_PIXMAP:
+		{
 			NSRect rect = localRectFlip(NSMakeRect(cmd.pixmap.rect.x, cmd.pixmap.rect.y, cmd.pixmap.rect.width, cmd.pixmap.rect.height), self);
 			rect.origin.x += [self bounds].origin.x;
 			rect.origin.y += [self bounds].origin.y;

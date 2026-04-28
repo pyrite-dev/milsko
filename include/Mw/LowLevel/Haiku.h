@@ -34,6 +34,7 @@ class MwView : public BView {
 	MwLL	 handle;
 	BLocker* locker;
 	uint32	 buttons;
+	BBitmap* bitmap;
 
 	MwView(MwLL handle, BRect rc, uint32 resizingMode, uint32 flags);
 	~MwView();

@@ -14,6 +14,9 @@ AllowShortIfStatementsOnASingleLine: Always
 AllowShortBlocksOnASingleLine: Never
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortLoopsOnASingleLine: true
+BreakBeforeBraces: Custom
+BraceWrapping:
+	AfterCaseLabel: true
 SpaceBeforeParens: Never
 AlignEscapedNewlines: DontAlign
 SortIncludes: false

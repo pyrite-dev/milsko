@@ -130,13 +130,15 @@ static void MwLLNextEventImpl(MwLL handle) {
 	GetNextEvent(everyEvent, &event);
 
 	switch(event.what) {
-	case updateEvt: {
+	case updateEvt:
+	{
 	}
 	// MwLLDispatch(handle, draw, NULL);
 	break;
 	case osEvt:
 		break;
-	case mouseUp: {
+	case mouseUp:
+	{
 		// MwLLMouse m;
 		// m.button = MwLLMouseLeft;
 		// if(___curWindow->mouseButtonCallback != NULL) {
@@ -151,7 +153,8 @@ static void MwLLNextEventImpl(MwLL handle) {
 		// 	}
 		// }
 	}
-	case mouseDown: {
+	case mouseDown:
+	{
 		// // start with callback stuff
 		// if(___curWindow->mouseButtonCallback != NULL) {
 		// 	int mods = MacModifiersToGLFWModifiers(event.modifiers);
@@ -174,7 +177,8 @@ static void MwLLNextEventImpl(MwLL handle) {
 			// 					event.where.v);
 			// }
 			break;
-		case inGrow: {
+		case inGrow:
+		{
 			long growResult =
 			    GrowWindow(handle->cmacos.window, event.where, &qd.screenBits.bounds);
 
@@ -201,7 +205,8 @@ static void MwLLNextEventImpl(MwLL handle) {
 			// }
 		} break;
 
-		case inGoAway: {
+		case inGoAway:
+		{
 			if(TrackGoAway(handle->cmacos.window, event.where)) {
 				MwLLDispatch(handle, close, NULL);
 				// if(___curWindow->windowCloseCallback != NULL) {
@@ -214,7 +219,8 @@ static void MwLLNextEventImpl(MwLL handle) {
 	}
 	case autoKey:
 	case keyDown:
-	case keyUp: {
+	case keyUp:
+	{
 		// // key char stuff
 		// unsigned char ch = (event.message & charCodeMask);
 		// if(*___curWindow->charCallback != NULL) {

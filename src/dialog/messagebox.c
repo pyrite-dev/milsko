@@ -75,27 +75,33 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 		icon = MwCreateWidget(MwImageClass, "image", window, 8, (h - 48) / 2, 48, 48);
 
 		switch(flag & MwMB_ICONMASK) {
-		case MwMB_ICONWARNING: {
+		case MwMB_ICONWARNING:
+		{
 			data = MwIconWarning;
 			break;
 		}
-		case MwMB_ICONINFO: {
+		case MwMB_ICONINFO:
+		{
 			data = MwIconInfo;
 			break;
 		}
-		case MwMB_ICONNOTE: {
+		case MwMB_ICONNOTE:
+		{
 			data = MwIconNote;
 			break;
 		}
-		case MwMB_ICONNEWS: {
+		case MwMB_ICONNEWS:
+		{
 			data = MwIconNews;
 			break;
 		}
-		case MwMB_ICONERROR: {
+		case MwMB_ICONERROR:
+		{
 			data = MwIconError;
 			break;
 		}
-		case MwMB_ICONCLOCK: {
+		case MwMB_ICONCLOCK:
+		{
 			data = MwIconClock;
 			break;
 		}

@@ -69,6 +69,7 @@
 #include <Screen.h>
 #include <Application.h>
 #include <Locker.h>
+#include <Picture.h>
 #include <Bitmap.h>
 #endif
 #include <OS.h>
