@@ -1,12 +1,18 @@
 #include <Mw/Milsko.h>
 
+MwView::MwView(MwApplication* app, BRect rc, uint32 resizing, uint32 flags) : BView(rc, NULL, resizing, flags) {
+	app->PostMessage(new BMessage(B_PULSE));
+
+	this->SetViewColor(rand() % 256, 0, 0);
+	printf("?\n");
+}
+
 void MwApplication::ReadyToRun(){
 	this->ready = 1;
 }
 
 void MwApplication::Pulse(){
-	this->locker->Lock();
-	this->locker->Unlock();
+	printf("!\n");
 }
 
 MwApplication::MwApplication(BRect rc, MwLL handle) : BApplication("application/milsko-generic") {
@@ -21,7 +27,9 @@ MwApplication::MwApplication(BRect rc, MwLL handle) : BApplication("application/
 	this->window = new BWindow(rc, "Milsko", B_TITLED_WINDOW, 0);
 	this->window->Show();
 
-	handle->haiku.view = new BView(this->window->Bounds(), NULL, B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
+	handle->haiku.view = new MwView(this, this->window->Bounds(), B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
+
+	this->window->AddChild(handle->haiku.view);
 
 	this->ready = 0;
 	this->locker = new BLocker();
@@ -43,17 +51,21 @@ MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->common.copy_buffer = 1;
 	r->common.type	      = MwLLBackendHaiku;
 
+	r->haiku.parent = parent;
+
 	if(parent == NULL){
 		r->haiku.app = new MwApplication(rc, r);
-		r->haiku.app->window->AddChild(r->haiku.view);
 
-		r->haiku.app->Run();
-
-		while(!r->haiku.app->ready);
+		//r->haiku.app->Run();
 	}else{
+		MwLL top = r;
+		while(top->haiku.parent != NULL){
+			top = top->haiku.parent;
+		}
+
 		r->haiku.app = NULL;
-		r->haiku.view = new BView(rc, NULL, B_FOLLOW_NONE, B_WILL_DRAW);
-		
+		r->haiku.view = new MwView(top->haiku.app, rc, B_FOLLOW_NONE, B_WILL_DRAW);
+
 		parent->haiku.view->AddChild(r->haiku.view);
 	}
 
@@ -83,7 +95,9 @@ void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {}
 
 void MwLLBeginDrawImpl(MwLL handle) {}
 
-void MwLLEndDrawImpl(MwLL handle) {}
+void MwLLEndDrawImpl(MwLL handle) {
+	new BMessage(B_PULSE);
+}
 
 MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 	MwLLColor c = (MwLLColor)malloc(sizeof(*c));
