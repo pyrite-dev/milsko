@@ -490,6 +490,8 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 
 static void MwLLEndDrawImpl(MwLL handle) {
 	(void)handle;
+
+	if(handle->common.copy_buffer) XClearWindow(handle->x11.display, handle->x11.window);
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
