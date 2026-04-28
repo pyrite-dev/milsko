@@ -130,7 +130,7 @@ static int wcreate(MwWidget handle) {
 
 		o->lib = MwDynamicOpen("opengl32.dll");
 		if(!o->lib){
-			printf("Could not load OpenGL widget under WGL! " #x " missing.\n"); \
+			printf("Could not load OpenGL widget under WGL!\n"); \
 			return 1;
 		}
 
