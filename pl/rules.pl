@@ -191,6 +191,7 @@ new_example("examples/basic/box");
 new_example("examples/basic/clipboard");
 new_example("examples/basic/sevensegment");
 new_example("examples/basic/calculator");
+new_example("examples/basic/filechooser");
 new_example("examples/basic/periodic");
 
 if (param_get("opengl")) {

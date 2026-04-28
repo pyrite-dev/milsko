@@ -504,31 +504,11 @@ static void scan(MwWidget handle, const char* path, int record) {
 	}
 }
 
-MwWidget MwFileChooserEx(MwWidget handle, const char* title, int dir) {
-	MwWidget       window;
-	int	       w, h;
-	filechooser_t* fc = malloc(sizeof(*fc));
+static void setup_fallback_filechooser(MwWidget window, int dir) {
 	char*	       path;
 	MwLLPixmap     icon;
-	int	       wx;
-	int	       wy;
-
+	filechooser_t* fc = malloc(sizeof(*fc));
 	memset(fc, 0, sizeof(*fc));
-
-	w = 700;
-	h = w * 2 / 3;
-
-	if(handle == NULL) {
-		wx = wy = MwDEFAULT;
-	} else {
-		wx = MwGetInteger(handle, MwNx) + (MwGetInteger(handle, MwNwidth) - w) / 2;
-		wy = MwGetInteger(handle, MwNy) + (MwGetInteger(handle, MwNheight) - h) / 2;
-	}
-
-	window = MwVaCreateWidget(MwWindowClass, "filechooser", NULL, wx, wy, w, h,
-				  MwNtitle, title,
-				  NULL);
-	if(handle != NULL) MwReparent(window, handle);
 
 	fc->history_seek = 0;
 
@@ -558,8 +538,32 @@ MwWidget MwFileChooserEx(MwWidget handle, const char* title, int dir) {
 	free(path);
 
 	MwLLBeginStateChange(window->lowlevel);
-	MwLLMakePopup(window->lowlevel, handle == NULL ? NULL : handle->lowlevel);
+	MwLLMakePopup(window->lowlevel, window == NULL ? NULL : window->lowlevel);
 	MwLLEndStateChange(window->lowlevel);
+}
+
+MwWidget MwFileChooserEx(MwWidget handle, const char* title, int dir) {
+	MwWidget window;
+	int	 w, h;
+	int	 wx;
+	int	 wy;
+
+	w = 700;
+	h = w * 2 / 3;
+
+	if(handle == NULL) {
+		wx = wy = MwDEFAULT;
+	} else {
+		wx = MwGetInteger(handle, MwNx) + (MwGetInteger(handle, MwNwidth) - w) / 2;
+		wy = MwGetInteger(handle, MwNy) + (MwGetInteger(handle, MwNheight) - h) / 2;
+	}
+
+	window = MwVaCreateWidget(MwWindowClass, "filechooser", NULL, wx, wy, w, h,
+				  MwNtitle, title,
+				  NULL);
+	if(handle != NULL) MwReparent(window, handle);
+
+	setup_fallback_filechooser(window, dir);
 
 	return window;
 }

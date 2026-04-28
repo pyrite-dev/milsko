@@ -1,10 +1,10 @@
 #include <Mw/Milsko.h>
 
-MwWidget cpicker;
+MwWidget fpicker;
 MwWidget window;
 MwWidget button;
 
-void MWAPI color_callback(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI file_callback(MwWidget handle, void* user_data, void* call_data) {
 	char   hexColor[8];
 	MwRGB* rgb = call_data;
 
@@ -18,14 +18,14 @@ void MWAPI color_callback(MwWidget handle, void* user_data, void* call_data) {
 	MwSetText(window, MwNbackground, hexColor);
 }
 
-void MWAPI color_picker(MwWidget handle, void* user_data, void* call_data) {
+void MWAPI file_picker(MwWidget handle, void* user_data, void* call_data) {
 	MwWidget cpicker = MwColorPicker(window, "cpicker");
 
 	(void)handle;
 	(void)user_data;
 	(void)call_data;
 
-	MwAddUserHandler(cpicker, MwNcolorChosenHandler, color_callback, NULL);
+	MwAddUserHandler(cpicker, MwNcolorChosenHandler, file_callback, NULL);
 
 	MwSetText(cpicker, MwNbackground, MwGetInteger(cpicker, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
 }
@@ -42,7 +42,7 @@ int main() {
 				  NULL);
 	MwSetText(button, MwNbackground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultBackground : MwDefaultDarkBackground);
 
-	MwAddUserHandler(button, MwNactivateHandler, color_picker, NULL);
+	MwAddUserHandler(button, MwNactivateHandler, file_picker, NULL);
 
 	MwLoop(window);
 }

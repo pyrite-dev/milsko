@@ -2498,6 +2498,7 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 			struct xdg_toplevel_icon_v1*	     icon	  = xdg_toplevel_icon_manager_v1_create_icon(icon_manager);
 			MwU64				     size	  = pixmap->common.width * pixmap->common.height * 4;
 			int				     i		  = 0;
+			int				     line	  = (pixmap->common.width < pixmap->common.height) ? pixmap->common.height : pixmap->common.width;
 
 			if(handle->wayland.icon == NULL) {
 				handle->wayland.icon = malloc(sizeof(struct _MwLLWaylandShmBuffer));
@@ -2511,7 +2512,7 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 			}
 			handle->wayland.icon->surface = wl_compositor_create_surface(handle->wayland.compositor);
 
-			buffer_setup(handle->wayland.icon, pixmap->common.width, pixmap->common.height);
+			buffer_setup(handle->wayland.icon, line, line);
 
 			wl_surface_attach(handle->wayland.icon->surface, handle->wayland.icon->shm_buffer, 0, 0);
 			wl_surface_commit(handle->wayland.icon->surface);
