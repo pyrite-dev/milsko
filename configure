@@ -196,6 +196,7 @@ foreach my $e (param_list()) {
 print("Enabled: " . join(" ", @l) . "\n");
 
 $cc =~ s/\*host\*/$host/;
+$cxx =~ s/\*host\*/$host/;
 $ar =~ s/\*host\*/$host/;
 
 open(OUT, ">", "Makefile");
