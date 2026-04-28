@@ -94,7 +94,7 @@ static void destroy(MwWidget handle) {
 #define NEW_SUBMENU \
 	MwPoint p2; \
 \
-	p2.x = p.x - 5; \
+	p2.x = p.x - 5 - tw / 2; \
 	p2.y = p.y + th / 2 + 5; \
 \
 	m->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, MwGetInteger(handle, MwNheight), 0, 0); \
