@@ -12,6 +12,7 @@ foreach my $l (@ARGV) {
 
 our $prefix   = "/usr/local";
 our $cc       = defined($ENV{CC}) ? $ENV{CC} : "*host*gcc";
+our $cxx       = defined($ENV{CXX}) ? $ENV{CXX} : "*host*g++";
 our $ar       = defined($ENV{AR}) ? $ENV{AR} : "*host*ar";
 our $incdir   = "-I include";
 our $incdir2 = "";
@@ -201,6 +202,7 @@ open(OUT, ">", "Makefile");
 print(OUT "PREFIX = ${prefix}\n");
 print(OUT "AR = ${ar}\n");
 print(OUT "CC = ${cc}\n");
+print(OUT "CXX = ${cxx}\n");
 print(OUT "INCDIR = ${incdir} ${incdir2}\n");
 print(OUT "CFLAGS = ${cflags}\n");
 print(OUT "LIBDIR = ${libdir}\n");
@@ -241,11 +243,15 @@ if (param_get("static")) {
 print(OUT "\n");
 print(OUT "\n");
 if (param_get("shared")) {
+    my $linker = "CC";
+if (grep(/^haiku$/, @backends)) {
+	$linker = "CXX";
+}
     print(  OUT "src/${library_prefix}Mw${library_suffix}: "
           . join(" ", @library_targets)
           . "\n");
     print(OUT
-"	\$(CC) \$(SHARED) \$(LDFLAGS\) \$(LIBDIR) -o src/${library_prefix}Mw${library_suffix} "
+"	\$($linker) \$(SHARED) \$(LDFLAGS\) \$(LIBDIR) -o src/${library_prefix}Mw${library_suffix} "
           . join(" ", @library_targets)
           . " \$(LIBS)\n");
     print(OUT "\n");
@@ -258,6 +264,7 @@ if (param_get("static")) {
 foreach my $l (@library_targets) {
     my $warn = "-Wall -Wextra -Wno-sign-compare -Wno-unused-value";
     my $s    = $l;
+    my $compiler = "CC";
     my $o    = $object_suffix;
     $o =~ s/\./\\\./g;
 
@@ -266,6 +273,7 @@ foreach my $l (@library_targets) {
     }
     elsif ($l =~ /haiku/) {
 	$s =~ s/$o$/.cxx/;
+	$compiler = "CXX";
     }
     else {
         $s =~ s/$o$/.c/;
@@ -276,7 +284,7 @@ foreach my $l (@library_targets) {
     }
 
     print(OUT "${l}: ${s}\n");
-    print(OUT "	\$(CC) $warn \$\(INCDIR) \$(CFLAGS\) -c -o ${l} ${s}\n");
+    print(OUT "	\$($compiler) $warn \$\(INCDIR) \$(CFLAGS\) -c -o ${l} ${s}\n");
 }
 print(OUT "\n");
 print(OUT "\n");
