@@ -16,6 +16,17 @@ static struct symtbl {
 
 #define DwmSetWindowAttribute wsymtbl.DwmSetWindowAttribute
 
+/* Dark theme detection for classic Windows: check if the user has set their theme to be dark. */
+static void detect_darktheme_classictheme(MwLL handle) {
+	/* Returns NULL on Windows 10+, use this to our advantage to check if the value is supported. */
+	if(GetSysColorBrush(COLOR_MENU)) {
+		DWORD col = GetSysColor(COLOR_MENU);
+		int   t	  = (GetRValue(col) <= 75 && GetGValue(col) <= 75 && GetBValue(col) <= 75);
+		MwLLDispatch(handle, dark_theme, &t);
+	}
+}
+
+/* Dark theme detection for modern Windows: use the registry to check if dark mode is enabled. */
 static void detect_darktheme(MwLL handle) {
 	DWORD dw;
 	DWORD sz = sizeof(dw);
@@ -24,11 +35,15 @@ static void detect_darktheme(MwLL handle) {
 	DWORD type;
 
 	err = RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_QUERY_VALUE, &hkey);
-	if(err != ERROR_SUCCESS) return;
+	if(err != ERROR_SUCCESS) {
+		detect_darktheme_classictheme(handle);
+		return;
+	}
 
 	err = RegQueryValueEx(hkey, "AppsUseLightTheme", NULL, &type, (PBYTE)&dw, &sz);
 	RegCloseKey(hkey);
 	if(err != ERROR_SUCCESS || type != REG_DWORD) {
+		detect_darktheme_classictheme(handle);
 		return;
 	}
 
