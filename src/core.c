@@ -979,6 +979,9 @@ int MwLibraryInit(void) {
 #ifdef CLASSIC_MAC_OS
 	    MwLLClassicMacOSCallInit,
 #endif
+#ifdef USE_HAIKU
+	    MwLLHaikuCallInit,
+#endif
 	    NULL};
 	int i;
 
