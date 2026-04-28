@@ -5,6 +5,8 @@ void MwApplication::ReadyToRun(){
 }
 
 void MwApplication::Pulse(){
+	this->locker->Lock();
+	this->locker->Unlock();
 }
 
 MwApplication::MwApplication(BRect rc, MwLL handle) : BApplication("application/milsko-generic") {
@@ -22,12 +24,14 @@ MwApplication::MwApplication(BRect rc, MwLL handle) : BApplication("application/
 	handle->haiku.view = new BView(this->window->Bounds(), NULL, B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
 
 	this->ready = 0;
+	this->locker = new BLocker();
 
 	delete scr;
 }
 
 MwApplication::~MwApplication(){
 	delete this->window;
+	delete this->locker;
 }
 
 MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
