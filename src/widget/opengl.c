@@ -129,16 +129,17 @@ static int wcreate(MwWidget handle) {
 		SetPixelFormat(o->dc, pf, &pfd);
 
 		o->lib = MwDynamicOpen("opengl32.dll");
-		if(!o->lib){
-			printf("Could not load OpenGL widget under WGL!\n"); \
+		if(!o->lib) {
+			printf("Could not load OpenGL widget under WGL!\n");
 			return 1;
 		}
 
-#define WGL_FUNC(x) o->x = MwDynamicSymbol(o->lib, #x); \
-		if(o->x == NULL){ \
-			printf("Could not load OpenGL widget under WGL! " #x " missing.\n"); \
-			return 1; \
-		}
+#define WGL_FUNC(x) \
+	o->x = MwDynamicSymbol(o->lib, #x); \
+	if(o->x == NULL) { \
+		printf("Could not load OpenGL widget under WGL! " #x " missing.\n"); \
+		return 1; \
+	}
 
 		WGL_FUNC(wglCreateContext);
 		WGL_FUNC(wglMakeCurrent);

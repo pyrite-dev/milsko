@@ -60,6 +60,7 @@ c("Requirements");
 l("");
 l("  Milsko requires either");
 l("  * A Windows environment with GDI (so anything NT or 9x)");
+
 #l("  * A MacOS environment with Cocoa (10.4 or above supported)");
 l("  * A Unix-like environment with Wayland and/or X11 for runtime.");
 l("");
@@ -108,7 +109,9 @@ l("1) Determine if you need Vulkan and/or OpenGL.");
 l("");
 l("2) Either:");
 l("   a.) Run `./configure'. For help, run `./configure --help'.");
-l("   b.) Use CMake; i.e. `cmake -B build`. (if contributing, name the build folder build as that's what's included in the .gitignore)");
+l(
+"   b.) Use CMake; i.e. `cmake -B build`. (if contributing, name the build folder build as that's what's included in the .gitignore)"
+);
 l("");
 l("3) Run `make'.");
 l("");

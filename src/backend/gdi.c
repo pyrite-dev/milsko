@@ -876,9 +876,9 @@ static int MwLLGDICallInitImpl(void) {
 
 	if(wsymtbl.lib_dwmapi != NULL) DwmSetWindowAttribute = MwDynamicSymbol(wsymtbl.lib_dwmapi, "DwmSetWindowAttribute");
 
-	if((ntdll = GetModuleHandle("ntdll.dll")) != NULL && GetProcAddress(ntdll, "wine_get_version") != NULL){
+	if((ntdll = GetModuleHandle("ntdll.dll")) != NULL && GetProcAddress(ntdll, "wine_get_version") != NULL) {
 		is_plgblt_reliable = 0;
-	}else{
+	} else {
 		is_plgblt_reliable = 1;
 	}
 

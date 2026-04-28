@@ -1,8 +1,7 @@
 my @enabled_backends = ();
 
 add_incdir2("-I/usr/local/include");
-add_libdir(
-    "-L/usr/local/lib -Wl,-R/usr/local/lib");
+add_libdir("-L/usr/local/lib -Wl,-R/usr/local/lib");
 
 if (param_get("wayland") && not(param_get("tiny"))) {
     push(@enabled_backends, "wayland");

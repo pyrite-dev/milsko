@@ -12,7 +12,7 @@ if (param_get("tiny")) {
 
     # these don't actually disable either, they're here for the final output.
     param_set("wayland", 0);
-    param_set("dbus", 0);
+    param_set("dbus",    0);
 }
 if (param_get("classic-theme")) {
     add_cflags("-DUSE_CLASSIC_THEME");
@@ -96,7 +96,7 @@ if (grep(/^cocoa$/, @backends) || param_get("gnustep")) {
 }
 
 if (grep(/^haiku$/, @backends)) {
-	new_object("src/backend/haiku.cxx");
+    new_object("src/backend/haiku.cxx");
 }
 
 if (param_get("stb-image")) {
@@ -117,7 +117,6 @@ if (param_get("stb-truetype")) {
 if (param_get("allow-sloppy-focus")) {
     add_cflags("-DALLOW_SLOPPY_FOCUS");
 }
-
 
 add_incdir("-Iexternal/libz/include");
 
