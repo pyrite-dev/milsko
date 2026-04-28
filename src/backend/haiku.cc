@@ -49,8 +49,11 @@ MwView::MwView(MwLL handle, BRect frame, uint32 resizingMode, uint32 flags) : BV
 	this->locker = new BLocker();
 
 	this->SetDrawingMode(B_OP_OVER);
+	this->SetLineMode(B_BUTT_CAP, B_BUTT_JOIN);
 
 	this->SetViewColor(255, 0, 0);
+
+	this->buttons = 0;
 }
 
 MwView::~MwView(){
@@ -59,13 +62,28 @@ MwView::~MwView(){
 
 void MwView::MessageReceived(BMessage* message) {
 	switch(message->what) {
+	case BVIEW_MW_DESTROY:
+	{
+		this->RemoveSelf();
+		delete this;
+		break;
+	}
+	case BVIEW_MW_DETACH:
+	{
+		this->RemoveSelf();
+		break;
+	}
 	case BVIEW_MW_RESIZE: {
 		int width, height;
 
 		if(message->FindInt32("view-width", &width) != B_OK) break;
 		if(message->FindInt32("view-height", &height) != B_OK) break;
 
-		this->ResizeTo(width, height);
+		if(this->handle->haiku.app == NULL){
+			this->ResizeTo(width, height);
+		}else{
+			this->Window()->ResizeTo(width, height);
+		}
 		break;
 	}
 	case BVIEW_MW_MOVE: {
@@ -74,7 +92,25 @@ void MwView::MessageReceived(BMessage* message) {
 		if(message->FindInt32("view-x", &x) != B_OK) break;
 		if(message->FindInt32("view-y", &y) != B_OK) break;
 
-		this->MoveTo(x, y);
+		if(this->handle->haiku.app == NULL){
+			this->MoveTo(x, y);
+		}else{
+			this->Window()->MoveTo(x, y);
+		}
+		break;
+	}
+	case BVIEW_MW_SHOW:
+	{
+		if(this->Window() == NULL){
+			this->handle->haiku.parent->haiku.view->AddChild(this);
+		}
+		break;
+	}
+	case BVIEW_MW_HIDE:
+	{
+		if(this->Window() != NULL){
+			this->RemoveSelf();
+		}
 		break;
 	}
 	case BVIEW_MW_SET_COLOR:
@@ -94,13 +130,26 @@ void MwView::MessageReceived(BMessage* message) {
 	{
 		int i;
 		BPoint p;
-		BPoint points[128];
+		BPoint points[32];
 
-		for(i = 0; message->FindPoint("view-point", i, &p) == B_OK; i++){
+		for(i = 0; i < 32 && message->FindPoint("view-point", i, &p) == B_OK; i++){
 			points[i] = p;
 		}
 
 		this->FillPolygon(points, i);
+		break;
+	}
+	case BVIEW_MW_LINE:
+	{
+		int i;
+		BPoint p;
+		BPoint points[2];
+
+		for(i = 0; i < 2 && message->FindPoint("view-point", i, &p) == B_OK; i++){
+			points[i] = p;
+		}
+
+		this->StrokeLine(points[0], points[1]);
 		break;
 	}
 	case BVIEW_MW_BITMAP:
@@ -112,6 +161,11 @@ void MwView::MessageReceived(BMessage* message) {
 		if(message->FindPointer("view-bitmap", (void**)&bitmap) != B_OK) break;
 
 		this->DrawBitmap(bitmap, rc);
+		break;
+	}
+	case BVIEW_MW_RENDER:
+	{
+		this->Invalidate();
 		break;
 	}
 	default: {
@@ -129,12 +183,91 @@ void MwView::PostMessage(BMessage* message){
 	this->Window()->PostMessage(&copy);
 }
 
+void MwView::PostMessage(uint32 command){
+	BMessage msg(command);
+
+	this->PostMessage(&msg);
+}
+
+void MwView::Invalidate(){
+	this->Draw(BRect(0, 0, 0, 0));
+}
+
+void MwView::AttachedToWindow(){
+	this->SetOrigin(0, 0);
+}
+
 void MwView::Draw(BRect updateRect){
 	MwLLHaikuEvent ev;
 
 	(void)updateRect;
 
 	ev.type = MwLLHAIKU_EVENT_DRAW;
+
+	this->locker->Lock();
+	arrput(this->handle->haiku.events, ev);
+	this->locker->Unlock();
+}
+
+void MwView::MouseDown(BPoint point){
+	MwLLHaikuEvent ev;
+	uint32 btn;
+	BPoint p;
+
+	this->GetMouse(&p, &btn, false);
+	
+	this->SetMouseEventMask(B_LOCK_WINDOW_FOCUS);
+
+	ev.type = MwLLHAIKU_EVENT_MOUSEDOWN;
+	ev.mouse.point.x = point.x;
+	ev.mouse.point.y = point.y;
+
+	if((btn & B_PRIMARY_MOUSE_BUTTON) && !(this->buttons & B_PRIMARY_MOUSE_BUTTON)){
+		ev.mouse.button = MwMOUSE_LEFT;
+	}else if((btn & B_SECONDARY_MOUSE_BUTTON) && !(this->buttons & B_SECONDARY_MOUSE_BUTTON)){
+		ev.mouse.button = MwMOUSE_RIGHT;
+	}else if((btn & B_TERTIARY_MOUSE_BUTTON) && !(this->buttons & B_TERTIARY_MOUSE_BUTTON)){
+		ev.mouse.button = MwMOUSE_MIDDLE;
+	}
+	this->buttons = btn;
+
+	this->locker->Lock();
+	arrput(this->handle->haiku.events, ev);
+	this->locker->Unlock();
+}
+
+void MwView::MouseUp(BPoint point){
+	MwLLHaikuEvent ev;
+	uint32 btn;
+	BPoint p;
+
+	this->GetMouse(&p, &btn, false);
+	
+	ev.type = MwLLHAIKU_EVENT_MOUSEUP;
+	ev.mouse.point.x = point.x;
+	ev.mouse.point.y = point.y;
+
+	if(!(btn & B_PRIMARY_MOUSE_BUTTON) && (this->buttons & B_PRIMARY_MOUSE_BUTTON)){
+		ev.mouse.button = MwMOUSE_LEFT;
+	}else if(!(btn & B_SECONDARY_MOUSE_BUTTON) && (this->buttons & B_SECONDARY_MOUSE_BUTTON)){
+		ev.mouse.button = MwMOUSE_RIGHT;
+	}else if(!(btn & B_TERTIARY_MOUSE_BUTTON) && (this->buttons & B_TERTIARY_MOUSE_BUTTON)){
+		ev.mouse.button = MwMOUSE_MIDDLE;
+	}
+	this->buttons = btn;
+
+	this->locker->Lock();
+	arrput(this->handle->haiku.events, ev);
+	this->locker->Unlock();
+}
+
+void MwView::MouseMoved(BPoint point, uint32 transit, const BMessage* message){
+	MwLLHaikuEvent ev;
+	
+	ev.type = MwLLHAIKU_EVENT_MOUSEMOVED;
+	ev.mouse.point.x = point.x;
+	ev.mouse.point.y = point.y;
+	ev.mouse.button = 0;
 
 	this->locker->Lock();
 	arrput(this->handle->haiku.events, ev);
@@ -248,6 +381,8 @@ MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 void MwLLDestroyImpl(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
+	handle->haiku.view->PostMessage(BVIEW_MW_DESTROY);
+
 	if(handle->haiku.app != NULL) {
 		status_t exit_value;
 
@@ -256,7 +391,6 @@ void MwLLDestroyImpl(MwLL handle) {
 
 		delete handle->haiku.app;
 	}
-	delete handle->haiku.view;
 
 	free(handle);
 }
@@ -277,7 +411,21 @@ void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor c
 	handle->haiku.view->PostMessage(&msg);
 }
 
-void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {}
+void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
+	int i;
+	BMessage msg(BVIEW_MW_LINE);
+
+	for(i = 0; i < 2; i++){
+		BPoint p(points[i].x, points[i].y);
+
+		fix_point(&p, handle->haiku.view);
+
+		msg.AddPoint("view-point", p);
+	}
+
+	handle->haiku.view->SetColor(color);
+	handle->haiku.view->PostMessage(&msg);
+}
 
 void MwLLBeginDrawImpl(MwLL handle) {}
 
@@ -339,6 +487,8 @@ void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	msg.AddInt32("view-height", h);
 
 	handle->haiku.view->PostMessage(&msg);
+
+	MwLLDispatch(handle, resize, NULL);
 }
 
 void MwLLSetTitleImpl(MwLL handle, const char* title) {
@@ -366,9 +516,21 @@ void MwLLNextEventImpl(MwLL handle) {
 	handle->haiku.view->locker->Lock();
 	while(arrlen(handle->haiku.events) > 0){
 		MwLLHaikuEvent* ev = &handle->haiku.events[0];
+		MwMouse m;
+
+		if(ev->type == MwLLHAIKU_EVENT_MOUSEDOWN || ev->type == MwLLHAIKU_EVENT_MOUSEUP){
+			m.point = ev->mouse.point;
+			m.button = ev->mouse.button;
+		}
 
 		if(ev->type == MwLLHAIKU_EVENT_DRAW){
 			MwLLDispatch(handle, draw, NULL);
+		}else if(ev->type == MwLLHAIKU_EVENT_MOUSEDOWN){
+			MwLLDispatch(handle, down, &m);
+		}else if(ev->type == MwLLHAIKU_EVENT_MOUSEUP){
+			MwLLDispatch(handle, up, &m);
+		}else if(ev->type == MwLLHAIKU_EVENT_MOUSEMOVED){
+			MwLLDispatch(handle, move, &ev->mouse.point);
 		}
 
 		arrdel(handle->haiku.events, 0);
@@ -434,13 +596,21 @@ void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {}
 
-void MwLLForceRenderImpl(MwLL handle) {}
+void MwLLForceRenderImpl(MwLL handle) {
+	handle->haiku.view->PostMessage(BVIEW_MW_RENDER);
+}
 
 void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {}
 
 void MwLLDetachImpl(MwLL handle, MwPoint* point) {}
 
-void MwLLShowImpl(MwLL handle, int show) {}
+void MwLLShowImpl(MwLL handle, int show) {
+	if(show){
+		handle->haiku.view->PostMessage(BVIEW_MW_SHOW);
+	}else{
+		handle->haiku.view->PostMessage(BVIEW_MW_HIDE);
+	}
+}
 
 void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {}
 
@@ -464,7 +634,16 @@ void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {}
 
 void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {}
 
-void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {}
+void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
+	BScreen* screen = new BScreen();
+
+	if(screen->IsValid()){
+		rect->width = screen->Frame().Width();
+		rect->height = screen->Frame().Height();
+	}
+
+	delete screen;
+}
 
 void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)handle;

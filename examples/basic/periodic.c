@@ -151,12 +151,23 @@ int main() {
 	int	   index;
 	MwMenu	   m, m2;
 	void*	   v;
+	MwRect	   rc;
 
 	MwLibraryInit();
 
 	window = MwVaCreateWidget(MwWindowClass, "window", NULL, MwDEFAULT, MwDEFAULT, 800, 800,
 				  MwNtitle, "Milsko Periodic Table",
 				  NULL);
+
+	MwGetScreenSize(window, &rc);
+	if(rc.height < 800) {
+		MwVaApply(window,
+			  MwNx, (rc.width - (rc.height - 64)) / 2,
+			  MwNy, (rc.height - (rc.height - 64)) / 2,
+			  MwNwidth, rc.height - 64,
+			  MwNheight, rc.height - 64,
+			  NULL);
+	}
 
 	px = MwLoadIcon(window, MwIconError);
 

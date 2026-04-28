@@ -97,7 +97,7 @@ static void destroy(MwWidget handle) {
 	p2.x = p.x - 5; \
 	p2.y = p.y + th / 2 + 5; \
 \
-	m->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0); \
+	m->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, MwGetInteger(handle, MwNheight), 0, 0); \
 	MwSubMenuAppear(m->sub[i]->wsub, m->sub[i], &p2, 0);
 
 static void draw(MwWidget handle) {
