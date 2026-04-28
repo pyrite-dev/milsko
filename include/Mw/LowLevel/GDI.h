@@ -10,6 +10,10 @@
 #include <Mw/TypeDefs.h>
 #include <Mw/LowLevel.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct _MwLLGDI {
 	struct _MwLLCommon common;
 
@@ -42,5 +46,9 @@ struct _MwLLGDIPixmap {
 
 MWDECL int     MwLLGDICallInit(void);
 MWDECL HCURSOR MwLLGDICreateCursor(MwCursor* image, MwCursor* mask);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -17,6 +17,10 @@
 #include <X11/extensions/Xrender.h>
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct _MwLLX11 {
 	struct _MwLLCommon common;
 
@@ -85,5 +89,9 @@ struct _MwLLX11Pixmap {
 
 MWDECL int    MwLLX11CallInit(void);
 MWDECL Cursor MwLLX11CreateCursor(Display* display, MwCursor* image, MwCursor* mask);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

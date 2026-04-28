@@ -160,7 +160,9 @@ typedef struct {
 #define OBJC(x) void*
 #endif
 
-MWDECL int MwLLCocoaCallInit(void);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct _MwLLCocoa {
 	struct _MwLLCommon common;
@@ -177,5 +179,11 @@ struct _MwLLCocoaPixmap {
 	OBJC(MilskoCocoaPixmap*)
 	real;
 };
+
+MWDECL int MwLLCocoaCallInit(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

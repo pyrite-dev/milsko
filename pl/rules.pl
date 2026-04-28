@@ -96,6 +96,7 @@ if (grep(/^cocoa$/, @backends) || param_get("gnustep")) {
 }
 
 if (grep(/^haiku$/, @backends)) {
+    add_cflags("-DUSE_HAIKU");
     new_object("src/backend/haiku.cxx");
 }
 

@@ -16,7 +16,15 @@
 #include <pthread.h>
 #include <dbus/dbus.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 MWDECL int MwLLWaylandCallInit(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #define CSD_BORDER_FRAME_LEFT 5
 #define CSD_BORDER_FRAME_RIGHT 5

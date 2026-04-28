@@ -62,6 +62,11 @@
 #include <dlfcn.h>
 #endif
 
+#if defined(__HAIKU__) && defined(__cplusplus)
+#include <Window.h>
+#include <View.h>
+#endif
+
 #ifdef __APPLE__
 #include <mach/clock.h>
 #include <mach/mach.h>

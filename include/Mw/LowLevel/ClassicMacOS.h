@@ -10,6 +10,10 @@
 #include <Mw/TypeDefs.h>
 #include <Mw/LowLevel.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct _MwLLClassicMacOS {
 	struct _MwLLCommon common;
 
@@ -31,5 +35,9 @@ struct _MwLLClassicMacOSPixmap {
 };
 
 MWDECL int MwLLClassicMacOSCallInit(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
