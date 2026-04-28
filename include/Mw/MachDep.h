@@ -65,6 +65,8 @@
 #if defined(__HAIKU__) && defined(__cplusplus)
 #include <Window.h>
 #include <View.h>
+#include <Screen.h>
+#include <Application.h>
 #endif
 
 #ifdef __APPLE__

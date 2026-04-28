@@ -1,12 +1,57 @@
 #include <Mw/Milsko.h>
 
+void MwApplication::ReadyToRun(){
+	this->ready = 1;
+}
+
+void MwApplication::Pulse(){
+}
+
+MwApplication::MwApplication(BRect rc, MwLL handle) : BApplication("application/milsko-generic") {
+	BScreen* scr = new BScreen();
+	float left = rc.left;
+	float top = rc.top;
+
+	if(rc.left == MwDEFAULT) left = (scr->Frame().Width() - rc.Width()) / 2;
+	if(rc.top == MwDEFAULT) top = (scr->Frame().Height() - rc.Height()) / 2;
+	rc = BRect(BPoint(left, top), BSize(rc.Width(), rc.Height()));
+
+	this->window = new BWindow(rc, "Milsko", B_TITLED_WINDOW, 0);
+	this->window->Show();
+
+	handle->haiku.view = new BView(this->window->Bounds(), NULL, B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
+
+	this->ready = 0;
+
+	delete scr;
+}
+
+MwApplication::~MwApplication(){
+	delete this->window;
+}
+
 MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL r = (MwLL)malloc(sizeof(*r));
+	BRect rc(BPoint(x, y), BSize(width, height));
 
 	MwLLCreateCommon(r);
 
 	r->common.copy_buffer = 1;
 	r->common.type	      = MwLLBackendHaiku;
+
+	if(parent == NULL){
+		r->haiku.app = new MwApplication(rc, r);
+		r->haiku.app->window->AddChild(r->haiku.view);
+
+		r->haiku.app->Run();
+
+		while(!r->haiku.app->ready);
+	}else{
+		r->haiku.app = NULL;
+		r->haiku.view = new BView(rc, NULL, B_FOLLOW_NONE, B_WILL_DRAW);
+		
+		parent->haiku.view->AddChild(r->haiku.view);
+	}
 
 	return r;
 }
@@ -17,7 +62,18 @@ void MwLLDestroyImpl(MwLL handle) {
 	free(handle);
 }
 
-void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {}
+void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
+	BPoint* p = (BPoint*)malloc(sizeof(*p) * points_count);
+	int i;
+
+	for(i = 0; i < points_count; i++){
+		p[i] = BPoint(points[i].x, points[i].y);
+	}
+
+	handle->haiku.view->FillPolygon(p, points_count);
+
+	free(p);
+}
 
 void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {}
 
