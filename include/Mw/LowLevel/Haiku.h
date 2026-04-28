@@ -46,6 +46,7 @@ class MwView : public BView {
 
 	void AttachedToWindow();
 	void Draw(BRect updateRect);
+	void FrameResized(float width, float height);
 	void MouseDown(BPoint point);
 	void MouseUp(BPoint point);
 	void MouseMoved(BPoint point, uint32 transit, const BMessage* message);
@@ -59,6 +60,7 @@ class MwWindow : public BWindow {
 
 	void MessageReceived(BMessage* message);
 
+	void FrameMoved(BPoint newLocation);
 	bool QuitRequested();
 };
 
@@ -96,6 +98,8 @@ enum BWIN_MW_WHAT {
 enum MwLLHAIKU_EVENT {
 	MwLLHAIKU_EVENT_DRAW = 0,
 	MwLLHAIKU_EVENT_CLOSE,
+	MwLLHAIKU_EVENT_FRAMERESIZED,
+	MwLLHAIKU_EVENT_FRAMEMOVED,
 	MwLLHAIKU_EVENT_MOUSEDOWN,
 	MwLLHAIKU_EVENT_MOUSEUP,
 	MwLLHAIKU_EVENT_MOUSEMOVED
@@ -107,9 +111,22 @@ struct _MwLLHaikuEventMouse {
 	int	button;
 };
 
+struct _MwLLHaikuEventFrameResized {
+	int   type;
+	float width;
+	float height;
+};
+
+struct _MwLLHaikuEventFrameMoved {
+	int	type;
+	MwPoint point;
+};
+
 union _MwLLHaikuEvent {
-	int			    type;
-	struct _MwLLHaikuEventMouse mouse;
+	int				   type;
+	struct _MwLLHaikuEventMouse	   mouse;
+	struct _MwLLHaikuEventFrameResized frame_resized;
+	struct _MwLLHaikuEventFrameMoved   frame_moved;
 };
 
 struct _MwLLHaiku {

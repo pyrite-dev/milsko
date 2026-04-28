@@ -21,7 +21,7 @@ MwApplication::MwApplication(MwRect rc, MwLL handle) : BApplication("application
 	this->window = new MwWindow(rc2, B_TITLED_WINDOW, 0);
 	this->window->Show();
 
-	handle->haiku.view = new MwView(handle, this->window->Bounds(), B_FOLLOW_ALL_SIDES, B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE);
+	handle->haiku.view = new MwView(handle, this->window->Bounds(), B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
 
 	this->window->AddChild(handle->haiku.view);
 
@@ -47,7 +47,7 @@ void MwApplication::MessageReceived(BMessage* message) {
 	}
 }
 
-MwView::MwView(MwLL handle, BRect frame, uint32 resizingMode, uint32 flags) : BView(frame, NULL, resizingMode, flags) {
+MwView::MwView(MwLL handle, BRect frame, uint32 resizingMode, uint32 flags) : BView(frame, NULL, resizingMode, flags | B_FRAME_EVENTS) {
 	this->handle = handle;
 
 	this->locker = new BLocker();
@@ -217,6 +217,18 @@ void MwView::Draw(BRect updateRect) {
 	this->locker->Unlock();
 }
 
+void MwView::FrameResized(float width, float height) {
+	MwLLHaikuEvent ev;
+
+	ev.type			= MwLLHAIKU_EVENT_FRAMERESIZED;
+	ev.frame_resized.width	= width;
+	ev.frame_resized.height = height;
+
+	this->locker->Lock();
+	arrput(this->handle->haiku.events, ev);
+	this->locker->Unlock();
+}
+
 void MwView::MouseDown(BPoint point) {
 	MwLLHaikuEvent ev;
 	uint32	       btn;
@@ -322,6 +334,19 @@ void MwWindow::MessageReceived(BMessage* message) {
 		break;
 	}
 	}
+}
+
+void MwWindow::FrameMoved(BPoint newLocation) {
+	MwLLHaikuEvent ev;
+	MwView*	       v = (MwView*)this->ChildAt(0);
+
+	ev.type		       = MwLLHAIKU_EVENT_FRAMEMOVED;
+	ev.frame_moved.point.x = newLocation.x;
+	ev.frame_moved.point.y = newLocation.y;
+
+	v->locker->Lock();
+	arrput(v->handle->haiku.events, ev);
+	v->locker->Unlock();
 }
 
 bool MwWindow::QuitRequested() {
@@ -545,6 +570,14 @@ void MwLLNextEventImpl(MwLL handle) {
 			MwLLDispatch(handle, draw, NULL);
 		} else if(ev->type == MwLLHAIKU_EVENT_CLOSE) {
 			MwLLDispatch(handle, close, NULL);
+		} else if(ev->type == MwLLHAIKU_EVENT_FRAMERESIZED) {
+			handle->haiku.width  = ev->frame_resized.width + 1;
+			handle->haiku.height = ev->frame_resized.height + 1;
+
+			MwLLDispatch(handle, resize, NULL);
+		} else if(ev->type == MwLLHAIKU_EVENT_FRAMEMOVED) {
+			handle->haiku.x = ev->frame_moved.point.x + 1;
+			handle->haiku.y = ev->frame_moved.point.y + 1;
 		} else if(ev->type == MwLLHAIKU_EVENT_MOUSEDOWN) {
 			MwLLDispatch(handle, down, &m);
 		} else if(ev->type == MwLLHAIKU_EVENT_MOUSEUP) {
