@@ -62,12 +62,14 @@
 #include <dlfcn.h>
 #endif
 
-#if defined(__HAIKU__) && defined(__cplusplus)
+#ifdef __HAIKU__
+#ifdef __cplusplus
 #include <Window.h>
 #include <View.h>
 #include <Screen.h>
 #include <Application.h>
 #include <Locker.h>
+#endif
 #include <OS.h>
 #endif
 

@@ -54,7 +54,7 @@ sub set_shared_flag {
 sub new_object {
     my @l = glob($_[0]);
     foreach my $e (@l) {
-        $e =~ s/\.(cxx|c|m)$/$object_suffix/;
+        $e =~ s/\.(cc|c|m)$/$object_suffix/;
         push(@library_targets, $e);
     }
 }
