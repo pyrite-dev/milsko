@@ -16,35 +16,36 @@ extern "C" {
 
 #ifdef __cplusplus
 class MwApplication : public BApplication {
-	private:
-		void ReadyToRun();
+    public:
+	BWindow* window;
+	BLocker* locker;
 
-	public:
-		BWindow* window;
-		int ready;
-		BLocker* locker;
+	MwApplication(BRect rc, MwLL handle);
+	~MwApplication();
 
-		MwApplication(BRect rc, MwLL handle);
-		~MwApplication();
-
-		void Pulse();
+	void MessageReceived(BMessage* message);
 };
 
 class MwView : public BView {
-	public:
-		MwView(MwApplication* app, BRect rc, uint32 resizing, uint32 flags);
+    public:
+	MwView(BRect rc, uint32 resizing, uint32 flags);
 };
 #else
 typedef void MwApplication;
 typedef void MwView;
 #endif
 
+enum B_MW_WHAT {
+	B_MW_DESTROY = 0
+};
+
 struct _MwLLHaiku {
 	struct _MwLLCommon common;
 
-	MwLL parent;
+	MwLL	       parent;
 	MwApplication* app;
-	MwView* view;
+	MwView*	       view;
+	thread_id      app_thread;
 };
 
 struct _MwLLHaikuColor {
@@ -55,7 +56,7 @@ struct _MwLLHaikuPixmap {
 	struct _MwLLCommonPixmap common;
 };
 
-MWDECL int     MwLLHaikuCallInit(void);
+MWDECL int MwLLHaikuCallInit(void);
 
 #ifdef __cplusplus
 }

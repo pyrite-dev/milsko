@@ -273,7 +273,7 @@ foreach my $l (@library_targets) {
         $s =~ s/$o$/.m/;
     }
     elsif ($l =~ /haiku/) {
-	$s =~ s/$o$/.cxx/;
+	$s =~ s/$o$/.cc/;
 	$compiler = "CXX";
     }
     else {

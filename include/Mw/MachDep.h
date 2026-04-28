@@ -68,6 +68,7 @@
 #include <Screen.h>
 #include <Application.h>
 #include <Locker.h>
+#include <OS.h>
 #endif
 
 #ifdef __APPLE__

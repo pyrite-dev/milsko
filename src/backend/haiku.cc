@@ -1,24 +1,12 @@
 #include <Mw/Milsko.h>
 
-MwView::MwView(MwApplication* app, BRect rc, uint32 resizing, uint32 flags) : BView(rc, NULL, resizing, flags) {
-	app->PostMessage(new BMessage(B_PULSE));
-
-	this->SetViewColor(rand() % 256, 0, 0);
-	printf("?\n");
-}
-
-void MwApplication::ReadyToRun(){
-	this->ready = 1;
-}
-
-void MwApplication::Pulse(){
-	printf("!\n");
+MwView::MwView(BRect rc, uint32 resizing, uint32 flags) : BView(rc, NULL, resizing, flags) {
 }
 
 MwApplication::MwApplication(BRect rc, MwLL handle) : BApplication("application/milsko-generic") {
-	BScreen* scr = new BScreen();
-	float left = rc.left;
-	float top = rc.top;
+	BScreen* scr  = new BScreen();
+	float	 left = rc.left;
+	float	 top  = rc.top;
 
 	if(rc.left == MwDEFAULT) left = (scr->Frame().Width() - rc.Width()) / 2;
 	if(rc.top == MwDEFAULT) top = (scr->Frame().Height() - rc.Height()) / 2;
@@ -27,23 +15,51 @@ MwApplication::MwApplication(BRect rc, MwLL handle) : BApplication("application/
 	this->window = new BWindow(rc, "Milsko", B_TITLED_WINDOW, 0);
 	this->window->Show();
 
-	handle->haiku.view = new MwView(this, this->window->Bounds(), B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
+	handle->haiku.view = new MwView(this->window->Bounds(), B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
 
 	this->window->AddChild(handle->haiku.view);
 
-	this->ready = 0;
 	this->locker = new BLocker();
 
 	delete scr;
 }
 
-MwApplication::~MwApplication(){
+MwApplication::~MwApplication() {
 	delete this->window;
 	delete this->locker;
 }
 
+void MwApplication::MessageReceived(BMessage* message) {
+	switch(message->what) {
+	case B_MW_DESTROY: {
+		this->Quit();
+		break;
+	}
+	default: {
+		BLooper::MessageReceived(message);
+		break;
+	}
+	}
+}
+
+struct app_param {
+	BRect rc;
+	MwLL  handle;
+};
+
+static int32 app_thread(void* data) {
+	struct app_param* r = (struct app_param*)data;
+
+	r->handle->haiku.app = new MwApplication(r->rc, r->handle);
+	r->handle->haiku.app->Run();
+
+	free(r);
+
+	return 0;
+}
+
 MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
-	MwLL r = (MwLL)malloc(sizeof(*r));
+	MwLL  r = (MwLL)malloc(sizeof(*r));
 	BRect rc(BPoint(x, y), BSize(width, height));
 
 	MwLLCreateCommon(r);
@@ -53,18 +69,26 @@ MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	r->haiku.parent = parent;
 
-	if(parent == NULL){
-		r->haiku.app = new MwApplication(rc, r);
+	if(parent == NULL) {
+		struct app_param* p = (struct app_param*)malloc(sizeof(*p));
 
-		//r->haiku.app->Run();
-	}else{
+		r->haiku.app = NULL;
+
+		p->rc	  = rc;
+		p->handle = r;
+
+		r->haiku.app_thread = spawn_thread(app_thread, NULL, B_NORMAL_PRIORITY, p);
+		resume_thread(r->haiku.app_thread);
+
+		while(r->haiku.app == NULL) MwTimeSleep(10);
+	} else {
 		MwLL top = r;
-		while(top->haiku.parent != NULL){
+		while(top->haiku.parent != NULL) {
 			top = top->haiku.parent;
 		}
 
-		r->haiku.app = NULL;
-		r->haiku.view = new MwView(top->haiku.app, rc, B_FOLLOW_NONE, B_WILL_DRAW);
+		r->haiku.app  = NULL;
+		r->haiku.view = new MwView(rc, B_FOLLOW_NONE, B_WILL_DRAW);
 
 		parent->haiku.view->AddChild(r->haiku.view);
 	}
@@ -75,14 +99,24 @@ MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 void MwLLDestroyImpl(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
+	if(handle->haiku.app != NULL) {
+		status_t exit_value;
+
+		handle->haiku.app->PostMessage(B_MW_DESTROY);
+		wait_for_thread(handle->haiku.app_thread, &exit_value);
+
+		delete handle->haiku.app;
+	}
+	delete handle->haiku.view;
+
 	free(handle);
 }
 
 void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
 	BPoint* p = (BPoint*)malloc(sizeof(*p) * points_count);
-	int i;
+	int	i;
 
-	for(i = 0; i < points_count; i++){
+	for(i = 0; i < points_count; i++) {
 		p[i] = BPoint(points[i].x, points[i].y);
 	}
 
@@ -95,9 +129,7 @@ void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {}
 
 void MwLLBeginDrawImpl(MwLL handle) {}
 
-void MwLLEndDrawImpl(MwLL handle) {
-	new BMessage(B_PULSE);
-}
+void MwLLEndDrawImpl(MwLL handle) {}
 
 MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 	MwLLColor c = (MwLLColor)malloc(sizeof(*c));
@@ -119,7 +151,11 @@ void MwLLSetXYImpl(MwLL handle, int x, int y) {}
 
 void MwLLSetWHImpl(MwLL handle, int w, int h) {}
 
-void MwLLSetTitleImpl(MwLL handle, const char* title) {}
+void MwLLSetTitleImpl(MwLL handle, const char* title) {
+	if(handle->haiku.app == NULL) return;
+
+	handle->haiku.app->window->SetTitle(title);
+}
 
 int MwLLPendingImpl(MwLL handle) {
 	return 0;
@@ -128,7 +164,7 @@ int MwLLPendingImpl(MwLL handle) {
 void MwLLNextEventImpl(MwLL handle) {}
 
 MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
-	MwLLPixmap r = (MwLLPixmap)malloc(sizeof(*r));
+	MwLLPixmap r  = (MwLLPixmap)malloc(sizeof(*r));
 	r->common.raw = (unsigned char*)malloc(4 * width * height);
 	memcpy(r->common.raw, data, 4 * width * height);
 
