@@ -14,6 +14,8 @@ static struct symtbl {
 	HRESULT(WINAPI* DwmSetWindowAttribute)(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
 } wsymtbl;
 
+static int is_plgblt_reliable = 0;
+
 #define DwmSetWindowAttribute wsymtbl.DwmSetWindowAttribute
 
 /* Dark theme detection for classic Windows: check if the user has set their theme to be dark. */
@@ -586,7 +588,7 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 	SelectObject(hmdc, pixmap->gdi.hBitmap);
 
-	if(PlgBlt(handle->gdi.hDC, p, hmdc, 0, 0, pixmap->common.width, pixmap->common.height, pixmap->gdi.hMask, 0, 0) == 0)
+	if(!is_plgblt_reliable || PlgBlt(handle->gdi.hDC, p, hmdc, 0, 0, pixmap->common.width, pixmap->common.height, pixmap->gdi.hMask, 0, 0) == 0)
 #endif
 	{
 		SelectObject(hmdc, pixmap->gdi.hMask2);
@@ -873,11 +875,19 @@ static MwBool MwLLDoModernImpl(MwLL handle) {
 }
 
 static int MwLLGDICallInitImpl(void) {
+	void* ntdll;
+
 	memset(&wsymtbl, 0, sizeof(wsymtbl));
 
 	wsymtbl.lib_dwmapi = MwDynamicOpen("dwmapi.dll");
 
 	if(wsymtbl.lib_dwmapi != NULL) DwmSetWindowAttribute = MwDynamicSymbol(wsymtbl.lib_dwmapi, "DwmSetWindowAttribute");
+
+	if((ntdll = GetModuleHandle("ntdll.dll")) != NULL && GetProcAddress(ntdll, "wine_get_version") != NULL){
+		is_plgblt_reliable = 0;
+	}else{
+		is_plgblt_reliable = 1;
+	}
 
 	/* TODO: check properly */
 	return 0;
