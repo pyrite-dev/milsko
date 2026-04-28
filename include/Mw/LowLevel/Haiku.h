@@ -15,10 +15,13 @@ extern "C" {
 #endif
 
 #ifdef __cplusplus
+class MwApplication;
+class MwView;
+class MwWindow;
+
 class MwApplication : public BApplication {
     public:
-	BWindow* window;
-	BLocker* locker;
+	MwWindow* window;
 
 	MwApplication(BRect rc, MwLL handle);
 	~MwApplication();
@@ -28,24 +31,67 @@ class MwApplication : public BApplication {
 
 class MwView : public BView {
     public:
-	MwView(BRect rc, uint32 resizing, uint32 flags);
+	MwLL	 handle;
+	BLocker* locker;
+
+	MwView(MwLL handle, BRect rc, uint32 resizingMode, uint32 flags);
+	~MwView();
+
+	void MessageReceived(BMessage* message);
+	void PostMessage(BMessage* message);
+
+	void Draw(BRect updateRect);
+};
+
+class MwWindow : public BWindow {
+    public:
+	MwWindow(BRect rc, window_type type, uint32 flags);
+
+	void MessageReceived(BMessage* message);
 };
 #else
 typedef void MwApplication;
 typedef void MwView;
 #endif
 
-enum B_MW_WHAT {
-	B_MW_DESTROY = 0
+typedef union _MwLLHaikuEvent MwLLHaikuEvent;
+
+enum BAPP_MW_WHAT {
+	BAPP_MW_DESTROY = 0
+};
+
+enum BVIEW_MW_WHAT {
+	BVIEW_MW_RESIZE = 0,
+	BVIEW_MW_MOVE,
+	BVIEW_MW_POLYGON
+};
+
+enum BWIN_MW_WHAT {
+	BWIN_MW_SET_TITLE = 0
+};
+
+enum MwLLHAIKU_EVENT {
+	MwLLHAIKU_EVENT_DRAW = 0
+};
+
+union _MwLLHaikuEvent {
+	int type;
 };
 
 struct _MwLLHaiku {
 	struct _MwLLCommon common;
 
+	int x;
+	int y;
+	int width;
+	int height;
+
 	MwLL	       parent;
 	MwApplication* app;
 	MwView*	       view;
 	thread_id      app_thread;
+
+	MwLLHaikuEvent* events;
 };
 
 struct _MwLLHaikuColor {
