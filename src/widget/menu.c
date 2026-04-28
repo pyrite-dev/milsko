@@ -59,7 +59,7 @@ static void destroy(MwWidget handle) {
 	int	in_area;
 
 #define MENU_LOOP_INIT \
-	p.x = 5; \
+	p.x = 0; \
 	p.y = (MwGetInteger(handle, MwNheight) - MwDefaultBorderWidth(handle)) / 2 + MwDefaultBorderWidth(handle); \
 \
 	r.x	 = 0; \
@@ -67,28 +67,28 @@ static void destroy(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth); \
 	r.height = MwGetInteger(handle, MwNheight); \
 \
-	rx = r.width - 5;
+	rx = r.width;
 
 #define BEGIN_MENU_LOOP \
 	for(i = 0; i < arrlen(m->sub); i++) { \
 		int incr = m->sub[i]->name[0] == '?' ? 1 : 0; \
-		int tw	 = MwTextWidth(handle, NULL, m->sub[i]->name + incr); \
-		int th	 = MwTextHeight(handle, NULL, m->sub[i]->name + incr); \
+		int tw	 = MwTextWidth(handle, MwFLBuildFont(MwFLFlagBold), m->sub[i]->name + incr); \
+		int th	 = MwTextHeight(handle, MwFLBuildFont(MwFLFlagBold), m->sub[i]->name + incr); \
 \
 		if(incr) { \
-			p.x = rx -= tw; \
-			rx -= 10; \
+			p.x = rx -= 10 + tw; \
 		} \
 \
-		r.x	 = p.x - 5; \
+		r.x	 = p.x; \
 		r.y	 = p.y + ((MwGetInteger(handle, MwNheight) - p.y * 2) - (th + 10)) / 2; \
 		r.width	 = tw + 10; \
 		r.height = th + 10; \
 \
-		in_area = (r.x <= handle->mouse_point.x && r.y <= handle->mouse_point.y && handle->mouse_point.x <= (int)(r.x + r.width) && handle->mouse_point.y <= (int)(r.y + r.height)) ? 1 : 0;
+		in_area = (r.x <= handle->mouse_point.x && r.y <= handle->mouse_point.y && handle->mouse_point.x <= (int)(r.x + r.width) && handle->mouse_point.y <= (int)(r.y + r.height)) ? 1 : 0; \
+		p.x += 5 + tw / 2;
 
 #define END_MENU_LOOP \
-	p.x += tw + 20; \
+	p.x += tw / 2 + 5; \
 	}
 
 #define NEW_SUBMENU \
@@ -115,7 +115,7 @@ static void draw(MwWidget handle) {
 		MwDrawWidgetBack(handle, &r, base, 0, MwFALSE);
 	}
 
-	MwDrawText(handle, MwFLBuildFont((m->sub[i]->wsub != NULL || (in_area && handle->pressed)) ? MwFLFlagBold : 0), &p, m->sub[i]->name + incr, MwALIGNMENT_BEGINNING, text);
+	MwDrawText(handle, MwFLBuildFont((m->sub[i]->wsub != NULL || (in_area && handle->pressed)) ? MwFLFlagBold : 0), &p, m->sub[i]->name + incr, MwALIGNMENT_CENTER, text);
 	END_MENU_LOOP;
 
 	MwLLFreeColor(text);

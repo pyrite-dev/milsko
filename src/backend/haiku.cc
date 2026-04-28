@@ -2,24 +2,26 @@
 
 #include "../../external/stb_ds.h"
 
-static void fix_point(BPoint* p, MwView* v) {
-	p->x = p->x * (v->handle->haiku.width + 1) / v->handle->haiku.width;
-	p->y = p->y * (v->handle->haiku.height + 1) / v->handle->haiku.height;
-}
+MwApplication::MwApplication(MwRect rc, MwLL handle) : BApplication("application/milsko-generic") {
+	BScreen* scr = new BScreen();
+	float	 x   = (scr->Frame().Width() - rc.width) / 2;
+	float	 y   = (scr->Frame().Height() - rc.height) / 2;
+	BRect	 rc2;
+	int	 dx = rc.x == MwDEFAULT;
+	int	 dy = rc.y == MwDEFAULT;
 
-MwApplication::MwApplication(BRect rc, MwLL handle) : BApplication("application/milsko-generic") {
-	BScreen* scr  = new BScreen();
-	float	 left = rc.left;
-	float	 top  = rc.top;
+	rc.x += dx ? -rc.x : 0;
+	rc.y += dy ? -rc.y : 0;
 
-	if(rc.left == MwDEFAULT) left = (scr->Frame().Width() - rc.Width()) / 2;
-	if(rc.top == MwDEFAULT) top = (scr->Frame().Height() - rc.Height()) / 2;
-	rc = BRect(BPoint(left, top), BSize(rc.Width(), rc.Height()));
+	if(dx) rc.x += x;
+	if(dy) rc.y += y;
 
-	this->window = new MwWindow(rc, B_TITLED_WINDOW, 0);
+	rc2 = BRect(rc.x, rc.y, rc.x + rc.width - 1, rc.y + rc.height - 1);
+
+	this->window = new MwWindow(rc2, B_TITLED_WINDOW, 0);
 	this->window->Show();
 
-	handle->haiku.view = new MwView(handle, this->window->Bounds(), B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
+	handle->haiku.view = new MwView(handle, this->window->Bounds(), B_FOLLOW_ALL_SIDES, B_WILL_DRAW | B_FULL_UPDATE_ON_RESIZE);
 
 	this->window->AddChild(handle->haiku.view);
 
@@ -83,9 +85,10 @@ void MwView::MessageReceived(BMessage* message) {
 		if(message->FindInt32("view-height", &height) != B_OK) break;
 
 		if(this->handle->haiku.app == NULL) {
-			this->ResizeTo(width, height);
+			this->ResizeTo(width - 1, height - 1);
 		} else {
-			this->Window()->ResizeTo(width, height);
+			this->Window()->ResizeTo(width - 1, height - 1);
+			this->ResizeTo(width - 1, height - 1);
 		}
 		break;
 	}
@@ -322,8 +325,8 @@ void MwWindow::MessageReceived(BMessage* message) {
 }
 
 struct app_param {
-	BRect rc;
-	MwLL  handle;
+	MwRect rc;
+	MwLL   handle;
 };
 
 static int32 app_thread(void* data) {
@@ -338,8 +341,14 @@ static int32 app_thread(void* data) {
 }
 
 MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
-	MwLL  r	 = (MwLL)malloc(sizeof(*r));
-	BRect rc = BRect(BPoint(x, y), BSize(width, height));
+	MwLL   r = (MwLL)malloc(sizeof(*r));
+	MwRect mrc;
+	BRect  rc = BRect(x, y, x + width - 1, x + height - 1);
+
+	mrc.x	   = x;
+	mrc.y	   = y;
+	mrc.width  = width;
+	mrc.height = height;
 
 	MwLLCreateCommon(r);
 
@@ -355,7 +364,7 @@ MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 		r->haiku.app = NULL;
 
-		p->rc	  = rc;
+		p->rc	  = mrc;
 		p->handle = r;
 
 		r->haiku.app  = NULL;
@@ -409,8 +418,6 @@ void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor c
 	for(i = 0; i < points_count; i++) {
 		BPoint p(points[i].x, points[i].y);
 
-		fix_point(&p, handle->haiku.view);
-
 		msg.AddPoint("view-point", p);
 	}
 
@@ -424,8 +431,6 @@ void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 
 	for(i = 0; i < 2; i++) {
 		BPoint p(points[i].x, points[i].y);
-
-		fix_point(&p, handle->haiku.view);
 
 		msg.AddPoint("view-point", p);
 	}
@@ -459,19 +464,10 @@ void MwLLFreeColorImpl(MwLLColor color) {
 }
 
 void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
-	BRect rc;
-	int   m = 0;
-
-	if(handle->haiku.app == NULL) {
-		rc = BRect(BPoint(handle->haiku.x, handle->haiku.y), BSize(handle->haiku.width, handle->haiku.height));
-	} else {
-		rc = handle->haiku.app->window->Frame();
-	}
-
-	*x = rc.left;
-	*y = rc.top;
-	*w = rc.Width();
-	*h = rc.Height();
+	*x = handle->haiku.x;
+	*y = handle->haiku.y;
+	*w = handle->haiku.width;
+	*h = handle->haiku.height;
 }
 
 void MwLLSetXYImpl(MwLL handle, int x, int y) {
@@ -589,13 +585,10 @@ void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 }
 
 void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	BPoint	 p;
 	BRect	 rc;
 	BMessage msg(BVIEW_MW_BITMAP);
 
-	p = BPoint(rect->x, rect->y);
-	fix_point(&p, handle->haiku.view);
-	rc = BRect(p, BSize(rect->width, rect->height));
+	rc = BRect(rect->x, rect->y, rect->x + rect->width - 1, rect->y + rect->height - 1);
 
 	msg.AddRect("view-rect", rc);
 	msg.AddPointer("view-bitmap", pixmap->haiku.bitmap);

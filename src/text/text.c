@@ -71,7 +71,7 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 	int	cp;
 
 #ifdef TTF
-	if(ttf <= MwFLBuildFont(0xff)) ttf = assume_ttf(handle, ttf);
+	if(!MwGetInteger(handle, MwNbitmapFont) && ttf <= MwFLBuildFont(0xff)) ttf = assume_ttf(handle, ttf);
 #endif
 
 	p.y -= MwTextHeight(handle, ttf, text) / 2 - (MwTextHeight(handle, ttf, text) / count_nl(text)) / 2;

@@ -23,7 +23,7 @@ class MwApplication : public BApplication {
     public:
 	MwWindow* window;
 
-	MwApplication(BRect rc, MwLL handle);
+	MwApplication(MwRect rc, MwLL handle);
 	~MwApplication();
 
 	void MessageReceived(BMessage* message);
