@@ -2,6 +2,11 @@
 
 #include "../../external/stb_ds.h"
 
+static void fix_point(BPoint* p, MwView* v){
+	p->x = p->x * (v->handle->haiku.width + 1) / v->handle->haiku.width;
+	p->y = p->y * (v->handle->haiku.height + 1) / v->handle->haiku.height;
+}
+
 MwApplication::MwApplication(BRect rc, MwLL handle) : BApplication("application/milsko-generic") {
 	BScreen* scr  = new BScreen();
 	float	 left = rc.left;
@@ -41,10 +46,11 @@ void MwApplication::MessageReceived(BMessage* message) {
 MwView::MwView(MwLL handle, BRect frame, uint32 resizingMode, uint32 flags) : BView(frame, NULL, resizingMode, flags) {
 	this->handle = handle;
 
-	this->SetViewColor(rand(), rand(), rand());
-	this->SetHighColor(rand(), rand(), rand());
-
 	this->locker = new BLocker();
+
+	this->SetDrawingMode(B_OP_OVER);
+
+	this->SetViewColor(255, 0, 0);
 }
 
 MwView::~MwView(){
@@ -71,6 +77,19 @@ void MwView::MessageReceived(BMessage* message) {
 		this->MoveTo(x, y);
 		break;
 	}
+	case BVIEW_MW_SET_COLOR:
+	{
+		int32 rgb[3];
+		int i;
+
+		rgb[0] = rgb[1] = rgb[2] = 0;
+
+		for(i = 0; i < 3 && message->FindInt32("view-color", i, &rgb[i]) == B_OK; i++);
+
+		this->SetHighColor(rgb[0], rgb[1], rgb[2]);
+
+		break;
+	}
 	case BVIEW_MW_POLYGON:
 	{
 		int i;
@@ -82,6 +101,17 @@ void MwView::MessageReceived(BMessage* message) {
 		}
 
 		this->FillPolygon(points, i);
+		break;
+	}
+	case BVIEW_MW_BITMAP:
+	{
+		BRect rc;
+		BBitmap* bitmap;
+
+		if(message->FindRect("view-rect", &rc) != B_OK) break;
+		if(message->FindPointer("view-bitmap", (void**)&bitmap) != B_OK) break;
+
+		this->DrawBitmap(bitmap, rc);
 		break;
 	}
 	default: {
@@ -109,6 +139,16 @@ void MwView::Draw(BRect updateRect){
 	this->locker->Lock();
 	arrput(this->handle->haiku.events, ev);
 	this->locker->Unlock();
+}
+
+void MwView::SetColor(MwLLColor color){
+	BMessage msg(BVIEW_MW_SET_COLOR);
+
+	msg.AddInt32("view-color", color->common.red);
+	msg.AddInt32("view-color", color->common.green);
+	msg.AddInt32("view-color", color->common.blue);
+
+	this->PostMessage(&msg);
 }
 
 MwWindow::MwWindow(BRect frame, window_type type, uint32 flags) : BWindow(frame, "Milsko", type, flags) {
@@ -159,7 +199,7 @@ static int32 app_thread(void* data) {
 
 MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL  r = (MwLL)malloc(sizeof(*r));
-	BRect rc(BPoint(x, y), BSize(width, height));
+	BRect rc = BRect(BPoint(x, y), BSize(width, height));
 
 	MwLLCreateCommon(r);
 
@@ -226,9 +266,14 @@ void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor c
 	BMessage msg(BVIEW_MW_POLYGON);
 
 	for(i = 0; i < points_count; i++) {
-		msg.AddPoint("view-point", BPoint(points[i].x, points[i].y));
+		BPoint p(points[i].x, points[i].y);
+
+		fix_point(&p, handle->haiku.view);
+
+		msg.AddPoint("view-point", p);
 	}
 
+	handle->haiku.view->SetColor(color);
 	handle->haiku.view->PostMessage(&msg);
 }
 
@@ -252,10 +297,13 @@ void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 	c->common.blue	= b;
 }
 
-void MwLLFreeColorImpl(MwLLColor color) {}
+void MwLLFreeColorImpl(MwLLColor color) {
+	free(color);
+}
 
 void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
 	BRect rc;
+	int m = 0;
 
 	if(handle->haiku.app == NULL){
 		rc = BRect(BPoint(handle->haiku.x, handle->haiku.y), BSize(handle->haiku.width, handle->haiku.height));
@@ -336,13 +384,32 @@ MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int
 	r->common.width	 = width;
 	r->common.height = height;
 
+	r->haiku.bitmap = NULL;
+
 	MwLLPixmapUpdate(r);
 	return r;
 
 	return r;
 }
 
-void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {}
+void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {
+	uint32* px = (uint32*)malloc(4 * pixmap->common.width * pixmap->common.height);
+	int i;
+
+	for(i = 0; i < pixmap->common.width * pixmap->common.height; i++){
+		unsigned char* ipx = &pixmap->common.raw[4 * i];
+
+		px[i] = (ipx[3] << 24) | (ipx[0] << 16) | (ipx[1] << 8) | (ipx[2] << 0);
+	}
+
+	if(pixmap->haiku.bitmap != NULL) delete pixmap->haiku.bitmap;
+
+	pixmap->haiku.bitmap = new BBitmap(BRect(0, 0, pixmap->common.width - 1, pixmap->common.height - 1), B_RGBA32);
+
+	pixmap->haiku.bitmap->SetBits(px, pixmap->common.width * pixmap->common.height * 4, 0, B_RGBA32);
+
+	free(px);
+}
 
 void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 	free(pixmap->common.raw);
@@ -350,7 +417,20 @@ void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 	free(pixmap);
 }
 
-void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {}
+void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
+	BPoint p;
+	BRect rc;
+	BMessage msg(BVIEW_MW_BITMAP);
+
+	p = BPoint(rect->x, rect->y);
+	fix_point(&p, handle->haiku.view);
+	rc = BRect(p, BSize(rect->width, rect->height));
+
+	msg.AddRect("view-rect", rc);
+	msg.AddPointer("view-bitmap", pixmap->haiku.bitmap);
+
+	handle->haiku.view->PostMessage(&msg);
+}
 
 void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {}
 

@@ -41,6 +41,8 @@ class MwView : public BView {
 	void PostMessage(BMessage* message);
 
 	void Draw(BRect updateRect);
+
+	void SetColor(MwLLColor color);
 };
 
 class MwWindow : public BWindow {
@@ -63,7 +65,9 @@ enum BAPP_MW_WHAT {
 enum BVIEW_MW_WHAT {
 	BVIEW_MW_RESIZE = 0,
 	BVIEW_MW_MOVE,
-	BVIEW_MW_POLYGON
+	BVIEW_MW_SET_COLOR,
+	BVIEW_MW_POLYGON,
+	BVIEW_MW_BITMAP
 };
 
 enum BWIN_MW_WHAT {
@@ -100,6 +104,8 @@ struct _MwLLHaikuColor {
 
 struct _MwLLHaikuPixmap {
 	struct _MwLLCommonPixmap common;
+
+	BBitmap* bitmap;
 };
 
 MWDECL int MwLLHaikuCallInit(void);
