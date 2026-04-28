@@ -8,9 +8,9 @@ void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor c
 
 void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {}
 
-WDECL void MwLLBeginDrawImpl(MwLL handle) {}
+void MwLLBeginDrawImpl(MwLL handle) {}
 
-WDECL void MwLLEndDrawImpl(MwLL handle) {}
+void MwLLEndDrawImpl(MwLL handle) {}
 
 MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {}
 
@@ -75,6 +75,8 @@ void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect){}
 void MwLLSetDarkThemeImpl(MwLL handle, int toggle){}
 
 MwBool MwLLDoModernImpl(MwLL handle){}
+
+int MwLLHaikuCallInitImpl(){}
 
 #include "call.c"
 CALL(Haiku);
