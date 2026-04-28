@@ -50,5 +50,31 @@ void MwLLShowImpl(MwLL handle, int show) {}
 
 void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {}
 
+void MwLLMakeBorderlessImpl(MwLL handle, int toggle){}
+
+void MwLLMakeToolWindowImpl(MwLL handle){}
+
+void MwLLMakePopupImpl(MwLL handle, MwLL parent){}
+
+void MwLLBeginStateChangeImpl(MwLL handle){}
+
+void MwLLEndStateChangeImpl(MwLL handle){}
+
+void MwLLFocusImpl(MwLL handle){}
+
+void MwLLGrabPointerImpl(MwLL handle, int toggle){}
+
+void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type){}
+
+void MwLLGetClipboardImpl(MwLL handle, int clipboard_type){}
+
+void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point){}
+
+void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect){}
+
+void MwLLSetDarkThemeImpl(MwLL handle, int toggle){}
+
+MwBool MwLLDoModernImpl(MwLL handle){}
+
 #include "call.c"
 CALL(Haiku);
