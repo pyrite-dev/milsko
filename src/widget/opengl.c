@@ -129,15 +129,21 @@ static int wcreate(MwWidget handle) {
 		SetPixelFormat(o->dc, pf, &pfd);
 
 		o->lib = MwDynamicOpen("opengl32.dll");
+		if(!o->lib){
+			printf("Could not load OpenGL widget under WGL! " #x " missing.\n"); \
+			return 1;
+		}
 
-		o->wglCreateContext =
-		    (MWwglCreateContext)(void*)MwDynamicSymbol(o->lib, "wglCreateContext");
-		o->wglMakeCurrent =
-		    (MWwglMakeCurrent)(void*)MwDynamicSymbol(o->lib, "wglMakeCurrent");
-		o->wglDeleteContext =
-		    (MWwglDeleteContext)(void*)MwDynamicSymbol(o->lib, "wglDeleteContext");
-		o->wglGetProcAddress = (MWwglGetProcAddress)(void*)MwDynamicSymbol(
-		    o->lib, "wglGetProcAddress");
+#define WGL_FUNC(x) o->x = MwDynamicSymbol(o->lib, #x); \
+		if(o->x == NULL){ \
+			printf("Could not load OpenGL widget under WGL! " #x " missing.\n"); \
+			return 1; \
+		}
+
+		WGL_FUNC(wglCreateContext);
+		WGL_FUNC(wglMakeCurrent);
+		WGL_FUNC(wglDeleteContext);
+		WGL_FUNC(wglGetProcAddress);
 
 		o->gl = o->wglCreateContext(o->dc);
 	}
@@ -269,19 +275,19 @@ static int wcreate(MwWidget handle) {
 		    eglGetDisplay((EGLNativeDisplayType)handle->lowlevel->wayland.display);
 		if(display == EGL_NO_DISPLAY) {
 			printf("ERROR: eglGetDisplay, %0X\n", eglGetError());
-			return MwFALSE;
+			return 1;
 		}
 		/* Initialize EGL */
 		if(!eglInitialize(display, &majorVersion, &minorVersion)) {
 			printf("ERROR: eglInitialize, %0X\n", eglGetError());
-			return MwFALSE;
+			return 1;
 		}
 
 		/* Get configs */
 		if((eglGetConfigs(display, NULL, 0, &numConfigs) != EGL_TRUE) ||
 		   (numConfigs == 0)) {
 			printf("ERROR: eglGetConfigs, %0X\n", eglGetError());
-			return MwFALSE;
+			return 1;
 		}
 
 		/* Choose config */
@@ -289,7 +295,7 @@ static int wcreate(MwWidget handle) {
 		    EGL_TRUE) ||
 		   (numConfigs != 1)) {
 			printf("ERROR: eglChooseConfig, %0X\n", eglGetError());
-			return MwFALSE;
+			return 1;
 		}
 
 		o->egl_window_native = (EGLNativeWindowType)wl_egl_window_create(
@@ -297,7 +303,7 @@ static int wcreate(MwWidget handle) {
 		    handle->lowlevel->wayland.ww, handle->lowlevel->wayland.wh);
 		if(!o->egl_window_native) {
 			printf("ERROR: wl_egl_window_create, EGL_NO_SURFACE\n");
-			return MwFALSE;
+			return 1;
 		}
 
 		/* Create a surface */
@@ -305,7 +311,7 @@ static int wcreate(MwWidget handle) {
 						 o->egl_window_native, NULL);
 		if(surface == EGL_NO_SURFACE) {
 			printf("ERROR: eglCreateWindowSurface, %0X\n", eglGetError());
-			return MwFALSE;
+			return 1;
 		}
 
 		eglBindAPI(EGL_OPENGL_API);
@@ -315,7 +321,7 @@ static int wcreate(MwWidget handle) {
 					   contextAttribs);
 		if(context == EGL_NO_CONTEXT) {
 			printf("ERROR: eglCreateContext, %0X\n", eglGetError());
-			return MwFALSE;
+			return 1;
 		}
 
 		if(!eglMakeCurrent(display, surface, surface, context)) {
