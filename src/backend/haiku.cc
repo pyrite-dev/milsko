@@ -2,7 +2,8 @@
 
 #include "../../external/stb_ds.h"
 
-MwApplication::MwApplication(MwRect rc, MwLL handle) : BApplication("application/milsko-generic") {
+MwApplication::MwApplication(MwRect rc, MwLL handle)
+    : BApplication("application/milsko-generic") {
 	BScreen* scr = new BScreen();
 	float	 x   = (scr->Frame().Width() - rc.width) / 2;
 	float	 y   = (scr->Frame().Height() - rc.height) / 2;
@@ -47,7 +48,8 @@ void MwApplication::MessageReceived(BMessage* message) {
 	}
 }
 
-MwView::MwView(MwLL handle, BRect frame, uint32 resizingMode, uint32 flags) : BView(frame, NULL, resizingMode, flags | B_FRAME_EVENTS) {
+MwView::MwView(MwLL handle, BRect frame, uint32 resizingMode, uint32 flags)
+    : BView(frame, NULL, resizingMode, flags | B_FRAME_EVENTS) {
 	this->handle = handle;
 
 	this->locker = new BLocker();
@@ -185,7 +187,7 @@ void MwView::MessageReceived(BMessage* message) {
 
 void MwView::PostMessage(BMessage* message) {
 	BMessage copy = *message;
-	MwLL top = this->handle;
+	MwLL	 top  = this->handle;
 
 	while(top->haiku.parent != NULL) top = top->haiku.parent;
 
@@ -307,7 +309,8 @@ void MwView::SetColor(MwLLColor color) {
 	this->PostMessage(&msg);
 }
 
-MwWindow::MwWindow(BRect frame, window_type type, uint32 flags) : BWindow(frame, "Milsko", type, flags) {
+MwWindow::MwWindow(BRect frame, window_type type, uint32 flags)
+    : BWindow(frame, "Milsko", type, flags) {
 }
 
 void MwWindow::MessageReceived(BMessage* message) {

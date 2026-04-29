@@ -126,6 +126,7 @@ static MwWidget frame(const char* name, int width, int height, MwClass cl, ...) 
 
 		MwVaApply(f,
 			  "VhandledWidget", w,
+			  MwNratio, MwGetInteger(w, MwNratio),
 			  NULL);
 	}
 
@@ -304,6 +305,18 @@ int main() {
 
 	f = frame("Separator", -PaddingContent, -PaddingContent, MwSeparatorClass, NULL);
 	add(f);
+
+#if 0
+	f = frame("SubWindow", -PaddingContent, -PaddingContent, MwViewportClass,
+		  MwNratio, 3,
+		  NULL);
+	w = child(f);
+	MwViewportSetSize(w, 512, 512);
+	MwVaCreateWidget(MwSubWindowClass, "swnd", MwViewportGetViewport(w), 0, 0, 512, 512,
+		MwNtitle, "Sub window",
+	NULL);
+	add(f);
+#endif
 
 	f = frame("TreeView", -PaddingContent, -PaddingContent, MwTreeViewClass, NULL);
 	w = child(f);
