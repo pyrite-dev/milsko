@@ -185,10 +185,13 @@ void MwView::MessageReceived(BMessage* message) {
 
 void MwView::PostMessage(BMessage* message) {
 	BMessage copy = *message;
+	MwLL top = this->handle;
+
+	while(top->haiku.parent != NULL) top = top->haiku.parent;
 
 	copy.AddPointer("window-view", this);
 
-	this->Window()->PostMessage(&copy);
+	top->haiku.app->window->PostMessage(&copy);
 }
 
 void MwView::PostMessage(uint32 command) {
@@ -413,7 +416,7 @@ MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		r->haiku.app_thread = spawn_thread(app_thread, NULL, B_NORMAL_PRIORITY, p);
 		resume_thread(r->haiku.app_thread);
 
-		while(r->haiku.app == NULL) MwTimeSleep(10);
+		while(r->haiku.app == NULL || r->haiku.app->window == NULL || r->haiku.view == NULL) MwTimeSleep(10);
 	} else {
 		MwLL top = r;
 		while(top->haiku.parent != NULL) {
