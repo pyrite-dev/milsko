@@ -15,3 +15,4 @@ Tier 3 backends are:
 
 - Mac OS X 10.4+ with Cocoa
 - Mac OS 7-9, PowerPC (68k support not planned).
+- Haiku
