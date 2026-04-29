@@ -306,13 +306,13 @@ int main() {
 	f = frame("Separator", -PaddingContent, -PaddingContent, MwSeparatorClass, NULL);
 	add(f);
 
-#if 0
+#if 1
 	f = frame("SubWindow", -PaddingContent, -PaddingContent, MwViewportClass,
 		  MwNratio, 3,
 		  NULL);
 	w = child(f);
 	MwViewportSetSize(w, 512, 512);
-	MwVaCreateWidget(MwSubWindowClass, "swnd", MwViewportGetViewport(w), 0, 0, 512, 512,
+	MwVaCreateWidget(MwSubWindowClass, "swnd", MwViewportGetViewport(w), 32, 32, 128, 128,
 		MwNtitle, "Sub window",
 	NULL);
 	add(f);

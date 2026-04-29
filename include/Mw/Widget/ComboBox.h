@@ -7,6 +7,7 @@
 
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
+#include <Mw/Core.h>
 
 #ifdef __cplusplus
 extern "C" {

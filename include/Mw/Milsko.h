@@ -51,5 +51,6 @@
 #include <Mw/Widget/ComboBox.h>
 #include <Mw/Widget/TreeView.h>
 #include <Mw/Widget/Box.h>
+#include <Mw/Widget/SubWindow.h>
 
 #endif

@@ -173,12 +173,14 @@ static void lldarkthemehandler(MwLL handle, void* data) {
 	int	 s;
 
 	if(IsFirstVisible(h) && (shgeti(h->integer, MwNdarkTheme) == -1 || ((s = MwGetInteger(h, MwNdarkThemeAutomatic)) != MwDEFAULT && s))) {
-		MwVaApply(h,
-			  MwNdarkTheme, *ptr,
-			  MwNdarkThemeAutomatic, 1,
-			  NULL);
+		if(MwGetInteger(h, MwNmodernLook)){
+			MwVaApply(h,
+				  MwNdarkTheme, *ptr,
+				  MwNdarkThemeAutomatic, 1,
+				  NULL);
 
-		MwDispatchUserHandler(h, MwNdarkThemeHandler, data);
+			MwDispatchUserHandler(h, MwNdarkThemeHandler, data);
+		}
 	}
 }
 
