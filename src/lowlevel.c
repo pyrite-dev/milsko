@@ -68,7 +68,11 @@ void MwLLDestroyCommon(MwLL handle) {
 
 #ifdef USE_DBUS
 MwBool MwLLDBusFuncSetup(MwLLDBusFuncTable* tbl) {
+#ifdef __APPLE__
+	tbl->lib = MwDynamicOpen("libdbus-1.dylib");
+#else
 	tbl->lib = MwDynamicOpen("libdbus-1.so");
+#endif
 	if(!tbl->lib) {
 		fprintf(stderr, "[WARNING] dbus library (libdbus-1.so) not found, will not be able to check for any XDG settings.\n");
 		return MwFALSE;

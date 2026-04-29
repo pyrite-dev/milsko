@@ -162,7 +162,11 @@ static void ft2_MwFontFree(void* handle) {
 int MWFL_FT2Setup(void) {
 	/* Try and load FreeType2. If it fails, return 1, signifying we default to stbtt.  */
 	void* ftlib;
+#ifdef __APPLE__
+	if(!(ftlib = MwDynamicOpen("libfreetype.dylib"))) {
+#else
 	if(!(ftlib = MwDynamicOpen("libfreetype.so"))) {
+#endif
 		return 1;
 	}
 
