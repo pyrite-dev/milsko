@@ -108,14 +108,14 @@ void MwView::MessageReceived(BMessage* message) {
 	}
 	case BVIEW_MW_SHOW:
 	{
-		if(this->Window() == NULL) {
+		if(this->Parent() == NULL) {
 			this->handle->haiku.parent->haiku.view->AddChild(this);
 		}
 		break;
 	}
 	case BVIEW_MW_HIDE:
 	{
-		if(this->Window() != NULL) {
+		if(this->Parent() != NULL) {
 			this->RemoveSelf();
 		}
 		break;
@@ -393,6 +393,8 @@ MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->common.copy_buffer = 1;
 	r->common.type	      = MwLLBackendHaiku;
 
+	r->haiku.force_render = 0;
+
 	r->haiku.parent = parent;
 
 	r->haiku.events = NULL;
@@ -556,6 +558,8 @@ int MwLLPendingImpl(MwLL handle) {
 }
 
 void MwLLNextEventImpl(MwLL handle) {
+	int rendered = 0;
+
 	handle->haiku.view->locker->Lock();
 	while(arrlen(handle->haiku.events) > 0) {
 		MwLLHaikuEvent* ev = &handle->haiku.events[0];
@@ -568,6 +572,8 @@ void MwLLNextEventImpl(MwLL handle) {
 
 		if(ev->type == MwLLHAIKU_EVENT_DRAW) {
 			MwLLDispatch(handle, draw, NULL);
+
+			rendered = 1;
 		} else if(ev->type == MwLLHAIKU_EVENT_CLOSE) {
 			MwLLDispatch(handle, close, NULL);
 		} else if(ev->type == MwLLHAIKU_EVENT_FRAMERESIZED) {
@@ -589,6 +595,8 @@ void MwLLNextEventImpl(MwLL handle) {
 		arrdel(handle->haiku.events, 0);
 	}
 	handle->haiku.view->locker->Unlock();
+
+	if(rendered) handle->haiku.force_render = 0;
 }
 
 MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
@@ -647,6 +655,9 @@ void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {}
 
 void MwLLForceRenderImpl(MwLL handle) {
+	if(handle->haiku.force_render) return;
+
+	handle->haiku.force_render = 1;
 	handle->haiku.view->PostMessage(BVIEW_MW_RENDER);
 }
 

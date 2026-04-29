@@ -299,7 +299,7 @@ static void resize(MwWidget handle, int no_resize) {
 		MwAddUserHandler(lb->frame, MwNmouseDownHandler, frame_mouse_down, NULL);
 		MwAddUserHandler(lb->frame, MwNmouseUpHandler, frame_mouse_up, NULL);
 		MwAddUserHandler(lb->frame, MwNmouseMoveHandler, frame_mouse_move, NULL);
-	} else if(!no_resize) {
+	} else if(!no_resize || MwGetInteger(lb->frame, MwNwidth) != (w - m)) {
 		MwVaApply(lb->frame,
 			  MwNx, 0,
 			  MwNy, y,

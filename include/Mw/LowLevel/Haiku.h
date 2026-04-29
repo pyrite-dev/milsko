@@ -141,6 +141,7 @@ struct _MwLLHaiku {
 	MwApplication* app;
 	MwView*	       view;
 	thread_id      app_thread;
+	int force_render;
 
 	MwLLHaikuEvent* events;
 };
