@@ -48,9 +48,10 @@
 #define MwNtext "Stext"
 #define MwNbackground "Sbackground"
 #define MwNsubBackground "SsubBackground"
+#define MwNtitleBackground "StitleBackground"
 #define MwNforeground "Sforeground"
 #define MwNsubForeground "SsubForeground"
-#define MwNtitleBackground "StitleBackground"
+#define MwNtitleForeground "StitleForeground"
 
 #define MwNvulkanExtension "SEvulkanExtension"
 #define MwNvulkanLayer "SEvulkanLayer"

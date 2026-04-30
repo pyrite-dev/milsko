@@ -591,7 +591,7 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 }
 
 void MwSetText(MwWidget handle, const char* key, const char* value) {
-	if(strcmp(key, MwNtitle) == 0) {
+	if(handle->widget_class == MwWindowClass && strcmp(key, MwNtitle) == 0) {
 		MwLLSetTitle(handle->lowlevel, value);
 	} else {
 		char* v = value == NULL ? NULL : MwStringDuplicate(value);
@@ -686,12 +686,14 @@ int MwGetInteger(MwWidget handle, const char* key) {
 }
 
 const char* MwGetText(MwWidget handle, const char* key) {
-	if(shgeti(handle->text, key) == -1 && (strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0)) {
+	if((shgeti(handle->text, key) == -1 || strcmp(shget(handle->text, key), "DEFAULT") == 0) && (strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0 || strcmp(key, MwNtitleBackground) == 0 || strcmp(key, MwNtitleForeground) == 0)) {
 		const char* v = NULL;
-		MwWidget    h = handle->parent;
-		while(h != NULL) {
-			if((v = MwGetText(h, key)) != NULL) break;
-			h = h->parent;
+		if(shgeti(handle->text, key) != -1 && strcmp(shget(handle->text, key), "DEFAULT") != 0) {
+			MwWidget h = handle->parent;
+			while(h != NULL) {
+				if((v = MwGetText(h, key)) != NULL) break;
+				h = h->parent;
+			}
 		}
 		if(v == NULL) {
 			if(MwGetInteger(handle, MwNdarkTheme)) {
@@ -699,11 +701,15 @@ const char* MwGetText(MwWidget handle, const char* key) {
 				if(strcmp(key, MwNforeground) == 0) return MwDefaultDarkForeground;
 				if(strcmp(key, MwNsubBackground) == 0) return MwDefaultDarkSubBackground;
 				if(strcmp(key, MwNsubForeground) == 0) return MwDefaultDarkSubForeground;
+				if(strcmp(key, MwNtitleBackground) == 0) return MwDefaultDarkTitleBackground;
+				if(strcmp(key, MwNtitleForeground) == 0) return MwDefaultDarkTitleForeground;
 			} else {
 				if(strcmp(key, MwNbackground) == 0) return MwDefaultBackground;
 				if(strcmp(key, MwNforeground) == 0) return MwDefaultForeground;
 				if(strcmp(key, MwNsubBackground) == 0) return MwDefaultSubBackground;
 				if(strcmp(key, MwNsubForeground) == 0) return MwDefaultSubForeground;
+				if(strcmp(key, MwNtitleBackground) == 0) return MwDefaultTitleBackground;
+				if(strcmp(key, MwNtitleForeground) == 0) return MwDefaultTitleForeground;
 			}
 		}
 		return v;

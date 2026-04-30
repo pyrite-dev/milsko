@@ -105,8 +105,10 @@
 		<string name="text" />
 		<string name="background" common="yes" />
 		<string name="subBackground" common="yes" />
+		<string name="titleBackground" common="yes" />
 		<string name="foreground" common="yes" />
 		<string name="subForeground" common="yes" />
+		<string name="titleForeground" common="yes" />
 
 		<!-- Early string properties -->
 		<string name="vulkanExtension" early="yes" />
@@ -875,6 +877,12 @@
 				</function>
 				<function name="Reset" />
 			</functions>
+		</widget>
+		<widget name="SubWindow">
+			<properties>
+				<property name="iconPixmap" />
+				<property name="title" />
+			</properties>
 		</widget>
 
 		<!-- They are not alphabetically sorted for reasons -->

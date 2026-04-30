@@ -1,14 +1,18 @@
 #include <Mw/Milsko.h>
 
-const char* MwDefaultBackground	   = "#d2d2d2";
-const char* MwDefaultForeground	   = "#000";
-const char* MwDefaultSubBackground = "#fff";
-const char* MwDefaultSubForeground = "#000";
+const char* MwDefaultBackground	     = "#d2d2d2";
+const char* MwDefaultForeground	     = "#000";
+const char* MwDefaultSubBackground   = "#fff";
+const char* MwDefaultSubForeground   = "#000";
+const char* MwDefaultTitleBackground = "#008";
+const char* MwDefaultTitleForeground = "#fff";
 
-const char* MwDefaultDarkBackground    = "#333";
-const char* MwDefaultDarkForeground    = "#ddd";
-const char* MwDefaultDarkSubBackground = "#333";
-const char* MwDefaultDarkSubForeground = "#ddd";
+const char* MwDefaultDarkBackground	 = "#333";
+const char* MwDefaultDarkForeground	 = "#ddd";
+const char* MwDefaultDarkSubBackground	 = "#333";
+const char* MwDefaultDarkSubForeground	 = "#ddd";
+const char* MwDefaultDarkTitleBackground = "#008";
+const char* MwDefaultDarkTitleForeground = "#fff";
 
 const int MwDefaultShadow = -32;
 

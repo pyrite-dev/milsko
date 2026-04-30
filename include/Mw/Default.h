@@ -33,6 +33,16 @@ MWDECL const char* MwDefaultSubBackground;
 MWDECL const char* MwDefaultSubForeground;
 
 /*!
+ * @brief Default title background color
+ */
+MWDECL const char* MwDefaultTitleBackground;
+
+/*!
+ * @brief Default title foreground color
+ */
+MWDECL const char* MwDefaultTitleForeground;
+
+/*!
  * @brief Default dark theme background color
  */
 MWDECL const char* MwDefaultDarkBackground;
@@ -51,6 +61,16 @@ MWDECL const char* MwDefaultDarkSubBackground;
  * @brief Default dark theme sub foreground color
  */
 MWDECL const char* MwDefaultDarkSubForeground;
+
+/*!
+ * @brief Default dark theme title background color
+ */
+MWDECL const char* MwDefaultDarkTitleBackground;
+
+/*!
+ * @brief Default dark theme title foreground color
+ */
+MWDECL const char* MwDefaultDarkTitleForeground;
 
 /*!
  * @brief Default shadow difference

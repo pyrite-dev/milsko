@@ -27,6 +27,7 @@ typedef struct _MwListBoxEntry	      MwListBoxEntry;
 typedef struct _MwTreeViewEntry	      MwTreeViewEntry;
 typedef struct _MwDirectoryEntry      MwDirectoryEntry;
 typedef struct _MwBox*		      MwBox;
+typedef struct _MwSubWindow*	      MwSubWindow;
 typedef struct _MwMouse		      MwMouse;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
@@ -205,6 +206,13 @@ struct _MwDirectoryEntry {
 
 struct _MwBox {
 	int layout;
+};
+
+struct _MwSubWindow {
+	MwWidget frame;
+	MwWidget minimize;
+	MwWidget maximize;
+	MwWidget close;
 };
 
 struct _MwMouse {
