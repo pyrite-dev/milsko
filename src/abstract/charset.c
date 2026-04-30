@@ -31,6 +31,7 @@ char* MwACPToUTF8(const char* input) {
 		free(wout);
 		return MwStringDuplicate(input);
 	}
+	wout[len] = 0;
 
 	len = WideCharToMultiByte(CP_UTF8, 0, wout, len, mbout, mbbytes, 0, 0);
 	if(len == 0) {
@@ -38,7 +39,6 @@ char* MwACPToUTF8(const char* input) {
 		free(wout);
 		return MwStringDuplicate(input);
 	}
-
 	mbout[len] = 0;
 
 	free(wout);
@@ -76,6 +76,7 @@ char* MwUTF8ToACP(const char* input) {
 		free(wout);
 		return MwStringDuplicate(input);
 	}
+	wout[len] = 0
 
 	len = WideCharToMultiByte(CP_ACP, 0, wout, len, mbout, mbbytes, 0, 0);
 	if(len == 0) {
@@ -83,7 +84,6 @@ char* MwUTF8ToACP(const char* input) {
 		free(wout);
 		return MwStringDuplicate(input);
 	}
-
 	mbout[len] = 0;
 
 	free(wout);
