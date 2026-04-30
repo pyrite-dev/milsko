@@ -1,7 +1,7 @@
 #include <Mw/Milsko.h>
 
 #define TitleHeight 20
-#define ButtonSize 18
+#define ButtonSize 14
 
 static void resize(MwWidget handle){
 	MwSubWindow sw = handle->internal;
