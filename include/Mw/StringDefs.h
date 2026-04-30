@@ -50,6 +50,7 @@
 #define MwNsubBackground "SsubBackground"
 #define MwNforeground "Sforeground"
 #define MwNsubForeground "SsubForeground"
+#define MwNtitleBackground "StitleBackground"
 
 #define MwNvulkanExtension "SEvulkanExtension"
 #define MwNvulkanLayer "SEvulkanLayer"

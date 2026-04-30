@@ -51,10 +51,13 @@ static void detect_darktheme(MwLL handle) {
 
 	t = dw ? 0 : 1;
 
+	/* no don't do this here (nishi) */
+#if 0
 	if(t && DwmSetWindowAttribute != NULL) {
-	//	LPARAM style = GetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE);
-	//	if(!(style & WS_CHILD)) MwLLSetDarkTheme(handle, 1);
+		LPARAM style = GetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE);
+		if(!(style & WS_CHILD)) MwLLSetDarkTheme(handle, 1);
 	}
+#endif
 
 	MwLLDispatch(handle, dark_theme, &t);
 }

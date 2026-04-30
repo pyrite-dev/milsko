@@ -173,7 +173,7 @@ static void lldarkthemehandler(MwLL handle, void* data) {
 	int	 s;
 
 	if(IsFirstVisible(h) && (shgeti(h->integer, MwNdarkTheme) == -1 || ((s = MwGetInteger(h, MwNdarkThemeAutomatic)) != MwDEFAULT && s))) {
-		if(MwGetInteger(h, MwNmodernLook)){
+		if(MwGetInteger(h, MwNmodernLook)) {
 			MwVaApply(h,
 				  MwNdarkTheme, *ptr,
 				  MwNdarkThemeAutomatic, 1,

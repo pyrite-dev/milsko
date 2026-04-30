@@ -5,12 +5,14 @@
 static int wcreate(MwWidget handle) {
 	MwSetDefault(handle);
 
+	MwSetText(handle, MwNtitleBackground, "#008");
+
 	return 0;
 }
 
 static void draw(MwWidget handle) {
-	MwLLColor c = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor c2 = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
+	MwLLColor c  = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor c2 = MwParseColor(handle, MwGetText(handle, MwNtitleBackground));
 	MwRect	  r, r2;
 
 	r.x	 = 0;
@@ -21,7 +23,7 @@ static void draw(MwWidget handle) {
 	MwDrawFrame(handle, &r, c, 0);
 	MwDrawRect(handle, &r, c);
 
-	r2 = r;
+	r2	  = r;
 	r2.height = TitleHeight;
 	MwDrawRect(handle, &r2, c2);
 

@@ -313,8 +313,8 @@ int main() {
 	w = child(f);
 	MwViewportSetSize(w, 512, 512);
 	MwVaCreateWidget(MwSubWindowClass, "swnd", MwViewportGetViewport(w), 32, 32, 128, 128,
-		MwNtitle, "Sub window",
-	NULL);
+			 MwNtitle, "Sub window",
+			 NULL);
 	add(f);
 #endif
 
