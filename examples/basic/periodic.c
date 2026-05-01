@@ -317,7 +317,7 @@ int main() {
 			 NULL);
 	add(f);
 	MwVaCreateWidget(MwSubWindowClass, "swnd", MwViewportGetViewport(w), 64, 64, 256, 128,
-			 MwNtitle, "Sub window",
+			 MwNtitle, "Sub window 2",
 			 NULL);
 	add(f);
 #endif

@@ -20,10 +20,18 @@ static void close_draw(MwWidget handle) {
 	p[1].y = h - bw * 2 - 1;
 	MwLLLine(handle->lowlevel, p, c);
 
+	p[0].x++;
+	p[1].x--;
+	MwLLLine(handle->lowlevel, p, c);
+
 	p[0].x = w - bw * 2 - 1;
 	p[0].y = bw * 2;
 	p[1].x = bw * 2;
 	p[1].y = h - bw * 2 - 1;
+	MwLLLine(handle->lowlevel, p, c);
+
+	p[0].x--;
+	p[1].x++;
 	MwLLLine(handle->lowlevel, p, c);
 
 	MwLLFreeColor(c);
@@ -31,6 +39,9 @@ static void close_draw(MwWidget handle) {
 
 static void MWAPI close_activate(MwWidget handle, void* user, void* client) {
 	MwWidget w = user;
+
+	(void)handle;
+	(void)client;
 
 	MwDispatchUserHandler(w, MwNcloseHandler, NULL);
 }
@@ -51,6 +62,9 @@ static void maximize_draw(MwWidget handle) {
 	p[0].y = p[1].y = h - bw * 2 - 1;
 	MwLLLine(handle->lowlevel, p, c);
 
+	p[0].y = p[1].y = bw * 2 + 1;
+	MwLLLine(handle->lowlevel, p, c);
+
 	p[0].x = bw * 2;
 	p[0].y = bw * 2;
 	p[1].x = bw * 2;
@@ -66,6 +80,9 @@ static void maximize_draw(MwWidget handle) {
 static void MWAPI maximize_activate(MwWidget handle, void* user, void* client) {
 	MwWidget    w  = user;
 	MwSubWindow sw = w->internal;
+
+	(void)handle;
+	(void)client;
 
 	if(sw->minimized) return;
 
@@ -90,7 +107,6 @@ static void MWAPI maximize_activate(MwWidget handle, void* user, void* client) {
 			  NULL);
 	}
 	sw->maximized = !sw->maximized;
-	resize(user);
 }
 
 static void minimize_draw(MwWidget handle) {
@@ -104,6 +120,10 @@ static void minimize_draw(MwWidget handle) {
 	p[0].y = h - bw * 2 - 1;
 	p[1].x = w - bw * 2 - 1;
 	p[1].y = h - bw * 2 - 1;
+	MwLLLine(handle->lowlevel, p, c);
+
+	p[0].y--;
+	p[1].y--;
 	MwLLLine(handle->lowlevel, p, c);
 
 	MwLLFreeColor(c);
@@ -124,6 +144,9 @@ static void MWAPI minimize_activate(MwWidget handle, void* user, void* client) {
 	MwWidget    w  = user;
 	MwSubWindow sw = w->internal;
 
+	(void)handle;
+	(void)client;
+
 	if(sw->maximized) return;
 
 	if(sw->minimized) {
@@ -132,7 +155,14 @@ static void MWAPI minimize_activate(MwWidget handle, void* user, void* client) {
 		int	  p  = 0;
 
 		for(i = 0; i < arrlen(w->parent->children); i++) {
-			arrput(ws, w->parent->children[i]);
+			MwWidget c = w->parent->children[i];
+			if(c->widget_class == MwSubWindowClass) {
+				MwSubWindow csw = c->internal;
+
+				if(!csw->minimized) continue;
+
+				arrput(ws, c);
+			}
 		}
 
 		if(ws != NULL) {
@@ -177,7 +207,6 @@ static void MWAPI minimize_activate(MwWidget handle, void* user, void* client) {
 			  NULL);
 	}
 	sw->minimized = !sw->minimized;
-	resize(user);
 }
 
 static void resize(MwWidget handle) {
@@ -228,6 +257,8 @@ static void resize(MwWidget handle) {
 	BUTTON(close);
 	BUTTON(maximize);
 	BUTTON(minimize);
+
+	MwDispatchUserHandler(handle, MwNresizeHandler, NULL);
 }
 
 static int wcreate(MwWidget handle) {
@@ -246,7 +277,6 @@ static int wcreate(MwWidget handle) {
 }
 
 static void destroy(MwWidget handle) {
-	MwSubWindow sw = handle->internal;
 	free(handle->internal);
 }
 
@@ -278,6 +308,10 @@ static void draw(MwWidget handle) {
 		handle->bgcolor = NULL;
 	}
 
+	r2.width = ButtonSize * 3 + (TitleHeight - ButtonSize) / 2 * 4;
+	r2.x	 = r.width - r2.width;
+	MwDrawRect(handle, &r2, tb);
+
 	r.y += TitleHeight;
 	r.height -= TitleHeight;
 	MwDrawFrame(handle, &r, c, 1);
@@ -287,32 +321,57 @@ static void draw(MwWidget handle) {
 	MwLLFreeColor(c);
 }
 
+static void parent_resize(MwWidget handle) {
+	MwSubWindow sw = handle->internal;
+
+	if(sw->maximized) {
+		MwVaApply(handle,
+			  MwNwidth, MwGetInteger(handle->parent, MwNwidth),
+			  MwNheight, MwGetInteger(handle->parent, MwNheight),
+			  NULL);
+	} else if(sw->minimized) {
+		MwVaApply(handle,
+			  MwNy, MwGetInteger(handle->parent, MwNheight) - TitleHeight - MwDefaultBorderWidth(handle),
+			  NULL);
+	}
+}
+
 static void prop_change(MwWidget handle, const char* key) {
 	if(strcmp(key, MwNtitle) == 0) MwForceRender(handle);
 }
 
+static MwWidget mwSubWindowGetFrameImpl(MwWidget handle) {
+	MwSubWindow sw = handle->internal;
+
+	return sw->frame;
+}
+
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
-	(void)out;
+	(void)va;
+
+	if(strcmp(name, "mwSubWindowGetFrame") == 0) {
+		*(MwWidget*)out = mwSubWindowGetFrameImpl(handle);
+	}
 }
 
 MwClassRec MwSubWindowClassRec = {
-    wcreate,	  /* create */
-    destroy,	  /* destroy */
-    draw,	  /* draw */
-    NULL,	  /* click */
-    NULL,	  /* parent_resize */
-    prop_change,  /* prop_change */
-    NULL,	  /* mouse_move */
-    NULL,	  /* mouse_up */
-    NULL,	  /* mouse_down */
-    NULL,	  /* key */
-    func_handler, /* execute */
-    NULL,	  /* tick */
-    NULL,	  /* resize */
-    NULL,	  /* children_update */
-    NULL,	  /* children_prop_change */
-    NULL,	  /* clipboard */
-    NULL,	  /* props_change */
+    wcreate,	   /* create */
+    destroy,	   /* destroy */
+    draw,	   /* draw */
+    NULL,	   /* click */
+    parent_resize, /* parent_resize */
+    prop_change,   /* prop_change */
+    NULL,	   /* mouse_move */
+    NULL,	   /* mouse_up */
+    NULL,	   /* mouse_down */
+    NULL,	   /* key */
+    func_handler,  /* execute */
+    NULL,	   /* tick */
+    resize,	   /* resize */
+    NULL,	   /* children_update */
+    NULL,	   /* children_prop_change */
+    NULL,	   /* clipboard */
+    NULL,	   /* props_change */
     NULL,
     NULL,
     NULL};

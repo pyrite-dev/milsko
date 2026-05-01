@@ -4,6 +4,10 @@
 
 #define ClipboardTimeout 100
 
+#ifdef USE_XRENDER
+// #undef USE_XRENDER
+#endif
+
 static struct symtbl {
 	void*  lib_xlib;
 	void*  lib_xrender;
@@ -75,6 +79,7 @@ static struct symtbl {
 	XIC (*XCreateIC)(XIM, ...);
 	void (*XDestroyIC)(XIC);
 	void (*XSetICFocus)(XIC);
+	XImage* (*XGetImage)(Display*, Drawable, int, int, unsigned int, unsigned int, unsigned long, int);
 
 	XSizeHints* (*XAllocSizeHints)(void);
 	XVisualInfo* (*XGetVisualInfo)(Display*, long, XVisualInfo*, int*);
@@ -176,6 +181,7 @@ static struct symtbl {
 #define XQueryTree xsymtbl.XQueryTree
 #define XPending xsymtbl.XPending
 #define XChangeWindowAttributes xsymtbl.XChangeWindowAttributes
+#define XGetImage xsymtbl.XGetImage
 
 #if USE_XRENDER
 #define XRenderFindStandardFormat xsymtbl.XRenderFindStandardFormat
@@ -919,7 +925,7 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 #endif
 
 	r->x11.image = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), r->x11.depth, ZPixmap, 0, NULL, width, height, 32, 0);
-	r->x11.mask  = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, NULL, width, height, 32, 0);
+	r->x11.mask  = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 8, ZPixmap, 0, NULL, width, height, 32, 0);
 
 	r->x11.image->data = malloc(r->x11.image->bytes_per_line * height);
 	r->x11.mask->data  = malloc(r->x11.mask->bytes_per_line * height);
@@ -948,7 +954,7 @@ static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
 	for(y = 0; y < r->common.height; y++) {
 		for(x = 0; x < r->common.width; x++) {
 			if(r->common.raw[(y * r->common.width + x) * 4 + 3]) {
-				XPutPixel(r->x11.mask, x, y, 1);
+				XPutPixel(r->x11.mask, x, y, 255);
 			} else {
 				XPutPixel(r->x11.mask, x, y, 0);
 			}
@@ -976,8 +982,8 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 \
 		XPutImage(handle->x11.display, src_px, gc, src, 0, 0, 0, 0, pixmap->common.width, pixmap->common.height); \
 \
-		src_pic	 = XRenderCreatePicture(handle->x11.display, src_px, fmt, 0, &attr); \
-		dest_pic = XRenderCreatePicture(handle->x11.display, dest_px, fmt, 0, &attr); \
+		src_pic	 = XRenderCreatePicture(handle->x11.display, src_px, fmt, render_mask, &attr); \
+		dest_pic = XRenderCreatePicture(handle->x11.display, dest_px, fmt, render_mask, &attr); \
 \
 		XRenderSetPictureTransform(handle->x11.display, src_pic, &m); \
 		XRenderComposite(handle->x11.display, PictOpSrc, src_pic, 0, dest_pic, 0, 0, 0, 0, 0, 0, rect->width, rect->height); \
@@ -996,11 +1002,16 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 #ifdef USE_XRENDER
 	if(pixmap->x11.image != NULL && pixmap->x11.use_xrender) {
 		Pixmap			 px;
-		Pixmap			 mask;
+		Pixmap			 mask, mask_tmp;
 		XRenderPictureAttributes attr;
 		XTransform		 m;
 		double			 xsc;
 		double			 ysc;
+		unsigned long		 render_mask = 0;
+		XImage*			 mask_tmp_img;
+		XImage*			 mask_img;
+		int			 y, x;
+		GC			 mask_gc;
 
 		memset(&attr, 0, sizeof(attr));
 
@@ -1020,13 +1031,41 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 		m.matrix[2][2] = XDoubleToFixed(1.0);
 
 		DO_XRENDER(px, pixmap->x11.image, PictStandardRGB24, pixmap->x11.depth);
-		DO_XRENDER(mask, pixmap->x11.mask, PictStandardA1, 1);
+		DO_XRENDER(mask_tmp, pixmap->x11.mask, PictStandardA8, 8);
+
+		/* FIXME: this is terrible way to do this... i hope someone who knows xrender better than me
+		 * gives me better solution
+		 */
+		mask_tmp_img = XGetImage(handle->x11.display, mask_tmp, 0, 0, rect->width, rect->height, 0xff, ZPixmap);
+		mask_img     = XCreateImage(handle->x11.display, DefaultVisual(handle->x11.display, DefaultScreen(handle->x11.display)), 1, ZPixmap, 0, NULL, rect->width, rect->height, 32, 0);
+		mask	     = XCreatePixmap(handle->x11.display, handle->x11.window, rect->width, rect->height, 1);
+		mask_gc	     = XCreateGC(handle->x11.display, mask, 0, NULL);
+
+		mask_img->data = malloc(mask_img->bytes_per_line * rect->height);
+
+		for(y = 0; y < rect->height; y++) {
+			for(x = 0; x < rect->width; x++) {
+				unsigned long p = XGetPixel(mask_tmp_img, x, y);
+				if(p == 255) {
+					p = 1;
+				} else {
+					p = 0;
+				}
+				XPutPixel(mask_img, x, y, p);
+			}
+		}
+		XPutImage(handle->x11.display, mask, mask_gc, mask_img, 0, 0, 0, 0, rect->width, rect->height);
+		XFreeGC(handle->x11.display, mask_gc);
+		XDestroyImage(mask_img);
+		XDestroyImage(mask_tmp_img);
+		/* end terrible hack */
 
 		XSetClipMask(handle->x11.display, handle->x11.gc, mask);
 		XSetClipOrigin(handle->x11.display, handle->x11.gc, rect->x, rect->y);
 		XCopyArea(handle->x11.display, px, handle->x11.pixmap, handle->x11.gc, 0, 0, rect->width, rect->height, rect->x, rect->y);
 		XSetClipMask(handle->x11.display, handle->x11.gc, None);
 
+		XFreePixmap(handle->x11.display, mask_tmp);
 		XFreePixmap(handle->x11.display, mask);
 		XFreePixmap(handle->x11.display, px);
 	} else
@@ -1424,6 +1463,7 @@ static int MwLLX11CallInitImpl(void) {
 	X11_FUNC_LOAD(XCreateIC);
 	X11_FUNC_LOAD(XDestroyIC);
 	X11_FUNC_LOAD(XSetICFocus);
+	X11_FUNC_LOAD(XGetImage);
 
 	X11_FUNC_LOAD(XAllocSizeHints);
 	X11_FUNC_LOAD(XGetVisualInfo);

@@ -18,6 +18,17 @@ extern "C" {
  */
 MWDECL MwClass MwSubWindowClass;
 
+/*!
+ * @brief Get parent widget where widgets should be placed
+ * @param handle Widget
+ * @return Widget
+ */
+MwInline MwWidget MwSubWindowGetFrame(MwWidget handle) {
+	MwWidget out;
+	MwVaWidgetExecute(handle, "mwSubWindowGetFrame", &out);
+	return out;
+}
+
 #ifdef __cplusplus
 }
 #endif
