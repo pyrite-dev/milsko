@@ -70,33 +70,33 @@
 		<integer name="value" />
 		<integer name="changedBy" />
 		<integer name="areaShown" />
-		<integer name="checked" />
+		<integer name="checked" boolean="yes" />
 		<integer name="alignment" />
-		<integer name="bold" />
-		<integer name="main" />
+		<integer name="bold" boolean="yes" />
+		<integer name="main" boolean="yes" />
 		<integer name="leftPadding" />
-		<integer name="hasHeading" />
-		<integer name="hasBorder" />
-		<integer name="inverted" />
-		<integer name="modernLook" common="yes" />
-		<integer name="hideInput" />
-		<integer name="singleClickSelectable" />
-		<integer name="flat" />
-		<integer name="showArrows" />
+		<integer name="hasHeading" boolean="yes" />
+		<integer name="hasBorder" boolean="yes" />
+		<integer name="inverted" boolean="yes" />
+		<integer name="modernLook" common="yes" boolean="yes" />
+		<integer name="hideInput" boolean="yes" />
+		<integer name="singleClickSelectable" boolean="yes" />
+		<integer name="flat" boolean="yes" />
+		<integer name="showArrows" boolean="yes" />
 		<integer name="padding" />
 		<integer name="borderWidth" common="yes" />
 		<integer name="ratio" common="yes" />
 		<integer name="fixedSize" common="yes" />
 		<integer name="margin" />
-		<integer name="bitmapFont" common="yes" />
-		<integer name="sevenSegment" />
+		<integer name="bitmapFont" common="yes" boolean="yes" />
+		<integer name="sevenSegment" boolean="yes" />
 		<integer name="length" />
-		<integer name="forceInverted" common="yes" />
-		<integer name="isRounded" common="yes" />
-		<integer name="darkTheme" common="yes" />
-		<integer name="useMonospace" common="yes" />
+		<integer name="forceInverted" common="yes" boolean="yes" />
+		<integer name="isRounded" common="yes" boolean="yes" />
+		<integer name="darkTheme" common="yes" boolean="yes" />
+		<integer name="useMonospace" common="yes" boolean="yes" />
 		<integer name="fillArea" />
-		<integer name="darkThemeAutomatic" common="yes" />
+		<integer name="darkThemeAutomatic" common="yes" boolean="yes" />
 
 		<!-- waitMS is a special property, only applies to toplevel widget -->
 		<integer name="waitMS" common="yes" />
