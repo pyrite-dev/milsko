@@ -1,7 +1,11 @@
 #include <Mw/Milsko.h>
 
+#include "../../external/stb_ds.h"
+
 #define TitleHeight 20
 #define ButtonSize 14
+
+static void resize(MwWidget handle);
 
 static void close_draw(MwWidget handle) {
 	int	  w = MwGetInteger(handle, MwNwidth);
@@ -23,6 +27,12 @@ static void close_draw(MwWidget handle) {
 	MwLLLine(handle->lowlevel, p, c);
 
 	MwLLFreeColor(c);
+}
+
+static void MWAPI close_activate(MwWidget handle, void* user, void* client) {
+	MwWidget w = user;
+
+	MwDispatchUserHandler(w, MwNcloseHandler, NULL);
 }
 
 static void maximize_draw(MwWidget handle) {
@@ -53,6 +63,36 @@ static void maximize_draw(MwWidget handle) {
 	MwLLFreeColor(c);
 }
 
+static void MWAPI maximize_activate(MwWidget handle, void* user, void* client) {
+	MwWidget    w  = user;
+	MwSubWindow sw = w->internal;
+
+	if(sw->minimized) return;
+
+	if(sw->maximized) {
+		MwVaApply(user,
+			  MwNx, sw->x,
+			  MwNy, sw->y,
+			  MwNwidth, sw->width,
+			  MwNheight, sw->height,
+			  NULL);
+	} else {
+		sw->x	   = MwGetInteger(w, MwNx);
+		sw->y	   = MwGetInteger(w, MwNy);
+		sw->width  = MwGetInteger(w, MwNwidth);
+		sw->height = MwGetInteger(w, MwNheight);
+
+		MwVaApply(user,
+			  MwNx, 0,
+			  MwNy, 0,
+			  MwNwidth, MwGetInteger(w->parent, MwNwidth),
+			  MwNheight, MwGetInteger(w->parent, MwNheight),
+			  NULL);
+	}
+	sw->maximized = !sw->maximized;
+	resize(user);
+}
+
 static void minimize_draw(MwWidget handle) {
 	int	  w = MwGetInteger(handle, MwNwidth);
 	int	  h = MwGetInteger(handle, MwNheight);
@@ -67,6 +107,77 @@ static void minimize_draw(MwWidget handle) {
 	MwLLLine(handle->lowlevel, p, c);
 
 	MwLLFreeColor(c);
+}
+
+static int sort_subwindow(const void* _a, const void* _b) {
+	MwWidget a  = *(MwWidget*)_a;
+	MwWidget b  = *(MwWidget*)_b;
+	int	 ax = MwGetInteger(a, MwNx);
+	int	 bx = MwGetInteger(b, MwNx);
+
+	if(ax < bx) return -1;
+	if(ax > bx) return 1;
+	return 0;
+}
+
+static void MWAPI minimize_activate(MwWidget handle, void* user, void* client) {
+	MwWidget    w  = user;
+	MwSubWindow sw = w->internal;
+
+	if(sw->maximized) return;
+
+	if(sw->minimized) {
+		int	  i;
+		MwWidget* ws = NULL;
+		int	  p  = 0;
+
+		for(i = 0; i < arrlen(w->parent->children); i++) {
+			arrput(ws, w->parent->children[i]);
+		}
+
+		if(ws != NULL) {
+			qsort(ws, arrlen(ws), sizeof(*ws), sort_subwindow);
+
+			for(i = 0; i < arrlen(ws); i++) {
+				if(p) {
+					MwVaApply(ws[i],
+						  MwNx, MwGetInteger(ws[i], MwNx) - MwGetInteger(w, MwNwidth),
+						  NULL);
+				} else if(ws[i] == w) {
+					p = 1;
+				}
+			}
+		}
+		arrfree(ws);
+
+		MwVaApply(user,
+			  MwNx, sw->x,
+			  MwNy, sw->y,
+			  NULL);
+	} else {
+		int x = 0;
+		int i;
+
+		for(i = 0; i < arrlen(w->parent->children); i++) {
+			MwWidget c = w->parent->children[i];
+
+			if(c->widget_class == MwSubWindowClass) {
+				MwSubWindow cw = c->internal;
+
+				if(cw->minimized) x += MwGetInteger(c, MwNwidth);
+			}
+		}
+
+		sw->x = MwGetInteger(w, MwNx);
+		sw->y = MwGetInteger(w, MwNy);
+
+		MwVaApply(user,
+			  MwNx, x,
+			  MwNy, MwGetInteger(w->parent, MwNheight) - TitleHeight - MwDefaultBorderWidth(handle),
+			  NULL);
+	}
+	sw->minimized = !sw->minimized;
+	resize(user);
 }
 
 static void resize(MwWidget handle) {
@@ -103,6 +214,7 @@ static void resize(MwWidget handle) {
 	if(sw->name == NULL) { \
 		sw->name	      = MwCreateWidget(MwButtonClass, #name, handle, x, y, w, h); \
 		sw->name->draw_inject = name##_draw; \
+		MwAddUserHandler(sw->name, MwNactivateHandler, name##_activate, handle); \
 	} else { \
 		MwVaApply(sw->name, \
 			  MwNx, x, \
@@ -116,14 +228,14 @@ static void resize(MwWidget handle) {
 	BUTTON(close);
 	BUTTON(maximize);
 	BUTTON(minimize);
-
-	MwSetText(sw->frame, MwNbackground, "#f00");
 }
 
 static int wcreate(MwWidget handle) {
 	MwSubWindow sw = malloc(sizeof(*sw));
 	memset(sw, 0, sizeof(*sw));
 
+	sw->maximized	 = 0;
+	sw->minimized	 = 0;
 	handle->internal = sw;
 
 	resize(handle);

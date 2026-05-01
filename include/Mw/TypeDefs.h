@@ -213,6 +213,12 @@ struct _MwSubWindow {
 	MwWidget minimize;
 	MwWidget maximize;
 	MwWidget close;
+	int	 maximized;
+	int	 minimized;
+	int	 x;
+	int	 y;
+	int	 width;
+	int	 height;
 };
 
 struct _MwMouse {

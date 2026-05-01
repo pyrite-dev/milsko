@@ -316,6 +316,10 @@ int main() {
 			 MwNtitle, "Sub window",
 			 NULL);
 	add(f);
+	MwVaCreateWidget(MwSubWindowClass, "swnd", MwViewportGetViewport(w), 64, 64, 256, 128,
+			 MwNtitle, "Sub window",
+			 NULL);
+	add(f);
 #endif
 
 	f = frame("TreeView", -PaddingContent, -PaddingContent, MwTreeViewClass, NULL);
