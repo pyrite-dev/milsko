@@ -92,6 +92,7 @@ void MwView::MessageReceived(BMessage* message) {
 			this->Window()->ResizeTo(width - 1, height - 1);
 			this->ResizeTo(width - 1, height - 1);
 		}
+		this->Draw(BRect(0, 0, 0, 0));
 		break;
 	}
 	case BVIEW_MW_MOVE:
@@ -387,7 +388,7 @@ static int32 app_thread(void* data) {
 MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL   r = (MwLL)malloc(sizeof(*r));
 	MwRect mrc;
-	BRect  rc = BRect(x, y, x + width - 1, x + height - 1);
+	BRect  rc = BRect(x, y, x + width - 1, y + height - 1);
 
 	mrc.x	   = x;
 	mrc.y	   = y;
