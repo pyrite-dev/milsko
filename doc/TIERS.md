@@ -1,3 +1,5 @@
+# Tiers
+
 Ports of Milsko are grouped into three "tiers" in terms of their support.
 
 - **Tier 1**: Before every new release of Milsko, these platforms will be tested to make sure they have full support, and the CI will test them.
