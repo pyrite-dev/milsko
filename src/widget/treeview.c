@@ -2,7 +2,7 @@
 
 #include "../../external/stb_ds.h"
 
-#define OpenerSize 10
+#define OpenerSize 11
 #define LineSpace 16
 #define LinePadding 4
 
@@ -68,7 +68,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 				MwDrawRect(handle, &r, col);
 				MwDrawFrame(handle, &r, base, tree->opened);
 				if(tree->opened) {
-					l[0].x = r.x + (r.width - len) / 2;
+					l[0].x = r.x + (r.width - 1 - len) / 2;
 					l[0].y = r.y + r.height / 2;
 
 					l[1].x = l[0].x + len;

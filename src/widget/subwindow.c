@@ -3,27 +3,93 @@
 #define TitleHeight 20
 #define ButtonSize 14
 
-static void resize(MwWidget handle){
+static void close_draw(MwWidget handle) {
+	int	  w = MwGetInteger(handle, MwNwidth);
+	int	  h = MwGetInteger(handle, MwNheight);
+	MwPoint	  p[2];
+	MwLLColor c  = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	int	  bw = MwDefaultBorderWidth(handle);
+
+	p[0].x = bw * 2;
+	p[0].y = bw * 2;
+	p[1].x = w - bw * 2 - 1;
+	p[1].y = h - bw * 2 - 1;
+	MwLLLine(handle->lowlevel, p, c);
+
+	p[0].x = w - bw * 2 - 1;
+	p[0].y = bw * 2;
+	p[1].x = bw * 2;
+	p[1].y = h - bw * 2 - 1;
+	MwLLLine(handle->lowlevel, p, c);
+
+	MwLLFreeColor(c);
+}
+
+static void maximize_draw(MwWidget handle) {
+	int	  w = MwGetInteger(handle, MwNwidth);
+	int	  h = MwGetInteger(handle, MwNheight);
+	MwPoint	  p[2];
+	MwLLColor c  = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	int	  bw = MwDefaultBorderWidth(handle);
+
+	p[0].x = bw * 2;
+	p[0].y = bw * 2;
+	p[1].x = w - bw * 2 - 1;
+	p[1].y = bw * 2;
+	MwLLLine(handle->lowlevel, p, c);
+
+	p[0].y = p[1].y = h - bw * 2 - 1;
+	MwLLLine(handle->lowlevel, p, c);
+
+	p[0].x = bw * 2;
+	p[0].y = bw * 2;
+	p[1].x = bw * 2;
+	p[1].y = h - bw * 2 - 1;
+	MwLLLine(handle->lowlevel, p, c);
+
+	p[0].x = p[1].x = w - bw * 2 - 1;
+	MwLLLine(handle->lowlevel, p, c);
+
+	MwLLFreeColor(c);
+}
+
+static void minimize_draw(MwWidget handle) {
+	int	  w = MwGetInteger(handle, MwNwidth);
+	int	  h = MwGetInteger(handle, MwNheight);
+	MwPoint	  p[2];
+	MwLLColor c  = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	int	  bw = MwDefaultBorderWidth(handle);
+
+	p[0].x = bw * 2;
+	p[0].y = h - bw * 2 - 1;
+	p[1].x = w - bw * 2 - 1;
+	p[1].y = h - bw * 2 - 1;
+	MwLLLine(handle->lowlevel, p, c);
+
+	MwLLFreeColor(c);
+}
+
+static void resize(MwWidget handle) {
 	MwSubWindow sw = handle->internal;
-	int x, y, w, h;
-	int ww = MwGetInteger(handle, MwNwidth);
-	int wh = MwGetInteger(handle, MwNheight);
-	int bw = MwDefaultBorderWidth(handle);
-	int p;
+	int	    x, y, w, h;
+	int	    ww = MwGetInteger(handle, MwNwidth);
+	int	    wh = MwGetInteger(handle, MwNheight);
+	int	    bw = MwDefaultBorderWidth(handle);
+	int	    p;
 
 	x = bw * 2;
 	y = bw * 2 + TitleHeight;
 	w = ww - bw * 4;
 	h = wh - bw * 4 - TitleHeight;
-	if(sw->frame == NULL){
+	if(sw->frame == NULL) {
 		sw->frame = MwCreateWidget(MwFrameClass, "frame", handle, x, y, w, h);
-	}else{
+	} else {
 		MwVaApply(sw->frame,
-			MwNx, x,
-			MwNy, y,
-			MwNwidth, w,
-			MwNheight, h,
-		NULL);
+			  MwNx, x,
+			  MwNy, y,
+			  MwNwidth, w,
+			  MwNheight, h,
+			  NULL);
 	}
 
 	p = (TitleHeight - ButtonSize) / 2;
@@ -34,15 +100,16 @@ static void resize(MwWidget handle){
 
 #define BUTTON(name) \
 	x -= ButtonSize; \
-	if(sw->name == NULL){ \
-		sw->name = MwCreateWidget(MwButtonClass, #name, handle, x, y, w, h); \
-	}else{ \
+	if(sw->name == NULL) { \
+		sw->name	      = MwCreateWidget(MwButtonClass, #name, handle, x, y, w, h); \
+		sw->name->draw_inject = name##_draw; \
+	} else { \
 		MwVaApply(sw->name, \
-			MwNx, x, \
-			MwNy, y, \
-			MwNwidth, w, \
-			MwNheight, h, \
-		NULL); \
+			  MwNx, x, \
+			  MwNy, y, \
+			  MwNwidth, w, \
+			  MwNheight, h, \
+			  NULL); \
 	} \
 	x -= p;
 
@@ -72,10 +139,10 @@ static void destroy(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwLLColor c  = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor tb = MwParseColor(handle, MwGetText(handle, MwNtitleBackground));
-	MwLLColor tf = MwParseColor(handle, MwGetText(handle, MwNtitleForeground));
-	MwRect	  r, r2;
+	MwLLColor   c  = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor   tb = MwParseColor(handle, MwGetText(handle, MwNtitleBackground));
+	MwLLColor   tf = MwParseColor(handle, MwGetText(handle, MwNtitleForeground));
+	MwRect	    r, r2;
 	const char* title = MwGetText(handle, MwNtitle);
 
 	r.x	 = 0;
@@ -90,10 +157,10 @@ static void draw(MwWidget handle) {
 	r2.height = TitleHeight;
 	MwDrawRect(handle, &r2, tb);
 
-	if(title != NULL){
+	if(title != NULL) {
 		MwPoint p;
-		p.x = r2.x + (TitleHeight - ButtonSize);
-		p.y = r2.y + TitleHeight / 2;
+		p.x		= r2.x + (TitleHeight - ButtonSize);
+		p.y		= r2.y + TitleHeight / 2;
 		handle->bgcolor = tb;
 		MwDrawText(handle, NULL, &p, title, MwALIGNMENT_BEGINNING, tf);
 		handle->bgcolor = NULL;
