@@ -135,7 +135,7 @@ MWDECL void MWAPI MwPixmapReloadRaw(MwLLPixmap pixmap, unsigned char* rgb);
 /*!
  * @brief Gets the raw data of pixmap
  * @param pixmap Pixmap
- * @return RFBA data
+ * @return RGBA data
  */
 MWDECL unsigned char* MWAPI MwPixmapGetRaw(MwLLPixmap pixmap);
 
