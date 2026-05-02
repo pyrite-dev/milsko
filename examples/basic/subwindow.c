@@ -1,5 +1,7 @@
 #include <Mw/Milsko.h>
 
+#define Shift 16
+
 static void resize(MwWidget handle, void* user, void* client) {
 	MwWidget f = MwSubWindowGetFrame(handle);
 	MwVaApply(user,
@@ -32,7 +34,7 @@ int main() {
 
 		sprintf(buf, "Sub window %d", i);
 
-		sw = MwVaCreateWidget(MwSubWindowClass, "swnd", w, i * 32, i * 32, 128, 128,
+		sw = MwVaCreateWidget(MwSubWindowClass, "swnd", w, i * Shift, i * Shift, 128, 128,
 				      MwNtitle, buf,
 				      NULL);
 

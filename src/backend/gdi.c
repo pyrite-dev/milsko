@@ -302,7 +302,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	if(parent == NULL) r->gdi.get_darktheme = 1;
 	r->gdi.force_render = 0;
 	r->gdi.grabbed	    = 0;
-	r->gdi.hWnd	    = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->gdi.hWnd, 0, wc.hInstance, NULL);
+	r->gdi.hWnd	    = CreateWindow("milsko", "Milsko", parent == NULL ? (WS_OVERLAPPEDWINDOW) : (WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS), x == MwDEFAULT ? CW_USEDEFAULT : x, y == MwDEFAULT ? CW_USEDEFAULT : y, width, height, parent == NULL ? NULL : parent->gdi.hWnd, 0, wc.hInstance, NULL);
 	r->gdi.hInstance    = wc.hInstance;
 	r->gdi.cursor	    = NULL;
 	r->gdi.icon	    = NULL;
@@ -327,6 +327,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 		InvalidateRect(r->gdi.hWnd, NULL, FALSE);
 	}
+
+	SetWindowPos(r->gdi.hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
 	return r;
 }
@@ -372,10 +374,17 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	HPEN pen = CreatePen(PS_SOLID, 1, RGB(color->common.red, color->common.green, color->common.blue));
+	RECT rc;
+
+	rc.left	  = points[1].x;
+	rc.top	  = points[1].y;
+	rc.right  = rc.left + 1;
+	rc.bottom = rc.top + 1;
 
 	SelectObject(handle->gdi.hDC, pen);
 	MoveToEx(handle->gdi.hDC, points[0].x, points[0].y, NULL);
 	LineTo(handle->gdi.hDC, points[1].x, points[1].y);
+	FillRect(handle->gdi.hDC, &rc, color->gdi.brush);
 
 	DeleteObject(pen);
 }
@@ -428,12 +437,11 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 }
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
-	SetWindowPos(handle->gdi.hWnd, NULL, x, y, 0, 0, SWP_NOSIZE);
-	InvalidateRect(handle->gdi.hWnd, NULL, FALSE);
+	SetWindowPos(handle->gdi.hWnd, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
-	SetWindowPos(handle->gdi.hWnd, NULL, 0, 0, w, h, SWP_NOMOVE);
+	SetWindowPos(handle->gdi.hWnd, NULL, 0, 0, w, h, SWP_NOMOVE | SWP_NOZORDER);
 	InvalidateRect(handle->gdi.hWnd, NULL, FALSE);
 }
 
