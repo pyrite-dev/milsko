@@ -346,11 +346,37 @@ static MwWidget mwSubWindowGetFrameImpl(MwWidget handle) {
 	return sw->frame;
 }
 
+static void mouse_down(MwWidget handle, void* ptr) {
+	MwSubWindow sw = handle->internal;
+	MwMouse*    m  = ptr;
+
+	if(m->button == MwMOUSE_LEFT) {
+		MwGetCursorCoord(handle, &sw->cursor_start);
+		sw->base.x = MwGetInteger(handle, MwNx);
+		sw->base.y = MwGetInteger(handle, MwNy);
+	}
+}
+
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	(void)va;
 
 	if(strcmp(name, "mwSubWindowGetFrame") == 0) {
 		*(MwWidget*)out = mwSubWindowGetFrameImpl(handle);
+	}
+}
+
+static void tick(MwWidget handle) {
+	MwSubWindow sw = handle->internal;
+
+	if(handle->pressed) {
+		MwPoint p;
+
+		MwGetCursorCoord(handle, &p);
+
+		MwVaApply(handle,
+			  MwNx, sw->base.x + p.x - sw->cursor_start.x,
+			  MwNy, sw->base.y + p.y - sw->cursor_start.y,
+			  NULL);
 	}
 }
 
@@ -363,10 +389,10 @@ MwClassRec MwSubWindowClassRec = {
     prop_change,   /* prop_change */
     NULL,	   /* mouse_move */
     NULL,	   /* mouse_up */
-    NULL,	   /* mouse_down */
+    mouse_down,	   /* mouse_down */
     NULL,	   /* key */
     func_handler,  /* execute */
-    NULL,	   /* tick */
+    tick,	   /* tick */
     resize,	   /* resize */
     NULL,	   /* children_update */
     NULL,	   /* children_prop_change */

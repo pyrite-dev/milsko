@@ -219,6 +219,8 @@ struct _MwSubWindow {
 	int	 y;
 	int	 width;
 	int	 height;
+	MwPoint	 cursor_start;
+	MwPoint	 base;
 };
 
 struct _MwMouse {
