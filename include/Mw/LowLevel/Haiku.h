@@ -42,6 +42,8 @@ class MwView : public BView {
 	void MessageReceived(BMessage* message);
 	void PostMessage(BMessage* message);
 	void PostMessage(uint32 command);
+	status_t SendMessage(BMessage* message);
+	status_t SendMessage(uint32 command);
 	void Invalidate();
 
 	void AttachedToWindow();
@@ -88,7 +90,8 @@ enum BVIEW_MW_WHAT {
 	BVIEW_MW_POLYGON,
 	BVIEW_MW_LINE,
 	BVIEW_MW_BITMAP,
-	BVIEW_MW_RENDER
+	BVIEW_MW_RENDER,
+	BVIEW_MW_GET_MOUSE
 };
 
 enum BWIN_MW_WHAT {

@@ -178,6 +178,17 @@ void MwView::MessageReceived(BMessage* message) {
 		this->Invalidate();
 		break;
 	}
+	case BVIEW_MW_GET_MOUSE:
+	{
+		BPoint* p;
+		uint32 btn;
+
+		if(message->FindPointer("view-ppoint", (void**)&p) != B_OK) break;
+
+		this->GetMouse(p, &btn);
+
+		break;
+	}
 	default:
 	{
 		BView::MessageReceived(message);
@@ -201,6 +212,24 @@ void MwView::PostMessage(uint32 command) {
 	BMessage msg(command);
 
 	this->PostMessage(&msg);
+}
+
+status_t MwView::SendMessage(BMessage* message) {
+	BMessage copy = *message;
+	BMessage reply;
+	MwLL	 top  = this->handle;
+
+	while(top->haiku.parent != NULL) top = top->haiku.parent;
+
+	copy.AddPointer("window-view", this);
+
+	return BMessenger(top->haiku.app->window).SendMessage(&copy, &reply);
+}
+
+status_t MwView::SendMessage(uint32 command) {
+	BMessage msg(command);
+
+	return this->SendMessage(&msg);
 }
 
 void MwView::Invalidate() {
@@ -700,7 +729,20 @@ void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type) {}
 
 void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {}
 
-void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {}
+void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
+	MwLL top = handle;
+	BMessage msg(BVIEW_MW_GET_MOUSE);
+	BPoint p;
+	while(top->haiku.parent != NULL) {
+		top = top->haiku.parent;
+	}
+
+	msg.AddPointer("view-ppoint", &p);
+	top->haiku.view->SendMessage(&msg);
+
+	point->x = p.x;
+	point->y = p.y;
+}
 
 void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
 	BScreen* screen = new BScreen();
