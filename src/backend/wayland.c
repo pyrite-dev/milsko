@@ -615,14 +615,13 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	WAYLAND_EVENT_OP_START(self);
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
-	if(currentlyHeldWidget) {
+	if(currentlyHeldWidget == self || !currentlyHeldWidget) {
 		self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
 		self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
 		p.point			      = self->wayland.cur_mouse_pos;
 		MwLLDispatch(self, move, &p);
-		MwLLDispatch(currentlyHeldWidget, down, &p);
-	}
-
+    }
+    
 	if(self->wayland.framebuffer.surface) {
 		inArea |= self->wayland.framebuffer.surface == curSurface;
 	}
