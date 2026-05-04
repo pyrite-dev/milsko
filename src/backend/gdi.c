@@ -879,7 +879,7 @@ static MwBool MwLLDoModernImpl(MwLL handle) {
 }
 
 static void MwLLRaiseImpl(MwLL handle) {
-	(void)handle;
+	SetWindowPos(handle->gdi.hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
 static int MwLLGDICallInitImpl(void) {
