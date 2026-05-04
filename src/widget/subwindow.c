@@ -44,6 +44,8 @@ static void MWAPI close_activate(MwWidget handle, void* user, void* client) {
 	(void)client;
 
 	MwDispatchUserHandler(w, MwNcloseHandler, NULL);
+
+	MwLLRaise(w->lowlevel);
 }
 
 static void maximize_draw(MwWidget handle) {
@@ -107,6 +109,8 @@ static void MWAPI maximize_activate(MwWidget handle, void* user, void* client) {
 			  NULL);
 	}
 	sw->maximized = !sw->maximized;
+
+	MwLLRaise(w->lowlevel);
 }
 
 static void minimize_draw(MwWidget handle) {
@@ -207,6 +211,8 @@ static void MWAPI minimize_activate(MwWidget handle, void* user, void* client) {
 			  NULL);
 	}
 	sw->minimized = !sw->minimized;
+
+	MwLLRaise(w->lowlevel);
 }
 
 static void resize(MwWidget handle) {
@@ -350,7 +356,7 @@ static void mouse_down(MwWidget handle, void* ptr) {
 	MwSubWindow sw = handle->internal;
 	MwMouse*    m  = ptr;
 
-	if(m->button == MwMOUSE_LEFT) {
+	if(m->button == MwMOUSE_LEFT && !sw->minimized && !sw->maximized) {
 		MwGetCursorCoord(handle, &sw->cursor_start);
 		sw->base.x = MwGetInteger(handle, MwNx);
 		sw->base.y = MwGetInteger(handle, MwNy);
@@ -370,7 +376,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 static void tick(MwWidget handle) {
 	MwSubWindow sw = handle->internal;
 
-	if(handle->pressed) {
+	if(handle->pressed && !sw->minimized && !sw->maximized) {
 		MwPoint p;
 
 		MwGetCursorCoord(handle, &p);
