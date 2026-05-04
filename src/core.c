@@ -1049,7 +1049,11 @@ void MwReparent(MwWidget handle, MwWidget new_parent) {
 		MwDispatch(handle->parent, children_update);
 	}
 
-	handle->top_step = 0;
+	if(new_parent == NULL){
+		handle->top_step = 1;
+	}else{
+		handle->top_step = 0;
+	}
 
 	MwForceRender(handle);
 }
