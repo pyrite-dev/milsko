@@ -113,7 +113,8 @@ struct _MwWidget {
 	int	  top_step;
 	MwWidget* draw_queue;
 
-	int berserk;
+	int  berserk;
+	long last_tick;
 };
 #endif
 

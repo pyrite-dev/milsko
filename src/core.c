@@ -211,7 +211,9 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 	h->tick_list	  = NULL;
 	h->destroyed	  = 0;
 	h->bgcolor	  = NULL;
-	h->berserk	  = 0;
+
+	h->berserk   = 0;
+	h->last_tick = MwTimeGetTick();
 
 	h->internal = NULL;
 	h->opaque   = NULL;
@@ -222,9 +224,7 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 
 	if(parent == NULL) arrput(h->tick_list, h);
 
-#ifdef PERIODIC
 	if(parent == NULL) h->top_step = 1;
-#endif
 
 	if(h->lowlevel != NULL) {
 		h->lowlevel->common.user		  = h;
@@ -453,19 +453,26 @@ static void clean_destroy_queue(MwWidget handle) {
 }
 
 static void MwAfterStep(MwWidget handle) {
+	int i;
+
 #ifdef PERIODIC
 	if(handle->top_step) {
-		int i;
-
 		for(i = 0; i < arrlen(handle->draw_queue); i++) {
 			DRAW(handle->draw_queue[i]);
 		}
 
 		arrfree(handle->draw_queue);
 	}
-#else
-	(void)handle;
 #endif
+
+	if(arrlen(handle->tick_list) > 0 && (MwTimeGetTick() - handle->last_tick) >= MwWaitMS) {
+		for(i = 0; i < arrlen(handle->tick_list); i++) {
+			MwDispatch(handle->tick_list[i], tick);
+			MwDispatchUserHandler(handle->tick_list[i], MwNtickHandler, NULL);
+		}
+
+		handle->last_tick = MwTimeGetTick();
+	}
 }
 
 int MwStep(MwWidget handle) {
@@ -500,12 +507,11 @@ int MwPending(MwWidget handle) {
 	for(i = 0; i < arrlen(handle->children); i++) {
 		if(MwPending(handle->children[i])) return 1;
 	}
-	return (arrlen(handle->destroy_queue) > 0) || (handle->widget_class == NULL ? 0 : MwLLPending(handle->lowlevel));
+	return (arrlen(handle->tick_list) > 0 && (MwTimeGetTick() - handle->last_tick) >= MwWaitMS) || (arrlen(handle->destroy_queue) > 0) || (handle->widget_class == NULL ? 0 : MwLLPending(handle->lowlevel));
 }
 
 void MwLoop(MwWidget handle) {
 	long tick = MwTimeGetTick();
-	int  i;
 	long wait = MwGetInteger(handle, MwNwaitMS);
 	long over = 0;
 	if(wait == MwDEFAULT) wait = MwWaitMS;
@@ -517,11 +523,6 @@ void MwLoop(MwWidget handle) {
 			if((v = MwStep(handle)) != 0) break;
 		}
 		if(v != 0) break;
-
-		for(i = 0; i < arrlen(handle->tick_list); i++) {
-			MwDispatch(handle->tick_list[i], tick);
-			MwDispatchUserHandler(handle->tick_list[i], MwNtickHandler, NULL);
-		}
 
 		more = over % (wait / 2);
 		t    = (tick + wait - more) - (t2 = MwTimeGetTick());
