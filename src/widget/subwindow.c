@@ -307,7 +307,7 @@ static void draw(MwWidget handle) {
 
 	if(title != NULL) {
 		MwPoint p;
-		p.x		= r2.x + (TitleHeight - ButtonSize);
+		p.x		= r2.x + (TitleHeight - ButtonSize) / 2;
 		p.y		= r2.y + TitleHeight / 2;
 		handle->bgcolor = tb;
 		MwDrawText(handle, NULL, &p, title, MwALIGNMENT_BEGINNING, tf);
