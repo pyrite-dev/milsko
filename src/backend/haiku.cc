@@ -181,7 +181,7 @@ void MwView::MessageReceived(BMessage* message) {
 	case BVIEW_MW_GET_MOUSE:
 	{
 		BPoint* p;
-		uint32 btn;
+		uint32	btn;
 
 		if(message->FindPointer("view-ppoint", (void**)&p) != B_OK) break;
 
@@ -217,7 +217,7 @@ void MwView::PostMessage(uint32 command) {
 status_t MwView::SendMessage(BMessage* message) {
 	BMessage copy = *message;
 	BMessage reply;
-	MwLL	 top  = this->handle;
+	MwLL	 top = this->handle;
 
 	while(top->haiku.parent != NULL) top = top->haiku.parent;
 
@@ -730,9 +730,9 @@ void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type) {}
 void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {}
 
 void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
-	MwLL top = handle;
+	MwLL	 top = handle;
 	BMessage msg(BVIEW_MW_GET_MOUSE);
-	BPoint p;
+	BPoint	 p;
 	while(top->haiku.parent != NULL) {
 		top = top->haiku.parent;
 	}
@@ -763,6 +763,10 @@ void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 MwBool MwLLDoModernImpl(MwLL handle) {
 	(void)handle;
 	return MwTRUE;
+}
+
+static void MwLLRaiseImpl(MwLL handle) {
+	(void)handle;
 }
 
 int MwLLHaikuCallInitImpl() {

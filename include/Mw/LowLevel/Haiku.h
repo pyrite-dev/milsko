@@ -39,12 +39,12 @@ class MwView : public BView {
 	MwView(MwLL handle, BRect rc, uint32 resizingMode, uint32 flags);
 	~MwView();
 
-	void MessageReceived(BMessage* message);
-	void PostMessage(BMessage* message);
-	void PostMessage(uint32 command);
+	void	 MessageReceived(BMessage* message);
+	void	 PostMessage(BMessage* message);
+	void	 PostMessage(uint32 command);
 	status_t SendMessage(BMessage* message);
 	status_t SendMessage(uint32 command);
-	void Invalidate();
+	void	 Invalidate();
 
 	void AttachedToWindow();
 	void Draw(BRect updateRect);

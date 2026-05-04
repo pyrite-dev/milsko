@@ -1164,6 +1164,10 @@ static MwBool MwLLDoModernImpl(MwLL handle) {
 	return MwTRUE;
 }
 
+static void MwLLRaiseImpl(MwLL handle) {
+	(void)handle;
+}
+
 static int MwLLCocoaCallInitImpl(void) {
 #ifndef __APPLE__
 	printf("Using GNUStep Backend\n");

@@ -878,6 +878,10 @@ static MwBool MwLLDoModernImpl(MwLL handle) {
 	return MwTRUE;
 }
 
+static void MwLLRaiseImpl(MwLL handle) {
+	(void)handle;
+}
+
 static int MwLLGDICallInitImpl(void) {
 	void* ntdll;
 

@@ -2830,6 +2830,10 @@ static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)toggle;
 }
 
+static void MwLLRaiseImpl(MwLL handle) {
+	(void)handle;
+}
+
 static int MwLLWaylandCallInitImpl(void) {
 #ifdef __linux__
 	MwBool loadWayland = MwFALSE;

@@ -351,6 +351,10 @@ static MwBool MwLLDoModernImpl(MwLL handle) {
 	return MwFALSE;
 }
 
+static void MwLLRaiseImpl(MwLL handle) {
+	(void)handle;
+}
+
 static int MwLLClassicMacOSCallInitImpl(void) {
 	InitGraf(&qd.thePort);
 	InitFonts();

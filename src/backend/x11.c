@@ -80,6 +80,7 @@ static struct symtbl {
 	void (*XDestroyIC)(XIC);
 	void (*XSetICFocus)(XIC);
 	XImage* (*XGetImage)(Display*, Drawable, int, int, unsigned int, unsigned int, unsigned long, int);
+	int (*XRaiseWindow)(Display*, Window);
 
 	XSizeHints* (*XAllocSizeHints)(void);
 	XVisualInfo* (*XGetVisualInfo)(Display*, long, XVisualInfo*, int*);
@@ -182,6 +183,7 @@ static struct symtbl {
 #define XPending xsymtbl.XPending
 #define XChangeWindowAttributes xsymtbl.XChangeWindowAttributes
 #define XGetImage xsymtbl.XGetImage
+#define XRaiseWindow xsymtbl.XRaiseWindow
 
 #if USE_XRENDER
 #define XRenderFindStandardFormat xsymtbl.XRenderFindStandardFormat
@@ -1370,6 +1372,15 @@ static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)toggle;
 }
 
+static MwBool MwLLDoModernImpl(MwLL handle) {
+	(void)handle;
+	return MwTRUE;
+}
+
+static void MwLLRaiseImpl(MwLL handle) {
+	XRaiseWindow(handle->x11.display, handle->x11.window);
+}
+
 static int MwLLX11CallInitImpl(void) {
 	MwBool loadX11 = MwFALSE;
 	if(getenv("MILSKO_BACKEND")) {
@@ -1464,6 +1475,7 @@ static int MwLLX11CallInitImpl(void) {
 	X11_FUNC_LOAD(XDestroyIC);
 	X11_FUNC_LOAD(XSetICFocus);
 	X11_FUNC_LOAD(XGetImage);
+	X11_FUNC_LOAD(XRaiseWindow);
 
 	X11_FUNC_LOAD(XAllocSizeHints);
 	X11_FUNC_LOAD(XGetVisualInfo);
@@ -1489,11 +1501,6 @@ static int MwLLX11CallInitImpl(void) {
 	xsymtbl.has_dbus = MwLLDBusFuncSetup(&xsymtbl.dbus);
 #endif
 	return 0;
-}
-
-static MwBool MwLLDoModernImpl(MwLL handle) {
-	(void)handle;
-	return MwTRUE;
 }
 
 #include "call.c"

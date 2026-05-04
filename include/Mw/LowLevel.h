@@ -328,6 +328,8 @@ MWDECL void (*MwLLSetDarkTheme)(MwLL handle, int toggle);
  */
 MWDECL MwBool (*MwLLDoModern)(MwLL handle);
 
+MWDECL void (*MwLLRaise)(MwLL handle);
+
 /* font renderer */
 MWDECL void MwFLSetup(void);
 

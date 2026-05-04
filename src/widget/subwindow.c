@@ -355,6 +355,8 @@ static void mouse_down(MwWidget handle, void* ptr) {
 		sw->base.x = MwGetInteger(handle, MwNx);
 		sw->base.y = MwGetInteger(handle, MwNy);
 	}
+
+	MwLLRaise(handle->lowlevel);
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {

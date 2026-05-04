@@ -57,5 +57,7 @@
 \
 		MwLLSetDarkTheme = MwLLSetDarkThemeImpl; \
 		MwLLDoModern	 = MwLLDoModernImpl; \
+\
+		MwLLRaise = MwLLRaiseImpl; \
 		return 0; \
 	}
