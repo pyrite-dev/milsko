@@ -177,7 +177,7 @@ sub generate {
 "	\$(LD) \$(EXE_LDFLAGS) $exeout\$@ $prefobj$o $needlibs ${lib}src${dir}Mw.lib"
         );
 
-        if ($f =~ /\Q${dir}gldemos${dir}\E/) {
+        if ($f =~ /gldemos/) {
             print(OUT " ${lib}opengl32.lib ${lib}glu32.lib");
         }
         print(OUT "\n");

@@ -272,37 +272,37 @@ examples\basic\viewport.obj: examples/basic/viewport.c
 	$(CC) $(EXE_CFLAGS) /Fo$@ examples/basic/viewport.c
 
 examples\gldemos\boing.exe: examples\gldemos\boing.obj src\Mw.dll
-	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\gldemos\boing.obj  src\Mw.lib
+	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\gldemos\boing.obj  src\Mw.lib opengl32.lib glu32.lib
 
 examples\gldemos\boing.obj: examples/gldemos/boing.c
 	$(CC) $(EXE_CFLAGS) /Fo$@ examples/gldemos/boing.c
 
 examples\gldemos\clock.exe: examples\gldemos\clock.obj src\Mw.dll
-	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\gldemos\clock.obj  src\Mw.lib
+	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\gldemos\clock.obj  src\Mw.lib opengl32.lib glu32.lib
 
 examples\gldemos\clock.obj: examples/gldemos/clock.c
 	$(CC) $(EXE_CFLAGS) /Fo$@ examples/gldemos/clock.c
 
 examples\gldemos\cube.exe: examples\gldemos\cube.obj src\Mw.dll
-	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\gldemos\cube.obj  src\Mw.lib
+	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\gldemos\cube.obj  src\Mw.lib opengl32.lib glu32.lib
 
 examples\gldemos\cube.obj: examples/gldemos/cube.c
 	$(CC) $(EXE_CFLAGS) /Fo$@ examples/gldemos/cube.c
 
 examples\gldemos\gears.exe: examples\gldemos\gears.obj src\Mw.dll
-	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\gldemos\gears.obj  src\Mw.lib
+	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\gldemos\gears.obj  src\Mw.lib opengl32.lib glu32.lib
 
 examples\gldemos\gears.obj: examples/gldemos/gears.c
 	$(CC) $(EXE_CFLAGS) /Fo$@ examples/gldemos/gears.c
 
 examples\gldemos\triangle.exe: examples\gldemos\triangle.obj src\Mw.dll
-	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\gldemos\triangle.obj  src\Mw.lib
+	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\gldemos\triangle.obj  src\Mw.lib opengl32.lib glu32.lib
 
 examples\gldemos\triangle.obj: examples/gldemos/triangle.c
 	$(CC) $(EXE_CFLAGS) /Fo$@ examples/gldemos/triangle.c
 
 examples\gldemos\tripaint.exe: examples\gldemos\tripaint.obj src\Mw.dll
-	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\gldemos\tripaint.obj  src\Mw.lib
+	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\gldemos\tripaint.obj  src\Mw.lib opengl32.lib glu32.lib
 
 examples\gldemos\tripaint.obj: examples/gldemos/tripaint.c
 	$(CC) $(EXE_CFLAGS) /Fo$@ examples/gldemos/tripaint.c
