@@ -11,6 +11,7 @@ The basic process of creating a new Milsko backend is
 - Fill out `Mw/LowLevel.h` appopriately, adding an include to your new file and the structs in the appropriate unions. These need to be guarded by a `USE_BACKENDNAME` macro which you'll define later when you modify the build system.
 - Creating a new impl file in `src/backend`
   - Backends actually return a table of function pointers that you have to implement with static functions. Your file should end with `#include "call.c"` and then `CALL(BackendName);`, and somewhere you should have the impl for `MwLLBackendNameCallInitImpl(void)`.
+  - Prefer to keep the backend file to one file if you can, though obviously exceptions like the Wayland backend exist because it's simply too complex to sanely stuff into one file.
 - Add `MwLLBackendNameCallInitImpl` to the `MwLibraryInit` impl in `src/core.c`.
 - Add a new enum variation to `MwLLBackends` in `Mw/Include/LowLevel.h`; your impl of `MwLLCreateImpl` will set `common.type` to this so the user can check which backend they're on (important for platforms with multiple supported backends).
 - Either
