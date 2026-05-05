@@ -36,6 +36,7 @@ int main() {
 
 		sw = MwVaCreateWidget(MwSubWindowClass, "swnd", w, i * Shift, i * Shift, 128, 128,
 				      MwNtitle, buf,
+				      MwNiconPixmap, px[rand() % 6],
 				      NULL);
 
 		f = MwSubWindowGetFrame(sw);

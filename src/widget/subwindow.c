@@ -290,8 +290,10 @@ static void draw(MwWidget handle) {
 	MwLLColor   c  = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwLLColor   tb = MwParseColor(handle, MwGetText(handle, MwNtitleBackground));
 	MwLLColor   tf = MwParseColor(handle, MwGetText(handle, MwNtitleForeground));
-	MwRect	    r, r2;
+	MwRect	    r, r2, r3;
 	const char* title = MwGetText(handle, MwNtitle);
+	int	    incr  = 0;
+	MwLLPixmap  px	  = MwGetVoid(handle, MwNiconPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -305,9 +307,22 @@ static void draw(MwWidget handle) {
 	r2.height = TitleHeight;
 	MwDrawRect(handle, &r2, tb);
 
+	if(px != NULL) {
+		r3   = r2;
+		incr = (TitleHeight - ButtonSize) / 2;
+
+		r3.x += incr;
+		r3.y += incr;
+		r3.width  = ButtonSize;
+		r3.height = ButtonSize;
+		MwLLDrawPixmap(handle->lowlevel, &r3, px);
+
+		incr += ButtonSize;
+	}
+
 	if(title != NULL) {
 		MwPoint p;
-		p.x		= r2.x + (TitleHeight - ButtonSize) / 2;
+		p.x		= r2.x + (TitleHeight - ButtonSize) / 2 + incr;
 		p.y		= r2.y + TitleHeight / 2;
 		handle->bgcolor = tb;
 		MwDrawText(handle, NULL, &p, title, MwALIGNMENT_BEGINNING, tf);
@@ -343,7 +358,7 @@ static void parent_resize(MwWidget handle) {
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNtitle) == 0) MwForceRender(handle);
+	if(strcmp(key, MwNtitle) == 0 || strcmp(key, MwNiconPixmap) == 0) MwForceRender(handle);
 }
 
 static MwWidget mwSubWindowGetFrameImpl(MwWidget handle) {
