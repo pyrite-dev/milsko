@@ -267,6 +267,7 @@ int main() {
 	}
 
 	f = frame("Calendar", -PaddingContent, -PaddingContent, MwCalendarClass,
+		  MwNscale, 1,
 		  NULL);
 	add(f);
 

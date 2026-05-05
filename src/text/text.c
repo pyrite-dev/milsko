@@ -42,6 +42,17 @@ static int is_bold(MwWidget handle, MwFLFont ttf) {
 }
 
 #ifdef TTF
+static int is_bitmap(MwWidget handle, MwFLFont ttf) {
+	size_t u = (size_t)ttf;
+	int    s;
+
+	if(u & MwFLFlagBitmap) return 1;
+
+	s = MwGetInteger(handle, MwNbitmapFont);
+	if(s == MwDEFAULT) return 0;
+	return s;
+}
+
 static int is_monospace(MwWidget handle, MwFLFont ttf) {
 	size_t u = (size_t)ttf;
 	int    s;
@@ -57,7 +68,7 @@ static int is_monospace(MwWidget handle, MwFLFont ttf) {
 #ifdef TTF
 
 static MwFLFont assume_ttf(MwWidget handle, MwFLFont ttf) {
-	if(MwGetInteger(handle, MwNbitmapFont)) return NULL;
+	if(is_bitmap(handle, ttf)) return NULL;
 
 	if(is_monospace(handle, ttf)) return is_bold(handle, ttf) ? MwGetVoid(handle, MwNboldMonospaceFont) : MwGetVoid(handle, MwNmonospaceFont);
 	return is_bold(handle, ttf) ? MwGetVoid(handle, MwNboldFont) : MwGetVoid(handle, MwNfont);
@@ -71,7 +82,7 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 	int	cp;
 
 #ifdef TTF
-	if(!MwGetInteger(handle, MwNbitmapFont) && ttf <= MwFLBuildFont(0xff)) ttf = assume_ttf(handle, ttf);
+	if(ttf <= MwFLBuildFont(0xff) && !is_bitmap(handle, ttf)) ttf = assume_ttf(handle, ttf);
 #endif
 
 	p.y -= (MwTextHeight(handle, ttf, text) - (MwTextHeight(handle, ttf, text) / count_nl(text))) / 2;
@@ -111,7 +122,7 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 
 #ifdef TTF
 			if(MwFLDrawText)
-				if(MwGetInteger(handle, MwNbitmapFont) || ttf == NULL || MwFLDrawText(handle, ttf, &p, line, color))
+				if(is_bitmap(handle, ttf) || ttf == NULL || MwFLDrawText(handle, ttf, &p, line, color))
 #endif
 					bitmap_MwDrawText(handle, &p, line, is_bold(handle, ttf), color);
 

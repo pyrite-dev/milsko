@@ -215,6 +215,7 @@ struct _MwLLTextDispatchTable {
 
 #define MwFLFlagMonospace (1 << 0)
 #define MwFLFlagBold (1 << 1)
+#define MwFLFlagBitmap (1 << 2)
 #define MwFLBuildFont(x) ((MwFLFont)(void*)(size_t)(x))
 
 #ifdef __cplusplus

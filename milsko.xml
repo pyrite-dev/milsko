@@ -97,10 +97,12 @@
 		<integer name="useMonospace" common="yes" boolean="yes" />
 		<integer name="fillArea" />
 		<integer name="darkThemeAutomatic" common="yes" boolean="yes" />
+		<integer name="year" />
 		<integer name="month" />
 		<integer name="date" />
 		<integer name="day" />
 		<integer name="waitLayout" />
+		<integer name="scale" />
 
 		<!-- waitMS is a special property, only applies to toplevel widget -->
 		<integer name="waitMS" common="yes" />
@@ -634,9 +636,11 @@
 		</widget>
 		<widget name="Calendar">
 			<properties>
+				<property name="year" />
 				<property name="month" />
 				<property name="date" />
 				<property name="day" />
+				<property name="scale" />
 			</properties>
 		</widget>
 		<widget name="CheckBox">
