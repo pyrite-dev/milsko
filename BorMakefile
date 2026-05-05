@@ -1,10 +1,12 @@
 CC = bcc32 -c
 LD = bcc32
 
-CFLAGS = -Iinclude -Iexternal\libz\include -D_MILSKO -DUSE_GDI -DUSE_STB_TRUETYPE -DUSE_STB_IMAGE -DSTBI_NO_SIMD
-LDFLAGS = -tWD
+MW_CFLAGS =  -Iinclude -Iexternal\libz\include -D_MILSKO -DUSE_GDI -DUSE_STB_TRUETYPE -DUSE_STB_IMAGE -DSTBI_NO_SIMD
+MW_LDFLAGS = -tWD
+EXE_CFLAGS = -Iinclude
+EXE_LDFLAGS = 
 .SUFFIXES: .obj .c
-all: src\Mw.dll
+all: src\Mw.dll examples\basic\box.exe examples\basic\calculator.exe examples\basic\checkbox.exe examples\basic\clipboard.exe examples\basic\colorpicker.exe examples\basic\combobox.exe examples\basic\example.exe examples\basic\filechooser.exe examples\basic\image.exe examples\basic\listbox.exe examples\basic\messagebox.exe examples\basic\periodic.exe examples\basic\progressbar.exe examples\basic\radiobox.exe examples\basic\rotate.exe examples\basic\scrollbar.exe examples\basic\sevensegment.exe examples\basic\subwindow.exe examples\basic\treeview.exe examples\basic\viewport.exe
 clean: 
 	del /f /q external\libz\src\adler32.obj
 	del /f /q external\libz\src\compress.obj
@@ -72,6 +74,7 @@ clean:
 	del /f /q src\unicode.obj
 	del /f /q src\widget\box.obj
 	del /f /q src\widget\button.obj
+	del /f /q src\widget\calendar.obj
 	del /f /q src\widget\checkbox.obj
 	del /f /q src\widget\combobox.obj
 	del /f /q src\widget\entry.obj
@@ -93,10 +96,171 @@ clean:
 	del /f /q src\widget\window.obj
 	del /f /q src\Mw.dll
 	del /f /q src\Mw.lib
+	del /f /q examples\basic\box.obj
+	del /f /q examples\basic\calculator.obj
+	del /f /q examples\basic\checkbox.obj
+	del /f /q examples\basic\clipboard.obj
+	del /f /q examples\basic\colorpicker.obj
+	del /f /q examples\basic\combobox.obj
+	del /f /q examples\basic\example.obj
+	del /f /q examples\basic\filechooser.obj
+	del /f /q examples\basic\image.obj
+	del /f /q examples\basic\listbox.obj
+	del /f /q examples\basic\messagebox.obj
+	del /f /q examples\basic\periodic.obj
+	del /f /q examples\basic\progressbar.obj
+	del /f /q examples\basic\radiobox.obj
+	del /f /q examples\basic\rotate.obj
+	del /f /q examples\basic\scrollbar.obj
+	del /f /q examples\basic\sevensegment.obj
+	del /f /q examples\basic\subwindow.obj
+	del /f /q examples\basic\treeview.obj
+	del /f /q examples\basic\viewport.obj
+	del /f /q examples\basic\box.exe
+	del /f /q examples\basic\calculator.exe
+	del /f /q examples\basic\checkbox.exe
+	del /f /q examples\basic\clipboard.exe
+	del /f /q examples\basic\colorpicker.exe
+	del /f /q examples\basic\combobox.exe
+	del /f /q examples\basic\example.exe
+	del /f /q examples\basic\filechooser.exe
+	del /f /q examples\basic\image.exe
+	del /f /q examples\basic\listbox.exe
+	del /f /q examples\basic\messagebox.exe
+	del /f /q examples\basic\periodic.exe
+	del /f /q examples\basic\progressbar.exe
+	del /f /q examples\basic\radiobox.exe
+	del /f /q examples\basic\rotate.exe
+	del /f /q examples\basic\scrollbar.exe
+	del /f /q examples\basic\sevensegment.exe
+	del /f /q examples\basic\subwindow.exe
+	del /f /q examples\basic\treeview.exe
+	del /f /q examples\basic\viewport.exe
 
-src\Mw.dll:  external\libz\src\adler32.obj external\libz\src\compress.obj external\libz\src\crc32.obj external\libz\src\deflate.obj external\libz\src\gzclose.obj external\libz\src\gzlib.obj external\libz\src\gzread.obj external\libz\src\gzwrite.obj external\libz\src\infback.obj external\libz\src\inffast.obj external\libz\src\inflate.obj external\libz\src\inftrees.obj external\libz\src\trees.obj external\libz\src\uncompr.obj external\libz\src\zutil.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\abstract\charset.obj src\abstract\directory.obj src\abstract\dynamic.obj src\abstract\time.obj src\backend\gdi.obj src\color.obj src\core.obj src\cursor\arrow.obj src\cursor\cross.obj src\cursor\default.obj src\cursor\hidden.obj src\cursor\text.obj src\default.obj src\dialog\colorpicker.obj src\dialog\directorychooser.obj src\dialog\filechooser.obj src\dialog\messagebox.obj src\draw.obj src\icon\back.obj src\icon\clock.obj src\icon\computer.obj src\icon\directory.obj src\icon\down.obj src\icon\error.obj src\icon\file.obj src\icon\forward.obj src\icon\info.obj src\icon\left.obj src\icon\news.obj src\icon\note.obj src\icon\right.obj src\icon\search.obj src\icon\up.obj src\icon\warning.obj src\lowlevel.obj src\string.obj src\text\font\boldfont.obj src\text\font\boldmonottf.obj src\text\font\boldttf.obj src\text\font\font.obj src\text\font\monottf.obj src\text\font\ttf.obj src\text\ft2.obj src\text\stbtt.obj src\text\text.obj src\unicode.obj src\widget\box.obj src\widget\button.obj src\widget\checkbox.obj src\widget\combobox.obj src\widget\entry.obj src\widget\frame.obj src\widget\image.obj src\widget\label.obj src\widget\listbox.obj src\widget\menu.obj src\widget\numberentry.obj src\widget\opengl.obj src\widget\progressbar.obj src\widget\radiobox.obj src\widget\scrollbar.obj src\widget\separator.obj src\widget\submenu.obj src\widget\subwindow.obj src\widget\treeview.obj src\widget\viewport.obj src\widget\window.obj
-	$(LD) $(LDFLAGS)  -e$@  external\libz\src\adler32.obj external\libz\src\compress.obj external\libz\src\crc32.obj external\libz\src\deflate.obj external\libz\src\gzclose.obj external\libz\src\gzlib.obj external\libz\src\gzread.obj external\libz\src\gzwrite.obj external\libz\src\infback.obj external\libz\src\inffast.obj external\libz\src\inflate.obj external\libz\src\inftrees.obj external\libz\src\trees.obj external\libz\src\uncompr.obj external\libz\src\zutil.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\abstract\charset.obj src\abstract\directory.obj src\abstract\dynamic.obj src\abstract\time.obj src\backend\gdi.obj src\color.obj src\core.obj src\cursor\arrow.obj src\cursor\cross.obj src\cursor\default.obj src\cursor\hidden.obj src\cursor\text.obj src\default.obj src\dialog\colorpicker.obj src\dialog\directorychooser.obj src\dialog\filechooser.obj src\dialog\messagebox.obj src\draw.obj src\icon\back.obj src\icon\clock.obj src\icon\computer.obj src\icon\directory.obj src\icon\down.obj src\icon\error.obj src\icon\file.obj src\icon\forward.obj src\icon\info.obj src\icon\left.obj src\icon\news.obj src\icon\note.obj src\icon\right.obj src\icon\search.obj src\icon\up.obj src\icon\warning.obj src\lowlevel.obj src\string.obj src\text\font\boldfont.obj src\text\font\boldmonottf.obj src\text\font\boldttf.obj src\text\font\font.obj src\text\font\monottf.obj src\text\font\ttf.obj src\text\ft2.obj src\text\stbtt.obj src\text\text.obj src\unicode.obj src\widget\box.obj src\widget\button.obj src\widget\checkbox.obj src\widget\combobox.obj src\widget\entry.obj src\widget\frame.obj src\widget\image.obj src\widget\label.obj src\widget\listbox.obj src\widget\menu.obj src\widget\numberentry.obj src\widget\opengl.obj src\widget\progressbar.obj src\widget\radiobox.obj src\widget\scrollbar.obj src\widget\separator.obj src\widget\submenu.obj src\widget\subwindow.obj src\widget\treeview.obj src\widget\viewport.obj src\widget\window.obj  -lopengl32.lib -lgdi32.lib -luser32.lib -ladvapi32.lib
+examples\basic\box.exe: examples\basic\box.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\box.obj  -lsrc\Mw.lib
+
+examples\basic\box.obj: examples/basic/box.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/box.c
+
+examples\basic\calculator.exe: examples\basic\calculator.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\calculator.obj  -lsrc\Mw.lib
+
+examples\basic\calculator.obj: examples/basic/calculator.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/calculator.c
+
+examples\basic\checkbox.exe: examples\basic\checkbox.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\checkbox.obj  -lsrc\Mw.lib
+
+examples\basic\checkbox.obj: examples/basic/checkbox.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/checkbox.c
+
+examples\basic\clipboard.exe: examples\basic\clipboard.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\clipboard.obj  -lsrc\Mw.lib
+
+examples\basic\clipboard.obj: examples/basic/clipboard.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/clipboard.c
+
+examples\basic\colorpicker.exe: examples\basic\colorpicker.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\colorpicker.obj  -lsrc\Mw.lib
+
+examples\basic\colorpicker.obj: examples/basic/colorpicker.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/colorpicker.c
+
+examples\basic\combobox.exe: examples\basic\combobox.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\combobox.obj  -lsrc\Mw.lib
+
+examples\basic\combobox.obj: examples/basic/combobox.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/combobox.c
+
+examples\basic\example.exe: examples\basic\example.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\example.obj  -lsrc\Mw.lib
+
+examples\basic\example.obj: examples/basic/example.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/example.c
+
+examples\basic\filechooser.exe: examples\basic\filechooser.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\filechooser.obj  -lsrc\Mw.lib
+
+examples\basic\filechooser.obj: examples/basic/filechooser.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/filechooser.c
+
+examples\basic\image.exe: examples\basic\image.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\image.obj  -lsrc\Mw.lib
+
+examples\basic\image.obj: examples/basic/image.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/image.c
+
+examples\basic\listbox.exe: examples\basic\listbox.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\listbox.obj  -lsrc\Mw.lib
+
+examples\basic\listbox.obj: examples/basic/listbox.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/listbox.c
+
+examples\basic\messagebox.exe: examples\basic\messagebox.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\messagebox.obj  -lsrc\Mw.lib
+
+examples\basic\messagebox.obj: examples/basic/messagebox.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/messagebox.c
+
+examples\basic\periodic.exe: examples\basic\periodic.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\periodic.obj  -lsrc\Mw.lib
+
+examples\basic\periodic.obj: examples/basic/periodic.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/periodic.c
+
+examples\basic\progressbar.exe: examples\basic\progressbar.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\progressbar.obj  -lsrc\Mw.lib
+
+examples\basic\progressbar.obj: examples/basic/progressbar.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/progressbar.c
+
+examples\basic\radiobox.exe: examples\basic\radiobox.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\radiobox.obj  -lsrc\Mw.lib
+
+examples\basic\radiobox.obj: examples/basic/radiobox.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/radiobox.c
+
+examples\basic\rotate.exe: examples\basic\rotate.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\rotate.obj  -lsrc\Mw.lib
+
+examples\basic\rotate.obj: examples/basic/rotate.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/rotate.c
+
+examples\basic\scrollbar.exe: examples\basic\scrollbar.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\scrollbar.obj  -lsrc\Mw.lib
+
+examples\basic\scrollbar.obj: examples/basic/scrollbar.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/scrollbar.c
+
+examples\basic\sevensegment.exe: examples\basic\sevensegment.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\sevensegment.obj  -lsrc\Mw.lib
+
+examples\basic\sevensegment.obj: examples/basic/sevensegment.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/sevensegment.c
+
+examples\basic\subwindow.exe: examples\basic\subwindow.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\subwindow.obj  -lsrc\Mw.lib
+
+examples\basic\subwindow.obj: examples/basic/subwindow.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/subwindow.c
+
+examples\basic\treeview.exe: examples\basic\treeview.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\treeview.obj  -lsrc\Mw.lib
+
+examples\basic\treeview.obj: examples/basic/treeview.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/treeview.c
+
+examples\basic\viewport.exe: examples\basic\viewport.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) -e$@ examples\basic\viewport.obj  -lsrc\Mw.lib
+
+examples\basic\viewport.obj: examples/basic/viewport.c
+	$(CC) $(EXE_CFLAGS) -o$@ examples/basic/viewport.c
+
+
+src\Mw.dll:  external\libz\src\adler32.obj external\libz\src\compress.obj external\libz\src\crc32.obj external\libz\src\deflate.obj external\libz\src\gzclose.obj external\libz\src\gzlib.obj external\libz\src\gzread.obj external\libz\src\gzwrite.obj external\libz\src\infback.obj external\libz\src\inffast.obj external\libz\src\inflate.obj external\libz\src\inftrees.obj external\libz\src\trees.obj external\libz\src\uncompr.obj external\libz\src\zutil.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\abstract\charset.obj src\abstract\directory.obj src\abstract\dynamic.obj src\abstract\time.obj src\backend\gdi.obj src\color.obj src\core.obj src\cursor\arrow.obj src\cursor\cross.obj src\cursor\default.obj src\cursor\hidden.obj src\cursor\text.obj src\default.obj src\dialog\colorpicker.obj src\dialog\directorychooser.obj src\dialog\filechooser.obj src\dialog\messagebox.obj src\draw.obj src\icon\back.obj src\icon\clock.obj src\icon\computer.obj src\icon\directory.obj src\icon\down.obj src\icon\error.obj src\icon\file.obj src\icon\forward.obj src\icon\info.obj src\icon\left.obj src\icon\news.obj src\icon\note.obj src\icon\right.obj src\icon\search.obj src\icon\up.obj src\icon\warning.obj src\lowlevel.obj src\string.obj src\text\font\boldfont.obj src\text\font\boldmonottf.obj src\text\font\boldttf.obj src\text\font\font.obj src\text\font\monottf.obj src\text\font\ttf.obj src\text\ft2.obj src\text\stbtt.obj src\text\text.obj src\unicode.obj src\widget\box.obj src\widget\button.obj src\widget\calendar.obj src\widget\checkbox.obj src\widget\combobox.obj src\widget\entry.obj src\widget\frame.obj src\widget\image.obj src\widget\label.obj src\widget\listbox.obj src\widget\menu.obj src\widget\numberentry.obj src\widget\opengl.obj src\widget\progressbar.obj src\widget\radiobox.obj src\widget\scrollbar.obj src\widget\separator.obj src\widget\submenu.obj src\widget\subwindow.obj src\widget\treeview.obj src\widget\viewport.obj src\widget\window.obj
+	$(LD) $(MW_LDFLAGS)  -e$@  external\libz\src\adler32.obj external\libz\src\compress.obj external\libz\src\crc32.obj external\libz\src\deflate.obj external\libz\src\gzclose.obj external\libz\src\gzlib.obj external\libz\src\gzread.obj external\libz\src\gzwrite.obj external\libz\src\infback.obj external\libz\src\inffast.obj external\libz\src\inflate.obj external\libz\src\inftrees.obj external\libz\src\trees.obj external\libz\src\uncompr.obj external\libz\src\zutil.obj external\stb_ds.obj external\stb_image.obj external\stb_truetype.obj src\abstract\charset.obj src\abstract\directory.obj src\abstract\dynamic.obj src\abstract\time.obj src\backend\gdi.obj src\color.obj src\core.obj src\cursor\arrow.obj src\cursor\cross.obj src\cursor\default.obj src\cursor\hidden.obj src\cursor\text.obj src\default.obj src\dialog\colorpicker.obj src\dialog\directorychooser.obj src\dialog\filechooser.obj src\dialog\messagebox.obj src\draw.obj src\icon\back.obj src\icon\clock.obj src\icon\computer.obj src\icon\directory.obj src\icon\down.obj src\icon\error.obj src\icon\file.obj src\icon\forward.obj src\icon\info.obj src\icon\left.obj src\icon\news.obj src\icon\note.obj src\icon\right.obj src\icon\search.obj src\icon\up.obj src\icon\warning.obj src\lowlevel.obj src\string.obj src\text\font\boldfont.obj src\text\font\boldmonottf.obj src\text\font\boldttf.obj src\text\font\font.obj src\text\font\monottf.obj src\text\font\ttf.obj src\text\ft2.obj src\text\stbtt.obj src\text\text.obj src\unicode.obj src\widget\box.obj src\widget\button.obj src\widget\calendar.obj src\widget\checkbox.obj src\widget\combobox.obj src\widget\entry.obj src\widget\frame.obj src\widget\image.obj src\widget\label.obj src\widget\listbox.obj src\widget\menu.obj src\widget\numberentry.obj src\widget\opengl.obj src\widget\progressbar.obj src\widget\radiobox.obj src\widget\scrollbar.obj src\widget\separator.obj src\widget\submenu.obj src\widget\subwindow.obj src\widget\treeview.obj src\widget\viewport.obj src\widget\window.obj  -lopengl32.lib -lgdi32.lib -luser32.lib -ladvapi32.lib
 	implib src\Mw.lib src\Mw.dll
 
 .c.obj:
-	$(CC) $(CFLAGS) -o$@ $<
+	$(CC) $(MW_CFLAGS) -o$@ $<

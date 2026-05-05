@@ -2,7 +2,7 @@
 
 #define Shift 16
 
-static void resize(MwWidget handle, void* user, void* client) {
+static void MWAPI resize(MwWidget handle, void* user, void* client) {
 	MwWidget f = MwSubWindowGetFrame(handle);
 	MwVaApply(user,
 		  MwNwidth, MwGetInteger(f, MwNwidth),
