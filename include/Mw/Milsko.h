@@ -32,25 +32,26 @@
 #include <Mw/Dialog/DirectoryChooser.h>
 #include <Mw/Dialog/ColorPicker.h>
 
-#include <Mw/Widget/Window.h>
-#include <Mw/Widget/Menu.h>
-#include <Mw/Widget/SubMenu.h>
+#include <Mw/Widget/Box.h>
 #include <Mw/Widget/Button.h>
-#include <Mw/Widget/Label.h>
+#include <Mw/Widget/Calendar.h>
 #include <Mw/Widget/CheckBox.h>
+#include <Mw/Widget/ComboBox.h>
+#include <Mw/Widget/Entry.h>
 #include <Mw/Widget/Frame.h>
 #include <Mw/Widget/Image.h>
-#include <Mw/Widget/Entry.h>
-#include <Mw/Widget/ScrollBar.h>
-#include <Mw/Widget/NumberEntry.h>
-#include <Mw/Widget/Viewport.h>
+#include <Mw/Widget/Label.h>
 #include <Mw/Widget/ListBox.h>
+#include <Mw/Widget/Menu.h>
+#include <Mw/Widget/NumberEntry.h>
 #include <Mw/Widget/ProgressBar.h>
 #include <Mw/Widget/RadioBox.h>
+#include <Mw/Widget/ScrollBar.h>
 #include <Mw/Widget/Separator.h>
-#include <Mw/Widget/ComboBox.h>
-#include <Mw/Widget/TreeView.h>
-#include <Mw/Widget/Box.h>
+#include <Mw/Widget/SubMenu.h>
 #include <Mw/Widget/SubWindow.h>
+#include <Mw/Widget/TreeView.h>
+#include <Mw/Widget/Viewport.h>
+#include <Mw/Widget/Window.h>
 
 #endif

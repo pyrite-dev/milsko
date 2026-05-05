@@ -143,6 +143,7 @@ new_object("src/text/font/*.c");
 
 new_object("src/widget/box.c");
 new_object("src/widget/button.c");
+new_object("src/widget/calendar.c");
 new_object("src/widget/checkbox.c");
 new_object("src/widget/combobox.c");
 new_object("src/widget/entry.c");

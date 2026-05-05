@@ -97,6 +97,10 @@
 		<integer name="useMonospace" common="yes" boolean="yes" />
 		<integer name="fillArea" />
 		<integer name="darkThemeAutomatic" common="yes" boolean="yes" />
+		<integer name="month" />
+		<integer name="date" />
+		<integer name="day" />
+		<integer name="waitLayout" />
 
 		<!-- waitMS is a special property, only applies to toplevel widget -->
 		<integer name="waitMS" common="yes" />
@@ -612,6 +616,7 @@
 				<property name="padding" />
 				<property name="hasBorder" />
 				<property name="inverted" />
+				<property name="waitLayout" />
 			</properties>
 		</widget>
 		<widget name="Button">
@@ -626,6 +631,13 @@
 				<handler name="activate" />
 				<handler name="changed" />
 			</handlers>
+		</widget>
+		<widget name="Calendar">
+			<properties>
+				<property name="month" />
+				<property name="date" />
+				<property name="day" />
+			</properties>
 		</widget>
 		<widget name="CheckBox">
 			<properties>
@@ -883,6 +895,13 @@
 				<property name="iconPixmap" />
 				<property name="title" />
 			</properties>
+			<functions>
+				<function name="GetFrame">
+					<return>
+						<widget />
+					</return>
+				</function>
+			</functions>
 		</widget>
 
 		<!-- They are not alphabetically sorted for reasons -->

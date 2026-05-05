@@ -74,7 +74,7 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 	if(!MwGetInteger(handle, MwNbitmapFont) && ttf <= MwFLBuildFont(0xff)) ttf = assume_ttf(handle, ttf);
 #endif
 
-	p.y -= MwTextHeight(handle, ttf, text) / 2 - (MwTextHeight(handle, ttf, text) / count_nl(text)) / 2;
+	p.y -= (MwTextHeight(handle, ttf, text) - (MwTextHeight(handle, ttf, text) / count_nl(text))) / 2;
 
 	while(*input != 0) {
 		input += MwUTF8ToUTF32(input, &cp);

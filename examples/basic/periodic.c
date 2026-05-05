@@ -30,7 +30,9 @@ static void newrow(void) {
 		for(i = n; i < Columns; i++) MwCreateWidget(MwFrameClass, "frame", boxes[row], 0, 0, 0, 0);
 	}
 
-	boxes[++row] = MwCreateWidget(MwBoxClass, "box", box, 0, 0, 0, 0);
+	boxes[++row] = MwVaCreateWidget(MwBoxClass, "box", box, 0, 0, 0, 0,
+					MwNwaitLayout, 1,
+					NULL);
 
 	n = 0;
 }
@@ -224,6 +226,7 @@ int main() {
 
 	box = MwVaCreateWidget(MwBoxClass, "box", window, 0, 0, 0, 0,
 			       MwNorientation, MwVERTICAL,
+			       MwNwaitLayout, 1,
 			       NULL);
 
 	newrow();
@@ -262,6 +265,10 @@ int main() {
 		}
 		add(f);
 	}
+
+	f = frame("Calendar", -PaddingContent, -PaddingContent, MwCalendarClass,
+		  NULL);
+	add(f);
 
 	f = frame("ComboBox", -PaddingContent, 24, MwComboBoxClass, NULL);
 	w = child(f);
@@ -306,21 +313,18 @@ int main() {
 	f = frame("Separator", -PaddingContent, -PaddingContent, MwSeparatorClass, NULL);
 	add(f);
 
-#if 1
 	f = frame("SubWindow", -PaddingContent, -PaddingContent, MwViewportClass,
-		  MwNratio, 3,
+		  MwNratio, 2,
 		  NULL);
 	w = child(f);
 	MwViewportSetSize(w, 512, 512);
 	MwVaCreateWidget(MwSubWindowClass, "swnd", MwViewportGetViewport(w), 32, 32, 256, 128,
 			 MwNtitle, "Sub window",
 			 NULL);
-	add(f);
 	MwVaCreateWidget(MwSubWindowClass, "swnd", MwViewportGetViewport(w), 64, 64, 256, 128,
 			 MwNtitle, "Sub window 2",
 			 NULL);
 	add(f);
-#endif
 
 	f = frame("TreeView", -PaddingContent, -PaddingContent, MwTreeViewClass, NULL);
 	w = child(f);
@@ -343,6 +347,15 @@ int main() {
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
 
 	resize(window, NULL, NULL);
+
+	MwVaApply(box,
+		  MwNwaitLayout, 0,
+		  NULL);
+	for(i = 0; i < row; i++) {
+		MwVaApply(boxes[i],
+			  MwNwaitLayout, 0,
+			  NULL);
+	}
 
 	MwLoop(window);
 

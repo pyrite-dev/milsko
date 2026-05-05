@@ -15,6 +15,7 @@ static int wcreate(MwWidget handle) {
 	MwSetInteger(handle, MwNpadding, 0);
 	MwSetInteger(handle, MwNhasBorder, 0);
 	MwSetInteger(handle, MwNinverted, 1);
+	MwSetInteger(handle, MwNwaitLayout, 0);
 
 	b->layout = 0;
 
@@ -116,7 +117,7 @@ static void children_prop_change(MwWidget handle, MwWidget child, const char* ke
 static void tick(MwWidget handle) {
 	MwBox b = handle->internal;
 
-	if(b->layout) {
+	if(b->layout && !MwGetInteger(handle, MwNwaitLayout)) {
 		layout(handle);
 
 		b->layout = 0;

@@ -43,6 +43,10 @@
 #define MwNdarkTheme "IdarkTheme"
 #define MwNuseMonospace "IuseMonospace"
 #define MwNdarkThemeAutomatic "IdarkThemeAutomatic"
+#define MwNmonth "Imonth"
+#define MwNdate "Idate"
+#define MwNday "Iday"
+#define MwNwaitLayout "IwaitLayout"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
