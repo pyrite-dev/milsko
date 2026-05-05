@@ -556,8 +556,6 @@ static void xdg_borderless_step(MwLL self, MwMouse p, MwU32 serial) {
 	};
 }
 
-static MwLL currentlyHeldWidget = NULL;
-
 static void relative_pointer_motion(void*			    data,
 				    struct zwp_relative_pointer_v1* pointer,
 				    uint32_t			    timeHi,
@@ -607,7 +605,8 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	MwLL	self	       = data;
 	MwLL	topmost_parent = self;
 	MwMouse p;
-	MwBool	inArea = MwFALSE;
+	MwBool	inArea		    = MwFALSE;
+	MwLL	currentlyHeldWidget = NULL;
 
 	(void)time;
 	(void)wl_pointer;
@@ -615,13 +614,15 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	WAYLAND_EVENT_OP_START(self);
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
-	if(currentlyHeldWidget == self || !currentlyHeldWidget) {
+	currentlyHeldWidget = topmost_parent->wayland.currentlyHeldWidget;
+
+	if(currentlyHeldWidget == self) {
 		self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
 		self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
 		p.point			      = self->wayland.cur_mouse_pos;
 		MwLLDispatch(self, move, &p);
-    }
-    
+	}
+
 	if(self->wayland.framebuffer.surface) {
 		inArea |= self->wayland.framebuffer.surface == curSurface;
 	}
@@ -630,6 +631,10 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 		inArea |= self->wayland.backbuffer.surface == curSurface;
 	}
 	if(inArea) {
+		self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
+		self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
+		p.point			      = self->wayland.cur_mouse_pos;
+		MwLLDispatch(self, move, &p);
 		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
 	}
 	WAYLAND_EVENT_OP_END(self);
@@ -639,7 +644,8 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 serial, MwU32 time, MwU32 button, MwU32 state) {
 	MwLL	self = data;
 	MwMouse p;
-	MwBool	inArea = MwFALSE;
+	MwBool	inArea	       = MwFALSE;
+	MwLL	topmost_parent = self;
 
 	(void)wl_pointer;
 	(void)serial;
@@ -648,6 +654,7 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	WAYLAND_EVENT_OP_START(self);
 
 	p.point = self->wayland.cur_mouse_pos;
+	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
 	if(self->wayland.framebuffer.surface) {
 		inArea |= self->wayland.framebuffer.surface == curSurface;
@@ -672,13 +679,13 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 		switch(state) {
 		case WL_POINTER_BUTTON_STATE_PRESSED:
 			MwLLDispatch(self, down, &p);
-			currentlyHeldWidget = self;
+			topmost_parent->wayland.currentlyHeldWidget = self;
 
 			break;
 		case WL_POINTER_BUTTON_STATE_RELEASED:
-			if(currentlyHeldWidget != NULL) {
-				MwLLDispatch(currentlyHeldWidget, up, &p);
-				currentlyHeldWidget = NULL;
+			if(topmost_parent->wayland.currentlyHeldWidget != NULL) {
+				MwLLDispatch(topmost_parent->wayland.currentlyHeldWidget, up, &p);
+				topmost_parent->wayland.currentlyHeldWidget = NULL;
 			} else {
 				MwLLDispatch(self, up, &p);
 			}
@@ -1433,14 +1440,16 @@ static void region_setup(MwLL handle) {
 		return;
 	}
 
-	// wl_region_add(handle->wayland.o_region, 0, 0, width, height);
+	if(!handle->wayland.parent)
+		wl_region_add(handle->wayland.o_region, 0, 0, width, height);
 
 	if(handle->wayland.type == MwLL_WAYLAND_POPUP) {
 		wl_region_add(handle->wayland.region, 0, 0, width + abs(handle->wayland.x), height + abs(handle->wayland.y));
 	} else {
 		wl_region_subtract(handle->wayland.region, 0, 0, width + abs(handle->wayland.x), height + abs(handle->wayland.y));
 		wl_region_add(handle->wayland.region, handle->wayland.clipping_rect.x, handle->wayland.clipping_rect.y, handle->wayland.clipping_rect.width, handle->wayland.clipping_rect.height);
-		// wl_region_add(handle->wayland.region, 0, 0, width, height);
+		if(!handle->wayland.parent)
+			wl_region_add(handle->wayland.region, 0, 0, width, height);
 	}
 
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
@@ -2044,9 +2053,9 @@ static void MwLLDestroyImpl(MwLL handle) {
 
 	free(handle);
 
-	if(currentlyHeldWidget == handle) {
-		currentlyHeldWidget = NULL;
-	}
+	// if(topmost_parent->wayland.currentlyHeldWidget == handle) {
+	// 	topmost_parent->wayland.currentlyHeldWidget = NULL;
+	// }
 }
 
 static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
@@ -2742,7 +2751,9 @@ static void MwLLMakeToolWindowImpl(MwLL handle) {
 }
 
 static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
+	MwLL topmost_parent = handle;
 	WIDGET_CHECK(handle);
+	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
 	*point = handle->wayland.cur_mouse_pos;
 }
@@ -2810,7 +2821,7 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 					wl_subsurface_place_above(child->wayland.sublevel->subsurface, handle->wayland.framebuffer.surface);
 					MwLLEndStateChangeImpl(w->children[i]->lowlevel);
 
-					currentlyHeldWidget = NULL;
+					topmost_parent->wayland.currentlyHeldWidget = NULL;
 				}
 			}
 		}
