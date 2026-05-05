@@ -10,16 +10,16 @@ static int wcreate(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwLLColor c   = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor cb = MwParseColor(handle, "#fff");
+	MwLLColor c    = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor cb   = MwParseColor(handle, "#fff");
 	MwLLColor cb_g = MwParseColor(handle, "#666");
-	MwLLColor ct = MwParseColor(handle, "#000");
+	MwLLColor ct   = MwParseColor(handle, "#000");
 	MwRect	  r, r2, r3;
 	MwPoint	  p[4];
-	int h = 64;
+	int	  h  = 64;
 	int	  pw = h / 16; /* parallelogram width */
 	int	  ph = pw * 3; /* parallelogram height */
-	int gh = h / 32; /* gray area height */
+	int	  gh = h / 32; /* gray area height */
 	char	  buf[3];
 
 	r.x	 = 0;
@@ -34,9 +34,9 @@ static void draw(MwWidget handle) {
 	r2.y	  = (r.height - r2.height - ph - gh) / 2;
 	MwDrawRect(handle, &r2, cb);
 
-	r3.x = r2.x;
-	r3.y = r2.y + r2.height;
-	r3.width = r2.width;
+	r3.x	  = r2.x;
+	r3.y	  = r2.y + r2.height;
+	r3.width  = r2.width;
 	r3.height = ph + gh;
 	MwDrawRect(handle, &r3, cb_g);
 

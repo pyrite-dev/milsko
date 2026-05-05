@@ -19,18 +19,17 @@ MwApplication::MwApplication(MwRect rc, MwLL handle)
 
 	rc2 = BRect(rc.x, rc.y, rc.x + rc.width - 1, rc.y + rc.height - 1);
 
-	this->window = new MwWindow(rc2, B_TITLED_WINDOW, 0);
-	this->window->Show();
+	handle->haiku.window = new MwWindow(rc2, B_TITLED_WINDOW, 0);
+	handle->haiku.window->Show();
 
-	handle->haiku.view = new MwView(handle, this->window->Bounds(), B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
+	handle->haiku.view = new MwView(handle, handle->haiku.window->Bounds(), B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
 
-	this->window->AddChild(handle->haiku.view);
+	handle->haiku.window->AddChild(handle->haiku.view);
 
 	delete scr;
 }
 
 MwApplication::~MwApplication() {
-	delete this->window;
 }
 
 void MwApplication::MessageReceived(BMessage* message) {
@@ -76,7 +75,35 @@ void MwView::MessageReceived(BMessage* message) {
 	}
 	case BVIEW_MW_DETACH:
 	{
-		this->RemoveSelf();
+		BRect  rc;
+		BPoint point;
+
+		if(message->FindPoint("view-point", &point) != B_OK) break;
+
+		point = this->ConvertToScreen(this->ConvertFromParent(point));
+
+		rc.left	  = point.x;
+		rc.top	  = point.y;
+		rc.right  = rc.left + this->handle->haiku.width - 1;
+		rc.bottom = rc.top + this->handle->haiku.height - 1;
+
+		if(this->Parent() != NULL) {
+			this->RemoveSelf();
+		}
+
+		this->handle->haiku.parent = NULL;
+
+		this->handle->haiku.window = new MwWindow(rc, B_TITLED_WINDOW, 0);
+		this->handle->haiku.window->Show();
+
+		this->MoveTo(0, 0);
+		this->ResizeTo(this->handle->haiku.width, this->handle->haiku.height);
+		this->SetResizingMode(B_FOLLOW_ALL_SIDES);
+		this->handle->haiku.window->AddChild(this);
+
+		while(this->Window() != this->handle->haiku.window);
+
+		MwLLForceRender(this->handle);
 		break;
 	}
 	case BVIEW_MW_RESIZE:
@@ -86,10 +113,10 @@ void MwView::MessageReceived(BMessage* message) {
 		if(message->FindInt32("view-width", &width) != B_OK) break;
 		if(message->FindInt32("view-height", &height) != B_OK) break;
 
-		if(this->handle->haiku.app == NULL) {
+		if(this->handle->haiku.window == NULL) {
 			this->ResizeTo(width - 1, height - 1);
 		} else {
-			this->Window()->ResizeTo(width - 1, height - 1);
+			this->handle->haiku.window->ResizeTo(width - 1, height - 1);
 			this->ResizeTo(width - 1, height - 1);
 		}
 		this->Draw(BRect(0, 0, 0, 0));
@@ -178,6 +205,14 @@ void MwView::MessageReceived(BMessage* message) {
 		this->Invalidate();
 		break;
 	}
+	case BVIEW_MW_RAISE:
+	{
+		BView* v = this->Parent();
+
+		this->RemoveSelf();
+		v->AddChild(this);
+		break;
+	}
 	case BVIEW_MW_GET_MOUSE:
 	{
 		BPoint* p;
@@ -205,7 +240,7 @@ void MwView::PostMessage(BMessage* message) {
 
 	copy.AddPointer("window-view", this);
 
-	top->haiku.app->window->PostMessage(&copy);
+	top->haiku.window->PostMessage(&copy);
 }
 
 void MwView::PostMessage(uint32 command) {
@@ -223,7 +258,7 @@ status_t MwView::SendMessage(BMessage* message) {
 
 	copy.AddPointer("window-view", this);
 
-	return BMessenger(top->haiku.app->window).SendMessage(&copy, &reply);
+	return BMessenger(top->haiku.window).SendMessage(&copy, &reply);
 }
 
 status_t MwView::SendMessage(uint32 command) {
@@ -355,6 +390,12 @@ void MwWindow::MessageReceived(BMessage* message) {
 	}
 
 	switch(message->what) {
+	case BVIEW_MW_DESTROY:
+	{
+		this->Quit();
+		delete this;
+		break;
+	}
 	case BWIN_MW_SET_TITLE:
 	{
 		const char* title;
@@ -362,6 +403,19 @@ void MwWindow::MessageReceived(BMessage* message) {
 		if(message->FindString("window-title", &title) != B_OK) break;
 
 		this->SetTitle(title);
+		break;
+	}
+	case BWIN_MW_SET_TYPE:
+	{
+		int type;
+
+		if(message->FindInt32("window-type", &type) != B_OK) break;
+
+		this->SetType((window_type)type);
+
+		if(type == B_UNTYPED_WINDOW) {
+			this->SetLook(B_NO_BORDER_WINDOW_LOOK);
+		}
 		break;
 	}
 	default:
@@ -443,23 +497,27 @@ MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 		p->rc	  = mrc;
 		p->handle = r;
 
-		r->haiku.app  = NULL;
-		r->haiku.view = NULL;
+		r->haiku.app	= NULL;
+		r->haiku.window = NULL;
+		r->haiku.view	= NULL;
 
 		r->haiku.app_thread = spawn_thread(app_thread, NULL, B_NORMAL_PRIORITY, p);
 		resume_thread(r->haiku.app_thread);
 
-		while(r->haiku.app == NULL || r->haiku.app->window == NULL || r->haiku.view == NULL) MwTimeSleep(10);
+		while(r->haiku.app == NULL || r->haiku.window == NULL || r->haiku.view == NULL) MwTimeSleep(10);
 	} else {
 		MwLL top = r;
 		while(top->haiku.parent != NULL) {
 			top = top->haiku.parent;
 		}
 
-		r->haiku.app  = NULL;
-		r->haiku.view = new MwView(r, rc, B_FOLLOW_NONE, B_WILL_DRAW);
+		r->haiku.app	= NULL;
+		r->haiku.window = NULL;
+		r->haiku.view	= new MwView(r, rc, B_FOLLOW_NONE, B_WILL_DRAW);
 
 		parent->haiku.view->AddChild(r->haiku.view);
+
+		r->haiku.view->SendMessage(BVIEW_MW_RAISE);
 	}
 
 	r->haiku.x	= x;
@@ -482,6 +540,8 @@ void MwLLDestroyImpl(MwLL handle) {
 		wait_for_thread(handle->haiku.app_thread, &exit_value);
 
 		delete handle->haiku.app;
+	} else if(handle->haiku.window != NULL) {
+		handle->haiku.window->PostMessage(BWIN_MW_DESTROY);
 	}
 
 	free(handle);
@@ -579,7 +639,7 @@ void MwLLSetTitleImpl(MwLL handle, const char* title) {
 
 	msg.AddString("window-title", title);
 
-	handle->haiku.app->window->PostMessage(&msg);
+	handle->haiku.window->PostMessage(&msg);
 }
 
 int MwLLPendingImpl(MwLL handle) {
@@ -699,7 +759,15 @@ void MwLLForceRenderImpl(MwLL handle) {
 
 void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {}
 
-void MwLLDetachImpl(MwLL handle, MwPoint* point) {}
+void MwLLDetachImpl(MwLL handle, MwPoint* point) {
+	BMessage msg(BVIEW_MW_DETACH);
+
+	msg.AddPoint("view-point", BPoint(point->x, point->y));
+
+	handle->haiku.view->PostMessage(&msg);
+
+	while(handle->haiku.window == NULL);
+}
 
 void MwLLShowImpl(MwLL handle, int show) {
 	if(show) {
@@ -713,13 +781,23 @@ void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
 
 void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {}
 
-void MwLLMakeToolWindowImpl(MwLL handle) {}
+void MwLLMakeToolWindowImpl(MwLL handle) {
+	handle->haiku.type = B_UNTYPED_WINDOW;
+}
 
 void MwLLMakePopupImpl(MwLL handle, MwLL parent) {}
 
-void MwLLBeginStateChangeImpl(MwLL handle) {}
+void MwLLBeginStateChangeImpl(MwLL handle) {
+	handle->haiku.type = handle->haiku.window == NULL ? B_TITLED_WINDOW : handle->haiku.window->Type();
+}
 
-void MwLLEndStateChangeImpl(MwLL handle) {}
+void MwLLEndStateChangeImpl(MwLL handle) {
+	BMessage msg(BWIN_MW_SET_TYPE);
+
+	msg.AddInt32("window-type", handle->haiku.type);
+
+	BMessenger(handle->haiku.window).SendMessage(&msg);
+}
 
 void MwLLFocusImpl(MwLL handle) {}
 
@@ -766,7 +844,7 @@ MwBool MwLLDoModernImpl(MwLL handle) {
 }
 
 static void MwLLRaiseImpl(MwLL handle) {
-	(void)handle;
+	handle->haiku.view->SendMessage(BVIEW_MW_RAISE);
 }
 
 int MwLLHaikuCallInitImpl() {

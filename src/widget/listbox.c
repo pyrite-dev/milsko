@@ -420,8 +420,8 @@ static void redrawIfNeeded(MwWidget handle, int row) {
 static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text) {
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
-	char*	       t = text == NULL ? NULL : MwStringDuplicate(text);
-	int new		 = 0;
+	char*	       t   = text == NULL ? NULL : MwStringDuplicate(text);
+	int	       new = 0;
 	if(row == -1) row = arrlen(lb->list);
 
 	entry.name   = NULL;
@@ -449,7 +449,7 @@ static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text)
 static void mwListBoxSetIconImpl(MwWidget handle, int index, MwLLPixmap icon) {
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
-	int new = 0;
+	int	       new = 0;
 	if(index == -1) index = arrlen(lb->list);
 
 	entry.name   = NULL;

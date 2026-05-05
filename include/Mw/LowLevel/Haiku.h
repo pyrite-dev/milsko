@@ -21,8 +21,6 @@ class MwWindow;
 
 class MwApplication : public BApplication {
     public:
-	MwWindow* window;
-
 	MwApplication(MwRect rc, MwLL handle);
 	~MwApplication();
 
@@ -70,6 +68,7 @@ typedef BBitmap MwBBitmap;
 #else
 typedef void MwApplication;
 typedef void MwView;
+typedef void MwWindow;
 typedef void MwBBitmap;
 #endif
 
@@ -91,11 +90,14 @@ enum BVIEW_MW_WHAT {
 	BVIEW_MW_LINE,
 	BVIEW_MW_BITMAP,
 	BVIEW_MW_RENDER,
+	BVIEW_MW_RAISE,
 	BVIEW_MW_GET_MOUSE
 };
 
 enum BWIN_MW_WHAT {
-	BWIN_MW_SET_TITLE = 0
+	BWIN_MW_DESTROY = 0,
+	BWIN_MW_SET_TITLE,
+	BWIN_MW_SET_TYPE
 };
 
 enum MwLLHAIKU_EVENT {
@@ -135,6 +137,8 @@ union _MwLLHaikuEvent {
 struct _MwLLHaiku {
 	struct _MwLLCommon common;
 
+	int type;
+
 	int x;
 	int y;
 	int width;
@@ -142,6 +146,7 @@ struct _MwLLHaiku {
 
 	MwLL	       parent;
 	MwApplication* app;
+	MwWindow*      window;
 	MwView*	       view;
 	thread_id      app_thread;
 	int	       force_render;
