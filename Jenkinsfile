@@ -74,7 +74,7 @@ pipeline {
 						archiveArtifacts("MwMSVC32.dll,MwMSVC32.lib")
 					}
 				}
-				stage("Build for Windows 32-bit (MSVC)") {
+				stage("Build for Windows 32-bit (Watcom)") {
 					agent {
 						label "built-in"
 					}
