@@ -703,7 +703,7 @@ void MwLLNextEventImpl(MwLL handle) {
 }
 
 MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
-	MwLLPixmap r  = (MwLLPixmap)malloc(sizeof(*r));
+	MwLLPixmap r = (MwLLPixmap)malloc(sizeof(*r));
 
 	(void)handle;
 
@@ -803,9 +803,9 @@ void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
 }
 
 void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
-	if(toggle){
+	if(toggle) {
 		handle->haiku.type = B_TITLED_WINDOW;
-	}else{
+	} else {
 		handle->haiku.type = B_UNTYPED_WINDOW;
 	}
 }

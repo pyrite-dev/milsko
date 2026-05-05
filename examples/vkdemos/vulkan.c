@@ -264,8 +264,8 @@ void vulkan_setup(MwWidget handle) {
 	swapchainCreateInfo.imageExtent	     = (VkExtent2D){.width = ow, .height = oh},
 	swapchainCreateInfo.imageArrayLayers = 1,
 	swapchainCreateInfo.imageUsage	     = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-					       VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-					       VK_IMAGE_USAGE_SAMPLED_BIT;
+					 VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+					 VK_IMAGE_USAGE_SAMPLED_BIT;
 	// th is how we specify no transformation.
 	swapchainCreateInfo.preTransform   = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 	swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;

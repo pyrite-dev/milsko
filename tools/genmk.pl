@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-my @cfiles = ();
+my @cfiles   = ();
 my @examples = ();
 
 sub scan {
@@ -97,7 +97,7 @@ sub generate {
         $exeout = "name ";
         $def    = "-d";
         $inc    = "-i=";
-        $cdll    = "-bd";
+        $cdll   = "-bd";
         $dll    = "system nt_dll";
         $exe    = "system nt";
         $lib    = "library ";
@@ -122,6 +122,7 @@ sub generate {
     print(OUT "EXE_CFLAGS = ${inc}include\n");
     print(OUT "EXE_LDFLAGS = $exe");
     print(OUT "\n");
+
     if ($suffix) {
         print(OUT ".SUFFIXES: .obj .c\n");
     }
@@ -172,11 +173,14 @@ sub generate {
         $o =~ s/\.c$/.obj/;
         $o =~ s/\//$dir/g;
         print(OUT "$b: $o src${dir}Mw.dll\n");
-        print(OUT "	\$(LD) \$(EXE_LDFLAGS) $exeout\$@ $prefobj$o $needlibs ${lib}src${dir}Mw.lib");
-	if($f =~ /\Q${dir}gldemos${dir}\E/){
-		print(OUT " ${lib}opengl32.lib ${lib}glu32.lib");
-	}
-	print(OUT "\n");
+        print(OUT
+"	\$(LD) \$(EXE_LDFLAGS) $exeout\$@ $prefobj$o $needlibs ${lib}src${dir}Mw.lib"
+        );
+
+        if ($f =~ /\Q${dir}gldemos${dir}\E/) {
+            print(OUT " ${lib}opengl32.lib ${lib}glu32.lib");
+        }
+        print(OUT "\n");
         print(OUT "\n");
         print(OUT "$o: $f\n");
         print(OUT "	\$(CC) \$(EXE_CFLAGS) ${out}\$@ $f\n");
