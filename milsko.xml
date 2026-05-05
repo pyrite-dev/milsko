@@ -899,6 +899,9 @@
 				<property name="iconPixmap" />
 				<property name="title" />
 			</properties>
+			<handlers>
+				<handler name="close" />
+			</handlers>
 			<functions>
 				<function name="GetFrame">
 					<return>
