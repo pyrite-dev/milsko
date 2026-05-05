@@ -11,12 +11,15 @@ static int wcreate(MwWidget handle) {
 
 static void draw(MwWidget handle) {
 	MwLLColor c   = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor csb = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
-	MwLLColor csf = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
-	MwRect	  r, r2;
+	MwLLColor cb = MwParseColor(handle, "#fff");
+	MwLLColor cb_g = MwParseColor(handle, "#666");
+	MwLLColor ct = MwParseColor(handle, "#000");
+	MwRect	  r, r2, r3;
 	MwPoint	  p[4];
-	int	  tw = 2;
-	int	  th = 6;
+	int h = 64;
+	int	  pw = h / 16; /* parallelogram width */
+	int	  ph = pw * 3; /* parallelogram height */
+	int gh = h / 32; /* gray area height */
 	char	  buf[3];
 
 	r.x	 = 0;
@@ -25,29 +28,36 @@ static void draw(MwWidget handle) {
 	r.height = MwGetInteger(handle, MwNheight);
 	MwDrawRect(handle, &r, c);
 
-	r2.width  = 32;
-	r2.height = 32 - th - 1;
+	r2.width  = h;
+	r2.height = h - ph - gh;
 	r2.x	  = (r.width - r2.width) / 2;
-	r2.y	  = (r.height - r2.height - th - 1) / 2;
-	MwDrawRect(handle, &r2, csb);
+	r2.y	  = (r.height - r2.height - ph - gh) / 2;
+	MwDrawRect(handle, &r2, cb);
+
+	r3.x = r2.x;
+	r3.y = r2.y + r2.height;
+	r3.width = r2.width;
+	r3.height = ph + gh;
+	MwDrawRect(handle, &r3, cb_g);
 
 	p[0].x = r2.x;
 	p[0].y = r2.y + r2.height;
-	p[1].x = r2.x - tw;
-	p[1].y = r2.y + r2.height + th;
-	p[2].x = r2.x + r2.width - tw;
-	p[2].y = r2.y + r2.height + th;
+	p[1].x = r2.x - pw;
+	p[1].y = r2.y + r2.height + ph;
+	p[2].x = r2.x + r2.width - pw;
+	p[2].y = r2.y + r2.height + ph;
 	p[3].x = r2.x + r2.width;
 	p[3].y = r2.y + r2.height;
-	MwLLPolygon(handle->lowlevel, p, 4, csb);
+	MwLLPolygon(handle->lowlevel, p, 4, cb);
 
 	p[0].x = r.width / 2;
 	p[0].y = r.height / 2;
 	sprintf(buf, "%d", MwGetInteger(handle, MwNdate));
-	MwDrawText(handle, MwFLBuildFont(MwFLFlagBold), p, buf, MwALIGNMENT_CENTER, csf);
+	MwDrawText(handle, MwFLBuildFont(MwFLFlagBold), p, buf, MwALIGNMENT_CENTER, ct);
 
-	MwLLFreeColor(csf);
-	MwLLFreeColor(csb);
+	MwLLFreeColor(ct);
+	MwLLFreeColor(cb_g);
+	MwLLFreeColor(cb);
 	MwLLFreeColor(c);
 }
 
