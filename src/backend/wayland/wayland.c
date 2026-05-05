@@ -1472,7 +1472,7 @@ static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
 	WIDGET_CHECK(handle);
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
-	*point = handle->wayland.cur_mouse_pos;
+	*point = topmost_parent->wayland.cur_mouse_pos;
 }
 
 static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
@@ -1558,6 +1558,20 @@ static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 
 static void MwLLRaiseImpl(MwLL handle) {
 	(void)handle;
+	/* 	WIDGET_CHECK(handle);
+
+	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
+		MwLL topmost_parent = handle;
+		int  children_num;
+		while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
+		children_num = arrlen(((MwWidget)topmost_parent->common.user)->children);
+
+		if(children_num > 1) {
+			printf("%d\n", children_num);
+			MwWidget last_child = ((MwWidget)topmost_parent->common.user)->children[children_num - 1];
+			wl_subsurface_place_above(handle->wayland.sublevel->subsurface, last_child->lowlevel->wayland.framebuffer.surface);
+		}
+		}*/
 }
 
 static int MwLLWaylandCallInitImpl(void) {

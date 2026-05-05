@@ -495,6 +495,7 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	MwLL	topmost_parent = self;
 	MwMouse p;
 	MwBool	inArea		    = MwFALSE;
+	MwBool	h		    = MwFALSE;
 	MwLL	currentlyHeldWidget = NULL;
 
 	(void)time;
@@ -505,11 +506,12 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 	currentlyHeldWidget = topmost_parent->wayland.currentlyHeldWidget;
 
-	if(currentlyHeldWidget == self) {
-		self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
-		self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
-		p.point			      = self->wayland.cur_mouse_pos;
-		MwLLDispatch(self, move, &p);
+	if(currentlyHeldWidget) {
+		currentlyHeldWidget->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
+		currentlyHeldWidget->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
+		p.point					     = currentlyHeldWidget->wayland.cur_mouse_pos;
+		MwLLDispatch(currentlyHeldWidget, move, &p);
+		h = MwTRUE;
 	}
 
 	if(self->wayland.framebuffer.surface) {
@@ -520,10 +522,12 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 		inArea |= self->wayland.backbuffer.surface == curSurface;
 	}
 	if(inArea) {
-		self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
-		self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
-		p.point			      = self->wayland.cur_mouse_pos;
-		MwLLDispatch(self, move, &p);
+		if(h) {
+			self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
+			self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
+			p.point			      = self->wayland.cur_mouse_pos;
+			MwLLDispatch(self, move, &p);
+		}
 		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
 	}
 	WAYLAND_EVENT_OP_END(self);
