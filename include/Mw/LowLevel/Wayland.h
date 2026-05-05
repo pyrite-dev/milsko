@@ -573,4 +573,56 @@ struct _MwLLWaylandPixmap {
 	cairo_surface_t* cs;
 };
 
+/* Setup the framebuffer with the saved width/height */
+void MwLLWaylandFramebufferSetup(struct _MwLLWayland* wayland);
+/* Destroy the framebuffer */
+void MwLLWaylandFramebufferDestroy(struct _MwLLWayland* handle);
+
+/* Setup the framebuffer with the saved width/height */
+void MwLLWaylandBackbufferSetup(struct _MwLLWayland* wayland);
+/* Destroy the backbuffer */
+void MwLLWaylandBackbufferDestroy(struct _MwLLWayland* handle);
+
+void MwLLWaylandBufferSetup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height);
+void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer);
+void MwLLWaylandBufferDestroy(struct _MwLLWaylandShmBuffer* buffer);
+
+void MwLLWaylandRegionSetup(MwLL handle);
+void MwLLWaylandRegionInvalidate(MwLL handle);
+
+void MwLLWaylandHangUntilConfigured(MwLL handle);
+
+MwBool MwLLWaylandWidgetIsDestroyed(MwLL self);
+void   MwLLWaylandWidgetUndestroy(MwLL self);
+
+/* Function for setting up the callbacks/structs that will be registered upon the relevant interfaces being found. */
+void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland);
+
+void MwLLWaylandClipboardRead(wl_clipboard_device_context_t* ctx, int clipboard_type);
+
+/* Flush Wayland events */
+void MwLLWaylandFlush(MwLL handle);
+
+/* Standard procedure before event callbacks in Wayland  */
+#define WAYLAND_EVENT_OP_START(self) \
+	if(MwLLWaylandWidgetIsDestroyed(self)) { \
+		return; \
+	}
+
+/* Footer for WAYLAND_EVENT_OP_START */
+#define WAYLAND_EVENT_OP_END(self)
+
+#define WIDGET_CHECK(handle) \
+	if(!handle->wayland.valid) { \
+		return; \
+	}
+
+/* the two decoration manager constructs */
+typedef struct zxdg_decoration_manager_v1_context {
+	struct zxdg_decoration_manager_v1*  manager;
+	struct zxdg_toplevel_decoration_v1* decoration;
+} zxdg_decoration_manager_v1_context_t;
+
+extern struct zwp_relative_pointer_v1_listener MwLLWaylandRelativePointerListener;
+
 #endif

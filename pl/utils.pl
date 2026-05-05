@@ -66,7 +66,7 @@ sub use_backend {
 }
 
 sub scan_wayland_protocol_core {
-    my $proto_c = "src/backend/wayland-core-protocol.c";
+    my $proto_c = "src/backend/wayland/wayland-core-protocol.c";
 
     if (
         system(
@@ -98,7 +98,7 @@ sub scan_wayland_protocol {
     my $proto = $_[1];
     my $ver   = $_[2];
 
-    my $proto_c = "src/backend/wayland-${proto}-protocol.c";
+    my $proto_c = "src/backend/wayland/wayland-${proto}-protocol.c";
 
     if (
         system(

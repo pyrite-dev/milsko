@@ -3,25 +3,20 @@
 #include <sys/poll.h>
 #include <sys/mman.h>
 
-#include "../../external/stb_ds.h"
-
-/* TODO: find out what FreeBSD and such wants us to include */
-#ifdef __FreeBSD__
-/* XXX: Untested (nishi) */
-#include <evdev/input.h>
-#else
-#include <linux/input.h>
-#include <linux/input-event-codes.h>
-#endif
+#include "../../../external/stb_ds.h"
 
 wayland_call_table_t wl_call_tbl;
 MwBool		     MwWaylandAlwaysRender = MwFALSE;
 
 static pthread_mutex_t destroyedWidgetsTableMutex;
-/* So Wayland, bless its soul; it keeps using callbacks LONG after they should not only be destroyed but the widget doesn't even exist anymore. Naturally, this causes use after free. so we fight fire with fire in the worst code i've ever written: by storing the freed pointers here, we disallow wayland from ever using them again. if something else is created that takes this slot, we remove it from the table.  */
+/*
+ * So Wayland, bless its soul; it keeps using callbacks LONG after they should not only be destroyed but the widget doesn't even exist anymore. Naturally, this causes use after free. so we fight fire with fire in the worst code i've ever written: by storing the freed pointers here, we disallow wayland from ever using them again. if something else is created that takes this slot, we remove it from the table.
+ *
+ * TODO(IOI): FUCKING NO???? FIX THIS.
+ */
 static MwLL* destroyedWidgetsTable;
 
-static MwBool is_destroyed(MwLL self) {
+MwBool MwLLWaylandWidgetIsDestroyed(MwLL self) {
 	int i;
 	pthread_mutex_lock(&destroyedWidgetsTableMutex);
 	for(i = 0; i < arrlen(destroyedWidgetsTable); i++) {
@@ -33,7 +28,7 @@ static MwBool is_destroyed(MwLL self) {
 	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
 	return MwFALSE;
 }
-static void undestroy(MwLL self) {
+void MwLLWaylandWidgetUndestroy(MwLL self) {
 	int i;
 	pthread_mutex_lock(&destroyedWidgetsTableMutex);
 	for(i = 0; i < arrlen(destroyedWidgetsTable); i++) {
@@ -46,80 +41,33 @@ static void undestroy(MwLL self) {
 	return;
 }
 
-#define WIDGET_CHECK(handle) \
-	if(!handle->wayland.valid) { \
-		/*printf("[WARNING] Operation on invalid widget at line %d\n", __LINE__);*/ \
-		return; \
+static int event_loop(MwLL handle);
+
+/* Recursively dispatch a resize event to a widget and its children */
+static void recursive_dispatch_resize(MwLL handle) {
+	MwWidget h = (MwWidget)handle->common.user;
+	if(h) {
+		int i;
+		for(i = 0; i < arrlen(h->children); i++) {
+			MwDispatch(h->children[i], resize);
+			if(arrlen(h->children[i]->children) > 0) {
+				recursive_dispatch_resize(h->children[i]->lowlevel);
+			}
+		}
 	}
-
-/* Standard procedure before event callbacks in Wayland  */
-#define WAYLAND_EVENT_OP_START(self) \
-	if(is_destroyed(self)) { \
-		/*printf("[WARNING] Operation on invalid widget at line %d\n", __LINE__);*/ \
-		return; \
-	}
-
-/* Footer for WAYLAND_EVENT_OP_START */
-#define WAYLAND_EVENT_OP_END(self)
-
-/* Setup the framebuffer with the saved width/height */
-static void framebuffer_setup(struct _MwLLWayland* wayland);
-/* Destroy the framebuffer */
-static void framebuffer_destroy(struct _MwLLWayland* handle);
-
-/* Setup the framebuffer with the saved width/height */
-static void backbuffer_setup(struct _MwLLWayland* wayland);
-/* Destroy the backbuffer */
-static void backbuffer_destroy(struct _MwLLWayland* handle);
-
-static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer);
-
-static void region_setup(MwLL handle);
-static void region_invalidate(MwLL handle);
-static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer);
-
-static void setup_clipboard(MwLL self, struct wl_seat* wl_seat);
-static void setup_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
-static int  event_loop(MwLL handle);
-
-/* Get the registered interface from r, or NULL if it doesn't currently have it. */
-#define WAYLAND_GET_INTERFACE(handle, inter) shget(handle.wl_protocol_map, inter##_interface.name)
-
-/* `wl_registry.global` callback */
-static void new_protocol(void* data, struct wl_registry* registry,
-			 MwU32 name, const char* interface,
-			 MwU32 version) {
-	MwLL self = data;
-	(void)version;
-	(void)registry;
-
-	WAYLAND_EVENT_OP_START(self);
-
-	wayland_protocol_callback_table_t* cb = shget(self->wayland.wl_protocol_setup_map, interface);
-	if(cb != NULL) {
-		shput(self->wayland.wl_protocol_map, interface, cb->setup(name, data));
-		/* we don't care for adding this protocol, we just use it to know if the compositor will let us have transparent surfaces */
-	} else if(strcmp(interface, "wp_alpha_modifier_v1") == 0) {
-		self->common.supports_transparency = MwTRUE;
-	} else {
-		// printf("unknown interface %s\n", interface);
-	}
-
-	WAYLAND_EVENT_OP_END(self);
 };
 
-/* `wl_registry.global_remove` callback */
-static void protocol_removed(void*		 data,
-			     struct wl_registry* registry,
-			     MwU32		 name) {
-	(void)data;
-	(void)registry;
-	(void)name;
-	printf("%d destroyed\n", name);
-};
+static void recursive_render(MwLL handle) {
+	int i;
+	WIDGET_CHECK(handle);
+
+	for(i = 0; i < arrlen(((MwWidget)handle->common.user)->children); i++) recursive_render(((MwWidget)handle->common.user)->children[i]->lowlevel);
+
+	MwLLForceRender(handle);
+}
 
 /* Flush Wayland events */
-static void wl_flush(MwLL handle) {
+void MwLLWaylandFlush(MwLL handle) {
 	struct pollfd pfd;
 	int	      rc;
 
@@ -137,1022 +85,8 @@ static void wl_flush(MwLL handle) {
 	}
 }
 
-/* Recursively dispatch a resize event to a widget and its children */
-static void recursive_dispatch_resize(MwLL handle) {
-	MwWidget h = (MwWidget)handle->common.user;
-	if(h) {
-		int i;
-		for(i = 0; i < arrlen(h->children); i++) {
-			MwDispatch(h->children[i], resize);
-			if(arrlen(h->children[i]->children) > 0) {
-				recursive_dispatch_resize(h->children[i]->lowlevel);
-			}
-		}
-	}
-};
-
-/* Recursively dispatch a move event to a widget and its children */
-static void recursive_dispatch_move(MwLL handle, MwMouse* p) {
-	MwWidget h = (MwWidget)handle->common.user;
-	if(h) {
-		int i;
-		for(i = 0; i < arrlen(h->children); i++) {
-			MwLLDispatch(h->children[i]->lowlevel, move, p);
-			if(arrlen(h->children[i]->children) > 0) {
-				recursive_dispatch_move(h->children[i]->lowlevel, p);
-			}
-		}
-	}
-};
-
-static void recursive_render(MwLL handle) {
-	int i;
-	WIDGET_CHECK(handle);
-
-	for(i = 0; i < arrlen(((MwWidget)handle->common.user)->children); i++) recursive_render(((MwWidget)handle->common.user)->children[i]->lowlevel);
-
-	MwLLForceRender(handle);
-}
-
-static void wl_offer(void*		   data,
-		     struct wl_data_offer* wl_data_offer,
-		     const char*	   mime_type) {
-	wl_clipboard_device_context_t* self = data;
-	wl_data_offer_accept(wl_data_offer, self->ll->wayland.clipboard_serial, mime_type);
-};
-
-struct wl_data_offer_listener offer_listener = {
-    .offer = wl_offer,
-};
-
-static void wl_data_device_data_offer(void*		     data,
-				      struct wl_data_device* wl_data_device,
-				      struct wl_data_offer*  offer) {
-	wl_clipboard_device_context_t* self = data;
-	(void)wl_data_device;
-
-	wl_data_offer_add_listener(offer, &offer_listener, data);
-
-	self->offer.wl = offer;
-};
-
-static void wl_data_device_enter(void*			data,
-				 struct wl_data_device* wl_data_device,
-				 uint32_t		serial,
-				 struct wl_surface*	surface,
-				 wl_fixed_t		x,
-				 wl_fixed_t		y,
-				 struct wl_data_offer*	id) {
-	MwLL self = data;
-	(void)wl_data_device;
-	(void)surface;
-	(void)x;
-	(void)y;
-	(void)id;
-
-	WAYLAND_EVENT_OP_START(self);
-
-	self->wayland.clipboard_serial = serial;
-
-	WAYLAND_EVENT_OP_END(self);
-};
-static void wl_data_device_leave(void*			data,
-				 struct wl_data_device* wl_data_device) {
-	MwLL self = data;
-
-	WAYLAND_EVENT_OP_START(self);
-	wl_data_device_destroy(wl_data_device);
-	WAYLAND_EVENT_OP_END(self);
-};
-static void wl_data_device_motion(void*			 data,
-				  struct wl_data_device* wl_data_device,
-				  uint32_t		 time,
-				  wl_fixed_t		 x,
-				  wl_fixed_t		 y) {
-	(void)data;
-	(void)wl_data_device;
-	(void)time;
-	(void)x;
-	(void)y;
-};
-static void wl_data_device_drop(void*		       data,
-				struct wl_data_device* wl_data_device) {
-	(void)data;
-	(void)wl_data_device;
-};
-
-static void wl_data_device_selection(void*		    data,
-				     struct wl_data_device* wl_data_device,
-				     struct wl_data_offer*  id) {
-	(void)data;
-	(void)wl_data_device;
-	(void)id;
-};
-
-struct wl_data_device_listener wl_data_device_listener = {
-    .data_offer = wl_data_device_data_offer,
-    .enter	= wl_data_device_enter,
-    .leave	= wl_data_device_leave,
-    .motion	= wl_data_device_motion,
-    .drop	= wl_data_device_drop,
-    .selection	= wl_data_device_selection,
-};
-
-static void zwp_primary_selection_device_v1_data_offer(void*				       data,
-						       struct zwp_primary_selection_device_v1* zwp_primary_selection_device_v1,
-						       struct zwp_primary_selection_offer_v1*  offer) {
-	wl_clipboard_device_context_t* self = data;
-	(void)zwp_primary_selection_device_v1;
-
-	self->offer.zwp = offer;
-};
-
-static void zwp_primary_selection_device_v1_selection(void*				      data,
-						      struct zwp_primary_selection_device_v1* zwp_primary_selection_device_v1,
-						      struct zwp_primary_selection_offer_v1*  id) {
-	(void)data;
-	(void)zwp_primary_selection_device_v1;
-	(void)id;
-};
-
-struct zwp_primary_selection_device_v1_listener zwp_primary_selection_device_v1_listener = {
-    .data_offer = zwp_primary_selection_device_v1_data_offer,
-    .selection	= zwp_primary_selection_device_v1_selection,
-};
-
-static void wl_clipboard_read(wl_clipboard_device_context_t* ctx, int clipboard_type) {
-	int	       fds[2];
-	fd_set	       set;
-	char*	       buf = NULL;
-	struct timeval timeout;
-	int	       rc = 0;
-
-	if(pipe(fds) != 0) {
-		return;
-	}
-
-	FD_ZERO(&set);
-	FD_SET(fds[0], &set);
-	timeout.tv_sec	= 0;
-	timeout.tv_usec = 100;
-
-	if(clipboard_type == MwCLIPBOARD_PRIMARY && ctx->offer.zwp) {
-		zwp_primary_selection_offer_v1_receive(ctx->offer.zwp, "text/plain", fds[1]);
-	} else if(ctx->offer.wl) {
-		wl_data_offer_receive(ctx->offer.wl, "text/plain", fds[1]);
-	}
-	close(fds[1]);
-
-	wl_flush(ctx->ll);
-	wl_display_roundtrip(ctx->ll->wayland.display);
-
-	while(MwTRUE) {
-		rc = select(fds[0] + 1, &set, NULL, NULL, &timeout);
-		if(rc <= 0) {
-			break;
-		} else {
-			char	b;
-			ssize_t n = read(fds[0], &b, sizeof(b));
-			if(n <= 0) {
-				break;
-			}
-			arrpush(buf, b);
-		}
-	}
-	arrpush(buf, 0);
-	close(fds[0]);
-
-	MwLLDispatch(ctx->ll, clipboard, buf);
-	arrfree(buf);
-
-	ctx->ll->wayland.events_pending = 1;
-}
-
-static void wl_data_source_listener_target(void*		  data,
-					   struct wl_data_source* wl_data_source,
-					   const char*		  mime_type) {
-	(void)data;
-	(void)wl_data_source;
-	(void)mime_type;
-};
-static void wl_data_source_listener_send(void*			data,
-					 struct wl_data_source* wl_data_source,
-					 const char*		mime_type,
-					 int32_t		fd) {
-	MwLL self = data;
-	(void)wl_data_source;
-	(void)mime_type;
-
-	WAYLAND_EVENT_OP_START(self);
-	if(self->wayland.clipboard_buffer != NULL) {
-		write(fd, self->wayland.clipboard_buffer, strlen(self->wayland.clipboard_buffer));
-		close(fd);
-	}
-	WAYLAND_EVENT_OP_END(self);
-};
-static void wl_data_source_listener_cancelled(void*		     data,
-					      struct wl_data_source* wl_data_source);
-
-struct wl_data_source_listener wl_data_source_listener = {
-    .target    = wl_data_source_listener_target,
-    .send      = wl_data_source_listener_send,
-    .cancelled = wl_data_source_listener_cancelled,
-};
-
-static void wl_data_source_listener_cancelled(void*		     data,
-					      struct wl_data_source* wl_data_source) {
-	MwLL self = data;
-
-	WAYLAND_EVENT_OP_START(self);
-
-	if(wl_data_source)
-		wl_data_source_destroy(wl_data_source);
-
-	self->wayland.clipboard_source.wl = wl_data_device_manager_create_data_source(self->wayland.clipboard_manager.wl);
-
-	wl_data_source_offer(self->wayland.clipboard_source.wl, "text/plain");
-	wl_data_source_offer(self->wayland.clipboard_source.wl, "text/plain;charset=utf-8");
-	wl_data_source_offer(self->wayland.clipboard_source.wl, "TEXT");
-	wl_data_source_offer(self->wayland.clipboard_source.wl, "STRING");
-	wl_data_source_offer(self->wayland.clipboard_source.wl, "UTF8_STRING");
-
-	wl_data_source_add_listener(self->wayland.clipboard_source.wl, &wl_data_source_listener, self);
-
-	WAYLAND_EVENT_OP_END(self);
-};
-
-static void zwp_primary_selection_source_v1_send(void*					 data,
-						 struct zwp_primary_selection_source_v1* wl_data_source,
-						 const char*				 mime_type,
-						 int32_t				 fd) {
-	MwLL self = data;
-	(void)wl_data_source;
-	(void)mime_type;
-
-	WAYLAND_EVENT_OP_START(self);
-
-	if(self->wayland.clipboard_buffer != NULL) {
-		write(fd, self->wayland.clipboard_buffer, strlen(self->wayland.clipboard_buffer));
-		close(fd);
-	}
-
-	WAYLAND_EVENT_OP_END(self);
-};
-static void zwp_primary_selection_source_v1_cancelled(void*				      data,
-						      struct zwp_primary_selection_source_v1* wl_data_source) {
-	MwLL self = data;
-	(void)wl_data_source;
-
-	WAYLAND_EVENT_OP_START(self);
-
-	zwp_primary_selection_source_v1_destroy(self->wayland.clipboard_source.zwp);
-
-	self->wayland.clipboard_source.zwp = zwp_primary_selection_device_manager_v1_create_source(self->wayland.clipboard_manager.zwp);
-
-	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "text/plain");
-	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "text/plain;charset=utf-8");
-	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "TEXT");
-	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "STRING");
-	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "UTF8_STRING");
-
-	WAYLAND_EVENT_OP_END(self);
-};
-
-struct zwp_primary_selection_source_v1_listener zwp_primary_selection_source_v1_listener = {
-    .send      = zwp_primary_selection_source_v1_send,
-    .cancelled = zwp_primary_selection_source_v1_cancelled,
-};
-
-/* wl_data_device_manager setup function */
-static wayland_protocol_t* wl_data_device_manager_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland->clipboard_manager.wl = wl_registry_bind(wayland->registry, name, &wl_data_device_manager_interface, 2);
-
-	wayland->clipboard_source.wl = wl_data_device_manager_create_data_source(wayland->clipboard_manager.wl);
-
-	wl_data_source_offer(wayland->clipboard_source.wl, "text/plain");
-	wl_data_source_offer(wayland->clipboard_source.wl, "text/plain;charset=utf-8");
-	wl_data_source_offer(wayland->clipboard_source.wl, "TEXT");
-	wl_data_source_offer(wayland->clipboard_source.wl, "STRING");
-	wl_data_source_offer(wayland->clipboard_source.wl, "UTF8_STRING");
-
-	wl_data_source_add_listener(wayland->clipboard_source.wl, &wl_data_source_listener, wayland);
-
-	if(wayland->pointer_seat) {
-		setup_clipboard((MwLL)wayland, wayland->pointer_seat);
-	}
-
-	return NULL;
-}
-
-static void wl_data_device_manager_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)data;
-	if(wayland->clipboard_manager.wl != NULL) {
-		wl_data_device_manager_destroy(wayland->clipboard_manager.wl);
-		wayland->clipboard_manager.wl = NULL;
-	}
-	if(wayland->clipboard_source.wl) {
-		// wl_data_source_destroy(wayland->clipboard_source.wl);
-		wayland->clipboard_source.wl = NULL;
-	}
-}
-
-/* zwp_primary_selection_device_manager_v1 setup function */
-static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland->clipboard_manager.zwp = wl_registry_bind(wayland->registry, name, &zwp_primary_selection_device_manager_v1_interface, 1);
-
-	wayland->clipboard_source.zwp = zwp_primary_selection_device_manager_v1_create_source(wayland->clipboard_manager.zwp);
-
-	zwp_primary_selection_source_v1_offer(wayland->clipboard_source.zwp, "text/plain");
-	zwp_primary_selection_source_v1_offer(wayland->clipboard_source.zwp, "text/plain;charset=utf-8");
-	zwp_primary_selection_source_v1_offer(wayland->clipboard_source.zwp, "TEXT");
-	zwp_primary_selection_source_v1_offer(wayland->clipboard_source.zwp, "STRING");
-	zwp_primary_selection_source_v1_offer(wayland->clipboard_source.zwp, "UTF8_STRING");
-
-	zwp_primary_selection_source_v1_add_listener(wayland->clipboard_source.zwp, &zwp_primary_selection_source_v1_listener, wayland);
-
-	wayland->supports_zwp = MwTRUE;
-
-	if(wayland->pointer_seat) {
-		setup_zwp_clipboard((MwLL)wayland, wayland->pointer_seat);
-	}
-
-	return NULL;
-}
-
-static void zwp_primary_selection_device_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	(void)data;
-}
-
-/* zwp_primary_selection_device_manager_v1 setup function */
-static wayland_protocol_t* zwp_pointer_constraints_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland->pointer_constraints = wl_registry_bind(wayland->registry, name, &zwp_pointer_constraints_v1_interface, 1);
-	return NULL;
-}
-
-static void zwp_pointer_constraints_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	(void)data;
-}
-
-static struct wl_surface* curSurface = NULL;
-
-/* `wl_pointer.enter` callback */
-static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
-			  struct wl_surface* surface, wl_fixed_t surface_x,
-			  wl_fixed_t surface_y) {
-	MwLL self	    = data;
-	MwLL topmost_parent = self;
-
-	(void)surface_x;
-	(void)surface_y;
-	(void)wl_pointer;
-
-	WAYLAND_EVENT_OP_START(self);
-	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
-
-	curSurface = surface;
-
-	self->wayland.pointer_serial = serial;
-
-	wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, topmost_parent->wayland.cursor.surface, 0, 0);
-
-	WAYLAND_EVENT_OP_END(self);
-};
-
-/* `wl_pointer.leave` callback */
-static void pointer_leave(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
-			  struct wl_surface* surface) {
-	MwLL self = data;
-	(void)wl_pointer;
-	(void)serial;
-	(void)surface;
-	WAYLAND_EVENT_OP_START(self);
-	curSurface = NULL;
-	WAYLAND_EVENT_OP_END(self);
-};
-
-static void xdg_borderless_step(MwLL self, MwMouse p, MwU32 serial) {
-	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL && self->wayland.backbuffer.surface == curSurface) {
-		if(p.point.y >= (self->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM) - 5) {
-			if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 5) {
-				xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT);
-			} else {
-				xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM);
-			}
-		} else if(p.point.y <= 5) {
-			if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 5) {
-				xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT);
-			} else {
-				xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_TOP);
-			}
-		} else if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 5) {
-			xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_RIGHT);
-		} else if(p.point.x <= 5) {
-			xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_LEFT);
-		} else if(p.point.y <= CSD_BORDER_FRAME_TOP) {
-			xdg_toplevel_move(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial);
-		}
-	};
-}
-
-static void relative_pointer_motion(void*			    data,
-				    struct zwp_relative_pointer_v1* pointer,
-				    uint32_t			    timeHi,
-				    uint32_t			    timeLo,
-				    wl_fixed_t			    dx,
-				    wl_fixed_t			    dy,
-				    wl_fixed_t			    dxUnaccel,
-				    wl_fixed_t			    dyUnaccel) {
-	MwLL	self = data;
-	MwMouse p;
-
-	(void)pointer;
-	(void)timeHi;
-	(void)timeLo;
-	(void)dx;
-	(void)dy;
-
-	WAYLAND_EVENT_OP_START(self);
-
-	p.point.x = wl_fixed_to_int(dxUnaccel);
-	p.point.y = wl_fixed_to_int(dyUnaccel);
-
-	recursive_dispatch_move(self, &p);
-	if(self->wayland.locked_pointer) zwp_locked_pointer_v1_set_cursor_position_hint(self->wayland.locked_pointer, 0, CSD_BORDER_FRAME_TOP);
-
-	WAYLAND_EVENT_OP_END(self);
-}
-
-struct zwp_relative_pointer_v1_listener relative_pointer_listener =
-    {
-	relative_pointer_motion};
-
-/* zwp_primary_selection_device_manager_v1 setup function */
-static wayland_protocol_t* zwp_relative_pointer_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland->relative_pointer_manager = wl_registry_bind(wayland->registry, name, &zwp_relative_pointer_manager_v1_interface, 1);
-	return NULL;
-}
-
-static void zwp_relative_pointer_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	(void)data;
-}
-
-/* `wl_pointer.motion` callback */
-static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time,
-			   wl_fixed_t surface_x, wl_fixed_t surface_y) {
-	MwLL	self	       = data;
-	MwLL	topmost_parent = self;
-	MwMouse p;
-	MwBool	inArea		    = MwFALSE;
-	MwLL	currentlyHeldWidget = NULL;
-
-	(void)time;
-	(void)wl_pointer;
-
-	WAYLAND_EVENT_OP_START(self);
-	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
-
-	currentlyHeldWidget = topmost_parent->wayland.currentlyHeldWidget;
-
-	if(currentlyHeldWidget == self) {
-		self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
-		self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
-		p.point			      = self->wayland.cur_mouse_pos;
-		MwLLDispatch(self, move, &p);
-	}
-
-	if(self->wayland.framebuffer.surface) {
-		inArea |= self->wayland.framebuffer.surface == curSurface;
-	}
-
-	if(self->wayland.backbuffer.surface) {
-		inArea |= self->wayland.backbuffer.surface == curSurface;
-	}
-	if(inArea) {
-		self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
-		self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
-		p.point			      = self->wayland.cur_mouse_pos;
-		MwLLDispatch(self, move, &p);
-		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
-	}
-	WAYLAND_EVENT_OP_END(self);
-};
-
-/* `wl_pointer.button` callback */
-static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 serial, MwU32 time, MwU32 button, MwU32 state) {
-	MwLL	self = data;
-	MwMouse p;
-	MwBool	inArea	       = MwFALSE;
-	MwLL	topmost_parent = self;
-
-	(void)wl_pointer;
-	(void)serial;
-	(void)time;
-
-	WAYLAND_EVENT_OP_START(self);
-
-	p.point = self->wayland.cur_mouse_pos;
-	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
-
-	if(self->wayland.framebuffer.surface) {
-		inArea |= self->wayland.framebuffer.surface == curSurface;
-	}
-	if(self->wayland.backbuffer.surface) {
-		inArea |= self->wayland.backbuffer.surface == curSurface;
-	}
-	if(inArea) {
-		switch(button) {
-		case BTN_LEFT:
-			p.button = MwMOUSE_LEFT;
-			break;
-		case BTN_MIDDLE:
-			p.button = MwMOUSE_MIDDLE;
-			break;
-		case BTN_RIGHT:
-			p.button = MwMOUSE_RIGHT;
-			break;
-		}
-		self->wayland.held_down = state == WL_POINTER_BUTTON_STATE_PRESSED;
-
-		switch(state) {
-		case WL_POINTER_BUTTON_STATE_PRESSED:
-			MwLLDispatch(self, down, &p);
-			topmost_parent->wayland.currentlyHeldWidget = self;
-
-			break;
-		case WL_POINTER_BUTTON_STATE_RELEASED:
-			if(topmost_parent->wayland.currentlyHeldWidget != NULL) {
-				MwLLDispatch(topmost_parent->wayland.currentlyHeldWidget, up, &p);
-				topmost_parent->wayland.currentlyHeldWidget = NULL;
-			} else {
-				MwLLDispatch(self, up, &p);
-			}
-			break;
-		}
-	}
-
-	if(!self->wayland.has_decorations) {
-		xdg_borderless_step(self, p, serial);
-	}
-
-	WAYLAND_EVENT_OP_END(self);
-};
-
-/* `wl_pointer.axis` callback */
-static void pointer_axis(void* data, struct wl_pointer* wl_pointer, MwU32 time,
-			 MwU32 axis, wl_fixed_t value) {
-	(void)data;
-	(void)wl_pointer;
-	(void)time;
-	(void)axis;
-	(void)value;
-};
-
-struct wl_pointer_listener pointer_listener = {
-    .enter  = pointer_enter,
-    .leave  = pointer_leave,
-    .motion = pointer_motion,
-    .button = pointer_button,
-    .axis   = pointer_axis,
-};
-
-/* `wl_keyboard.keymap` callback */
-static void keyboard_keymap(void*		data,
-			    struct wl_keyboard* wl_keyboard,
-			    MwU32		format,
-			    int32_t		fd,
-			    MwU32		size) {
-	MwLL self = data;
-	(void)wl_keyboard;
-
-	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
-		assert(format == WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1);
-
-		char* map_shm = (char*)mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
-		assert(map_shm != MAP_FAILED);
-
-		struct xkb_keymap* xkb_keymap = xkb_keymap_new_from_string(
-		    self->wayland.xkb_context, map_shm, XKB_KEYMAP_FORMAT_TEXT_V1,
-		    XKB_KEYMAP_COMPILE_NO_FLAGS);
-		munmap(map_shm, size);
-		close(fd);
-
-		struct xkb_state* xkb_state = xkb_state_new(xkb_keymap);
-
-		self->wayland.xkb_keymap = xkb_keymap;
-		self->wayland.xkb_state	 = xkb_state;
-	} else {
-		self->wayland.xkb_keymap = self->wayland.parent->wayland.xkb_keymap;
-		self->wayland.xkb_state	 = self->wayland.parent->wayland.xkb_state;
-	}
-};
-
-/* `wl_keyboard.enter` callback */
-static void keyboard_enter(void*	       data,
-			   struct wl_keyboard* wl_keyboard,
-			   MwU32	       serial,
-			   struct wl_surface*  surface,
-			   struct wl_array*    keys) {
-	MwLL self = data;
-	(void)wl_keyboard;
-	(void)surface;
-	(void)keys;
-
-	WAYLAND_EVENT_OP_START(self);
-
-	self->wayland.keyboard_serial = serial;
-
-	MwLLDispatch(self, focus_in, NULL);
-
-	WAYLAND_EVENT_OP_END(self);
-};
-
-/* `wl_keyboard.leave` callback */
-static void keyboard_leave(void*	       data,
-			   struct wl_keyboard* wl_keyboard,
-			   MwU32	       serial,
-			   struct wl_surface*  surface) {
-	MwLL self = data;
-	(void)wl_keyboard;
-	(void)serial;
-	(void)surface;
-
-	WAYLAND_EVENT_OP_START(self);
-
-	MwLLDispatch(self, focus_out, NULL);
-
-	WAYLAND_EVENT_OP_END(self);
-};
-
-/* `wl_keyboard.key` callback */
-static void keyboard_key(void*		     data,
-			 struct wl_keyboard* wl_keyboard,
-			 MwU32		     serial,
-			 MwU32		     time,
-			 MwU32		     key,
-			 MwU32		     state) {
-	MwLL   self   = data;
-	MwBool inArea = 0;
-
-	(void)wl_keyboard;
-	(void)serial;
-	(void)time;
-
-	WAYLAND_EVENT_OP_START(self);
-
-	if(self->wayland.framebuffer.surface) {
-		inArea |= self->wayland.framebuffer.surface == curSurface;
-	}
-
-	if(self->wayland.backbuffer.surface) {
-		inArea |= self->wayland.backbuffer.surface == curSurface;
-	}
-	if(inArea) {
-		xkb_layout_index_t  layout;
-		MwU32		    levels;
-		xkb_level_index_t   level = 0;
-		const xkb_keysym_t* syms_out;
-		MwU32		    keycode = key + 8;
-		MwU64		    syms_num;
-		int		    i;
-
-		if(!self->wayland.xkb_keymap) {
-			WAYLAND_EVENT_OP_END(self);
-			return;
-		}
-
-		layout = xkb_state_key_get_layout(self->wayland.xkb_state, keycode);
-		levels =
-		    xkb_keymap_num_levels_for_key(self->wayland.xkb_keymap, keycode, layout);
-
-		if((((self->wayland.mod_state & 1) == 1) || ((self->wayland.mod_state & 2) == 2)) && levels >= 2) {
-			level = 1;
-		} else if(levels >= 1) {
-			level = 0;
-		}
-		syms_num = xkb_keymap_key_get_syms_by_level(self->wayland.xkb_keymap, keycode, layout, level, &syms_out);
-		if(syms_out == NULL) {
-			WAYLAND_EVENT_OP_END(self);
-			return;
-		}
-
-		for(i = 0; i < syms_num; i++) {
-			int sym = syms_out[i];
-			int key = -1;
-
-			switch(sym) {
-			case XKB_KEY_BackSpace:
-				key = MwKEY_BACKSPACE;
-				break;
-			case XKB_KEY_Left:
-				key = MwKEY_LEFT;
-				break;
-			case XKB_KEY_Right:
-				key = MwKEY_RIGHT;
-				break;
-			case XKB_KEY_Up:
-				key = MwKEY_UP;
-				break;
-			case XKB_KEY_Down:
-				key = MwKEY_DOWN;
-				break;
-			case XKB_KEY_Return:
-				key = MwKEY_ENTER;
-				break;
-			case XKB_KEY_Escape:
-				key = MwKEY_ESCAPE;
-				break;
-			case XKB_KEY_Shift_L:
-				key = MwKEY_LEFTSHIFT;
-				break;
-			case XKB_KEY_Shift_R:
-				key = MwKEY_RIGHTSHIFT;
-				break;
-			case XKB_KEY_Alt_L:
-			case XKB_KEY_Alt_R:
-				key = MwKEY_ALT;
-				break;
-			case XKB_KEY_Control_L:
-			case XKB_KEY_Control_R:
-				key = MwKEY_CONTROL;
-				break;
-			default:
-				if(MwStringIsKeyUTF8(sym)) {
-					key = sym;
-				}
-			}
-
-			if((self->wayland.mod_state & 4) == 4) {
-				key |= MwKEY_CONTROL_FLAG;
-			}
-			if((self->wayland.mod_state & 8) == 8) {
-				key |= MwKEY_ALT_FLAG;
-			}
-
-			if(key != -1) {
-				if(state == WL_KEYBOARD_KEY_STATE_PRESSED) {
-					MwLLDispatch(self, key, &key);
-				} else {
-					MwLLDispatch(self, key_released, &key);
-				}
-			}
-		}
-	}
-
-	if(!MwWaylandAlwaysRender) {
-		MwLLDispatch(self, draw, NULL);
-	}
-
-	WAYLAND_EVENT_OP_END(self);
-};
-
-/* `wl_keyboard.modifiers` callback */
-static void keyboard_modifiers(void*		   data,
-			       struct wl_keyboard* wl_keyboard,
-			       MwU32		   serial,
-			       MwU32		   mods_depressed,
-			       MwU32		   mods_latched,
-			       MwU32		   mods_locked,
-			       MwU32		   group) {
-	MwLL self = data;
-	(void)wl_keyboard;
-	(void)serial;
-	(void)group;
-	(void)mods_latched;
-
-	WAYLAND_EVENT_OP_START(self);
-
-	self->wayland.mod_state = 0;
-	self->wayland.mod_state |= mods_depressed;
-	self->wayland.mod_state |= mods_locked;
-
-	WAYLAND_EVENT_OP_END(self);
-};
-
-static void setup_zwp_clipboard(MwLL self, struct wl_seat* wl_seat) {
-	wl_clipboard_device_context_t* device_ctx_zwp = NULL;
-	device_ctx_zwp				      = malloc(sizeof(wl_clipboard_device_context_t));
-	memset(device_ctx_zwp, 0, sizeof(wl_clipboard_device_context_t));
-	device_ctx_zwp->device.zwp = zwp_primary_selection_device_manager_v1_get_device(self->wayland.clipboard_manager.zwp, wl_seat);
-	device_ctx_zwp->ll	   = self;
-	zwp_primary_selection_device_v1_add_listener(device_ctx_zwp->device.zwp, &zwp_primary_selection_device_v1_listener, device_ctx_zwp);
-	arrpush(self->wayland.clipboard_devices_zwp, device_ctx_zwp);
-}
-static void setup_clipboard(MwLL self, struct wl_seat* wl_seat) {
-	wl_clipboard_device_context_t* device_ctx_wl = malloc(sizeof(wl_clipboard_device_context_t));
-	memset(device_ctx_wl, 0, sizeof(wl_clipboard_device_context_t));
-
-	device_ctx_wl->device.wl = wl_data_device_manager_get_data_device(self->wayland.clipboard_manager.wl, wl_seat);
-	device_ctx_wl->ll	 = self;
-
-	wl_data_device_add_listener(device_ctx_wl->device.wl, &wl_data_device_listener, device_ctx_wl);
-	arrpush(self->wayland.clipboard_devices_wl, device_ctx_wl);
-};
-
-struct wl_keyboard_listener keyboard_listener = {
-    .keymap    = keyboard_keymap,
-    .enter     = keyboard_enter,
-    .leave     = keyboard_leave,
-    .key       = keyboard_key,
-    .modifiers = keyboard_modifiers,
-};
-
-/* `wl_seat.name` callback */
-static void
-wl_seat_name(void* data, struct wl_seat* wl_seat, const char* name) {
-	(void)data;
-	(void)wl_seat;
-	(void)name;
-};
-
-/* `wl_seat.capabilities` callback */
-static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
-				 MwU32 capabilities) {
-	MwLL self = data;
-
-	WAYLAND_EVENT_OP_START(self);
-
-	if(capabilities & WL_SEAT_CAPABILITY_KEYBOARD) {
-		self->wayland.keyboard = wl_seat_get_keyboard(wl_seat);
-		wl_keyboard_add_listener(self->wayland.keyboard, &keyboard_listener, data);
-	}
-	if(capabilities & WL_SEAT_CAPABILITY_POINTER) {
-		self->wayland.pointer_seat = wl_seat;
-		self->wayland.pointer	   = wl_seat_get_pointer(wl_seat);
-		wl_pointer_add_listener(self->wayland.pointer, &pointer_listener, data);
-	}
-	WAYLAND_EVENT_OP_END(self);
-
-	if(self->wayland.clipboard_manager.wl)
-		setup_clipboard(self, self->wayland.pointer_seat);
-	if(self->wayland.clipboard_manager.zwp)
-		setup_zwp_clipboard(self, self->wayland.pointer_seat);
-};
-
-static void output_geometry(void*	      data,
-			    struct wl_output* wl_output,
-			    int32_t	      x,
-			    int32_t	      y,
-			    int32_t	      physical_width,
-			    int32_t	      physical_height,
-			    int32_t	      subpixel,
-			    const char*	      make,
-			    const char*	      model,
-			    int32_t	      transform) {
-	(void)data;
-	(void)wl_output;
-	(void)x;
-	(void)y;
-	(void)physical_width;
-	(void)physical_height;
-	(void)subpixel;
-	(void)make;
-	(void)model;
-	(void)transform;
-};
-static void output_mode(void*		  data,
-			struct wl_output* wl_output,
-			uint32_t	  flags,
-			int32_t		  width,
-			int32_t		  height,
-			int32_t		  refresh) {
-	MwLL self = data;
-	(void)wl_output;
-	(void)flags;
-	(void)refresh;
-	self->wayland.mw = width;
-	self->wayland.mh = height;
-};
-
-struct wl_output_listener output_listener = {
-    .geometry = output_geometry,
-    .mode     = output_mode,
-};
-
-/* `xdg_wm_base.ping` callback */
-void xdg_wm_base_ping(void*		  data,
-		      struct xdg_wm_base* xdg_wm_base,
-		      MwU32		  serial) {
-	(void)data;
-	xdg_wm_base_pong(xdg_wm_base, serial);
-};
-
-/* wl_seat setup function */
-static wayland_protocol_t* wl_seat_setup(MwU32 name, MwLL ll) {
-	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
-	proto->listener		  = malloc(sizeof(struct wl_seat_listener));
-
-	((struct wl_seat_listener*)proto->listener)->name	  = wl_seat_name;
-	((struct wl_seat_listener*)proto->listener)->capabilities = wl_seat_capabilities;
-
-	wl_seat_add_listener(wl_registry_bind(ll->wayland.registry, name, &wl_seat_interface, 1), proto->listener, ll);
-
-	return proto;
-}
-
-static void wl_seat_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	free(data->listener);
-}
-
-/* wl_output setup function */
-static wayland_protocol_t* wl_output_setup(MwU32 name, MwLL ll) {
-	ll->wayland.output = wl_registry_bind(ll->wayland.registry, name, &wl_output_interface, 1);
-	wl_output_add_listener(ll->wayland.output, &output_listener, ll);
-
-	return NULL;
-}
-
-static void wl_output_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	(void)data;
-}
-
-/* wl_compositor setup function */
-static wayland_protocol_t* wl_compositor_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland->compositor = wl_registry_bind(wayland->registry, name, &wl_compositor_interface, 1);
-
-	return NULL;
-}
-
-static void wl_compositor_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	(void)data;
-}
-
-/* wl_subcompositor setup function */
-static wayland_protocol_t* wl_subcompositor_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
-		wayland->toplevel->scompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
-	} else {
-		wayland->sublevel->subcompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
-	}
-
-	return NULL;
-}
-
-static void wl_subcompositor_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)data;
-	wl_subcompositor_destroy(wayland->sublevel->subcompositor);
-}
-
-/* xdg_wm_base setup function */
-static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
-	proto->listener		  = malloc(sizeof(struct xdg_wm_base_listener));
-
-	((struct xdg_wm_base_listener*)proto->listener)->ping = xdg_wm_base_ping;
-
-	proto->context = wl_registry_bind(wayland->registry, name, &xdg_wm_base_interface, 1);
-	xdg_wm_base_add_listener(proto->context, proto->listener, wayland);
-
-	return proto;
-}
-
-static void xdg_wm_base_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	free(data->listener);
-}
-
-/* xdg_wm_base setup function */
-static wayland_protocol_t* wp_viewporter_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
-	proto->context		  = wl_registry_bind(wayland->registry, name, &wp_viewporter_interface, 1);
-
-	return proto;
-}
-
-static void wp_viewporter_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	(void)data;
-}
-
-/* the two decoration manager constructs */
-typedef struct zxdg_decoration_manager_v1_context {
-	struct zxdg_decoration_manager_v1*  manager;
-	struct zxdg_toplevel_decoration_v1* decoration;
-} zxdg_decoration_manager_v1_context_t;
-
-/* zxdg_decoration_manager_v1 setup function */
-static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland_protocol_t*		      proto = malloc(sizeof(wayland_protocol_t));
-	zxdg_decoration_manager_v1_context_t* ctx   = malloc(sizeof(zxdg_decoration_manager_v1_context_t));
-	proto->listener				    = NULL;
-
-	ctx->manager = wl_registry_bind(wayland->registry, name, &zxdg_decoration_manager_v1_interface, 1);
-	;
-
-	proto->context = ctx;
-
-	return proto;
-}
-
-static void zxdg_decoration_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	(void)data;
-}
+/* Get the registered interface from r, or NULL if it doesn't currently have it. */
+#define WAYLAND_GET_INTERFACE(handle, inter) shget(handle.wl_protocol_map, inter##_interface.name)
 
 /* Standard Wayland event loop. */
 static int event_loop(MwLL handle) {
@@ -1190,9 +124,9 @@ static int event_loop(MwLL handle) {
 	if(!poll(&fd, 1, timeout.tv_nsec)) {
 		wl_display_cancel_read(wayland->display);
 
-		update_buffer(handle, &wayland->framebuffer);
+		MwLLWaylandBufferUpdate(handle, &wayland->framebuffer);
 		if(wayland->type == MwLL_WAYLAND_TOPLEVEL)
-			update_buffer(handle, &wayland->backbuffer);
+			MwLLWaylandBufferUpdate(handle, &wayland->backbuffer);
 		return 0;
 	}
 	wl_display_read_events(wayland->display);
@@ -1203,7 +137,7 @@ static int event_loop(MwLL handle) {
 }
 
 /* make the fuck sure that we're configurd */
-static void hang_until_configured(MwLL handle) {
+void MwLLWaylandHangUntilConfigured(MwLL handle) {
 	while(!handle->wayland.configured) {
 		if(wl_display_roundtrip(handle->wayland.display) == -1) {
 			printf("roundtrip failed: %d\n", wl_display_get_error(handle->wayland.display));
@@ -1237,19 +171,19 @@ static void xdg_toplevel_configure(void*		data,
 		}
 	}
 
-	region_invalidate(self);
+	MwLLWaylandRegionInvalidate(self);
 	self->wayland.ww = width;
 	self->wayland.wh = height;
 
 	if(self->wayland.resizing == 0) {
 		xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, 0, 0, self->wayland.ww, self->wayland.wh);
 
-		backbuffer_destroy(&self->wayland);
-		backbuffer_setup(&self->wayland);
-		framebuffer_destroy(&self->wayland);
-		framebuffer_setup(&self->wayland);
+		MwLLWaylandBackbufferDestroy(&self->wayland);
+		MwLLWaylandBackbufferSetup(&self->wayland);
+		MwLLWaylandFramebufferDestroy(&self->wayland);
+		MwLLWaylandFramebufferSetup(&self->wayland);
 
-		region_setup(self);
+		MwLLWaylandRegionSetup(self);
 		MwLLDispatch(self, resize, NULL);
 
 		recursive_dispatch_resize(self);
@@ -1282,236 +216,19 @@ static void xdg_surface_configure(
 	MwLLDispatch(self, draw, NULL);
 
 	if(self->wayland.configured) {
-		update_buffer(self, &self->wayland.framebuffer);
-		update_buffer(self, &self->wayland.backbuffer);
+		MwLLWaylandBufferUpdate(self, &self->wayland.framebuffer);
+		MwLLWaylandBufferUpdate(self, &self->wayland.backbuffer);
 	}
 
 	self->wayland.configured = MwTRUE;
 }
 
-/* wl_shm setup function */
-static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland->framebuffer.shm = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
-	wayland->backbuffer.shm	 = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
-	wayland->cursor.shm	 = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
-
-	return NULL;
-}
-
-static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	(void)data;
-}
-
-static void update_buffer(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
+void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
 	// Yes this is needed every time, it's how we fix weston.
 	if(self->wayland.configured)
 		wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
 	wl_surface_commit(buffer->surface);
-}
-
-static void buffer_setup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height) {
-	int  stride	      = width * 4;
-	char temp_name[]      = "/tmp/milsko-wl-shm-XXXXXX";
-	char temp_name_back[] = "/tmp/milsko-wl-shm-back-XXXXXX";
-
-	buffer->buf_size = width * height * 4;
-
-	buffer->fd	= mkstemp(temp_name);
-	buffer->fd_back = mkstemp(temp_name_back);
-
-	unlink(temp_name);
-	unlink(temp_name_back);
-
-	if(posix_fallocate(buffer->fd, 0, buffer->buf_size) != 0) {
-		printf("failure setting up wl_shm: could not fallocate. %s.\n", strerror(errno));
-		close(buffer->fd);
-		return;
-	}
-	if(posix_fallocate(buffer->fd_back, 0, buffer->buf_size) != 0) {
-		printf("failure setting up wl_shm: could not fallocate. %s.\n", strerror(errno));
-		close(buffer->fd_back);
-		return;
-	}
-	if(ftruncate(buffer->fd, buffer->buf_size) != 0) {
-		printf("failure setting up wl_shm: could not truncate. %s.\n", strerror(errno));
-		close(buffer->fd);
-		return;
-	}
-	if(ftruncate(buffer->fd_back, buffer->buf_size) != 0) {
-		printf("failure setting up wl_shm: could not truncate. %s.\n", strerror(errno));
-		close(buffer->fd_back);
-		return;
-	}
-
-	buffer->buf	 = mmap(NULL, buffer->buf_size, PROT_WRITE, MAP_SHARED, buffer->fd, 0);
-	buffer->buf_back = mmap(NULL, buffer->buf_size, PROT_WRITE, MAP_SHARED, buffer->fd_back, 0);
-
-	fsync(buffer->fd);
-	fsync(buffer->fd_back);
-
-	if(!(buffer->shm_pool = wl_shm_create_pool(buffer->shm, buffer->fd, buffer->buf_size))) {
-		printf("failure setting up wl_shm: could not create pool.\n");
-	}
-	if(!(buffer->shm_pool_back = wl_shm_create_pool(buffer->shm, buffer->fd_back, buffer->buf_size))) {
-		printf("failure setting up wl_shm: could not create pool.\n");
-	}
-	buffer->shm_buffer	= wl_shm_pool_create_buffer(buffer->shm_pool, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
-	buffer->shm_buffer_back = wl_shm_pool_create_buffer(buffer->shm_pool_back, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
-	buffer->setup		= MwTRUE;
-}
-
-static void buffer_destroy(struct _MwLLWaylandShmBuffer* buffer) {
-	if(!buffer->setup) {
-		return;
-	}
-	if(buffer->buf) munmap(buffer->buf, buffer->buf_size);
-	if(buffer->buf_back) munmap(buffer->buf_back, buffer->buf_size);
-	if(buffer->shm_buffer) wl_buffer_destroy(buffer->shm_buffer);
-	if(buffer->shm_buffer_back) wl_buffer_destroy(buffer->shm_buffer_back);
-	if(buffer->shm_pool) wl_shm_pool_destroy(buffer->shm_pool);
-	if(buffer->shm_pool_back) wl_shm_pool_destroy(buffer->shm_pool_back);
-	close(buffer->fd);
-	close(buffer->fd_back);
-	buffer->setup = MwFALSE;
-}
-
-static void framebuffer_setup(struct _MwLLWayland* wayland) {
-	buffer_setup(&wayland->framebuffer, wayland->ww, wayland->wh);
-
-	wayland->front_cs    = cairo_image_surface_create_for_data(wayland->framebuffer.buf_back, CAIRO_FORMAT_ARGB32, wayland->ww, wayland->wh, 4 * wayland->ww);
-	wayland->front_cairo = cairo_create(wayland->front_cs);
-
-	memset(wayland->framebuffer.buf_back, 0, wayland->framebuffer.buf_size);
-	if(wayland->configured)
-		wl_surface_attach(wayland->framebuffer.surface, wayland->framebuffer.shm_buffer, 0, 0);
-	wl_surface_commit(wayland->framebuffer.surface);
-
-	hang_until_configured((MwLL)wayland);
-	update_buffer((MwLL)wayland, &wayland->framebuffer);
-};
-static void framebuffer_destroy(struct _MwLLWayland* wayland) {
-	buffer_destroy(&wayland->framebuffer);
-	cairo_destroy(wayland->front_cairo);
-	cairo_surface_destroy(wayland->front_cs);
-};
-
-static void backbuffer_setup(struct _MwLLWayland* wayland) {
-	if(wayland->type != MwLL_WAYLAND_TOPLEVEL) {
-		return;
-	}
-	MwU32 w = wayland->ww;
-	MwU32 h = wayland->wh;
-	if(!wayland->has_decorations) {
-		w += (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
-		h += (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
-	}
-	buffer_setup(&wayland->backbuffer, w, h);
-
-	wayland->back_cs    = cairo_image_surface_create_for_data(wayland->backbuffer.buf_back, CAIRO_FORMAT_ARGB32, w, h, 4 * w);
-	wayland->back_cairo = cairo_create(wayland->back_cs);
-
-	memset(wayland->backbuffer.buf_back, 255, wayland->backbuffer.buf_size);
-	if(wayland->configured)
-		wl_surface_attach(wayland->backbuffer.surface, wayland->backbuffer.shm_buffer, 0, 0);
-	wl_surface_commit(wayland->backbuffer.surface);
-	hang_until_configured((MwLL)wayland);
-	update_buffer((MwLL)wayland, &wayland->backbuffer);
-};
-static void backbuffer_destroy(struct _MwLLWayland* wayland) {
-	buffer_destroy(&wayland->backbuffer);
-	cairo_destroy(wayland->back_cairo);
-	cairo_surface_destroy(wayland->back_cs);
-};
-
-static void region_invalidate(MwLL handle) {
-	if(!handle->wayland.configured) {
-		return;
-	}
-	wl_region_subtract(handle->wayland.region, 0, 0, handle->wayland.ww, handle->wayland.wh);
-}
-static void region_setup(MwLL handle) {
-	MwLL parent = handle->wayland.parent;
-	int  width  = (handle->wayland.clipping_rect.width == 0) ? handle->wayland.ww : handle->wayland.clipping_rect.width;
-	int  height = (handle->wayland.clipping_rect.height == 0) ? handle->wayland.wh : handle->wayland.clipping_rect.height;
-
-	if(!handle->wayland.configured) {
-		return;
-	}
-
-	if(!handle->wayland.parent)
-		wl_region_add(handle->wayland.o_region, 0, 0, width, height);
-
-	if(handle->wayland.type == MwLL_WAYLAND_POPUP) {
-		wl_region_add(handle->wayland.region, 0, 0, width + abs(handle->wayland.x), height + abs(handle->wayland.y));
-	} else {
-		wl_region_subtract(handle->wayland.region, 0, 0, width + abs(handle->wayland.x), height + abs(handle->wayland.y));
-		wl_region_add(handle->wayland.region, handle->wayland.clipping_rect.x, handle->wayland.clipping_rect.y, handle->wayland.clipping_rect.width, handle->wayland.clipping_rect.height);
-		if(!handle->wayland.parent)
-			wl_region_add(handle->wayland.region, 0, 0, width, height);
-	}
-
-	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
-		wl_surface_set_opaque_region(handle->wayland.backbuffer.surface, handle->wayland.o_region);
-		wl_surface_set_input_region(handle->wayland.backbuffer.surface, handle->wayland.region);
-	}
-	wl_surface_set_opaque_region(handle->wayland.framebuffer.surface, handle->wayland.o_region);
-	wl_surface_set_input_region(handle->wayland.framebuffer.surface, handle->wayland.region);
-}
-
-static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
-	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
-
-	proto->context	= wl_registry_bind(wayland->registry, name, &xdg_toplevel_icon_manager_v1_interface, 1);
-	proto->listener = NULL;
-
-	return proto;
-}
-
-static void xdg_toplevel_icon_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	free(data->listener);
-}
-
-/* Function for setting up the callbacks/structs that will be registered upon the relevant interfaces being found. */
-static void setup_callbacks(struct _MwLLWayland* wayland) {
-/* Convience macro for adding the interface functions to the setup map */
-#define WL_INTERFACE(interface) \
-	do { \
-		wayland_protocol_callback_table_t* cb = malloc(sizeof(wayland_protocol_callback_table_t)); \
-		cb->setup			      = (wl_setup_func*)interface##_setup; \
-		cb->destroy			      = (wl_destroy_func*)interface##_interface_destroy; \
-		shput(wayland->wl_protocol_setup_map, interface##_interface.name, cb); \
-	} while(0);
-
-	wayland->registry_listener.global	 = new_protocol;
-	wayland->registry_listener.global_remove = protocol_removed;
-	wayland->wl_protocol_setup_map		 = NULL;
-	wayland->wl_protocol_map		 = NULL;
-
-	sh_new_arena(wayland->wl_protocol_map);
-	sh_new_arena(wayland->wl_protocol_setup_map);
-
-	WL_INTERFACE(wl_shm);
-	WL_INTERFACE(wl_compositor);
-	WL_INTERFACE(wl_seat);
-	WL_INTERFACE(wl_output);
-	WL_INTERFACE(wl_data_device_manager);
-	WL_INTERFACE(zwp_primary_selection_device_manager_v1);
-	WL_INTERFACE(zwp_pointer_constraints_v1);
-	WL_INTERFACE(zwp_relative_pointer_manager_v1);
-	WL_INTERFACE(xdg_wm_base);
-	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
-		WL_INTERFACE(wp_viewporter);
-		WL_INTERFACE(zxdg_decoration_manager_v1);
-		WL_INTERFACE(xdg_toplevel_icon_manager_v1);
-		WL_INTERFACE(wl_subcompositor);
-	} else if(wayland->type == MwLL_WAYLAND_POPUP) {
-	} else {
-		WL_INTERFACE(wl_subcompositor);
-	}
-#undef WL_INTERFACE
 }
 
 /* Toplevel setup function */
@@ -1521,7 +238,7 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	r->wayland.x	    = x;
 	r->wayland.y	    = y;
 
-	setup_callbacks(&r->wayland);
+	MwLLWaylandSetupCallbacks(&r->wayland);
 
 	/* Connect to the Wayland compositor */
 	r->wayland.display = wl_display_connect(NULL);
@@ -1633,7 +350,7 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 
 	r->wayland.display = parent->wayland.display;
 
-	setup_callbacks(&r->wayland);
+	MwLLWaylandSetupCallbacks(&r->wayland);
 
 	r->wayland.registry = wl_display_get_registry(parent->wayland.display);
 	r->wayland.display  = parent->wayland.display;
@@ -1670,8 +387,8 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 
 /* Sublevel setup function */
 static void destroy_sublevel(MwLL r) {
-	backbuffer_destroy(&r->wayland);
-	framebuffer_destroy(&r->wayland);
+	MwLLWaylandBackbufferDestroy(&r->wayland);
+	MwLLWaylandFramebufferDestroy(&r->wayland);
 
 	wl_subsurface_destroy(r->wayland.sublevel->subsurface);
 
@@ -1724,7 +441,7 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 		r->wayland.y += ceil((float)CSD_BORDER_FRAME_TOP / 2.);
 	}
 
-	setup_callbacks(&r->wayland);
+	MwLLWaylandSetupCallbacks(&r->wayland);
 
 	/* Connect to the Wayland compositor */
 	r->wayland.display = parent->wayland.display;
@@ -1853,7 +570,7 @@ static void clip(MwLL handle) {
 		handle->wayland.clipping_rect.y	     = cy - y;
 		handle->wayland.clipping_rect.width  = mx - cx;
 		handle->wayland.clipping_rect.height = my - cy;
-		region_setup(handle);
+		MwLLWaylandRegionSetup(handle);
 
 		cairo_reset_clip(handle->wayland.front_cairo);
 		if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL && !handle->wayland.is_toplevel) {
@@ -1890,7 +607,7 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 	r->wayland.x	  = x;
 	r->wayland.y	  = y;
 	r->wayland.parent = parent;
-	if(is_destroyed(parent)) {
+	if(MwLLWaylandWidgetIsDestroyed(parent)) {
 		r->wayland.valid = MwFALSE;
 		return;
 	} else {
@@ -1921,12 +638,12 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 
 	WIDGET_CHECK(r);
 
-	framebuffer_setup(&r->wayland);
-	backbuffer_setup(&r->wayland);
+	MwLLWaylandFramebufferSetup(&r->wayland);
+	MwLLWaylandBackbufferSetup(&r->wayland);
 
 	r->wayland.region   = wl_compositor_create_region(r->wayland.compositor);
 	r->wayland.o_region = wl_compositor_create_region(r->wayland.compositor);
-	region_setup(r);
+	MwLLWaylandRegionSetup(r);
 
 	MwLLForceRender(r);
 	if(parent != NULL) {
@@ -1964,8 +681,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	memset(r, 0, sizeof(*r));
 	MwLLCreateCommon(r);
 
-	if(is_destroyed(r)) {
-		undestroy(r);
+	if(MwLLWaylandWidgetIsDestroyed(r)) {
+		MwLLWaylandWidgetUndestroy(r);
 	}
 
 	r->wayland.is_toplevel = parent == NULL;
@@ -1991,7 +708,7 @@ static void MwLLDestroyImpl(MwLL handle) {
 	event_loop(handle);
 	// wl_display_cancel_read(handle->wayland.display);
 
-	wl_flush(handle);
+	MwLLWaylandFlush(handle);
 
 	handle->wayland.cancelEvent = MwTRUE;
 
@@ -2012,7 +729,7 @@ static void MwLLDestroyImpl(MwLL handle) {
 #endif
 
 	if(handle->wayland.valid) {
-		buffer_destroy(&handle->wayland.cursor);
+		MwLLWaylandBufferDestroy(&handle->wayland.cursor);
 		wl_region_destroy(handle->wayland.region);
 
 		if(handle->wayland.supports_zwp) {
@@ -2021,7 +738,7 @@ static void MwLLDestroyImpl(MwLL handle) {
 			wl_data_source_destroy(handle->wayland.clipboard_source.wl);
 		}
 		if(handle->wayland.icon != NULL) {
-			buffer_destroy(handle->wayland.icon);
+			MwLLWaylandBufferDestroy(handle->wayland.icon);
 			wl_surface_destroy(handle->wayland.icon->surface);
 		}
 
@@ -2045,7 +762,7 @@ static void MwLLDestroyImpl(MwLL handle) {
 	shfree(handle->wayland.wl_protocol_map);
 	shfree(handle->wayland.wl_protocol_setup_map);
 
-	wl_flush(handle);
+	MwLLWaylandFlush(handle);
 
 	pthread_mutex_lock(&destroyedWidgetsTableMutex);
 	arrput(destroyedWidgetsTable, handle);
@@ -2074,13 +791,13 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	WIDGET_CHECK(handle);
-	region_invalidate(handle);
+	MwLLWaylandRegionInvalidate(handle);
 	handle->wayland.x = x;
 	handle->wayland.y = y;
 	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
 		wl_subsurface_set_position(handle->wayland.sublevel->subsurface, x, y);
 	}
-	region_setup(handle);
+	MwLLWaylandRegionSetup(handle);
 
 	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) recursive_render(handle);
 
@@ -2088,7 +805,7 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 }
 
 static void actually_set_wh(MwLL handle) {
-	region_invalidate(handle);
+	MwLLWaylandRegionInvalidate(handle);
 
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL && handle->wayland.configured) {
 		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
@@ -2102,17 +819,17 @@ static void actually_set_wh(MwLL handle) {
 
 	if(handle->wayland.type == MwLL_WAYLAND_POPUP) {
 		destroy_popup(handle);
-		wl_flush(handle);
+		MwLLWaylandFlush(handle);
 		setup_popup(handle, handle->wayland.x, handle->wayland.y, handle->wayland.parent);
 	}
 
-	region_setup(handle);
+	MwLLWaylandRegionSetup(handle);
 	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) recursive_render(handle);
 
-	framebuffer_destroy(&handle->wayland);
-	framebuffer_setup(&handle->wayland);
-	backbuffer_destroy(&handle->wayland);
-	backbuffer_setup(&handle->wayland);
+	MwLLWaylandFramebufferDestroy(&handle->wayland);
+	MwLLWaylandFramebufferSetup(&handle->wayland);
+	MwLLWaylandBackbufferDestroy(&handle->wayland);
+	MwLLWaylandBackbufferSetup(&handle->wayland);
 	MwLLDispatch(handle, draw, NULL);
 }
 
@@ -2233,7 +950,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 			MwLLDestroyPixmap(p);
 			free(px);
 		}
-		update_buffer(handle, &handle->wayland.backbuffer);
+		MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
 	}
 	handle->wayland.selected_cairo = handle->wayland.front_cairo;
 }
@@ -2241,9 +958,9 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 static void MwLLEndDrawImpl(MwLL handle) {
 	if(handle->wayland.configured) {
 		if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
-			update_buffer(handle, &handle->wayland.backbuffer);
+			MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
 		}
-		update_buffer(handle, &handle->wayland.framebuffer);
+		MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
 	}
 }
 
@@ -2327,7 +1044,7 @@ static int MwLLPendingImpl(MwLL handle) {
 	};
 	int pending = 0;
 
-	if(is_destroyed(handle) || !handle->wayland.valid) {
+	if(MwLLWaylandWidgetIsDestroyed(handle) || !handle->wayland.valid) {
 		return 0;
 	}
 
@@ -2378,9 +1095,9 @@ static int MwLLPendingImpl(MwLL handle) {
 		return pending;
 	}
 
-	update_buffer(handle, &handle->wayland.framebuffer);
+	MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
-		update_buffer(handle, &handle->wayland.backbuffer);
+		MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
 	}
 
 	return handle->wayland.force_render || handle->wayland.events_pending || pending;
@@ -2398,7 +1115,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 
 	if(handle->wayland.force_render) {
 		MwLLDispatch(handle, draw, NULL);
-		if(handle->wayland.configured) update_buffer(handle, &handle->wayland.framebuffer);
+		if(handle->wayland.configured) MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
 		handle->wayland.force_render = 0;
 	}
 	if(handle->wayland.events_pending) {
@@ -2514,12 +1231,12 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 			}
 
 			if(handle->wayland.icon->setup) {
-				buffer_destroy(handle->wayland.icon);
+				MwLLWaylandBufferDestroy(handle->wayland.icon);
 				wl_surface_destroy(handle->wayland.icon->surface);
 			}
 			handle->wayland.icon->surface = wl_compositor_create_surface(handle->wayland.compositor);
 
-			buffer_setup(handle->wayland.icon, line, line);
+			MwLLWaylandBufferSetup(handle->wayland.icon, line, line);
 
 			wl_surface_attach(handle->wayland.icon->surface, handle->wayland.icon->shm_buffer, 0, 0);
 			wl_surface_commit(handle->wayland.icon->surface);
@@ -2531,7 +1248,7 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 				handle->wayland.icon->buf_back[i + 3] = 255;
 			}
 
-			if(handle->wayland.configured) update_buffer(handle, handle->wayland.icon);
+			if(handle->wayland.configured) MwLLWaylandBufferUpdate(handle, handle->wayland.icon);
 
 			xdg_toplevel_icon_v1_add_buffer(icon, handle->wayland.icon->shm_buffer_back, 1);
 
@@ -2556,10 +1273,10 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	WIDGET_CHECK(handle);
 
 	if(handle->wayland.cursor.setup) {
-		buffer_destroy(&handle->wayland.cursor);
+		MwLLWaylandBufferDestroy(&handle->wayland.cursor);
 		wl_surface_destroy(handle->wayland.cursor.surface);
 	}
-	buffer_setup(&handle->wayland.cursor, mask->width, mask->height);
+	MwLLWaylandBufferSetup(&handle->wayland.cursor, mask->width, mask->height);
 	memset(handle->wayland.cursor.buf_back, 0, handle->wayland.cursor.buf_size);
 
 	xs = -mask->x + image->x;
@@ -2599,7 +1316,7 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	handle->wayland.cursor.surface = wl_compositor_create_surface(handle->wayland.compositor);
 	wl_surface_attach(handle->wayland.cursor.surface, handle->wayland.cursor.shm_buffer, 0, 0);
 	wl_surface_commit(handle->wayland.cursor.surface);
-	update_buffer(handle, &handle->wayland.cursor);
+	MwLLWaylandBufferUpdate(handle, &handle->wayland.cursor);
 }
 
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
@@ -2679,7 +1396,7 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 			wl_surface_commit(topmost_parent->wayland.backbuffer.surface);
 			zwp_locked_pointer_v1_set_cursor_position_hint(topmost_parent->wayland.locked_pointer, 0, CSD_BORDER_FRAME_TOP);
 			handle->wayland.relative_pointer = zwp_relative_pointer_manager_v1_get_relative_pointer(handle->wayland.relative_pointer_manager, handle->wayland.pointer);
-			zwp_relative_pointer_v1_add_listener(handle->wayland.relative_pointer, &relative_pointer_listener, topmost_parent);
+			zwp_relative_pointer_v1_add_listener(handle->wayland.relative_pointer, &MwLLWaylandRelativePointerListener, topmost_parent);
 		} else {
 			if(topmost_parent->wayland.locked_pointer) {
 				zwp_locked_pointer_v1_destroy(topmost_parent->wayland.locked_pointer);
@@ -2729,7 +1446,7 @@ static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
 	if(clipboard_type == MwCLIPBOARD_PRIMARY) {
 		if(handle->wayland.supports_zwp) {
 			for(i = 0; i < arrlen(handle->wayland.clipboard_devices_zwp); i++) {
-				wl_clipboard_read(
+				MwLLWaylandClipboardRead(
 				    handle->wayland.clipboard_devices_zwp[i], clipboard_type);
 			}
 		} else {
@@ -2737,7 +1454,7 @@ static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
 		}
 	} else {
 		for(i = 0; i < arrlen(handle->wayland.clipboard_devices_wl); i++) {
-			wl_clipboard_read(
+			MwLLWaylandClipboardRead(
 			    handle->wayland.clipboard_devices_wl[i], clipboard_type);
 		}
 	}
@@ -2795,7 +1512,7 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 			break;
 		}
 
-		wl_flush(handle);
+		MwLLWaylandFlush(handle);
 
 		widget_setup(handle, handle->wayland.parent, handle->wayland.detach_point.x, handle->wayland.detach_point.y, handle->wayland.ww, handle->wayland.wh, handle->wayland.type_to_be);
 
@@ -2812,7 +1529,7 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 					MwLL child			     = w->children[i]->lowlevel;
 					child->wayland.sublevel->xdg_surface = handle->wayland.popup->xdg_surface;
 					wl_subsurface_destroy(child->wayland.sublevel->subsurface);
-					wl_flush(handle);
+					MwLLWaylandFlush(handle);
 
 					child->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(child->wayland.sublevel->subcompositor, child->wayland.framebuffer.surface, handle->wayland.framebuffer.surface);
 					wl_subsurface_set_desync(child->wayland.sublevel->subsurface);
@@ -2870,5 +1587,5 @@ static MwBool MwLLDoModernImpl(MwLL handle) {
 	return MwTRUE;
 }
 
-#include "call.c"
+#include "../call.c"
 CALL(Wayland);

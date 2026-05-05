@@ -145,7 +145,7 @@ endif()
 if(MW_USE_WAYLAND)
   function(scan_wayland_protocol_core)
     execute_process(
-            COMMAND wayland-scanner private-code /usr/share/wayland/wayland.xml ${CMAKE_CURRENT_SOURCE_DIR}/src/backend/wayland-core-protocol.c
+            COMMAND wayland-scanner private-code /usr/share/wayland/wayland.xml ${CMAKE_CURRENT_SOURCE_DIR}/src/backend/wayland/wayland-core-protocol.c
             OUTPUT_VARIABLE WAYLAND_SCANNER_OUTPUT
             ERROR_VARIABLE WAYLAND_SCANNER_ERROR
             ECHO_OUTPUT_VARIABLE
@@ -155,7 +155,7 @@ if(MW_USE_WAYLAND)
     target_sources(
         Mw
         PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/backend/wayland-core-protocol.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/backend/wayland/wayland-core-protocol.c
         )
     execute_process(
             COMMAND wayland-scanner client-header /usr/share/wayland/wayland.xml ${CMAKE_CURRENT_SOURCE_DIR}/include/Mw/LowLevel/Wayland/wayland-core-protocol.h
@@ -169,7 +169,7 @@ if(MW_USE_WAYLAND)
   endfunction()
 
   function(scan_wayland_protocol tier proto ver)
-    SET(proto_c ${CMAKE_CURRENT_SOURCE_DIR}/src/backend/wayland-${proto}-protocol.c)
+    SET(proto_c ${CMAKE_CURRENT_SOURCE_DIR}/src/backend/wayland/wayland-${proto}-protocol.c)
     execute_process(
             COMMAND wayland-scanner private-code /usr/share/wayland-protocols/${tier}/${proto}/${proto}${ver}.xml ${proto_c}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -217,7 +217,10 @@ if(MW_USE_WAYLAND)
         target_sources(
                 Mw
                 PRIVATE
-                src/backend/wayland.c
+                src/backend/wayland/wayland.c
+                src/backend/wayland/buffer.c
+                src/backend/wayland/interfaces.c
+                src/backend/wayland/region.c
                 )
         target_compile_definitions(
                     Mw

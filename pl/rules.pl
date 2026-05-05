@@ -46,7 +46,10 @@ if (grep(/^classicmacos$/, @backends)) {
 
 if (grep(/^wayland$/, @backends)) {
     add_cflags("-DUSE_WAYLAND");
-    new_object("src/backend/wayland.c");
+    new_object("src/backend/wayland/wayland.c");
+    new_object("src/backend/wayland/buffer.c");
+    new_object("src/backend/wayland/interfaces.c");
+    new_object("src/backend/wayland/region.c");
 
     if (param_get("opengl")) {
         add_cflags("-DWAYLAND_LOAD_OPENGL");
