@@ -4,19 +4,10 @@ wmake -f WatMakefile
 rm -rf milsko
 mkdir -p milsko-examples
 cp src/Mw.dll milsko-examples/
-cd examples/basic
-for i in *.c; do
-	owcc -bnt -I../../include ../../src/Mw.lib -o../../milsko-examples/`echo $i | cut -d. -f1`.exe $i
+cp examples/basic/*.exe milsko-examples/
+for i in examples/gldemos/*.exe; do
+	cp $i milsko-examples/gl`echo $i | rev | cut -d/ -f1 | rev`
 done
-cd ../..
-cd examples/gldemos
-for i in *.c; do
-	if [ "$i" = "glutlayer.c" ]; then
-		continue
-	fi
-	owcc -bnt -I../../include ../../src/Mw.lib -o../../milsko-examples/gl`echo $i | cut -d. -f1`.exe $i opengl32.lib glu32.lib
-done
-cd ../..
 rm -f milsko-examples.zip
 cp resource/logo/logo.png examples/picture.jpg examples/picture.png milsko-examples/
 zip -rv milsko-examples.zip milsko-examples

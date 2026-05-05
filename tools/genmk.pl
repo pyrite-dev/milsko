@@ -20,6 +20,9 @@ sub scan_examples {
     opendir(DIR, $_[0]);
     my @files = readdir(DIR);
     foreach my $f (@files) {
+        if ($f =~ /^glutlayer\.c$/) {
+            next;
+        }
         if ($f =~ /\.c$/) {
             push(@examples, $_[0] . "/" . $f);
         }
@@ -130,6 +133,15 @@ sub generate {
         print(OUT " $b");
     }
     print(OUT "\n");
+    print(OUT "lib: src${dir}Mw.dll\n");
+    print(OUT "examples:");
+    foreach my $f (@examples) {
+        $b = $f;
+        $b =~ s/\.c$/.exe/;
+        $b =~ s/\//$dir/g;
+        print(OUT " $b");
+    }
+    print(OUT "\n");
     print(OUT "clean: $symbolic\n");
     foreach my $f (@cfiles) {
         my $b = $f;
@@ -160,7 +172,11 @@ sub generate {
         $o =~ s/\.c$/.obj/;
         $o =~ s/\//$dir/g;
         print(OUT "$b: $o src${dir}Mw.dll\n");
-        print(OUT "	\$(LD) \$(EXE_LDFLAGS) $exeout\$@ $prefobj$o $needlibs ${lib}src${dir}Mw.lib\n");
+        print(OUT "	\$(LD) \$(EXE_LDFLAGS) $exeout\$@ $prefobj$o $needlibs ${lib}src${dir}Mw.lib");
+	if($f =~ /\Q${dir}gldemos${dir}\E/){
+		print(OUT " ${lib}opengl32.lib ${lib}glu32.lib");
+	}
+	print(OUT "\n");
         print(OUT "\n");
         print(OUT "$o: $f\n");
         print(OUT "	\$(CC) \$(EXE_CFLAGS) ${out}\$@ $f\n");
@@ -206,6 +222,7 @@ push(@cfiles, "src/backend/gdi.c");
 @cfiles = sort(@cfiles);
 
 scan_examples("examples/basic");
+scan_examples("examples/gldemos");
 
 @examples = sort(@examples);
 
