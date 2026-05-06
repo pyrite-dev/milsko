@@ -279,9 +279,6 @@ static int wcreate(MwWidget handle) {
 
 	MwSetDefault(handle);
 
-	if(handle->lowlevel->common.type == MwLLBackendWayland) {
-		handle->lowlevel->wayland.is_subwindow = MwTRUE;
-	}
 
 	return 0;
 }
