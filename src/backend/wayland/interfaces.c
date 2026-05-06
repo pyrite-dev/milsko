@@ -783,7 +783,11 @@ static void keyboard_key(void*		     data,
 
 			if(key != -1) {
 				if(state == WL_KEYBOARD_KEY_STATE_PRESSED) {
-					MwLLDispatch(self, key, &key);
+					MwLL topmost_parent = self;
+					while(topmost_parent->wayland.parent) {
+						MwLLDispatch(topmost_parent, key, &key);
+						topmost_parent = topmost_parent->wayland.parent;
+					}
 				} else {
 					MwLLDispatch(self, key_released, &key);
 				}

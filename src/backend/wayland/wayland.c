@@ -1108,11 +1108,6 @@ static int MwLLPendingImpl(MwLL handle) {
 		if((pending = wl_display_dispatch_pending(handle->wayland.display)) < 0) {
 			wl_display_cancel_read(handle->wayland.display);
 		}
-	}
-
-	if(MwWaylandAlwaysRender) {
-		handle->wayland.did_event_loop_early = MwTRUE;
-		event_loop(handle);
 		return pending;
 	}
 
