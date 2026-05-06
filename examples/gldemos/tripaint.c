@@ -108,13 +108,14 @@ static void MWAPI mouse_move(MwWidget handle, void* user, void* call) {
 
 int main() {
 	MwSizeHints hints;
-	MwWidget    window;
+	MwWidget    window, viewport;
 
 	MwLibraryInit();
 
-	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480,
-				  MwNtitle, "tripaint",
-				  NULL);
+	window	 = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480,
+				    MwNtitle, "tripaint",
+				    NULL);
+	viewport = MwCreateWidget(MwViewportClass, "viewport", window, 5, 5, 630, 470 - 16 - 5);
 
 	hints.min_width = hints.max_width = 640;
 	hints.min_height = hints.max_height = 480;
@@ -126,7 +127,7 @@ int main() {
 
 	t = malloc(sizeof(*t));
 
-	opengl = MwCreateWidget(MwOpenGLClass, "opengl", window, 0, 0, 640, 460);
+	opengl = MwCreateWidget(MwOpenGLClass, "opengl", viewport, 0, 0, 1024, 768);
 
 	MwAddUserHandler(window, MwNtickHandler, tick, NULL);
 	MwAddUserHandler(opengl, MwNtickHandler, tick, NULL);

@@ -1,4 +1,3 @@
-#include <sys/mman.h>
 #ifndef __APPLE__
 
 #include <Mw/Milsko.h>
@@ -56,6 +55,7 @@ typedef struct x11opengl {
 #ifdef USE_WAYLAND
 #include <EGL/egl.h>
 #include <wayland-egl-core.h>
+#include <sys/mman.h>
 #include <gbm.h>
 typedef void* EGLLabelKHR;
 
@@ -595,8 +595,8 @@ static void func_handler(MwWidget handle, const char* name, void* out,
 	}
 }
 
-static void frontbuffer_draw(MwWidget handle) {
 #ifdef USE_WAYLAND
+static void frontbuffer_draw(MwWidget handle) {
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
 		waylandopengl_t* o = handle->internal;
 		MwRect		 r;
@@ -606,9 +606,8 @@ static void frontbuffer_draw(MwWidget handle) {
 		r.height = handle->lowlevel->wayland.wh;
 		MwLLDrawPixmap(handle->lowlevel, &r, o->frontbuffer);
 	}
-
-#endif
 }
+#endif
 
 MwClassRec MwOpenGLClassRec = {wcreate, /* create */
 			       destroy, /* destroy */
