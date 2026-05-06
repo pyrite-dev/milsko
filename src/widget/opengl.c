@@ -107,6 +107,7 @@ typedef struct waylandopengl {
 				      EGLint	    config_size,
 				      EGLint*	    num_config);
 	EGLBoolean (*eglGetConfigAttrib)(EGLDisplay dpy, EGLConfig config, EGLint attribute, EGLint* value);
+	EGLBoolean (*eglDestroySurface)(EGLDisplay dpy, EGLSurface surface);
 
 	struct wl_egl_window* (*wl_egl_window_create)(struct wl_surface* surface,
 						      int width, int height);
@@ -115,6 +116,7 @@ typedef struct waylandopengl {
 				     int dx, int dy);
 	struct gbm_device* (*gbm_create_device)(int fd);
 	struct gbm_surface* (*gbm_surface_create)(struct gbm_device* gbm, uint32_t width, uint32_t height, uint32_t format, uint32_t flags);
+	void (*gbm_surface_destroy)(struct gbm_surface* surface);
 
 	struct gbm_bo* (*gbm_surface_lock_front_buffer)(struct gbm_surface* surface);
 	union gbm_bo_handle (*gbm_bo_get_handle)(struct gbm_bo* bo);
@@ -278,8 +280,10 @@ static int wcreate(MwWidget handle) {
 		EGL_FUNC(eglChooseConfig)
 		EGL_FUNC(eglGetPlatformDisplay)
 		EGL_FUNC(eglGetConfigAttrib)
+		EGL_FUNC(eglDestroySurface)
 		GBM_FUNC(gbm_create_device)
 		GBM_FUNC(gbm_surface_create)
+		GBM_FUNC(gbm_surface_destroy)
 		GBM_FUNC(gbm_surface_lock_front_buffer)
 		GBM_FUNC(gbm_bo_get_handle)
 		GBM_FUNC(gbm_bo_get_stride)
@@ -302,6 +306,7 @@ static int wcreate(MwWidget handle) {
 #define eglGetDisplay o->eglGetDisplay
 #define wl_egl_window_resize o->wl_egl_window_resize
 #define eglCreatePlatformWindowSurface o->eglCreatePlatformWindowSurface
+#define eglDestroySurface o->eglDestroySurface
 #define eglChooseConfig o->eglChooseConfig
 #define eglGetPlatformDisplay o->eglGetPlatformDisplay
 
@@ -607,6 +612,44 @@ static void frontbuffer_draw(MwWidget handle) {
 		MwLLDrawPixmap(handle->lowlevel, &r, o->frontbuffer);
 	}
 }
+static void frontbuffer_resize(MwWidget handle) {
+	if(handle->lowlevel->common.type == MwLLBackendWayland) {
+		waylandopengl_t* o = handle->internal;
+		if(o->frontbuffer_data) {
+			free(o->frontbuffer_data);
+		}
+		if(o->frontbuffer) {
+			MwLLDestroyPixmap(o->frontbuffer);
+		}
+		if(o->gbm_surface) {
+			o->gbm_surface_destroy(o->gbm_surface);
+		}
+		if(o->egl_surface) {
+			eglDestroySurface(o->egl_display, o->egl_surface);
+		}
+
+		o->gbm_surface = o->gbm_surface_create(o->gbm, handle->lowlevel->wayland.ww, handle->lowlevel->wayland.wh, GBM_FORMAT_ARGB8888, GBM_BO_USE_LINEAR | GBM_BO_USE_RENDERING);
+
+		/* Create a surface */
+		o->egl_surface = eglCreatePlatformWindowSurface(o->egl_display, o->egl_config,
+								o->gbm_surface, NULL);
+		if(o->egl_surface == EGL_NO_SURFACE) {
+			printf("ERROR: eglCreatePlatformWindowSurface, %0X\n", eglGetError());
+		} else {
+		}
+
+		if(!eglMakeCurrent(o->egl_display, o->egl_surface, o->egl_surface, o->egl_context)) {
+			printf("ERROR: eglMakeCurrent (setup): %0X\n", eglGetError());
+		}
+
+		o->frontbuffer_data = malloc(handle->lowlevel->wayland.ww * handle->lowlevel->wayland.wh * 4);
+		memset(o->frontbuffer_data, 255, handle->lowlevel->wayland.ww * handle->lowlevel->wayland.wh * 4);
+
+		o->frontbuffer = MwLoadRaw(handle, o->frontbuffer_data, handle->lowlevel->wayland.ww, handle->lowlevel->wayland.wh);
+
+		MwVaApply(handle, MwNpixmap, o->frontbuffer, NULL);
+	}
+}
 #endif
 
 MwClassRec MwOpenGLClassRec = {wcreate, /* create */
@@ -625,11 +668,15 @@ MwClassRec MwOpenGLClassRec = {wcreate, /* create */
 			       NULL,	     /* key */
 			       func_handler, /* execute */
 			       NULL,	     /* tick */
-			       NULL,	     /* resize */
-			       NULL,	     /* children_update */
-			       NULL,	     /* children_prop_change */
-			       NULL,	     /* clipboard */
-			       NULL,	     /* props_change */
+#ifdef USE_WAYLAND
+			       frontbuffer_resize, /* resize */
+#else
+			       NULL, /* resize */
+#endif
+			       NULL, /* children_update */
+			       NULL, /* children_prop_change */
+			       NULL, /* clipboard */
+			       NULL, /* props_change */
 			       NULL, NULL, NULL};
 MwClass MwOpenGLClass = &MwOpenGLClassRec;
 #else
