@@ -82,6 +82,7 @@ static MwLLPixmap blit(MwWidget handle, const char* str, MwLLColor bg, MwLLColor
 
 static void draw(MwWidget handle) {
 	MwLLColor   c	 = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor   cf	 = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	MwLLColor   cb	 = MwParseColor(handle, "#fff");
 	MwLLColor   cb_g = MwParseColor(handle, "#666");
 	MwLLColor   ct	 = MwParseColor(handle, "#000");
@@ -203,7 +204,7 @@ static void draw(MwWidget handle) {
 
 	sprintf(buf, "%d", MwGetInteger(handle, MwNyear));
 
-	px	  = blit(handle, buf, c, ct, gh);
+	px	  = blit(handle, buf, c, cf, gh);
 	r2	  = r3;
 	r2.width  = px->common.width;
 	r2.height = px->common.height;
@@ -212,6 +213,7 @@ static void draw(MwWidget handle) {
 	MwLLDrawPixmap(handle->lowlevel, &r2, px);
 	MwLLDestroyPixmap(px);
 
+	MwLLFreeColor(cf);
 	MwLLFreeColor(ct);
 	MwLLFreeColor(cb_g);
 	MwLLFreeColor(cb);

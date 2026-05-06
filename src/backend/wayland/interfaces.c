@@ -513,16 +513,19 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 		inArea |= self->wayland.backbuffer.surface == curSurface;
 	}
 
+	self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
+	self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
+	if(currentlyHeldWidget != NULL){
+		currentlyHeldWidget->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
+		currentlyHeldWidget->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
+	}
+
 	if(inArea) {
-		self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
-		self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
 		p.point			      = self->wayland.cur_mouse_pos;
 		MwLLDispatch(self, move, &p);
 
 		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
 	} else if(currentlyHeldWidget == self) {
-		currentlyHeldWidget->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
-		currentlyHeldWidget->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
 		p.point					     = currentlyHeldWidget->wayland.cur_mouse_pos;
 		MwLLDispatch(currentlyHeldWidget, move, &p);
 	}
