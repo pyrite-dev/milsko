@@ -225,10 +225,12 @@ static void xdg_surface_configure(
 
 void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
-	// Yes this is needed every time, it's how we fix weston.
-	if(self->wayland.configured)
-		wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
-	wl_surface_commit(buffer->surface);
+	if(buffer->surface) {
+		// Yes this is needed every time, it's how we fix weston.
+		if(self->wayland.configured)
+			wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
+		wl_surface_commit(buffer->surface);
+	}
 }
 
 /* Toplevel setup function */
@@ -418,9 +420,19 @@ static void popup_done(void*		 data,
 	(void)xdg_popup;
 };
 
+static void popup_repositioned(void*		 data,
+			       struct xdg_popup* xdg_popup,
+			       uint32_t		 token) {
+	MwLL self = data;
+
+	xdg_surface_ack_configure(self->wayland.popup->xdg_surface, token);
+};
+
 struct xdg_popup_listener popup_listener = {
-    .configure	= popup_configure,
-    .popup_done = popup_done,
+    .configure	  = popup_configure,
+    .popup_done	  = popup_done,
+    .repositioned = popup_repositioned,
+
 };
 
 /* Popup setup function */
@@ -482,6 +494,8 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	    r->wayland.popup->xdg_surface,
 	    xdg_surface,
 	    r->wayland.popup->xdg_positioner);
+
+	uint32_t ver = wl_proxy_get_version((struct wl_proxy*)r->wayland.popup->xdg_popup);
 
 	xdg_popup_add_listener(r->wayland.popup->xdg_popup, &popup_listener, r);
 
@@ -797,9 +811,16 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
 		wl_subsurface_set_position(handle->wayland.sublevel->subsurface, x, y);
 	}
+
+	if(handle->wayland.type == MwLL_WAYLAND_POPUP) {
+		xdg_positioner_set_anchor_rect(handle->wayland.popup->xdg_positioner, handle->wayland.parent->wayland.x, handle->wayland.parent->wayland.y, handle->wayland.ww, handle->wayland.wh);
+		xdg_positioner_set_offset(handle->wayland.popup->xdg_positioner, x, y);
+		xdg_popup_reposition(handle->wayland.popup->xdg_popup, handle->wayland.popup->xdg_positioner, 0);
+		xdg_surface_set_window_geometry(handle->wayland.popup->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+	}
 	MwLLWaylandRegionSetup(handle);
 
-	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) recursive_render(handle);
+	if(handle->wayland.type != MwLL_WAYLAND_TOPLEVEL) recursive_render(handle);
 
 	MwLLDispatch(handle, draw, NULL);
 }
@@ -1469,6 +1490,7 @@ static void MwLLMakeToolWindowImpl(MwLL handle) {
 
 static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
 	MwLL topmost_parent = handle;
+
 	WIDGET_CHECK(handle);
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 

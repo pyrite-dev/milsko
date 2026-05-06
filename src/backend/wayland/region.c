@@ -23,6 +23,7 @@ void MwLLWaylandRegionSetup(MwLL handle) {
 	} else {
 		wl_region_subtract(handle->wayland.region, 0, 0, width + abs(handle->wayland.x), height + abs(handle->wayland.y));
 		wl_region_add(handle->wayland.region, handle->wayland.clipping_rect.x, handle->wayland.clipping_rect.y, handle->wayland.clipping_rect.width, handle->wayland.clipping_rect.height);
+
 		if(!handle->wayland.parent)
 			wl_region_add(handle->wayland.region, 0, 0, width, height);
 	}

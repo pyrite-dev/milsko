@@ -400,12 +400,12 @@ static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 	WAYLAND_EVENT_OP_START(self);
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
-	curSurface = surface;
+	if(self->wayland.framebuffer.surface == surface) {
+		curSurface		     = surface;
+		self->wayland.pointer_serial = serial;
 
-	self->wayland.pointer_serial = serial;
-
-	wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, topmost_parent->wayland.cursor.surface, 0, 0);
-
+		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, topmost_parent->wayland.cursor.surface, 0, 0);
+	}
 	WAYLAND_EVENT_OP_END(self);
 };
 
@@ -506,14 +506,6 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 	currentlyHeldWidget = topmost_parent->wayland.currentlyHeldWidget;
 
-	if(currentlyHeldWidget) {
-		currentlyHeldWidget->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
-		currentlyHeldWidget->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
-		p.point					     = currentlyHeldWidget->wayland.cur_mouse_pos;
-		MwLLDispatch(currentlyHeldWidget, move, &p);
-		h = MwTRUE;
-	}
-
 	if(self->wayland.framebuffer.surface) {
 		inArea |= self->wayland.framebuffer.surface == curSurface;
 	}
@@ -521,15 +513,23 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	if(self->wayland.backbuffer.surface) {
 		inArea |= self->wayland.backbuffer.surface == curSurface;
 	}
+
+	if(currentlyHeldWidget) {
+		currentlyHeldWidget->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
+		currentlyHeldWidget->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
+		p.point					     = currentlyHeldWidget->wayland.cur_mouse_pos;
+		MwLLDispatch(currentlyHeldWidget, down, &p);
+		h = MwTRUE;
+	}
+
 	if(inArea) {
-		if(h) {
-			self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
-			self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
-			p.point			      = self->wayland.cur_mouse_pos;
-			MwLLDispatch(self, move, &p);
-		}
+		self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
+		self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
+		p.point			      = self->wayland.cur_mouse_pos;
+		MwLLDispatch(self, move, &p);
 		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
 	}
+
 	WAYLAND_EVENT_OP_END(self);
 };
 
@@ -998,7 +998,7 @@ static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wa
 
 	((struct xdg_wm_base_listener*)proto->listener)->ping = xdg_wm_base_ping;
 
-	proto->context = wl_registry_bind(wayland->registry, name, &xdg_wm_base_interface, 1);
+	proto->context = wl_registry_bind(wayland->registry, name, &xdg_wm_base_interface, 3);
 	xdg_wm_base_add_listener(proto->context, proto->listener, wayland);
 
 	return proto;
