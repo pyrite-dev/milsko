@@ -1601,6 +1601,12 @@ static int MwLLWaylandCallInitImpl(void) {
 		loadWayland |= (getenv("WAYLAND_DISPLAY") != NULL);
 	}
 
+#ifdef MW_OPENGL
+	if(getenv("WSLENV") || getenv("WSL_DISTRO_NAME")){
+		loadWayland = 0;
+	}
+#endif
+
 	if(loadWayland) {
 		if(wayland_load_funcs()) {
 			return 1;
