@@ -26,6 +26,11 @@ void MwLLWaylandRegionSetup(MwLL handle) {
 
 		if(!handle->wayland.parent)
 			wl_region_add(handle->wayland.region, 0, 0, width, height);
+		else {
+			if(!handle->wayland.parent->wayland.parent) {
+				wl_region_add(handle->wayland.region, 0, 0, width, height);
+			}
+		}
 	}
 
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
