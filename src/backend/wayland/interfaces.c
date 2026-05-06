@@ -515,18 +515,18 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 	self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
 	self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
-	if(currentlyHeldWidget != NULL){
+	if(currentlyHeldWidget != NULL) {
 		currentlyHeldWidget->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
 		currentlyHeldWidget->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
 	}
 
 	if(inArea) {
-		p.point			      = self->wayland.cur_mouse_pos;
+		p.point = self->wayland.cur_mouse_pos;
 		MwLLDispatch(self, move, &p);
 
 		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
 	} else if(currentlyHeldWidget == self) {
-		p.point					     = currentlyHeldWidget->wayland.cur_mouse_pos;
+		p.point = currentlyHeldWidget->wayland.cur_mouse_pos;
 		MwLLDispatch(currentlyHeldWidget, move, &p);
 	}
 
@@ -1002,7 +1002,7 @@ static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wa
 
 	((struct xdg_wm_base_listener*)proto->listener)->ping = xdg_wm_base_ping;
 
-	proto->context = wl_registry_bind(wayland->registry, name, &xdg_wm_base_interface, 3);
+	proto->context = wl_registry_bind(wayland->registry, name, &xdg_wm_base_interface, 1);
 	xdg_wm_base_add_listener(proto->context, proto->listener, wayland);
 
 	return proto;
