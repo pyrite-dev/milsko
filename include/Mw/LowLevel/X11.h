@@ -43,7 +43,7 @@ struct _MwLLX11 {
 	XIC	 xic;
 
 	long clipboard_time;
-	int  clipboard_pending; /* 1 if UTF8_STRING, 2 if COMPOUNd_TEXT, 3 if TEXT, 4 if STRING, otherwise 0 */
+	int  clipboard_pending; /* 1 if UTF8_STRING, 2 if COMPOUND_TEXT, 3 if TEXT, 4 if STRING, otherwise 0 */
 
 	int top;
 	int toplevel;

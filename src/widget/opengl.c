@@ -58,7 +58,7 @@ typedef struct x11opengl {
 #include <sys/mman.h>
 #include <gbm.h>
 
-/* 
+/*
 Note that for Wayland we create a GBM buffer manually and handle blitting it ourselves instead of using wayland-egl. Doing this allows us greater freedom over event handling; wayland-egl constantly pumps events, making us have to add a weird exception to wayland.c to make this work. Doing this also allows us to clip the OpenGL widget, something that was harder (impossible) with egl wayland.
 */
 typedef struct waylandopengl {

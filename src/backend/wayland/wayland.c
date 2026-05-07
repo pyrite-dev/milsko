@@ -1573,6 +1573,11 @@ static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)toggle;
 }
 
+static MwBool MwLLDoModernImpl(MwLL handle) {
+	(void)handle;
+	return MwTRUE;
+}
+
 static void MwLLRaiseImpl(MwLL handle) {
 	(void)handle;
 	/* 	WIDGET_CHECK(handle);
@@ -1591,6 +1596,11 @@ static void MwLLRaiseImpl(MwLL handle) {
 		}*/
 }
 
+static void MwLLClipImpl(MwLL handle, MwRect* rect) {
+	(void)handle;
+	(void)rect;
+}
+
 static int MwLLWaylandCallInitImpl(void) {
 #ifdef __linux__
 	MwBool loadWayland = MwFALSE;
@@ -1602,7 +1612,7 @@ static int MwLLWaylandCallInitImpl(void) {
 	}
 
 #ifdef MW_OPENGL
-	if(getenv("WSLENV") || getenv("WSL_DISTRO_NAME")){
+	if(getenv("WSLENV") || getenv("WSL_DISTRO_NAME")) {
 		loadWayland = 0;
 	}
 #endif
@@ -1617,11 +1627,6 @@ static int MwLLWaylandCallInitImpl(void) {
 	}
 #endif
 	return 1;
-}
-
-static MwBool MwLLDoModernImpl(MwLL handle) {
-	(void)handle;
-	return MwTRUE;
 }
 
 #include "../call.c"

@@ -263,8 +263,6 @@ static void resize(MwWidget handle) {
 	BUTTON(close);
 	BUTTON(maximize);
 	BUTTON(minimize);
-
-	MwDispatchUserHandler(handle, MwNresizeHandler, NULL);
 }
 
 static int wcreate(MwWidget handle) {
@@ -278,7 +276,6 @@ static int wcreate(MwWidget handle) {
 	resize(handle);
 
 	MwSetDefault(handle);
-
 
 	return 0;
 }

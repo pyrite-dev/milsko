@@ -1168,6 +1168,11 @@ static void MwLLRaiseImpl(MwLL handle) {
 	(void)handle;
 }
 
+static void MwLLClipImpl(MwLL handle, MwRect* rect) {
+	(void)handle;
+	(void)rect;
+}
+
 static int MwLLCocoaCallInitImpl(void) {
 #ifndef __APPLE__
 	printf("Using GNUStep Backend\n");

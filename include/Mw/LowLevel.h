@@ -331,6 +331,8 @@ MWDECL MwBool (*MwLLDoModern)(MwLL handle);
 
 MWDECL void (*MwLLRaise)(MwLL handle);
 
+MWDECL void (*MwLLClip)(MwLL handle, MwRect* rect);
+
 /* font renderer */
 MWDECL void MwFLSetup(void);
 

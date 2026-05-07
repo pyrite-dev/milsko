@@ -50,6 +50,7 @@
 #include <Mw/Widget/Separator.h>
 #include <Mw/Widget/SubMenu.h>
 #include <Mw/Widget/SubWindow.h>
+#include <Mw/Widget/Tab.h>
 #include <Mw/Widget/TreeView.h>
 #include <Mw/Widget/Viewport.h>
 #include <Mw/Widget/Window.h>

@@ -882,6 +882,11 @@ static void MwLLRaiseImpl(MwLL handle) {
 	SetWindowPos(handle->gdi.hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
+static void MwLLClipImpl(MwLL handle, MwRect* rect) {
+	(void)handle;
+	(void)rect;
+}
+
 static int MwLLGDICallInitImpl(void) {
 	void* ntdll;
 

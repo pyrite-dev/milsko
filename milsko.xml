@@ -910,6 +910,32 @@
 				</function>
 			</functions>
 		</widget>
+		<widget name="Tab">
+			<properties>
+				<property name="value" />
+			</properties>
+			<handlers>
+				<handler name="changed" />
+			</handlers>
+			<functions>
+				<function name="Add">
+					<return>
+						<widget />
+					</return>
+					<arguments>
+						<string name="name" />
+					</arguments>
+				</function>
+				<function name="GetFrame">
+					<return>
+						<widget />
+					</return>
+					<arguments>
+						<string name="name" />
+					</arguments>
+				</function>
+			</functions>
+		</widget>
 
 		<!-- They are not alphabetically sorted for reasons -->
 		<widget name="OpenGL">

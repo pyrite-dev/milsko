@@ -59,5 +59,7 @@
 		MwLLDoModern	 = MwLLDoModernImpl; \
 \
 		MwLLRaise = MwLLRaiseImpl; \
+\
+		MwLLClip = MwLLClipImpl; \
 		return 0; \
 	}

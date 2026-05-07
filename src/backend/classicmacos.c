@@ -355,6 +355,11 @@ static void MwLLRaiseImpl(MwLL handle) {
 	(void)handle;
 }
 
+static void MwLLClipImpl(MwLL handle, MwRect* rect) {
+	(void)handle;
+	(void)rect;
+}
+
 static int MwLLClassicMacOSCallInitImpl(void) {
 	InitGraf(&qd.thePort);
 	InitFonts();

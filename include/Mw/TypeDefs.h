@@ -28,6 +28,7 @@ typedef struct _MwTreeViewEntry	      MwTreeViewEntry;
 typedef struct _MwDirectoryEntry      MwDirectoryEntry;
 typedef struct _MwBox*		      MwBox;
 typedef struct _MwSubWindow*	      MwSubWindow;
+typedef struct _MwTab*		      MwTab;
 typedef struct _MwMouse		      MwMouse;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
@@ -222,6 +223,11 @@ struct _MwSubWindow {
 	int	 height;
 	MwPoint	 cursor_start;
 	MwPoint	 base;
+};
+
+struct _MwTab {
+	MwWidget* frames;
+	char**	  names;
 };
 
 struct _MwMouse {

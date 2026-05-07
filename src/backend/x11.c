@@ -65,6 +65,7 @@ static struct symtbl {
 	Status (*XSendEvent)(Display*, Window, Bool, long, XEvent*);
 	int (*XSetClipMask)(Display*, GC, Pixmap);
 	int (*XSetClipOrigin)(Display*, GC, int, int);
+	int (*XSetClipRectangles)(Display*, GC, int, int, XRectangle[], int, int);
 	int (*XSetForeground)(Display*, GC, unsigned long);
 	int (*XSetGraphicsExposures)(Display*, GC, Bool);
 	int (*XSetInputFocus)(Display*, Window, int, Time);
@@ -178,6 +179,7 @@ static struct symtbl {
 #define XReparentWindow xsymtbl.XReparentWindow
 #define XCreatePixmap xsymtbl.XCreatePixmap
 #define XSetClipOrigin xsymtbl.XSetClipOrigin
+#define XSetClipRectangles xsymtbl.XSetClipRectangles
 #define XCloseIM xsymtbl.XCloseIM
 #define XQueryTree xsymtbl.XQueryTree
 #define XPending xsymtbl.XPending
@@ -1381,6 +1383,21 @@ static void MwLLRaiseImpl(MwLL handle) {
 	XRaiseWindow(handle->x11.display, handle->x11.window);
 }
 
+static void MwLLClipImpl(MwLL handle, MwRect* rect) {
+	if(rect == NULL) {
+		XSetClipMask(handle->x11.display, handle->x11.gc, None);
+	} else {
+		XRectangle rc;
+
+		rc.x	  = 0;
+		rc.y	  = 0;
+		rc.width  = rect->width;
+		rc.height = rect->height;
+
+		XSetClipRectangles(handle->x11.display, handle->x11.gc, rect->x, rect->y, &rc, 1, Unsorted);
+	}
+}
+
 static int MwLLX11CallInitImpl(void) {
 	MwBool loadX11 = MwFALSE;
 	if(getenv("MILSKO_BACKEND")) {
@@ -1460,6 +1477,7 @@ static int MwLLX11CallInitImpl(void) {
 	X11_FUNC_LOAD(XSendEvent);
 	X11_FUNC_LOAD(XSetClipMask);
 	X11_FUNC_LOAD(XSetClipOrigin);
+	X11_FUNC_LOAD(XSetClipRectangles);
 	X11_FUNC_LOAD(XSetForeground);
 	X11_FUNC_LOAD(XSetGraphicsExposures);
 	X11_FUNC_LOAD(XSetInputFocus);

@@ -93,7 +93,6 @@ MWDECL void MWAPI MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color,
  * @param border Border width
  * @param diff Difference (set this to 0 if you don't know what this does)
  * @param same Same as dark color
- * @param rounded Rounded or not
  * @warning `rect` gets changed to the area of rectangle inside
  */
 MWDECL void MWAPI MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same);

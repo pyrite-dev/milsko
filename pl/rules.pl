@@ -159,6 +159,7 @@ new_object("src/widget/scrollbar.c");
 new_object("src/widget/separator.c");
 new_object("src/widget/submenu.c");
 new_object("src/widget/subwindow.c");
+new_object("src/widget/tab.c");
 new_object("src/widget/treeview.c");
 new_object("src/widget/viewport.c");
 new_object("src/widget/window.c");

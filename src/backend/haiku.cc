@@ -471,7 +471,7 @@ static int32 app_thread(void* data) {
 	return 0;
 }
 
-MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
+static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL   r = (MwLL)malloc(sizeof(*r));
 	MwRect mrc;
 	BRect  rc = BRect(x, y, x + width - 1, y + height - 1);
@@ -531,7 +531,7 @@ MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	return r;
 }
 
-void MwLLDestroyImpl(MwLL handle) {
+static void MwLLDestroyImpl(MwLL handle) {
 	MwLLDestroyCommon(handle);
 
 	handle->haiku.view->PostMessage(BVIEW_MW_DESTROY);
@@ -550,7 +550,7 @@ void MwLLDestroyImpl(MwLL handle) {
 	free(handle);
 }
 
-void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
+static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
 	int	 i;
 	BMessage msg(BVIEW_MW_POLYGON);
 
@@ -564,7 +564,7 @@ void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor c
 	handle->haiku.view->PostMessage(&msg);
 }
 
-void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
+static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	int	 i;
 	BMessage msg(BVIEW_MW_LINE);
 
@@ -578,15 +578,15 @@ void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	handle->haiku.view->PostMessage(&msg);
 }
 
-void MwLLBeginDrawImpl(MwLL handle) {
+static void MwLLBeginDrawImpl(MwLL handle) {
 	(void)handle;
 }
 
-void MwLLEndDrawImpl(MwLL handle) {
+static void MwLLEndDrawImpl(MwLL handle) {
 	(void)handle;
 }
 
-MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
+static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 	MwLLColor c = (MwLLColor)malloc(sizeof(*c));
 
 	MwLLColorUpdate(handle, c, r, g, b);
@@ -594,7 +594,7 @@ MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 	return c;
 }
 
-void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
+static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 	(void)handle;
 
 	c->common.red	= r;
@@ -602,18 +602,18 @@ void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 	c->common.blue	= b;
 }
 
-void MwLLFreeColorImpl(MwLLColor color) {
+static void MwLLFreeColorImpl(MwLLColor color) {
 	free(color);
 }
 
-void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
+static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
 	*x = handle->haiku.x;
 	*y = handle->haiku.y;
 	*w = handle->haiku.width;
 	*h = handle->haiku.height;
 }
 
-void MwLLSetXYImpl(MwLL handle, int x, int y) {
+static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	BMessage msg(BVIEW_MW_MOVE);
 
 	handle->haiku.x = x;
@@ -625,7 +625,7 @@ void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	handle->haiku.view->PostMessage(&msg);
 }
 
-void MwLLSetWHImpl(MwLL handle, int w, int h) {
+static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	BMessage msg(BVIEW_MW_RESIZE);
 
 	handle->haiku.width  = w;
@@ -639,7 +639,7 @@ void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	MwLLDispatch(handle, resize, NULL);
 }
 
-void MwLLSetTitleImpl(MwLL handle, const char* title) {
+static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 	BMessage msg(BWIN_MW_SET_TITLE);
 
 	if(handle->haiku.app == NULL) return;
@@ -649,7 +649,7 @@ void MwLLSetTitleImpl(MwLL handle, const char* title) {
 	handle->haiku.window->PostMessage(&msg);
 }
 
-int MwLLPendingImpl(MwLL handle) {
+static int MwLLPendingImpl(MwLL handle) {
 	handle->haiku.view->locker->Lock();
 	if(arrlen(handle->haiku.events) > 0) {
 		handle->haiku.view->locker->Unlock();
@@ -660,7 +660,7 @@ int MwLLPendingImpl(MwLL handle) {
 	return 0;
 }
 
-void MwLLNextEventImpl(MwLL handle) {
+static void MwLLNextEventImpl(MwLL handle) {
 	int rendered = 0;
 
 	handle->haiku.view->locker->Lock();
@@ -702,7 +702,7 @@ void MwLLNextEventImpl(MwLL handle) {
 	if(rendered) handle->haiku.force_render = 0;
 }
 
-MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
+static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
 	MwLLPixmap r = (MwLLPixmap)malloc(sizeof(*r));
 
 	(void)handle;
@@ -721,7 +721,7 @@ MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int
 	return r;
 }
 
-void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {
+static void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {
 	uint32* px = (uint32*)malloc(4 * pixmap->common.width * pixmap->common.height);
 	int	i;
 
@@ -740,13 +740,13 @@ void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {
 	free(px);
 }
 
-void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
+static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 	free(pixmap->common.raw);
 
 	free(pixmap);
 }
 
-void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
+static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	BRect	 rc;
 	BMessage msg(BVIEW_MW_BITMAP);
 
@@ -758,25 +758,25 @@ void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	handle->haiku.view->PostMessage(&msg);
 }
 
-void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
+static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	(void)handle;
 	(void)pixmap;
 }
 
-void MwLLForceRenderImpl(MwLL handle) {
+static void MwLLForceRenderImpl(MwLL handle) {
 	if(handle->haiku.force_render) return;
 
 	handle->haiku.force_render = 1;
 	handle->haiku.view->PostMessage(BVIEW_MW_RENDER);
 }
 
-void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
+static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	(void)handle;
 	(void)image;
 	(void)mask;
 }
 
-void MwLLDetachImpl(MwLL handle, MwPoint* point) {
+static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	BMessage msg(BVIEW_MW_DETACH);
 
 	msg.AddPoint("view-point", BPoint(point->x, point->y));
@@ -786,7 +786,7 @@ void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	while(handle->haiku.window == NULL);
 }
 
-void MwLLShowImpl(MwLL handle, int show) {
+static void MwLLShowImpl(MwLL handle, int show) {
 	if(show) {
 		handle->haiku.view->PostMessage(BVIEW_MW_SHOW);
 	} else {
@@ -794,7 +794,7 @@ void MwLLShowImpl(MwLL handle, int show) {
 	}
 }
 
-void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
+static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
 	(void)handle;
 	(void)minx;
 	(void)miny;
@@ -802,7 +802,7 @@ void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
 	(void)maxy;
 }
 
-void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
+static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
 	if(toggle) {
 		handle->haiku.type = B_TITLED_WINDOW;
 	} else {
@@ -810,20 +810,20 @@ void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
 	}
 }
 
-void MwLLMakeToolWindowImpl(MwLL handle) {
+static void MwLLMakeToolWindowImpl(MwLL handle) {
 	handle->haiku.type = B_UNTYPED_WINDOW;
 }
 
-void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
+static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 	(void)handle;
 	(void)parent;
 }
 
-void MwLLBeginStateChangeImpl(MwLL handle) {
+static void MwLLBeginStateChangeImpl(MwLL handle) {
 	handle->haiku.type = handle->haiku.window == NULL ? B_TITLED_WINDOW : handle->haiku.window->Type();
 }
 
-void MwLLEndStateChangeImpl(MwLL handle) {
+static void MwLLEndStateChangeImpl(MwLL handle) {
 	BMessage msg(BWIN_MW_SET_TYPE);
 
 	msg.AddInt32("window-type", handle->haiku.type);
@@ -831,27 +831,27 @@ void MwLLEndStateChangeImpl(MwLL handle) {
 	BMessenger(handle->haiku.window).SendMessage(&msg);
 }
 
-void MwLLFocusImpl(MwLL handle) {
+static void MwLLFocusImpl(MwLL handle) {
 	(void)handle;
 }
 
-void MwLLGrabPointerImpl(MwLL handle, int toggle) {
+static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	(void)handle;
 	(void)toggle;
 }
 
-void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type) {
+static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type) {
 	(void)handle;
 	(void)text;
 	(void)clipboard_type;
 }
 
-void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
+static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
 	(void)handle;
 	(void)clipboard_type;
 }
 
-void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
+static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
 	MwLL	 top = handle;
 	BMessage msg(BVIEW_MW_GET_MOUSE);
 	BPoint	 p;
@@ -866,7 +866,7 @@ void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
 	point->y = p.y;
 }
 
-void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
+static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
 	BScreen* screen = new BScreen();
 
 	(void)handle;
@@ -879,18 +879,23 @@ void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
 	delete screen;
 }
 
-void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
+static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)handle;
 	(void)toggle;
 }
 
-MwBool MwLLDoModernImpl(MwLL handle) {
+static MwBool MwLLDoModernImpl(MwLL handle) {
 	(void)handle;
 	return MwTRUE;
 }
 
 static void MwLLRaiseImpl(MwLL handle) {
 	handle->haiku.view->SendMessage(BVIEW_MW_RAISE);
+}
+
+static void MwLLClipImpl(MwLL handle, MwRect* rect) {
+	(void)handle;
+	(void)rect;
 }
 
 int MwLLHaikuCallInitImpl() {
