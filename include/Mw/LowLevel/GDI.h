@@ -23,6 +23,8 @@ struct _MwLLGDI {
 	HCURSOR	  cursor;
 	HICON	  icon;
 
+	HRGN clip;
+
 	int grabbed;
 	int force_render;
 	int get_clipboard;

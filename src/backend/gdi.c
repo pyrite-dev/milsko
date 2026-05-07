@@ -307,6 +307,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->gdi.cursor	    = NULL;
 	r->gdi.icon	    = NULL;
 
+	r->gdi.clip = NULL;
+
 	u->ll	   = r;
 	u->min_set = 0;
 	u->max_set = 0;
@@ -339,6 +341,8 @@ static void MwLLDestroyImpl(MwLL handle) {
 	/* for safety */
 	SetWindowLongPtr(handle->gdi.hWnd, GWLP_USERDATA, (LPARAM)NULL);
 	DestroyWindow(handle->gdi.hWnd);
+
+	if(handle->gdi.clip != NULL) DeleteObject(handle->gdi.clip);
 
 	if(handle->gdi.cursor != NULL) DestroyCursor(handle->gdi.cursor);
 
@@ -883,8 +887,22 @@ static void MwLLRaiseImpl(MwLL handle) {
 }
 
 static void MwLLClipImpl(MwLL handle, MwRect* rect) {
-	(void)handle;
-	(void)rect;
+	if(rect == NULL){
+		SelectClipRgn(handle->gdi.hDC, NULL);
+
+		if(handle->gdi.clip != NULL){
+			DeleteObject(handle->gdi.clip);
+			handle->gdi.clip = NULL;
+		}
+	}else{
+		HRGN clip = CreateRectRgn(rect->x, rect->y, rect->x + rect->width, rect->y + rect->height);
+
+		SelectClipRgn(handle->gdi.hDC, clip);
+
+		if(handle->gdi.clip != NULL) DeleteObject(handle->gdi.clip);
+
+		handle->gdi.clip = clip;
+	}
 }
 
 static int MwLLGDICallInitImpl(void) {

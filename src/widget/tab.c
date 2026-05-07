@@ -81,7 +81,7 @@ static void draw(MwWidget handle) {
 			if(render) {
 				MwPoint p;
 
-				if(n == 1 && arrlen(t->names) > 1 && i > 0) {
+				if(n == 1 && i > 0) {
 					MwRect r3 = r2;
 
 					r3.y	 = tab_height(handle);
@@ -98,7 +98,7 @@ static void draw(MwWidget handle) {
 					MwLLClip(handle->lowlevel, NULL);
 				}
 
-				if(n == 1 && arrlen(t->names) > 1 && i < (arrlen(t->names) - 1)) {
+				if(n == 1 && i < (arrlen(t->names) - 1)) {
 					MwRect r3 = r2;
 
 					r3.x += r2.width - MwDefaultBorderWidth(handle);
