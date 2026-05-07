@@ -60,7 +60,7 @@ endif()
 
 if(MW_TRY_OPENGL)
   find_package(OpenGL)
-  if(OpenGL_FOUND and NOT APPLE)
+  if(OpenGL_FOUND AND NOT APPLE)
     set(MW_BUILD_OPENGL ON)
     message(STATUS "OpenGL widget has been enabled")
   else()
@@ -130,15 +130,18 @@ endif()
 if(MW_USE_FREETYPE2)
   find_package(Freetype)
   if(Freetype_FOUND)
+  message(STATUS "FreeType2 found")
     target_compile_definitions(
   Mw
   PRIVATE
   USE_FREETYPE2
  )
 
-    list(APPEND INCLUDE_DIRS ${FT2_INCLUDE_DIRS})
-    list(APPEND LIBRARY_DIRS ${FT2_LIBRARY_DIRS})
-    list(APPEND LIBRARIES ${FT2_LIBRARIES})
+    list(APPEND INCLUDE_DIRS ${FREETYPE_INCLUDE_DIRS})
+    list(APPEND LIBRARY_DIRS ${FREETYPE_LIBRARY_DIRS})
+    list(APPEND LIBRARIES ${FREETYPE_LIBRARIES})
+  else()
+  message(WARNING "FreeType2 not found")
   endif()
 endif()
 
