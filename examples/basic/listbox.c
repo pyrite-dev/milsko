@@ -2,7 +2,7 @@
 
 #include "../harvard.c"
 
-MwWidget wmain;
+MwWidget w_main;
 
 void MWAPI destroy(MwWidget handle, void* user, void* call) {
 	(void)handle;
@@ -18,7 +18,7 @@ void MWAPI activate(MwWidget handle, void* user, void* call) {
 
 	MwStringPrintIntoBuffer(msg, 256, "You pressed: %s", MwListBoxGet(handle, *(int*)call));
 
-	msgbox = MwMessageBox(wmain, msg, "wow", MwMB_ICONINFO | MwMB_BUTTONOK);
+	msgbox = MwMessageBox(w_main, msg, "wow", MwMB_ICONINFO | MwMB_BUTTONOK);
 	MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, destroy, msgbox);
 }
 
@@ -31,10 +31,10 @@ int main() {
 
 	MwLibraryInit();
 
-	wmain = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480,
+	w_main = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480,
 				 MwNtitle, "listbox",
 				 NULL);
-	lb    = MwCreateWidget(MwListBoxClass, "listbox", wmain, 5, 5, 630, 470);
+	lb    = MwCreateWidget(MwListBoxClass, "listbox", w_main, 5, 5, 630, 470);
 
 	px = MwLoadIcon(lb, MwIconInfo);
 
@@ -57,5 +57,5 @@ int main() {
 		  NULL);
 	MwListBoxSetWidth(lb, 0, -128);
 
-	MwLoop(wmain);
+	MwLoop(w_main);
 }
