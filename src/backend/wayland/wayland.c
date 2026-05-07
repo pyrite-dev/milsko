@@ -591,6 +591,11 @@ static void clip(MwLL handle) {
 			cairo_rectangle(handle->wayland.front_cairo, cx - x, cy - y, mx - cx, my - cy);
 			cairo_clip(handle->wayland.front_cairo);
 		}
+
+		if(handle->wayland.is_clipping){
+			cairo_rectangle(handle->wayland.front_cairo, handle->wayland.clip.x, handle->wayland.clip.y, handle->wayland.clip.width, handle->wayland.clip.height);
+			cairo_clip(handle->wayland.front_cairo);
+		}
 	}
 }
 
@@ -700,6 +705,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	}
 
 	r->wayland.is_toplevel = parent == NULL;
+	r->wayland.is_clipping = 0;
 
 	widget_setup(r, parent, x, y, width, height, MwLL_WAYLAND_UNKNOWN);
 
@@ -1597,8 +1603,11 @@ static void MwLLRaiseImpl(MwLL handle) {
 }
 
 static void MwLLClipImpl(MwLL handle, MwRect* rect) {
-	(void)handle;
-	(void)rect;
+	if(rect == NULL){
+		handle->wayland.is_clipping = MwFALSE;
+	}else{
+		handle->wayland.clip = *rect;
+	}
 }
 
 static int MwLLWaylandCallInitImpl(void) {

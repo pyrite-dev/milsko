@@ -201,6 +201,7 @@ new_example("examples/basic/calculator");
 new_example("examples/basic/filechooser");
 new_example("examples/basic/periodic");
 new_example("examples/basic/subwindow");
+new_example("examples/basic/tab");
 
 if (param_get("opengl")) {
     new_example("examples/gldemos/boing",    $gl_libs);

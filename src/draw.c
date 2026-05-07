@@ -359,13 +359,13 @@ static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwLLColor color
 	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff);
 	MwRect	  r	    = *rect;
 
-	frame_border_complex(handle, rect, lighter, darker, invert, border, diff, same);
+	frame_border_complex(handle, rect, lighter, darker, invert, border / 2, diff, same);
 
 	r.x += 1;
 	r.y += 1;
 	r.width -= 2;
 	r.height -= 2;
-	frame_border_complex(handle, &r, lighter, darker, !invert, border, diff, same);
+	frame_border_complex(handle, &r, lighter, darker, !invert, border / 2, diff, same);
 
 	MwLLFreeColor(lighter);
 	MwLLFreeColor(darker);

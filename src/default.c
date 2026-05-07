@@ -22,7 +22,7 @@ int MwDefaultBorderWidth(MwWidget handle) {
 	if(bw != MwDEFAULT) return bw;
 
 	if(MwGetInteger(handle, MwNmodernLook)) {
-		return 1;
+		return 2;
 	} else {
 		return 2;
 	}

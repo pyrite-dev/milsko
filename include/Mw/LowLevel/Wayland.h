@@ -446,6 +446,9 @@ struct _MwLLWayland {
 
 	MwBool is_toplevel;
 
+	MwBool is_clipping;
+	MwRect clip;
+
 	/* Map of Wayland interfaces to their relevant setup functions. */
 	struct {
 		char*				   key;
