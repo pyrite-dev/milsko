@@ -152,13 +152,7 @@ static void show_frame(MwWidget handle) {
 	int   n = MwGetInteger(handle, MwNvalue);
 	int   i;
 
-	for(i = 0; i < arrlen(t->frames); i++) {
-		if(i != n) MwLLShow(t->frames[i]->lowlevel, 0);
-	}
-
 	resize(handle);
-
-	MwLLShow(t->frames[n]->lowlevel, 1);
 
 	MwForceRender(handle);
 
@@ -185,13 +179,11 @@ static void click(MwWidget handle) {
 
 static MwWidget mwTabAddImpl(MwWidget handle, const char* name) {
 	MwTab	 t = handle->internal;
-	MwWidget f = MwCreateWidget(MwFrameClass, "tabframe", handle, 0, MwGetInteger(handle, MwNheight), 0, 0);
+	MwWidget f = MwCreateWidget(MwFrameClass, "tabframe", handle, 0, MwGetInteger(handle, MwNheight), MwGetInteger(handle, MwNwidth) - MwDefaultBorderWidth(handle) * 2, MwGetInteger(handle, MwNheight) - tab_height(handle) - MwDefaultBorderWidth(handle) * 2);
 	char*	 n = MwStringDuplicate(name);
 
 	arrput(t->frames, f);
 	arrput(t->names, n);
-
-	MwLLShow(f->lowlevel, 0);
 
 	MwForceRender(handle);
 
@@ -229,15 +221,20 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 static void resize(MwWidget handle) {
 	MwTab t = handle->internal;
 	int   v = MwGetInteger(handle, MwNvalue);
+	int   i;
 
-	if(v == -1) return;
+	for(i = 0; i < arrlen(t->frames); i++) {
+		int y = MwGetInteger(handle, MwNheight);
 
-	MwVaApply(t->frames[v],
-		  MwNx, MwDefaultBorderWidth(handle),
-		  MwNy, tab_height(handle) + MwDefaultBorderWidth(handle),
-		  MwNwidth, MwGetInteger(handle, MwNwidth) - MwDefaultBorderWidth(handle) * 2,
-		  MwNheight, MwGetInteger(handle, MwNheight) - tab_height(handle) - MwDefaultBorderWidth(handle) * 2,
-		  NULL);
+		if(i == v) tab_height(handle) + MwDefaultBorderWidth(handle);
+
+		MwVaApply(t->frames[i],
+			  MwNx, MwDefaultBorderWidth(handle),
+			  MwNy, y,
+			  MwNwidth, MwGetInteger(handle, MwNwidth) - MwDefaultBorderWidth(handle) * 2,
+			  MwNheight, MwGetInteger(handle, MwNheight) - tab_height(handle) - MwDefaultBorderWidth(handle) * 2,
+			  NULL);
+	}
 }
 
 MwClassRec MwTabClassRec = {
