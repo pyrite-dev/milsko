@@ -163,6 +163,11 @@ $ then
 $	write sys$output "CC [.src.widget]calendar.obj"
 $	cc /include_directory=("./include","./src/widget") /define=(_MILSKO,USE_X11,NO_IMAGE) /object=[.src.widget]calendar.obj [.src.widget]calendar.c
 $ endif
+$ if f$search("[.src.widget]tab.obj;*") .eqs. ""
+$ then
+$	write sys$output "CC [.src.widget]tab.obj"
+$	cc /include_directory=("./include","./src/widget") /define=(_MILSKO,USE_X11,NO_IMAGE) /object=[.src.widget]tab.obj [.src.widget]tab.c
+$ endif
 $ if f$search("[.src.dialog]colorpicker.obj;*") .eqs. ""
 $ then
 $	write sys$output "CC [.src.dialog]colorpicker.obj"
@@ -330,6 +335,7 @@ $	WRITE LINK_OPT "[.src.widget]viewport.obj"
 $	WRITE LINK_OPT "[.src.widget]window.obj"
 $	WRITE LINK_OPT "[.src.widget]subwindow.obj"
 $	WRITE LINK_OPT "[.src.widget]calendar.obj"
+$	WRITE LINK_OPT "[.src.widget]tab.obj"
 $	WRITE LINK_OPT "[.src.dialog]colorpicker.obj"
 $	WRITE LINK_OPT "[.src.dialog]directorychooser.obj"
 $	WRITE LINK_OPT "[.src.dialog]filechooser.obj"

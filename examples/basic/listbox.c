@@ -32,9 +32,9 @@ int main() {
 	MwLibraryInit();
 
 	w_main = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 640, 480,
-				 MwNtitle, "listbox",
-				 NULL);
-	lb    = MwCreateWidget(MwListBoxClass, "listbox", w_main, 5, 5, 630, 470);
+				  MwNtitle, "listbox",
+				  NULL);
+	lb     = MwCreateWidget(MwListBoxClass, "listbox", w_main, 5, 5, 630, 470);
 
 	px = MwLoadIcon(lb, MwIconInfo);
 

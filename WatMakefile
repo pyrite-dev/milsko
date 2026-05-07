@@ -5,9 +5,9 @@ MW_CFLAGS = -bd -i=include -i=external/libz/include -d_MILSKO -dUSE_GDI -dUSE_ST
 MW_LDFLAGS = system nt_dll
 EXE_CFLAGS = -i=include
 EXE_LDFLAGS = system nt
-all: src/Mw.dll examples/basic/box.exe examples/basic/calculator.exe examples/basic/checkbox.exe examples/basic/clipboard.exe examples/basic/colorpicker.exe examples/basic/combobox.exe examples/basic/example.exe examples/basic/filechooser.exe examples/basic/image.exe examples/basic/listbox.exe examples/basic/messagebox.exe examples/basic/periodic.exe examples/basic/progressbar.exe examples/basic/radiobox.exe examples/basic/rotate.exe examples/basic/scrollbar.exe examples/basic/sevensegment.exe examples/basic/subwindow.exe examples/basic/treeview.exe examples/basic/viewport.exe examples/gldemos/boing.exe examples/gldemos/clock.exe examples/gldemos/cube.exe examples/gldemos/gears.exe examples/gldemos/triangle.exe examples/gldemos/tripaint.exe
+all: src/Mw.dll examples/basic/box.exe examples/basic/calculator.exe examples/basic/checkbox.exe examples/basic/clipboard.exe examples/basic/colorpicker.exe examples/basic/combobox.exe examples/basic/example.exe examples/basic/filechooser.exe examples/basic/image.exe examples/basic/listbox.exe examples/basic/messagebox.exe examples/basic/periodic.exe examples/basic/progressbar.exe examples/basic/radiobox.exe examples/basic/rotate.exe examples/basic/scrollbar.exe examples/basic/sevensegment.exe examples/basic/subwindow.exe examples/basic/tab.exe examples/basic/treeview.exe examples/basic/viewport.exe examples/gldemos/boing.exe examples/gldemos/clock.exe examples/gldemos/cube.exe examples/gldemos/gears.exe examples/gldemos/triangle.exe examples/gldemos/tripaint.exe
 lib: src/Mw.dll
-examples: examples/basic/box.exe examples/basic/calculator.exe examples/basic/checkbox.exe examples/basic/clipboard.exe examples/basic/colorpicker.exe examples/basic/combobox.exe examples/basic/example.exe examples/basic/filechooser.exe examples/basic/image.exe examples/basic/listbox.exe examples/basic/messagebox.exe examples/basic/periodic.exe examples/basic/progressbar.exe examples/basic/radiobox.exe examples/basic/rotate.exe examples/basic/scrollbar.exe examples/basic/sevensegment.exe examples/basic/subwindow.exe examples/basic/treeview.exe examples/basic/viewport.exe examples/gldemos/boing.exe examples/gldemos/clock.exe examples/gldemos/cube.exe examples/gldemos/gears.exe examples/gldemos/triangle.exe examples/gldemos/tripaint.exe
+examples: examples/basic/box.exe examples/basic/calculator.exe examples/basic/checkbox.exe examples/basic/clipboard.exe examples/basic/colorpicker.exe examples/basic/combobox.exe examples/basic/example.exe examples/basic/filechooser.exe examples/basic/image.exe examples/basic/listbox.exe examples/basic/messagebox.exe examples/basic/periodic.exe examples/basic/progressbar.exe examples/basic/radiobox.exe examples/basic/rotate.exe examples/basic/scrollbar.exe examples/basic/sevensegment.exe examples/basic/subwindow.exe examples/basic/tab.exe examples/basic/treeview.exe examples/basic/viewport.exe examples/gldemos/boing.exe examples/gldemos/clock.exe examples/gldemos/cube.exe examples/gldemos/gears.exe examples/gldemos/triangle.exe examples/gldemos/tripaint.exe
 clean: .SYMBOLIC
 	%erase external/libz/src/adler32.obj
 	%erase external/libz/src/compress.obj
@@ -116,6 +116,7 @@ clean: .SYMBOLIC
 	%erase examples/basic/scrollbar.obj
 	%erase examples/basic/sevensegment.obj
 	%erase examples/basic/subwindow.obj
+	%erase examples/basic/tab.obj
 	%erase examples/basic/treeview.obj
 	%erase examples/basic/viewport.obj
 	%erase examples/gldemos/boing.obj
@@ -142,6 +143,7 @@ clean: .SYMBOLIC
 	%erase examples/basic/scrollbar.exe
 	%erase examples/basic/sevensegment.exe
 	%erase examples/basic/subwindow.exe
+	%erase examples/basic/tab.exe
 	%erase examples/basic/treeview.exe
 	%erase examples/basic/viewport.exe
 	%erase examples/gldemos/boing.exe
@@ -258,6 +260,12 @@ examples/basic/subwindow.exe: examples/basic/subwindow.obj src/Mw.dll
 
 examples/basic/subwindow.obj: examples/basic/subwindow.c
 	$(CC) $(EXE_CFLAGS) -fo=$@ examples/basic/subwindow.c
+
+examples/basic/tab.exe: examples/basic/tab.obj src/Mw.dll
+	$(LD) $(EXE_LDFLAGS) name $@ file examples/basic/tab.obj library clib3r.lib library src/Mw.lib
+
+examples/basic/tab.obj: examples/basic/tab.c
+	$(CC) $(EXE_CFLAGS) -fo=$@ examples/basic/tab.c
 
 examples/basic/treeview.exe: examples/basic/treeview.obj src/Mw.dll
 	$(LD) $(EXE_LDFLAGS) name $@ file examples/basic/treeview.obj library clib3r.lib library src/Mw.lib

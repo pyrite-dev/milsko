@@ -1606,7 +1606,7 @@ static void MwLLClipImpl(MwLL handle, MwRect* rect) {
 	if(rect == NULL) {
 		handle->wayland.is_clipping = MwFALSE;
 	} else {
-		handle->wayland.clip = *rect;
+		handle->wayland.clip	    = *rect;
 		handle->wayland.is_clipping = MwTRUE;
 	}
 }

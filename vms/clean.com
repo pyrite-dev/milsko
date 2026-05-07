@@ -31,6 +31,7 @@ $ if f$search("[.src.widget]viewport.obj") .nes. "" then delete [.src.widget]vie
 $ if f$search("[.src.widget]window.obj") .nes. "" then delete [.src.widget]window.obj;*
 $ if f$search("[.src.widget]subwindow.obj") .nes. "" then delete [.src.widget]subwindow.obj;*
 $ if f$search("[.src.widget]calendar.obj") .nes. "" then delete [.src.widget]calendar.obj;*
+$ if f$search("[.src.widget]tab.obj") .nes. "" then delete [.src.widget]tab.obj;*
 $ if f$search("[.src.dialog]colorpicker.obj") .nes. "" then delete [.src.dialog]colorpicker.obj;*
 $ if f$search("[.src.dialog]directorychooser.obj") .nes. "" then delete [.src.dialog]directorychooser.obj;*
 $ if f$search("[.src.dialog]filechooser.obj") .nes. "" then delete [.src.dialog]filechooser.obj;*
