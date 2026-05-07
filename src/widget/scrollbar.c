@@ -73,7 +73,7 @@ static void draw(MwWidget handle) {
 	ux = r.height;
 	dx = r.width - r.height;
 
-	MwDrawWidgetBack(handle, &r, dark, 1, MwTRUE);
+	MwDrawWidgetBack(handle, &r, dark, 1, MwDEFAULT);
 	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 
 	rt = r;
@@ -131,7 +131,7 @@ static void draw(MwWidget handle) {
 		}
 	}
 
-	if(rbar.height >= 0) MwDrawWidgetBack(handle, &rbar, base, 0, MwTRUE);
+	if(rbar.height >= 0) MwDrawWidgetBack(handle, &rbar, base, 0, MwDEFAULT);
 
 	MwLLFreeColor(dark);
 	MwLLFreeColor(base);

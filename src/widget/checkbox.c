@@ -27,7 +27,7 @@ static void draw(MwWidget handle) {
 	r.x = (MwGetInteger(handle, MwNwidth) - r.width) / 2;
 	r.y = (MwGetInteger(handle, MwNheight) - r.height) / 2;
 
-	MwDrawWidgetBack(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0, MwTRUE);
+	MwDrawWidgetBack(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0, MwDEFAULT);
 	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 	if(handle->pressed || MwGetInteger(handle, MwNchecked)) {
 		/* TODO: write check mark */

@@ -592,7 +592,7 @@ static void clip(MwLL handle) {
 			cairo_clip(handle->wayland.front_cairo);
 		}
 
-		if(handle->wayland.is_clipping){
+		if(handle->wayland.is_clipping) {
 			cairo_rectangle(handle->wayland.front_cairo, handle->wayland.clip.x, handle->wayland.clip.y, handle->wayland.clip.width, handle->wayland.clip.height);
 			cairo_clip(handle->wayland.front_cairo);
 		}
@@ -1603,9 +1603,9 @@ static void MwLLRaiseImpl(MwLL handle) {
 }
 
 static void MwLLClipImpl(MwLL handle, MwRect* rect) {
-	if(rect == NULL){
+	if(rect == NULL) {
 		handle->wayland.is_clipping = MwFALSE;
-	}else{
+	} else {
 		handle->wayland.clip = *rect;
 	}
 }

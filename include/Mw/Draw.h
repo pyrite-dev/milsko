@@ -66,6 +66,17 @@ MWDECL void MWAPI MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor colo
 MWDECL void MWAPI MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
 
 /*!
+ * @brief Draws a frame
+ * @param handle Widget
+ * @param rect Rectangle area
+ * @param color Color
+ * @param invert Invert the 3D border color or not
+ * @param border Border
+ * @warning `rect` gets changed to the area of rectangle inside
+ */
+MWDECL void MWAPI MwDrawFrameWithBorder(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border);
+
+/*!
  * @brief Does the DrawFrame/DrawRect combo used for drawing widget.
  * @param handle Widget
  * @param rect Rectangle area

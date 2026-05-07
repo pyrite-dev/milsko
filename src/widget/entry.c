@@ -34,7 +34,7 @@ static void draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth) - t->right;
 	r.height = MwGetInteger(handle, MwNheight);
 
-	MwDrawWidgetBack(handle, &r, base, 1, 1);
+	MwDrawWidgetBack(handle, &r, base, 1, MwDEFAULT);
 	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 	if(str != NULL) {
 		int	w = MwTextWidth(handle, font, "M");

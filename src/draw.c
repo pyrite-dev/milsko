@@ -141,23 +141,35 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
+	MwDrawFrameWithBorder(handle, rect, color, invert, MwDefaultBorderWidth(handle));
+}
+
+static int translate_border(MwWidget handle, int border) {
+	if(border == MwDEFAULT) return MwDefaultBorderWidth(handle);
+
+	return border;
+}
+
+void MwDrawFrameWithBorder(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
 	int inv;
+
+	border = translate_border(handle, border);
 
 	if((inv = MwGetInteger(handle, MwNforceInverted)) != MwDEFAULT && inv) invert = 1;
 	if(MwGetInteger(handle, MwNmodernLook)) {
-		MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle), 0, 0);
+		MwDrawFrameEx(handle, rect, color, invert, border, 0, 0);
 	} else {
 		int diff = get_color_diff(handle) / 3 * 2;
 
-		if(MwDefaultBorderWidth(handle) >= 2) {
+		if(border >= 2) {
 			int i;
 			int st = invert ? 1 : 0;
 			for(i = st; i < st + 2; i++) {
-				if((i % 2) == 0) MwDrawFrameEx(handle, rect, color, invert, MwDefaultBorderWidth(handle) - 1, -diff, (handle->parent == NULL || handle->parent->lowlevel == NULL) ? 1 : 0);
+				if((i % 2) == 0) MwDrawFrameEx(handle, rect, color, invert, border - 1, -diff, (handle->parent == NULL || handle->parent->lowlevel == NULL) ? 1 : 0);
 				if((i % 2) == 1) MwDrawFrameEx(handle, rect, color, invert, 1, diff, 0);
 			}
 		} else {
-			MwDrawFrameEx(handle, rect, color, invert, 1, 0, 0);
+			MwDrawFrameEx(handle, rect, color, invert, border, 0, 0);
 		}
 	}
 }
@@ -177,7 +189,16 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 			}
 		}
 
-		MwDrawFrame(handle, rect, color, invert);
+		MwDrawFrameWithBorder(handle, rect, color, invert, border);
+
+		if(border == MwDEFAULT) {
+			int d = MwDefaultBorderWidth(handle) - MwDefaultThinBorderWidth(handle);
+
+			rect->x -= d;
+			rect->y -= d;
+			rect->width += d * 2;
+			rect->height += d * 2;
+		}
 	}
 
 	if(rect->width <= 0 || rect->height <= 0) return;
@@ -359,13 +380,15 @@ static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwLLColor color
 	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff);
 	MwRect	  r	    = *rect;
 
-	frame_border_complex(handle, rect, lighter, darker, invert, border / 2, diff, same);
+	frame_border_complex(handle, rect, lighter, darker, invert, border == 1 ? 1 : (border / 2), diff, same);
 
-	r.x += 1;
-	r.y += 1;
-	r.width -= 2;
-	r.height -= 2;
-	frame_border_complex(handle, &r, lighter, darker, !invert, border / 2, diff, same);
+	if(border > 1) {
+		r.x += border / 2;
+		r.y += border / 2;
+		r.width -= border;
+		r.height -= border;
+		frame_border_complex(handle, &r, lighter, darker, !invert, border / 2, diff, same);
+	}
 
 	MwLLFreeColor(lighter);
 	MwLLFreeColor(darker);
@@ -377,6 +400,8 @@ static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwLLColor color
 }
 
 void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same) {
+	border = translate_border(handle, border);
+
 	if(MwGetInteger(handle, MwNmodernLook)) {
 		MwDrawFrameEx_complex(handle, rect, color, invert, border, diff, same);
 	} else {

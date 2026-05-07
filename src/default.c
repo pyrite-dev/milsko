@@ -27,3 +27,15 @@ int MwDefaultBorderWidth(MwWidget handle) {
 		return 2;
 	}
 }
+
+int MwDefaultThinBorderWidth(MwWidget handle) {
+	int bw = MwGetInteger(handle, MwNborderWidth);
+
+	if(bw != MwDEFAULT) return bw;
+
+	if(MwGetInteger(handle, MwNmodernLook)) {
+		return 1;
+	} else {
+		return 2;
+	}
+}

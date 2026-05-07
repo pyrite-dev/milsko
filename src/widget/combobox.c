@@ -40,7 +40,7 @@ static void draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 
-	MwDrawWidgetBack(handle, &r, base, 0, 1);
+	MwDrawWidgetBack(handle, &r, base, 0, MwDEFAULT);
 
 	rc = r;
 

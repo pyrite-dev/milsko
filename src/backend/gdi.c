@@ -887,14 +887,14 @@ static void MwLLRaiseImpl(MwLL handle) {
 }
 
 static void MwLLClipImpl(MwLL handle, MwRect* rect) {
-	if(rect == NULL){
+	if(rect == NULL) {
 		SelectClipRgn(handle->gdi.hDC, NULL);
 
-		if(handle->gdi.clip != NULL){
+		if(handle->gdi.clip != NULL) {
 			DeleteObject(handle->gdi.clip);
 			handle->gdi.clip = NULL;
 		}
-	}else{
+	} else {
 		HRGN clip = CreateRectRgn(rect->x, rect->y, rect->x + rect->width, rect->y + rect->height);
 
 		SelectClipRgn(handle->gdi.hDC, clip);

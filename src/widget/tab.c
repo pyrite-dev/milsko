@@ -156,9 +156,9 @@ static void show_frame(MwWidget handle) {
 		if(i != n) MwLLShow(t->frames[i]->lowlevel, 0);
 	}
 
-	MwLLShow(t->frames[n]->lowlevel, 1);
-
 	resize(handle);
+
+	MwLLShow(t->frames[n]->lowlevel, 1);
 
 	MwForceRender(handle);
 

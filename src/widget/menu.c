@@ -107,12 +107,12 @@ static void draw(MwWidget handle) {
 
 	MENU_LOOP_INIT;
 
-	MwDrawWidgetBack(handle, &r, base, 0, MwTRUE);
+	MwDrawWidgetBack(handle, &r, base, 0, MwDEFAULT);
 
 	BEGIN_MENU_LOOP;
 	if(m->sub[i]->wsub != NULL || (in_area && handle->pressed)) {
 		MwDrawFrame(handle, &r, base, MwFALSE);
-		MwDrawWidgetBack(handle, &r, base, 0, MwFALSE);
+		MwDrawWidgetBack(handle, &r, base, 0, 0);
 	}
 
 	MwDrawText(handle, MwFLBuildFont((m->sub[i]->wsub != NULL || (in_area && handle->pressed)) ? MwFLFlagBold : 0), &p, m->sub[i]->name + incr, MwALIGNMENT_CENTER, text);

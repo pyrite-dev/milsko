@@ -26,7 +26,7 @@ static void draw(MwWidget handle) {
 	w = MwGetInteger(handle, MwNvalue) - MwGetInteger(handle, MwNminValue);
 	w = w / (MwGetInteger(handle, MwNmaxValue) - MwGetInteger(handle, MwNminValue));
 
-	MwDrawWidgetBack(handle, &r, base, 1, MwTRUE);
+	MwDrawWidgetBack(handle, &r, base, 1, MwDEFAULT);
 	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 
 	r.x += MwDefaultBorderWidth(handle);

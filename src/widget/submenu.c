@@ -39,7 +39,7 @@ static void draw(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 
-	MwDrawWidgetBack(handle, &r, base, 0, MwTRUE);
+	MwDrawWidgetBack(handle, &r, base, 0, MwDEFAULT);
 
 	if(menu != NULL) {
 		MwPoint p;
@@ -73,7 +73,7 @@ static void draw(MwWidget handle) {
 					r.y	 = p.y - 3;
 					r.width	 = MwGetInteger(handle, MwNwidth) - MwGetInteger(handle, MwNleftPadding);
 					r.height = th + 3 * 2;
-					MwDrawWidgetBack(handle, &r, base, 0, MwTRUE);
+					MwDrawWidgetBack(handle, &r, base, 0, MwDEFAULT);
 				}
 
 				p.x = 5 + tw / 2 + MwGetInteger(handle, MwNleftPadding);

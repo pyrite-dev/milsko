@@ -31,12 +31,12 @@ static void draw(MwWidget handle) {
 
 	if(MwGetInteger(handle, MwNflat)) {
 		if(handle->pressed || ((inv = MwGetInteger(handle, MwNforceInverted)) != MwDEFAULT && inv)) {
-			MwDrawWidgetBack(handle, &r, base, handle->pressed, 1);
+			MwDrawWidgetBack(handle, &r, base, handle->pressed, MwDEFAULT);
 		} else {
 			MwDrawRect(handle, &r, base);
 		}
 	} else {
-		MwDrawWidgetBack(handle, &r, base, handle->pressed, 1);
+		MwDrawWidgetBack(handle, &r, base, handle->pressed, MwDEFAULT);
 	}
 	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 	if(MwGetInteger(handle, MwNflat) && !(handle->pressed || ((inv = MwGetInteger(handle, MwNforceInverted)) != MwDEFAULT && inv))) {
