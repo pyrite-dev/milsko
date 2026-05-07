@@ -16,14 +16,14 @@
 #define MwMINOR 2
 
 /*!
- * @brief Patchlevel of version, calculated by `patchlevel_alphabet - 'a'`
+ * @brief Patchlevel of version, calculated by `patchlevel_alphabet - 'a' + 1`
  */
-#define MwPATCH 0
+#define MwPATCH 1
 
 /*!
  * @brief Version in string
  */
-#define MwVERSION "1.2"
+#define MwVERSION "1.2a"
 
 /*!
  * @brief Version in string

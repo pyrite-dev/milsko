@@ -96,6 +96,21 @@ static void draw(MwWidget handle) {
 					MwDrawFrame(handle, &r3, c, 1);
 
 					MwLLClip(handle->lowlevel, NULL);
+				}else if(n == 1 && i == 0){
+					MwRect r3 = r2;
+
+					r3.y	 = tab_height(handle);
+					r3.width = r3.height = MwDefaultBorderWidth(handle);
+
+					MwLLClip(handle->lowlevel, &r3);
+
+					r3.x -= r3.width;
+					r3.y -= r3.height;
+					r3.width *= 2;
+					r3.height *= 3;
+					MwDrawFrame(handle, &r3, c, 1);
+
+					MwLLClip(handle->lowlevel, NULL);
 				}
 
 				if(n == 1 && i < (arrlen(t->names) - 1)) {
@@ -149,8 +164,6 @@ static void draw(MwWidget handle) {
 
 static void show_frame(MwWidget handle) {
 	MwTab t = handle->internal;
-	int   n = MwGetInteger(handle, MwNvalue);
-	int   i;
 
 	resize(handle);
 
@@ -226,7 +239,7 @@ static void resize(MwWidget handle) {
 	for(i = 0; i < arrlen(t->frames); i++) {
 		int y = MwGetInteger(handle, MwNheight);
 
-		if(i == v) tab_height(handle) + MwDefaultBorderWidth(handle);
+		if(i == v) y = tab_height(handle) + MwDefaultBorderWidth(handle);
 
 		MwVaApply(t->frames[i],
 			  MwNx, MwDefaultBorderWidth(handle),
