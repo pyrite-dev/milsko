@@ -54,15 +54,6 @@ static void draw(MwWidget handle) {
 		MwDrawText(handle, NULL, &p, cb->list[MwGetInteger(handle, MwNvalue)], MwALIGNMENT_BEGINNING, text);
 	}
 
-	r = rc;
-	r.height /= 5;
-	r.width	 = r.height * 3;
-	r.x	 = MwGetInteger(handle, MwNwidth) - MwDefaultBorderWidth(handle) - r.width - MwDefaultBorderWidth(handle) * 2;
-	r.y	 = MwDefaultBorderWidth(handle);
-	r.height = rc.height;
-	r.width += MwDefaultBorderWidth(handle) * 2;
-	MwDrawWidgetBack(handle, &r, base, 0, 0);
-
 	r	 = rc;
 	r.width	 = r.height * 3 / 5;
 	r.height = r.width - MwDefaultBorderWidth(handle) * 2;
