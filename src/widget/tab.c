@@ -163,8 +163,6 @@ static void draw(MwWidget handle) {
 }
 
 static void show_frame(MwWidget handle) {
-	MwTab t = handle->internal;
-
 	resize(handle);
 
 	MwForceRender(handle);
