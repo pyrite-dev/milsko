@@ -179,7 +179,7 @@ static void draw(MwWidget handle) {
 
 	p[0].x = r.width / 2;
 	p[0].y = (r.height - sh) / 2;
-	sprintf(buf, "%d", MwGetInteger(handle, MwNdate));
+	MwStringPrintIntoBuffer(buf, 3, "%d", MwGetInteger(handle, MwNdate));
 	MwDrawText(handle, MwFLBuildFont(MwFLFlagBold), p, buf, MwALIGNMENT_CENTER, ct);
 
 	r3 = r2;
@@ -202,7 +202,7 @@ static void draw(MwWidget handle) {
 	MwLLDrawPixmap(handle->lowlevel, &r2, px);
 	MwLLDestroyPixmap(px);
 
-	sprintf(buf, "%d", MwGetInteger(handle, MwNyear));
+	MwStringPrintIntoBuffer(buf, 5, "%d", MwGetInteger(handle, MwNyear));
 
 	px	  = blit(handle, buf, c, cf, gh);
 	r2	  = r3;
