@@ -200,7 +200,6 @@ static void mouse_up(MwWidget handle, void* ptr) {
 	} else if(in_area) {
 		if(arrlen(m->sub[i]->sub) == 0) {
 			MwDispatchUserHandler(handle, MwNmenuHandler, m->sub[i]);
-			printf("fired\n");
 		}
 	} else if(m->sub[i]->wsub != NULL) {
 		MwDestroyWidget(m->sub[i]->wsub);
