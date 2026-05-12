@@ -172,7 +172,7 @@ static void lldarkthemehandler(MwLL handle, void* data) {
 	int*	 ptr = data;
 	int	 s;
 
-	if(IsFirstVisible(h) && (shgeti(h->integer, MwNdarkTheme) == -1 || ((s = MwGetInteger(h, MwNdarkThemeAutomatic)) != MwDEFAULT && s))) {
+	if(h->widget_class == MwWindowClass && (shgeti(h->integer, MwNdarkTheme) == -1 || ((s = MwGetInteger(h, MwNdarkThemeAutomatic)) != MwDEFAULT && s))) {
 		if(MwGetInteger(h, MwNmodernLook)) {
 			MwVaApply(h,
 				  MwNdarkTheme, *ptr,
@@ -585,7 +585,7 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 
 		shdel(h->integer, MwNdarkThemeAutomatic);
 
-		while(h->parent != NULL && h->parent->widget_class != NULL) h = h->parent;
+		while(h->parent != NULL && h->parent->widget_class != MwWindowClass) h = h->parent;
 
 		MwLLSetDarkTheme(h->lowlevel, n);
 	}
