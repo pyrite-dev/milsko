@@ -438,6 +438,8 @@ static void mwTreeViewSetOpenedImpl(MwWidget handle, void* item, int opened) {
 static int mwTreeViewGetOpenedImpl(MwWidget handle, void* item) {
 	MwTreeViewEntry* e = item;
 
+	(void)handle;
+
 	return e->opened;
 }
 
