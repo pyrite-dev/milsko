@@ -96,7 +96,7 @@ static void draw(MwWidget handle) {
 					MwDrawFrame(handle, &r3, c, 1);
 
 					MwLLClip(handle->lowlevel, NULL);
-				}else if(n == 1 && i == 0){
+				} else if(n == 1 && i == 0) {
 					MwRect r3 = r2;
 
 					r3.y	 = tab_height(handle);

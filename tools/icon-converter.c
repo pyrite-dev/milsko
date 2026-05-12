@@ -3,12 +3,12 @@
 
 #include <stdio.h>
 
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
 	unsigned char* rgba;
-	int width, height, bpp;
-	int i;
+	int	       width, height, bpp;
+	int	       i;
 
-	if(argc != 3){
+	if(argc != 3) {
 		printf("Usage: %s input name\n", argv[0]);
 		return 1;
 	}
@@ -17,12 +17,12 @@ int main(int argc, char** argv){
 
 	printf("MwU32 %s[] = {\n", argv[2]);
 	printf("	(%d << 16) | %d,\n", width, height);
-	for(i = 0; i < width * height; i++){
+	for(i = 0; i < width * height; i++) {
 		unsigned char* px = &rgba[i * 4];
-		unsigned int p = 0;
-		int j;
+		unsigned int   p  = 0;
+		int	       j;
 
-		for(j = 0; j < 4; j++){
+		for(j = 0; j < 4; j++) {
 			p = p << 8;
 			p = p | px[j];
 		}

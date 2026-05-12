@@ -90,6 +90,19 @@ MwInline void MwTreeViewSetOpened(MwWidget handle, void* item, int opened) {
 	MwVaWidgetExecute(handle, "mwTreeViewSetOpened", NULL, item, opened);
 }
 
+/*!
+ * @brief Gets the opened state of ithe item
+ * @param handle Widget
+ * @param item Item
+ * @return Opened or not
+ */
+MwInline int MwTreeViewGetOpened(MwWidget handle, void* item) {
+	int out;
+	MwVaWidgetExecute(handle, "mwTreeViewGetOpened", (void*)&out, item);
+
+	return out;
+}
+
 #ifdef __cplusplus
 }
 #endif

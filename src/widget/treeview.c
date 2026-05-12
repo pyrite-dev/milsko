@@ -435,6 +435,12 @@ static void mwTreeViewSetOpenedImpl(MwWidget handle, void* item, int opened) {
 	}
 }
 
+static int mwTreeViewGetOpenedImpl(MwWidget handle, void* item) {
+	MwTreeViewEntry* e = item;
+
+	return e->opened;
+}
+
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	if(strcmp(name, "mwTreeViewAdd") == 0) {
 		void*	    parent = va_arg(va, void*);
@@ -467,6 +473,10 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		void* item   = va_arg(va, void*);
 		int   opened = va_arg(va, int);
 		mwTreeViewSetOpenedImpl(handle, item, opened);
+	}
+	if(strcmp(name, "mwTreeViewGetOpened") == 0) {
+		void* item = va_arg(va, void*);
+		*(int*)out = mwTreeViewGetOpenedImpl(handle, item);
 	}
 }
 
