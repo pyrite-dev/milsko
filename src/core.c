@@ -585,9 +585,11 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 
 		shdel(h->integer, MwNdarkThemeAutomatic);
 
-		while(h->parent != NULL && h->parent->widget_class != MwWindowClass) h = h->parent;
+		if(h->widget_class != MwWindowClass) {
+			while(h->parent != NULL && h->parent->widget_class != MwWindowClass) h = h->parent;
+		}
 
-		MwLLSetDarkTheme(h->lowlevel, n);
+		if(h->lowlevel != NULL) MwLLSetDarkTheme(h->lowlevel, n);
 	}
 }
 
