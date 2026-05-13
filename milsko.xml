@@ -891,6 +891,20 @@
 						<pointer name="item" />
 					</arguments>
 				</function>
+				<function name="SetOpened">
+					<arguments>
+						<pointer name="item" />
+						<integer name="opened" />
+					</arguments>
+				</function>
+				<function name="GetOpened">
+					<return>
+						<integer />
+					</return>
+					<arguments>
+						<pointer name="item" />
+					</arguments>
+				</function>
 				<function name="Reset" />
 			</functions>
 		</widget>
