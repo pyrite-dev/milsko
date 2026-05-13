@@ -321,9 +321,7 @@ static void draw_normal(MwWidget handle) {
 	int	    align;
 	const char* str	  = MwGetText(handle, MwNtext);
 	MwLLPixmap  bgpx  = MwGetVoid(handle, MwNbackgroundPixmap);
-	MwLabel	    lab	  = handle->internal;
 	int	    l_one = MwGetInteger(handle, MwNlength) - (MwGetInteger(handle, MwNlength) % 2);
-	int	    s_one = (l_one * 3 / 4) - ((l_one * 3 / 4) % 2) + 1;
 
 	if(str == NULL) str = "";
 
@@ -365,14 +363,19 @@ static void draw_normal(MwWidget handle) {
 
 static void prop_change(MwWidget handle, const char* key) {
 	if(strcmp(key, MwNtext) == 0 || strcmp(key, MwNalignment) == 0 || strcmp(key, MwNsevenSegment) == 0 || strcmp(key, MwNlength) == 0 || strcmp(key, MwNleftPadding) == 0) MwForceRender(handle);
+
+	if(strcmp(key, MwNsevenSegment) == 0) {
+		if(MwGetInteger(handle, MwNsevenSegment))
+			handle->widget_class->draw = draw_seven_segment;
+		else
+			handle->widget_class->draw = draw_normal;
+	}
 }
 
 static void mwLabelSetSevenSegmentImpl(MwWidget handle, int index, unsigned char data) {
 	MwLabel lab = handle->internal;
 
 	hmput(lab->segment, index, data);
-
-	handle->widget_class->draw = draw_seven_segment;
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
