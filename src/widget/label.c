@@ -361,14 +361,23 @@ static void draw_normal(MwWidget handle) {
 	MwLLFreeColor(base);
 }
 
+static void draw(MwWidget handle) {
+	MwLabel lab = handle->internal;
+	if(!lab->draw) {
+		lab->draw = draw_normal;
+	}
+	lab->draw(handle);
+}
+
 static void prop_change(MwWidget handle, const char* key) {
 	if(strcmp(key, MwNtext) == 0 || strcmp(key, MwNalignment) == 0 || strcmp(key, MwNsevenSegment) == 0 || strcmp(key, MwNlength) == 0 || strcmp(key, MwNleftPadding) == 0) MwForceRender(handle);
 
 	if(strcmp(key, MwNsevenSegment) == 0) {
+		MwLabel lab = handle->internal;
 		if(MwGetInteger(handle, MwNsevenSegment))
-			handle->widget_class->draw = draw_seven_segment;
+			lab->draw = draw_seven_segment;
 		else
-			handle->widget_class->draw = draw_normal;
+			lab->draw = draw_normal;
 	}
 }
 
@@ -392,7 +401,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 MwClassRec MwLabelClassRec = {
     wcreate,	  /* create */
     destroy,	  /* destroy */
-    draw_normal,  /* draw */
+    draw,	  /* draw */
     NULL,	  /* click */
     NULL,	  /* parent_resize */
     prop_change,  /* prop_change */

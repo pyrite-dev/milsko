@@ -193,6 +193,7 @@ struct _MwScrollBar {
 
 struct _MwLabel {
 	MwLabelSegment* segment;
+	MwHandler	draw;
 };
 
 struct _MwLabelSegment {
