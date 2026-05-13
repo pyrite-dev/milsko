@@ -98,7 +98,8 @@ static void destroy(MwWidget handle) {
 	p2.y = p.y + th / 2 + 5; \
 \
 	m->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, MwGetInteger(handle, MwNheight), 0, 0); \
-	MwSubMenuAppear(m->sub[i]->wsub, m->sub[i], &p2, 0);
+	MwSubMenuAppear(m->sub[i]->wsub, m->sub[i], &p2, 0); \
+	m->sub[i]->cleaned = 0;
 
 static void draw(MwWidget handle) {
 	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
@@ -139,13 +140,15 @@ static void mouse_down(MwWidget handle, void* ptr) {
 			NEW_SUBMENU;
 		} else if(m->sub[i]->wsub != NULL && m->sub[i]->keep) {
 			MwDestroyWidget(m->sub[i]->wsub);
-			m->sub[i]->wsub = NULL;
-			m->sub[i]->keep = 0;
+			m->sub[i]->wsub	   = NULL;
+			m->sub[i]->keep	   = 0;
+			m->sub[i]->cleaned = 1;
 		}
 	} else if(m->sub[i]->keep && m->sub[i]->wsub != NULL) {
 		MwDestroyWidget(m->sub[i]->wsub);
-		m->sub[i]->wsub = NULL;
-		m->sub[i]->keep = 0;
+		m->sub[i]->wsub	   = NULL;
+		m->sub[i]->keep	   = 0;
+		m->sub[i]->cleaned = 1;
 	}
 	END_MENU_LOOP;
 
@@ -170,15 +173,16 @@ static void mouse_move(MwWidget handle) {
 	BEGIN_MENU_LOOP;
 	if(matched && m->sub[i]->wsub != NULL) {
 		MwDestroyWidget(m->sub[i]->wsub);
-		m->sub[i]->wsub = NULL;
-		m->sub[i]->keep = 0;
+		m->sub[i]->wsub	   = NULL;
+		m->sub[i]->keep	   = 0;
+		m->sub[i]->cleaned = 0;
 	}
 	END_MENU_LOOP;
 
 	MENU_LOOP_INIT;
 	BEGIN_MENU_LOOP;
 	if(matched && in_area) {
-		if(m->sub[i]->wsub == NULL && arrlen(m->sub[i]->sub) > 0) {
+		if(m->sub[i]->wsub == NULL && arrlen(m->sub[i]->sub) > 0 && !m->sub[i]->cleaned) {
 			NEW_SUBMENU;
 		}
 	}
@@ -203,8 +207,9 @@ static void mouse_up(MwWidget handle, void* ptr) {
 		}
 	} else if(m->sub[i]->wsub != NULL) {
 		MwDestroyWidget(m->sub[i]->wsub);
-		m->sub[i]->wsub = NULL;
-		m->sub[i]->keep = 0;
+		m->sub[i]->wsub	   = NULL;
+		m->sub[i]->keep	   = 0;
+		m->sub[i]->cleaned = 0;
 	}
 	END_MENU_LOOP;
 
@@ -212,12 +217,13 @@ static void mouse_up(MwWidget handle, void* ptr) {
 }
 
 static MwMenu mwMenuAddImpl(MwWidget handle, MwMenu menu, const char* name) {
-	MwMenu m   = menu == NULL ? handle->internal : menu;
-	MwMenu new = malloc(sizeof(*new));
-	new->name  = MwStringDuplicate(name);
-	new->sub   = NULL;
-	new->wsub  = NULL;
-	new->keep  = 0;
+	MwMenu m     = menu == NULL ? handle->internal : menu;
+	MwMenu new   = malloc(sizeof(*new));
+	new->name    = MwStringDuplicate(name);
+	new->sub     = NULL;
+	new->wsub    = NULL;
+	new->keep    = 0;
+	new->cleaned = 0;
 
 	arrput(m->sub, new);
 

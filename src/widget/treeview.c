@@ -106,7 +106,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 			r.height = MwTextHeight(handle, Font, "M");
 			r.width	 = r.height * tree->pixmap->common.width / tree->pixmap->common.height;
 
-			r.x = p->x;
+			r.x = p->x + (MwGetInteger(handle->parent, MwNleftPadding) - r.width) / 2;
 			r.y = p->y - MwTextHeight(handle, Font, "M") / 2;
 
 			if(draw) MwLLDrawPixmap(handle->lowlevel, &r, tree->pixmap);

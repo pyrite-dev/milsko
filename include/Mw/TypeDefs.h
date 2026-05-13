@@ -125,6 +125,7 @@ struct _MwMenu {
 	MwWidget wsub;
 	MwMenu*	 sub;
 	void*	 opaque;
+	int	 cleaned;
 };
 
 struct _MwEntry {
