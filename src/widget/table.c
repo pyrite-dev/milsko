@@ -156,7 +156,7 @@ static void tick(MwWidget handle) {
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNcolumns) == 0 || strcmp(key, MwNpadding) == 0 || strcmp(key, MwNmargin) == 0) {
+	if(strcmp(key, MwNcolumns) == 0 || strcmp(key, MwNhasBorder) == 0 || strcmp(key, MwNinverted) == 0 || strcmp(key, MwNpadding) == 0 || strcmp(key, MwNmargin) == 0) {
 		MwTable t = handle->internal;
 		t->layout = 1;
 

@@ -95,7 +95,7 @@ static void draw(MwWidget handle) {
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNorientation) == 0 || strcmp(key, MwNpadding) == 0 || strcmp(key, MwNmargin) == 0) {
+	if(strcmp(key, MwNorientation) == 0 || strcmp(key, MwNhasBorder) == 0 || strcmp(key, MwNinverted) == 0 || strcmp(key, MwNpadding) == 0 || strcmp(key, MwNmargin) == 0) {
 		MwBox b	  = handle->internal;
 		b->layout = 1;
 
