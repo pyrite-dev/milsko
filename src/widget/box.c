@@ -95,18 +95,7 @@ static void draw(MwWidget handle) {
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNorientation) == 0) {
-		MwBox b	  = handle->internal;
-		b->layout = 1;
-
-		MwForceRender(handle);
-	}
-}
-
-static void children_prop_change(MwWidget handle, MwWidget child, const char* key) {
-	(void)child;
-
-	if(strcmp(key, MwNratio) == 0 || strcmp(key, MwNfixedSize) == 0) {
+	if(strcmp(key, MwNorientation) == 0 || strcmp(key, MwNpadding) == 0 || strcmp(key, MwNmargin) == 0) {
 		MwBox b	  = handle->internal;
 		b->layout = 1;
 
@@ -131,11 +120,26 @@ static void resize(MwWidget handle) {
 	MwForceRender(handle);
 }
 
-static void children_update(MwWidget handle) {
-	MwBox b	  = handle->internal;
+static void children_update(MwWidget handle, MwWidget child, int new) {
+	MwBox b = handle->internal;
+
+	(void)child;
+	(void)new;
+
 	b->layout = 1;
 
 	MwForceRender(handle);
+}
+
+static void children_prop_change(MwWidget handle, MwWidget child, const char* key) {
+	(void)child;
+
+	if(strcmp(key, MwNratio) == 0 || strcmp(key, MwNfixedSize) == 0) {
+		MwBox b	  = handle->internal;
+		b->layout = 1;
+
+		MwForceRender(handle);
+	}
 }
 
 MwClassRec MwBoxClassRec = {

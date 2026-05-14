@@ -286,7 +286,7 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 		h->root_boldmonofont = NULL;
 	}
 
-	if(h->parent != NULL) MwDispatch(h->parent, children_update);
+	if(h->parent != NULL) MwDispatch4(h->parent, children_update, h, 1);
 
 	return h;
 }
@@ -415,7 +415,7 @@ void MwDestroyWidget(MwWidget handle) {
 			arrput(handle->parent->destroy_queue, handle);
 		}
 
-		MwDispatch(handle->parent, children_update);
+		MwDispatch4(handle->parent, children_update, handle, 0);
 	}
 	destroy_children(handle);
 	handle->destroyed = 1;
@@ -1042,14 +1042,14 @@ void MwReparent(MwWidget handle, MwWidget new_parent) {
 			}
 		}
 
-		MwDispatch(handle->parent, children_update);
+		MwDispatch4(handle->parent, children_update, handle, 0);
 	}
 
 	handle->parent = new_parent;
 	if(new_parent != NULL) {
 		arrput(new_parent->children, handle);
 
-		MwDispatch(handle->parent, children_update);
+		MwDispatch4(handle->parent, children_update, handle, 1);
 	}
 
 	if(new_parent == NULL) {
@@ -1107,6 +1107,13 @@ void MwSetUser(MwWidget handle, void* user) {
 
 void* MwGetUser(MwWidget handle) {
 	return handle->user;
+}
+
+void MwGetFrame(MwWidget handle, MwRect* rect) {
+	rect->x	     = MwGetInteger(handle, MwNx);
+	rect->y	     = MwGetInteger(handle, MwNy);
+	rect->width  = MwGetInteger(handle, MwNwidth);
+	rect->height = MwGetInteger(handle, MwNheight);
 }
 
 const char* MwVersionString = MwVERSION;

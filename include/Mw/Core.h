@@ -383,6 +383,13 @@ MWDECL void* MWAPI MwGetUser(MwWidget handle);
  */
 MWDECL void MWAPI MwFreeWidget(MwWidget handle);
 
+/*!
+ * @brief Gets the frame of the widget
+ * @param handle Widget
+ * @param rect Frame
+ */
+MWDECL void MWAPI MwGetFrame(MwWidget handle, MwRect* rect);
+
 #ifdef _MILSKO
 MWDECL void MwForceRender_Internal(MwWidget handle);
 MWDECL void MwForceRender2_Internal(MwWidget handle, void* ptr);

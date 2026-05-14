@@ -29,6 +29,7 @@ typedef struct _MwDirectoryEntry      MwDirectoryEntry;
 typedef struct _MwBox*		      MwBox;
 typedef struct _MwSubWindow*	      MwSubWindow;
 typedef struct _MwTab*		      MwTab;
+typedef struct _MwTable*	      MwTable;
 typedef struct _MwMouse		      MwMouse;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
@@ -39,6 +40,7 @@ typedef void (*MwHandler)(MwWidget handle);
 typedef int (*MwHandlerWithStatus)(MwWidget handle);
 typedef void (*MwHandlerProps)(MwWidget handle, char** key);
 typedef void (*MwHandlerProp)(MwWidget handle, const char* key);
+typedef void (*MwHandlerChildrenUpdate)(MwWidget handle, MwWidget child, int new);
 typedef void (*MwHandlerChildrenProp)(MwWidget handle, MwWidget child, const char* key);
 typedef void (*MwHandlerKey)(MwWidget handle, int key);
 typedef void (*MwHandlerMouse)(MwWidget handle, void* ptr);
@@ -212,6 +214,11 @@ struct _MwBox {
 	int layout;
 };
 
+struct _MwTable {
+	int	  layout;
+	MwWidget* widgets;
+};
+
 struct _MwSubWindow {
 	MwWidget frame;
 	MwWidget minimize;
@@ -251,7 +258,7 @@ struct _MwClass {
 	MwHandlerExecute	   execute;
 	MwHandler		   tick;
 	MwHandler		   resize;
-	MwHandler		   children_update;
+	MwHandlerChildrenUpdate	   children_update;
 	MwHandlerChildrenProp	   children_prop_change;
 	MwHandlerClipboardReceived clipboard;
 	MwHandlerProps		   props_change;

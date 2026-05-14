@@ -6,47 +6,19 @@
 #define Padding 20
 #define PaddingContent 2
 
-MwWidget window, menu, box;
-MwWidget boxes[32];
-int	 n = 0, row = -1;
+MwWidget window, menu, table;
 MwMenu	 e;
 
 static void MWAPI resize(MwWidget handle, void* user, void* call) {
 	int w = MwGetInteger(window, MwNwidth);
 	int h = MwGetInteger(window, MwNheight);
 
-	MwVaApply(box,
+	MwVaApply(table,
 		  MwNx, Padding,
 		  MwNy, MwGetInteger(menu, MwNheight) + Padding,
 		  MwNwidth, w - Padding * 2,
 		  MwNheight, h - MwGetInteger(menu, MwNheight) - Padding * 2,
 		  NULL);
-}
-
-static void newrow(void) {
-	if(row >= 0) {
-		int i;
-
-		for(i = n; i < Columns; i++) MwCreateWidget(MwFrameClass, "frame", boxes[row], 0, 0, 0, 0);
-	}
-
-	boxes[++row] = MwVaCreateWidget(MwBoxClass, "box", box, 0, 0, 0, 0,
-					MwNwaitLayout, 1,
-					NULL);
-
-	n = 0;
-}
-
-static void add(MwWidget w) {
-	int r = MwGetInteger(w, MwNratio);
-
-	if(r == MwDEFAULT) r = 1;
-
-	n += r;
-
-	if(n == Columns) {
-		newrow();
-	}
 }
 
 static void MWAPI resize_content(MwWidget handle, void* user, void* call) {
@@ -97,14 +69,14 @@ static void MWAPI resize_frame(MwWidget handle, void* user, void* call) {
 }
 
 static MwWidget frame(const char* name, int width, int height, MwClass cl, ...) {
-	MwWidget f     = MwVaCreateWidget(MwFrameClass, "frame", boxes[row], 0, 0, 0, 0,
+	MwWidget f     = MwVaCreateWidget(MwFrameClass, "frame", table, 0, 0, 0, 0,
 					  MwNhasBorder, 1,
 					  MwNinverted, 1,
 					  NULL);
-	MwWidget box   = MwVaCreateWidget(MwBoxClass, "box", f, 0, 0, 0, 0,
+	MwWidget table = MwVaCreateWidget(MwBoxClass, "table", f, 0, 0, 0, 0,
 					  MwNorientation, MwVERTICAL,
 					  NULL);
-	MwWidget label = MwVaCreateWidget(MwLabelClass, "label", box, 0, 0, 0, 0,
+	MwWidget label = MwVaCreateWidget(MwLabelClass, "label", table, 0, 0, 0, 0,
 					  MwNtext, name,
 					  MwNalignment, MwALIGNMENT_BEGINNING,
 					  MwNfixedSize, 20,
@@ -112,7 +84,7 @@ static MwWidget frame(const char* name, int width, int height, MwClass cl, ...) 
 	va_list	 va;
 
 	if(cl != NULL) {
-		MwWidget frame = MwCreateWidget(MwFrameClass, "frame", box, 0, 0, 0, 0);
+		MwWidget frame = MwCreateWidget(MwFrameClass, "frame", table, 0, 0, 0, 0);
 		MwWidget w;
 
 		va_start(va, cl);
@@ -128,7 +100,8 @@ static MwWidget frame(const char* name, int width, int height, MwClass cl, ...) 
 
 		MwVaApply(f,
 			  "VhandledWidget", w,
-			  MwNratio, MwGetInteger(w, MwNratio),
+			  MwNcolumnSpan, MwGetInteger(w, MwNcolumnSpan),
+			  MwNrowSpan, MwGetInteger(w, MwNrowSpan),
 			  NULL);
 	}
 
@@ -224,35 +197,32 @@ int main() {
 
 	MwAddUserHandler(menu, MwNmenuHandler, menu_handler, NULL);
 
-	box = MwVaCreateWidget(MwBoxClass, "box", window, 0, 0, 0, 0,
-			       MwNorientation, MwVERTICAL,
-			       MwNwaitLayout, 1,
-			       NULL);
-
-	newrow();
+	table = MwVaCreateWidget(MwTableClass, "table", window, 0, 0, 0, 0,
+				 MwNwaitLayout, 1,
+				 MwNcolumns, 5,
+				 NULL);
 
 	f = frame("Button", -PaddingContent, -PaddingContent, MwButtonClass,
 		  MwNtext, "Press me",
 		  NULL);
-	add(f);
 
-	add(MwVaCreateWidget(MwLabelClass, "label", boxes[row], 0, 0, 0, 0,
-			     MwNbold, 1,
-			     MwNtext, "The Periodic Table of Milsko Widgets",
-			     MwNratio, Columns - 2,
-			     NULL));
+	MwVaCreateWidget(MwLabelClass, "label", table, 0, 0, 0, 0,
+			 MwNbold, 1,
+			 MwNtext, "The Periodic Table of Milsko Widgets",
+			 MwNcolumnSpan, Columns - 2,
+			 NULL);
 
 	for(i = 0; i < 2; i++) {
 		f = frame(i == 0 ? "CheckBox" : "RadioBox", -PaddingContent, -PaddingContent, MwBoxClass,
 			  MwNmargin, PaddingContent,
 			  NULL);
 		w = child(f);
-		b = MwVaCreateWidget(MwBoxClass, "box1", w, 0, 0, 0, 0,
+		b = MwVaCreateWidget(MwBoxClass, "table1", w, 0, 0, 0, 0,
 				     MwNorientation, MwVERTICAL,
 				     MwNfixedSize, 16,
 				     NULL);
 		for(j = 0; j < 5; j++) MwCreateWidget(i == 0 ? MwCheckBoxClass : MwRadioBoxClass, i == 0 ? "cb" : "rb", b, 0, 0, 0, 0);
-		b = MwVaCreateWidget(MwBoxClass, "box1", w, 0, 0, 0, 0,
+		b = MwVaCreateWidget(MwBoxClass, "table1", w, 0, 0, 0, 0,
 				     MwNorientation, MwVERTICAL,
 				     NULL);
 		for(j = 0; j < 5; j++) {
@@ -263,32 +233,25 @@ int main() {
 					 MwNalignment, MwALIGNMENT_BEGINNING,
 					 NULL);
 		}
-		add(f);
 	}
 
 	f = frame("Calendar", -PaddingContent, -PaddingContent, MwCalendarClass,
 		  MwNscale, 1,
 		  NULL);
-	add(f);
 
 	f = frame("ComboBox", -PaddingContent, 24, MwComboBoxClass, NULL);
 	w = child(f);
 	MwComboBoxAdd(w, -1, "Hello!");
-	add(f);
 
 	f = frame("Entry", -PaddingContent, 24, MwEntryClass, NULL);
-	add(f);
 
 	f = frame("Image", -PaddingContent, -PaddingContent, MwImageClass,
 		  MwNpixmap, px,
 		  NULL);
-	w = child(f);
-	add(f);
 
 	f = frame("Label", -PaddingContent, -PaddingContent, MwLabelClass,
 		  MwNtext, "Epic text\nNewline can be used too!",
 		  NULL);
-	add(f);
 
 	f     = frame("ListBox", -PaddingContent, -PaddingContent, MwListBoxClass,
 		      MwNhasHeading, 1,
@@ -296,26 +259,21 @@ int main() {
 	w     = child(f);
 	index = MwListBoxSet(w, -1, 0, "Epic title...");
 	index = MwListBoxSet(w, -1, 0, "Hello");
-	add(f);
 
 	f = frame("NumberEntry", -PaddingContent, 24, MwNumberEntryClass, NULL);
-	add(f);
 
 	f = frame("ProgressBar", -PaddingContent, 24, MwProgressBarClass,
 		  MwNvalue, 25,
 		  NULL);
-	add(f);
 
 	f = frame("ScrollBar", -PaddingContent, 16, MwScrollBarClass,
 		  MwNorientation, MwHORIZONTAL,
 		  NULL);
-	add(f);
 
 	f = frame("Separator", -PaddingContent, -PaddingContent, MwSeparatorClass, NULL);
-	add(f);
 
 	f = frame("SubWindow", -PaddingContent, -PaddingContent, MwViewportClass,
-		  MwNratio, 2,
+		  MwNcolumnSpan, 2,
 		  NULL);
 	w = child(f);
 	MwViewportSetSize(w, 512, 512);
@@ -325,23 +283,20 @@ int main() {
 	MwVaCreateWidget(MwSubWindowClass, "swnd", MwViewportGetViewport(w), 64, 64, 256, 128,
 			 MwNtitle, "Sub window 2",
 			 NULL);
-	add(f);
 
 	f = frame("Tab", -PaddingContent, -PaddingContent, MwTabClass,
-		  MwNratio, 2,
+		  MwNcolumnSpan, 2,
 		  NULL);
 	w = child(f);
 	MwSetText(MwTabAdd(w, "ABC"), MwNbackground, "#f00");
 	MwSetText(MwTabAdd(w, "DEF"), MwNbackground, "#0f0");
 	MwSetText(MwTabAdd(w, "GHI"), MwNbackground, "#00f");
-	add(f);
 
 	f = frame("TreeView", -PaddingContent, -PaddingContent, MwTreeViewClass, NULL);
 	w = child(f);
 	v = MwTreeViewAdd(w, NULL, NULL, "abc");
 	v = MwTreeViewAdd(w, v, NULL, "def");
 	v = MwTreeViewAdd(w, v, NULL, "ghi");
-	add(f);
 
 	f = frame("Viewport", -PaddingContent, -PaddingContent, MwViewportClass, NULL);
 	w = child(f);
@@ -349,23 +304,14 @@ int main() {
 	MwVaCreateWidget(MwButtonClass, "btn", MwViewportGetViewport(w), 64, 64, 128, 128,
 			 MwNtext, "Thing",
 			 NULL);
-	add(f);
-
-	if(n != 0) newrow();
-	if(n == 0) MwDestroyWidget(boxes[row]);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
 
 	resize(window, NULL, NULL);
 
-	MwVaApply(box,
+	MwVaApply(table,
 		  MwNwaitLayout, 0,
 		  NULL);
-	for(i = 0; i < row; i++) {
-		MwVaApply(boxes[i],
-			  MwNwaitLayout, 0,
-			  NULL);
-	}
 
 	MwLoop(window);
 

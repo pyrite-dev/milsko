@@ -49,6 +49,9 @@
 #define MwNday "Iday"
 #define MwNwaitLayout "IwaitLayout"
 #define MwNscale "Iscale"
+#define MwNcolumns "Icolumns"
+#define MwNcolumnSpan "IcolumnSpan"
+#define MwNrowSpan "IrowSpan"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

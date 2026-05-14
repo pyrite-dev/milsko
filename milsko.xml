@@ -103,6 +103,9 @@
 		<integer name="day" />
 		<integer name="waitLayout" />
 		<integer name="scale" />
+		<integer name="columns" />
+		<integer name="columnSpan" column="yes" />
+		<integer name="rowSpan" column="yes" />
 
 		<!-- waitMS is a special property, only applies to toplevel widget -->
 		<integer name="waitMS" common="yes" />
@@ -923,6 +926,16 @@
 					</return>
 				</function>
 			</functions>
+		</widget>
+		<widget name="Table">
+			<properties>
+				<property name="columns" />
+				<property name="margin" />
+				<property name="padding" />
+				<property name="hasBorder" />
+				<property name="inverted" />
+				<property name="waitLayout" />
+			</properties>
 		</widget>
 		<widget name="Tab">
 			<properties>
