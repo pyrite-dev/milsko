@@ -6,8 +6,8 @@
 
 static int wcreate(MwWidget handle) {
 	MwLabel lab = malloc(sizeof(*lab));
+	memset(lab, 0, sizeof(*lab));
 
-	lab->segment	 = NULL;
 	handle->internal = lab;
 
 	MwSetDefault(handle);
@@ -321,7 +321,6 @@ static void draw_normal(MwWidget handle) {
 	int	    align;
 	const char* str	  = MwGetText(handle, MwNtext);
 	MwLLPixmap  bgpx  = MwGetVoid(handle, MwNbackgroundPixmap);
-	int	    l_one = MwGetInteger(handle, MwNlength) - (MwGetInteger(handle, MwNlength) % 2);
 
 	if(str == NULL) str = "";
 

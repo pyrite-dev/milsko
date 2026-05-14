@@ -107,14 +107,13 @@ static void layout_widget(MwWidget handle, MwWidget child) {
 	int	 bw = (MwGetInteger(handle, MwNhasBorder) ? MwDefaultBorderWidth(handle) : 0) + MwGetInteger(handle, MwNpadding);
 	int	 m  = MwGetInteger(handle, MwNmargin);
 	int	 n, x, y, cw = 0, ch = 0;
-	int	 gcs, grs;
+	int	 gcs;
 	intkv_t* kv = NULL;
 
 	LAYOUT_BEGIN;
 	LAYOUT_END(1);
 
 	gcs = (n + c - 1) / c;
-	grs = n % c;
 	cw  = (MwGetInteger(handle, MwNwidth) - bw * 2 - (m * (c - 1))) / c;
 	ch  = (MwGetInteger(handle, MwNheight) - m * (gcs - 1) - bw * 2) / gcs;
 
