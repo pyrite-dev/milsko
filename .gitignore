@@ -19,6 +19,8 @@ examples/*/*.exe
 compile_flags.txt
 .cache
 .DS_Store
+/vms
+/BorMakefile
 
 *.pef
 *.dsk
@@ -26,3 +28,4 @@ compile_flags.txt
 *.rsrc
 *.finf
 *.gdb
+
