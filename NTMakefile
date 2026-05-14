@@ -1,7 +1,7 @@
 CC = cl /TC /c /nologo
 LD = link /nologo
 
-MW_CFLAGS =  /Iinclude /Iexternal\libz\include /D_MILSKO /DUSE_GDI /DUSE_STB_TRUETYPE /DUSE_STB_IMAGE /DSTBI_NO_SIMD
+MW_CFLAGS =  /Iinclude /Iexternal\libz\include /D_MILSKO /D_MILSKO_BUILD /DUSE_GDI /DUSE_STB_TRUETYPE /DUSE_STB_IMAGE /DSTBI_NO_SIMD
 MW_LDFLAGS = /DLL
 EXE_CFLAGS = /Iinclude
 EXE_LDFLAGS = 

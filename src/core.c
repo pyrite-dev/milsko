@@ -18,8 +18,8 @@
 		MwLLEndDraw(handle->lowlevel); \
 	}
 
-static void	MwVaListApply_Internal(MwWidget handle, va_list va, int only_early);
-static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, int do_prop, va_list prop);
+static void	MWAPI MwVaListApply_Internal(MwWidget handle, va_list va, int only_early);
+static MwWidget MWAPI MwCreateWidget_Internal(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, int do_prop, va_list prop);
 
 static void lldrawhandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->common.user;
@@ -850,6 +850,7 @@ static void MwVaListApply_Internal(MwWidget handle, va_list va, int only_early) 
 		for(i = 0; keys[i] != NULL; i++) {
 			MwDispatch3(handle, prop_change, keys[i]);
 		}
+
 		MwDispatch3(handle, props_change, keys);
 	}
 

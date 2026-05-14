@@ -89,7 +89,7 @@
 #endif
 
 /* Windows */
-#if defined(_MILSKO) && defined(_WIN32)
+#if defined(_MILSKO) && defined(_MILSKO_BUILD) && defined(_WIN32)
 #define MWDECL extern __declspec(dllexport)
 #elif defined(_WIN32)
 #define MWDECL extern __declspec(dllimport)

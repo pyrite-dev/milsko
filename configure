@@ -16,7 +16,7 @@ our $cxx       = defined($ENV{CXX}) ? $ENV{CXX} : "*host*g++";
 our $ar       = defined($ENV{AR}) ? $ENV{AR} : "*host*ar";
 our $incdir   = "-I include";
 our $incdir2 = "";
-our $cflags   = "-fPIC -D_MILSKO -fvisibility=hidden";
+our $cflags   = "-fPIC -D_MILSKO -D_MILSKO_BUILD -fvisibility=hidden";
 our $libdir   = "";
 our $ldflags  = "";
 our $math     = "-lm";
