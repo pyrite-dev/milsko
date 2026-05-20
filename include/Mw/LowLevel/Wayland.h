@@ -14,7 +14,6 @@
 #include <xkbcommon/xkbcommon.h>
 #include <cairo/cairo.h>
 #include <pthread.h>
-#include <dbus/dbus.h>
 
 #ifdef __cplusplus
 extern "C" {
