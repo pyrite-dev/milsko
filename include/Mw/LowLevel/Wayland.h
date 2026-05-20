@@ -397,7 +397,7 @@ MwInline int wayland_load_funcs() {
 #include "Wayland/xdg-toplevel-icon-client-protocol.h"
 #endif
 
-#include <libdecor-0/libdecor.h>
+#include <libdecor.h>
 
 typedef struct wayland_protocol {
 	void* listener;
