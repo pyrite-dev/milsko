@@ -397,6 +397,7 @@ void MwFreeWidget(MwWidget handle) {
 		for(i = 0; i < arrlen(handle->parent->children); i++) {
 			if(handle->parent->children[i] == handle) {
 				arrdel(handle->parent->children, i);
+				i--;
 			}
 		}
 	}
