@@ -111,11 +111,6 @@ typedef struct waylandopengl {
 	EGLBoolean (*eglGetConfigAttrib)(EGLDisplay dpy, EGLConfig config, EGLint attribute, EGLint* value);
 	EGLBoolean (*eglDestroySurface)(EGLDisplay dpy, EGLSurface surface);
 
-	struct wl_egl_window* (*wl_egl_window_create)(struct wl_surface* surface,
-						      int width, int height);
-	void (*wl_egl_window_resize)(struct wl_egl_window* egl_window,
-				     int width, int height,
-				     int dx, int dy);
 	struct gbm_device* (*gbm_create_device)(int fd);
 	struct gbm_surface* (*gbm_surface_create)(struct gbm_device* gbm, uint32_t width, uint32_t height, uint32_t format, uint32_t flags);
 	void (*gbm_surface_destroy)(struct gbm_surface* surface);
@@ -244,6 +239,7 @@ static int wcreate(MwWidget handle) {
 		EGLDisplay	 display;
 		waylandopengl_t* o = r	    = malloc(sizeof(*o));
 		int		 gbm_format = 0;
+		EGLConfig egl_configs[1024];
 		memset(o, 0, sizeof(waylandopengl_t));
 
 		o->gllib = MwDynamicOpen("libEGL.so");
@@ -303,10 +299,8 @@ static int wcreate(MwWidget handle) {
 #define eglSwapBuffers o->eglSwapBuffers
 #define eglSwapInterval o->eglSwapInterval
 #define eglGetError o->eglGetError
-#define wl_egl_window_create o->wl_egl_window_create
 #define eglBindAPI o->eglBindAPI
 #define eglGetDisplay o->eglGetDisplay
-#define wl_egl_window_resize o->wl_egl_window_resize
 #define eglCreatePlatformWindowSurface o->eglCreatePlatformWindowSurface
 #define eglDestroySurface o->eglDestroySurface
 #define eglChooseConfig o->eglChooseConfig
@@ -336,7 +330,6 @@ static int wcreate(MwWidget handle) {
 			printf("ERROR: eglGetConfigs, %0X\n", eglGetError());
 			return 1;
 		}
-		EGLConfig egl_configs[1024];
 
 		/* Choose config */
 		if((eglChooseConfig(display, fbAttribs, egl_configs, numConfigs, &numConfigsMatched) !=
@@ -353,6 +346,7 @@ static int wcreate(MwWidget handle) {
 			} else {
 				if(gbm_format == GBM_FORMAT_ARGB8888) {
 					o->egl_config = egl_configs[i];
+                  break;
 				}
 			}
 		}
@@ -519,11 +513,12 @@ static void mwOpenGLSwapBufferImpl(MwWidget handle) {
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
 		waylandopengl_t* o = handle->internal;
-		eglSwapInterval(o->egl_display, 0);
+		struct gbm_bo* bo;
+        eglSwapInterval(o->egl_display, 0);
 		if(!eglSwapBuffers(o->egl_display, o->egl_surface)) {
 			printf("ERROR: eglSwapBuffers, %0X\n", eglGetError());
 		}
-		struct gbm_bo* bo = o->gbm_surface_lock_front_buffer(o->gbm_surface);
+		bo = o->gbm_surface_lock_front_buffer(o->gbm_surface);
 		if(bo) {
 			void* gbmBoMapData = NULL; // Needed for unmapping if gbm_bo_map is used
 			MwU32 width	   = o->gbm_bo_get_width(bo);
