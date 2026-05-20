@@ -239,9 +239,6 @@ static int wcreate(MwWidget handle) {
 		EGLDisplay	 display;
 		waylandopengl_t* o = r	    = malloc(sizeof(*o));
 		int		 gbm_format = 0;
-        MwBool   egl_config_type_set = MwFALSE;
-        int      egl_config_type = 0;
-        int      known_egl_config_type = 0;
 		EGLConfig egl_configs[1024];
 		memset(o, 0, sizeof(waylandopengl_t));
 
@@ -347,18 +344,10 @@ static int wcreate(MwWidget handle) {
 						 &gbm_format) == EGL_FALSE) {
 				printf("ERROR: eglGetConfigAttrib, %0X\n", eglGetError());
 			} else {
-                if(gbm_format == GBM_FORMAT_ARGB8888) {
-                  if(o->eglGetConfigAttrib(display, egl_configs[i],
-    						 EGL_NATIVE_VISUAL_TYPE,
-    						 &egl_config_type) == EGL_FALSE) {
-    				printf("ERROR: eglGetConfigAttrib, %0X\n", eglGetError());
-        		  } else {
-                    if(egl_config_type < known_egl_config_type || !egl_config_type_set) {
-                    	o->egl_config = egl_configs[i];
-                        egl_config_type_set = MwTRUE;
-                    }
-        		  }
-                }
+				if(gbm_format == GBM_FORMAT_ARGB8888) {
+					o->egl_config = egl_configs[i];
+                    break;
+				}
 			}
 		}
 
