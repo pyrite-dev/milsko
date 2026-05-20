@@ -536,7 +536,7 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 
 	/* check now if we have decorations so that everything else can act accordingly */
 	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
-		// r->wayland.has_decorations = MwTRUE;
+		r->wayland.has_decorations = MwTRUE;
 	}
 
 	r->wayland.popup->xdg_wm_base = WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context;
