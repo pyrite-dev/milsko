@@ -386,9 +386,10 @@ static void destroy_toplevel(MwLL r) {
 
 	wl_compositor_destroy(r->wayland.compositor);
 
-	xdg_surface_destroy(r->wayland.toplevel->xdg_surface);
-
-	xdg_toplevel_destroy(r->wayland.toplevel->xdg_top_level);
+	if(r->wayland.has_decorations) {
+		xdg_surface_destroy(r->wayland.toplevel->xdg_surface);
+		xdg_toplevel_destroy(r->wayland.toplevel->xdg_top_level);
+	}
 
 	xkb_keymap_unref(r->wayland.xkb_keymap);
 
@@ -1086,7 +1087,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 	}
 
 	if(handle->wayland.decor) {
-		wl_call_tbl.libdecor_dispatch(handle->wayland.decor, 0);
+		// wl_call_tbl.libdecor_dispatch(handle->wayland.decor, 0);
 	}
 
 	if(handle->wayland.force_render) {
@@ -1329,8 +1330,10 @@ static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
-		xdg_toplevel_set_min_size(handle->wayland.toplevel->xdg_top_level, minx, miny);
-		xdg_toplevel_set_max_size(handle->wayland.toplevel->xdg_top_level, maxx, maxy);
+		if(handle->wayland.has_decorations) {
+			xdg_toplevel_set_min_size(handle->wayland.toplevel->xdg_top_level, minx, miny);
+			xdg_toplevel_set_max_size(handle->wayland.toplevel->xdg_top_level, maxx, maxy);
+		}
 	}
 }
 
