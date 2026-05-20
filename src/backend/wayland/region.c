@@ -11,6 +11,10 @@ void MwLLWaylandRegionSetup(MwLL handle) {
 	int  width  = (handle->wayland.clipping_rect.width == 0) ? handle->wayland.ww : handle->wayland.clipping_rect.width;
 	int  height = (handle->wayland.clipping_rect.height == 0) ? handle->wayland.wh : handle->wayland.clipping_rect.height;
 
+	if(!handle->wayland.has_decorations && handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
+		width += CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;
+		height += CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM;
+	}
 	if(!handle->wayland.configured) {
 		return;
 	}

@@ -28,8 +28,8 @@ MWDECL int MwLLWaylandCallInit(void);
 
 #define CSD_BORDER_FRAME_LEFT 5
 #define CSD_BORDER_FRAME_RIGHT 5
-#define CSD_BORDER_FRAME_TOP 24
-#define CSD_BORDER_FRAME_BOTTOM 5
+#define CSD_BORDER_FRAME_TOP 23
+#define CSD_BORDER_FRAME_BOTTOM 4
 
 struct _MwLLWayland;
 
@@ -360,6 +360,7 @@ struct _MwLLWaylandTopLevel {
 	struct xdg_toplevel*	     xdg_top_level;
 	struct xdg_toplevel_listener xdg_toplevel_listener;
 	struct xdg_surface_listener  xdg_surface_listener;
+	MwBool			     maxim_state;
 
 	MwBool compositor_created;
 	MwBool xdg_wm_base_created;
@@ -554,6 +555,8 @@ struct _MwLLWayland {
 	struct _MwLLWaylandShmBuffer  backbuffer;
 	struct _MwLLWaylandShmBuffer  cursor;
 	struct _MwLLWaylandShmBuffer* icon;
+
+	MwLLPixmap icon_pixmap;
 
 	pthread_mutex_t eventsMutex;
 
