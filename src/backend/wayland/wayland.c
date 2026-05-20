@@ -10,14 +10,6 @@ wayland_call_table_t wl_call_tbl;
 MwBool MwWaylandVulkan = MwFALSE;
 #endif
 
-static pthread_mutex_t destroyedWidgetsTableMutex;
-/*
- * So Wayland, bless its soul; it keeps using callbacks LONG after they should not only be destroyed but the widget doesn't even exist anymore. Naturally, this causes use after free. so we fight fire with fire in the worst code i've ever written: by storing the freed pointers here, we disallow wayland from ever using them again. if something else is created that takes this slot, we remove it from the table.
- *
- * TODO(IOI): FUCKING NO???? FIX THIS.
- */
-static MwLL* destroyedWidgetsTable;
-
 static int event_loop(MwLL handle);
 
 /* Recursively dispatch a resize event to a widget and its children */
@@ -748,10 +740,6 @@ static void MwLLDestroyImpl(MwLL handle) {
 	shfree(handle->wayland.wl_protocol_setup_map);
 
 	MwLLWaylandFlush(handle);
-
-	pthread_mutex_lock(&destroyedWidgetsTableMutex);
-	arrput(destroyedWidgetsTable, handle);
-	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
 
 	free(handle);
 }
