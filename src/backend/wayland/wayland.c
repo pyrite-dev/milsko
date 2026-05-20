@@ -201,6 +201,96 @@ void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 	}
 }
 
+/* shitdecor */
+static void libdecor_error(struct libdecor*    context,
+			   enum libdecor_error error,
+			   const char*	       message) {
+	printf("libdecor error (%d): %s\n", error, message);
+}
+
+static void
+handle_configure(struct libdecor_frame*		frame,
+		 struct libdecor_configuration* configuration,
+		 void*				user_data) {
+	MwLL			   self = user_data;
+	int			   width, height;
+	enum libdecor_window_state window_state;
+	struct libdecor_state*	   state;
+
+	if(!wl_call_tbl.libdecor_configuration_get_content_size(configuration, frame,
+								&width, &height)) {
+		width  = self->wayland.ww;
+		height = self->wayland.wh;
+	}
+
+	width  = (width == 0) ? 1 : width;
+	height = (height == 0) ? 1 : height;
+
+	// region_invalidate(self);
+	self->wayland.ww = width;
+	self->wayland.wh = height;
+
+	if(self->wayland.resizing == 0) {
+		MwLLWaylandFramebufferDestroy(&self->wayland);
+		MwLLWaylandFramebufferSetup(&self->wayland);
+		MwLLWaylandRegionSetup(self);
+		MwLLDispatch(self, resize, NULL);
+
+		recursive_dispatch_resize(self);
+
+		if(self->wayland.pointer_constrained) {
+			zwp_locked_pointer_v1_set_cursor_position_hint(self->wayland.locked_pointer, 0, CSD_BORDER_FRAME_TOP);
+			wl_surface_commit(self->wayland.framebuffer.surface);
+		}
+
+		self->wayland.resizing = 1;
+	}
+
+	MwLLDispatch(self, draw, NULL);
+
+	if(!wl_call_tbl.libdecor_configuration_get_window_state(configuration,
+								&window_state))
+		window_state = LIBDECOR_WINDOW_STATE_NONE;
+
+	self->wayland.decor_state = window_state;
+
+	state = wl_call_tbl.libdecor_state_new(width, height);
+	wl_call_tbl.libdecor_frame_commit(frame, state, configuration);
+	wl_call_tbl.libdecor_state_free(state);
+
+	self->wayland.configured = MwTRUE;
+}
+
+static void
+handle_close(struct libdecor_frame* frame,
+	     void*		    user_data) {
+	MwLL self = user_data;
+	MwLLDispatch(self, close, NULL);
+}
+
+static void
+handle_commit(struct libdecor_frame* frame,
+	      void*		     user_data) {
+	MwLL self = user_data;
+	wl_surface_commit(self->wayland.framebuffer.surface);
+}
+
+static void
+handle_dismiss_popup(struct libdecor_frame* frame,
+		     const char*	    seat_name,
+		     void*		    user_data) {
+}
+
+static struct libdecor_frame_interface libdecor_frame_iface = {
+    handle_configure,
+    handle_close,
+    handle_commit,
+    handle_dismiss_popup,
+};
+
+static struct libdecor_interface libdecor_interface = {
+    libdecor_error};
+
 /* Toplevel setup function */
 static void setup_toplevel(MwLL r, int x, int y) {
 	r->wayland.type	    = MwLL_WAYLAND_TOPLEVEL;
@@ -234,15 +324,14 @@ static void setup_toplevel(MwLL r, int x, int y) {
 
 	r->wayland.xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 
-	/* Create a wl_surface, a xdg_surface and a xdg_toplevel */
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
 	r->wayland.backbuffer.surface  = wl_compositor_create_surface(r->wayland.compositor);
-	r->wayland.toplevel->ssurface  = wl_subcompositor_get_subsurface(r->wayland.toplevel->scompositor, r->wayland.framebuffer.surface, r->wayland.backbuffer.surface);
-	wl_subsurface_set_desync(r->wayland.toplevel->ssurface);
 
-	r->wayland.toplevel->xdg_surface =
-	    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context, r->wayland.backbuffer.surface);
-	r->wayland.toplevel->xdg_top_level = xdg_surface_get_toplevel(r->wayland.toplevel->xdg_surface);
+	if(r->wayland.has_decorations) {
+		r->wayland.toplevel->xdg_surface =
+		    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context, r->wayland.framebuffer.surface);
+		r->wayland.toplevel->xdg_top_level = xdg_surface_get_toplevel(r->wayland.toplevel->xdg_surface);
+	}
 
 	/* setup mandatory listeners */
 	r->wayland.toplevel->xdg_surface_listener.configure = xdg_surface_configure;
@@ -250,16 +339,26 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	r->wayland.toplevel->xdg_toplevel_listener.configure = xdg_toplevel_configure;
 	r->wayland.toplevel->xdg_toplevel_listener.close     = xdg_toplevel_close;
 
-	xdg_surface_add_listener(r->wayland.toplevel->xdg_surface, &r->wayland.toplevel->xdg_surface_listener, r);
-	xdg_toplevel_add_listener(r->wayland.toplevel->xdg_top_level, &r->wayland.toplevel->xdg_toplevel_listener,
-				  r);
+	if(r->wayland.has_decorations) {
+		xdg_surface_add_listener(r->wayland.toplevel->xdg_surface, &r->wayland.toplevel->xdg_surface_listener, r);
+		xdg_toplevel_add_listener(r->wayland.toplevel->xdg_top_level, &r->wayland.toplevel->xdg_toplevel_listener,
+					  r);
 
-	xdg_toplevel_set_title(r->wayland.toplevel->xdg_top_level, "Milsko App");
-	xdg_toplevel_set_app_id(r->wayland.toplevel->xdg_top_level, "MilskoWaylandApp");
+		xdg_toplevel_set_title(r->wayland.toplevel->xdg_top_level, "Milsko App");
+		xdg_toplevel_set_app_id(r->wayland.toplevel->xdg_top_level, "MilskoWaylandApp");
+	} else {
+		r->wayland.decor       = wl_call_tbl.libdecor_new(r->wayland.display, &libdecor_interface);
+		r->wayland.decor_frame = wl_call_tbl.libdecor_decorate(r->wayland.decor, r->wayland.framebuffer.surface,
+								       &libdecor_frame_iface, r);
+		wl_call_tbl.libdecor_frame_set_app_id(r->wayland.decor_frame, "milsko-app");
+		wl_call_tbl.libdecor_frame_set_title(r->wayland.decor_frame, "Milsko App");
+		wl_call_tbl.libdecor_frame_map(r->wayland.decor_frame);
+	}
 
 	/* Perform the initial commit and wait for the first configure event */
-	wl_surface_commit(r->wayland.backbuffer.surface);
 	wl_surface_commit(r->wayland.framebuffer.surface);
+	wl_surface_commit(r->wayland.backbuffer.surface);
+
 	while(!r->wayland.configured) {
 		event_loop(r);
 	}
@@ -273,8 +372,6 @@ static void setup_toplevel(MwLL r, int x, int y) {
 
 		zxdg_toplevel_decoration_v1_set_mode(
 		    dec->decoration, ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
-	} else {
-		wl_subsurface_set_position(r->wayland.toplevel->ssurface, CSD_BORDER_FRAME_LEFT, CSD_BORDER_FRAME_TOP);
 	}
 }
 
@@ -406,6 +503,7 @@ struct xdg_popup_listener popup_listener = {
 /* Popup setup function */
 static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	struct xdg_surface* xdg_surface;
+	struct xdg_surface* parent_xdg_surface;
 	MwLL		    topmost_parent = r->wayland.parent;
 
 	r->wayland.type	 = MwLL_WAYLAND_POPUP;
@@ -437,7 +535,7 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 
 	/* check now if we have decorations so that everything else can act accordingly */
 	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
-		r->wayland.has_decorations = MwTRUE;
+		// r->wayland.has_decorations = MwTRUE;
 	}
 
 	r->wayland.popup->xdg_wm_base = WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context;
@@ -455,15 +553,19 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
 
+	if(r->wayland.has_decorations) {
+		parent_xdg_surface = topmost_parent->wayland.toplevel->xdg_surface;
+	} else {
+		parent_xdg_surface = wl_call_tbl.libdecor_frame_get_xdg_surface(topmost_parent->wayland.decor_frame);
+	}
+
 	r->wayland.popup->xdg_surface =
 	    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context, r->wayland.framebuffer.surface);
 
 	r->wayland.popup->xdg_popup = xdg_surface_get_popup(
 	    r->wayland.popup->xdg_surface,
-	    xdg_surface,
+	    parent_xdg_surface,
 	    r->wayland.popup->xdg_positioner);
-
-	uint32_t ver = wl_proxy_get_version((struct wl_proxy*)r->wayland.popup->xdg_popup);
 
 	xdg_popup_add_listener(r->wayland.popup->xdg_popup, &popup_listener, r);
 
@@ -783,7 +885,11 @@ static void actually_set_wh(MwLL handle) {
 	MwLLWaylandRegionInvalidate(handle);
 
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL && handle->wayland.configured) {
-		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+		if(handle->wayland.has_decorations) {
+			xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+		} else {
+			xdg_surface_set_window_geometry(wl_call_tbl.libdecor_frame_get_xdg_surface(handle->wayland.decor_frame), 0, 0, handle->wayland.ww, handle->wayland.wh);
+		}
 	}
 
 	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL && handle->wayland.configured && !handle->wayland.dispatching_resize) {
@@ -831,101 +937,6 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 }
 
 static void MwLLBeginDrawImpl(MwLL handle) {
-	cairo_save(handle->wayland.front_cairo);
-	cairo_set_source_rgba(handle->wayland.front_cairo, 0, 0, 0, 0);
-	cairo_set_operator(handle->wayland.front_cairo, CAIRO_OPERATOR_SOURCE);
-	cairo_rectangle(handle->wayland.front_cairo, 0, 0, handle->wayland.ww, handle->wayland.wh);
-	cairo_fill(handle->wayland.front_cairo);
-	cairo_restore(handle->wayland.front_cairo);
-
-	if(handle->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
-		handle->wayland.selected_cairo = handle->wayland.front_cairo;
-		return;
-	}
-
-	if(!handle->wayland.has_decorations) {
-		int   x;
-		MwU32 w = handle->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;
-		MwU32 h = handle->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM;
-		cairo_set_line_width(handle->wayland.back_cairo, 4.0);
-		for(x = 0; x < w; x++) {
-			float placeholder = (float)x / (float)w;
-			cairo_set_source_rgb(handle->wayland.back_cairo, placeholder, 0.25, 0.25);
-
-			cairo_move_to(handle->wayland.back_cairo, w - x, 0);
-			cairo_line_to(handle->wayland.back_cairo, w - x, CSD_BORDER_FRAME_TOP);
-			cairo_stroke(handle->wayland.back_cairo);
-
-			cairo_move_to(handle->wayland.back_cairo, x, CSD_BORDER_FRAME_TOP);
-			cairo_line_to(handle->wayland.back_cairo, x, h);
-			cairo_stroke(handle->wayland.back_cairo);
-		}
-		cairo_set_source_rgba(handle->wayland.back_cairo, 1, 1, 1, 0.5);
-		cairo_move_to(handle->wayland.back_cairo, 0, 0);
-		cairo_line_to(handle->wayland.back_cairo, 0, h);
-		cairo_stroke(handle->wayland.back_cairo);
-		cairo_move_to(handle->wayland.back_cairo, 0, 0);
-		cairo_line_to(handle->wayland.back_cairo, w, 0);
-		cairo_stroke(handle->wayland.back_cairo);
-
-		cairo_set_source_rgba(handle->wayland.back_cairo, 0, 0, 0, 0.5);
-		cairo_move_to(handle->wayland.back_cairo, 0, h);
-		cairo_line_to(handle->wayland.back_cairo, w, h);
-		cairo_stroke(handle->wayland.back_cairo);
-		cairo_move_to(handle->wayland.back_cairo, w, 0);
-		cairo_line_to(handle->wayland.back_cairo, w, h);
-		cairo_stroke(handle->wayland.back_cairo);
-
-		if(strlen(handle->wayland.title) != 0) {
-			int	       y, x;
-			int	       i = 0, sx = 0, sy = 0;
-			int	       tw, th;
-			unsigned char* px;
-			MwRect	       r;
-			MwLLPixmap     p;
-			tw = strlen(handle->wayland.title) * 7;
-			th = 14;
-			px = malloc(tw * th * 4);
-			assert(px);
-
-			memset(px, 0, tw * th * 4);
-
-			handle->wayland.selected_cairo = handle->wayland.back_cairo;
-
-			while(handle->wayland.title[i]) {
-				int out;
-				i += MwUTF8ToUTF32(handle->wayland.title + i, &out);
-
-				if(out > 0xff) {
-					out = 0;
-				}
-
-				for(y = 0; y < 14; y++) {
-					for(x = 0; x < 7; x++) {
-						unsigned char* ppx = &px[((sy + y) * tw + sx + x) * 4];
-						int	       col = MwFontData[out].data[y] & (1 << ((7 - 1) - x)) ? 255 : 0;
-						ppx[0]		   = col;
-						ppx[1]		   = col;
-						ppx[2]		   = col;
-						ppx[3]		   = col;
-					}
-				}
-				sx += 7;
-			}
-
-			p	 = MwLLCreatePixmap(handle, px, tw, th);
-			r.x	 = 5;
-			r.y	 = 5;
-			r.width	 = tw;
-			r.height = th;
-
-			MwLLDrawPixmap(handle, &r, p);
-			MwLLDestroyPixmap(p);
-			free(px);
-		}
-		MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
-	}
-	handle->wayland.selected_cairo = handle->wayland.front_cairo;
 }
 
 static void MwLLEndDrawImpl(MwLL handle) {
@@ -1074,6 +1085,10 @@ static void MwLLNextEventImpl(MwLL handle) {
 		}
 	}
 
+	if(handle->wayland.decor) {
+		wl_call_tbl.libdecor_dispatch(handle->wayland.decor, 0);
+	}
+
 	if(handle->wayland.force_render) {
 		MwLLDispatch(handle, draw, NULL);
 		if(handle->wayland.configured) MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
@@ -1086,7 +1101,11 @@ static void MwLLNextEventImpl(MwLL handle) {
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
-		xdg_toplevel_set_title(handle->wayland.toplevel->xdg_top_level, title);
+		if(handle->wayland.has_decorations) {
+			xdg_toplevel_set_title(handle->wayland.toplevel->xdg_top_level, title);
+		} else {
+			wl_call_tbl.libdecor_frame_set_title(handle->wayland.decor_frame, title);
+		}
 	}
 	if(!handle->wayland.has_decorations) {
 		strncpy(handle->wayland.title, title, 255);
@@ -1143,7 +1162,6 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_t*	 c;
 	cairo_surface_t* cs;
-	cairo_t*	 selected_cairo = handle->wayland.selected_cairo ? handle->wayland.selected_cairo : handle->wayland.front_cairo;
 
 	if(rect->width <= 0 || rect->height <= 0 || pixmap->common.width <= 0 || pixmap->common.height <= 0) return;
 	if(rect->width >= INT16_MAX) rect->width = INT16_MAX;
@@ -1163,8 +1181,8 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 
 	cairo_paint(c);
 
-	cairo_set_source_surface(selected_cairo, cs, rect->x, rect->y);
-	cairo_paint(selected_cairo);
+	cairo_set_source_surface(handle->wayland.front_cairo, cs, rect->x, rect->y);
+	cairo_paint(handle->wayland.front_cairo);
 
 	cairo_destroy(c);
 	cairo_surface_destroy(cs);

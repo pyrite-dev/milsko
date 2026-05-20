@@ -12,7 +12,7 @@ void MwLLWaylandFramebufferSetup(struct _MwLLWayland* wayland) {
 		wl_surface_attach(wayland->framebuffer.surface, wayland->framebuffer.shm_buffer, 0, 0);
 	wl_surface_commit(wayland->framebuffer.surface);
 
-	MwLLWaylandHangUntilConfigured((MwLL)wayland);
+	// MwLLWaylandHangUntilConfigured((MwLL)wayland);
 	MwLLWaylandBufferUpdate((MwLL)wayland, &wayland->framebuffer);
 };
 void MwLLWaylandFramebufferDestroy(struct _MwLLWayland* wayland) {

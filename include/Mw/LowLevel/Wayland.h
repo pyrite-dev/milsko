@@ -14,7 +14,13 @@
 #include <xkbcommon/xkbcommon.h>
 #include <cairo/cairo.h>
 #include <pthread.h>
-#include <dbus/dbus.h>
+/* libdecor is included later on so that it's covered by the wayland dynloading. */
+struct libdecor_frame;
+struct libdecor_interface;
+struct libdecor_configuration;
+struct libdecor_frame_interface;
+enum libdecor_window_state;
+struct wl_surface;
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +50,8 @@ typedef struct wayland_call_table {
 	void* lib;
 	void* xkb_lib;
 	void* cairo_lib;
+
+	void* libdecor_lib;
 #ifdef USE_DBUS
 	MwLLDBusFuncTable dbus;
 	MwBool		  has_dbus;
@@ -141,6 +149,20 @@ typedef struct wayland_call_table {
 	void (*cairo_set_antialias)(cairo_t*, cairo_antialias_t);
 	void (*cairo_set_operator)(cairo_t* cr, cairo_operator_t op);
 
+	MwBool has_libdecor;
+	struct libdecor* (*libdecor_new)(struct wl_display* display, struct libdecor_interface* iface);
+	struct libdecor_state* (*libdecor_state_new)(int width, int height);
+	void (*libdecor_frame_commit)(struct libdecor_frame* frame, struct libdecor_state* state, struct libdecor_configuration* configuration);
+	void (*libdecor_state_free)(struct libdecor_state* state);
+	struct libdecor_frame* (*libdecor_decorate)(struct libdecor* context, struct wl_surface* surface, struct libdecor_frame_interface* iface, void* user_data);
+	void (*libdecor_frame_set_app_id)(struct libdecor_frame* frame, const char* app_id);
+	void (*libdecor_frame_set_title)(struct libdecor_frame* frame, const char* title);
+	void (*libdecor_frame_map)(struct libdecor_frame* frame);
+	MwBool (*libdecor_configuration_get_content_size)(struct libdecor_configuration* configuration, struct libdecor_frame* frame, int* width, int* height);
+	MwBool (*libdecor_configuration_get_window_state)(struct libdecor_configuration* configuration, enum libdecor_window_state* window_state);
+	struct xdg_surface* (*libdecor_frame_get_xdg_surface)(struct libdecor_frame* frame);
+	int (*libdecor_dispatch)(struct libdecor* context, int timeout);
+	void (*libdecor_frame_translate_coordinate)(struct libdecor_frame* frame, int surface_x, int surface_y, int* frame_x, int* frame_y);
 } wayland_call_table_t;
 
 extern wayland_call_table_t wl_call_tbl;
@@ -185,6 +207,17 @@ MwInline int wayland_load_funcs() {
 		printf("WARNING: Could use Wayland backend if " #x " was found.\n"); \
 		return 1; \
 	};
+
+	/* i mean i pray if somebody is using thr wayland backend over apple/ios that actual decorations are supported. */
+#ifdef __APPLE__
+	wl_call_tbl.libdecor_lib = MwDynamicOpen("libdecor-0.dylib");
+#else
+	wl_call_tbl.libdecor_lib = MwDynamicOpen("libdecor-0.so");
+#endif
+	wl_call_tbl.has_libdecor = (wl_call_tbl.libdecor_lib != NULL);
+	if(!wl_call_tbl.libdecor_lib) {
+		printf("(libdecor not found, window will not have any decorations.)\n");
+	}
 
 	WAYLAND_FUNC(wl_display_dispatch)
 	WAYLAND_FUNC(wl_display_dispatch_pending)
@@ -267,6 +300,28 @@ MwInline int wayland_load_funcs() {
 	wl_call_tbl.has_dbus = MwLLDBusFuncSetup(&wl_call_tbl.dbus);
 #endif
 
+	if(wl_call_tbl.has_libdecor) {
+#define LIBDECOR_FUNC(x) \
+	wl_call_tbl.x = MwDynamicSymbol(wl_call_tbl.libdecor_lib, #x); \
+	if(!wl_call_tbl.x) { \
+		printf("WARNING: Can't use libdecor because libdecor-1 doesn't export " #x ".\n"); \
+		wl_call_tbl.has_libdecor = MwFALSE; \
+	};
+
+		LIBDECOR_FUNC(libdecor_new);
+		LIBDECOR_FUNC(libdecor_state_new);
+		LIBDECOR_FUNC(libdecor_frame_commit);
+		LIBDECOR_FUNC(libdecor_state_free);
+		LIBDECOR_FUNC(libdecor_decorate);
+		LIBDECOR_FUNC(libdecor_frame_set_app_id);
+		LIBDECOR_FUNC(libdecor_frame_set_title);
+		LIBDECOR_FUNC(libdecor_frame_map);
+		LIBDECOR_FUNC(libdecor_configuration_get_content_size);
+		LIBDECOR_FUNC(libdecor_configuration_get_window_state);
+		LIBDECOR_FUNC(libdecor_frame_get_xdg_surface);
+		LIBDECOR_FUNC(libdecor_dispatch);
+	}
+
 	return 0;
 }
 
@@ -341,6 +396,8 @@ MwInline int wayland_load_funcs() {
 #include "Wayland/relative-pointer-client-protocol.h"
 #include "Wayland/xdg-toplevel-icon-client-protocol.h"
 #endif
+
+#include <libdecor-0/libdecor.h>
 
 typedef struct wayland_protocol {
 	void* listener;
@@ -495,6 +552,11 @@ struct _MwLLWayland {
 	MwLLDBusContext dbus;
 #endif
 
+	struct libdecor*	   decor;
+	struct libdecor_frame*	   decor_frame;
+	struct libdecor_interface* decor_interface;
+	enum libdecor_window_state decor_state;
+
 	MwBool dark_theme_detection;
 	MwU32  dark_theme;
 
@@ -568,8 +630,6 @@ struct _MwLLWayland {
 	cairo_surface_t* back_cs;
 	cairo_t*	 front_cairo;
 	cairo_t*	 back_cairo;
-	/* The cairo to actually use for draw operations. Typically is front_cairo, but MwLLBeginDraw can change this to the back_cairo so it can be used to draw window decorations. */
-	cairo_t* selected_cairo;
 };
 
 struct _MwLLWaylandColor {
@@ -610,10 +670,10 @@ void MwLLWaylandClipboardRead(wl_clipboard_device_context_t* ctx, int clipboard_
 void MwLLWaylandFlush(MwLL handle);
 
 /* Standard procedure before event callbacks in Wayland  */
-#define WAYLAND_EVENT_OP_START(self) pthread_mutex_lock(&self->wayland.eventsMutex);
+#define WAYLAND_EVENT_OP_START(self)
 
 /* Footer for WAYLAND_EVENT_OP_START */
-#define WAYLAND_EVENT_OP_END(self) pthread_mutex_unlock(&self->wayland.eventsMutex);
+#define WAYLAND_EVENT_OP_END(self)
 
 /* the two decoration manager constructs */
 typedef struct zxdg_decoration_manager_v1_context {
