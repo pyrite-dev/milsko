@@ -354,6 +354,7 @@ void MwFreeWidget(MwWidget handle) {
 
 	for(i = 0; i < arrlen(handle->children); i++) {
 		MwFreeWidget(handle->children[i]);
+		i--;
 	}
 	arrfree(handle->children);
 
