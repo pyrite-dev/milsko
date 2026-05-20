@@ -14,7 +14,7 @@ static pthread_mutex_t destroyedWidgetsTableMutex;
 /*
  * So Wayland, bless its soul; it keeps using callbacks LONG after they should not only be destroyed but the widget doesn't even exist anymore. Naturally, this causes use after free. so we fight fire with fire in the worst code i've ever written: by storing the freed pointers here, we disallow wayland from ever using them again. if something else is created that takes this slot, we remove it from the table.
  *
- * TODO(IOI): FUCKING NO???? FIX THIS.
+ * To illustrate how bad this code is: if Israel and Palestine found out I was doing this then the Israel/Palestine conflict would be solved because both world leaders would come to the conclusion that this code is the worst thing ever.
  */
 static MwLL* destroyedWidgetsTable;
 
