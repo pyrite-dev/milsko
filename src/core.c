@@ -18,7 +18,7 @@
 		MwLLEndDraw(handle->lowlevel); \
 	}
 
-static void	MWAPI MwVaListApply_Internal(MwWidget handle, va_list va, int only_early);
+static void MWAPI     MwVaListApply_Internal(MwWidget handle, va_list va, int only_early);
 static MwWidget MWAPI MwCreateWidget_Internal(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, int do_prop, va_list prop);
 
 static void lldrawhandler(MwLL handle, void* data) {
@@ -391,6 +391,14 @@ void MwFreeWidget(MwWidget handle) {
 	if(handle->root_boldfont != NULL) MwFontFree(handle->root_boldfont);
 	if(handle->root_monofont != NULL) MwFontFree(handle->root_monofont);
 	if(handle->root_boldmonofont != NULL) MwFontFree(handle->root_boldmonofont);
+
+	if(handle->parent) {
+		for(i = 0; i < arrlen(handle->parent->children); i++) {
+			if(handle->parent->children[i] == handle) {
+				arrdel(handle->parent->children, i);
+			}
+		}
+	}
 
 	free(handle);
 }
