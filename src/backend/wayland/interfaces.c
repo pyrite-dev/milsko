@@ -798,7 +798,7 @@ static void keyboard_key(void*		     data,
 		}
 	}
 
-	if(!MwWaylandAlwaysRender) {
+	if(!MwWaylandVulkan) {
 		MwLLDispatch(self, draw, NULL);
 	}
 

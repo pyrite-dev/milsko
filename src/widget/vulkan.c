@@ -242,7 +242,7 @@ static int vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
 		arrput(o->enabledExtensions, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 		/* take this opprutunity to set the widget to always render */
-		MwWaylandAlwaysRender = MwTRUE;
+		MwWaylandVulkan = MwTRUE;
 	}
 #endif
 #ifdef USE_COCOA

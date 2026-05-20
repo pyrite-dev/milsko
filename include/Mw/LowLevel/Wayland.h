@@ -144,7 +144,12 @@ typedef struct wayland_call_table {
 } wayland_call_table_t;
 
 extern wayland_call_table_t wl_call_tbl;
-extern MwBool		    MwWaylandAlwaysRender;
+#ifdef MW_VULKAN
+extern MwBool MwWaylandVulkan;
+#else
+#define MwWaylandVulkan 0
+#endif
+
 /* defined inline right here so that it doesn't conflict with the other macros */
 MwInline int wayland_load_funcs() {
 #ifdef __APPLE__

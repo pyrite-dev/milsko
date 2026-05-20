@@ -6,7 +6,9 @@
 #include "../../../external/stb_ds.h"
 
 wayland_call_table_t wl_call_tbl;
-MwBool		     MwWaylandAlwaysRender = MwFALSE;
+#ifdef MW_VULKAN
+MwBool MwWaylandVulkan = MwFALSE;
+#endif
 
 static pthread_mutex_t destroyedWidgetsTableMutex;
 /*
@@ -1100,7 +1102,7 @@ static int MwLLPendingImpl(MwLL handle) {
 		handle->wayland.did_initial_resize = 1;
 	}
 
-	if(!MwWaylandAlwaysRender) {
+	if(!MwWaylandVulkan) {
 		wl_display_prepare_read(handle->wayland.display);
 		if(!poll(&fd, 1, timeout.tv_nsec)) {
 			wl_display_cancel_read(handle->wayland.display);
@@ -1127,7 +1129,7 @@ static int MwLLPendingImpl(MwLL handle) {
 
 static void MwLLNextEventImpl(MwLL handle) {
 	WIDGET_CHECK(handle);
-	if(!MwWaylandAlwaysRender) {
+	if(!MwWaylandVulkan) {
 		if(handle->wayland.did_event_loop_early) {
 			handle->wayland.did_event_loop_early = MwFALSE;
 		} else {
