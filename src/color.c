@@ -1,5 +1,14 @@
 #include <Mw/Milsko.h>
 
+#include "../external/stb_ds.h"
+
+struct color {
+	char* key;
+	MwU32 value;
+};
+
+static struct color* colors = NULL;
+
 MwLLColor MwParseColorName(MwWidget handle, const char* color) {
 	MwRGB rgb;
 	MwParseColorNameNoAllocate(color, &rgb);
@@ -7,4699 +16,800 @@ MwLLColor MwParseColorName(MwWidget handle, const char* color) {
 }
 
 void MwParseColorNameNoAllocate(const char* color, MwRGB* rgb) {
-	if(strcmp(color, "snow") == 0) {
-		rgb->red   = 255;
-		rgb->green = 250;
-		rgb->blue  = 250;
-		return;
-	}
-	if(strcmp(color, "ghost white") == 0) {
-		rgb->red   = 248;
-		rgb->green = 248;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "GhostWhite") == 0) {
-		rgb->red   = 248;
-		rgb->green = 248;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "white smoke") == 0) {
-		rgb->red   = 245;
-		rgb->green = 245;
-		rgb->blue  = 245;
-		return;
-	}
-	if(strcmp(color, "WhiteSmoke") == 0) {
-		rgb->red   = 245;
-		rgb->green = 245;
-		rgb->blue  = 245;
-		return;
-	}
-	if(strcmp(color, "gainsboro") == 0) {
-		rgb->red   = 220;
-		rgb->green = 220;
-		rgb->blue  = 220;
-		return;
-	}
-	if(strcmp(color, "floral white") == 0) {
-		rgb->red   = 255;
-		rgb->green = 250;
-		rgb->blue  = 240;
-		return;
-	}
-	if(strcmp(color, "FloralWhite") == 0) {
-		rgb->red   = 255;
-		rgb->green = 250;
-		rgb->blue  = 240;
-		return;
-	}
-	if(strcmp(color, "old lace") == 0) {
-		rgb->red   = 253;
-		rgb->green = 245;
-		rgb->blue  = 230;
-		return;
-	}
-	if(strcmp(color, "OldLace") == 0) {
-		rgb->red   = 253;
-		rgb->green = 245;
-		rgb->blue  = 230;
-		return;
-	}
-	if(strcmp(color, "linen") == 0) {
-		rgb->red   = 250;
-		rgb->green = 240;
-		rgb->blue  = 230;
-		return;
-	}
-	if(strcmp(color, "antique white") == 0) {
-		rgb->red   = 250;
-		rgb->green = 235;
-		rgb->blue  = 215;
-		return;
-	}
-	if(strcmp(color, "AntiqueWhite") == 0) {
-		rgb->red   = 250;
-		rgb->green = 235;
-		rgb->blue  = 215;
-		return;
-	}
-	if(strcmp(color, "papaya whip") == 0) {
-		rgb->red   = 255;
-		rgb->green = 239;
-		rgb->blue  = 213;
-		return;
-	}
-	if(strcmp(color, "PapayaWhip") == 0) {
-		rgb->red   = 255;
-		rgb->green = 239;
-		rgb->blue  = 213;
-		return;
-	}
-	if(strcmp(color, "blanched almond") == 0) {
-		rgb->red   = 255;
-		rgb->green = 235;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "BlanchedAlmond") == 0) {
-		rgb->red   = 255;
-		rgb->green = 235;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "bisque") == 0) {
-		rgb->red   = 255;
-		rgb->green = 228;
-		rgb->blue  = 196;
-		return;
-	}
-	if(strcmp(color, "peach puff") == 0) {
-		rgb->red   = 255;
-		rgb->green = 218;
-		rgb->blue  = 185;
-		return;
-	}
-	if(strcmp(color, "PeachPuff") == 0) {
-		rgb->red   = 255;
-		rgb->green = 218;
-		rgb->blue  = 185;
-		return;
-	}
-	if(strcmp(color, "navajo white") == 0) {
-		rgb->red   = 255;
-		rgb->green = 222;
-		rgb->blue  = 173;
-		return;
-	}
-	if(strcmp(color, "NavajoWhite") == 0) {
-		rgb->red   = 255;
-		rgb->green = 222;
-		rgb->blue  = 173;
-		return;
-	}
-	if(strcmp(color, "moccasin") == 0) {
-		rgb->red   = 255;
-		rgb->green = 228;
-		rgb->blue  = 181;
-		return;
-	}
-	if(strcmp(color, "cornsilk") == 0) {
-		rgb->red   = 255;
-		rgb->green = 248;
-		rgb->blue  = 220;
-		return;
-	}
-	if(strcmp(color, "ivory") == 0) {
-		rgb->red   = 255;
-		rgb->green = 255;
-		rgb->blue  = 240;
-		return;
-	}
-	if(strcmp(color, "lemon chiffon") == 0) {
-		rgb->red   = 255;
-		rgb->green = 250;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "LemonChiffon") == 0) {
-		rgb->red   = 255;
-		rgb->green = 250;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "seashell") == 0) {
-		rgb->red   = 255;
-		rgb->green = 245;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "honeydew") == 0) {
-		rgb->red   = 240;
-		rgb->green = 255;
-		rgb->blue  = 240;
-		return;
-	}
-	if(strcmp(color, "mint cream") == 0) {
-		rgb->red   = 245;
-		rgb->green = 255;
-		rgb->blue  = 250;
-		return;
-	}
-	if(strcmp(color, "MintCream") == 0) {
-		rgb->red   = 245;
-		rgb->green = 255;
-		rgb->blue  = 250;
-		return;
-	}
-	if(strcmp(color, "azure") == 0) {
-		rgb->red   = 240;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "alice blue") == 0) {
-		rgb->red   = 240;
-		rgb->green = 248;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "AliceBlue") == 0) {
-		rgb->red   = 240;
-		rgb->green = 248;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "lavender") == 0) {
-		rgb->red   = 230;
-		rgb->green = 230;
-		rgb->blue  = 250;
-		return;
-	}
-	if(strcmp(color, "lavender blush") == 0) {
-		rgb->red   = 255;
-		rgb->green = 240;
-		rgb->blue  = 245;
-		return;
-	}
-	if(strcmp(color, "LavenderBlush") == 0) {
-		rgb->red   = 255;
-		rgb->green = 240;
-		rgb->blue  = 245;
-		return;
-	}
-	if(strcmp(color, "misty rose") == 0) {
-		rgb->red   = 255;
-		rgb->green = 228;
-		rgb->blue  = 225;
-		return;
-	}
-	if(strcmp(color, "MistyRose") == 0) {
-		rgb->red   = 255;
-		rgb->green = 228;
-		rgb->blue  = 225;
-		return;
-	}
-	if(strcmp(color, "white") == 0) {
-		rgb->red   = 255;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "black") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "dark slate gray") == 0) {
-		rgb->red   = 47;
-		rgb->green = 79;
-		rgb->blue  = 79;
-		return;
-	}
-	if(strcmp(color, "DarkSlateGray") == 0) {
-		rgb->red   = 47;
-		rgb->green = 79;
-		rgb->blue  = 79;
-		return;
-	}
-	if(strcmp(color, "dark slate grey") == 0) {
-		rgb->red   = 47;
-		rgb->green = 79;
-		rgb->blue  = 79;
-		return;
-	}
-	if(strcmp(color, "DarkSlateGrey") == 0) {
-		rgb->red   = 47;
-		rgb->green = 79;
-		rgb->blue  = 79;
-		return;
-	}
-	if(strcmp(color, "dim gray") == 0) {
-		rgb->red   = 105;
-		rgb->green = 105;
-		rgb->blue  = 105;
-		return;
-	}
-	if(strcmp(color, "DimGray") == 0) {
-		rgb->red   = 105;
-		rgb->green = 105;
-		rgb->blue  = 105;
-		return;
-	}
-	if(strcmp(color, "dim grey") == 0) {
-		rgb->red   = 105;
-		rgb->green = 105;
-		rgb->blue  = 105;
-		return;
-	}
-	if(strcmp(color, "DimGrey") == 0) {
-		rgb->red   = 105;
-		rgb->green = 105;
-		rgb->blue  = 105;
-		return;
-	}
-	if(strcmp(color, "slate gray") == 0) {
-		rgb->red   = 112;
-		rgb->green = 128;
-		rgb->blue  = 144;
-		return;
-	}
-	if(strcmp(color, "SlateGray") == 0) {
-		rgb->red   = 112;
-		rgb->green = 128;
-		rgb->blue  = 144;
-		return;
-	}
-	if(strcmp(color, "slate grey") == 0) {
-		rgb->red   = 112;
-		rgb->green = 128;
-		rgb->blue  = 144;
-		return;
-	}
-	if(strcmp(color, "SlateGrey") == 0) {
-		rgb->red   = 112;
-		rgb->green = 128;
-		rgb->blue  = 144;
-		return;
-	}
-	if(strcmp(color, "light slate gray") == 0) {
-		rgb->red   = 119;
-		rgb->green = 136;
-		rgb->blue  = 153;
-		return;
-	}
-	if(strcmp(color, "LightSlateGray") == 0) {
-		rgb->red   = 119;
-		rgb->green = 136;
-		rgb->blue  = 153;
-		return;
-	}
-	if(strcmp(color, "light slate grey") == 0) {
-		rgb->red   = 119;
-		rgb->green = 136;
-		rgb->blue  = 153;
-		return;
-	}
-	if(strcmp(color, "LightSlateGrey") == 0) {
-		rgb->red   = 119;
-		rgb->green = 136;
-		rgb->blue  = 153;
-		return;
-	}
-	if(strcmp(color, "gray") == 0) {
-		rgb->red   = 190;
-		rgb->green = 190;
-		rgb->blue  = 190;
-		return;
-	}
-	if(strcmp(color, "grey") == 0) {
-		rgb->red   = 190;
-		rgb->green = 190;
-		rgb->blue  = 190;
-		return;
-	}
-	if(strcmp(color, "x11 gray") == 0) {
-		rgb->red   = 190;
-		rgb->green = 190;
-		rgb->blue  = 190;
-		return;
-	}
-	if(strcmp(color, "X11Gray") == 0) {
-		rgb->red   = 190;
-		rgb->green = 190;
-		rgb->blue  = 190;
-		return;
-	}
-	if(strcmp(color, "x11 grey") == 0) {
-		rgb->red   = 190;
-		rgb->green = 190;
-		rgb->blue  = 190;
-		return;
-	}
-	if(strcmp(color, "X11Grey") == 0) {
-		rgb->red   = 190;
-		rgb->green = 190;
-		rgb->blue  = 190;
-		return;
-	}
-	if(strcmp(color, "web gray") == 0) {
-		rgb->red   = 128;
-		rgb->green = 128;
-		rgb->blue  = 128;
-		return;
-	}
-	if(strcmp(color, "WebGray") == 0) {
-		rgb->red   = 128;
-		rgb->green = 128;
-		rgb->blue  = 128;
-		return;
-	}
-	if(strcmp(color, "web grey") == 0) {
-		rgb->red   = 128;
-		rgb->green = 128;
-		rgb->blue  = 128;
-		return;
-	}
-	if(strcmp(color, "WebGrey") == 0) {
-		rgb->red   = 128;
-		rgb->green = 128;
-		rgb->blue  = 128;
-		return;
-	}
-	if(strcmp(color, "light grey") == 0) {
-		rgb->red   = 211;
-		rgb->green = 211;
-		rgb->blue  = 211;
-		return;
-	}
-	if(strcmp(color, "LightGrey") == 0) {
-		rgb->red   = 211;
-		rgb->green = 211;
-		rgb->blue  = 211;
-		return;
-	}
-	if(strcmp(color, "light gray") == 0) {
-		rgb->red   = 211;
-		rgb->green = 211;
-		rgb->blue  = 211;
-		return;
-	}
-	if(strcmp(color, "LightGray") == 0) {
-		rgb->red   = 211;
-		rgb->green = 211;
-		rgb->blue  = 211;
-		return;
-	}
-	if(strcmp(color, "midnight blue") == 0) {
-		rgb->red   = 25;
-		rgb->green = 25;
-		rgb->blue  = 112;
-		return;
-	}
-	if(strcmp(color, "MidnightBlue") == 0) {
-		rgb->red   = 25;
-		rgb->green = 25;
-		rgb->blue  = 112;
-		return;
-	}
-	if(strcmp(color, "navy") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 128;
-		return;
-	}
-	if(strcmp(color, "navy blue") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 128;
-		return;
-	}
-	if(strcmp(color, "NavyBlue") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 128;
-		return;
-	}
-	if(strcmp(color, "cornflower blue") == 0) {
-		rgb->red   = 100;
-		rgb->green = 149;
-		rgb->blue  = 237;
-		return;
-	}
-	if(strcmp(color, "CornflowerBlue") == 0) {
-		rgb->red   = 100;
-		rgb->green = 149;
-		rgb->blue  = 237;
-		return;
-	}
-	if(strcmp(color, "dark slate blue") == 0) {
-		rgb->red   = 72;
-		rgb->green = 61;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "DarkSlateBlue") == 0) {
-		rgb->red   = 72;
-		rgb->green = 61;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "slate blue") == 0) {
-		rgb->red   = 106;
-		rgb->green = 90;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "SlateBlue") == 0) {
-		rgb->red   = 106;
-		rgb->green = 90;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "medium slate blue") == 0) {
-		rgb->red   = 123;
-		rgb->green = 104;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "MediumSlateBlue") == 0) {
-		rgb->red   = 123;
-		rgb->green = 104;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "light slate blue") == 0) {
-		rgb->red   = 132;
-		rgb->green = 112;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "LightSlateBlue") == 0) {
-		rgb->red   = 132;
-		rgb->green = 112;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "medium blue") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "MediumBlue") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "royal blue") == 0) {
-		rgb->red   = 65;
-		rgb->green = 105;
-		rgb->blue  = 225;
-		return;
-	}
-	if(strcmp(color, "RoyalBlue") == 0) {
-		rgb->red   = 65;
-		rgb->green = 105;
-		rgb->blue  = 225;
-		return;
-	}
-	if(strcmp(color, "blue") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "dodger blue") == 0) {
-		rgb->red   = 30;
-		rgb->green = 144;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "DodgerBlue") == 0) {
-		rgb->red   = 30;
-		rgb->green = 144;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "deep sky blue") == 0) {
-		rgb->red   = 0;
-		rgb->green = 191;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "DeepSkyBlue") == 0) {
-		rgb->red   = 0;
-		rgb->green = 191;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "sky blue") == 0) {
-		rgb->red   = 135;
-		rgb->green = 206;
-		rgb->blue  = 235;
-		return;
-	}
-	if(strcmp(color, "SkyBlue") == 0) {
-		rgb->red   = 135;
-		rgb->green = 206;
-		rgb->blue  = 235;
-		return;
-	}
-	if(strcmp(color, "light sky blue") == 0) {
-		rgb->red   = 135;
-		rgb->green = 206;
-		rgb->blue  = 250;
-		return;
-	}
-	if(strcmp(color, "LightSkyBlue") == 0) {
-		rgb->red   = 135;
-		rgb->green = 206;
-		rgb->blue  = 250;
-		return;
-	}
-	if(strcmp(color, "steel blue") == 0) {
-		rgb->red   = 70;
-		rgb->green = 130;
-		rgb->blue  = 180;
-		return;
-	}
-	if(strcmp(color, "SteelBlue") == 0) {
-		rgb->red   = 70;
-		rgb->green = 130;
-		rgb->blue  = 180;
-		return;
-	}
-	if(strcmp(color, "light steel blue") == 0) {
-		rgb->red   = 176;
-		rgb->green = 196;
-		rgb->blue  = 222;
-		return;
-	}
-	if(strcmp(color, "LightSteelBlue") == 0) {
-		rgb->red   = 176;
-		rgb->green = 196;
-		rgb->blue  = 222;
-		return;
-	}
-	if(strcmp(color, "light blue") == 0) {
-		rgb->red   = 173;
-		rgb->green = 216;
-		rgb->blue  = 230;
-		return;
-	}
-	if(strcmp(color, "LightBlue") == 0) {
-		rgb->red   = 173;
-		rgb->green = 216;
-		rgb->blue  = 230;
-		return;
-	}
-	if(strcmp(color, "powder blue") == 0) {
-		rgb->red   = 176;
-		rgb->green = 224;
-		rgb->blue  = 230;
-		return;
-	}
-	if(strcmp(color, "PowderBlue") == 0) {
-		rgb->red   = 176;
-		rgb->green = 224;
-		rgb->blue  = 230;
-		return;
-	}
-	if(strcmp(color, "pale turquoise") == 0) {
-		rgb->red   = 175;
-		rgb->green = 238;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "PaleTurquoise") == 0) {
-		rgb->red   = 175;
-		rgb->green = 238;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "dark turquoise") == 0) {
-		rgb->red   = 0;
-		rgb->green = 206;
-		rgb->blue  = 209;
-		return;
-	}
-	if(strcmp(color, "DarkTurquoise") == 0) {
-		rgb->red   = 0;
-		rgb->green = 206;
-		rgb->blue  = 209;
-		return;
-	}
-	if(strcmp(color, "medium turquoise") == 0) {
-		rgb->red   = 72;
-		rgb->green = 209;
-		rgb->blue  = 204;
-		return;
-	}
-	if(strcmp(color, "MediumTurquoise") == 0) {
-		rgb->red   = 72;
-		rgb->green = 209;
-		rgb->blue  = 204;
-		return;
-	}
-	if(strcmp(color, "turquoise") == 0) {
-		rgb->red   = 64;
-		rgb->green = 224;
-		rgb->blue  = 208;
-		return;
-	}
-	if(strcmp(color, "cyan") == 0) {
-		rgb->red   = 0;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "aqua") == 0) {
-		rgb->red   = 0;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "light cyan") == 0) {
-		rgb->red   = 224;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "LightCyan") == 0) {
-		rgb->red   = 224;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "cadet blue") == 0) {
-		rgb->red   = 95;
-		rgb->green = 158;
-		rgb->blue  = 160;
-		return;
-	}
-	if(strcmp(color, "CadetBlue") == 0) {
-		rgb->red   = 95;
-		rgb->green = 158;
-		rgb->blue  = 160;
-		return;
-	}
-	if(strcmp(color, "medium aquamarine") == 0) {
-		rgb->red   = 102;
-		rgb->green = 205;
-		rgb->blue  = 170;
-		return;
-	}
-	if(strcmp(color, "MediumAquamarine") == 0) {
-		rgb->red   = 102;
-		rgb->green = 205;
-		rgb->blue  = 170;
-		return;
-	}
-	if(strcmp(color, "aquamarine") == 0) {
-		rgb->red   = 127;
-		rgb->green = 255;
-		rgb->blue  = 212;
-		return;
-	}
-	if(strcmp(color, "dark green") == 0) {
-		rgb->red   = 0;
-		rgb->green = 100;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "DarkGreen") == 0) {
-		rgb->red   = 0;
-		rgb->green = 100;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "dark olive green") == 0) {
-		rgb->red   = 85;
-		rgb->green = 107;
-		rgb->blue  = 47;
-		return;
-	}
-	if(strcmp(color, "DarkOliveGreen") == 0) {
-		rgb->red   = 85;
-		rgb->green = 107;
-		rgb->blue  = 47;
-		return;
-	}
-	if(strcmp(color, "dark sea green") == 0) {
-		rgb->red   = 143;
-		rgb->green = 188;
-		rgb->blue  = 143;
-		return;
-	}
-	if(strcmp(color, "DarkSeaGreen") == 0) {
-		rgb->red   = 143;
-		rgb->green = 188;
-		rgb->blue  = 143;
-		return;
-	}
-	if(strcmp(color, "sea green") == 0) {
-		rgb->red   = 46;
-		rgb->green = 139;
-		rgb->blue  = 87;
-		return;
-	}
-	if(strcmp(color, "SeaGreen") == 0) {
-		rgb->red   = 46;
-		rgb->green = 139;
-		rgb->blue  = 87;
-		return;
-	}
-	if(strcmp(color, "medium sea green") == 0) {
-		rgb->red   = 60;
-		rgb->green = 179;
-		rgb->blue  = 113;
-		return;
-	}
-	if(strcmp(color, "MediumSeaGreen") == 0) {
-		rgb->red   = 60;
-		rgb->green = 179;
-		rgb->blue  = 113;
-		return;
-	}
-	if(strcmp(color, "light sea green") == 0) {
-		rgb->red   = 32;
-		rgb->green = 178;
-		rgb->blue  = 170;
-		return;
-	}
-	if(strcmp(color, "LightSeaGreen") == 0) {
-		rgb->red   = 32;
-		rgb->green = 178;
-		rgb->blue  = 170;
-		return;
-	}
-	if(strcmp(color, "pale green") == 0) {
-		rgb->red   = 152;
-		rgb->green = 251;
-		rgb->blue  = 152;
-		return;
-	}
-	if(strcmp(color, "PaleGreen") == 0) {
-		rgb->red   = 152;
-		rgb->green = 251;
-		rgb->blue  = 152;
-		return;
-	}
-	if(strcmp(color, "spring green") == 0) {
-		rgb->red   = 0;
-		rgb->green = 255;
-		rgb->blue  = 127;
-		return;
-	}
-	if(strcmp(color, "SpringGreen") == 0) {
-		rgb->red   = 0;
-		rgb->green = 255;
-		rgb->blue  = 127;
-		return;
-	}
-	if(strcmp(color, "lawn green") == 0) {
-		rgb->red   = 124;
-		rgb->green = 252;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "LawnGreen") == 0) {
-		rgb->red   = 124;
-		rgb->green = 252;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "green") == 0) {
-		rgb->red   = 0;
-		rgb->green = 255;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "lime") == 0) {
-		rgb->red   = 0;
-		rgb->green = 255;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "x11 green") == 0) {
-		rgb->red   = 0;
-		rgb->green = 255;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "X11Green") == 0) {
-		rgb->red   = 0;
-		rgb->green = 255;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "web green") == 0) {
-		rgb->red   = 0;
-		rgb->green = 128;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "WebGreen") == 0) {
-		rgb->red   = 0;
-		rgb->green = 128;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "chartreuse") == 0) {
-		rgb->red   = 127;
-		rgb->green = 255;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "medium spring green") == 0) {
-		rgb->red   = 0;
-		rgb->green = 250;
-		rgb->blue  = 154;
-		return;
-	}
-	if(strcmp(color, "MediumSpringGreen") == 0) {
-		rgb->red   = 0;
-		rgb->green = 250;
-		rgb->blue  = 154;
-		return;
-	}
-	if(strcmp(color, "green yellow") == 0) {
-		rgb->red   = 173;
-		rgb->green = 255;
-		rgb->blue  = 47;
-		return;
-	}
-	if(strcmp(color, "GreenYellow") == 0) {
-		rgb->red   = 173;
-		rgb->green = 255;
-		rgb->blue  = 47;
-		return;
-	}
-	if(strcmp(color, "lime green") == 0) {
-		rgb->red   = 50;
-		rgb->green = 205;
-		rgb->blue  = 50;
-		return;
-	}
-	if(strcmp(color, "LimeGreen") == 0) {
-		rgb->red   = 50;
-		rgb->green = 205;
-		rgb->blue  = 50;
-		return;
-	}
-	if(strcmp(color, "yellow green") == 0) {
-		rgb->red   = 154;
-		rgb->green = 205;
-		rgb->blue  = 50;
-		return;
-	}
-	if(strcmp(color, "YellowGreen") == 0) {
-		rgb->red   = 154;
-		rgb->green = 205;
-		rgb->blue  = 50;
-		return;
-	}
-	if(strcmp(color, "forest green") == 0) {
-		rgb->red   = 34;
-		rgb->green = 139;
-		rgb->blue  = 34;
-		return;
-	}
-	if(strcmp(color, "ForestGreen") == 0) {
-		rgb->red   = 34;
-		rgb->green = 139;
-		rgb->blue  = 34;
-		return;
-	}
-	if(strcmp(color, "olive drab") == 0) {
-		rgb->red   = 107;
-		rgb->green = 142;
-		rgb->blue  = 35;
-		return;
-	}
-	if(strcmp(color, "OliveDrab") == 0) {
-		rgb->red   = 107;
-		rgb->green = 142;
-		rgb->blue  = 35;
-		return;
-	}
-	if(strcmp(color, "dark khaki") == 0) {
-		rgb->red   = 189;
-		rgb->green = 183;
-		rgb->blue  = 107;
-		return;
-	}
-	if(strcmp(color, "DarkKhaki") == 0) {
-		rgb->red   = 189;
-		rgb->green = 183;
-		rgb->blue  = 107;
-		return;
-	}
-	if(strcmp(color, "khaki") == 0) {
-		rgb->red   = 240;
-		rgb->green = 230;
-		rgb->blue  = 140;
-		return;
-	}
-	if(strcmp(color, "pale goldenrod") == 0) {
-		rgb->red   = 238;
-		rgb->green = 232;
-		rgb->blue  = 170;
-		return;
-	}
-	if(strcmp(color, "PaleGoldenrod") == 0) {
-		rgb->red   = 238;
-		rgb->green = 232;
-		rgb->blue  = 170;
-		return;
-	}
-	if(strcmp(color, "light goldenrod yellow") == 0) {
-		rgb->red   = 250;
-		rgb->green = 250;
-		rgb->blue  = 210;
-		return;
-	}
-	if(strcmp(color, "LightGoldenrodYellow") == 0) {
-		rgb->red   = 250;
-		rgb->green = 250;
-		rgb->blue  = 210;
-		return;
-	}
-	if(strcmp(color, "light yellow") == 0) {
-		rgb->red   = 255;
-		rgb->green = 255;
-		rgb->blue  = 224;
-		return;
-	}
-	if(strcmp(color, "LightYellow") == 0) {
-		rgb->red   = 255;
-		rgb->green = 255;
-		rgb->blue  = 224;
-		return;
-	}
-	if(strcmp(color, "yellow") == 0) {
-		rgb->red   = 255;
-		rgb->green = 255;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "gold") == 0) {
-		rgb->red   = 255;
-		rgb->green = 215;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "light goldenrod") == 0) {
-		rgb->red   = 238;
-		rgb->green = 221;
-		rgb->blue  = 130;
-		return;
-	}
-	if(strcmp(color, "LightGoldenrod") == 0) {
-		rgb->red   = 238;
-		rgb->green = 221;
-		rgb->blue  = 130;
-		return;
-	}
-	if(strcmp(color, "goldenrod") == 0) {
-		rgb->red   = 218;
-		rgb->green = 165;
-		rgb->blue  = 32;
-		return;
-	}
-	if(strcmp(color, "dark goldenrod") == 0) {
-		rgb->red   = 184;
-		rgb->green = 134;
-		rgb->blue  = 11;
-		return;
-	}
-	if(strcmp(color, "DarkGoldenrod") == 0) {
-		rgb->red   = 184;
-		rgb->green = 134;
-		rgb->blue  = 11;
-		return;
-	}
-	if(strcmp(color, "rosy brown") == 0) {
-		rgb->red   = 188;
-		rgb->green = 143;
-		rgb->blue  = 143;
-		return;
-	}
-	if(strcmp(color, "RosyBrown") == 0) {
-		rgb->red   = 188;
-		rgb->green = 143;
-		rgb->blue  = 143;
-		return;
-	}
-	if(strcmp(color, "indian red") == 0) {
-		rgb->red   = 205;
-		rgb->green = 92;
-		rgb->blue  = 92;
-		return;
-	}
-	if(strcmp(color, "IndianRed") == 0) {
-		rgb->red   = 205;
-		rgb->green = 92;
-		rgb->blue  = 92;
-		return;
-	}
-	if(strcmp(color, "saddle brown") == 0) {
-		rgb->red   = 139;
-		rgb->green = 69;
-		rgb->blue  = 19;
-		return;
-	}
-	if(strcmp(color, "SaddleBrown") == 0) {
-		rgb->red   = 139;
-		rgb->green = 69;
-		rgb->blue  = 19;
-		return;
-	}
-	if(strcmp(color, "sienna") == 0) {
-		rgb->red   = 160;
-		rgb->green = 82;
-		rgb->blue  = 45;
-		return;
-	}
-	if(strcmp(color, "peru") == 0) {
-		rgb->red   = 205;
-		rgb->green = 133;
-		rgb->blue  = 63;
-		return;
-	}
-	if(strcmp(color, "burlywood") == 0) {
-		rgb->red   = 222;
-		rgb->green = 184;
-		rgb->blue  = 135;
-		return;
-	}
-	if(strcmp(color, "beige") == 0) {
-		rgb->red   = 245;
-		rgb->green = 245;
-		rgb->blue  = 220;
-		return;
-	}
-	if(strcmp(color, "wheat") == 0) {
-		rgb->red   = 245;
-		rgb->green = 222;
-		rgb->blue  = 179;
-		return;
-	}
-	if(strcmp(color, "sandy brown") == 0) {
-		rgb->red   = 244;
-		rgb->green = 164;
-		rgb->blue  = 96;
-		return;
-	}
-	if(strcmp(color, "SandyBrown") == 0) {
-		rgb->red   = 244;
-		rgb->green = 164;
-		rgb->blue  = 96;
-		return;
-	}
-	if(strcmp(color, "tan") == 0) {
-		rgb->red   = 210;
-		rgb->green = 180;
-		rgb->blue  = 140;
-		return;
-	}
-	if(strcmp(color, "chocolate") == 0) {
-		rgb->red   = 210;
-		rgb->green = 105;
-		rgb->blue  = 30;
-		return;
-	}
-	if(strcmp(color, "firebrick") == 0) {
-		rgb->red   = 178;
-		rgb->green = 34;
-		rgb->blue  = 34;
-		return;
-	}
-	if(strcmp(color, "brown") == 0) {
-		rgb->red   = 165;
-		rgb->green = 42;
-		rgb->blue  = 42;
-		return;
-	}
-	if(strcmp(color, "dark salmon") == 0) {
-		rgb->red   = 233;
-		rgb->green = 150;
-		rgb->blue  = 122;
-		return;
-	}
-	if(strcmp(color, "DarkSalmon") == 0) {
-		rgb->red   = 233;
-		rgb->green = 150;
-		rgb->blue  = 122;
-		return;
-	}
-	if(strcmp(color, "salmon") == 0) {
-		rgb->red   = 250;
-		rgb->green = 128;
-		rgb->blue  = 114;
-		return;
-	}
-	if(strcmp(color, "light salmon") == 0) {
-		rgb->red   = 255;
-		rgb->green = 160;
-		rgb->blue  = 122;
-		return;
-	}
-	if(strcmp(color, "LightSalmon") == 0) {
-		rgb->red   = 255;
-		rgb->green = 160;
-		rgb->blue  = 122;
-		return;
-	}
-	if(strcmp(color, "orange") == 0) {
-		rgb->red   = 255;
-		rgb->green = 165;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "dark orange") == 0) {
-		rgb->red   = 255;
-		rgb->green = 140;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "DarkOrange") == 0) {
-		rgb->red   = 255;
-		rgb->green = 140;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "coral") == 0) {
-		rgb->red   = 255;
-		rgb->green = 127;
-		rgb->blue  = 80;
-		return;
-	}
-	if(strcmp(color, "light coral") == 0) {
-		rgb->red   = 240;
-		rgb->green = 128;
-		rgb->blue  = 128;
-		return;
-	}
-	if(strcmp(color, "LightCoral") == 0) {
-		rgb->red   = 240;
-		rgb->green = 128;
-		rgb->blue  = 128;
-		return;
-	}
-	if(strcmp(color, "tomato") == 0) {
-		rgb->red   = 255;
-		rgb->green = 99;
-		rgb->blue  = 71;
-		return;
-	}
-	if(strcmp(color, "orange red") == 0) {
-		rgb->red   = 255;
-		rgb->green = 69;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "OrangeRed") == 0) {
-		rgb->red   = 255;
-		rgb->green = 69;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "red") == 0) {
-		rgb->red   = 255;
-		rgb->green = 0;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "hot pink") == 0) {
-		rgb->red   = 255;
-		rgb->green = 105;
-		rgb->blue  = 180;
-		return;
-	}
-	if(strcmp(color, "HotPink") == 0) {
-		rgb->red   = 255;
-		rgb->green = 105;
-		rgb->blue  = 180;
-		return;
-	}
-	if(strcmp(color, "deep pink") == 0) {
-		rgb->red   = 255;
-		rgb->green = 20;
-		rgb->blue  = 147;
-		return;
-	}
-	if(strcmp(color, "DeepPink") == 0) {
-		rgb->red   = 255;
-		rgb->green = 20;
-		rgb->blue  = 147;
-		return;
-	}
-	if(strcmp(color, "pink") == 0) {
-		rgb->red   = 255;
-		rgb->green = 192;
-		rgb->blue  = 203;
-		return;
-	}
-	if(strcmp(color, "light pink") == 0) {
-		rgb->red   = 255;
-		rgb->green = 182;
-		rgb->blue  = 193;
-		return;
-	}
-	if(strcmp(color, "LightPink") == 0) {
-		rgb->red   = 255;
-		rgb->green = 182;
-		rgb->blue  = 193;
-		return;
-	}
-	if(strcmp(color, "pale violet red") == 0) {
-		rgb->red   = 219;
-		rgb->green = 112;
-		rgb->blue  = 147;
-		return;
-	}
-	if(strcmp(color, "PaleVioletRed") == 0) {
-		rgb->red   = 219;
-		rgb->green = 112;
-		rgb->blue  = 147;
-		return;
-	}
-	if(strcmp(color, "maroon") == 0) {
-		rgb->red   = 176;
-		rgb->green = 48;
-		rgb->blue  = 96;
-		return;
-	}
-	if(strcmp(color, "x11 maroon") == 0) {
-		rgb->red   = 176;
-		rgb->green = 48;
-		rgb->blue  = 96;
-		return;
-	}
-	if(strcmp(color, "X11Maroon") == 0) {
-		rgb->red   = 176;
-		rgb->green = 48;
-		rgb->blue  = 96;
-		return;
-	}
-	if(strcmp(color, "web maroon") == 0) {
-		rgb->red   = 128;
-		rgb->green = 0;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "WebMaroon") == 0) {
-		rgb->red   = 128;
-		rgb->green = 0;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "medium violet red") == 0) {
-		rgb->red   = 199;
-		rgb->green = 21;
-		rgb->blue  = 133;
-		return;
-	}
-	if(strcmp(color, "MediumVioletRed") == 0) {
-		rgb->red   = 199;
-		rgb->green = 21;
-		rgb->blue  = 133;
-		return;
-	}
-	if(strcmp(color, "violet red") == 0) {
-		rgb->red   = 208;
-		rgb->green = 32;
-		rgb->blue  = 144;
-		return;
-	}
-	if(strcmp(color, "VioletRed") == 0) {
-		rgb->red   = 208;
-		rgb->green = 32;
-		rgb->blue  = 144;
-		return;
-	}
-	if(strcmp(color, "magenta") == 0) {
-		rgb->red   = 255;
-		rgb->green = 0;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "fuchsia") == 0) {
-		rgb->red   = 255;
-		rgb->green = 0;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "violet") == 0) {
-		rgb->red   = 238;
-		rgb->green = 130;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "plum") == 0) {
-		rgb->red   = 221;
-		rgb->green = 160;
-		rgb->blue  = 221;
-		return;
-	}
-	if(strcmp(color, "orchid") == 0) {
-		rgb->red   = 218;
-		rgb->green = 112;
-		rgb->blue  = 214;
-		return;
-	}
-	if(strcmp(color, "medium orchid") == 0) {
-		rgb->red   = 186;
-		rgb->green = 85;
-		rgb->blue  = 211;
-		return;
-	}
-	if(strcmp(color, "MediumOrchid") == 0) {
-		rgb->red   = 186;
-		rgb->green = 85;
-		rgb->blue  = 211;
-		return;
-	}
-	if(strcmp(color, "dark orchid") == 0) {
-		rgb->red   = 153;
-		rgb->green = 50;
-		rgb->blue  = 204;
-		return;
-	}
-	if(strcmp(color, "DarkOrchid") == 0) {
-		rgb->red   = 153;
-		rgb->green = 50;
-		rgb->blue  = 204;
-		return;
-	}
-	if(strcmp(color, "dark violet") == 0) {
-		rgb->red   = 148;
-		rgb->green = 0;
-		rgb->blue  = 211;
-		return;
-	}
-	if(strcmp(color, "DarkViolet") == 0) {
-		rgb->red   = 148;
-		rgb->green = 0;
-		rgb->blue  = 211;
-		return;
-	}
-	if(strcmp(color, "blue violet") == 0) {
-		rgb->red   = 138;
-		rgb->green = 43;
-		rgb->blue  = 226;
-		return;
-	}
-	if(strcmp(color, "BlueViolet") == 0) {
-		rgb->red   = 138;
-		rgb->green = 43;
-		rgb->blue  = 226;
-		return;
-	}
-	if(strcmp(color, "purple") == 0) {
-		rgb->red   = 160;
-		rgb->green = 32;
-		rgb->blue  = 240;
-		return;
-	}
-	if(strcmp(color, "x11 purple") == 0) {
-		rgb->red   = 160;
-		rgb->green = 32;
-		rgb->blue  = 240;
-		return;
-	}
-	if(strcmp(color, "X11Purple") == 0) {
-		rgb->red   = 160;
-		rgb->green = 32;
-		rgb->blue  = 240;
-		return;
-	}
-	if(strcmp(color, "web purple") == 0) {
-		rgb->red   = 128;
-		rgb->green = 0;
-		rgb->blue  = 128;
-		return;
-	}
-	if(strcmp(color, "WebPurple") == 0) {
-		rgb->red   = 128;
-		rgb->green = 0;
-		rgb->blue  = 128;
-		return;
-	}
-	if(strcmp(color, "medium purple") == 0) {
-		rgb->red   = 147;
-		rgb->green = 112;
-		rgb->blue  = 219;
-		return;
-	}
-	if(strcmp(color, "MediumPurple") == 0) {
-		rgb->red   = 147;
-		rgb->green = 112;
-		rgb->blue  = 219;
-		return;
-	}
-	if(strcmp(color, "thistle") == 0) {
-		rgb->red   = 216;
-		rgb->green = 191;
-		rgb->blue  = 216;
-		return;
-	}
-	if(strcmp(color, "snow1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 250;
-		rgb->blue  = 250;
-		return;
-	}
-	if(strcmp(color, "snow2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 233;
-		rgb->blue  = 233;
-		return;
-	}
-	if(strcmp(color, "snow3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 201;
-		rgb->blue  = 201;
-		return;
-	}
-	if(strcmp(color, "snow4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 137;
-		rgb->blue  = 137;
-		return;
-	}
-	if(strcmp(color, "seashell1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 245;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "seashell2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 229;
-		rgb->blue  = 222;
-		return;
-	}
-	if(strcmp(color, "seashell3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 197;
-		rgb->blue  = 191;
-		return;
-	}
-	if(strcmp(color, "seashell4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 134;
-		rgb->blue  = 130;
-		return;
-	}
-	if(strcmp(color, "AntiqueWhite1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 239;
-		rgb->blue  = 219;
-		return;
-	}
-	if(strcmp(color, "AntiqueWhite2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 223;
-		rgb->blue  = 204;
-		return;
-	}
-	if(strcmp(color, "AntiqueWhite3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 192;
-		rgb->blue  = 176;
-		return;
-	}
-	if(strcmp(color, "AntiqueWhite4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 131;
-		rgb->blue  = 120;
-		return;
-	}
-	if(strcmp(color, "bisque1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 228;
-		rgb->blue  = 196;
-		return;
-	}
-	if(strcmp(color, "bisque2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 213;
-		rgb->blue  = 183;
-		return;
-	}
-	if(strcmp(color, "bisque3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 183;
-		rgb->blue  = 158;
-		return;
-	}
-	if(strcmp(color, "bisque4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 125;
-		rgb->blue  = 107;
-		return;
-	}
-	if(strcmp(color, "PeachPuff1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 218;
-		rgb->blue  = 185;
-		return;
-	}
-	if(strcmp(color, "PeachPuff2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 203;
-		rgb->blue  = 173;
-		return;
-	}
-	if(strcmp(color, "PeachPuff3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 175;
-		rgb->blue  = 149;
-		return;
-	}
-	if(strcmp(color, "PeachPuff4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 119;
-		rgb->blue  = 101;
-		return;
-	}
-	if(strcmp(color, "NavajoWhite1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 222;
-		rgb->blue  = 173;
-		return;
-	}
-	if(strcmp(color, "NavajoWhite2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 207;
-		rgb->blue  = 161;
-		return;
-	}
-	if(strcmp(color, "NavajoWhite3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 179;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "NavajoWhite4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 121;
-		rgb->blue  = 94;
-		return;
-	}
-	if(strcmp(color, "LemonChiffon1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 250;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "LemonChiffon2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 233;
-		rgb->blue  = 191;
-		return;
-	}
-	if(strcmp(color, "LemonChiffon3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 201;
-		rgb->blue  = 165;
-		return;
-	}
-	if(strcmp(color, "LemonChiffon4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 137;
-		rgb->blue  = 112;
-		return;
-	}
-	if(strcmp(color, "cornsilk1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 248;
-		rgb->blue  = 220;
-		return;
-	}
-	if(strcmp(color, "cornsilk2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 232;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "cornsilk3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 200;
-		rgb->blue  = 177;
-		return;
-	}
-	if(strcmp(color, "cornsilk4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 136;
-		rgb->blue  = 120;
-		return;
-	}
-	if(strcmp(color, "ivory1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 255;
-		rgb->blue  = 240;
-		return;
-	}
-	if(strcmp(color, "ivory2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 238;
-		rgb->blue  = 224;
-		return;
-	}
-	if(strcmp(color, "ivory3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 205;
-		rgb->blue  = 193;
-		return;
-	}
-	if(strcmp(color, "ivory4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 139;
-		rgb->blue  = 131;
-		return;
-	}
-	if(strcmp(color, "honeydew1") == 0) {
-		rgb->red   = 240;
-		rgb->green = 255;
-		rgb->blue  = 240;
-		return;
-	}
-	if(strcmp(color, "honeydew2") == 0) {
-		rgb->red   = 224;
-		rgb->green = 238;
-		rgb->blue  = 224;
-		return;
-	}
-	if(strcmp(color, "honeydew3") == 0) {
-		rgb->red   = 193;
-		rgb->green = 205;
-		rgb->blue  = 193;
-		return;
-	}
-	if(strcmp(color, "honeydew4") == 0) {
-		rgb->red   = 131;
-		rgb->green = 139;
-		rgb->blue  = 131;
-		return;
-	}
-	if(strcmp(color, "LavenderBlush1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 240;
-		rgb->blue  = 245;
-		return;
-	}
-	if(strcmp(color, "LavenderBlush2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 224;
-		rgb->blue  = 229;
-		return;
-	}
-	if(strcmp(color, "LavenderBlush3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 193;
-		rgb->blue  = 197;
-		return;
-	}
-	if(strcmp(color, "LavenderBlush4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 131;
-		rgb->blue  = 134;
-		return;
-	}
-	if(strcmp(color, "MistyRose1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 228;
-		rgb->blue  = 225;
-		return;
-	}
-	if(strcmp(color, "MistyRose2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 213;
-		rgb->blue  = 210;
-		return;
-	}
-	if(strcmp(color, "MistyRose3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 183;
-		rgb->blue  = 181;
-		return;
-	}
-	if(strcmp(color, "MistyRose4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 125;
-		rgb->blue  = 123;
-		return;
-	}
-	if(strcmp(color, "azure1") == 0) {
-		rgb->red   = 240;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "azure2") == 0) {
-		rgb->red   = 224;
-		rgb->green = 238;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "azure3") == 0) {
-		rgb->red   = 193;
-		rgb->green = 205;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "azure4") == 0) {
-		rgb->red   = 131;
-		rgb->green = 139;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "SlateBlue1") == 0) {
-		rgb->red   = 131;
-		rgb->green = 111;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "SlateBlue2") == 0) {
-		rgb->red   = 122;
-		rgb->green = 103;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "SlateBlue3") == 0) {
-		rgb->red   = 105;
-		rgb->green = 89;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "SlateBlue4") == 0) {
-		rgb->red   = 71;
-		rgb->green = 60;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "RoyalBlue1") == 0) {
-		rgb->red   = 72;
-		rgb->green = 118;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "RoyalBlue2") == 0) {
-		rgb->red   = 67;
-		rgb->green = 110;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "RoyalBlue3") == 0) {
-		rgb->red   = 58;
-		rgb->green = 95;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "RoyalBlue4") == 0) {
-		rgb->red   = 39;
-		rgb->green = 64;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "blue1") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "blue2") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "blue3") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "blue4") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "DodgerBlue1") == 0) {
-		rgb->red   = 30;
-		rgb->green = 144;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "DodgerBlue2") == 0) {
-		rgb->red   = 28;
-		rgb->green = 134;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "DodgerBlue3") == 0) {
-		rgb->red   = 24;
-		rgb->green = 116;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "DodgerBlue4") == 0) {
-		rgb->red   = 16;
-		rgb->green = 78;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "SteelBlue1") == 0) {
-		rgb->red   = 99;
-		rgb->green = 184;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "SteelBlue2") == 0) {
-		rgb->red   = 92;
-		rgb->green = 172;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "SteelBlue3") == 0) {
-		rgb->red   = 79;
-		rgb->green = 148;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "SteelBlue4") == 0) {
-		rgb->red   = 54;
-		rgb->green = 100;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "DeepSkyBlue1") == 0) {
-		rgb->red   = 0;
-		rgb->green = 191;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "DeepSkyBlue2") == 0) {
-		rgb->red   = 0;
-		rgb->green = 178;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "DeepSkyBlue3") == 0) {
-		rgb->red   = 0;
-		rgb->green = 154;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "DeepSkyBlue4") == 0) {
-		rgb->red   = 0;
-		rgb->green = 104;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "SkyBlue1") == 0) {
-		rgb->red   = 135;
-		rgb->green = 206;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "SkyBlue2") == 0) {
-		rgb->red   = 126;
-		rgb->green = 192;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "SkyBlue3") == 0) {
-		rgb->red   = 108;
-		rgb->green = 166;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "SkyBlue4") == 0) {
-		rgb->red   = 74;
-		rgb->green = 112;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "LightSkyBlue1") == 0) {
-		rgb->red   = 176;
-		rgb->green = 226;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "LightSkyBlue2") == 0) {
-		rgb->red   = 164;
-		rgb->green = 211;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "LightSkyBlue3") == 0) {
-		rgb->red   = 141;
-		rgb->green = 182;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "LightSkyBlue4") == 0) {
-		rgb->red   = 96;
-		rgb->green = 123;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "SlateGray1") == 0) {
-		rgb->red   = 198;
-		rgb->green = 226;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "SlateGray2") == 0) {
-		rgb->red   = 185;
-		rgb->green = 211;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "SlateGray3") == 0) {
-		rgb->red   = 159;
-		rgb->green = 182;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "SlateGray4") == 0) {
-		rgb->red   = 108;
-		rgb->green = 123;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "LightSteelBlue1") == 0) {
-		rgb->red   = 202;
-		rgb->green = 225;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "LightSteelBlue2") == 0) {
-		rgb->red   = 188;
-		rgb->green = 210;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "LightSteelBlue3") == 0) {
-		rgb->red   = 162;
-		rgb->green = 181;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "LightSteelBlue4") == 0) {
-		rgb->red   = 110;
-		rgb->green = 123;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "LightBlue1") == 0) {
-		rgb->red   = 191;
-		rgb->green = 239;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "LightBlue2") == 0) {
-		rgb->red   = 178;
-		rgb->green = 223;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "LightBlue3") == 0) {
-		rgb->red   = 154;
-		rgb->green = 192;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "LightBlue4") == 0) {
-		rgb->red   = 104;
-		rgb->green = 131;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "LightCyan1") == 0) {
-		rgb->red   = 224;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "LightCyan2") == 0) {
-		rgb->red   = 209;
-		rgb->green = 238;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "LightCyan3") == 0) {
-		rgb->red   = 180;
-		rgb->green = 205;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "LightCyan4") == 0) {
-		rgb->red   = 122;
-		rgb->green = 139;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "PaleTurquoise1") == 0) {
-		rgb->red   = 187;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "PaleTurquoise2") == 0) {
-		rgb->red   = 174;
-		rgb->green = 238;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "PaleTurquoise3") == 0) {
-		rgb->red   = 150;
-		rgb->green = 205;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "PaleTurquoise4") == 0) {
-		rgb->red   = 102;
-		rgb->green = 139;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "CadetBlue1") == 0) {
-		rgb->red   = 152;
-		rgb->green = 245;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "CadetBlue2") == 0) {
-		rgb->red   = 142;
-		rgb->green = 229;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "CadetBlue3") == 0) {
-		rgb->red   = 122;
-		rgb->green = 197;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "CadetBlue4") == 0) {
-		rgb->red   = 83;
-		rgb->green = 134;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "turquoise1") == 0) {
-		rgb->red   = 0;
-		rgb->green = 245;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "turquoise2") == 0) {
-		rgb->red   = 0;
-		rgb->green = 229;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "turquoise3") == 0) {
-		rgb->red   = 0;
-		rgb->green = 197;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "turquoise4") == 0) {
-		rgb->red   = 0;
-		rgb->green = 134;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "cyan1") == 0) {
-		rgb->red   = 0;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "cyan2") == 0) {
-		rgb->red   = 0;
-		rgb->green = 238;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "cyan3") == 0) {
-		rgb->red   = 0;
-		rgb->green = 205;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "cyan4") == 0) {
-		rgb->red   = 0;
-		rgb->green = 139;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "DarkSlateGray1") == 0) {
-		rgb->red   = 151;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "DarkSlateGray2") == 0) {
-		rgb->red   = 141;
-		rgb->green = 238;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "DarkSlateGray3") == 0) {
-		rgb->red   = 121;
-		rgb->green = 205;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "DarkSlateGray4") == 0) {
-		rgb->red   = 82;
-		rgb->green = 139;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "aquamarine1") == 0) {
-		rgb->red   = 127;
-		rgb->green = 255;
-		rgb->blue  = 212;
-		return;
-	}
-	if(strcmp(color, "aquamarine2") == 0) {
-		rgb->red   = 118;
-		rgb->green = 238;
-		rgb->blue  = 198;
-		return;
-	}
-	if(strcmp(color, "aquamarine3") == 0) {
-		rgb->red   = 102;
-		rgb->green = 205;
-		rgb->blue  = 170;
-		return;
-	}
-	if(strcmp(color, "aquamarine4") == 0) {
-		rgb->red   = 69;
-		rgb->green = 139;
-		rgb->blue  = 116;
-		return;
-	}
-	if(strcmp(color, "DarkSeaGreen1") == 0) {
-		rgb->red   = 193;
-		rgb->green = 255;
-		rgb->blue  = 193;
-		return;
-	}
-	if(strcmp(color, "DarkSeaGreen2") == 0) {
-		rgb->red   = 180;
-		rgb->green = 238;
-		rgb->blue  = 180;
-		return;
-	}
-	if(strcmp(color, "DarkSeaGreen3") == 0) {
-		rgb->red   = 155;
-		rgb->green = 205;
-		rgb->blue  = 155;
-		return;
-	}
-	if(strcmp(color, "DarkSeaGreen4") == 0) {
-		rgb->red   = 105;
-		rgb->green = 139;
-		rgb->blue  = 105;
-		return;
-	}
-	if(strcmp(color, "SeaGreen1") == 0) {
-		rgb->red   = 84;
-		rgb->green = 255;
-		rgb->blue  = 159;
-		return;
-	}
-	if(strcmp(color, "SeaGreen2") == 0) {
-		rgb->red   = 78;
-		rgb->green = 238;
-		rgb->blue  = 148;
-		return;
-	}
-	if(strcmp(color, "SeaGreen3") == 0) {
-		rgb->red   = 67;
-		rgb->green = 205;
-		rgb->blue  = 128;
-		return;
-	}
-	if(strcmp(color, "SeaGreen4") == 0) {
-		rgb->red   = 46;
-		rgb->green = 139;
-		rgb->blue  = 87;
-		return;
-	}
-	if(strcmp(color, "PaleGreen1") == 0) {
-		rgb->red   = 154;
-		rgb->green = 255;
-		rgb->blue  = 154;
-		return;
-	}
-	if(strcmp(color, "PaleGreen2") == 0) {
-		rgb->red   = 144;
-		rgb->green = 238;
-		rgb->blue  = 144;
-		return;
-	}
-	if(strcmp(color, "PaleGreen3") == 0) {
-		rgb->red   = 124;
-		rgb->green = 205;
-		rgb->blue  = 124;
-		return;
-	}
-	if(strcmp(color, "PaleGreen4") == 0) {
-		rgb->red   = 84;
-		rgb->green = 139;
-		rgb->blue  = 84;
-		return;
-	}
-	if(strcmp(color, "SpringGreen1") == 0) {
-		rgb->red   = 0;
-		rgb->green = 255;
-		rgb->blue  = 127;
-		return;
-	}
-	if(strcmp(color, "SpringGreen2") == 0) {
-		rgb->red   = 0;
-		rgb->green = 238;
-		rgb->blue  = 118;
-		return;
-	}
-	if(strcmp(color, "SpringGreen3") == 0) {
-		rgb->red   = 0;
-		rgb->green = 205;
-		rgb->blue  = 102;
-		return;
-	}
-	if(strcmp(color, "SpringGreen4") == 0) {
-		rgb->red   = 0;
-		rgb->green = 139;
-		rgb->blue  = 69;
-		return;
-	}
-	if(strcmp(color, "green1") == 0) {
-		rgb->red   = 0;
-		rgb->green = 255;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "green2") == 0) {
-		rgb->red   = 0;
-		rgb->green = 238;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "green3") == 0) {
-		rgb->red   = 0;
-		rgb->green = 205;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "green4") == 0) {
-		rgb->red   = 0;
-		rgb->green = 139;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "chartreuse1") == 0) {
-		rgb->red   = 127;
-		rgb->green = 255;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "chartreuse2") == 0) {
-		rgb->red   = 118;
-		rgb->green = 238;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "chartreuse3") == 0) {
-		rgb->red   = 102;
-		rgb->green = 205;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "chartreuse4") == 0) {
-		rgb->red   = 69;
-		rgb->green = 139;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "OliveDrab1") == 0) {
-		rgb->red   = 192;
-		rgb->green = 255;
-		rgb->blue  = 62;
-		return;
-	}
-	if(strcmp(color, "OliveDrab2") == 0) {
-		rgb->red   = 179;
-		rgb->green = 238;
-		rgb->blue  = 58;
-		return;
-	}
-	if(strcmp(color, "OliveDrab3") == 0) {
-		rgb->red   = 154;
-		rgb->green = 205;
-		rgb->blue  = 50;
-		return;
-	}
-	if(strcmp(color, "OliveDrab4") == 0) {
-		rgb->red   = 105;
-		rgb->green = 139;
-		rgb->blue  = 34;
-		return;
-	}
-	if(strcmp(color, "DarkOliveGreen1") == 0) {
-		rgb->red   = 202;
-		rgb->green = 255;
-		rgb->blue  = 112;
-		return;
-	}
-	if(strcmp(color, "DarkOliveGreen2") == 0) {
-		rgb->red   = 188;
-		rgb->green = 238;
-		rgb->blue  = 104;
-		return;
-	}
-	if(strcmp(color, "DarkOliveGreen3") == 0) {
-		rgb->red   = 162;
-		rgb->green = 205;
-		rgb->blue  = 90;
-		return;
-	}
-	if(strcmp(color, "DarkOliveGreen4") == 0) {
-		rgb->red   = 110;
-		rgb->green = 139;
-		rgb->blue  = 61;
-		return;
-	}
-	if(strcmp(color, "khaki1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 246;
-		rgb->blue  = 143;
-		return;
-	}
-	if(strcmp(color, "khaki2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 230;
-		rgb->blue  = 133;
-		return;
-	}
-	if(strcmp(color, "khaki3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 198;
-		rgb->blue  = 115;
-		return;
-	}
-	if(strcmp(color, "khaki4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 134;
-		rgb->blue  = 78;
-		return;
-	}
-	if(strcmp(color, "LightGoldenrod1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 236;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "LightGoldenrod2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 220;
-		rgb->blue  = 130;
-		return;
-	}
-	if(strcmp(color, "LightGoldenrod3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 190;
-		rgb->blue  = 112;
-		return;
-	}
-	if(strcmp(color, "LightGoldenrod4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 129;
-		rgb->blue  = 76;
-		return;
-	}
-	if(strcmp(color, "LightYellow1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 255;
-		rgb->blue  = 224;
-		return;
-	}
-	if(strcmp(color, "LightYellow2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 238;
-		rgb->blue  = 209;
-		return;
-	}
-	if(strcmp(color, "LightYellow3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 205;
-		rgb->blue  = 180;
-		return;
-	}
-	if(strcmp(color, "LightYellow4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 139;
-		rgb->blue  = 122;
-		return;
-	}
-	if(strcmp(color, "yellow1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 255;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "yellow2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 238;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "yellow3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 205;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "yellow4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 139;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "gold1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 215;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "gold2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 201;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "gold3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 173;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "gold4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 117;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "goldenrod1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 193;
-		rgb->blue  = 37;
-		return;
-	}
-	if(strcmp(color, "goldenrod2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 180;
-		rgb->blue  = 34;
-		return;
-	}
-	if(strcmp(color, "goldenrod3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 155;
-		rgb->blue  = 29;
-		return;
-	}
-	if(strcmp(color, "goldenrod4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 105;
-		rgb->blue  = 20;
-		return;
-	}
-	if(strcmp(color, "DarkGoldenrod1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 185;
-		rgb->blue  = 15;
-		return;
-	}
-	if(strcmp(color, "DarkGoldenrod2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 173;
-		rgb->blue  = 14;
-		return;
-	}
-	if(strcmp(color, "DarkGoldenrod3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 149;
-		rgb->blue  = 12;
-		return;
-	}
-	if(strcmp(color, "DarkGoldenrod4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 101;
-		rgb->blue  = 8;
-		return;
-	}
-	if(strcmp(color, "RosyBrown1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 193;
-		rgb->blue  = 193;
-		return;
-	}
-	if(strcmp(color, "RosyBrown2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 180;
-		rgb->blue  = 180;
-		return;
-	}
-	if(strcmp(color, "RosyBrown3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 155;
-		rgb->blue  = 155;
-		return;
-	}
-	if(strcmp(color, "RosyBrown4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 105;
-		rgb->blue  = 105;
-		return;
-	}
-	if(strcmp(color, "IndianRed1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 106;
-		rgb->blue  = 106;
-		return;
-	}
-	if(strcmp(color, "IndianRed2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 99;
-		rgb->blue  = 99;
-		return;
-	}
-	if(strcmp(color, "IndianRed3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 85;
-		rgb->blue  = 85;
-		return;
-	}
-	if(strcmp(color, "IndianRed4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 58;
-		rgb->blue  = 58;
-		return;
-	}
-	if(strcmp(color, "sienna1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 130;
-		rgb->blue  = 71;
-		return;
-	}
-	if(strcmp(color, "sienna2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 121;
-		rgb->blue  = 66;
-		return;
-	}
-	if(strcmp(color, "sienna3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 104;
-		rgb->blue  = 57;
-		return;
-	}
-	if(strcmp(color, "sienna4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 71;
-		rgb->blue  = 38;
-		return;
-	}
-	if(strcmp(color, "burlywood1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 211;
-		rgb->blue  = 155;
-		return;
-	}
-	if(strcmp(color, "burlywood2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 197;
-		rgb->blue  = 145;
-		return;
-	}
-	if(strcmp(color, "burlywood3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 170;
-		rgb->blue  = 125;
-		return;
-	}
-	if(strcmp(color, "burlywood4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 115;
-		rgb->blue  = 85;
-		return;
-	}
-	if(strcmp(color, "wheat1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 231;
-		rgb->blue  = 186;
-		return;
-	}
-	if(strcmp(color, "wheat2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 216;
-		rgb->blue  = 174;
-		return;
-	}
-	if(strcmp(color, "wheat3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 186;
-		rgb->blue  = 150;
-		return;
-	}
-	if(strcmp(color, "wheat4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 126;
-		rgb->blue  = 102;
-		return;
-	}
-	if(strcmp(color, "tan1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 165;
-		rgb->blue  = 79;
-		return;
-	}
-	if(strcmp(color, "tan2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 154;
-		rgb->blue  = 73;
-		return;
-	}
-	if(strcmp(color, "tan3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 133;
-		rgb->blue  = 63;
-		return;
-	}
-	if(strcmp(color, "tan4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 90;
-		rgb->blue  = 43;
-		return;
-	}
-	if(strcmp(color, "chocolate1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 127;
-		rgb->blue  = 36;
-		return;
-	}
-	if(strcmp(color, "chocolate2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 118;
-		rgb->blue  = 33;
-		return;
-	}
-	if(strcmp(color, "chocolate3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 102;
-		rgb->blue  = 29;
-		return;
-	}
-	if(strcmp(color, "chocolate4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 69;
-		rgb->blue  = 19;
-		return;
-	}
-	if(strcmp(color, "firebrick1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 48;
-		rgb->blue  = 48;
-		return;
-	}
-	if(strcmp(color, "firebrick2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 44;
-		rgb->blue  = 44;
-		return;
-	}
-	if(strcmp(color, "firebrick3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 38;
-		rgb->blue  = 38;
-		return;
-	}
-	if(strcmp(color, "firebrick4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 26;
-		rgb->blue  = 26;
-		return;
-	}
-	if(strcmp(color, "brown1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 64;
-		rgb->blue  = 64;
-		return;
-	}
-	if(strcmp(color, "brown2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 59;
-		rgb->blue  = 59;
-		return;
-	}
-	if(strcmp(color, "brown3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 51;
-		rgb->blue  = 51;
-		return;
-	}
-	if(strcmp(color, "brown4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 35;
-		rgb->blue  = 35;
-		return;
-	}
-	if(strcmp(color, "salmon1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 140;
-		rgb->blue  = 105;
-		return;
-	}
-	if(strcmp(color, "salmon2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 130;
-		rgb->blue  = 98;
-		return;
-	}
-	if(strcmp(color, "salmon3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 112;
-		rgb->blue  = 84;
-		return;
-	}
-	if(strcmp(color, "salmon4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 76;
-		rgb->blue  = 57;
-		return;
-	}
-	if(strcmp(color, "LightSalmon1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 160;
-		rgb->blue  = 122;
-		return;
-	}
-	if(strcmp(color, "LightSalmon2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 149;
-		rgb->blue  = 114;
-		return;
-	}
-	if(strcmp(color, "LightSalmon3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 129;
-		rgb->blue  = 98;
-		return;
-	}
-	if(strcmp(color, "LightSalmon4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 87;
-		rgb->blue  = 66;
-		return;
-	}
-	if(strcmp(color, "orange1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 165;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "orange2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 154;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "orange3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 133;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "orange4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 90;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "DarkOrange1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 127;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "DarkOrange2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 118;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "DarkOrange3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 102;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "DarkOrange4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 69;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "coral1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 114;
-		rgb->blue  = 86;
-		return;
-	}
-	if(strcmp(color, "coral2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 106;
-		rgb->blue  = 80;
-		return;
-	}
-	if(strcmp(color, "coral3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 91;
-		rgb->blue  = 69;
-		return;
-	}
-	if(strcmp(color, "coral4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 62;
-		rgb->blue  = 47;
-		return;
-	}
-	if(strcmp(color, "tomato1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 99;
-		rgb->blue  = 71;
-		return;
-	}
-	if(strcmp(color, "tomato2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 92;
-		rgb->blue  = 66;
-		return;
-	}
-	if(strcmp(color, "tomato3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 79;
-		rgb->blue  = 57;
-		return;
-	}
-	if(strcmp(color, "tomato4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 54;
-		rgb->blue  = 38;
-		return;
-	}
-	if(strcmp(color, "OrangeRed1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 69;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "OrangeRed2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 64;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "OrangeRed3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 55;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "OrangeRed4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 37;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "red1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 0;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "red2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 0;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "red3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 0;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "red4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 0;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "DeepPink1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 20;
-		rgb->blue  = 147;
-		return;
-	}
-	if(strcmp(color, "DeepPink2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 18;
-		rgb->blue  = 137;
-		return;
-	}
-	if(strcmp(color, "DeepPink3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 16;
-		rgb->blue  = 118;
-		return;
-	}
-	if(strcmp(color, "DeepPink4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 10;
-		rgb->blue  = 80;
-		return;
-	}
-	if(strcmp(color, "HotPink1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 110;
-		rgb->blue  = 180;
-		return;
-	}
-	if(strcmp(color, "HotPink2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 106;
-		rgb->blue  = 167;
-		return;
-	}
-	if(strcmp(color, "HotPink3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 96;
-		rgb->blue  = 144;
-		return;
-	}
-	if(strcmp(color, "HotPink4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 58;
-		rgb->blue  = 98;
-		return;
-	}
-	if(strcmp(color, "pink1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 181;
-		rgb->blue  = 197;
-		return;
-	}
-	if(strcmp(color, "pink2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 169;
-		rgb->blue  = 184;
-		return;
-	}
-	if(strcmp(color, "pink3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 145;
-		rgb->blue  = 158;
-		return;
-	}
-	if(strcmp(color, "pink4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 99;
-		rgb->blue  = 108;
-		return;
-	}
-	if(strcmp(color, "LightPink1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 174;
-		rgb->blue  = 185;
-		return;
-	}
-	if(strcmp(color, "LightPink2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 162;
-		rgb->blue  = 173;
-		return;
-	}
-	if(strcmp(color, "LightPink3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 140;
-		rgb->blue  = 149;
-		return;
-	}
-	if(strcmp(color, "LightPink4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 95;
-		rgb->blue  = 101;
-		return;
-	}
-	if(strcmp(color, "PaleVioletRed1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 130;
-		rgb->blue  = 171;
-		return;
-	}
-	if(strcmp(color, "PaleVioletRed2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 121;
-		rgb->blue  = 159;
-		return;
-	}
-	if(strcmp(color, "PaleVioletRed3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 104;
-		rgb->blue  = 137;
-		return;
-	}
-	if(strcmp(color, "PaleVioletRed4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 71;
-		rgb->blue  = 93;
-		return;
-	}
-	if(strcmp(color, "maroon1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 52;
-		rgb->blue  = 179;
-		return;
-	}
-	if(strcmp(color, "maroon2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 48;
-		rgb->blue  = 167;
-		return;
-	}
-	if(strcmp(color, "maroon3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 41;
-		rgb->blue  = 144;
-		return;
-	}
-	if(strcmp(color, "maroon4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 28;
-		rgb->blue  = 98;
-		return;
-	}
-	if(strcmp(color, "VioletRed1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 62;
-		rgb->blue  = 150;
-		return;
-	}
-	if(strcmp(color, "VioletRed2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 58;
-		rgb->blue  = 140;
-		return;
-	}
-	if(strcmp(color, "VioletRed3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 50;
-		rgb->blue  = 120;
-		return;
-	}
-	if(strcmp(color, "VioletRed4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 34;
-		rgb->blue  = 82;
-		return;
-	}
-	if(strcmp(color, "magenta1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 0;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "magenta2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 0;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "magenta3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 0;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "magenta4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 0;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "orchid1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 131;
-		rgb->blue  = 250;
-		return;
-	}
-	if(strcmp(color, "orchid2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 122;
-		rgb->blue  = 233;
-		return;
-	}
-	if(strcmp(color, "orchid3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 105;
-		rgb->blue  = 201;
-		return;
-	}
-	if(strcmp(color, "orchid4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 71;
-		rgb->blue  = 137;
-		return;
-	}
-	if(strcmp(color, "plum1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 187;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "plum2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 174;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "plum3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 150;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "plum4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 102;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "MediumOrchid1") == 0) {
-		rgb->red   = 224;
-		rgb->green = 102;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "MediumOrchid2") == 0) {
-		rgb->red   = 209;
-		rgb->green = 95;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "MediumOrchid3") == 0) {
-		rgb->red   = 180;
-		rgb->green = 82;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "MediumOrchid4") == 0) {
-		rgb->red   = 122;
-		rgb->green = 55;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "DarkOrchid1") == 0) {
-		rgb->red   = 191;
-		rgb->green = 62;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "DarkOrchid2") == 0) {
-		rgb->red   = 178;
-		rgb->green = 58;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "DarkOrchid3") == 0) {
-		rgb->red   = 154;
-		rgb->green = 50;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "DarkOrchid4") == 0) {
-		rgb->red   = 104;
-		rgb->green = 34;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "purple1") == 0) {
-		rgb->red   = 155;
-		rgb->green = 48;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "purple2") == 0) {
-		rgb->red   = 145;
-		rgb->green = 44;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "purple3") == 0) {
-		rgb->red   = 125;
-		rgb->green = 38;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "purple4") == 0) {
-		rgb->red   = 85;
-		rgb->green = 26;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "MediumPurple1") == 0) {
-		rgb->red   = 171;
-		rgb->green = 130;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "MediumPurple2") == 0) {
-		rgb->red   = 159;
-		rgb->green = 121;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "MediumPurple3") == 0) {
-		rgb->red   = 137;
-		rgb->green = 104;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "MediumPurple4") == 0) {
-		rgb->red   = 93;
-		rgb->green = 71;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "thistle1") == 0) {
-		rgb->red   = 255;
-		rgb->green = 225;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "thistle2") == 0) {
-		rgb->red   = 238;
-		rgb->green = 210;
-		rgb->blue  = 238;
-		return;
-	}
-	if(strcmp(color, "thistle3") == 0) {
-		rgb->red   = 205;
-		rgb->green = 181;
-		rgb->blue  = 205;
-		return;
-	}
-	if(strcmp(color, "thistle4") == 0) {
-		rgb->red   = 139;
-		rgb->green = 123;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "gray0") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "grey0") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "gray1") == 0) {
-		rgb->red   = 3;
-		rgb->green = 3;
-		rgb->blue  = 3;
-		return;
-	}
-	if(strcmp(color, "grey1") == 0) {
-		rgb->red   = 3;
-		rgb->green = 3;
-		rgb->blue  = 3;
-		return;
-	}
-	if(strcmp(color, "gray2") == 0) {
-		rgb->red   = 5;
-		rgb->green = 5;
-		rgb->blue  = 5;
-		return;
-	}
-	if(strcmp(color, "grey2") == 0) {
-		rgb->red   = 5;
-		rgb->green = 5;
-		rgb->blue  = 5;
-		return;
-	}
-	if(strcmp(color, "gray3") == 0) {
-		rgb->red   = 8;
-		rgb->green = 8;
-		rgb->blue  = 8;
-		return;
-	}
-	if(strcmp(color, "grey3") == 0) {
-		rgb->red   = 8;
-		rgb->green = 8;
-		rgb->blue  = 8;
-		return;
-	}
-	if(strcmp(color, "gray4") == 0) {
-		rgb->red   = 10;
-		rgb->green = 10;
-		rgb->blue  = 10;
-		return;
-	}
-	if(strcmp(color, "grey4") == 0) {
-		rgb->red   = 10;
-		rgb->green = 10;
-		rgb->blue  = 10;
-		return;
-	}
-	if(strcmp(color, "gray5") == 0) {
-		rgb->red   = 13;
-		rgb->green = 13;
-		rgb->blue  = 13;
-		return;
-	}
-	if(strcmp(color, "grey5") == 0) {
-		rgb->red   = 13;
-		rgb->green = 13;
-		rgb->blue  = 13;
-		return;
-	}
-	if(strcmp(color, "gray6") == 0) {
-		rgb->red   = 15;
-		rgb->green = 15;
-		rgb->blue  = 15;
-		return;
-	}
-	if(strcmp(color, "grey6") == 0) {
-		rgb->red   = 15;
-		rgb->green = 15;
-		rgb->blue  = 15;
-		return;
-	}
-	if(strcmp(color, "gray7") == 0) {
-		rgb->red   = 18;
-		rgb->green = 18;
-		rgb->blue  = 18;
-		return;
-	}
-	if(strcmp(color, "grey7") == 0) {
-		rgb->red   = 18;
-		rgb->green = 18;
-		rgb->blue  = 18;
-		return;
-	}
-	if(strcmp(color, "gray8") == 0) {
-		rgb->red   = 20;
-		rgb->green = 20;
-		rgb->blue  = 20;
-		return;
-	}
-	if(strcmp(color, "grey8") == 0) {
-		rgb->red   = 20;
-		rgb->green = 20;
-		rgb->blue  = 20;
-		return;
-	}
-	if(strcmp(color, "gray9") == 0) {
-		rgb->red   = 23;
-		rgb->green = 23;
-		rgb->blue  = 23;
-		return;
-	}
-	if(strcmp(color, "grey9") == 0) {
-		rgb->red   = 23;
-		rgb->green = 23;
-		rgb->blue  = 23;
-		return;
-	}
-	if(strcmp(color, "gray10") == 0) {
-		rgb->red   = 26;
-		rgb->green = 26;
-		rgb->blue  = 26;
-		return;
-	}
-	if(strcmp(color, "grey10") == 0) {
-		rgb->red   = 26;
-		rgb->green = 26;
-		rgb->blue  = 26;
-		return;
-	}
-	if(strcmp(color, "gray11") == 0) {
-		rgb->red   = 28;
-		rgb->green = 28;
-		rgb->blue  = 28;
-		return;
-	}
-	if(strcmp(color, "grey11") == 0) {
-		rgb->red   = 28;
-		rgb->green = 28;
-		rgb->blue  = 28;
-		return;
-	}
-	if(strcmp(color, "gray12") == 0) {
-		rgb->red   = 31;
-		rgb->green = 31;
-		rgb->blue  = 31;
-		return;
-	}
-	if(strcmp(color, "grey12") == 0) {
-		rgb->red   = 31;
-		rgb->green = 31;
-		rgb->blue  = 31;
-		return;
-	}
-	if(strcmp(color, "gray13") == 0) {
-		rgb->red   = 33;
-		rgb->green = 33;
-		rgb->blue  = 33;
-		return;
-	}
-	if(strcmp(color, "grey13") == 0) {
-		rgb->red   = 33;
-		rgb->green = 33;
-		rgb->blue  = 33;
-		return;
-	}
-	if(strcmp(color, "gray14") == 0) {
-		rgb->red   = 36;
-		rgb->green = 36;
-		rgb->blue  = 36;
-		return;
-	}
-	if(strcmp(color, "grey14") == 0) {
-		rgb->red   = 36;
-		rgb->green = 36;
-		rgb->blue  = 36;
-		return;
-	}
-	if(strcmp(color, "gray15") == 0) {
-		rgb->red   = 38;
-		rgb->green = 38;
-		rgb->blue  = 38;
-		return;
-	}
-	if(strcmp(color, "grey15") == 0) {
-		rgb->red   = 38;
-		rgb->green = 38;
-		rgb->blue  = 38;
-		return;
-	}
-	if(strcmp(color, "gray16") == 0) {
-		rgb->red   = 41;
-		rgb->green = 41;
-		rgb->blue  = 41;
-		return;
-	}
-	if(strcmp(color, "grey16") == 0) {
-		rgb->red   = 41;
-		rgb->green = 41;
-		rgb->blue  = 41;
-		return;
-	}
-	if(strcmp(color, "gray17") == 0) {
-		rgb->red   = 43;
-		rgb->green = 43;
-		rgb->blue  = 43;
-		return;
-	}
-	if(strcmp(color, "grey17") == 0) {
-		rgb->red   = 43;
-		rgb->green = 43;
-		rgb->blue  = 43;
-		return;
-	}
-	if(strcmp(color, "gray18") == 0) {
-		rgb->red   = 46;
-		rgb->green = 46;
-		rgb->blue  = 46;
-		return;
-	}
-	if(strcmp(color, "grey18") == 0) {
-		rgb->red   = 46;
-		rgb->green = 46;
-		rgb->blue  = 46;
-		return;
-	}
-	if(strcmp(color, "gray19") == 0) {
-		rgb->red   = 48;
-		rgb->green = 48;
-		rgb->blue  = 48;
-		return;
-	}
-	if(strcmp(color, "grey19") == 0) {
-		rgb->red   = 48;
-		rgb->green = 48;
-		rgb->blue  = 48;
-		return;
-	}
-	if(strcmp(color, "gray20") == 0) {
-		rgb->red   = 51;
-		rgb->green = 51;
-		rgb->blue  = 51;
-		return;
-	}
-	if(strcmp(color, "grey20") == 0) {
-		rgb->red   = 51;
-		rgb->green = 51;
-		rgb->blue  = 51;
-		return;
-	}
-	if(strcmp(color, "gray21") == 0) {
-		rgb->red   = 54;
-		rgb->green = 54;
-		rgb->blue  = 54;
-		return;
-	}
-	if(strcmp(color, "grey21") == 0) {
-		rgb->red   = 54;
-		rgb->green = 54;
-		rgb->blue  = 54;
-		return;
-	}
-	if(strcmp(color, "gray22") == 0) {
-		rgb->red   = 56;
-		rgb->green = 56;
-		rgb->blue  = 56;
-		return;
-	}
-	if(strcmp(color, "grey22") == 0) {
-		rgb->red   = 56;
-		rgb->green = 56;
-		rgb->blue  = 56;
-		return;
-	}
-	if(strcmp(color, "gray23") == 0) {
-		rgb->red   = 59;
-		rgb->green = 59;
-		rgb->blue  = 59;
-		return;
-	}
-	if(strcmp(color, "grey23") == 0) {
-		rgb->red   = 59;
-		rgb->green = 59;
-		rgb->blue  = 59;
-		return;
-	}
-	if(strcmp(color, "gray24") == 0) {
-		rgb->red   = 61;
-		rgb->green = 61;
-		rgb->blue  = 61;
-		return;
-	}
-	if(strcmp(color, "grey24") == 0) {
-		rgb->red   = 61;
-		rgb->green = 61;
-		rgb->blue  = 61;
-		return;
-	}
-	if(strcmp(color, "gray25") == 0) {
-		rgb->red   = 64;
-		rgb->green = 64;
-		rgb->blue  = 64;
-		return;
-	}
-	if(strcmp(color, "grey25") == 0) {
-		rgb->red   = 64;
-		rgb->green = 64;
-		rgb->blue  = 64;
-		return;
-	}
-	if(strcmp(color, "gray26") == 0) {
-		rgb->red   = 66;
-		rgb->green = 66;
-		rgb->blue  = 66;
-		return;
-	}
-	if(strcmp(color, "grey26") == 0) {
-		rgb->red   = 66;
-		rgb->green = 66;
-		rgb->blue  = 66;
-		return;
-	}
-	if(strcmp(color, "gray27") == 0) {
-		rgb->red   = 69;
-		rgb->green = 69;
-		rgb->blue  = 69;
-		return;
-	}
-	if(strcmp(color, "grey27") == 0) {
-		rgb->red   = 69;
-		rgb->green = 69;
-		rgb->blue  = 69;
-		return;
-	}
-	if(strcmp(color, "gray28") == 0) {
-		rgb->red   = 71;
-		rgb->green = 71;
-		rgb->blue  = 71;
-		return;
-	}
-	if(strcmp(color, "grey28") == 0) {
-		rgb->red   = 71;
-		rgb->green = 71;
-		rgb->blue  = 71;
-		return;
-	}
-	if(strcmp(color, "gray29") == 0) {
-		rgb->red   = 74;
-		rgb->green = 74;
-		rgb->blue  = 74;
-		return;
-	}
-	if(strcmp(color, "grey29") == 0) {
-		rgb->red   = 74;
-		rgb->green = 74;
-		rgb->blue  = 74;
-		return;
-	}
-	if(strcmp(color, "gray30") == 0) {
-		rgb->red   = 77;
-		rgb->green = 77;
-		rgb->blue  = 77;
-		return;
-	}
-	if(strcmp(color, "grey30") == 0) {
-		rgb->red   = 77;
-		rgb->green = 77;
-		rgb->blue  = 77;
-		return;
-	}
-	if(strcmp(color, "gray31") == 0) {
-		rgb->red   = 79;
-		rgb->green = 79;
-		rgb->blue  = 79;
-		return;
-	}
-	if(strcmp(color, "grey31") == 0) {
-		rgb->red   = 79;
-		rgb->green = 79;
-		rgb->blue  = 79;
-		return;
-	}
-	if(strcmp(color, "gray32") == 0) {
-		rgb->red   = 82;
-		rgb->green = 82;
-		rgb->blue  = 82;
-		return;
-	}
-	if(strcmp(color, "grey32") == 0) {
-		rgb->red   = 82;
-		rgb->green = 82;
-		rgb->blue  = 82;
-		return;
-	}
-	if(strcmp(color, "gray33") == 0) {
-		rgb->red   = 84;
-		rgb->green = 84;
-		rgb->blue  = 84;
-		return;
-	}
-	if(strcmp(color, "grey33") == 0) {
-		rgb->red   = 84;
-		rgb->green = 84;
-		rgb->blue  = 84;
-		return;
-	}
-	if(strcmp(color, "gray34") == 0) {
-		rgb->red   = 87;
-		rgb->green = 87;
-		rgb->blue  = 87;
-		return;
-	}
-	if(strcmp(color, "grey34") == 0) {
-		rgb->red   = 87;
-		rgb->green = 87;
-		rgb->blue  = 87;
-		return;
-	}
-	if(strcmp(color, "gray35") == 0) {
-		rgb->red   = 89;
-		rgb->green = 89;
-		rgb->blue  = 89;
-		return;
-	}
-	if(strcmp(color, "grey35") == 0) {
-		rgb->red   = 89;
-		rgb->green = 89;
-		rgb->blue  = 89;
-		return;
-	}
-	if(strcmp(color, "gray36") == 0) {
-		rgb->red   = 92;
-		rgb->green = 92;
-		rgb->blue  = 92;
-		return;
-	}
-	if(strcmp(color, "grey36") == 0) {
-		rgb->red   = 92;
-		rgb->green = 92;
-		rgb->blue  = 92;
-		return;
-	}
-	if(strcmp(color, "gray37") == 0) {
-		rgb->red   = 94;
-		rgb->green = 94;
-		rgb->blue  = 94;
-		return;
-	}
-	if(strcmp(color, "grey37") == 0) {
-		rgb->red   = 94;
-		rgb->green = 94;
-		rgb->blue  = 94;
-		return;
-	}
-	if(strcmp(color, "gray38") == 0) {
-		rgb->red   = 97;
-		rgb->green = 97;
-		rgb->blue  = 97;
-		return;
-	}
-	if(strcmp(color, "grey38") == 0) {
-		rgb->red   = 97;
-		rgb->green = 97;
-		rgb->blue  = 97;
-		return;
-	}
-	if(strcmp(color, "gray39") == 0) {
-		rgb->red   = 99;
-		rgb->green = 99;
-		rgb->blue  = 99;
-		return;
-	}
-	if(strcmp(color, "grey39") == 0) {
-		rgb->red   = 99;
-		rgb->green = 99;
-		rgb->blue  = 99;
-		return;
-	}
-	if(strcmp(color, "gray40") == 0) {
-		rgb->red   = 102;
-		rgb->green = 102;
-		rgb->blue  = 102;
-		return;
-	}
-	if(strcmp(color, "grey40") == 0) {
-		rgb->red   = 102;
-		rgb->green = 102;
-		rgb->blue  = 102;
-		return;
-	}
-	if(strcmp(color, "gray41") == 0) {
-		rgb->red   = 105;
-		rgb->green = 105;
-		rgb->blue  = 105;
-		return;
-	}
-	if(strcmp(color, "grey41") == 0) {
-		rgb->red   = 105;
-		rgb->green = 105;
-		rgb->blue  = 105;
-		return;
-	}
-	if(strcmp(color, "gray42") == 0) {
-		rgb->red   = 107;
-		rgb->green = 107;
-		rgb->blue  = 107;
-		return;
-	}
-	if(strcmp(color, "grey42") == 0) {
-		rgb->red   = 107;
-		rgb->green = 107;
-		rgb->blue  = 107;
-		return;
-	}
-	if(strcmp(color, "gray43") == 0) {
-		rgb->red   = 110;
-		rgb->green = 110;
-		rgb->blue  = 110;
-		return;
-	}
-	if(strcmp(color, "grey43") == 0) {
-		rgb->red   = 110;
-		rgb->green = 110;
-		rgb->blue  = 110;
-		return;
-	}
-	if(strcmp(color, "gray44") == 0) {
-		rgb->red   = 112;
-		rgb->green = 112;
-		rgb->blue  = 112;
-		return;
-	}
-	if(strcmp(color, "grey44") == 0) {
-		rgb->red   = 112;
-		rgb->green = 112;
-		rgb->blue  = 112;
-		return;
-	}
-	if(strcmp(color, "gray45") == 0) {
-		rgb->red   = 115;
-		rgb->green = 115;
-		rgb->blue  = 115;
-		return;
-	}
-	if(strcmp(color, "grey45") == 0) {
-		rgb->red   = 115;
-		rgb->green = 115;
-		rgb->blue  = 115;
-		return;
-	}
-	if(strcmp(color, "gray46") == 0) {
-		rgb->red   = 117;
-		rgb->green = 117;
-		rgb->blue  = 117;
-		return;
-	}
-	if(strcmp(color, "grey46") == 0) {
-		rgb->red   = 117;
-		rgb->green = 117;
-		rgb->blue  = 117;
-		return;
-	}
-	if(strcmp(color, "gray47") == 0) {
-		rgb->red   = 120;
-		rgb->green = 120;
-		rgb->blue  = 120;
-		return;
-	}
-	if(strcmp(color, "grey47") == 0) {
-		rgb->red   = 120;
-		rgb->green = 120;
-		rgb->blue  = 120;
-		return;
-	}
-	if(strcmp(color, "gray48") == 0) {
-		rgb->red   = 122;
-		rgb->green = 122;
-		rgb->blue  = 122;
-		return;
-	}
-	if(strcmp(color, "grey48") == 0) {
-		rgb->red   = 122;
-		rgb->green = 122;
-		rgb->blue  = 122;
-		return;
-	}
-	if(strcmp(color, "gray49") == 0) {
-		rgb->red   = 125;
-		rgb->green = 125;
-		rgb->blue  = 125;
-		return;
-	}
-	if(strcmp(color, "grey49") == 0) {
-		rgb->red   = 125;
-		rgb->green = 125;
-		rgb->blue  = 125;
-		return;
-	}
-	if(strcmp(color, "gray50") == 0) {
-		rgb->red   = 127;
-		rgb->green = 127;
-		rgb->blue  = 127;
-		return;
-	}
-	if(strcmp(color, "grey50") == 0) {
-		rgb->red   = 127;
-		rgb->green = 127;
-		rgb->blue  = 127;
-		return;
-	}
-	if(strcmp(color, "gray51") == 0) {
-		rgb->red   = 130;
-		rgb->green = 130;
-		rgb->blue  = 130;
-		return;
-	}
-	if(strcmp(color, "grey51") == 0) {
-		rgb->red   = 130;
-		rgb->green = 130;
-		rgb->blue  = 130;
-		return;
-	}
-	if(strcmp(color, "gray52") == 0) {
-		rgb->red   = 133;
-		rgb->green = 133;
-		rgb->blue  = 133;
-		return;
-	}
-	if(strcmp(color, "grey52") == 0) {
-		rgb->red   = 133;
-		rgb->green = 133;
-		rgb->blue  = 133;
-		return;
-	}
-	if(strcmp(color, "gray53") == 0) {
-		rgb->red   = 135;
-		rgb->green = 135;
-		rgb->blue  = 135;
-		return;
-	}
-	if(strcmp(color, "grey53") == 0) {
-		rgb->red   = 135;
-		rgb->green = 135;
-		rgb->blue  = 135;
-		return;
-	}
-	if(strcmp(color, "gray54") == 0) {
-		rgb->red   = 138;
-		rgb->green = 138;
-		rgb->blue  = 138;
-		return;
-	}
-	if(strcmp(color, "grey54") == 0) {
-		rgb->red   = 138;
-		rgb->green = 138;
-		rgb->blue  = 138;
-		return;
-	}
-	if(strcmp(color, "gray55") == 0) {
-		rgb->red   = 140;
-		rgb->green = 140;
-		rgb->blue  = 140;
-		return;
-	}
-	if(strcmp(color, "grey55") == 0) {
-		rgb->red   = 140;
-		rgb->green = 140;
-		rgb->blue  = 140;
-		return;
-	}
-	if(strcmp(color, "gray56") == 0) {
-		rgb->red   = 143;
-		rgb->green = 143;
-		rgb->blue  = 143;
-		return;
-	}
-	if(strcmp(color, "grey56") == 0) {
-		rgb->red   = 143;
-		rgb->green = 143;
-		rgb->blue  = 143;
-		return;
-	}
-	if(strcmp(color, "gray57") == 0) {
-		rgb->red   = 145;
-		rgb->green = 145;
-		rgb->blue  = 145;
-		return;
-	}
-	if(strcmp(color, "grey57") == 0) {
-		rgb->red   = 145;
-		rgb->green = 145;
-		rgb->blue  = 145;
-		return;
-	}
-	if(strcmp(color, "gray58") == 0) {
-		rgb->red   = 148;
-		rgb->green = 148;
-		rgb->blue  = 148;
-		return;
-	}
-	if(strcmp(color, "grey58") == 0) {
-		rgb->red   = 148;
-		rgb->green = 148;
-		rgb->blue  = 148;
-		return;
-	}
-	if(strcmp(color, "gray59") == 0) {
-		rgb->red   = 150;
-		rgb->green = 150;
-		rgb->blue  = 150;
-		return;
-	}
-	if(strcmp(color, "grey59") == 0) {
-		rgb->red   = 150;
-		rgb->green = 150;
-		rgb->blue  = 150;
-		return;
-	}
-	if(strcmp(color, "gray60") == 0) {
-		rgb->red   = 153;
-		rgb->green = 153;
-		rgb->blue  = 153;
-		return;
-	}
-	if(strcmp(color, "grey60") == 0) {
-		rgb->red   = 153;
-		rgb->green = 153;
-		rgb->blue  = 153;
-		return;
-	}
-	if(strcmp(color, "gray61") == 0) {
-		rgb->red   = 156;
-		rgb->green = 156;
-		rgb->blue  = 156;
-		return;
-	}
-	if(strcmp(color, "grey61") == 0) {
-		rgb->red   = 156;
-		rgb->green = 156;
-		rgb->blue  = 156;
-		return;
-	}
-	if(strcmp(color, "gray62") == 0) {
-		rgb->red   = 158;
-		rgb->green = 158;
-		rgb->blue  = 158;
-		return;
-	}
-	if(strcmp(color, "grey62") == 0) {
-		rgb->red   = 158;
-		rgb->green = 158;
-		rgb->blue  = 158;
-		return;
-	}
-	if(strcmp(color, "gray63") == 0) {
-		rgb->red   = 161;
-		rgb->green = 161;
-		rgb->blue  = 161;
-		return;
-	}
-	if(strcmp(color, "grey63") == 0) {
-		rgb->red   = 161;
-		rgb->green = 161;
-		rgb->blue  = 161;
-		return;
-	}
-	if(strcmp(color, "gray64") == 0) {
-		rgb->red   = 163;
-		rgb->green = 163;
-		rgb->blue  = 163;
-		return;
-	}
-	if(strcmp(color, "grey64") == 0) {
-		rgb->red   = 163;
-		rgb->green = 163;
-		rgb->blue  = 163;
-		return;
-	}
-	if(strcmp(color, "gray65") == 0) {
-		rgb->red   = 166;
-		rgb->green = 166;
-		rgb->blue  = 166;
-		return;
-	}
-	if(strcmp(color, "grey65") == 0) {
-		rgb->red   = 166;
-		rgb->green = 166;
-		rgb->blue  = 166;
-		return;
-	}
-	if(strcmp(color, "gray66") == 0) {
-		rgb->red   = 168;
-		rgb->green = 168;
-		rgb->blue  = 168;
-		return;
-	}
-	if(strcmp(color, "grey66") == 0) {
-		rgb->red   = 168;
-		rgb->green = 168;
-		rgb->blue  = 168;
-		return;
-	}
-	if(strcmp(color, "gray67") == 0) {
-		rgb->red   = 171;
-		rgb->green = 171;
-		rgb->blue  = 171;
-		return;
-	}
-	if(strcmp(color, "grey67") == 0) {
-		rgb->red   = 171;
-		rgb->green = 171;
-		rgb->blue  = 171;
-		return;
-	}
-	if(strcmp(color, "gray68") == 0) {
-		rgb->red   = 173;
-		rgb->green = 173;
-		rgb->blue  = 173;
-		return;
-	}
-	if(strcmp(color, "grey68") == 0) {
-		rgb->red   = 173;
-		rgb->green = 173;
-		rgb->blue  = 173;
-		return;
-	}
-	if(strcmp(color, "gray69") == 0) {
-		rgb->red   = 176;
-		rgb->green = 176;
-		rgb->blue  = 176;
-		return;
-	}
-	if(strcmp(color, "grey69") == 0) {
-		rgb->red   = 176;
-		rgb->green = 176;
-		rgb->blue  = 176;
-		return;
-	}
-	if(strcmp(color, "gray70") == 0) {
-		rgb->red   = 179;
-		rgb->green = 179;
-		rgb->blue  = 179;
-		return;
-	}
-	if(strcmp(color, "grey70") == 0) {
-		rgb->red   = 179;
-		rgb->green = 179;
-		rgb->blue  = 179;
-		return;
-	}
-	if(strcmp(color, "gray71") == 0) {
-		rgb->red   = 181;
-		rgb->green = 181;
-		rgb->blue  = 181;
-		return;
-	}
-	if(strcmp(color, "grey71") == 0) {
-		rgb->red   = 181;
-		rgb->green = 181;
-		rgb->blue  = 181;
-		return;
-	}
-	if(strcmp(color, "gray72") == 0) {
-		rgb->red   = 184;
-		rgb->green = 184;
-		rgb->blue  = 184;
-		return;
-	}
-	if(strcmp(color, "grey72") == 0) {
-		rgb->red   = 184;
-		rgb->green = 184;
-		rgb->blue  = 184;
-		return;
-	}
-	if(strcmp(color, "gray73") == 0) {
-		rgb->red   = 186;
-		rgb->green = 186;
-		rgb->blue  = 186;
-		return;
-	}
-	if(strcmp(color, "grey73") == 0) {
-		rgb->red   = 186;
-		rgb->green = 186;
-		rgb->blue  = 186;
-		return;
-	}
-	if(strcmp(color, "gray74") == 0) {
-		rgb->red   = 189;
-		rgb->green = 189;
-		rgb->blue  = 189;
-		return;
-	}
-	if(strcmp(color, "grey74") == 0) {
-		rgb->red   = 189;
-		rgb->green = 189;
-		rgb->blue  = 189;
-		return;
-	}
-	if(strcmp(color, "gray75") == 0) {
-		rgb->red   = 191;
-		rgb->green = 191;
-		rgb->blue  = 191;
-		return;
-	}
-	if(strcmp(color, "grey75") == 0) {
-		rgb->red   = 191;
-		rgb->green = 191;
-		rgb->blue  = 191;
-		return;
-	}
-	if(strcmp(color, "gray76") == 0) {
-		rgb->red   = 194;
-		rgb->green = 194;
-		rgb->blue  = 194;
-		return;
-	}
-	if(strcmp(color, "grey76") == 0) {
-		rgb->red   = 194;
-		rgb->green = 194;
-		rgb->blue  = 194;
-		return;
-	}
-	if(strcmp(color, "gray77") == 0) {
-		rgb->red   = 196;
-		rgb->green = 196;
-		rgb->blue  = 196;
-		return;
-	}
-	if(strcmp(color, "grey77") == 0) {
-		rgb->red   = 196;
-		rgb->green = 196;
-		rgb->blue  = 196;
-		return;
-	}
-	if(strcmp(color, "gray78") == 0) {
-		rgb->red   = 199;
-		rgb->green = 199;
-		rgb->blue  = 199;
-		return;
-	}
-	if(strcmp(color, "grey78") == 0) {
-		rgb->red   = 199;
-		rgb->green = 199;
-		rgb->blue  = 199;
-		return;
-	}
-	if(strcmp(color, "gray79") == 0) {
-		rgb->red   = 201;
-		rgb->green = 201;
-		rgb->blue  = 201;
-		return;
-	}
-	if(strcmp(color, "grey79") == 0) {
-		rgb->red   = 201;
-		rgb->green = 201;
-		rgb->blue  = 201;
-		return;
-	}
-	if(strcmp(color, "gray80") == 0) {
-		rgb->red   = 204;
-		rgb->green = 204;
-		rgb->blue  = 204;
-		return;
-	}
-	if(strcmp(color, "grey80") == 0) {
-		rgb->red   = 204;
-		rgb->green = 204;
-		rgb->blue  = 204;
-		return;
-	}
-	if(strcmp(color, "gray81") == 0) {
-		rgb->red   = 207;
-		rgb->green = 207;
-		rgb->blue  = 207;
-		return;
-	}
-	if(strcmp(color, "grey81") == 0) {
-		rgb->red   = 207;
-		rgb->green = 207;
-		rgb->blue  = 207;
-		return;
-	}
-	if(strcmp(color, "gray82") == 0) {
-		rgb->red   = 209;
-		rgb->green = 209;
-		rgb->blue  = 209;
-		return;
-	}
-	if(strcmp(color, "grey82") == 0) {
-		rgb->red   = 209;
-		rgb->green = 209;
-		rgb->blue  = 209;
-		return;
-	}
-	if(strcmp(color, "gray83") == 0) {
-		rgb->red   = 212;
-		rgb->green = 212;
-		rgb->blue  = 212;
-		return;
-	}
-	if(strcmp(color, "grey83") == 0) {
-		rgb->red   = 212;
-		rgb->green = 212;
-		rgb->blue  = 212;
-		return;
-	}
-	if(strcmp(color, "gray84") == 0) {
-		rgb->red   = 214;
-		rgb->green = 214;
-		rgb->blue  = 214;
-		return;
-	}
-	if(strcmp(color, "grey84") == 0) {
-		rgb->red   = 214;
-		rgb->green = 214;
-		rgb->blue  = 214;
-		return;
-	}
-	if(strcmp(color, "gray85") == 0) {
-		rgb->red   = 217;
-		rgb->green = 217;
-		rgb->blue  = 217;
-		return;
-	}
-	if(strcmp(color, "grey85") == 0) {
-		rgb->red   = 217;
-		rgb->green = 217;
-		rgb->blue  = 217;
-		return;
-	}
-	if(strcmp(color, "gray86") == 0) {
-		rgb->red   = 219;
-		rgb->green = 219;
-		rgb->blue  = 219;
-		return;
-	}
-	if(strcmp(color, "grey86") == 0) {
-		rgb->red   = 219;
-		rgb->green = 219;
-		rgb->blue  = 219;
-		return;
-	}
-	if(strcmp(color, "gray87") == 0) {
-		rgb->red   = 222;
-		rgb->green = 222;
-		rgb->blue  = 222;
-		return;
-	}
-	if(strcmp(color, "grey87") == 0) {
-		rgb->red   = 222;
-		rgb->green = 222;
-		rgb->blue  = 222;
-		return;
-	}
-	if(strcmp(color, "gray88") == 0) {
-		rgb->red   = 224;
-		rgb->green = 224;
-		rgb->blue  = 224;
-		return;
-	}
-	if(strcmp(color, "grey88") == 0) {
-		rgb->red   = 224;
-		rgb->green = 224;
-		rgb->blue  = 224;
-		return;
-	}
-	if(strcmp(color, "gray89") == 0) {
-		rgb->red   = 227;
-		rgb->green = 227;
-		rgb->blue  = 227;
-		return;
-	}
-	if(strcmp(color, "grey89") == 0) {
-		rgb->red   = 227;
-		rgb->green = 227;
-		rgb->blue  = 227;
-		return;
-	}
-	if(strcmp(color, "gray90") == 0) {
-		rgb->red   = 229;
-		rgb->green = 229;
-		rgb->blue  = 229;
-		return;
-	}
-	if(strcmp(color, "grey90") == 0) {
-		rgb->red   = 229;
-		rgb->green = 229;
-		rgb->blue  = 229;
-		return;
-	}
-	if(strcmp(color, "gray91") == 0) {
-		rgb->red   = 232;
-		rgb->green = 232;
-		rgb->blue  = 232;
-		return;
-	}
-	if(strcmp(color, "grey91") == 0) {
-		rgb->red   = 232;
-		rgb->green = 232;
-		rgb->blue  = 232;
-		return;
-	}
-	if(strcmp(color, "gray92") == 0) {
-		rgb->red   = 235;
-		rgb->green = 235;
-		rgb->blue  = 235;
-		return;
-	}
-	if(strcmp(color, "grey92") == 0) {
-		rgb->red   = 235;
-		rgb->green = 235;
-		rgb->blue  = 235;
-		return;
-	}
-	if(strcmp(color, "gray93") == 0) {
-		rgb->red   = 237;
-		rgb->green = 237;
-		rgb->blue  = 237;
-		return;
-	}
-	if(strcmp(color, "grey93") == 0) {
-		rgb->red   = 237;
-		rgb->green = 237;
-		rgb->blue  = 237;
-		return;
-	}
-	if(strcmp(color, "gray94") == 0) {
-		rgb->red   = 240;
-		rgb->green = 240;
-		rgb->blue  = 240;
-		return;
-	}
-	if(strcmp(color, "grey94") == 0) {
-		rgb->red   = 240;
-		rgb->green = 240;
-		rgb->blue  = 240;
-		return;
-	}
-	if(strcmp(color, "gray95") == 0) {
-		rgb->red   = 242;
-		rgb->green = 242;
-		rgb->blue  = 242;
-		return;
-	}
-	if(strcmp(color, "grey95") == 0) {
-		rgb->red   = 242;
-		rgb->green = 242;
-		rgb->blue  = 242;
-		return;
-	}
-	if(strcmp(color, "gray96") == 0) {
-		rgb->red   = 245;
-		rgb->green = 245;
-		rgb->blue  = 245;
-		return;
-	}
-	if(strcmp(color, "grey96") == 0) {
-		rgb->red   = 245;
-		rgb->green = 245;
-		rgb->blue  = 245;
-		return;
-	}
-	if(strcmp(color, "gray97") == 0) {
-		rgb->red   = 247;
-		rgb->green = 247;
-		rgb->blue  = 247;
-		return;
-	}
-	if(strcmp(color, "grey97") == 0) {
-		rgb->red   = 247;
-		rgb->green = 247;
-		rgb->blue  = 247;
-		return;
-	}
-	if(strcmp(color, "gray98") == 0) {
-		rgb->red   = 250;
-		rgb->green = 250;
-		rgb->blue  = 250;
-		return;
-	}
-	if(strcmp(color, "grey98") == 0) {
-		rgb->red   = 250;
-		rgb->green = 250;
-		rgb->blue  = 250;
-		return;
-	}
-	if(strcmp(color, "gray99") == 0) {
-		rgb->red   = 252;
-		rgb->green = 252;
-		rgb->blue  = 252;
-		return;
-	}
-	if(strcmp(color, "grey99") == 0) {
-		rgb->red   = 252;
-		rgb->green = 252;
-		rgb->blue  = 252;
-		return;
-	}
-	if(strcmp(color, "gray100") == 0) {
-		rgb->red   = 255;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "grey100") == 0) {
-		rgb->red   = 255;
-		rgb->green = 255;
-		rgb->blue  = 255;
-		return;
-	}
-	if(strcmp(color, "dark grey") == 0) {
-		rgb->red   = 169;
-		rgb->green = 169;
-		rgb->blue  = 169;
-		return;
-	}
-	if(strcmp(color, "DarkGrey") == 0) {
-		rgb->red   = 169;
-		rgb->green = 169;
-		rgb->blue  = 169;
-		return;
-	}
-	if(strcmp(color, "dark gray") == 0) {
-		rgb->red   = 169;
-		rgb->green = 169;
-		rgb->blue  = 169;
-		return;
-	}
-	if(strcmp(color, "DarkGray") == 0) {
-		rgb->red   = 169;
-		rgb->green = 169;
-		rgb->blue  = 169;
-		return;
-	}
-	if(strcmp(color, "dark blue") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "DarkBlue") == 0) {
-		rgb->red   = 0;
-		rgb->green = 0;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "dark cyan") == 0) {
-		rgb->red   = 0;
-		rgb->green = 139;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "DarkCyan") == 0) {
-		rgb->red   = 0;
-		rgb->green = 139;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "dark magenta") == 0) {
-		rgb->red   = 139;
-		rgb->green = 0;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "DarkMagenta") == 0) {
-		rgb->red   = 139;
-		rgb->green = 0;
-		rgb->blue  = 139;
-		return;
-	}
-	if(strcmp(color, "dark red") == 0) {
-		rgb->red   = 139;
-		rgb->green = 0;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "DarkRed") == 0) {
-		rgb->red   = 139;
-		rgb->green = 0;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "light green") == 0) {
-		rgb->red   = 144;
-		rgb->green = 238;
-		rgb->blue  = 144;
-		return;
-	}
-	if(strcmp(color, "LightGreen") == 0) {
-		rgb->red   = 144;
-		rgb->green = 238;
-		rgb->blue  = 144;
-		return;
-	}
-	if(strcmp(color, "crimson") == 0) {
-		rgb->red   = 220;
-		rgb->green = 20;
-		rgb->blue  = 60;
-		return;
-	}
-	if(strcmp(color, "indigo") == 0) {
-		rgb->red   = 75;
-		rgb->green = 0;
-		rgb->blue  = 130;
-		return;
-	}
-	if(strcmp(color, "olive") == 0) {
-		rgb->red   = 128;
-		rgb->green = 128;
-		rgb->blue  = 0;
-		return;
-	}
-	if(strcmp(color, "rebecca purple") == 0) {
-		rgb->red   = 102;
-		rgb->green = 51;
-		rgb->blue  = 153;
-		return;
-	}
-	if(strcmp(color, "RebeccaPurple") == 0) {
-		rgb->red   = 102;
-		rgb->green = 51;
-		rgb->blue  = 153;
-		return;
-	}
-	if(strcmp(color, "silver") == 0) {
-		rgb->red   = 192;
-		rgb->green = 192;
-		rgb->blue  = 192;
-		return;
-	}
-	if(strcmp(color, "teal") == 0) {
-		rgb->red   = 0;
-		rgb->green = 128;
-		rgb->blue  = 128;
-		return;
-	}
-	rgb->red   = 0;
-	rgb->green = 0;
-	rgb->blue  = 0;
+	MwU32 v	   = shget(colors, color);
+	rgb->red   = (v >> 16) & 0xff;
+	rgb->green = (v >> 8) & 0xff;
+	rgb->blue  = (v >> 0) & 0xff;
+}
+
+static void add_color(const char* name, int red, int green, int blue) {
+	MwU32 v = (red << 16) | (green << 8) | (blue << 0);
+	shput(colors, name, v);
+}
+
+void MwColorTableInit(void) {
+	sh_new_strdup(colors);
+	shdefault(colors, 0);
+	add_color("snow", 255, 250, 250);
+	add_color("ghost white", 248, 248, 255);
+	add_color("GhostWhite", 248, 248, 255);
+	add_color("white smoke", 245, 245, 245);
+	add_color("WhiteSmoke", 245, 245, 245);
+	add_color("gainsboro", 220, 220, 220);
+	add_color("floral white", 255, 250, 240);
+	add_color("FloralWhite", 255, 250, 240);
+	add_color("old lace", 253, 245, 230);
+	add_color("OldLace", 253, 245, 230);
+	add_color("linen", 250, 240, 230);
+	add_color("antique white", 250, 235, 215);
+	add_color("AntiqueWhite", 250, 235, 215);
+	add_color("papaya whip", 255, 239, 213);
+	add_color("PapayaWhip", 255, 239, 213);
+	add_color("blanched almond", 255, 235, 205);
+	add_color("BlanchedAlmond", 255, 235, 205);
+	add_color("bisque", 255, 228, 196);
+	add_color("peach puff", 255, 218, 185);
+	add_color("PeachPuff", 255, 218, 185);
+	add_color("navajo white", 255, 222, 173);
+	add_color("NavajoWhite", 255, 222, 173);
+	add_color("moccasin", 255, 228, 181);
+	add_color("cornsilk", 255, 248, 220);
+	add_color("ivory", 255, 255, 240);
+	add_color("lemon chiffon", 255, 250, 205);
+	add_color("LemonChiffon", 255, 250, 205);
+	add_color("seashell", 255, 245, 238);
+	add_color("honeydew", 240, 255, 240);
+	add_color("mint cream", 245, 255, 250);
+	add_color("MintCream", 245, 255, 250);
+	add_color("azure", 240, 255, 255);
+	add_color("alice blue", 240, 248, 255);
+	add_color("AliceBlue", 240, 248, 255);
+	add_color("lavender", 230, 230, 250);
+	add_color("lavender blush", 255, 240, 245);
+	add_color("LavenderBlush", 255, 240, 245);
+	add_color("misty rose", 255, 228, 225);
+	add_color("MistyRose", 255, 228, 225);
+	add_color("white", 255, 255, 255);
+	add_color("black", 0, 0, 0);
+	add_color("dark slate gray", 47, 79, 79);
+	add_color("DarkSlateGray", 47, 79, 79);
+	add_color("dark slate grey", 47, 79, 79);
+	add_color("DarkSlateGrey", 47, 79, 79);
+	add_color("dim gray", 105, 105, 105);
+	add_color("DimGray", 105, 105, 105);
+	add_color("dim grey", 105, 105, 105);
+	add_color("DimGrey", 105, 105, 105);
+	add_color("slate gray", 112, 128, 144);
+	add_color("SlateGray", 112, 128, 144);
+	add_color("slate grey", 112, 128, 144);
+	add_color("SlateGrey", 112, 128, 144);
+	add_color("light slate gray", 119, 136, 153);
+	add_color("LightSlateGray", 119, 136, 153);
+	add_color("light slate grey", 119, 136, 153);
+	add_color("LightSlateGrey", 119, 136, 153);
+	add_color("gray", 190, 190, 190);
+	add_color("grey", 190, 190, 190);
+	add_color("x11 gray", 190, 190, 190);
+	add_color("X11Gray", 190, 190, 190);
+	add_color("x11 grey", 190, 190, 190);
+	add_color("X11Grey", 190, 190, 190);
+	add_color("web gray", 128, 128, 128);
+	add_color("WebGray", 128, 128, 128);
+	add_color("web grey", 128, 128, 128);
+	add_color("WebGrey", 128, 128, 128);
+	add_color("light grey", 211, 211, 211);
+	add_color("LightGrey", 211, 211, 211);
+	add_color("light gray", 211, 211, 211);
+	add_color("LightGray", 211, 211, 211);
+	add_color("midnight blue", 25, 25, 112);
+	add_color("MidnightBlue", 25, 25, 112);
+	add_color("navy", 0, 0, 128);
+	add_color("navy blue", 0, 0, 128);
+	add_color("NavyBlue", 0, 0, 128);
+	add_color("cornflower blue", 100, 149, 237);
+	add_color("CornflowerBlue", 100, 149, 237);
+	add_color("dark slate blue", 72, 61, 139);
+	add_color("DarkSlateBlue", 72, 61, 139);
+	add_color("slate blue", 106, 90, 205);
+	add_color("SlateBlue", 106, 90, 205);
+	add_color("medium slate blue", 123, 104, 238);
+	add_color("MediumSlateBlue", 123, 104, 238);
+	add_color("light slate blue", 132, 112, 255);
+	add_color("LightSlateBlue", 132, 112, 255);
+	add_color("medium blue", 0, 0, 205);
+	add_color("MediumBlue", 0, 0, 205);
+	add_color("royal blue", 65, 105, 225);
+	add_color("RoyalBlue", 65, 105, 225);
+	add_color("blue", 0, 0, 255);
+	add_color("dodger blue", 30, 144, 255);
+	add_color("DodgerBlue", 30, 144, 255);
+	add_color("deep sky blue", 0, 191, 255);
+	add_color("DeepSkyBlue", 0, 191, 255);
+	add_color("sky blue", 135, 206, 235);
+	add_color("SkyBlue", 135, 206, 235);
+	add_color("light sky blue", 135, 206, 250);
+	add_color("LightSkyBlue", 135, 206, 250);
+	add_color("steel blue", 70, 130, 180);
+	add_color("SteelBlue", 70, 130, 180);
+	add_color("light steel blue", 176, 196, 222);
+	add_color("LightSteelBlue", 176, 196, 222);
+	add_color("light blue", 173, 216, 230);
+	add_color("LightBlue", 173, 216, 230);
+	add_color("powder blue", 176, 224, 230);
+	add_color("PowderBlue", 176, 224, 230);
+	add_color("pale turquoise", 175, 238, 238);
+	add_color("PaleTurquoise", 175, 238, 238);
+	add_color("dark turquoise", 0, 206, 209);
+	add_color("DarkTurquoise", 0, 206, 209);
+	add_color("medium turquoise", 72, 209, 204);
+	add_color("MediumTurquoise", 72, 209, 204);
+	add_color("turquoise", 64, 224, 208);
+	add_color("cyan", 0, 255, 255);
+	add_color("aqua", 0, 255, 255);
+	add_color("light cyan", 224, 255, 255);
+	add_color("LightCyan", 224, 255, 255);
+	add_color("cadet blue", 95, 158, 160);
+	add_color("CadetBlue", 95, 158, 160);
+	add_color("medium aquamarine", 102, 205, 170);
+	add_color("MediumAquamarine", 102, 205, 170);
+	add_color("aquamarine", 127, 255, 212);
+	add_color("dark green", 0, 100, 0);
+	add_color("DarkGreen", 0, 100, 0);
+	add_color("dark olive green", 85, 107, 47);
+	add_color("DarkOliveGreen", 85, 107, 47);
+	add_color("dark sea green", 143, 188, 143);
+	add_color("DarkSeaGreen", 143, 188, 143);
+	add_color("sea green", 46, 139, 87);
+	add_color("SeaGreen", 46, 139, 87);
+	add_color("medium sea green", 60, 179, 113);
+	add_color("MediumSeaGreen", 60, 179, 113);
+	add_color("light sea green", 32, 178, 170);
+	add_color("LightSeaGreen", 32, 178, 170);
+	add_color("pale green", 152, 251, 152);
+	add_color("PaleGreen", 152, 251, 152);
+	add_color("spring green", 0, 255, 127);
+	add_color("SpringGreen", 0, 255, 127);
+	add_color("lawn green", 124, 252, 0);
+	add_color("LawnGreen", 124, 252, 0);
+	add_color("green", 0, 255, 0);
+	add_color("lime", 0, 255, 0);
+	add_color("x11 green", 0, 255, 0);
+	add_color("X11Green", 0, 255, 0);
+	add_color("web green", 0, 128, 0);
+	add_color("WebGreen", 0, 128, 0);
+	add_color("chartreuse", 127, 255, 0);
+	add_color("medium spring green", 0, 250, 154);
+	add_color("MediumSpringGreen", 0, 250, 154);
+	add_color("green yellow", 173, 255, 47);
+	add_color("GreenYellow", 173, 255, 47);
+	add_color("lime green", 50, 205, 50);
+	add_color("LimeGreen", 50, 205, 50);
+	add_color("yellow green", 154, 205, 50);
+	add_color("YellowGreen", 154, 205, 50);
+	add_color("forest green", 34, 139, 34);
+	add_color("ForestGreen", 34, 139, 34);
+	add_color("olive drab", 107, 142, 35);
+	add_color("OliveDrab", 107, 142, 35);
+	add_color("dark khaki", 189, 183, 107);
+	add_color("DarkKhaki", 189, 183, 107);
+	add_color("khaki", 240, 230, 140);
+	add_color("pale goldenrod", 238, 232, 170);
+	add_color("PaleGoldenrod", 238, 232, 170);
+	add_color("light goldenrod yellow", 250, 250, 210);
+	add_color("LightGoldenrodYellow", 250, 250, 210);
+	add_color("light yellow", 255, 255, 224);
+	add_color("LightYellow", 255, 255, 224);
+	add_color("yellow", 255, 255, 0);
+	add_color("gold", 255, 215, 0);
+	add_color("light goldenrod", 238, 221, 130);
+	add_color("LightGoldenrod", 238, 221, 130);
+	add_color("goldenrod", 218, 165, 32);
+	add_color("dark goldenrod", 184, 134, 11);
+	add_color("DarkGoldenrod", 184, 134, 11);
+	add_color("rosy brown", 188, 143, 143);
+	add_color("RosyBrown", 188, 143, 143);
+	add_color("indian red", 205, 92, 92);
+	add_color("IndianRed", 205, 92, 92);
+	add_color("saddle brown", 139, 69, 19);
+	add_color("SaddleBrown", 139, 69, 19);
+	add_color("sienna", 160, 82, 45);
+	add_color("peru", 205, 133, 63);
+	add_color("burlywood", 222, 184, 135);
+	add_color("beige", 245, 245, 220);
+	add_color("wheat", 245, 222, 179);
+	add_color("sandy brown", 244, 164, 96);
+	add_color("SandyBrown", 244, 164, 96);
+	add_color("tan", 210, 180, 140);
+	add_color("chocolate", 210, 105, 30);
+	add_color("firebrick", 178, 34, 34);
+	add_color("brown", 165, 42, 42);
+	add_color("dark salmon", 233, 150, 122);
+	add_color("DarkSalmon", 233, 150, 122);
+	add_color("salmon", 250, 128, 114);
+	add_color("light salmon", 255, 160, 122);
+	add_color("LightSalmon", 255, 160, 122);
+	add_color("orange", 255, 165, 0);
+	add_color("dark orange", 255, 140, 0);
+	add_color("DarkOrange", 255, 140, 0);
+	add_color("coral", 255, 127, 80);
+	add_color("light coral", 240, 128, 128);
+	add_color("LightCoral", 240, 128, 128);
+	add_color("tomato", 255, 99, 71);
+	add_color("orange red", 255, 69, 0);
+	add_color("OrangeRed", 255, 69, 0);
+	add_color("red", 255, 0, 0);
+	add_color("hot pink", 255, 105, 180);
+	add_color("HotPink", 255, 105, 180);
+	add_color("deep pink", 255, 20, 147);
+	add_color("DeepPink", 255, 20, 147);
+	add_color("pink", 255, 192, 203);
+	add_color("light pink", 255, 182, 193);
+	add_color("LightPink", 255, 182, 193);
+	add_color("pale violet red", 219, 112, 147);
+	add_color("PaleVioletRed", 219, 112, 147);
+	add_color("maroon", 176, 48, 96);
+	add_color("x11 maroon", 176, 48, 96);
+	add_color("X11Maroon", 176, 48, 96);
+	add_color("web maroon", 128, 0, 0);
+	add_color("WebMaroon", 128, 0, 0);
+	add_color("medium violet red", 199, 21, 133);
+	add_color("MediumVioletRed", 199, 21, 133);
+	add_color("violet red", 208, 32, 144);
+	add_color("VioletRed", 208, 32, 144);
+	add_color("magenta", 255, 0, 255);
+	add_color("fuchsia", 255, 0, 255);
+	add_color("violet", 238, 130, 238);
+	add_color("plum", 221, 160, 221);
+	add_color("orchid", 218, 112, 214);
+	add_color("medium orchid", 186, 85, 211);
+	add_color("MediumOrchid", 186, 85, 211);
+	add_color("dark orchid", 153, 50, 204);
+	add_color("DarkOrchid", 153, 50, 204);
+	add_color("dark violet", 148, 0, 211);
+	add_color("DarkViolet", 148, 0, 211);
+	add_color("blue violet", 138, 43, 226);
+	add_color("BlueViolet", 138, 43, 226);
+	add_color("purple", 160, 32, 240);
+	add_color("x11 purple", 160, 32, 240);
+	add_color("X11Purple", 160, 32, 240);
+	add_color("web purple", 128, 0, 128);
+	add_color("WebPurple", 128, 0, 128);
+	add_color("medium purple", 147, 112, 219);
+	add_color("MediumPurple", 147, 112, 219);
+	add_color("thistle", 216, 191, 216);
+	add_color("snow1", 255, 250, 250);
+	add_color("snow2", 238, 233, 233);
+	add_color("snow3", 205, 201, 201);
+	add_color("snow4", 139, 137, 137);
+	add_color("seashell1", 255, 245, 238);
+	add_color("seashell2", 238, 229, 222);
+	add_color("seashell3", 205, 197, 191);
+	add_color("seashell4", 139, 134, 130);
+	add_color("AntiqueWhite1", 255, 239, 219);
+	add_color("AntiqueWhite2", 238, 223, 204);
+	add_color("AntiqueWhite3", 205, 192, 176);
+	add_color("AntiqueWhite4", 139, 131, 120);
+	add_color("bisque1", 255, 228, 196);
+	add_color("bisque2", 238, 213, 183);
+	add_color("bisque3", 205, 183, 158);
+	add_color("bisque4", 139, 125, 107);
+	add_color("PeachPuff1", 255, 218, 185);
+	add_color("PeachPuff2", 238, 203, 173);
+	add_color("PeachPuff3", 205, 175, 149);
+	add_color("PeachPuff4", 139, 119, 101);
+	add_color("NavajoWhite1", 255, 222, 173);
+	add_color("NavajoWhite2", 238, 207, 161);
+	add_color("NavajoWhite3", 205, 179, 139);
+	add_color("NavajoWhite4", 139, 121, 94);
+	add_color("LemonChiffon1", 255, 250, 205);
+	add_color("LemonChiffon2", 238, 233, 191);
+	add_color("LemonChiffon3", 205, 201, 165);
+	add_color("LemonChiffon4", 139, 137, 112);
+	add_color("cornsilk1", 255, 248, 220);
+	add_color("cornsilk2", 238, 232, 205);
+	add_color("cornsilk3", 205, 200, 177);
+	add_color("cornsilk4", 139, 136, 120);
+	add_color("ivory1", 255, 255, 240);
+	add_color("ivory2", 238, 238, 224);
+	add_color("ivory3", 205, 205, 193);
+	add_color("ivory4", 139, 139, 131);
+	add_color("honeydew1", 240, 255, 240);
+	add_color("honeydew2", 224, 238, 224);
+	add_color("honeydew3", 193, 205, 193);
+	add_color("honeydew4", 131, 139, 131);
+	add_color("LavenderBlush1", 255, 240, 245);
+	add_color("LavenderBlush2", 238, 224, 229);
+	add_color("LavenderBlush3", 205, 193, 197);
+	add_color("LavenderBlush4", 139, 131, 134);
+	add_color("MistyRose1", 255, 228, 225);
+	add_color("MistyRose2", 238, 213, 210);
+	add_color("MistyRose3", 205, 183, 181);
+	add_color("MistyRose4", 139, 125, 123);
+	add_color("azure1", 240, 255, 255);
+	add_color("azure2", 224, 238, 238);
+	add_color("azure3", 193, 205, 205);
+	add_color("azure4", 131, 139, 139);
+	add_color("SlateBlue1", 131, 111, 255);
+	add_color("SlateBlue2", 122, 103, 238);
+	add_color("SlateBlue3", 105, 89, 205);
+	add_color("SlateBlue4", 71, 60, 139);
+	add_color("RoyalBlue1", 72, 118, 255);
+	add_color("RoyalBlue2", 67, 110, 238);
+	add_color("RoyalBlue3", 58, 95, 205);
+	add_color("RoyalBlue4", 39, 64, 139);
+	add_color("blue1", 0, 0, 255);
+	add_color("blue2", 0, 0, 238);
+	add_color("blue3", 0, 0, 205);
+	add_color("blue4", 0, 0, 139);
+	add_color("DodgerBlue1", 30, 144, 255);
+	add_color("DodgerBlue2", 28, 134, 238);
+	add_color("DodgerBlue3", 24, 116, 205);
+	add_color("DodgerBlue4", 16, 78, 139);
+	add_color("SteelBlue1", 99, 184, 255);
+	add_color("SteelBlue2", 92, 172, 238);
+	add_color("SteelBlue3", 79, 148, 205);
+	add_color("SteelBlue4", 54, 100, 139);
+	add_color("DeepSkyBlue1", 0, 191, 255);
+	add_color("DeepSkyBlue2", 0, 178, 238);
+	add_color("DeepSkyBlue3", 0, 154, 205);
+	add_color("DeepSkyBlue4", 0, 104, 139);
+	add_color("SkyBlue1", 135, 206, 255);
+	add_color("SkyBlue2", 126, 192, 238);
+	add_color("SkyBlue3", 108, 166, 205);
+	add_color("SkyBlue4", 74, 112, 139);
+	add_color("LightSkyBlue1", 176, 226, 255);
+	add_color("LightSkyBlue2", 164, 211, 238);
+	add_color("LightSkyBlue3", 141, 182, 205);
+	add_color("LightSkyBlue4", 96, 123, 139);
+	add_color("SlateGray1", 198, 226, 255);
+	add_color("SlateGray2", 185, 211, 238);
+	add_color("SlateGray3", 159, 182, 205);
+	add_color("SlateGray4", 108, 123, 139);
+	add_color("LightSteelBlue1", 202, 225, 255);
+	add_color("LightSteelBlue2", 188, 210, 238);
+	add_color("LightSteelBlue3", 162, 181, 205);
+	add_color("LightSteelBlue4", 110, 123, 139);
+	add_color("LightBlue1", 191, 239, 255);
+	add_color("LightBlue2", 178, 223, 238);
+	add_color("LightBlue3", 154, 192, 205);
+	add_color("LightBlue4", 104, 131, 139);
+	add_color("LightCyan1", 224, 255, 255);
+	add_color("LightCyan2", 209, 238, 238);
+	add_color("LightCyan3", 180, 205, 205);
+	add_color("LightCyan4", 122, 139, 139);
+	add_color("PaleTurquoise1", 187, 255, 255);
+	add_color("PaleTurquoise2", 174, 238, 238);
+	add_color("PaleTurquoise3", 150, 205, 205);
+	add_color("PaleTurquoise4", 102, 139, 139);
+	add_color("CadetBlue1", 152, 245, 255);
+	add_color("CadetBlue2", 142, 229, 238);
+	add_color("CadetBlue3", 122, 197, 205);
+	add_color("CadetBlue4", 83, 134, 139);
+	add_color("turquoise1", 0, 245, 255);
+	add_color("turquoise2", 0, 229, 238);
+	add_color("turquoise3", 0, 197, 205);
+	add_color("turquoise4", 0, 134, 139);
+	add_color("cyan1", 0, 255, 255);
+	add_color("cyan2", 0, 238, 238);
+	add_color("cyan3", 0, 205, 205);
+	add_color("cyan4", 0, 139, 139);
+	add_color("DarkSlateGray1", 151, 255, 255);
+	add_color("DarkSlateGray2", 141, 238, 238);
+	add_color("DarkSlateGray3", 121, 205, 205);
+	add_color("DarkSlateGray4", 82, 139, 139);
+	add_color("aquamarine1", 127, 255, 212);
+	add_color("aquamarine2", 118, 238, 198);
+	add_color("aquamarine3", 102, 205, 170);
+	add_color("aquamarine4", 69, 139, 116);
+	add_color("DarkSeaGreen1", 193, 255, 193);
+	add_color("DarkSeaGreen2", 180, 238, 180);
+	add_color("DarkSeaGreen3", 155, 205, 155);
+	add_color("DarkSeaGreen4", 105, 139, 105);
+	add_color("SeaGreen1", 84, 255, 159);
+	add_color("SeaGreen2", 78, 238, 148);
+	add_color("SeaGreen3", 67, 205, 128);
+	add_color("SeaGreen4", 46, 139, 87);
+	add_color("PaleGreen1", 154, 255, 154);
+	add_color("PaleGreen2", 144, 238, 144);
+	add_color("PaleGreen3", 124, 205, 124);
+	add_color("PaleGreen4", 84, 139, 84);
+	add_color("SpringGreen1", 0, 255, 127);
+	add_color("SpringGreen2", 0, 238, 118);
+	add_color("SpringGreen3", 0, 205, 102);
+	add_color("SpringGreen4", 0, 139, 69);
+	add_color("green1", 0, 255, 0);
+	add_color("green2", 0, 238, 0);
+	add_color("green3", 0, 205, 0);
+	add_color("green4", 0, 139, 0);
+	add_color("chartreuse1", 127, 255, 0);
+	add_color("chartreuse2", 118, 238, 0);
+	add_color("chartreuse3", 102, 205, 0);
+	add_color("chartreuse4", 69, 139, 0);
+	add_color("OliveDrab1", 192, 255, 62);
+	add_color("OliveDrab2", 179, 238, 58);
+	add_color("OliveDrab3", 154, 205, 50);
+	add_color("OliveDrab4", 105, 139, 34);
+	add_color("DarkOliveGreen1", 202, 255, 112);
+	add_color("DarkOliveGreen2", 188, 238, 104);
+	add_color("DarkOliveGreen3", 162, 205, 90);
+	add_color("DarkOliveGreen4", 110, 139, 61);
+	add_color("khaki1", 255, 246, 143);
+	add_color("khaki2", 238, 230, 133);
+	add_color("khaki3", 205, 198, 115);
+	add_color("khaki4", 139, 134, 78);
+	add_color("LightGoldenrod1", 255, 236, 139);
+	add_color("LightGoldenrod2", 238, 220, 130);
+	add_color("LightGoldenrod3", 205, 190, 112);
+	add_color("LightGoldenrod4", 139, 129, 76);
+	add_color("LightYellow1", 255, 255, 224);
+	add_color("LightYellow2", 238, 238, 209);
+	add_color("LightYellow3", 205, 205, 180);
+	add_color("LightYellow4", 139, 139, 122);
+	add_color("yellow1", 255, 255, 0);
+	add_color("yellow2", 238, 238, 0);
+	add_color("yellow3", 205, 205, 0);
+	add_color("yellow4", 139, 139, 0);
+	add_color("gold1", 255, 215, 0);
+	add_color("gold2", 238, 201, 0);
+	add_color("gold3", 205, 173, 0);
+	add_color("gold4", 139, 117, 0);
+	add_color("goldenrod1", 255, 193, 37);
+	add_color("goldenrod2", 238, 180, 34);
+	add_color("goldenrod3", 205, 155, 29);
+	add_color("goldenrod4", 139, 105, 20);
+	add_color("DarkGoldenrod1", 255, 185, 15);
+	add_color("DarkGoldenrod2", 238, 173, 14);
+	add_color("DarkGoldenrod3", 205, 149, 12);
+	add_color("DarkGoldenrod4", 139, 101, 8);
+	add_color("RosyBrown1", 255, 193, 193);
+	add_color("RosyBrown2", 238, 180, 180);
+	add_color("RosyBrown3", 205, 155, 155);
+	add_color("RosyBrown4", 139, 105, 105);
+	add_color("IndianRed1", 255, 106, 106);
+	add_color("IndianRed2", 238, 99, 99);
+	add_color("IndianRed3", 205, 85, 85);
+	add_color("IndianRed4", 139, 58, 58);
+	add_color("sienna1", 255, 130, 71);
+	add_color("sienna2", 238, 121, 66);
+	add_color("sienna3", 205, 104, 57);
+	add_color("sienna4", 139, 71, 38);
+	add_color("burlywood1", 255, 211, 155);
+	add_color("burlywood2", 238, 197, 145);
+	add_color("burlywood3", 205, 170, 125);
+	add_color("burlywood4", 139, 115, 85);
+	add_color("wheat1", 255, 231, 186);
+	add_color("wheat2", 238, 216, 174);
+	add_color("wheat3", 205, 186, 150);
+	add_color("wheat4", 139, 126, 102);
+	add_color("tan1", 255, 165, 79);
+	add_color("tan2", 238, 154, 73);
+	add_color("tan3", 205, 133, 63);
+	add_color("tan4", 139, 90, 43);
+	add_color("chocolate1", 255, 127, 36);
+	add_color("chocolate2", 238, 118, 33);
+	add_color("chocolate3", 205, 102, 29);
+	add_color("chocolate4", 139, 69, 19);
+	add_color("firebrick1", 255, 48, 48);
+	add_color("firebrick2", 238, 44, 44);
+	add_color("firebrick3", 205, 38, 38);
+	add_color("firebrick4", 139, 26, 26);
+	add_color("brown1", 255, 64, 64);
+	add_color("brown2", 238, 59, 59);
+	add_color("brown3", 205, 51, 51);
+	add_color("brown4", 139, 35, 35);
+	add_color("salmon1", 255, 140, 105);
+	add_color("salmon2", 238, 130, 98);
+	add_color("salmon3", 205, 112, 84);
+	add_color("salmon4", 139, 76, 57);
+	add_color("LightSalmon1", 255, 160, 122);
+	add_color("LightSalmon2", 238, 149, 114);
+	add_color("LightSalmon3", 205, 129, 98);
+	add_color("LightSalmon4", 139, 87, 66);
+	add_color("orange1", 255, 165, 0);
+	add_color("orange2", 238, 154, 0);
+	add_color("orange3", 205, 133, 0);
+	add_color("orange4", 139, 90, 0);
+	add_color("DarkOrange1", 255, 127, 0);
+	add_color("DarkOrange2", 238, 118, 0);
+	add_color("DarkOrange3", 205, 102, 0);
+	add_color("DarkOrange4", 139, 69, 0);
+	add_color("coral1", 255, 114, 86);
+	add_color("coral2", 238, 106, 80);
+	add_color("coral3", 205, 91, 69);
+	add_color("coral4", 139, 62, 47);
+	add_color("tomato1", 255, 99, 71);
+	add_color("tomato2", 238, 92, 66);
+	add_color("tomato3", 205, 79, 57);
+	add_color("tomato4", 139, 54, 38);
+	add_color("OrangeRed1", 255, 69, 0);
+	add_color("OrangeRed2", 238, 64, 0);
+	add_color("OrangeRed3", 205, 55, 0);
+	add_color("OrangeRed4", 139, 37, 0);
+	add_color("red1", 255, 0, 0);
+	add_color("red2", 238, 0, 0);
+	add_color("red3", 205, 0, 0);
+	add_color("red4", 139, 0, 0);
+	add_color("DeepPink1", 255, 20, 147);
+	add_color("DeepPink2", 238, 18, 137);
+	add_color("DeepPink3", 205, 16, 118);
+	add_color("DeepPink4", 139, 10, 80);
+	add_color("HotPink1", 255, 110, 180);
+	add_color("HotPink2", 238, 106, 167);
+	add_color("HotPink3", 205, 96, 144);
+	add_color("HotPink4", 139, 58, 98);
+	add_color("pink1", 255, 181, 197);
+	add_color("pink2", 238, 169, 184);
+	add_color("pink3", 205, 145, 158);
+	add_color("pink4", 139, 99, 108);
+	add_color("LightPink1", 255, 174, 185);
+	add_color("LightPink2", 238, 162, 173);
+	add_color("LightPink3", 205, 140, 149);
+	add_color("LightPink4", 139, 95, 101);
+	add_color("PaleVioletRed1", 255, 130, 171);
+	add_color("PaleVioletRed2", 238, 121, 159);
+	add_color("PaleVioletRed3", 205, 104, 137);
+	add_color("PaleVioletRed4", 139, 71, 93);
+	add_color("maroon1", 255, 52, 179);
+	add_color("maroon2", 238, 48, 167);
+	add_color("maroon3", 205, 41, 144);
+	add_color("maroon4", 139, 28, 98);
+	add_color("VioletRed1", 255, 62, 150);
+	add_color("VioletRed2", 238, 58, 140);
+	add_color("VioletRed3", 205, 50, 120);
+	add_color("VioletRed4", 139, 34, 82);
+	add_color("magenta1", 255, 0, 255);
+	add_color("magenta2", 238, 0, 238);
+	add_color("magenta3", 205, 0, 205);
+	add_color("magenta4", 139, 0, 139);
+	add_color("orchid1", 255, 131, 250);
+	add_color("orchid2", 238, 122, 233);
+	add_color("orchid3", 205, 105, 201);
+	add_color("orchid4", 139, 71, 137);
+	add_color("plum1", 255, 187, 255);
+	add_color("plum2", 238, 174, 238);
+	add_color("plum3", 205, 150, 205);
+	add_color("plum4", 139, 102, 139);
+	add_color("MediumOrchid1", 224, 102, 255);
+	add_color("MediumOrchid2", 209, 95, 238);
+	add_color("MediumOrchid3", 180, 82, 205);
+	add_color("MediumOrchid4", 122, 55, 139);
+	add_color("DarkOrchid1", 191, 62, 255);
+	add_color("DarkOrchid2", 178, 58, 238);
+	add_color("DarkOrchid3", 154, 50, 205);
+	add_color("DarkOrchid4", 104, 34, 139);
+	add_color("purple1", 155, 48, 255);
+	add_color("purple2", 145, 44, 238);
+	add_color("purple3", 125, 38, 205);
+	add_color("purple4", 85, 26, 139);
+	add_color("MediumPurple1", 171, 130, 255);
+	add_color("MediumPurple2", 159, 121, 238);
+	add_color("MediumPurple3", 137, 104, 205);
+	add_color("MediumPurple4", 93, 71, 139);
+	add_color("thistle1", 255, 225, 255);
+	add_color("thistle2", 238, 210, 238);
+	add_color("thistle3", 205, 181, 205);
+	add_color("thistle4", 139, 123, 139);
+	add_color("gray0", 0, 0, 0);
+	add_color("grey0", 0, 0, 0);
+	add_color("gray1", 3, 3, 3);
+	add_color("grey1", 3, 3, 3);
+	add_color("gray2", 5, 5, 5);
+	add_color("grey2", 5, 5, 5);
+	add_color("gray3", 8, 8, 8);
+	add_color("grey3", 8, 8, 8);
+	add_color("gray4", 10, 10, 10);
+	add_color("grey4", 10, 10, 10);
+	add_color("gray5", 13, 13, 13);
+	add_color("grey5", 13, 13, 13);
+	add_color("gray6", 15, 15, 15);
+	add_color("grey6", 15, 15, 15);
+	add_color("gray7", 18, 18, 18);
+	add_color("grey7", 18, 18, 18);
+	add_color("gray8", 20, 20, 20);
+	add_color("grey8", 20, 20, 20);
+	add_color("gray9", 23, 23, 23);
+	add_color("grey9", 23, 23, 23);
+	add_color("gray10", 26, 26, 26);
+	add_color("grey10", 26, 26, 26);
+	add_color("gray11", 28, 28, 28);
+	add_color("grey11", 28, 28, 28);
+	add_color("gray12", 31, 31, 31);
+	add_color("grey12", 31, 31, 31);
+	add_color("gray13", 33, 33, 33);
+	add_color("grey13", 33, 33, 33);
+	add_color("gray14", 36, 36, 36);
+	add_color("grey14", 36, 36, 36);
+	add_color("gray15", 38, 38, 38);
+	add_color("grey15", 38, 38, 38);
+	add_color("gray16", 41, 41, 41);
+	add_color("grey16", 41, 41, 41);
+	add_color("gray17", 43, 43, 43);
+	add_color("grey17", 43, 43, 43);
+	add_color("gray18", 46, 46, 46);
+	add_color("grey18", 46, 46, 46);
+	add_color("gray19", 48, 48, 48);
+	add_color("grey19", 48, 48, 48);
+	add_color("gray20", 51, 51, 51);
+	add_color("grey20", 51, 51, 51);
+	add_color("gray21", 54, 54, 54);
+	add_color("grey21", 54, 54, 54);
+	add_color("gray22", 56, 56, 56);
+	add_color("grey22", 56, 56, 56);
+	add_color("gray23", 59, 59, 59);
+	add_color("grey23", 59, 59, 59);
+	add_color("gray24", 61, 61, 61);
+	add_color("grey24", 61, 61, 61);
+	add_color("gray25", 64, 64, 64);
+	add_color("grey25", 64, 64, 64);
+	add_color("gray26", 66, 66, 66);
+	add_color("grey26", 66, 66, 66);
+	add_color("gray27", 69, 69, 69);
+	add_color("grey27", 69, 69, 69);
+	add_color("gray28", 71, 71, 71);
+	add_color("grey28", 71, 71, 71);
+	add_color("gray29", 74, 74, 74);
+	add_color("grey29", 74, 74, 74);
+	add_color("gray30", 77, 77, 77);
+	add_color("grey30", 77, 77, 77);
+	add_color("gray31", 79, 79, 79);
+	add_color("grey31", 79, 79, 79);
+	add_color("gray32", 82, 82, 82);
+	add_color("grey32", 82, 82, 82);
+	add_color("gray33", 84, 84, 84);
+	add_color("grey33", 84, 84, 84);
+	add_color("gray34", 87, 87, 87);
+	add_color("grey34", 87, 87, 87);
+	add_color("gray35", 89, 89, 89);
+	add_color("grey35", 89, 89, 89);
+	add_color("gray36", 92, 92, 92);
+	add_color("grey36", 92, 92, 92);
+	add_color("gray37", 94, 94, 94);
+	add_color("grey37", 94, 94, 94);
+	add_color("gray38", 97, 97, 97);
+	add_color("grey38", 97, 97, 97);
+	add_color("gray39", 99, 99, 99);
+	add_color("grey39", 99, 99, 99);
+	add_color("gray40", 102, 102, 102);
+	add_color("grey40", 102, 102, 102);
+	add_color("gray41", 105, 105, 105);
+	add_color("grey41", 105, 105, 105);
+	add_color("gray42", 107, 107, 107);
+	add_color("grey42", 107, 107, 107);
+	add_color("gray43", 110, 110, 110);
+	add_color("grey43", 110, 110, 110);
+	add_color("gray44", 112, 112, 112);
+	add_color("grey44", 112, 112, 112);
+	add_color("gray45", 115, 115, 115);
+	add_color("grey45", 115, 115, 115);
+	add_color("gray46", 117, 117, 117);
+	add_color("grey46", 117, 117, 117);
+	add_color("gray47", 120, 120, 120);
+	add_color("grey47", 120, 120, 120);
+	add_color("gray48", 122, 122, 122);
+	add_color("grey48", 122, 122, 122);
+	add_color("gray49", 125, 125, 125);
+	add_color("grey49", 125, 125, 125);
+	add_color("gray50", 127, 127, 127);
+	add_color("grey50", 127, 127, 127);
+	add_color("gray51", 130, 130, 130);
+	add_color("grey51", 130, 130, 130);
+	add_color("gray52", 133, 133, 133);
+	add_color("grey52", 133, 133, 133);
+	add_color("gray53", 135, 135, 135);
+	add_color("grey53", 135, 135, 135);
+	add_color("gray54", 138, 138, 138);
+	add_color("grey54", 138, 138, 138);
+	add_color("gray55", 140, 140, 140);
+	add_color("grey55", 140, 140, 140);
+	add_color("gray56", 143, 143, 143);
+	add_color("grey56", 143, 143, 143);
+	add_color("gray57", 145, 145, 145);
+	add_color("grey57", 145, 145, 145);
+	add_color("gray58", 148, 148, 148);
+	add_color("grey58", 148, 148, 148);
+	add_color("gray59", 150, 150, 150);
+	add_color("grey59", 150, 150, 150);
+	add_color("gray60", 153, 153, 153);
+	add_color("grey60", 153, 153, 153);
+	add_color("gray61", 156, 156, 156);
+	add_color("grey61", 156, 156, 156);
+	add_color("gray62", 158, 158, 158);
+	add_color("grey62", 158, 158, 158);
+	add_color("gray63", 161, 161, 161);
+	add_color("grey63", 161, 161, 161);
+	add_color("gray64", 163, 163, 163);
+	add_color("grey64", 163, 163, 163);
+	add_color("gray65", 166, 166, 166);
+	add_color("grey65", 166, 166, 166);
+	add_color("gray66", 168, 168, 168);
+	add_color("grey66", 168, 168, 168);
+	add_color("gray67", 171, 171, 171);
+	add_color("grey67", 171, 171, 171);
+	add_color("gray68", 173, 173, 173);
+	add_color("grey68", 173, 173, 173);
+	add_color("gray69", 176, 176, 176);
+	add_color("grey69", 176, 176, 176);
+	add_color("gray70", 179, 179, 179);
+	add_color("grey70", 179, 179, 179);
+	add_color("gray71", 181, 181, 181);
+	add_color("grey71", 181, 181, 181);
+	add_color("gray72", 184, 184, 184);
+	add_color("grey72", 184, 184, 184);
+	add_color("gray73", 186, 186, 186);
+	add_color("grey73", 186, 186, 186);
+	add_color("gray74", 189, 189, 189);
+	add_color("grey74", 189, 189, 189);
+	add_color("gray75", 191, 191, 191);
+	add_color("grey75", 191, 191, 191);
+	add_color("gray76", 194, 194, 194);
+	add_color("grey76", 194, 194, 194);
+	add_color("gray77", 196, 196, 196);
+	add_color("grey77", 196, 196, 196);
+	add_color("gray78", 199, 199, 199);
+	add_color("grey78", 199, 199, 199);
+	add_color("gray79", 201, 201, 201);
+	add_color("grey79", 201, 201, 201);
+	add_color("gray80", 204, 204, 204);
+	add_color("grey80", 204, 204, 204);
+	add_color("gray81", 207, 207, 207);
+	add_color("grey81", 207, 207, 207);
+	add_color("gray82", 209, 209, 209);
+	add_color("grey82", 209, 209, 209);
+	add_color("gray83", 212, 212, 212);
+	add_color("grey83", 212, 212, 212);
+	add_color("gray84", 214, 214, 214);
+	add_color("grey84", 214, 214, 214);
+	add_color("gray85", 217, 217, 217);
+	add_color("grey85", 217, 217, 217);
+	add_color("gray86", 219, 219, 219);
+	add_color("grey86", 219, 219, 219);
+	add_color("gray87", 222, 222, 222);
+	add_color("grey87", 222, 222, 222);
+	add_color("gray88", 224, 224, 224);
+	add_color("grey88", 224, 224, 224);
+	add_color("gray89", 227, 227, 227);
+	add_color("grey89", 227, 227, 227);
+	add_color("gray90", 229, 229, 229);
+	add_color("grey90", 229, 229, 229);
+	add_color("gray91", 232, 232, 232);
+	add_color("grey91", 232, 232, 232);
+	add_color("gray92", 235, 235, 235);
+	add_color("grey92", 235, 235, 235);
+	add_color("gray93", 237, 237, 237);
+	add_color("grey93", 237, 237, 237);
+	add_color("gray94", 240, 240, 240);
+	add_color("grey94", 240, 240, 240);
+	add_color("gray95", 242, 242, 242);
+	add_color("grey95", 242, 242, 242);
+	add_color("gray96", 245, 245, 245);
+	add_color("grey96", 245, 245, 245);
+	add_color("gray97", 247, 247, 247);
+	add_color("grey97", 247, 247, 247);
+	add_color("gray98", 250, 250, 250);
+	add_color("grey98", 250, 250, 250);
+	add_color("gray99", 252, 252, 252);
+	add_color("grey99", 252, 252, 252);
+	add_color("gray100", 255, 255, 255);
+	add_color("grey100", 255, 255, 255);
+	add_color("dark grey", 169, 169, 169);
+	add_color("DarkGrey", 169, 169, 169);
+	add_color("dark gray", 169, 169, 169);
+	add_color("DarkGray", 169, 169, 169);
+	add_color("dark blue", 0, 0, 139);
+	add_color("DarkBlue", 0, 0, 139);
+	add_color("dark cyan", 0, 139, 139);
+	add_color("DarkCyan", 0, 139, 139);
+	add_color("dark magenta", 139, 0, 139);
+	add_color("DarkMagenta", 139, 0, 139);
+	add_color("dark red", 139, 0, 0);
+	add_color("DarkRed", 139, 0, 0);
+	add_color("light green", 144, 238, 144);
+	add_color("LightGreen", 144, 238, 144);
+	add_color("crimson", 220, 20, 60);
+	add_color("indigo", 75, 0, 130);
+	add_color("olive", 128, 128, 0);
+	add_color("rebecca purple", 102, 51, 153);
+	add_color("RebeccaPurple", 102, 51, 153);
+	add_color("silver", 192, 192, 192);
+	add_color("teal", 0, 128, 128);
 }

@@ -319,8 +319,8 @@ static void draw_normal(MwWidget handle) {
 	MwLLColor   text   = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	MwLLColor   shadow = MwLightenColor(handle, base, MwDefaultShadow, MwDefaultShadow, MwDefaultShadow);
 	int	    align;
-	const char* str	  = MwGetText(handle, MwNtext);
-	MwLLPixmap  bgpx  = MwGetVoid(handle, MwNbackgroundPixmap);
+	const char* str	 = MwGetText(handle, MwNtext);
+	MwLLPixmap  bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	if(str == NULL) str = "";
 

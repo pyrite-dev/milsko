@@ -29,6 +29,12 @@ MWDECL MwLLColor MWAPI MwParseColor(MwWidget handle, const char* text);
 MWDECL void MWAPI MwParseColorNoAllocate(const char* text, MwRGB* rgb);
 
 /*!
+ * @brief Initialize color table
+ * @warning This is called in MwLibraryInit - you do not have to call this
+ */
+MWDECL void MWAPI MwColorTableInit(void);
+
+/*!
  * @brief Lighten a color
  * @param handle Widget
  * @param color Color

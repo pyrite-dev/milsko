@@ -239,7 +239,7 @@ static int wcreate(MwWidget handle) {
 		EGLDisplay	 display;
 		waylandopengl_t* o = r	    = malloc(sizeof(*o));
 		int		 gbm_format = 0;
-		EGLConfig egl_configs[1024];
+		EGLConfig	 egl_configs[1024];
 		memset(o, 0, sizeof(waylandopengl_t));
 
 		o->gllib = MwDynamicOpen("libEGL.so");
@@ -346,7 +346,7 @@ static int wcreate(MwWidget handle) {
 			} else {
 				if(gbm_format == GBM_FORMAT_ARGB8888) {
 					o->egl_config = egl_configs[i];
-                    break;
+					break;
 				}
 			}
 		}
@@ -513,8 +513,8 @@ static void mwOpenGLSwapBufferImpl(MwWidget handle) {
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
 		waylandopengl_t* o = handle->internal;
-		struct gbm_bo* bo;
-        eglSwapInterval(o->egl_display, 0);
+		struct gbm_bo*	 bo;
+		eglSwapInterval(o->egl_display, 0);
 		if(!eglSwapBuffers(o->egl_display, o->egl_surface)) {
 			printf("ERROR: eglSwapBuffers, %0X\n", eglGetError());
 		}

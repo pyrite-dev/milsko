@@ -18,7 +18,7 @@
 		MwLLEndDraw(handle->lowlevel); \
 	}
 
-static void	MWAPI MwVaListApply_Internal(MwWidget handle, va_list va, int only_early);
+static void MWAPI     MwVaListApply_Internal(MwWidget handle, va_list va, int only_early);
 static MwWidget MWAPI MwCreateWidget_Internal(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, int do_prop, va_list prop);
 
 static void lldrawhandler(MwLL handle, void* data) {
@@ -997,6 +997,8 @@ int MwLibraryInit(void) {
 #endif
 	    NULL};
 	int i;
+
+	MwColorTableInit();
 
 	MwFLSetup();
 
