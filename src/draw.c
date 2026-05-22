@@ -46,6 +46,7 @@ static void color_set_disabled_if_disabled(MwWidget handle, MwLLColor rgb) {
 			rgb->common.red	  = rgb->common.red + (c->common.red - rgb->common.red) * 0.5;
 			rgb->common.green = rgb->common.green + (c->common.green - rgb->common.green) * 0.5;
 			rgb->common.blue  = rgb->common.blue + (c->common.blue - rgb->common.blue) * 0.5;
+			MwLLColorUpdate(handle->lowlevel, rgb, rgb->common.red, rgb->common.green, rgb->common.blue);
 		}
 	}
 };
@@ -440,13 +441,13 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
-	color_set_disabled_if_disabled(handle, col);
-	color_set_disabled_if_disabled(handle, darker);
-	color_set_disabled_if_disabled(handle, lighter);
-
 	double deg = 30 * ((direction == MwEAST || direction == MwWEST) ? 2 : 1);
 	double c   = cos(deg / 180 * M_PI);
 	double s   = sin(deg / 180 * M_PI);
+
+	color_set_disabled_if_disabled(handle, col);
+	color_set_disabled_if_disabled(handle, darker);
+	color_set_disabled_if_disabled(handle, lighter);
 
 	if(direction == MwNORTH) {
 		p1[0].x = rect->x + rect->width / 2;
