@@ -2,6 +2,8 @@
 
 #include "../../external/stb_ds.h"
 
+#define SOME_FIX
+
 static void resize(MwWidget handle);
 
 static int wcreate(MwWidget handle) {
@@ -190,7 +192,11 @@ static void click(MwWidget handle) {
 
 static MwWidget mwTabAddImpl(MwWidget handle, const char* name) {
 	MwTab	 t = handle->internal;
+#ifdef SOME_FIX
+	MwWidget f = MwCreateWidget(MwFrameClass, "tabframe", handle, MwDefaultBorderWidth(handle), tab_height(handle) + MwDefaultBorderWidth(handle), MwGetInteger(handle, MwNwidth) - MwDefaultBorderWidth(handle) * 2, MwGetInteger(handle, MwNheight) - tab_height(handle) - MwDefaultBorderWidth(handle) * 2);
+#else
 	MwWidget f = MwCreateWidget(MwFrameClass, "tabframe", handle, 0, MwGetInteger(handle, MwNheight), MwGetInteger(handle, MwNwidth) - MwDefaultBorderWidth(handle) * 2, MwGetInteger(handle, MwNheight) - tab_height(handle) - MwDefaultBorderWidth(handle) * 2);
+#endif
 	char*	 n = MwStringDuplicate(name);
 
 	arrput(t->frames, f);
@@ -202,6 +208,11 @@ static MwWidget mwTabAddImpl(MwWidget handle, const char* name) {
 		MwSetInteger(handle, MwNvalue, arrlen(t->frames) - 1);
 		show_frame(handle);
 	}
+#ifdef SOME_FIX
+	else{
+		MwLLShow(f->lowlevel, 0);
+	}
+#endif
 
 	return f;
 }
@@ -237,6 +248,9 @@ static void resize(MwWidget handle) {
 	for(i = 0; i < arrlen(t->frames); i++) {
 		int y = MwGetInteger(handle, MwNheight);
 
+#ifdef SOME_FIX
+		MwLLShow(t->frames[i]->lowlevel, i == v);
+#else
 		if(i == v) y = tab_height(handle) + MwDefaultBorderWidth(handle);
 
 		MwVaApply(t->frames[i],
@@ -245,6 +259,11 @@ static void resize(MwWidget handle) {
 			  MwNwidth, MwGetInteger(handle, MwNwidth) - MwDefaultBorderWidth(handle) * 2,
 			  MwNheight, MwGetInteger(handle, MwNheight) - tab_height(handle) - MwDefaultBorderWidth(handle) * 2,
 			  NULL);
+
+		if(i == v){
+
+		}
+#endif
 	}
 }
 

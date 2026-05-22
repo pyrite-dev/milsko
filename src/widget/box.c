@@ -120,11 +120,11 @@ static void resize(MwWidget handle) {
 	MwForceRender(handle);
 }
 
-static void children_update(MwWidget handle, MwWidget child, int new) {
+static void children_update(MwWidget handle, MwWidget child, int new_child) {
 	MwBox b = handle->internal;
 
 	(void)child;
-	(void)new;
+	(void)new_child;
 
 	b->layout = 1;
 

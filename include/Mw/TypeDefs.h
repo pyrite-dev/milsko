@@ -40,7 +40,7 @@ typedef void (*MwHandler)(MwWidget handle);
 typedef int (*MwHandlerWithStatus)(MwWidget handle);
 typedef void (*MwHandlerProps)(MwWidget handle, char** key);
 typedef void (*MwHandlerProp)(MwWidget handle, const char* key);
-typedef void (*MwHandlerChildrenUpdate)(MwWidget handle, MwWidget child, int _new);
+typedef void (*MwHandlerChildrenUpdate)(MwWidget handle, MwWidget child, int new_child);
 typedef void (*MwHandlerChildrenProp)(MwWidget handle, MwWidget child, const char* key);
 typedef void (*MwHandlerKey)(MwWidget handle, int key);
 typedef void (*MwHandlerMouse)(MwWidget handle, void* ptr);

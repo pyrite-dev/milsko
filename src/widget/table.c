@@ -170,11 +170,11 @@ static void resize(MwWidget handle) {
 	MwForceRender(handle);
 }
 
-static void children_update(MwWidget handle, MwWidget child, int new) {
+static void children_update(MwWidget handle, MwWidget child, int new_child) {
 	MwTable t = handle->internal;
 	t->layout = 1;
 
-	if(new) {
+	if(new_child) {
 		arrput(t->widgets, child);
 	} else {
 		int i;
