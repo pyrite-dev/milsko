@@ -38,6 +38,18 @@ static int hex(const char* txt, int len) {
 	return r;
 }
 
+static void color_set_disabled_if_disabled(MwWidget handle, MwLLColor rgb) {
+	if(MwGetInteger(handle, MwNdisabled) == 1) {
+		MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
+
+		if(c != NULL) {
+			rgb->common.red	  = rgb->common.red + (c->common.red - rgb->common.red) * 0.5;
+			rgb->common.green = rgb->common.green + (c->common.green - rgb->common.green) * 0.5;
+			rgb->common.blue  = rgb->common.blue + (c->common.blue - rgb->common.blue) * 0.5;
+		}
+	}
+};
+
 void MwParseColorNoAllocate(const char* text, MwRGB* rgb) {
 	if(text[0] == '#' && strlen(text) == 4) {
 		rgb->red   = hex(text + 1, 1);
@@ -125,6 +137,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	for(y = 0; y < rect->height; y++) {
 		MwLLColor col = MwLightenColor(handle, color, -darken, -darken, -darken);
 		int	  idx = y * 4;
+		color_set_disabled_if_disabled(handle, col);
 		data[idx]     = col->common.red;
 		data[idx + 1] = col->common.green;
 		data[idx + 2] = col->common.blue;
@@ -204,6 +217,8 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 	if(rect->width <= 0 || rect->height <= 0) return;
 
 	col = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
+	color_set_disabled_if_disabled(handle, col);
+
 	if(MwGetInteger(handle, MwNmodernLook)) {
 		MwDrawRectFading(handle, rect, col);
 	} else {
@@ -219,6 +234,9 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
+	color_set_disabled_if_disabled(handle, col);
+	color_set_disabled_if_disabled(handle, darker);
+	color_set_disabled_if_disabled(handle, lighter);
 
 	p[0].x = rect->x;
 	p[0].y = rect->y + rect->height / 2;
@@ -284,8 +302,11 @@ static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwLLColor color,
 	int	  ColorDiff = get_color_diff(handle);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
 	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, ColorDiff - diff, ColorDiff - diff, ColorDiff - diff);
-	p[0].x		    = rect->x;
-	p[0].y		    = rect->y;
+	color_set_disabled_if_disabled(handle, darker);
+	color_set_disabled_if_disabled(handle, lighter);
+
+	p[0].x = rect->x;
+	p[0].y = rect->y;
 
 	p[1].x = rect->x + rect->width;
 	p[1].y = rect->y;
@@ -380,6 +401,9 @@ static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwLLColor color
 	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff);
 	MwRect	  r	    = *rect;
 
+	color_set_disabled_if_disabled(handle, darker);
+	color_set_disabled_if_disabled(handle, lighter);
+
 	frame_border_complex(handle, rect, lighter, darker, invert, border == 1 ? 1 : (border / 2), diff, same);
 
 	if(border > 1) {
@@ -416,6 +440,9 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
+	color_set_disabled_if_disabled(handle, col);
+	color_set_disabled_if_disabled(handle, darker);
+	color_set_disabled_if_disabled(handle, lighter);
 
 	double deg = 30 * ((direction == MwEAST || direction == MwWEST) ? 2 : 1);
 	double c   = cos(deg / 180 * M_PI);

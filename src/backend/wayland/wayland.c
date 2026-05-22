@@ -1652,8 +1652,11 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 }
 
 static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
-	(void)handle;
 	(void)toggle;
+
+	/* Not Really what's supposed to happen with this function, but take this opprutunity to do the handlers that will force everything to redraw. */
+	MwLLDispatch(handle, resize, NULL);
+	MwLLDispatch(handle, draw, NULL);
 }
 
 static MwBool MwLLDoModernImpl(MwLL handle) {

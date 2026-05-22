@@ -202,9 +202,16 @@ int main() {
 				 MwNcolumns, 5,
 				 NULL);
 
-	f = frame("Button", -PaddingContent, -PaddingContent, MwButtonClass,
-		  MwNtext, "Press me",
+	f = frame("Button", -PaddingContent, -PaddingContent, MwBoxClass,
+		  MwNorientation, MwVERTICAL,
 		  NULL);
+	b = MwVaCreateWidget(MwButtonClass, "btn", child(f), 0, 0, 0, 0,
+			     MwNtext, "Press me",
+			     NULL);
+	b = MwVaCreateWidget(MwButtonClass, "btn_disabled", child(f), 0, 0, 0, 0,
+			     MwNtext, "Cannot press me",
+			     MwNdisabled, 1,
+			     NULL);
 
 	MwVaCreateWidget(MwLabelClass, "label", table, 0, 0, 0, 0,
 			 MwNbold, 1,
@@ -221,11 +228,11 @@ int main() {
 				     MwNorientation, MwVERTICAL,
 				     MwNfixedSize, 16,
 				     NULL);
-		for(j = 0; j < 5; j++) MwCreateWidget(i == 0 ? MwCheckBoxClass : MwRadioBoxClass, i == 0 ? "cb" : "rb", b, 0, 0, 0, 0);
+		for(j = 0; j < 6; j++) MwVaCreateWidget(i == 0 ? MwCheckBoxClass : MwRadioBoxClass, i == 0 ? "cb" : "rb", b, 0, 0, 0, 0, MwNdisabled, (j == 5) ? 1 : 0, NULL);
 		b = MwVaCreateWidget(MwBoxClass, "table1", w, 0, 0, 0, 0,
 				     MwNorientation, MwVERTICAL,
 				     NULL);
-		for(j = 0; j < 5; j++) {
+		for(j = 0; j < 6; j++) {
 			char buf[32];
 			sprintf(buf, "%sBox %d", i == 0 ? "Check" : "Radio", j + 1);
 			MwVaCreateWidget(MwLabelClass, "label", b, 0, 0, 0, 0,

@@ -76,10 +76,22 @@ static MwFLFont assume_ttf(MwWidget handle, MwFLFont ttf) {
 #endif
 
 void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, int align, MwLLColor color) {
-	MwPoint p     = *point;
-	char*	input = (char*)text;
-	char*	last  = input;
-	int	cp;
+	MwPoint	  p	= *point;
+	char*	  input = (char*)text;
+	char*	  last	= input;
+	int	  cp;
+	MwLLColor fadedColor = NULL;
+
+	if(MwGetInteger(handle, MwNdisabled) == 1) {
+		MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
+
+		if(c != NULL) {
+			fadedColor		 = MwLLAllocColor(handle->lowlevel, color->common.red, color->common.blue, color->common.green);
+			fadedColor->common.red	 = fadedColor->common.red + (c->common.red - fadedColor->common.red) * 0.5;
+			fadedColor->common.green = fadedColor->common.green + (c->common.green - fadedColor->common.green) * 0.5;
+			fadedColor->common.blue	 = fadedColor->common.blue + (c->common.blue - fadedColor->common.blue) * 0.5;
+		}
+	}
 
 #ifdef TTF
 	if(ttf <= MwFLBuildFont(0xff) && !is_bitmap(handle, ttf)) ttf = assume_ttf(handle, ttf);
@@ -122,9 +134,9 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 
 #ifdef TTF
 			if(MwFLDrawText)
-				if(is_bitmap(handle, ttf) || ttf == NULL || MwFLDrawText(handle, ttf, &p, line, color))
+				if(is_bitmap(handle, ttf) || ttf == NULL || MwFLDrawText(handle, ttf, &p, line, fadedColor ? fadedColor : color))
 #endif
-					bitmap_MwDrawText(handle, &p, line, is_bold(handle, ttf), color);
+					bitmap_MwDrawText(handle, &p, line, is_bold(handle, ttf), fadedColor ? fadedColor : color);
 
 			p.y += MwTextHeight(handle, ttf, line);
 
@@ -132,6 +144,10 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 
 			last = input;
 		}
+	}
+
+	if(fadedColor) {
+		MwLLFreeColor(fadedColor);
 	}
 }
 

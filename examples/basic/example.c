@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-MwWidget window, menu, button, button2, button3, button4, button5, button6;
+MwWidget window, menu, button, button2, button3, button4, button5, button6, button7;
 
 void MWAPI handler(MwWidget handle, void* user_data, void* call_data) {
 	(void)handle;
@@ -51,24 +51,29 @@ void MWAPI resize(MwWidget handle, void* user_data, void* call_data) {
 
 	MwVaApply(button,
 		  MwNy, 50 + mh,
-		  MwNwidth, (w - 50 * 2) / 3,
+		  MwNwidth, (w - 50 * 2) / 4,
 		  MwNheight, h - 125 - 50 * 3,
 		  NULL);
 
 	MwVaApply(button2,
-		  MwNx, 50 + (w - 50 * 2) / 3,
+		  MwNx, 50 + (w - 50 * 2) / 4,
 		  MwNy, 50 + mh,
-		  MwNwidth, (w - 50 * 2) / 3,
+		  MwNwidth, (w - 50 * 2) / 4,
 		  MwNheight, h - 125 - 50 * 3,
 		  NULL);
 
 	MwVaApply(button3,
-		  MwNx, 50 + (w - 50 * 2) / 3 * 2,
+		  MwNx, 50 + (w - 50 * 2) / 4 * 2,
 		  MwNy, 50 + mh,
-		  MwNwidth, (w - 50 * 2) / 3,
+		  MwNwidth, (w - 50 * 2) / 4,
 		  MwNheight, h - 125 - 50 * 3,
 		  NULL);
-
+	MwVaApply(button7,
+		  MwNx, 50 + (w - 50 * 2) / 4 * 3,
+		  MwNy, 50 + mh,
+		  MwNwidth, (w - 50 * 2) / 4,
+		  MwNheight, h - 125 - 50 * 3,
+		  NULL);
 	MwVaApply(button4,
 		  MwNx, 50 + (w - 50 * 2) / 3 * 0,
 		  MwNy, h - 50 - 125 + mh,
@@ -120,6 +125,10 @@ int main() {
 				   MwNtext, "lorem ipsum",
 				   MwNbackground, "#66f",
 				   MwNforeground, "#000",
+				   NULL);
+	button7 = MwVaCreateWidget(MwButtonClass, "button", window, 250, 50, 100, 125,
+				   MwNtext, "disabled",
+				   MwNdisabled, 1,
 				   NULL);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);

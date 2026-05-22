@@ -52,6 +52,7 @@
 #define MwNcolumns "Icolumns"
 #define MwNcolumnSpan "IcolumnSpan"
 #define MwNrowSpan "IrowSpan"
+#define MwNdisabled "Idisabled"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
