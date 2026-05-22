@@ -576,7 +576,7 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 		arrput(keys, NULL);
 		MwDispatch3(handle, props_change, keys);
 		arrfree(keys);
-		
+
 		MwDispatch3(handle, prop_change, key);
 	}
 
@@ -625,7 +625,7 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 		arrput(keys, NULL);
 		MwDispatch3(handle, props_change, keys);
 		arrfree(keys);
-		
+
 		MwDispatch3(handle, prop_change, key);
 	}
 

@@ -441,9 +441,9 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
-	double deg = 30 * ((direction == MwEAST || direction == MwWEST) ? 2 : 1);
-	double c   = cos(deg / 180 * M_PI);
-	double s   = sin(deg / 180 * M_PI);
+	double	  deg	    = 30 * ((direction == MwEAST || direction == MwWEST) ? 2 : 1);
+	double	  c	    = cos(deg / 180 * M_PI);
+	double	  s	    = sin(deg / 180 * M_PI);
 
 	color_set_disabled_if_disabled(handle, col);
 	color_set_disabled_if_disabled(handle, darker);
