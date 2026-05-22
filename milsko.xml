@@ -668,6 +668,7 @@
 			<properties>
 				<property name="hasBorder" />
 				<property name="inverted" />
+				<property name="iconPixmap" />
 			</properties>
 		</widget>
 		<widget name="Image">
@@ -957,6 +958,11 @@
 					<return>
 						<widget />
 					</return>
+					<arguments>
+						<string name="name" />
+					</arguments>
+				</function>
+				<function name="Focus">
 					<arguments>
 						<string name="name" />
 					</arguments>

@@ -42,6 +42,16 @@ MwInline MwWidget MwTabGetFrame(MwWidget handle, const char* name) {
 	return out;
 }
 
+/*!
+ * @brief Focus on a tab frame
+ * @param handle Widget
+ * @param name Tab name
+ * @return Frame
+ */
+MwInline void MwTabFocus(MwWidget handle, const char* name) {
+	MwVaWidgetExecute(handle, "mwTabFocus", NULL, name);
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -31,6 +31,10 @@ int main() {
 		MwTabAdd(tab, buf);
 	}
 
+	MwVaApply(MwTabGetFrame(tab, "Tab 1"),
+		  MwNiconPixmap, MwLoadIcon(tab, MwIconWarning),
+		  NULL);
+
 	MwAddUserHandler(w, MwNresizeHandler, resize, NULL);
 
 	resize(w, NULL, NULL);
