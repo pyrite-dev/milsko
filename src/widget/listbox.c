@@ -400,8 +400,8 @@ static void draw(MwWidget handle) {
 }
 
 static void prop_change(MwWidget handle, const char* prop) {
-	if(strcmp(prop, MwNleftPadding) == 0) {
-		MwListBox lb = handle->internal;
+	MwListBox lb = handle->internal;
+	if(strcmp(prop, MwNleftPadding) == 0 && lb->frame != NULL) {
 		MwForceRender(lb->frame);
 	}
 	if(strcmp(prop, MwNhasHeading) == 0) {
