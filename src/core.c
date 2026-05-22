@@ -576,10 +576,11 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 		arrput(keys, NULL);
 		MwDispatch3(handle, props_change, keys);
 		arrfree(keys);
+		
+		MwDispatch3(handle, prop_change, key);
 	}
 
 	if(handle->parent != NULL && handle->parent->prop_event) {
-		MwDispatch3(handle, prop_change, key);
 		if(handle->parent != NULL) MwDispatch4(handle->parent, children_prop_change, handle, key);
 	}
 
@@ -624,10 +625,11 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 		arrput(keys, NULL);
 		MwDispatch3(handle, props_change, keys);
 		arrfree(keys);
+		
+		MwDispatch3(handle, prop_change, key);
 	}
 
 	if(handle->parent != NULL && handle->parent->prop_event) {
-		MwDispatch3(handle, prop_change, key);
 		if(handle->parent != NULL) MwDispatch4(handle->parent, children_prop_change, handle, key);
 	}
 
@@ -655,10 +657,11 @@ void MwSetVoid(MwWidget handle, const char* key, void* value) {
 		arrput(keys, NULL);
 		MwDispatch3(handle, props_change, keys);
 		arrfree(keys);
+
+		MwDispatch3(handle, prop_change, key);
 	}
 
 	if(handle->parent != NULL && handle->parent->prop_event) {
-		MwDispatch3(handle, prop_change, key);
 		if(handle->parent != NULL) MwDispatch4(handle->parent, children_prop_change, handle, key);
 	}
 }
