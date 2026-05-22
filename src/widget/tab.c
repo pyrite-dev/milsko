@@ -248,9 +248,6 @@ static void resize(MwWidget handle) {
 			  MwNwidth, MwGetInteger(handle, MwNwidth) - MwDefaultBorderWidth(handle) * 2,
 			  MwNheight, MwGetInteger(handle, MwNheight) - tab_height(handle) - MwDefaultBorderWidth(handle) * 2,
 			  NULL);
-
-		if(i == v) {
-		}
 	}
 }
 
