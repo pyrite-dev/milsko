@@ -313,7 +313,6 @@ static void resize(MwWidget handle) {
 static void children_update(MwWidget handle, MwWidget child, int new_child) {
 	MwTab t = handle->internal;
 	int   v = MwGetInteger(handle, MwNvalue);
-	int   c = v;
 	int   n;
 	int   i;
 
@@ -345,6 +344,8 @@ static void children_update(MwWidget handle, MwWidget child, int new_child) {
 }
 
 static void children_prop_change(MwWidget handle, MwWidget child, const char* key) {
+	(void)child;
+
 	if(strcmp(key, MwNiconPixmap) == 0) {
 		MwForceRender(handle);
 	}
