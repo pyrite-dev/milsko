@@ -130,7 +130,7 @@ endif()
 if(MW_USE_FREETYPE2)
   find_package(Freetype)
   if(Freetype_FOUND)
-  message(STATUS "FreeType2 found")
+    message(STATUS "FreeType2 found")
     target_compile_definitions(
   Mw
   PRIVATE
@@ -139,9 +139,8 @@ if(MW_USE_FREETYPE2)
 
     list(APPEND INCLUDE_DIRS ${FREETYPE_INCLUDE_DIRS})
     list(APPEND LIBRARY_DIRS ${FREETYPE_LIBRARY_DIRS})
-    list(APPEND LIBRARIES ${FREETYPE_LIBRARIES})
   else()
-  message(WARNING "FreeType2 not found")
+    message(WARNING "FreeType2 not found")
   endif()
 endif()
 
@@ -341,7 +340,6 @@ else()
   if(${X11_FOUND})
     list(APPEND INCLUDE_DIRS ${X11_INCLUDE_DIRS})
     list(APPEND LIBRARY_DIRS ${X11_LIBRARY_DIRS})
-    list(APPEND LIBRARIES ${X11_LIBRARIES} m)
     target_compile_definitions(
       Mw
       PRIVATE
@@ -351,7 +349,6 @@ else()
   if(${X11_Xrender_FOUND})
     list(APPEND INCLUDE_DIRS ${XRENDER_INCLUDE_DIRS})
     list(APPEND LIBRARY_DIRS ${XRENDER_LIBRARY_DIRS})
-    list(APPEND LIBRARIES ${XRENDER_LIBRARIES} m)
     target_compile_definitions(
       Mw
       PRIVATE
@@ -369,7 +366,6 @@ find_package(DBus1)
 if(${DBus1_FOUND})
   list(APPEND INCLUDE_DIRS ${DBUS_INCLUDE_DIRS})
   list(APPEND LIBRARY_DIRS ${DBUS_LIBRARY_DIRS})
-  list(APPEND LIBRARIES ${DBUS_LIBRARIES})
   target_compile_definitions(
     Mw
     PRIVATE
