@@ -425,9 +425,11 @@ static void pointer_leave(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 	WAYLAND_EVENT_OP_END(self);
 };
 
-static void xdg_borderless_step(MwLL self, MwMouse p, MwU32 serial) {
+static void xdg_borderless_step_mdown(MwLL self, MwMouse p, MwU32 serial) {
 	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL && self->wayland.backbuffer.surface == curSurface) {
-		if(p.point.y >= (self->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM) - 5) {
+		if(p.point.y <= CSD_BORDER_FRAME_TOP) {
+			xdg_toplevel_move(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial);
+		} else if(p.point.y >= (self->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM) - 5) {
 			if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 5) {
 				xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT);
 			} else {
@@ -443,12 +445,15 @@ static void xdg_borderless_step(MwLL self, MwMouse p, MwU32 serial) {
 			xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_RIGHT);
 		} else if(p.point.x <= 5) {
 			xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_LEFT);
-		} else if(p.point.y <= CSD_BORDER_FRAME_TOP) {
+		}
+	};
+}
+static void xdg_borderless_step_mup(MwLL self, MwMouse p, MwU32 serial) {
+	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL && self->wayland.backbuffer.surface == curSurface) {
+		if(p.point.y <= CSD_BORDER_FRAME_TOP) {
 			if(p.point.x >= CSD_BORDER_FRAME_LEFT && p.point.x <= CSD_BORDER_FRAME_LEFT + 18) {
 				MwLLDispatch(self, close, NULL);
 			} else if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 21) {
-				xdg_toplevel_set_minimized(self->wayland.toplevel->xdg_top_level);
-			} else if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 38) {
 				self->wayland.toplevel->maxim_state = !self->wayland.toplevel->maxim_state;
 				if(self->wayland.toplevel->maxim_state == 0) {
 					xdg_toplevel_unset_maximized(self->wayland.toplevel->xdg_top_level);
@@ -457,8 +462,8 @@ static void xdg_borderless_step(MwLL self, MwMouse p, MwU32 serial) {
 				}
 				self->wayland.setting_wh = 1;
 				MwLLWaylandRegionSetup(self);
-			} else {
-				xdg_toplevel_move(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial);
+			} else if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 38) {
+				xdg_toplevel_set_minimized(self->wayland.toplevel->xdg_top_level);
 			}
 		}
 	};
@@ -606,7 +611,10 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	}
 
 	if(!self->wayland.has_decorations) {
-		xdg_borderless_step(self, p, serial);
+		if(state != WL_POINTER_BUTTON_STATE_RELEASED)
+			xdg_borderless_step_mdown(self, p, serial);
+		else
+			xdg_borderless_step_mup(self, p, serial);
 	}
 
 	WAYLAND_EVENT_OP_END(self);

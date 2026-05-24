@@ -176,12 +176,12 @@ static void xdg_toplevel_configure(void*		data,
 	MwLLWaylandRegionInvalidate(self);
 	self->wayland.ww = width;
 	self->wayland.wh = height;
-	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
-		if(!self->wayland.has_decorations && self->wayland.toplevel->maxim_state) {
-			self->wayland.ww -= CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;
-			self->wayland.wh -= CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM;
-		}
-	}
+	// if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
+	// 	if(!self->wayland.has_decorations && self->wayland.toplevel->maxim_state) {
+	// 		self->wayland.ww -= CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;
+	// 		self->wayland.wh -= CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM;
+	// 	}
+	// }
 
 	if(self->wayland.resizing == 0) {
 		xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, 0, 0, self->wayland.ww, self->wayland.wh);
