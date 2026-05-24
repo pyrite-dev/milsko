@@ -427,9 +427,7 @@ static void pointer_leave(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 
 static void xdg_borderless_step_mdown(MwLL self, MwMouse p, MwU32 serial) {
 	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL && self->wayland.backbuffer.surface == curSurface) {
-		if(p.point.y <= CSD_BORDER_FRAME_TOP) {
-			xdg_toplevel_move(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial);
-		} else if(p.point.y >= (self->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM) - 5) {
+		if(p.point.y >= (self->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM) - 5) {
 			if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 5) {
 				xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT);
 			} else {
@@ -445,6 +443,13 @@ static void xdg_borderless_step_mdown(MwLL self, MwMouse p, MwU32 serial) {
 			xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_RIGHT);
 		} else if(p.point.x <= 5) {
 			xdg_toplevel_resize(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial, XDG_TOPLEVEL_RESIZE_EDGE_LEFT);
+		} else if(p.point.y <= CSD_BORDER_FRAME_TOP) {
+			if(p.point.x >= CSD_BORDER_FRAME_LEFT && p.point.x <= CSD_BORDER_FRAME_LEFT + 18) {
+			} else if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 21) {
+			} else if(p.point.x >= (self->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT) - 38) {
+			} else {
+				xdg_toplevel_move(self->wayland.toplevel->xdg_top_level, self->wayland.pointer_seat, serial);
+			}
 		}
 	};
 }
