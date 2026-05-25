@@ -838,7 +838,7 @@ static void keyboard_key(void*		     data,
 					MwLLDispatch(self, key_released, &key);
 					self->wayland.holding_key = MwFALSE;
 				}
-				clock_gettime(CLOCK_REALTIME, &self->wayland.start_time);
+				self->wayland.start_time   = MwTimeGetTick();
 				self->wayland.next_elapsed = self->wayland.keyboard_delay;
 			}
 		}

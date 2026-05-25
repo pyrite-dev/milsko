@@ -1150,12 +1150,10 @@ static int MwLLPendingImpl(MwLL handle) {
 		handle->wayland.setting_wh = 0;
 	}
 
-	clock_gettime(CLOCK_REALTIME, &handle->wayland.end_time);
+	handle->wayland.end_time = MwTimeGetTick();
 
 	if(handle->wayland.holding_key) {
-		double elapsed = ((double)(handle->wayland.end_time.tv_sec - handle->wayland.start_time.tv_sec) * 1.0e9 +
-				  (double)(handle->wayland.end_time.tv_nsec - handle->wayland.start_time.tv_nsec)) /
-				 1000000.0;
+		float elapsed = ((float)(handle->wayland.end_time - (float)handle->wayland.start_time));
 		if(elapsed >= handle->wayland.next_elapsed) {
 			MwLL topmost_parent = handle;
 			while(topmost_parent->wayland.parent) {

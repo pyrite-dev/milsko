@@ -567,13 +567,13 @@ struct _MwLLWayland {
 
 	MwBool moving;
 
-	MwI64		keyboard_rate;
-	MwI32		keyboard_delay;
-	int		last_pressed_key;
-	MwBool		holding_key;
-	MwU64		next_elapsed;
-	struct timespec start_time;
-	struct timespec end_time;
+	MwI64  keyboard_rate;
+	MwI32  keyboard_delay;
+	int    last_pressed_key;
+	MwBool holding_key;
+	MwU64  next_elapsed;
+	long   start_time;
+	long   end_time;
 
 	cairo_surface_t* front_cs;
 	cairo_surface_t* back_cs;
