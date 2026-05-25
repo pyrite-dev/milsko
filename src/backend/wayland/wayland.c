@@ -677,6 +677,10 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 		MwLLForceRender(parent);
 	}
 
+	/* If the compositor never sets the keyboard repeat info, we'll copy KDE's default of... */
+	r->wayland.keyboard_delay = 600; /* starting at 600ms... */
+	r->wayland.keyboard_rate  = 25;	 /* and going every 25ms... */
+
 	if(!r->wayland.has_decorations) {
 		MwLLBeginDraw(r);
 		MwLLEndDraw(r);
