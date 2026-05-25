@@ -537,6 +537,7 @@ struct _MwLLWayland {
 	MwU32	ww, wh;	       /* Window position */
 	MwPoint cur_mouse_pos; /* Currently known mouse position */
 	MwLL	currentlyHeldWidget;
+	MwLL	focusedWidget;
 
 	int resizing;
 	int setting_wh;

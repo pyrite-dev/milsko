@@ -600,6 +600,9 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 
 		switch(state) {
 		case WL_POINTER_BUTTON_STATE_PRESSED:
+			if(button == BTN_LEFT) {
+				topmost_parent->wayland.focusedWidget = self;
+			}
 			MwLLDispatch(self, down, &p);
 			topmost_parent->wayland.currentlyHeldWidget = self;
 
@@ -718,12 +721,15 @@ static void keyboard_key(void*		     data,
 			 MwU32		     time,
 			 MwU32		     key,
 			 MwU32		     state) {
-	MwLL   self   = data;
-	MwBool inArea = 0;
+	MwLL   self	      = data;
+	MwBool inArea	      = 0;
+	MwLL   topmost_parent = self;
 
 	(void)wl_keyboard;
 	(void)serial;
 	(void)time;
+
+	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
 	WAYLAND_EVENT_OP_START(self);
 
@@ -734,6 +740,9 @@ static void keyboard_key(void*		     data,
 	if(self->wayland.backbuffer.surface) {
 		inArea |= self->wayland.backbuffer.surface == curSurface;
 	}
+
+	inArea |= (self == topmost_parent->wayland.focusedWidget);
+
 	if(inArea) {
 		xkb_layout_index_t  layout;
 		MwU32		    levels;
