@@ -42,7 +42,7 @@ static void new_protocol(void* data, struct wl_registry* registry,
 
 	wayland_protocol_callback_table_t* cb = shget(self->wayland.wl_protocol_setup_map, interface);
 	if(cb != NULL) {
-		shput(self->wayland.wl_protocol_map, interface, cb->setup(name, data));
+		shput(self->wayland.wl_protocol_map, interface, cb->setup(name, data, version));
 		/* we don't care for adding this protocol, we just use it to know if the compositor will let us have transparent surfaces */
 	} else if(strcmp(interface, "wp_alpha_modifier_v1") == 0) {
 		self->common.supports_transparency = MwTRUE;
@@ -313,7 +313,7 @@ struct zwp_primary_selection_source_v1_listener zwp_primary_selection_source_v1_
 };
 
 /* wl_data_device_manager setup function */
-static wayland_protocol_t* wl_data_device_manager_setup(MwU32 name, struct _MwLLWayland* wayland) {
+static wayland_protocol_t* wl_data_device_manager_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland->clipboard_manager.wl = wl_registry_bind(wayland->registry, name, &wl_data_device_manager_interface, 2);
 
 	wayland->clipboard_source.wl = wl_data_device_manager_create_data_source(wayland->clipboard_manager.wl);
@@ -346,7 +346,7 @@ static void wl_data_device_manager_interface_destroy(struct _MwLLWayland* waylan
 }
 
 /* zwp_primary_selection_device_manager_v1 setup function */
-static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
+static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland->clipboard_manager.zwp = wl_registry_bind(wayland->registry, name, &zwp_primary_selection_device_manager_v1_interface, 1);
 
 	wayland->clipboard_source.zwp = zwp_primary_selection_device_manager_v1_create_source(wayland->clipboard_manager.zwp);
@@ -374,7 +374,7 @@ static void zwp_primary_selection_device_manager_v1_interface_destroy(struct _Mw
 }
 
 /* zwp_primary_selection_device_manager_v1 setup function */
-static wayland_protocol_t* zwp_pointer_constraints_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
+static wayland_protocol_t* zwp_pointer_constraints_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland->pointer_constraints = wl_registry_bind(wayland->registry, name, &zwp_pointer_constraints_v1_interface, 1);
 	return NULL;
 }
@@ -507,7 +507,7 @@ struct zwp_relative_pointer_v1_listener MwLLWaylandRelativePointerListener =
 	relative_pointer_motion};
 
 /* zwp_primary_selection_device_manager_v1 setup function */
-static wayland_protocol_t* zwp_relative_pointer_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
+static wayland_protocol_t* zwp_relative_pointer_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland->relative_pointer_manager = wl_registry_bind(wayland->registry, name, &zwp_relative_pointer_manager_v1_interface, 1);
 	return NULL;
 }
@@ -718,7 +718,7 @@ static void keyboard_leave(void*	       data,
 static void keyboard_key(void*		     data,
 			 struct wl_keyboard* wl_keyboard,
 			 MwU32		     serial,
-			 MwU32		     time,
+			 MwU32		     _time,
 			 MwU32		     key,
 			 MwU32		     state) {
 	MwLL   self	      = data;
@@ -727,7 +727,7 @@ static void keyboard_key(void*		     data,
 
 	(void)wl_keyboard;
 	(void)serial;
-	(void)time;
+	(void)_time;
 
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
@@ -832,9 +832,14 @@ static void keyboard_key(void*		     data,
 						MwLLDispatch(topmost_parent, key, &key);
 						topmost_parent = topmost_parent->wayland.parent;
 					}
+					self->wayland.holding_key      = MwTRUE;
+					self->wayland.last_pressed_key = key;
 				} else {
 					MwLLDispatch(self, key_released, &key);
+					self->wayland.holding_key = MwFALSE;
 				}
+				clock_gettime(CLOCK_REALTIME, &self->wayland.start_time);
+				self->wayland.next_elapsed = self->wayland.keyboard_delay;
 			}
 		}
 	}
@@ -889,12 +894,25 @@ static void setup_clipboard(MwLL self, struct wl_seat* wl_seat) {
 	arrpush(self->wayland.clipboard_devices_wl, device_ctx_wl);
 };
 
+static void keyboard_repeat_info(void*		     data,
+				 struct wl_keyboard* wl_keyboard,
+				 int32_t	     rate,
+				 int32_t	     delay) {
+	MwLL self = data;
+
+	(void)wl_keyboard;
+
+	self->wayland.keyboard_rate  = rate;
+	self->wayland.keyboard_delay = delay;
+};
+
 struct wl_keyboard_listener keyboard_listener = {
-    .keymap    = keyboard_keymap,
-    .enter     = keyboard_enter,
-    .leave     = keyboard_leave,
-    .key       = keyboard_key,
-    .modifiers = keyboard_modifiers,
+    .keymap	 = keyboard_keymap,
+    .enter	 = keyboard_enter,
+    .leave	 = keyboard_leave,
+    .key	 = keyboard_key,
+    .modifiers	 = keyboard_modifiers,
+    .repeat_info = keyboard_repeat_info,
 };
 
 /* `wl_seat.name` callback */
@@ -978,14 +996,15 @@ void xdg_wm_base_ping(void*		  data,
 };
 
 /* wl_seat setup function */
-static wayland_protocol_t* wl_seat_setup(MwU32 name, MwLL ll) {
+static wayland_protocol_t* wl_seat_setup(MwU32 name, MwLL ll, MwU32 version) {
 	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
+	MwU32		    ver	  = (version >= 4) ? 4 : 1;
 	proto->listener		  = malloc(sizeof(struct wl_seat_listener));
 
 	((struct wl_seat_listener*)proto->listener)->name	  = wl_seat_name;
 	((struct wl_seat_listener*)proto->listener)->capabilities = wl_seat_capabilities;
 
-	wl_seat_add_listener(wl_registry_bind(ll->wayland.registry, name, &wl_seat_interface, 1), proto->listener, ll);
+	wl_seat_add_listener(wl_registry_bind(ll->wayland.registry, name, &wl_seat_interface, ver), proto->listener, ll);
 
 	return proto;
 }
@@ -996,7 +1015,7 @@ static void wl_seat_interface_destroy(struct _MwLLWayland* wayland, wayland_prot
 }
 
 /* wl_output setup function */
-static wayland_protocol_t* wl_output_setup(MwU32 name, MwLL ll) {
+static wayland_protocol_t* wl_output_setup(MwU32 name, MwLL ll, MwU32 version) {
 	ll->wayland.output = wl_registry_bind(ll->wayland.registry, name, &wl_output_interface, 1);
 	wl_output_add_listener(ll->wayland.output, &output_listener, ll);
 
@@ -1009,7 +1028,7 @@ static void wl_output_interface_destroy(struct _MwLLWayland* wayland, wayland_pr
 }
 
 /* wl_compositor setup function */
-static wayland_protocol_t* wl_compositor_setup(MwU32 name, struct _MwLLWayland* wayland) {
+static wayland_protocol_t* wl_compositor_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland->compositor = wl_registry_bind(wayland->registry, name, &wl_compositor_interface, 1);
 
 	return NULL;
@@ -1021,7 +1040,7 @@ static void wl_compositor_interface_destroy(struct _MwLLWayland* wayland, waylan
 }
 
 /* wl_subcompositor setup function */
-static wayland_protocol_t* wl_subcompositor_setup(MwU32 name, struct _MwLLWayland* wayland) {
+static wayland_protocol_t* wl_subcompositor_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		wayland->toplevel->scompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
 	} else {
@@ -1037,7 +1056,7 @@ static void wl_subcompositor_interface_destroy(struct _MwLLWayland* wayland, way
 }
 
 /* xdg_wm_base setup function */
-static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wayland) {
+static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
 	proto->listener		  = malloc(sizeof(struct xdg_wm_base_listener));
 
@@ -1055,7 +1074,7 @@ static void xdg_wm_base_interface_destroy(struct _MwLLWayland* wayland, wayland_
 }
 
 /* xdg_wm_base setup function */
-static wayland_protocol_t* wp_viewporter_setup(MwU32 name, struct _MwLLWayland* wayland) {
+static wayland_protocol_t* wp_viewporter_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
 	proto->context		  = wl_registry_bind(wayland->registry, name, &wp_viewporter_interface, 1);
 
@@ -1068,7 +1087,7 @@ static void wp_viewporter_interface_destroy(struct _MwLLWayland* wayland, waylan
 }
 
 /* zxdg_decoration_manager_v1 setup function */
-static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
+static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland_protocol_t*		      proto = malloc(sizeof(wayland_protocol_t));
 	zxdg_decoration_manager_v1_context_t* ctx   = malloc(sizeof(zxdg_decoration_manager_v1_context_t));
 	proto->listener				    = NULL;
@@ -1087,7 +1106,7 @@ static void zxdg_decoration_manager_v1_interface_destroy(struct _MwLLWayland* wa
 }
 
 /* wl_shm setup function */
-static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland) {
+static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland->framebuffer.shm = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
 	wayland->backbuffer.shm	 = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
 	wayland->cursor.shm	 = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
@@ -1100,7 +1119,7 @@ static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_proto
 	(void)data;
 }
 
-static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland) {
+static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
 
 	proto->context	= wl_registry_bind(wayland->registry, name, &xdg_toplevel_icon_manager_v1_interface, 1);

@@ -346,7 +346,7 @@ typedef struct wayland_protocol {
 	void* context;
 } wayland_protocol_t;
 
-typedef wayland_protocol_t*(wl_setup_func)(MwU32, struct _MwLLWayland*);
+typedef wayland_protocol_t*(wl_setup_func)(MwU32, struct _MwLLWayland*, MwU32 version);
 typedef void(wl_destroy_func)(struct _MwLLWayland* wayland, wayland_protocol_t* data);
 
 typedef struct wayland_protocol_callback_table {
@@ -566,6 +566,14 @@ struct _MwLLWayland {
 	uint32_t last_time;
 
 	MwBool moving;
+
+	MwI64		keyboard_rate;
+	MwI32		keyboard_delay;
+	int		last_pressed_key;
+	MwBool		holding_key;
+	MwU64		next_elapsed;
+	struct timespec start_time;
+	struct timespec end_time;
 
 	cairo_surface_t* front_cs;
 	cairo_surface_t* back_cs;
