@@ -90,6 +90,8 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 			fadedColor->common.red	 = fadedColor->common.red + (c->common.red - fadedColor->common.red) * 0.5;
 			fadedColor->common.green = fadedColor->common.green + (c->common.green - fadedColor->common.green) * 0.5;
 			fadedColor->common.blue	 = fadedColor->common.blue + (c->common.blue - fadedColor->common.blue) * 0.5;
+
+			MwLLFreeColor(c);
 		}
 	}
 

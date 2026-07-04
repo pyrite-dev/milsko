@@ -236,7 +236,7 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	int	  ColorDiff = get_color_diff(handle) + (MwGetInteger(handle, MwNmodernLook) ? 48 : 0);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
-	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
+	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
 	color_set_disabled_if_disabled(handle, col);
 	color_set_disabled_if_disabled(handle, darker);
 	color_set_disabled_if_disabled(handle, lighter);
@@ -295,7 +295,7 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 
 	MwLLPolygon(handle->lowlevel, p, 4, col);
 
-	if(col != color) MwLLFreeColor(col);
+	MwLLFreeColor(col);
 	MwLLFreeColor(lighter);
 	MwLLFreeColor(darker);
 }
@@ -442,7 +442,7 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 	int	  ColorDiff = get_color_diff(handle);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
-	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
+	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
 	double	  deg	    = 30 * ((direction == MwEAST || direction == MwWEST) ? 2 : 1);
 	double	  c	    = cos(deg / 180 * M_PI);
 	double	  s	    = sin(deg / 180 * M_PI);
@@ -650,8 +650,7 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 	}
 	MwLLPolygon(handle->lowlevel, p4, 3, col);
 
-	if(color != col) MwLLFreeColor(col);
-
+	MwLLFreeColor(col);
 	MwLLFreeColor(lighter);
 	MwLLFreeColor(darker);
 }
