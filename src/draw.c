@@ -47,6 +47,8 @@ static void color_set_disabled_if_disabled(MwWidget handle, MwLLColor rgb) {
 			rgb->common.green = rgb->common.green + (c->common.green - rgb->common.green) * 0.5;
 			rgb->common.blue  = rgb->common.blue + (c->common.blue - rgb->common.blue) * 0.5;
 			MwLLColorUpdate(handle->lowlevel, rgb, rgb->common.red, rgb->common.green, rgb->common.blue);
+
+			MwLLFreeColor(c);
 		}
 	}
 };
@@ -217,7 +219,7 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 
 	if(rect->width <= 0 || rect->height <= 0) return;
 
-	col = invert ? MwLightenColor(handle, color, -8, -8, -8) : color;
+	col = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
 	color_set_disabled_if_disabled(handle, col);
 
 	if(MwGetInteger(handle, MwNmodernLook)) {
@@ -225,7 +227,7 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 	} else {
 		MwDrawRect(handle, rect, col);
 	}
-	if(col != color) MwLLFreeColor(col);
+	MwLLFreeColor(col);
 }
 
 void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
