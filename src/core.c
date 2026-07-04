@@ -6,6 +6,8 @@
 #define PERIODIC
 #endif
 
+#define RESIZE_ON_TICK
+
 #define DRAW(handle) \
 	{ \
 		MwLLBeginDraw(handle->lowlevel); \
@@ -16,6 +18,16 @@
 		MwDispatchUserHandler(handle, MwNdrawHandler, NULL); \
 \
 		MwLLEndDraw(handle->lowlevel); \
+	}
+
+#define RESIZE(handle) \
+	{ \
+		int RESIZE_i; \
+		MwDispatchUserHandler(handle, MwNresizeHandler, NULL); \
+		for(RESIZE_i = 0; RESIZE_i < arrlen(handle->children); RESIZE_i++) { \
+			MwDispatch(handle->children[RESIZE_i], parent_resize); \
+		} \
+		MwDispatch(handle, resize); \
 	}
 
 static void MWAPI     MwVaListApply_Internal(MwWidget handle, va_list va, int only_early);
@@ -83,16 +95,35 @@ static void lldownhandler(MwLL handle, void* data) {
 
 static void llresizehandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->common.user;
-	int	 i;
+#ifdef RESIZE_ON_TICK
+	MwWidget top;
+#endif
 
 	(void)data;
 
-	MwDispatchUserHandler(h, MwNresizeHandler, NULL);
-	for(i = 0; i < arrlen(h->children); i++) {
-		MwDispatch(h->children[i], parent_resize);
-		MwDispatch(h->children[i], draw);
+#ifdef RESIZE_ON_TICK
+	top = h;
+	while(top != NULL) {
+		if(top->top_step) {
+			break;
+		}
+
+		top = top->parent;
 	}
-	MwDispatch(h, resize);
+
+	if(top == NULL) {
+		RESIZE(h); /* fallback */
+	} else {
+		int i;
+
+		for(i = 0; i < arrlen(top->resize_queue); i++) {
+			if(top->resize_queue[i] == h) break;
+		}
+		if(i == arrlen(top->resize_queue)) arrput(top->resize_queue, h);
+	}
+#else
+	RESIZE(h);
+#endif
 }
 
 static void llclosehandler(MwLL handle, void* data) {
@@ -226,8 +257,9 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 	h->opaque   = NULL;
 	h->user	    = NULL;
 
-	h->top_step   = 0;
-	h->draw_queue = NULL;
+	h->top_step	= 0;
+	h->draw_queue	= NULL;
+	h->resize_queue = NULL;
 
 	if(parent == NULL) arrput(h->tick_list, h);
 
@@ -393,6 +425,7 @@ void MwFreeWidget(MwWidget handle) {
 	arrfree(handle->tick_list);
 
 	arrfree(handle->draw_queue);
+	arrfree(handle->resize_queue);
 
 	if(handle->root_font != NULL) MwFontFree(handle->root_font);
 	if(handle->root_boldfont != NULL) MwFontFree(handle->root_boldfont);
@@ -469,6 +502,16 @@ static void MwAfterStep(MwWidget handle) {
 		}
 
 		arrfree(handle->draw_queue);
+	}
+#endif
+
+#ifdef RESIZE_ON_TICK
+	if(handle->top_step) {
+		for(i = 0; i < arrlen(handle->resize_queue); i++) {
+			RESIZE(handle->resize_queue[i]);
+		}
+
+		arrfree(handle->resize_queue);
 	}
 #endif
 

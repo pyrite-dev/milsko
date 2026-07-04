@@ -115,6 +115,7 @@ struct _MwWidget {
 
 	int	  top_step;
 	MwWidget* draw_queue;
+	MwWidget* resize_queue;
 
 	int  berserk;
 	long last_tick;

@@ -417,7 +417,7 @@ endif()
 target_compile_definitions(
  Mw
  PRIVATE
- _MILSKO
+ _MILSKO _MILSKO_BUILD
 )
 
 install(
