@@ -27,7 +27,7 @@ void MwLLWaylandBackbufferSetup(struct _MwLLWayland* wayland) {
 	}
 	MwU32 w = wayland->ww;
 	MwU32 h = wayland->wh;
-	if(!wayland->has_decorations) {
+	if(!wayland->has_decorations && wayland->do_csd) {
 		w += (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
 		h += (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
 	}

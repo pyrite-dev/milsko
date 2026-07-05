@@ -373,6 +373,9 @@ if(${DBus1_FOUND})
   )
 endif()
 
+list(APPEND LIBRARIES m)
+
+
 target_include_directories(
  Mw
  PRIVATE

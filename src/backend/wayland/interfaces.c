@@ -618,7 +618,7 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 		}
 	}
 
-	if(!self->wayland.has_decorations) {
+	if(!self->wayland.has_decorations && self->wayland.do_csd) {
 		if(state != WL_POINTER_BUTTON_STATE_RELEASED)
 			xdg_borderless_step_mdown(self, p, serial);
 		else

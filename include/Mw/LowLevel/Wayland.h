@@ -466,6 +466,7 @@ struct _MwLLWayland {
 		wayland_protocol_t* value;
 	}* wl_protocol_map;
 
+	MwBool do_csd;
 	MwBool has_decorations;
 	char   title[256];
 

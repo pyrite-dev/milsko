@@ -270,6 +270,7 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	/* check now if we have decorations so that everything else can act accordingly */
 	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
 		r->wayland.has_decorations = MwTRUE;
+		r->wayland.do_csd	   = MwTRUE;
 	}
 
 	r->wayland.xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
@@ -314,7 +315,7 @@ static void setup_toplevel(MwLL r, int x, int y) {
 		zxdg_toplevel_decoration_v1_set_mode(
 		    dec->decoration, ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
 	} else {
-		wl_subsurface_set_position(r->wayland.toplevel->ssurface, CSD_BORDER_FRAME_LEFT, CSD_BORDER_FRAME_TOP);
+		wl_subsurface_set_position(r->wayland.toplevel->ssurface, r->wayland.do_csd ? CSD_BORDER_FRAME_LEFT : 0, r->wayland.do_csd ? CSD_BORDER_FRAME_TOP : 0);
 	}
 }
 
@@ -456,7 +457,7 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	while(topmost_parent->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
 		topmost_parent = topmost_parent->wayland.parent;
 	}
-	if(!topmost_parent->wayland.has_decorations) {
+	if(!topmost_parent->wayland.has_decorations && topmost_parent->wayland.do_csd) {
 		r->wayland.x += ceil((float)CSD_BORDER_FRAME_LEFT / 2.);
 		r->wayland.y += ceil((float)CSD_BORDER_FRAME_TOP / 2.);
 	}
@@ -478,6 +479,7 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	/* check now if we have decorations so that everything else can act accordingly */
 	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
 		r->wayland.has_decorations = MwTRUE;
+		r->wayland.do_csd	   = MwTRUE;
 	}
 
 	r->wayland.popup->xdg_wm_base = WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context;
@@ -681,7 +683,7 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 	r->wayland.keyboard_delay = 600; /* starting at 600ms... */
 	r->wayland.keyboard_rate  = 25;	 /* and going every 25ms... */
 
-	if(!r->wayland.has_decorations) {
+	if(!r->wayland.has_decorations && r->wayland.do_csd) {
 		MwLLBeginDraw(r);
 		MwLLEndDraw(r);
 	}
@@ -921,7 +923,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		return;
 	}
 
-	if(!handle->wayland.has_decorations) {
+	if(!handle->wayland.has_decorations && handle->wayland.do_csd) {
 		int    y;
 		MwU32  w = handle->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;
 		MwU32  h = handle->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM;
@@ -1232,7 +1234,7 @@ static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		xdg_toplevel_set_title(handle->wayland.toplevel->xdg_top_level, title);
 	}
-	if(!handle->wayland.has_decorations) {
+	if(!handle->wayland.has_decorations && handle->wayland.do_csd) {
 		strncpy(handle->wayland.title, title, 255);
 		MwLLBeginDraw(handle);
 		MwLLEndDraw(handle);
@@ -1361,7 +1363,7 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 			xdg_toplevel_icon_manager_v1_set_icon(icon_manager, handle->wayland.toplevel->xdg_top_level, icon);
 		}
 	}
-	if(!handle->wayland.has_decorations) {
+	if(!handle->wayland.has_decorations && handle->wayland.do_csd) {
 		if(handle->wayland.icon_pixmap) {
 			MwLLDestroyPixmap(handle->wayland.icon_pixmap);
 		}
@@ -1483,8 +1485,8 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 }
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
-	(void)toggle;
 	WIDGET_CHECK(handle);
+	printf("%d\n", toggle);
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		if(WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1) != NULL) {
 			zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1)->context;
@@ -1493,7 +1495,10 @@ static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
 			    dec->manager, handle->wayland.toplevel->xdg_top_level);
 
 			zxdg_toplevel_decoration_v1_set_mode(
-			    dec->decoration, ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE);
+			    dec->decoration, toggle ? ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE : ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
+		} else {
+			handle->wayland.do_csd = !toggle;
+			wl_subsurface_set_position(handle->wayland.toplevel->ssurface, handle->wayland.do_csd ? CSD_BORDER_FRAME_LEFT : 0, handle->wayland.do_csd ? CSD_BORDER_FRAME_TOP : 0);
 		}
 	}
 }
