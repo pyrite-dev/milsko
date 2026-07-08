@@ -270,7 +270,8 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	/* check now if we have decorations so that everything else can act accordingly */
 	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
 		r->wayland.has_decorations = MwTRUE;
-		r->wayland.do_csd	   = MwTRUE;
+	} else {
+		r->wayland.do_csd = MwTRUE;
 	}
 
 	r->wayland.xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
@@ -479,7 +480,8 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	/* check now if we have decorations so that everything else can act accordingly */
 	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
 		r->wayland.has_decorations = MwTRUE;
-		r->wayland.do_csd	   = MwTRUE;
+	} else {
+		r->wayland.do_csd = MwTRUE;
 	}
 
 	r->wayland.popup->xdg_wm_base = WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context;
@@ -511,12 +513,6 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 
 	r->wayland.popup->xdg_surface_listener.configure = xdg_surface_configure;
 	xdg_surface_add_listener(r->wayland.popup->xdg_surface, &r->wayland.popup->xdg_surface_listener, r);
-
-	/* Perform the initial commit and wait for the first configure event */
-	wl_surface_commit(r->wayland.framebuffer.surface);
-	while(!r->wayland.configured) {
-		event_loop(r);
-	}
 }
 
 /* Popup destroy function */
@@ -1443,8 +1439,12 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	int  x = 0, y = 0;
 	WIDGET_CHECK(handle);
 	while(p != NULL) {
-		x += p->wayland.x;
-		y += p->wayland.y;
+		if(p->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
+			x += p->wayland.x;
+			y += p->wayland.y;
+		} else {
+			break;
+		}
 		p = p->wayland.parent;
 	}
 
@@ -1486,7 +1486,6 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
 	WIDGET_CHECK(handle);
-	printf("%d\n", toggle);
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		if(WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1) != NULL) {
 			zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1)->context;
