@@ -339,6 +339,7 @@ MwInline int wayland_load_funcs() {
 #include "Wayland/pointer-constraints-client-protocol.h"
 #include "Wayland/relative-pointer-client-protocol.h"
 #include "Wayland/xdg-toplevel-icon-client-protocol.h"
+#include "Wayland/wlr-layer-shell-client-protocol.h"
 #endif
 
 typedef struct wayland_protocol {
@@ -387,6 +388,10 @@ struct _MwLLWaylandPopup {
 	MwLL			    topmost_parent;
 };
 
+struct _MwLLWaylandLayerSurface {
+	struct zwlr_layer_surface_v1* surface;
+};
+
 /* Shared set of anything needed for a shm buffer.  */
 struct _MwLLWaylandShmBuffer {
 	struct wl_shm*	    shm;
@@ -410,6 +415,7 @@ enum _MwLLWaylandType {
 	MwLL_WAYLAND_TOPLEVEL,
 	MwLL_WAYLAND_SUBLEVEL,
 	MwLL_WAYLAND_POPUP,
+	MwLL_WAYLAND_LAYER_SURFACE,
 };
 
 typedef struct wl_clipboard_device_context {
@@ -436,6 +442,8 @@ struct _MwLLWayland {
 		struct _MwLLWaylandSublevel* sublevel;
 		/* Pointer for data that's only loaded if the widget is a popup */
 		struct _MwLLWaylandPopup* popup;
+		/* Pointer for data that's only loaded if the widget is a layer surface */
+		struct _MwLLWaylandLayerSurface* layer_surface;
 	};
 
 	enum _MwLLWaylandType type;

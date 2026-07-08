@@ -329,13 +329,13 @@ static void destroy_toplevel(MwLL r) {
 		zxdg_decoration_manager_v1_destroy(dec->manager);
 	}
 
-	wl_surface_destroy(r->wayland.framebuffer.surface);
-
-	wl_compositor_destroy(r->wayland.compositor);
-
 	xdg_surface_destroy(r->wayland.toplevel->xdg_surface);
 
 	xdg_toplevel_destroy(r->wayland.toplevel->xdg_top_level);
+
+	wl_surface_destroy(r->wayland.framebuffer.surface);
+
+	wl_compositor_destroy(r->wayland.compositor);
 
 	xkb_keymap_unref(r->wayland.xkb_keymap);
 
@@ -345,7 +345,7 @@ static void destroy_toplevel(MwLL r) {
 
 	free(r->wayland.toplevel);
 
-	wl_registry_destroy(r->wayland.registry);
+	// wl_registry_destroy(r->wayland.registry);
 
 	// wl_display_disconnect(r->wayland.display);
 
@@ -451,7 +451,6 @@ struct xdg_popup_listener popup_listener = {
 static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	struct xdg_surface* xdg_surface;
 	MwLL		    topmost_parent = r->wayland.parent;
-	MwU32		    ver;
 
 	r->wayland.type	 = MwLL_WAYLAND_POPUP;
 	r->wayland.x	 = x;
@@ -510,8 +509,6 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	    xdg_surface,
 	    r->wayland.popup->xdg_positioner);
 
-	ver = wl_proxy_get_version((struct wl_proxy*)r->wayland.popup->xdg_popup);
-
 	xdg_popup_add_listener(r->wayland.popup->xdg_popup, &popup_listener, r);
 
 	r->wayland.popup->xdg_surface_listener.configure = xdg_surface_configure;
@@ -527,6 +524,120 @@ static void destroy_popup(MwLL r) {
 	xdg_positioner_destroy(r->wayland.popup->xdg_positioner);
 
 	wl_surface_destroy(r->wayland.framebuffer.surface);
+
+	wl_registry_destroy(r->wayland.registry);
+
+	r->wayland.configured = MwFALSE;
+}
+
+static void layer_shell_configure(void*				data,
+				  struct zwlr_layer_surface_v1* surface,
+				  uint32_t			serial,
+				  uint32_t			width,
+				  uint32_t			height) {
+	MwLL self = data;
+	zwlr_layer_surface_v1_ack_configure(surface, serial);
+
+	self->wayland.x	 = 0;
+	self->wayland.y	 = 0;
+	self->wayland.ww = width;
+	self->wayland.wh = height;
+
+	wl_surface_commit(self->wayland.framebuffer.surface);
+
+	self->wayland.configured = MwTRUE;
+};
+
+static void layer_shell_done(void*			   data,
+			     struct zwlr_layer_surface_v1* zwlr_layer_surface_v1) {
+	(void)data;
+	(void)zwlr_layer_surface_v1;
+
+	printf("closed\n");
+};
+
+static const struct zwlr_layer_surface_v1_listener layer_surface_listener = {
+    .configure = layer_shell_configure,
+    .closed    = layer_shell_done,
+};
+
+/* Layer surface setup function */
+static void setup_layer_surface(MwLL r, int x, int y, int width, int height) {
+	wayland_protocol_t*	    layer_shell_protocol;
+	struct zwlr_layer_shell_v1* layer_shell;
+	r->wayland.type		 = MwLL_WAYLAND_LAYER_SURFACE;
+	r->wayland.layer_surface = malloc(sizeof(struct _MwLLWaylandLayerSurface));
+	r->wayland.x		 = x;
+	r->wayland.y		 = y;
+
+	MwLLWaylandSetupCallbacks(&r->wayland);
+
+	/* Connect to the Wayland compositor */
+	if(!r->wayland.display) {
+		r->wayland.display = wl_display_connect(NULL);
+		if(r->wayland.display == NULL) {
+			printf("wayland: failed to create display\n");
+			raise(SIGTRAP);
+			return;
+		}
+	}
+
+	/* Do a roundtrip to ensure all interfaces are setup. */
+	r->wayland.registry = wl_display_get_registry(r->wayland.display);
+	wl_registry_add_listener(r->wayland.registry, &r->wayland.registry_listener, r);
+	if(wl_display_roundtrip(r->wayland.display) == -1) {
+		printf("roundtrip failed\n");
+		raise(SIGTRAP);
+		return;
+	}
+
+	layer_shell_protocol = WAYLAND_GET_INTERFACE(r->wayland, zwlr_layer_shell_v1);
+	assert(layer_shell_protocol);
+
+	layer_shell = layer_shell_protocol->context;
+
+	r->wayland.xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+
+	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
+
+	r->wayland.layer_surface->surface = zwlr_layer_shell_v1_get_layer_surface(layer_shell, r->wayland.framebuffer.surface, NULL, 1, "milsko-surfaces");
+
+	zwlr_layer_surface_v1_set_size(r->wayland.layer_surface->surface, width, height);
+
+	zwlr_layer_surface_v1_set_anchor(r->wayland.layer_surface->surface,
+					 ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
+					     ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT |
+					     ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP);
+	zwlr_layer_surface_v1_set_margin(r->wayland.layer_surface->surface,
+					 y, 0, 0, x);
+
+	zwlr_layer_surface_v1_add_listener(r->wayland.layer_surface->surface, &layer_surface_listener, r);
+
+	zwlr_layer_surface_v1_set_keyboard_interactivity(r->wayland.layer_surface->surface, MwTRUE);
+
+	/* Perform the initial commit and wait for the first configure event */
+	wl_surface_commit(r->wayland.framebuffer.surface);
+	while(!r->wayland.configured) {
+		event_loop(r);
+	}
+}
+
+/* Toplevel destroy function */
+static void destroy_layer_surface(MwLL r) {
+	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
+		zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(r->wayland, zxdg_decoration_manager_v1)->context;
+		zxdg_decoration_manager_v1_destroy(dec->manager);
+	}
+
+	wl_surface_destroy(r->wayland.framebuffer.surface);
+
+	wl_compositor_destroy(r->wayland.compositor);
+
+	xkb_keymap_unref(r->wayland.xkb_keymap);
+
+	xkb_state_unref(r->wayland.xkb_state);
+
+	xkb_context_unref(r->wayland.xkb_context);
 
 	wl_registry_destroy(r->wayland.registry);
 
@@ -613,7 +724,7 @@ static void wl_logger(const char* fmt, va_list args) {
 	raise(SIGTRAP);
 }
 
-static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int height, enum _MwLLWaylandType ty) {
+static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int height, enum _MwLLWaylandType ty, MwBool can_do_layer_surface) {
 	/* Wayland does not report global coordinates ever. Compositors are not even expected to have knowledge of this.
 	 */
 	r->common.coordinate_type = MwCOORDINATE_LOCAL;
@@ -664,11 +775,18 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 			} else {
 				/*
 				 * We can't actually have a popup without a parent but this needs to be valid behavior.
-				 * So we do a few things to "fake" a toplevel that looks like a popup.
+				 * So we either make a wlr layer surface at this point, or just fake it with a borderless window.
 				 */
-				setup_toplevel(r, x, y);
-				MwLLMakeBorderless(r, MwTRUE);
+				if(can_do_layer_surface) {
+					setup_layer_surface(r, x, y, width, height);
+				} else {
+					setup_toplevel(r, x, y);
+					MwLLMakeBorderless(r, MwTRUE);
+				}
 			}
+			break;
+		case MwLL_WAYLAND_LAYER_SURFACE:
+			setup_layer_surface(r, x, y, width, height);
 			break;
 		}
 	}
@@ -729,7 +847,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->wayland.is_toplevel = parent == NULL;
 	r->wayland.is_clipping = 0;
 
-	widget_setup(r, parent, x, y, width, height, MwLL_WAYLAND_UNKNOWN);
+	widget_setup(r, parent, x, y, width, height, MwLL_WAYLAND_UNKNOWN, MwFALSE);
 
 #ifdef USE_DBUS
 	if(!parent && wl_call_tbl.has_dbus) {
@@ -1627,14 +1745,18 @@ static void MwLLBeginStateChangeImpl(MwLL handle) {
 }
 
 static void MwLLEndStateChangeImpl(MwLL handle) {
-	MwLL topmost_parent;
+	MwLL   topmost_parent;
+	MwBool can_do_layer_surface = MwFALSE;
 	WIDGET_CHECK(handle);
 
-	topmost_parent = handle->wayland.parent;
+	topmost_parent	     = handle->wayland.parent;
+	can_do_layer_surface = (WAYLAND_GET_INTERFACE(handle->wayland, zwlr_layer_shell_v1) != NULL);
 
-	if(topmost_parent) {
-		while(topmost_parent->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
+	while(topmost_parent) {
+		if(topmost_parent->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
 			topmost_parent = topmost_parent->wayland.parent;
+		} else {
+			break;
 		}
 	}
 
@@ -1650,11 +1772,14 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 	case MwLL_WAYLAND_POPUP:
 		destroy_popup(handle);
 		break;
+	case MwLL_WAYLAND_LAYER_SURFACE:
+		destroy_layer_surface(handle);
+		break;
 	}
 
 	MwLLWaylandFlush(handle);
 
-	widget_setup(handle, handle->wayland.parent, handle->wayland.detach_point.x, handle->wayland.detach_point.y, handle->wayland.ww, handle->wayland.wh, handle->wayland.type_to_be);
+	widget_setup(handle, handle->wayland.parent, handle->wayland.detach_point.x, handle->wayland.detach_point.y, handle->wayland.ww, handle->wayland.wh, handle->wayland.type_to_be, can_do_layer_surface);
 
 	handle->wayland.is_toplevel = MwTRUE;
 
@@ -1666,8 +1791,7 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 		int	 i;
 		for(i = 0; i < arrlen(w->children); i++) {
 			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
-				MwLL child = w->children[i]->lowlevel;
-				printf("%p\n", child->wayland.sublevel->subcompositor);
+				MwLL child			     = w->children[i]->lowlevel;
 				child->wayland.sublevel->xdg_surface = handle->wayland.popup->xdg_surface;
 				wl_subsurface_destroy(child->wayland.sublevel->subsurface);
 				MwLLWaylandFlush(handle);

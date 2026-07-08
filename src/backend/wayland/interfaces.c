@@ -655,7 +655,7 @@ static void keyboard_keymap(void*		data,
 	MwLL self = data;
 	(void)wl_keyboard;
 
-	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
+	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL || self->wayland.type == MwLL_WAYLAND_LAYER_SURFACE) {
 		assert(format == WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1);
 
 		char* map_shm = (char*)mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
@@ -1133,6 +1133,21 @@ static void xdg_toplevel_icon_manager_v1_interface_destroy(struct _MwLLWayland* 
 	free(data->listener);
 }
 
+static wayland_protocol_t* zwlr_layer_shell_v1_setup(MwU32 name, struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
+
+	proto->context	= wl_registry_bind(wayland->registry, name, &zwlr_layer_shell_v1_interface, 1);
+	proto->listener = NULL;
+
+	return proto;
+}
+
+static void zwlr_layer_shell_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	(void)wayland;
+
+	// free(data);
+}
+
 /* Function for setting up the callbacks/structs that will be registered upon the relevant interfaces being found. */
 void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland) {
 /* Convience macro for adding the interface functions to the setup map */
@@ -1161,12 +1176,16 @@ void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland) {
 	WL_INTERFACE(zwp_pointer_constraints_v1);
 	WL_INTERFACE(zwp_relative_pointer_manager_v1);
 	WL_INTERFACE(xdg_wm_base);
+	WL_INTERFACE(zwlr_layer_shell_v1); /* Only used for layer surface, but we use it always if it's turned into a tool window */
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(wp_viewporter);
 		WL_INTERFACE(zxdg_decoration_manager_v1);
 		WL_INTERFACE(xdg_toplevel_icon_manager_v1);
 		WL_INTERFACE(wl_subcompositor);
 	} else if(wayland->type == MwLL_WAYLAND_POPUP) {
+	} else if(wayland->type == MwLL_WAYLAND_LAYER_SURFACE) {
+		WL_INTERFACE(wp_viewporter);
+		WL_INTERFACE(wl_subcompositor);
 	} else {
 		WL_INTERFACE(wl_subcompositor);
 	}
