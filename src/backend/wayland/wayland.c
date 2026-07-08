@@ -251,11 +251,13 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	MwLLWaylandSetupCallbacks(&r->wayland);
 
 	/* Connect to the Wayland compositor */
-	r->wayland.display = wl_display_connect(NULL);
-	if(r->wayland.display == NULL) {
-		printf("wayland: failed to create display\n");
-		raise(SIGTRAP);
-		return;
+	if(!r->wayland.display) {
+		r->wayland.display = wl_display_connect(NULL);
+		if(r->wayland.display == NULL) {
+			printf("wayland: failed to create display\n");
+			raise(SIGTRAP);
+			return;
+		}
 	}
 
 	/* Do a roundtrip to ensure all interfaces are setup. */
@@ -345,7 +347,7 @@ static void destroy_toplevel(MwLL r) {
 
 	wl_registry_destroy(r->wayland.registry);
 
-	wl_display_disconnect(r->wayland.display);
+	// wl_display_disconnect(r->wayland.display);
 
 	r->wayland.configured = MwFALSE;
 }
@@ -449,6 +451,7 @@ struct xdg_popup_listener popup_listener = {
 static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	struct xdg_surface* xdg_surface;
 	MwLL		    topmost_parent = r->wayland.parent;
+	MwU32		    ver;
 
 	r->wayland.type	 = MwLL_WAYLAND_POPUP;
 	r->wayland.x	 = x;
@@ -507,7 +510,7 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	    xdg_surface,
 	    r->wayland.popup->xdg_positioner);
 
-	uint32_t ver = wl_proxy_get_version((struct wl_proxy*)r->wayland.popup->xdg_popup);
+	ver = wl_proxy_get_version((struct wl_proxy*)r->wayland.popup->xdg_popup);
 
 	xdg_popup_add_listener(r->wayland.popup->xdg_popup, &popup_listener, r);
 
@@ -656,7 +659,16 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 			setup_sublevel(parent, r, x, y);
 			break;
 		case MwLL_WAYLAND_POPUP:
-			setup_popup(r, x, y, parent);
+			if(parent) {
+				setup_popup(r, x, y, parent);
+			} else {
+				/*
+				 * We can't actually have a popup without a parent but this needs to be valid behavior.
+				 * So we do a few things to "fake" a toplevel that looks like a popup.
+				 */
+				setup_toplevel(r, x, y);
+				MwLLMakeBorderless(r, MwTRUE);
+			}
 			break;
 		}
 	}
@@ -1485,7 +1497,6 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 }
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
-	printf("%d\n", toggle);
 	WIDGET_CHECK(handle);
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		if(WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1) != NULL) {
@@ -1616,65 +1627,70 @@ static void MwLLBeginStateChangeImpl(MwLL handle) {
 }
 
 static void MwLLEndStateChangeImpl(MwLL handle) {
+	MwLL topmost_parent;
 	WIDGET_CHECK(handle);
 
-	if(handle->wayland.detatching) {
-		MwLL topmost_parent = handle->wayland.parent;
+	topmost_parent = handle->wayland.parent;
 
+	if(topmost_parent) {
 		while(topmost_parent->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
 			topmost_parent = topmost_parent->wayland.parent;
 		}
-		switch(handle->wayland.type) {
-		case MwLL_WAYLAND_UNKNOWN:
-			break;
-		case MwLL_WAYLAND_TOPLEVEL:
-			destroy_toplevel(handle);
-			break;
-		case MwLL_WAYLAND_SUBLEVEL:
-			destroy_sublevel(handle);
-			break;
-		case MwLL_WAYLAND_POPUP:
-			destroy_popup(handle);
-			break;
-		}
+	}
 
-		MwLLWaylandFlush(handle);
+	switch(handle->wayland.type) {
+	case MwLL_WAYLAND_UNKNOWN:
+		break;
+	case MwLL_WAYLAND_TOPLEVEL:
+		destroy_toplevel(handle);
+		break;
+	case MwLL_WAYLAND_SUBLEVEL:
+		destroy_sublevel(handle);
+		break;
+	case MwLL_WAYLAND_POPUP:
+		destroy_popup(handle);
+		break;
+	}
 
-		widget_setup(handle, handle->wayland.parent, handle->wayland.detach_point.x, handle->wayland.detach_point.y, handle->wayland.ww, handle->wayland.wh, handle->wayland.type_to_be);
+	MwLLWaylandFlush(handle);
 
-		handle->wayland.is_toplevel = MwTRUE;
+	widget_setup(handle, handle->wayland.parent, handle->wayland.detach_point.x, handle->wayland.detach_point.y, handle->wayland.ww, handle->wayland.wh, handle->wayland.type_to_be);
 
-		if(!handle->wayland.parent)
-			handle->wayland.dark_theme_detection = MwTRUE;
+	handle->wayland.is_toplevel = MwTRUE;
 
-		if(handle->common.user) {
-			MwWidget w = handle->common.user;
-			int	 i;
-			for(i = 0; i < arrlen(w->children); i++) {
-				if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
-					MwLL child			     = w->children[i]->lowlevel;
-					child->wayland.sublevel->xdg_surface = handle->wayland.popup->xdg_surface;
-					wl_subsurface_destroy(child->wayland.sublevel->subsurface);
-					MwLLWaylandFlush(handle);
+	if(!handle->wayland.parent)
+		handle->wayland.dark_theme_detection = MwTRUE;
 
-					child->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(child->wayland.sublevel->subcompositor, child->wayland.framebuffer.surface, handle->wayland.framebuffer.surface);
-					wl_subsurface_set_desync(child->wayland.sublevel->subsurface);
-					wl_subsurface_set_position(child->wayland.sublevel->subsurface, child->wayland.x, child->wayland.y);
+	if(handle->common.user) {
+		MwWidget w = handle->common.user;
+		int	 i;
+		for(i = 0; i < arrlen(w->children); i++) {
+			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
+				MwLL child = w->children[i]->lowlevel;
+				printf("%p\n", child->wayland.sublevel->subcompositor);
+				child->wayland.sublevel->xdg_surface = handle->wayland.popup->xdg_surface;
+				wl_subsurface_destroy(child->wayland.sublevel->subsurface);
+				MwLLWaylandFlush(handle);
 
-					wl_subsurface_place_above(child->wayland.sublevel->subsurface, handle->wayland.framebuffer.surface);
-					MwLLEndStateChangeImpl(w->children[i]->lowlevel);
+				child->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(child->wayland.sublevel->subcompositor, child->wayland.framebuffer.surface, handle->wayland.framebuffer.surface);
+				wl_subsurface_set_desync(child->wayland.sublevel->subsurface);
+				wl_subsurface_set_position(child->wayland.sublevel->subsurface, child->wayland.x, child->wayland.y);
 
+				wl_subsurface_place_above(child->wayland.sublevel->subsurface, handle->wayland.framebuffer.surface);
+				MwLLEndStateChangeImpl(w->children[i]->lowlevel);
+
+				if(topmost_parent) {
 					topmost_parent->wayland.currentlyHeldWidget = NULL;
 				}
 			}
 		}
-
-		recursive_render(handle);
-
-		handle->wayland.events_pending = 1;
-
-		handle->wayland.detatching = MwFALSE;
 	}
+
+	recursive_render(handle);
+
+	handle->wayland.events_pending = 1;
+
+	handle->wayland.detatching = MwFALSE;
 }
 
 static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
