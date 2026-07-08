@@ -1485,14 +1485,18 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 }
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
+	printf("%d\n", toggle);
 	WIDGET_CHECK(handle);
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		if(WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1) != NULL) {
 			zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1)->context;
 
-			dec->decoration = zxdg_decoration_manager_v1_get_toplevel_decoration(
-			    dec->manager, handle->wayland.toplevel->xdg_top_level);
+			if(!dec->decoration) {
+				dec->decoration = zxdg_decoration_manager_v1_get_toplevel_decoration(
+				    dec->manager, handle->wayland.toplevel->xdg_top_level);
+			}
 
+			zxdg_toplevel_decoration_v1_unset_mode(dec->decoration);
 			zxdg_toplevel_decoration_v1_set_mode(
 			    dec->decoration, toggle ? ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE : ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
 		} else {
