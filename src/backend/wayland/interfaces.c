@@ -655,7 +655,7 @@ static void keyboard_keymap(void*		data,
 	MwLL self = data;
 	(void)wl_keyboard;
 
-	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL || self->wayland.type == MwLL_WAYLAND_LAYER_SURFACE) {
+	if(!self->wayland.parent) {
 		assert(format == WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1);
 
 		char* map_shm = (char*)mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
