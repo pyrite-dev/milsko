@@ -7,9 +7,8 @@ void MwLLWaylandRegionInvalidate(MwLL handle) {
 	wl_region_subtract(handle->wayland.region, 0, 0, handle->wayland.ww, handle->wayland.wh);
 }
 void MwLLWaylandRegionSetup(MwLL handle) {
-	MwLL parent = handle->wayland.parent;
-	int  width  = (handle->wayland.clipping_rect.width == 0) ? handle->wayland.ww : handle->wayland.clipping_rect.width;
-	int  height = (handle->wayland.clipping_rect.height == 0) ? handle->wayland.wh : handle->wayland.clipping_rect.height;
+	int width  = (handle->wayland.clipping_rect.width == 0) ? handle->wayland.ww : handle->wayland.clipping_rect.width;
+	int height = (handle->wayland.clipping_rect.height == 0) ? handle->wayland.wh : handle->wayland.clipping_rect.height;
 
 	if(!handle->wayland.has_decorations && handle->wayland.do_csd && handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		width += CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;

@@ -460,6 +460,7 @@ static void popup_repositioned(void*		 data,
 			       struct xdg_popup* xdg_popup,
 			       uint32_t		 token) {
 	MwLL self = data;
+	(void)xdg_popup;
 
 	xdg_surface_ack_configure(self->wayland.popup->xdg_surface, token);
 };
@@ -987,15 +988,26 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	MwLLWaylandRegionInvalidate(handle);
 	handle->wayland.x = x;
 	handle->wayland.y = y;
-	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
-		wl_subsurface_set_position(handle->wayland.sublevel->subsurface, x, y);
-	}
 
-	if(handle->wayland.type == MwLL_WAYLAND_POPUP) {
+	switch(handle->wayland.type) {
+	case MwLL_WAYLAND_TOPLEVEL:
+		/* toplevels cannot be moved */
+		break;
+	case MwLL_WAYLAND_SUBLEVEL:
+		wl_subsurface_set_position(handle->wayland.sublevel->subsurface, x, y);
+		break;
+	case MwLL_WAYLAND_POPUP:
 		xdg_positioner_set_anchor_rect(handle->wayland.popup->xdg_positioner, handle->wayland.parent->wayland.x, handle->wayland.parent->wayland.y, handle->wayland.ww, handle->wayland.wh);
 		xdg_positioner_set_offset(handle->wayland.popup->xdg_positioner, x, y);
 		xdg_popup_reposition(handle->wayland.popup->xdg_popup, handle->wayland.popup->xdg_positioner, 0);
 		xdg_surface_set_window_geometry(handle->wayland.popup->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+		break;
+	case MwLL_WAYLAND_LAYER_SURFACE:
+		zwlr_layer_surface_v1_set_margin(handle->wayland.layer_surface->surface,
+						 y, 0, 0, x);
+		break;
+	case MwLL_WAYLAND_UNKNOWN:
+		break;
 	}
 	MwLLWaylandRegionSetup(handle);
 

@@ -314,6 +314,7 @@ struct zwp_primary_selection_source_v1_listener zwp_primary_selection_source_v1_
 
 /* wl_data_device_manager setup function */
 static wayland_protocol_t* wl_data_device_manager_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
+	(void)version;
 	wayland->clipboard_manager.wl = wl_registry_bind(wayland->registry, name, &wl_data_device_manager_interface, 2);
 
 	wayland->clipboard_source.wl = wl_data_device_manager_create_data_source(wayland->clipboard_manager.wl);
@@ -347,6 +348,7 @@ static void wl_data_device_manager_interface_destroy(struct _MwLLWayland* waylan
 
 /* zwp_primary_selection_device_manager_v1 setup function */
 static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
+	(void)version;
 	wayland->clipboard_manager.zwp = wl_registry_bind(wayland->registry, name, &zwp_primary_selection_device_manager_v1_interface, 1);
 
 	wayland->clipboard_source.zwp = zwp_primary_selection_device_manager_v1_create_source(wayland->clipboard_manager.zwp);
@@ -375,6 +377,7 @@ static void zwp_primary_selection_device_manager_v1_interface_destroy(struct _Mw
 
 /* zwp_primary_selection_device_manager_v1 setup function */
 static wayland_protocol_t* zwp_pointer_constraints_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
+	(void)version;
 	wayland->pointer_constraints = wl_registry_bind(wayland->registry, name, &zwp_pointer_constraints_v1_interface, 1);
 	return NULL;
 }
@@ -454,6 +457,7 @@ static void xdg_borderless_step_mdown(MwLL self, MwMouse p, MwU32 serial) {
 	};
 }
 static void xdg_borderless_step_mup(MwLL self, MwMouse p, MwU32 serial) {
+	(void)serial;
 	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL && self->wayland.backbuffer.surface == curSurface) {
 		if(p.point.y <= CSD_BORDER_FRAME_TOP) {
 			if(p.point.x >= CSD_BORDER_FRAME_LEFT && p.point.x <= CSD_BORDER_FRAME_LEFT + 18) {
@@ -508,6 +512,7 @@ struct zwp_relative_pointer_v1_listener MwLLWaylandRelativePointerListener =
 
 /* zwp_primary_selection_device_manager_v1 setup function */
 static wayland_protocol_t* zwp_relative_pointer_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
+	(void)version;
 	wayland->relative_pointer_manager = wl_registry_bind(wayland->registry, name, &zwp_relative_pointer_manager_v1_interface, 1);
 	return NULL;
 }
@@ -1016,6 +1021,7 @@ static void wl_seat_interface_destroy(struct _MwLLWayland* wayland, wayland_prot
 
 /* wl_output setup function */
 static wayland_protocol_t* wl_output_setup(MwU32 name, MwLL ll, MwU32 version) {
+	(void)version;
 	ll->wayland.output = wl_registry_bind(ll->wayland.registry, name, &wl_output_interface, 1);
 	wl_output_add_listener(ll->wayland.output, &output_listener, ll);
 
@@ -1029,6 +1035,7 @@ static void wl_output_interface_destroy(struct _MwLLWayland* wayland, wayland_pr
 
 /* wl_compositor setup function */
 static wayland_protocol_t* wl_compositor_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
+	(void)version;
 	wayland->compositor = wl_registry_bind(wayland->registry, name, &wl_compositor_interface, 1);
 
 	return NULL;
@@ -1041,6 +1048,7 @@ static void wl_compositor_interface_destroy(struct _MwLLWayland* wayland, waylan
 
 /* wl_subcompositor setup function */
 static wayland_protocol_t* wl_subcompositor_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
+	(void)version;
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		wayland->toplevel->scompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
 	} else {
@@ -1058,7 +1066,8 @@ static void wl_subcompositor_interface_destroy(struct _MwLLWayland* wayland, way
 /* xdg_wm_base setup function */
 static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
-	proto->listener		  = malloc(sizeof(struct xdg_wm_base_listener));
+	(void)version;
+	proto->listener = malloc(sizeof(struct xdg_wm_base_listener));
 
 	((struct xdg_wm_base_listener*)proto->listener)->ping = xdg_wm_base_ping;
 
@@ -1076,7 +1085,8 @@ static void xdg_wm_base_interface_destroy(struct _MwLLWayland* wayland, wayland_
 /* xdg_wm_base setup function */
 static wayland_protocol_t* wp_viewporter_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
-	proto->context		  = wl_registry_bind(wayland->registry, name, &wp_viewporter_interface, 1);
+	(void)version;
+	proto->context = wl_registry_bind(wayland->registry, name, &wp_viewporter_interface, 1);
 
 	return proto;
 }
@@ -1090,7 +1100,8 @@ static void wp_viewporter_interface_destroy(struct _MwLLWayland* wayland, waylan
 static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland_protocol_t*		      proto = malloc(sizeof(wayland_protocol_t));
 	zxdg_decoration_manager_v1_context_t* ctx   = malloc(sizeof(zxdg_decoration_manager_v1_context_t));
-	proto->listener				    = NULL;
+	(void)version;
+	proto->listener = NULL;
 
 	ctx->manager = wl_registry_bind(wayland->registry, name, &zxdg_decoration_manager_v1_interface, 1);
 	;
@@ -1107,6 +1118,7 @@ static void zxdg_decoration_manager_v1_interface_destroy(struct _MwLLWayland* wa
 
 /* wl_shm setup function */
 static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
+	(void)version;
 	wayland->framebuffer.shm = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
 	wayland->backbuffer.shm	 = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
 	wayland->cursor.shm	 = wl_registry_bind(wayland->registry, name, &wl_shm_interface, 1);
@@ -1122,6 +1134,8 @@ static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_proto
 static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
 
+	(void)version;
+
 	proto->context	= wl_registry_bind(wayland->registry, name, &xdg_toplevel_icon_manager_v1_interface, 1);
 	proto->listener = NULL;
 
@@ -1133,10 +1147,10 @@ static void xdg_toplevel_icon_manager_v1_interface_destroy(struct _MwLLWayland* 
 	free(data->listener);
 }
 
-static wayland_protocol_t* zwlr_layer_shell_v1_setup(MwU32 name, struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+static wayland_protocol_t* zwlr_layer_shell_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
 
-	proto->context	= wl_registry_bind(wayland->registry, name, &zwlr_layer_shell_v1_interface, 1);
+	proto->context	= wl_registry_bind(wayland->registry, name, &zwlr_layer_shell_v1_interface, version);
 	proto->listener = NULL;
 
 	return proto;
@@ -1145,7 +1159,7 @@ static wayland_protocol_t* zwlr_layer_shell_v1_setup(MwU32 name, struct _MwLLWay
 static void zwlr_layer_shell_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)wayland;
 
-	// free(data);
+	free(data);
 }
 
 /* Function for setting up the callbacks/structs that will be registered upon the relevant interfaces being found. */
