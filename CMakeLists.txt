@@ -197,7 +197,32 @@ if(MW_USE_WAYLAND)
         )
   endfunction()
 
-
+  function(scan_wayland_protocol_from_file proto file)
+    SET(proto_c ${CMAKE_CURRENT_SOURCE_DIR}/src/backend/wayland/wayland-${proto}-protocol.c)
+    execute_process(
+            COMMAND wayland-scanner private-code ${CMAKE_CURRENT_SOURCE_DIR}/resource/wayland/${file} ${proto_c}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            OUTPUT_VARIABLE WAYLAND_SCANNER_OUTPUT
+            ERROR_VARIABLE WAYLAND_SCANNER_ERROR
+            ECHO_OUTPUT_VARIABLE
+            ECHO_ERROR_VARIABLE
+            COMMAND_ECHO STDOUT
+        )
+    target_sources(
+        Mw
+        PRIVATE
+            ${proto_c}
+        )
+    execute_process(
+            COMMAND wayland-scanner client-header ${CMAKE_CURRENT_SOURCE_DIR}/resource/wayland/${file} ${CMAKE_CURRENT_SOURCE_DIR}/include/Mw/LowLevel/Wayland/${proto}-client-protocol.h
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            OUTPUT_VARIABLE WAYLAND_SCANNER_OUTPUT
+            ERROR_VARIABLE WAYLAND_SCANNER_ERROR
+            ECHO_OUTPUT_VARIABLE
+            ECHO_ERROR_VARIABLE
+            COMMAND_ECHO STDOUT
+        )
+  endfunction()
 
   check_include_files(wayland-client.h HAVE_WL_H)
   check_include_files(xkbcommon/xkbcommon.h HAVE_XKBCOMMON_H)
@@ -215,6 +240,7 @@ if(MW_USE_WAYLAND)
         scan_wayland_protocol("unstable" "primary-selection" "-unstable-v1")
         scan_wayland_protocol("unstable" "pointer-constraints" "-unstable-v1")
         scan_wayland_protocol("unstable" "relative-pointer" "-unstable-v1")
+        scan_wayland_protocol_from_file("wlr-layer-shell" "wlr-layer-shell-unstable-v1.xml")
 
         target_sources(
                 Mw

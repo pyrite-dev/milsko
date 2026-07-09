@@ -234,12 +234,14 @@ static void xdg_surface_configure(
 }
 
 void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
-	memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
-	if(buffer->surface) {
-		// Yes this is needed every time, it's how we fix weston.
-		if(self->wayland.configured)
-			wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
-		wl_surface_commit(buffer->surface);
+	if(self->wayland.configured) {
+		memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
+		if(buffer->surface) {
+			// Yes this is needed every time, it's how we fix weston.
+			if(self->wayland.configured)
+				wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
+			wl_surface_commit(buffer->surface);
+		}
 	}
 }
 
@@ -306,11 +308,15 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	/* Perform the initial commit and wait for the first configure event */
 	wl_surface_commit(r->wayland.backbuffer.surface);
 	wl_surface_commit(r->wayland.framebuffer.surface);
-	if(wl_display_roundtrip(r->wayland.display) == -1) {
-		printf("roundtrip failed\n");
-		raise(SIGTRAP);
-		return;
+
+	while(!r->wayland.configured) {
+		if(wl_display_roundtrip(r->wayland.display) == -1) {
+			printf("roundtrip failed\n");
+			raise(SIGTRAP);
+			return;
+		}
 	}
+
 	/* setup decorations if we can */
 	if(r->wayland.has_decorations) {
 		zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(r->wayland, zxdg_decoration_manager_v1)->context;
