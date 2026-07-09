@@ -1805,7 +1805,11 @@ static void MwLLBeginStateChangeImpl(MwLL handle) {
 
 static void MwLLEndStateChangeImpl(MwLL handle) {
 	MwLL topmost_parent;
+	int  x, y;
 	WIDGET_CHECK(handle);
+
+	x = handle->wayland.detatching ? handle->wayland.detach_point.x : handle->wayland.x;
+	y = handle->wayland.detatching ? handle->wayland.detach_point.y : handle->wayland.y;
 
 	topmost_parent = handle->wayland.parent;
 
@@ -1842,7 +1846,7 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 
 	MwLLWaylandFlush(handle);
 
-	widget_setup(handle, handle->wayland.parent, handle->wayland.detach_point.x, handle->wayland.detach_point.y, handle->wayland.ww, handle->wayland.wh, handle->wayland.type_to_be);
+	widget_setup(handle, handle->wayland.parent, x, y, handle->wayland.ww, handle->wayland.wh, handle->wayland.type_to_be);
 
 	handle->wayland.is_toplevel = MwTRUE;
 
