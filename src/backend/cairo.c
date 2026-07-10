@@ -1,7 +1,6 @@
 #include <Mw/Milsko.h>
 
 #include "../../external/stb_ds.h"
-#include "stb_ds.h"
 
 cairo_call_table_t cairo_call_tbl;
 
