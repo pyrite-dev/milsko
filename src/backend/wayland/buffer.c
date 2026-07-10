@@ -4,8 +4,7 @@
 void MwLLWaylandFramebufferSetup(struct _MwLLWayland* wayland) {
 	MwLLWaylandBufferSetup(&wayland->framebuffer, wayland->ww, wayland->wh);
 
-	wayland->front_cs    = cairo_image_surface_create_for_data(wayland->framebuffer.buf_back, CAIRO_FORMAT_ARGB32, wayland->ww, wayland->wh, 4 * wayland->ww);
-	wayland->front_cairo = cairo_create(wayland->front_cs);
+	MwLLCairoFrontSetup(&wayland->cairo, wayland->framebuffer.buf_back, wayland->ww, wayland->wh);
 
 	memset(wayland->framebuffer.buf_back, 0, wayland->framebuffer.buf_size);
 	if(wayland->configured)
@@ -17,8 +16,7 @@ void MwLLWaylandFramebufferSetup(struct _MwLLWayland* wayland) {
 };
 void MwLLWaylandFramebufferDestroy(struct _MwLLWayland* wayland) {
 	MwLLWaylandBufferDestroy(&wayland->framebuffer);
-	cairo_destroy(wayland->front_cairo);
-	cairo_surface_destroy(wayland->front_cs);
+	MwLLCairoFrontDestroy(&wayland->cairo);
 };
 
 void MwLLWaylandBackbufferSetup(struct _MwLLWayland* wayland) {
@@ -33,8 +31,7 @@ void MwLLWaylandBackbufferSetup(struct _MwLLWayland* wayland) {
 	}
 	MwLLWaylandBufferSetup(&wayland->backbuffer, w, h);
 
-	wayland->back_cs    = cairo_image_surface_create_for_data(wayland->backbuffer.buf_back, CAIRO_FORMAT_ARGB32, w, h, 4 * w);
-	wayland->back_cairo = cairo_create(wayland->back_cs);
+	MwLLCairoBackSetup(&wayland->cairo, wayland->backbuffer.buf_back, wayland->ww, wayland->wh);
 
 	memset(wayland->backbuffer.buf_back, 255, wayland->backbuffer.buf_size);
 	if(wayland->configured)
@@ -45,8 +42,7 @@ void MwLLWaylandBackbufferSetup(struct _MwLLWayland* wayland) {
 };
 void MwLLWaylandBackbufferDestroy(struct _MwLLWayland* wayland) {
 	MwLLWaylandBufferDestroy(&wayland->backbuffer);
-	cairo_destroy(wayland->back_cairo);
-	cairo_surface_destroy(wayland->back_cs);
+	MwLLCairoBackDestroy(&wayland->cairo);
 };
 
 void MwLLWaylandBufferSetup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height) {

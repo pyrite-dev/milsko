@@ -11,8 +11,9 @@
 #include <Mw/LowLevel.h>
 #include <Mw/Abstract/Dynamic.h>
 
+#include <Mw/LowLevel/Cairo.h>
+
 #include <xkbcommon/xkbcommon.h>
-#include <cairo/cairo.h>
 #include <pthread.h>
 
 #ifdef __cplusplus
@@ -42,7 +43,6 @@ struct _MwLLWayland;
 typedef struct wayland_call_table {
 	void* lib;
 	void* xkb_lib;
-	void* cairo_lib;
 #ifdef USE_DBUS
 	MwLLDBusFuncTable dbus;
 	MwBool		  has_dbus;
@@ -79,67 +79,6 @@ typedef struct wayland_call_table {
 	xkb_layout_index_t (*xkb_state_key_get_layout)(struct xkb_state* state, xkb_keycode_t key);
 	void (*xkb_keymap_unref)(struct xkb_keymap* keymap);
 
-	void (*cairo_set_line_width)(cairo_t* cr,
-				     double   width);
-	void (*cairo_scale)(cairo_t* cr,
-			    double   sx,
-			    double   sy);
-	cairo_t* (*cairo_create)(cairo_surface_t* target);
-	void (*cairo_move_to)(cairo_t* cr,
-			      double   x,
-			      double   y);
-
-	void (*cairo_rectangle)(cairo_t* cr,
-				double	 x,
-				double	 y,
-				double	 width,
-				double	 height);
-	void (*cairo_new_path)(cairo_t* cr);
-	void (*cairo_set_line_cap)(cairo_t*	    cr,
-				   cairo_line_cap_t line_cap);
-	void (*cairo_set_source_rgba)(cairo_t* cr,
-				      double   red,
-				      double   green,
-				      double   blue,
-				      double   alpha);
-	void (*cairo_set_source_rgb)(cairo_t* cr,
-				     double   red,
-				     double   green,
-				     double   blue);
-	void (*cairo_reset_clip)(cairo_t* cr);
-	unsigned char* (*cairo_image_surface_get_data)(cairo_surface_t* surface);
-	void (*cairo_line_to)(cairo_t* cr,
-			      double   x,
-			      double   y);
-	void (*cairo_surface_destroy)(cairo_surface_t* surface);
-	cairo_surface_t* (*cairo_image_surface_create_for_data)(unsigned char* data,
-								cairo_format_t format,
-								int	       width,
-								int	       height,
-								int	       stride);
-	cairo_surface_t* (*cairo_image_surface_create)(cairo_format_t format,
-						       int	      width,
-						       int	      height);
-	void (*cairo_destroy)(cairo_t* cr);
-	cairo_pattern_t* (*cairo_get_source)(cairo_t* cr);
-	void (*cairo_close_path)(cairo_t* cr);
-	void (*cairo_paint)(cairo_t* cr);
-	void (*cairo_surface_flush)(cairo_surface_t* surface);
-	void (*cairo_clip)(cairo_t* cr);
-	void (*cairo_save)(cairo_t* cr);
-	void (*cairo_restore)(cairo_t* cr);
-	void (*cairo_surface_mark_dirty)(cairo_surface_t* surface);
-	void (*cairo_stroke)(cairo_t* cr);
-	void (*cairo_set_source_surface)(cairo_t*	  cr,
-					 cairo_surface_t* surface,
-					 double		  x,
-					 double		  y);
-	void (*cairo_fill)(cairo_t* cr);
-	void (*cairo_pattern_set_filter)(cairo_pattern_t* pattern,
-					 cairo_filter_t	  filter);
-	void (*cairo_set_antialias)(cairo_t*, cairo_antialias_t);
-	void (*cairo_set_operator)(cairo_t* cr, cairo_operator_t op);
-
 } wayland_call_table_t;
 
 extern wayland_call_table_t wl_call_tbl;
@@ -148,6 +87,8 @@ extern MwBool MwWaylandVulkan;
 #else
 #define MwWaylandVulkan 0
 #endif
+
+MWDECL MwBool MwWaylandCairoOnly;
 
 /* defined inline right here so that it doesn't conflict with the other macros */
 MwInline int wayland_load_funcs() {
@@ -169,15 +110,7 @@ MwInline int wayland_load_funcs() {
 		printf("(libxkbcommon not found, cannot use Wayland backend.)\n");
 		return 1;
 	}
-#ifdef __APPLE__
-	wl_call_tbl.cairo_lib = MwDynamicOpen("libcairo.dylib");
-#else
-	wl_call_tbl.cairo_lib = MwDynamicOpen("libcairo.so");
-#endif
-	if(!wl_call_tbl.cairo_lib) {
-		printf("(libcairo not found, cannot use Wayland backend.)\n");
-		return 1;
-	}
+
 #define WAYLAND_FUNC(x) \
 	wl_call_tbl.x = MwDynamicSymbol(wl_call_tbl.lib, #x); \
 	if(!wl_call_tbl.x) { \
@@ -223,44 +156,9 @@ MwInline int wayland_load_funcs() {
 	XKB_FUNC(xkb_state_key_get_layout)
 #undef XKB_FUNC
 
-#define CAIRO_FUNC(x) \
-	wl_call_tbl.x = MwDynamicSymbol(wl_call_tbl.cairo_lib, #x); \
-	if(!wl_call_tbl.x) { \
-		printf("WARNING: Could use Wayland backend if " #x " was found. Do you have libcairo?\n"); \
-		return 1; \
-	};
-
-	CAIRO_FUNC(cairo_set_line_width);
-	CAIRO_FUNC(cairo_scale);
-	CAIRO_FUNC(cairo_create);
-	CAIRO_FUNC(cairo_move_to);
-	CAIRO_FUNC(cairo_rectangle);
-	CAIRO_FUNC(cairo_new_path);
-	CAIRO_FUNC(cairo_set_line_cap);
-	CAIRO_FUNC(cairo_set_antialias);
-	CAIRO_FUNC(cairo_set_source_rgba);
-	CAIRO_FUNC(cairo_set_source_rgb);
-	CAIRO_FUNC(cairo_reset_clip);
-	CAIRO_FUNC(cairo_image_surface_get_data);
-	CAIRO_FUNC(cairo_line_to);
-	CAIRO_FUNC(cairo_surface_destroy);
-	CAIRO_FUNC(cairo_image_surface_create_for_data);
-	CAIRO_FUNC(cairo_image_surface_create);
-	CAIRO_FUNC(cairo_destroy);
-	CAIRO_FUNC(cairo_get_source);
-	CAIRO_FUNC(cairo_close_path);
-	CAIRO_FUNC(cairo_paint);
-	CAIRO_FUNC(cairo_surface_flush);
-	CAIRO_FUNC(cairo_clip);
-	CAIRO_FUNC(cairo_save);
-	CAIRO_FUNC(cairo_restore);
-	CAIRO_FUNC(cairo_surface_mark_dirty);
-	CAIRO_FUNC(cairo_stroke);
-	CAIRO_FUNC(cairo_set_source_surface);
-	CAIRO_FUNC(cairo_fill);
-	CAIRO_FUNC(cairo_set_operator);
-	CAIRO_FUNC(cairo_pattern_set_filter);
-#undef CAIRO_FUNC
+	if(cairo_load_funcs() != 0) {
+		return 1;
+	}
 
 #ifdef USE_DBUS
 	wl_call_tbl.has_dbus = MwLLDBusFuncSetup(&wl_call_tbl.dbus);
@@ -296,37 +194,6 @@ MwInline int wayland_load_funcs() {
 #define xkb_keymap_num_levels_for_key wl_call_tbl.xkb_keymap_num_levels_for_key
 #define xkb_keymap_key_get_syms_by_level wl_call_tbl.xkb_keymap_key_get_syms_by_level
 #define xkb_state_key_get_layout wl_call_tbl.xkb_state_key_get_layout
-
-#define cairo_set_line_width wl_call_tbl.cairo_set_line_width
-#define cairo_scale wl_call_tbl.cairo_scale
-#define cairo_create wl_call_tbl.cairo_create
-#define cairo_move_to wl_call_tbl.cairo_move_to
-#define cairo_rectangle wl_call_tbl.cairo_rectangle
-#define cairo_new_path wl_call_tbl.cairo_new_path
-#define cairo_set_line_cap wl_call_tbl.cairo_set_line_cap
-#define cairo_set_antialias wl_call_tbl.cairo_set_antialias
-#define cairo_set_source_rgba wl_call_tbl.cairo_set_source_rgba
-#define cairo_set_source_rgb wl_call_tbl.cairo_set_source_rgb
-#define cairo_reset_clip wl_call_tbl.cairo_reset_clip
-#define cairo_image_surface_get_data wl_call_tbl.cairo_image_surface_get_data
-#define cairo_line_to wl_call_tbl.cairo_line_to
-#define cairo_surface_destroy wl_call_tbl.cairo_surface_destroy
-#define cairo_image_surface_create_for_data wl_call_tbl.cairo_image_surface_create_for_data
-#define cairo_image_surface_create wl_call_tbl.cairo_image_surface_create
-#define cairo_destroy wl_call_tbl.cairo_destroy
-#define cairo_get_source wl_call_tbl.cairo_get_source
-#define cairo_close_path wl_call_tbl.cairo_close_path
-#define cairo_paint wl_call_tbl.cairo_paint
-#define cairo_surface_flush wl_call_tbl.cairo_surface_flush
-#define cairo_clip wl_call_tbl.cairo_clip
-#define cairo_save wl_call_tbl.cairo_save
-#define cairo_restore wl_call_tbl.cairo_restore
-#define cairo_surface_mark_dirty wl_call_tbl.cairo_surface_mark_dirty
-#define cairo_stroke wl_call_tbl.cairo_stroke
-#define cairo_set_source_surface wl_call_tbl.cairo_set_source_surface
-#define cairo_fill wl_call_tbl.cairo_fill
-#define cairo_set_operator wl_call_tbl.cairo_set_operator
-#define cairo_pattern_set_filter wl_call_tbl.cairo_pattern_set_filter
 
 #ifndef WL_PROTOCOLS_DEFINED
 #define WL_PROTOCOLS_DEFINED
@@ -434,6 +301,7 @@ typedef struct wl_clipboard_device_context {
 
 struct _MwLLWayland {
 	struct _MwLLCommon common;
+	struct _MwLLCairo  cairo;
 
 	union {
 		/* Pointer for data that's only loaded if the widget is a toplevel */
@@ -583,24 +451,13 @@ struct _MwLLWayland {
 	MwU64  next_elapsed;
 	long   start_time;
 	long   end_time;
-
-	cairo_surface_t* front_cs;
-	cairo_surface_t* back_cs;
-	cairo_t*	 front_cairo;
-	cairo_t*	 back_cairo;
-	/* The cairo to actually use for draw operations. Typically is front_cairo, but MwLLBeginDraw can change this to the back_cairo so it can be used to draw window decorations. */
-	cairo_t* selected_cairo;
 };
 
 struct _MwLLWaylandColor {
 	struct _MwLLCommonColor common;
 };
 
-struct _MwLLWaylandPixmap {
-	struct _MwLLCommonPixmap common;
-
-	cairo_surface_t* cs;
-};
+#define _MwLLWaylandPixmap _MwLLCairoPixmap
 
 /* Setup the framebuffer with the saved width/height */
 void MwLLWaylandFramebufferSetup(struct _MwLLWayland* wayland);

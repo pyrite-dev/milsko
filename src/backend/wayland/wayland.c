@@ -10,6 +10,8 @@ wayland_call_table_t wl_call_tbl;
 MwBool MwWaylandVulkan = MwFALSE;
 #endif
 
+MwBool MwWaylandCairoOnly = MwFALSE;
+
 static pthread_mutex_t destroyedWidgetsTableMutex;
 /*
  * So Wayland, bless its soul; it keeps using callbacks LONG after they should not only be destroyed but the widget doesn't even exist anymore. Naturally, this causes use after free. so we fight fire with fire in the worst code i've ever written: by storing the freed pointers here, we disallow wayland from ever using them again. if something else is created that takes this slot, we remove it from the table.
@@ -705,6 +707,7 @@ static void clip(MwLL handle) {
 		toplevel = toplevel->wayland.parent;
 	}
 	if(toplevel) {
+
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 		/* i seriously have no fucking idea how this works, do not ask me how this really works (nishi) */
@@ -752,15 +755,15 @@ static void clip(MwLL handle) {
 		handle->wayland.clipping_rect.height = my - cy;
 		MwLLWaylandRegionSetup(handle);
 
-		cairo_reset_clip(handle->wayland.front_cairo);
+		cairo_reset_clip(handle->wayland.cairo.front_cairo);
 		if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL && !handle->wayland.is_toplevel) {
-			cairo_rectangle(handle->wayland.front_cairo, cx - x, cy - y, mx - cx, my - cy);
-			cairo_clip(handle->wayland.front_cairo);
+			cairo_rectangle(handle->wayland.cairo.front_cairo, cx - x, cy - y, mx - cx, my - cy);
+			cairo_clip(handle->wayland.cairo.front_cairo);
 		}
 
 		if(handle->wayland.is_clipping) {
-			cairo_rectangle(handle->wayland.front_cairo, handle->wayland.clip.x, handle->wayland.clip.y, handle->wayland.clip.width, handle->wayland.clip.height);
-			cairo_clip(handle->wayland.front_cairo);
+			cairo_rectangle(handle->wayland.cairo.front_cairo, handle->wayland.clip.x, handle->wayland.clip.y, handle->wayland.clip.width, handle->wayland.clip.height);
+			cairo_clip(handle->wayland.cairo.front_cairo);
 		}
 	}
 }
@@ -1088,15 +1091,15 @@ const float_color two = {.05490196, .17254902, .30588235};
 
 static void MwLLBeginDrawImpl(MwLL handle) {
 	WIDGET_CHECK(handle);
-	cairo_save(handle->wayland.front_cairo);
-	cairo_set_source_rgba(handle->wayland.front_cairo, 0, 0, 0, 0);
-	cairo_set_operator(handle->wayland.front_cairo, CAIRO_OPERATOR_SOURCE);
-	cairo_rectangle(handle->wayland.front_cairo, 0, 0, handle->wayland.ww, handle->wayland.wh);
-	cairo_fill(handle->wayland.front_cairo);
-	cairo_restore(handle->wayland.front_cairo);
+	cairo_save(handle->wayland.cairo.front_cairo);
+	cairo_set_source_rgba(handle->wayland.cairo.front_cairo, 0, 0, 0, 0);
+	cairo_set_operator(handle->wayland.cairo.front_cairo, CAIRO_OPERATOR_SOURCE);
+	cairo_rectangle(handle->wayland.cairo.front_cairo, 0, 0, handle->wayland.ww, handle->wayland.wh);
+	cairo_fill(handle->wayland.cairo.front_cairo);
+	cairo_restore(handle->wayland.cairo.front_cairo);
 
 	if(handle->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
-		handle->wayland.selected_cairo = handle->wayland.front_cairo;
+		handle->wayland.cairo.selected_cairo = handle->wayland.cairo.front_cairo;
 		return;
 	}
 
@@ -1105,25 +1108,25 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		MwU32  w = handle->wayland.ww + CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT;
 		MwU32  h = handle->wayland.wh + CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM;
 		MwRect r;
-		handle->wayland.selected_cairo = handle->wayland.back_cairo;
+		handle->wayland.cairo.selected_cairo = handle->wayland.cairo.back_cairo;
 
 #define DO_BOX(x, y, col, w, h) \
-	cairo_rectangle(handle->wayland.back_cairo, x, y, w, h); \
-	cairo_set_source_rgb(handle->wayland.back_cairo, col, col, col); \
-	cairo_fill(handle->wayland.back_cairo);
+	cairo_rectangle(handle->wayland.cairo.back_cairo, x, y, w, h); \
+	cairo_set_source_rgb(handle->wayland.cairo.back_cairo, col, col, col); \
+	cairo_fill(handle->wayland.cairo.back_cairo);
 
 #define DO_LINE(off, col) \
-	cairo_move_to(handle->wayland.back_cairo, off, off); \
-	cairo_line_to(handle->wayland.back_cairo, off, h - (off)); \
-	cairo_set_source_rgb(handle->wayland.back_cairo, col, col, col); \
-	cairo_stroke(handle->wayland.back_cairo); \
-	cairo_move_to(handle->wayland.back_cairo, off, off); \
-	cairo_line_to(handle->wayland.back_cairo, w - (off), off); \
-	cairo_set_source_rgb(handle->wayland.back_cairo, col, col, col); \
-	cairo_stroke(handle->wayland.back_cairo);
+	cairo_move_to(handle->wayland.cairo.back_cairo, off, off); \
+	cairo_line_to(handle->wayland.cairo.back_cairo, off, h - (off)); \
+	cairo_set_source_rgb(handle->wayland.cairo.back_cairo, col, col, col); \
+	cairo_stroke(handle->wayland.cairo.back_cairo); \
+	cairo_move_to(handle->wayland.cairo.back_cairo, off, off); \
+	cairo_line_to(handle->wayland.cairo.back_cairo, w - (off), off); \
+	cairo_set_source_rgb(handle->wayland.cairo.back_cairo, col, col, col); \
+	cairo_stroke(handle->wayland.cairo.back_cairo);
 
 		/* border */
-		cairo_set_antialias(handle->wayland.back_cairo, CAIRO_ANTIALIAS_NONE);
+		cairo_set_antialias(handle->wayland.cairo.back_cairo, CAIRO_ANTIALIAS_NONE);
 
 		DO_BOX(0, 0, 0.14901961, w, h);
 		DO_BOX(1, 1, 0.55686275, w - 2, h - 2);
@@ -1131,7 +1134,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		DO_BOX(3, 3, 0.93333333, w - 6, h - 6);
 		DO_BOX(4, 4, 1, w - 8, h - 8);
 		DO_BOX(4, 4, 0.14901961, w - CSD_BORDER_FRAME_LEFT - 4, h - CSD_BORDER_FRAME_BOTTOM - 4);
-		cairo_set_line_width(handle->wayland.back_cairo, 1.0);
+		cairo_set_line_width(handle->wayland.cairo.back_cairo, 1.0);
 
 		DO_LINE(1, 1)
 		DO_LINE(2, 0.93333333)
@@ -1139,15 +1142,15 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		DO_LINE(4, 0.55686275)
 		DO_LINE(5, 0.14901961)
 
-		cairo_set_line_width(handle->wayland.back_cairo, 2.0);
+		cairo_set_line_width(handle->wayland.cairo.back_cairo, 2.0);
 		for(y = 1; y < CSD_BORDER_FRAME_TOP - CSD_BORDER_FRAME_LEFT; y++) {
 			float_color c = lerp_color(one, two, (double)y / (double)(CSD_BORDER_FRAME_TOP - CSD_BORDER_FRAME_LEFT));
 
-			cairo_set_source_rgb(handle->wayland.back_cairo, c.r, c.g, c.b);
+			cairo_set_source_rgb(handle->wayland.cairo.back_cairo, c.r, c.g, c.b);
 
-			cairo_move_to(handle->wayland.back_cairo, CSD_BORDER_FRAME_LEFT, y + CSD_BORDER_FRAME_LEFT);
-			cairo_line_to(handle->wayland.back_cairo, w - CSD_BORDER_FRAME_RIGHT, y + CSD_BORDER_FRAME_LEFT);
-			cairo_stroke(handle->wayland.back_cairo);
+			cairo_move_to(handle->wayland.cairo.back_cairo, CSD_BORDER_FRAME_LEFT, y + CSD_BORDER_FRAME_LEFT);
+			cairo_line_to(handle->wayland.cairo.back_cairo, w - CSD_BORDER_FRAME_RIGHT, y + CSD_BORDER_FRAME_LEFT);
+			cairo_stroke(handle->wayland.cairo.back_cairo);
 		}
 
 		/* icon */
@@ -1158,7 +1161,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		DO_BOX(5, 5, 1, 18, 18);
 		DO_BOX(6, 6, 0.35294118, 17, 17);
 		DO_BOX(6, 6, 0.82352941, 16, 16);
-		handle->wayland.selected_cairo = handle->wayland.back_cairo;
+		handle->wayland.cairo.selected_cairo = handle->wayland.cairo.back_cairo;
 		if(handle->wayland.icon_pixmap) {
 			MwLLDrawPixmap(handle, &r, handle->wayland.icon_pixmap);
 		}
@@ -1226,7 +1229,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		}
 		MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
 	}
-	handle->wayland.selected_cairo = handle->wayland.front_cairo;
+	handle->wayland.cairo.selected_cairo = handle->wayland.cairo.front_cairo;
 }
 
 static void MwLLEndDrawImpl(MwLL handle) {
@@ -1239,25 +1242,11 @@ static void MwLLEndDrawImpl(MwLL handle) {
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
-	int i;
 	WIDGET_CHECK(handle);
 
 	clip(handle);
 
-	cairo_set_source_rgba(handle->wayland.front_cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
-	cairo_new_path(handle->wayland.front_cairo);
-	for(i = 0; i < points_count; i++) {
-		if(i == 0) {
-			cairo_move_to(handle->wayland.front_cairo, points[i].x, points[i].y);
-		} else {
-			cairo_line_to(handle->wayland.front_cairo, points[i].x, points[i].y);
-		}
-	}
-	cairo_close_path(handle->wayland.front_cairo);
-
-	cairo_set_operator(handle->wayland.front_cairo, CAIRO_OPERATOR_SOURCE);
-	cairo_fill(handle->wayland.front_cairo);
-	cairo_set_operator(handle->wayland.front_cairo, CAIRO_OPERATOR_OVER);
+	MwLLCairoPolygon(handle->wayland.cairo, points, points_count, color);
 
 	handle->wayland.events_pending = 1;
 }
@@ -1268,19 +1257,7 @@ static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 
 	clip(handle);
 
-	cairo_set_antialias(handle->wayland.front_cairo, CAIRO_ANTIALIAS_NONE);
-	cairo_set_line_cap(handle->wayland.front_cairo, CAIRO_LINE_CAP_SQUARE);
-	cairo_set_source_rgba(handle->wayland.front_cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
-	cairo_new_path(handle->wayland.front_cairo);
-	for(i = 0; i < 2; i++) {
-		if(i == 0) {
-			cairo_move_to(handle->wayland.front_cairo, points[i].x, points[i].y);
-		} else {
-			cairo_line_to(handle->wayland.front_cairo, points[i].x, points[i].y);
-		}
-	}
-	cairo_close_path(handle->wayland.front_cairo);
-	cairo_stroke(handle->wayland.front_cairo);
+	MwLLCairoLine(handle->wayland.cairo, points, color);
 
 	handle->wayland.events_pending = 1;
 }
@@ -1421,80 +1398,23 @@ static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 }
 
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
-	MwLLPixmap r = malloc(sizeof(*r));
-	(void)handle;
-
-	if(width >= INT16_MAX) width = INT16_MAX;
-	if(height >= INT16_MAX) height = INT16_MAX;
-
-	r->common.width	 = width;
-	r->common.height = height;
-	r->common.raw	 = malloc(4 * width * height);
-	memcpy(r->common.raw, data, 4 * width * height);
-
-	r->wayland.cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
-
-	MwLLPixmapUpdate(r);
-
-	return r;
+	return MwLLCairoCreatePixmap(handle->wayland.cairo, data, width, height);
 }
 
 static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
-	int	       i;
-	unsigned char* d;
-
-	cairo_surface_flush(r->wayland.cs);
-	d = cairo_image_surface_get_data(r->wayland.cs);
-	for(i = 0; i < r->common.width * r->common.height * 4; i += 4) {
-		MwU32* p = (MwU32*)&d[i];
-		*p <<= 8;
-		*p |= r->common.raw[i + 3];
-		*p <<= 8;
-		*p |= r->common.raw[i + 0];
-		*p <<= 8;
-		*p |= r->common.raw[i + 1];
-		*p <<= 8;
-		*p |= r->common.raw[i + 2];
-	}
-	cairo_surface_mark_dirty(r->wayland.cs);
+	MwLLCairoPixmapUpdate(r);
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
-	cairo_surface_destroy(pixmap->wayland.cs);
-	free(pixmap->common.raw);
-	free(pixmap);
+	MwLLCairoDestroyPixmap(pixmap);
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	cairo_t*	 c;
-	cairo_surface_t* cs;
-	cairo_t*	 selected_cairo = handle->wayland.selected_cairo ? handle->wayland.selected_cairo : handle->wayland.front_cairo;
-
-	if(rect->width <= 0 || rect->height <= 0 || pixmap->common.width <= 0 || pixmap->common.height <= 0) return;
-	if(rect->width >= INT16_MAX) rect->width = INT16_MAX;
-	if(rect->height >= INT16_MAX) rect->height = INT16_MAX;
-
 	WIDGET_CHECK(handle);
-
-	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, rect->width, rect->height);
-	c  = cairo_create(cs);
 
 	clip(handle);
 
-	cairo_scale(c, (double)rect->width / pixmap->common.width, (double)rect->height / pixmap->common.height);
-
-	cairo_set_source_surface(c, pixmap->wayland.cs, 0, 0);
-	cairo_pattern_set_filter(cairo_get_source(c), CAIRO_FILTER_NEAREST);
-
-	cairo_set_operator(handle->wayland.front_cairo, CAIRO_OPERATOR_OVER);
-
-	cairo_paint(c);
-
-	cairo_set_source_surface(selected_cairo, cs, rect->x, rect->y);
-	cairo_paint(selected_cairo);
-
-	cairo_destroy(c);
-	cairo_surface_destroy(cs);
+	MwLLCairoDrawPixmap(handle->wayland.cairo, rect, pixmap);
 
 	MwLLForceRender(handle);
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);

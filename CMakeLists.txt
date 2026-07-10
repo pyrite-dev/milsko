@@ -245,6 +245,7 @@ if(MW_USE_WAYLAND)
         target_sources(
                 Mw
                 PRIVATE
+                src/backend/cairo.c
                 src/backend/wayland/wayland.c
                 src/backend/wayland/buffer.c
                 src/backend/wayland/interfaces.c

@@ -132,6 +132,7 @@ union _MwLL {
 #endif
 #ifdef USE_WAYLAND
 	struct _MwLLWayland wayland;
+	struct _MwLLCairo   cairo;
 #endif
 #ifdef USE_COCOA
 	struct _MwLLCocoa cocoa;
@@ -153,7 +154,7 @@ union _MwLLColor {
 	struct _MwLLGDIColor gdi;
 #endif
 #ifdef USE_WAYLAND
-	struct _MwLLWaylandColor wayland;
+	struct _MwLLCairoColor wayland;
 #endif
 #ifdef USE_COCOA
 	struct _MwLLCocoaColor cocoa;
@@ -173,6 +174,7 @@ union _MwLLPixmap {
 #endif
 #ifdef USE_WAYLAND
 	struct _MwLLWaylandPixmap wayland;
+	struct _MwLLCairoPixmap	  cairo; /* same structure but we do this for code clarity */
 #endif
 #ifdef USE_COCOA
 	struct _MwLLCocoaPixmap cocoa;

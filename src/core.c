@@ -1040,7 +1040,7 @@ typedef int (*call_t)(void);
 int MwLibraryInit(void) {
 	call_t calls[] = {
 #ifdef USE_WAYLAND
-	    MwLLWaylandCallInit,
+	    NULL, /* set in a bit */
 #endif
 #ifdef USE_X11
 	    MwLLX11CallInit,
@@ -1059,6 +1059,12 @@ int MwLibraryInit(void) {
 #endif
 	    NULL};
 	int i;
+
+	if(MwWaylandCairoOnly) {
+		calls[0] = MwLLCairoCallInit;
+	} else {
+		calls[0] = MwLLWaylandCallInit;
+	}
 
 	MwColorTableInit();
 
