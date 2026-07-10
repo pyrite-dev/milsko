@@ -1060,11 +1060,13 @@ int MwLibraryInit(void) {
 	    NULL};
 	int i;
 
+#ifdef USE_WAYLAND
 	if(MwWaylandCairoOnly) {
 		calls[0] = MwLLCairoCallInit;
 	} else {
 		calls[0] = MwLLWaylandCallInit;
 	}
+#endif
 
 	MwColorTableInit();
 
