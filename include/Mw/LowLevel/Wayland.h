@@ -428,6 +428,8 @@ struct _MwLLWayland {
 
 	MwBool dispatching_resize;
 
+	MwBool is_toplevel_menu;
+
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  backbuffer;
 	struct _MwLLWaylandShmBuffer  cursor;

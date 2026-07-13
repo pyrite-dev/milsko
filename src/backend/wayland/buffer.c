@@ -31,7 +31,7 @@ void MwLLWaylandBackbufferSetup(struct _MwLLWayland* wayland) {
 	}
 	MwLLWaylandBufferSetup(&wayland->backbuffer, w, h);
 
-	MwLLCairoBackSetup(&wayland->cairo, wayland->backbuffer.buf_back, wayland->ww, wayland->wh);
+	MwLLCairoBackSetup(&wayland->cairo, wayland->backbuffer.buf_back, w, h);
 
 	memset(wayland->backbuffer.buf_back, 255, wayland->backbuffer.buf_size);
 	if(wayland->configured)

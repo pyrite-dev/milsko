@@ -451,7 +451,6 @@ static void popup_configure(void*	      data,
 			    int32_t	      height) {
 	MwLL self = data;
 	(void)xdg_popup;
-
 	self->wayland.x	 = x;
 	self->wayland.y	 = y;
 	self->wayland.ww = width;
@@ -483,18 +482,23 @@ struct xdg_popup_listener popup_listener = {
 /* Popup setup function */
 static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	MwLL topmost_parent = r->wayland.parent;
+	r->wayland.type	    = MwLL_WAYLAND_POPUP;
+	r->wayland.x	    = x;
+	r->wayland.y	    = y;
+	r->wayland.popup    = malloc(sizeof(struct _MwLLWaylandPopup));
 
-	r->wayland.type	 = MwLL_WAYLAND_POPUP;
-	r->wayland.x	 = x;
-	r->wayland.y	 = y;
-	r->wayland.popup = malloc(sizeof(struct _MwLLWaylandPopup));
+	if(parent) {
+		MwWidget p = parent->common.user;
+		while(topmost_parent->wayland.parent) {
+			topmost_parent = topmost_parent->wayland.parent;
+		}
 
-	while(topmost_parent->wayland.type != MwLL_WAYLAND_TOPLEVEL && topmost_parent->wayland.type != MwLL_WAYLAND_LAYER_SURFACE) {
-		topmost_parent = topmost_parent->wayland.parent;
-	}
-	if(!topmost_parent->wayland.has_decorations && topmost_parent->wayland.do_csd) {
-		r->wayland.x += ceil((float)CSD_BORDER_FRAME_LEFT / 2.);
-		r->wayland.y += ceil((float)CSD_BORDER_FRAME_TOP / 2.);
+		if(!topmost_parent->wayland.has_decorations && topmost_parent->wayland.do_csd) {
+			if(p->is_menu) {
+				r->wayland.x += round((float)CSD_BORDER_FRAME_LEFT / 2.);
+				r->wayland.y += ceil((float)CSD_BORDER_FRAME_TOP / 2.);
+			}
+		}
 	}
 
 	MwLLWaylandSetupCallbacks(&r->wayland);
@@ -525,7 +529,13 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	xdg_positioner_set_size(r->wayland.popup->xdg_positioner, r->wayland.ww, r->wayland.wh);
 	xdg_positioner_set_anchor_rect(
 	    r->wayland.popup->xdg_positioner,
-	    r->wayland.x, r->wayland.y, r->wayland.ww, r->wayland.wh);
+	    topmost_parent->wayland.x, topmost_parent->wayland.y, r->wayland.ww, r->wayland.wh);
+	xdg_positioner_set_offset(
+	    r->wayland.popup->xdg_positioner,
+	    r->wayland.x, r->wayland.y);
+
+	xdg_positioner_set_anchor(r->wayland.popup->xdg_positioner, XDG_POSITIONER_ANCHOR_NONE);
+	xdg_positioner_set_gravity(r->wayland.popup->xdg_positioner, XDG_POSITIONER_GRAVITY_NONE);
 
 	r->wayland.xkb_keymap = topmost_parent->wayland.xkb_keymap;
 	r->wayland.xkb_state  = topmost_parent->wayland.xkb_state;

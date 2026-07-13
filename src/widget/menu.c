@@ -24,6 +24,7 @@ static int wcreate(MwWidget handle) {
 	m->wsub		 = NULL;
 	m->sub		 = NULL;
 	handle->internal = m;
+	handle->is_menu	 = MwTRUE;
 
 	MwSetDefault(handle);
 

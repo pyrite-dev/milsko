@@ -119,6 +119,8 @@ struct _MwWidget {
 
 	int  berserk;
 	long last_tick;
+
+	MwBool is_menu;
 };
 #endif
 
