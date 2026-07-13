@@ -15,6 +15,7 @@ void MwLLWaylandFramebufferSetup(struct _MwLLWayland* wayland) {
 	MwLLWaylandBufferUpdate((MwLL)wayland, &wayland->framebuffer);
 };
 void MwLLWaylandFramebufferDestroy(struct _MwLLWayland* wayland) {
+	wl_surface_attach(wayland->framebuffer.surface, NULL, 0, 0);
 	MwLLWaylandBufferDestroy(&wayland->framebuffer);
 	MwLLCairoFrontDestroy(&wayland->cairo);
 };
@@ -41,6 +42,7 @@ void MwLLWaylandBackbufferSetup(struct _MwLLWayland* wayland) {
 	MwLLWaylandBufferUpdate((MwLL)wayland, &wayland->backbuffer);
 };
 void MwLLWaylandBackbufferDestroy(struct _MwLLWayland* wayland) {
+	// wl_surface_attach(wayland->backbuffer.surface, NULL, 0, 0);
 	MwLLWaylandBufferDestroy(&wayland->backbuffer);
 	MwLLCairoBackDestroy(&wayland->cairo);
 };

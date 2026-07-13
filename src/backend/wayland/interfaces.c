@@ -16,6 +16,9 @@
 static void setup_clipboard(MwLL self, struct wl_seat* wl_seat);
 static void setup_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
 
+static void destroy_clipboard(MwLL self, struct wl_seat* wl_seat);
+static void destroy_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
+
 /* Recursively dispatch a move event to a widget and its children */
 static void recursive_dispatch_move(MwLL handle, MwMouse* p) {
 	MwWidget h = (MwWidget)handle->common.user;
@@ -1017,6 +1020,7 @@ static wayland_protocol_t* wl_seat_setup(MwU32 name, MwLL ll, MwU32 version) {
 static void wl_seat_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)wayland;
 	free(data->listener);
+	free(data);
 }
 
 /* wl_output setup function */
@@ -1060,7 +1064,11 @@ static wayland_protocol_t* wl_subcompositor_setup(MwU32 name, struct _MwLLWaylan
 
 static void wl_subcompositor_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)data;
-	wl_subcompositor_destroy(wayland->sublevel->subcompositor);
+	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
+		wl_subcompositor_destroy(wayland->toplevel->scompositor);
+	} else {
+		wl_subcompositor_destroy(wayland->sublevel->subcompositor);
+	}
 }
 
 /* xdg_wm_base setup function */
@@ -1080,6 +1088,7 @@ static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wa
 static void xdg_wm_base_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)wayland;
 	free(data->listener);
+	free(data);
 }
 
 /* xdg_wm_base setup function */
@@ -1145,6 +1154,7 @@ static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct
 static void xdg_toplevel_icon_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)wayland;
 	free(data->listener);
+	free(data);
 }
 
 static wayland_protocol_t* zwlr_layer_shell_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
@@ -1175,8 +1185,16 @@ void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland) {
 
 	wayland->registry_listener.global	 = new_protocol;
 	wayland->registry_listener.global_remove = protocol_removed;
-	wayland->wl_protocol_setup_map		 = NULL;
-	wayland->wl_protocol_map		 = NULL;
+
+	if(wayland->wl_protocol_map) {
+		shfree(wayland->wl_protocol_map);
+	}
+	if(wayland->wl_protocol_setup_map) {
+		shfree(wayland->wl_protocol_setup_map);
+	}
+
+	wayland->wl_protocol_setup_map = NULL;
+	wayland->wl_protocol_map       = NULL;
 
 	sh_new_arena(wayland->wl_protocol_map);
 	sh_new_arena(wayland->wl_protocol_setup_map);

@@ -573,15 +573,21 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 
 /* Popup destroy function */
 static void destroy_popup(MwLL r) {
-	xdg_popup_destroy(r->wayland.popup->xdg_popup);
+
+	MwLLWaylandBackbufferDestroy(&r->wayland);
+	MwLLWaylandFramebufferDestroy(&r->wayland);
 
 	xdg_surface_destroy(r->wayland.popup->xdg_surface);
+
+	xdg_popup_destroy(r->wayland.popup->xdg_popup);
 
 	xdg_positioner_destroy(r->wayland.popup->xdg_positioner);
 
 	wl_surface_destroy(r->wayland.framebuffer.surface);
 
 	wl_registry_destroy(r->wayland.registry);
+
+	free(r->wayland.popup);
 
 	r->wayland.configured = MwFALSE;
 }
@@ -700,6 +706,51 @@ static void destroy_layer_surface(MwLL r) {
 	wl_registry_destroy(r->wayland.registry);
 
 	r->wayland.configured = MwFALSE;
+}
+
+static void destroy_widget(MwLL handle) {
+	int i;
+
+	MwLLShow(handle, MwFALSE);
+
+	switch(handle->wayland.type) {
+	case MwLL_WAYLAND_TOPLEVEL:
+		destroy_toplevel(handle);
+		break;
+	case MwLL_WAYLAND_SUBLEVEL:
+		destroy_sublevel(handle);
+		break;
+	case MwLL_WAYLAND_POPUP:
+		destroy_popup(handle);
+		break;
+	case MwLL_WAYLAND_LAYER_SURFACE:
+		destroy_layer_surface(handle);
+		break;
+	default:
+		printf("Handle with unknown type(%d) tried to be destroyed (%p)\n", handle->wayland.type, handle);
+		break;
+	}
+
+	if(wl_display_roundtrip(handle->wayland.display) == -1) {
+		printf("roundtrip failed\n");
+		raise(SIGTRAP);
+		return;
+	}
+
+	for(i = 0; i < shlen(handle->wayland.wl_protocol_setup_map); i++) {
+		void* ctx = shget(handle->wayland.wl_protocol_map, handle->wayland.wl_protocol_setup_map[i].key);
+
+		if(ctx != NULL) {
+			handle->wayland.wl_protocol_setup_map[i].value->destroy(&handle->wayland, ctx);
+		}
+		shdel(handle->wayland.wl_protocol_map, handle->wayland.wl_protocol_setup_map[i].value);
+		free(handle->wayland.wl_protocol_setup_map[i].value);
+	}
+
+	shfree(handle->wayland.wl_protocol_map);
+	shfree(handle->wayland.wl_protocol_setup_map);
+
+	MwLLWaylandFlush(handle);
 }
 
 static void clip(MwLL handle) {
@@ -955,27 +1006,10 @@ static void MwLLDestroyImpl(MwLL handle) {
 			wl_surface_destroy(handle->wayland.icon->surface);
 		}
 
-		if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
-			destroy_toplevel(handle);
-		} else if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
-			destroy_sublevel(handle);
-		} else if(handle->wayland.type == MwLL_WAYLAND_POPUP) {
-			destroy_popup(handle);
-		}
+		destroy_widget(handle);
+	} else {
+		printf("widget invalid\n");
 	}
-
-	for(i = 0; i < shlen(handle->wayland.wl_protocol_setup_map); i++) {
-		void* ctx = shget(handle->wayland.wl_protocol_map, handle->wayland.wl_protocol_setup_map[i].key);
-
-		if(ctx != NULL) {
-			handle->wayland.wl_protocol_setup_map[i].value->destroy(&handle->wayland, ctx);
-		}
-		shdel(handle->wayland.wl_protocol_map, handle->wayland.wl_protocol_setup_map[i].value);
-	}
-	shfree(handle->wayland.wl_protocol_map);
-	shfree(handle->wayland.wl_protocol_setup_map);
-
-	MwLLWaylandFlush(handle);
 
 	pthread_mutex_lock(&destroyedWidgetsTableMutex);
 	arrput(destroyedWidgetsTable, handle);
@@ -1049,7 +1083,7 @@ static void actually_set_wh(MwLL handle) {
 	}
 
 	if(handle->wayland.type == MwLL_WAYLAND_POPUP) {
-		destroy_popup(handle);
+		destroy_widget(handle);
 		MwLLWaylandFlush(handle);
 		setup_popup(handle, handle->wayland.x, handle->wayland.y, handle->wayland.parent);
 	}
@@ -1751,22 +1785,7 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 		}
 	}
 
-	switch(handle->wayland.type) {
-	case MwLL_WAYLAND_UNKNOWN:
-		break;
-	case MwLL_WAYLAND_TOPLEVEL:
-		destroy_toplevel(handle);
-		break;
-	case MwLL_WAYLAND_SUBLEVEL:
-		destroy_sublevel(handle);
-		break;
-	case MwLL_WAYLAND_POPUP:
-		destroy_popup(handle);
-		break;
-	case MwLL_WAYLAND_LAYER_SURFACE:
-		destroy_layer_surface(handle);
-		break;
-	}
+	destroy_widget(handle);
 
 	if(wl_display_roundtrip(handle->wayland.display) == -1) {
 		printf("roundtrip failed\n");
