@@ -296,7 +296,8 @@ if(MW_CLASSIC_THEME)
  )
 endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+message("Building Milsko for ${CMAKE_SYSTEM_NAME}")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "MSYS")
   target_sources(
   Mw
   PRIVATE
@@ -336,6 +337,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   -framework Cocoa
  )
 elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
+
   target_sources(
    Mw
    PRIVATE
@@ -354,6 +356,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
    CLASSIC_MAC_OS
   )
 else()
+
   find_package(PkgConfig)
   find_package(X11)
   pkg_check_modules(DBUS dbus-1)
@@ -386,22 +389,25 @@ else()
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     list(APPEND LIBRARIES dl)
   endif()
+
+  find_package(DBus1)
+
+  if(${DBus1_FOUND})
+    list(APPEND INCLUDE_DIRS ${DBUS_INCLUDE_DIRS})
+    list(APPEND LIBRARY_DIRS ${DBUS_LIBRARY_DIRS})
+    target_compile_definitions(
+      Mw
+      PRIVATE
+      USE_DBUS
+    )
+  endif()
 endif()
 
-find_package(DBus1)
 
-if(${DBus1_FOUND})
-  list(APPEND INCLUDE_DIRS ${DBUS_INCLUDE_DIRS})
-  list(APPEND LIBRARY_DIRS ${DBUS_LIBRARY_DIRS})
-  target_compile_definitions(
-    Mw
-    PRIVATE
-    USE_DBUS
-  )
+
+if(UNIX)
+  list(APPEND LIBRARIES m)
 endif()
-
-list(APPEND LIBRARIES m)
-
 
 target_include_directories(
  Mw
@@ -456,6 +462,17 @@ install(
  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
+
+configure_file(
+      ${CMAKE_CURRENT_SOURCE_DIR}/resource/${PROJECT_NAME}.pc.in
+      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
+      @ONLY
+  )
+
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
+    DESTINATION $ENV{MINGW_PREFIX}/${CMAKE_INSTALL_DATADIR}/pkgconfig
+    )
 
 if(MW_INSTALL_HEADERS)
   install(
