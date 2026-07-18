@@ -9,6 +9,7 @@ include(GNUInstallDirs)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(MW_CLASSIC_THEME "Use classic theme" OFF)
 option(MW_BUILD_EXAMPLES "Build examples" OFF)
@@ -29,10 +30,28 @@ endif()
 
 option(MW_INSTALL_HEADERS "Install headers" ON)
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin OR ${CMAKE_SYSTEM_NAME} MATCHES Retro)
+if(   ${CMAKE_SYSTEM_NAME} STREQUAL Darwin
+  OR  ${CMAKE_SYSTEM_NAME} MATCHES Retro
+  OR  ${CMAKE_SYSTEM_NAME} MATCHES Windows)
   option(MW_USE_FREETYPE2 "Use FreeType 2" OFF)
 else()
   option(MW_USE_FREETYPE2 "Use FreeType 2" ON)
+endif()
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+  if(${CMAKE_CROSSCOMPILING})
+    message(STATUS "DirectWrite support has been enabled")
+    option(MW_USE_DIRECTWRITE "Use DirectWrite" ON)
+  else()
+    # DirectWrite stuff can only be used on Win10+
+    if(${CMAKE_SYSTEM_VERSION} GREATER_EQUAL 10)
+      message(STATUS "DirectWrite support has been enabled")
+      option(MW_USE_DIRECTWRITE "Use DirectWrite" ON)
+    else()
+      message(WARNING "DirectWrite support has been disabled (must be compiling on Win10+)")
+      option(MW_USE_DIRECTWRITE "Use DirectWrite" OFF)
+    endif()
+  endif()
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Linux OR ${CMAKE_SYSTEM_NAME} STREQUAL FreeBSD)
@@ -69,8 +88,8 @@ if(MW_TRY_OPENGL)
 endif()
 
 if(MW_TRY_VULKAN)
-  check_include_files(vulkan/vulkan.h HAVE_VULKAN_VULKAN_H)
-  if(HAVE_VULKAN_VULKAN_H)
+  find_package(Vulkan OPTIONAL VULKAN)
+  if(${Vulkan_FOUND})
     set(MW_BUILD_VULKAN ON)
     message(STATUS "Vulkan widget has been enabled")
   else()
@@ -132,16 +151,24 @@ if(MW_USE_FREETYPE2)
   if(Freetype_FOUND)
     message(STATUS "FreeType2 found")
     target_compile_definitions(
-  Mw
-  PRIVATE
-  USE_FREETYPE2
- )
+      Mw
+      PRIVATE
+      USE_FREETYPE2
+    )
 
     list(APPEND INCLUDE_DIRS ${FREETYPE_INCLUDE_DIRS})
     list(APPEND LIBRARY_DIRS ${FREETYPE_LIBRARY_DIRS})
   else()
     message(WARNING "FreeType2 not found")
   endif()
+endif()
+
+if(MW_USE_DIRECTWRITE)
+  target_compile_definitions(
+    Mw
+    PRIVATE
+    USE_DIRECTWRITE
+  )
 endif()
 
 if(MW_USE_WAYLAND)

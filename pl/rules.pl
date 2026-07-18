@@ -134,6 +134,10 @@ if (param_get("freetype2")) {
     }
 }
 
+if (param_get("directwrite")) {
+    add_cflags("-DUSE_DIRECTWRITE");
+}
+
 if (param_get("vulkan") && param_get("vulkan-string-helper")) {
     add_cflags("-DHAS_VK_ENUM_STRING_HELPER");
 }

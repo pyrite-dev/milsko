@@ -3,10 +3,11 @@
 int (*MwFLDrawText)(MwWidget handle, MwFLFont font, MwPoint* point, const char* text, MwLLColor color) = NULL;
 int (*MwFLTextWidth)(MwFLFont font, const char* text)						       = NULL;
 int (*MwFLTextHeight)(MwFLFont font, int count)							       = NULL;
+int (*MwFLTextHeightWithText)(MwFLFont ttf, const char * text) = NULL;
 void* (*MwFLFontLoad)(unsigned char* data, unsigned int size, int px)				       = NULL;
 void (*MwFLFontFree)(void* handle)								       = NULL;
 
-#if defined(USE_FREETYPE2) || defined(USE_STB_TRUETYPE)
+#if defined(USE_FREETYPE2) || defined(USE_STB_TRUETYPE) || defined(USE_DIRECTWRITE)
 #define TTF
 #endif
 
@@ -220,6 +221,8 @@ int MwTextHeight(MwWidget handle, MwFLFont ttf, const char* text) {
 #ifdef TTF
 	if(MwFLTextHeight)
 		if(!MwGetInteger(handle, MwNbitmapFont) && ttf != NULL && (st = MwFLTextHeight(ttf, c)) != -1) return st;
+	if(MwFLTextHeightWithText)
+	    if(!MwGetInteger(handle, MwNbitmapFont) && ttf != NULL && (st = MwFLTextHeightWithText(ttf, text)) != -1) return st;
 #endif
 	return FontHeight * c;
 }
@@ -297,6 +300,9 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 typedef int (*call_t)(void);
 void MwFLSetup(void) {
 	call_t calls[] = {
+#ifdef USE_DIRECTWRITE
+	    MWFL_DWSetup,
+#endif
 #ifdef USE_FREETYPE2
 	    MWFL_FT2Setup,
 #endif
