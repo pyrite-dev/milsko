@@ -67,7 +67,9 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 	if(u == NULL) return DefWindowProc(hWnd, msg, wp, lp);
 
-	if(msg == WM_PAINT) {
+	switch(msg) {
+	case WM_PAINT:
+	{
 		PAINTSTRUCT ps;
 		RECT	    rc;
 		HBITMAP	    hbmp;
@@ -98,7 +100,12 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 			MwLLDispatch(u->ll, draw, NULL);
 			EndPaint(hWnd, &ps);
 		}
-	} else if(msg == WM_LBUTTONDOWN || msg == WM_MBUTTONDOWN || msg == WM_RBUTTONDOWN) {
+		break;
+	}
+	case WM_LBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	{
 		MwMouse p;
 		p.point.x = LOWORD(lp);
 		p.point.y = HIWORD(lp);
@@ -113,7 +120,12 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		SetCapture(hWnd);
 		SetFocus(hWnd);
 		MwLLDispatch(u->ll, down, &p);
-	} else if(msg == WM_LBUTTONUP || msg == WM_MBUTTONUP || msg == WM_RBUTTONUP) {
+		break;
+	}
+	case WM_LBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_RBUTTONUP:
+	{
 		MwMouse p;
 		p.point.x = LOWORD(lp);
 		p.point.y = HIWORD(lp);
@@ -127,7 +139,10 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 		SetCapture(NULL);
 		MwLLDispatch(u->ll, up, &p);
-	} else if(msg == WM_MOUSEWHEEL) {
+		break;
+	}
+	case WM_MOUSEWHEEL:
+	{
 		int	d = GET_WHEEL_DELTA_WPARAM(wp);
 		MwMouse p;
 		p.point.x = LOWORD(lp);
@@ -141,7 +156,10 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 		MwLLDispatch(u->ll, down, &p);
 		MwLLDispatch(u->ll, up, &p);
-	} else if(msg == WM_MOUSEMOVE) {
+		break;
+	}
+	case WM_MOUSEMOVE:
+	{
 		MwPoint p;
 		p.x = LOWORD(lp);
 		p.y = HIWORD(lp);
@@ -169,19 +187,35 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 			SetCursorPos(p.x, p.y);
 		}
-	} else if(msg == WM_SIZE) {
+		break;
+	}
+	case WM_SIZE:
+	{
 		MwLLDispatch(u->ll, resize, NULL);
-	} else if(msg == WM_ERASEBKGND) {
+		break;
+	}
+	case WM_ERASEBKGND:
+	{
 		return 1;
-	} else if(msg == WM_NCHITTEST) {
+	}
+	case WM_NCHITTEST:
+	{
 		LPARAM style = GetWindowLongPtr(hWnd, GWL_STYLE);
 		if(style & WS_CHILD) return HTCLIENT;
 		return DefWindowProc(hWnd, msg, wp, lp);
-	} else if(msg == WM_DESTROY) {
+	}
+	case WM_DESTROY:
+	{
 		PostQuitMessage(0);
-	} else if(msg == WM_CLOSE) {
+		break;
+	}
+	case WM_CLOSE:
+	{
 		MwLLDispatch(u->ll, close, NULL);
-	} else if(msg == WM_CHAR || msg == WM_SYSCHAR) {
+	}
+	case WM_CHAR:
+	case WM_SYSCHAR:
+	{
 		int	  n    = wp;
 		const int base = 'A' - 1;
 
@@ -193,24 +227,61 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		if(msg == WM_SYSCHAR) n |= MwKEY_ALT_FLAG;
 
 		if((0x20 <= n && n <= 0x7f) || (n & MwKEY_FLAG)) MwLLDispatch(u->ll, key, &n);
-	} else if(msg == WM_SETFOCUS) {
+		break;
+	}
+	case WM_SETFOCUS:
+	{
 		MwLLDispatch(u->ll, focus_in, NULL);
-	} else if(msg == WM_KILLFOCUS) {
+		break;
+	}
+	case WM_KILLFOCUS:
+	{
 		MwLLDispatch(u->ll, focus_out, NULL);
-	} else if(msg == WM_KEYDOWN || msg == WM_KEYUP || msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP) {
+		break;
+	}
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+	case WM_SYSKEYDOWN:
+	case WM_SYSKEYUP:
+	{
 		int n = -1;
+
 		if(wp == VK_MENU && msg == WM_KEYUP) return 0;
-		if(wp == VK_LEFT) n = MwKEY_LEFT;
-		if(wp == VK_RIGHT) n = MwKEY_RIGHT;
-		if(wp == VK_UP) n = MwKEY_UP;
-		if(wp == VK_DOWN) n = MwKEY_DOWN;
-		if(wp == VK_RETURN) n = MwKEY_ENTER;
-		if(wp == VK_BACK) n = MwKEY_BACKSPACE;
-		if(wp == VK_ESCAPE) n = MwKEY_ESCAPE;
-		if(wp == VK_LSHIFT) n = MwKEY_LEFTSHIFT;
-		if(wp == VK_RSHIFT) n = MwKEY_RIGHTSHIFT;
-		if(wp == VK_MENU) n = MwKEY_ALT;
-		if(wp == VK_CONTROL) n = MwKEY_CONTROL;
+		switch(wp) {
+		case VK_LEFT:
+			n = MwKEY_LEFT;
+			break;
+		case VK_RIGHT:
+			n = MwKEY_RIGHT;
+			break;
+		case VK_UP:
+			n = MwKEY_UP;
+			break;
+		case VK_DOWN:
+			n = MwKEY_DOWN;
+			break;
+		case VK_RETURN:
+			n = MwKEY_ENTER;
+			break;
+		case VK_BACK:
+			n = MwKEY_BACKSPACE;
+			break;
+		case VK_ESCAPE:
+			n = MwKEY_ESCAPE;
+			break;
+		case VK_LSHIFT:
+			n = MwKEY_LEFTSHIFT;
+			break;
+		case VK_RSHIFT:
+			n = MwKEY_RIGHTSHIFT;
+			break;
+		case VK_MENU:
+			n = MwKEY_ALT;
+			break;
+		case VK_CONTROL:
+			n = MwKEY_CONTROL;
+			break;
+		}
 
 		if((msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP) && n != -1 && wp != VK_MENU) {
 			n |= MwKEY_ALT_FLAG;
@@ -222,7 +293,10 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 				MwLLDispatch(u->ll, key_released, &n);
 			}
 		}
-	} else if(msg == WM_GETMINMAXINFO) {
+		break;
+	}
+	case WM_GETMINMAXINFO:
+	{
 		if(u->min_set || u->max_set) {
 			LPARAM	    style = GetWindowLongPtr(hWnd, GWL_STYLE);
 			MINMAXINFO* mmi	  = (MINMAXINFO*)lp;
@@ -253,21 +327,34 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		} else {
 			return DefWindowProc(hWnd, msg, wp, lp);
 		}
-	} else if(msg == WM_SETCURSOR) {
+		break;
+	}
+	case WM_SETCURSOR:
+	{
 		if(LOWORD(lp) != HTCLIENT) return DefWindowProc(hWnd, msg, wp, lp);
 		if(u->ll->gdi.cursor != NULL) SetCursor(u->ll->gdi.cursor);
-	} else if(msg == WM_USER) {
+		break;
+	}
+	case WM_USER:
+	{
 		InvalidateRect(hWnd, NULL, FALSE);
 		UpdateWindow(hWnd);
-	} else if(msg == WM_WININICHANGE) {
+		break;
+	}
+	case WM_WININICHANGE:
+	{
 		char*  s     = (char*)lp;
 		LPARAM style = GetWindowLongPtr(hWnd, GWL_STYLE);
 
 		if(!(style & WS_CHILD)) {
 			if(s != NULL && strcmp(s, "ImmersiveColorSet") == 0) detect_darktheme(u->ll);
 		}
-	} else {
+		break;
+	}
+	default:
+	{
 		return DefWindowProc(hWnd, msg, wp, lp);
+	}
 	}
 	return 0;
 }
