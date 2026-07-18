@@ -225,14 +225,19 @@ static void lldarkthemehandler(MwLL handle, void* data) {
 static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, int do_prop, va_list prop) {
 	MwWidget h = malloc(sizeof(*h));
 
-	h->name = MwStringDuplicate(name);
+	if(name)
+	    h->name = MwStringDuplicate(name);
+	else
+	    h->name = NULL;
 
 	h->parent   = parent;
 	h->children = NULL;
 
 	if(widget_class != NULL) {
 		if((h->lowlevel = MwLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height)) == NULL) {
-			free(h->name);
+		    if(h->name) {
+				free(h->name);
+			}
 			free(h);
 			return NULL;
 		}
@@ -411,7 +416,7 @@ void MwFreeWidget(MwWidget handle) {
 		}
 	}
 
-	free(handle->name);
+	if(handle->name) free(handle->name);
 
 	if(handle->lowlevel != NULL) MwLLDestroy(handle->lowlevel);
 
