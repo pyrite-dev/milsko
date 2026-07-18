@@ -27,6 +27,19 @@ MwInline void MwWindowMakeBorderless(MwWidget handle, int toggle) {
 	MwVaWidgetExecute(handle, "mwWindowMakeBorderless", NULL, toggle);
 }
 
+
+/*!
+ * @brief Whether the window should close
+ * @param handle Widget
+ * @return bool
+ */
+MwInline MwBool MwWindowShouldClose(MwWidget handle) {
+    MwBool res = MwFALSE;
+    MwVaWidgetExecute(handle, "mwWindowShouldClose", NULL, &res);
+    return res;
+}
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -35,12 +35,20 @@ static void mwWindowMakeBorderlessImpl(MwWidget handle, int toggle) {
 	MwLLEndStateChange(handle->lowlevel);
 }
 
+static void mwWindowShouldCloseImpl(MwWidget handle, MwBool* out) {
+    *out = handle->close;
+}
+
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	(void)out;
 
 	if(strcmp(name, "mwWindowMakeBorderless") == 0) {
 		int toggle = va_arg(va, int);
 		mwWindowMakeBorderlessImpl(handle, toggle);
+	}
+	if(strcmp(name, "mwWindowShouldClose") == 0) {
+		MwBool *out = va_arg(va, MwBool*);
+		mwWindowShouldCloseImpl(handle, out);
 	}
 }
 MwClassRec MwWindowClassRec = {
