@@ -212,6 +212,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	case WM_CLOSE:
 	{
 		MwLLDispatch(u->ll, close, NULL);
+		break;
 	}
 	case WM_CHAR:
 	case WM_SYSCHAR:
