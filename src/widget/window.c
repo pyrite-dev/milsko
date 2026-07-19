@@ -36,7 +36,7 @@ static void mwWindowMakeBorderlessImpl(MwWidget handle, int toggle) {
 }
 
 static void mwWindowShouldCloseImpl(MwWidget handle, MwBool* out) {
-    *out = handle->close;
+	*out = handle->close;
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
@@ -47,7 +47,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		mwWindowMakeBorderlessImpl(handle, toggle);
 	}
 	if(strcmp(name, "mwWindowShouldClose") == 0) {
-		MwBool *out = va_arg(va, MwBool*);
+		MwBool* out = va_arg(va, MwBool*);
 		mwWindowShouldCloseImpl(handle, out);
 	}
 }

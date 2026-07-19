@@ -52,6 +52,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
       option(MW_USE_DIRECTWRITE "Use DirectWrite" OFF)
     endif()
   endif()
+  option(MW_USE_GDI_TEXT "Use GDI for text rendering" ON)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Linux OR ${CMAKE_SYSTEM_NAME} STREQUAL FreeBSD)
@@ -168,6 +169,14 @@ if(MW_USE_DIRECTWRITE)
     Mw
     PRIVATE
     USE_DIRECTWRITE
+  )
+endif()
+
+if(MW_USE_GDI_TEXT)
+  target_compile_definitions(
+    Mw
+    PRIVATE
+    USE_GDI_TEXT
   )
 endif()
 

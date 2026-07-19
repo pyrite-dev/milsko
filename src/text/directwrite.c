@@ -530,7 +530,7 @@ static CustomTextRenderer* CustomTextRenderer_Create(IDWriteFactory6* write_fact
 	return obj;
 }
 
-int MWFL_DWSetup(void) {
+int MwFL_DWSetup(void) {
 	HRESULT hr;
 	HANDLE	ole32lib;
 	/* CoInitialize, to my knowledge, is avaliable on every Windows version we actually support. But as of writing, CI fails because a specific mingw won't link to it by default. I'm not gonna waste my time chancing that it will properly link to ole32 either. */
@@ -541,7 +541,7 @@ int MWFL_DWSetup(void) {
 		printf("ole32lib not found, cannot use DirectWrite\n");
 		return 1;
 	}
-	CoInitialize = (HRESULT (*)(LPVOID pvReserved))GetProcAddress(ole32lib, "CoInitialize");
+	CoInitialize = (HRESULT(*)(LPVOID pvReserved))GetProcAddress(ole32lib, "CoInitialize");
 	if(!CoInitialize) {
 		printf("CoInitialize not found, cannot use DirectWrite\n");
 		return 1;

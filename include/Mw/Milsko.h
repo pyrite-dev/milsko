@@ -17,6 +17,7 @@
 #include <Mw/String.h>
 #include <Mw/Draw.h>
 #include <Mw/Version.h>
+#include <Mw/TrueType.h>
 
 #include <Mw/Abstract/Dynamic.h>
 #include <Mw/Abstract/Directory.h>

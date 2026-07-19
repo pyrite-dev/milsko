@@ -339,19 +339,22 @@ MWDECL void (*MwLLClip)(MwLL handle, MwRect* rect);
 MWDECL void MwFLSetup(void);
 
 #ifdef USE_FREETYPE2
-MWDECL int MWFL_FT2Setup(void);
+MWDECL int MwFL_FT2Setup(void);
 #endif
 #ifdef USE_STB_TRUETYPE
 MWDECL int MwFL_STBTTSetup(void);
 #endif
 #ifdef USE_DIRECTWRITE
-MWDECL int MWFL_DWSetup(void);
+MWDECL int MwFL_DWSetup(void);
+#endif
+#ifdef USE_GDI_TEXT
+MWDECL int MwFL_GDISetup(void);
 #endif
 
 MWDECL int (*MwFLDrawText)(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwLLColor color);
 MWDECL int (*MwFLTextWidth)(MwFLFont ttf, const char* text);
 MWDECL int (*MwFLTextHeight)(MwFLFont ttf, int count);
-MWDECL int (*MwFLTextHeightWithText)(MwFLFont ttf, const char * text);
+MWDECL int (*MwFLTextHeightWithText)(MwFLFont ttf, const char* text);
 MWDECL void* (*MwFLFontLoad)(unsigned char* data, unsigned int size, int px);
 MWDECL void (*MwFLFontFree)(void* handle);
 

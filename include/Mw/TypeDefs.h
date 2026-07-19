@@ -31,6 +31,7 @@ typedef struct _MwSubWindow*	      MwSubWindow;
 typedef struct _MwTab*		      MwTab;
 typedef struct _MwTable*	      MwTable;
 typedef struct _MwMouse		      MwMouse;
+typedef struct _MwTTFInfo*	      MwTTFInfo;
 #ifdef _MILSKO
 typedef struct _MwWidget* MwWidget;
 #else
@@ -245,6 +246,11 @@ struct _MwTab {
 struct _MwMouse {
 	MwPoint point;
 	int	button;
+};
+
+struct _MwTTFInfo {
+	char* family;
+	int   weight;
 };
 
 struct _MwClass {

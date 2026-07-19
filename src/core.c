@@ -226,16 +226,16 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 	MwWidget h = malloc(sizeof(*h));
 
 	if(name)
-	    h->name = MwStringDuplicate(name);
+		h->name = MwStringDuplicate(name);
 	else
-	    h->name = NULL;
+		h->name = NULL;
 
 	h->parent   = parent;
 	h->children = NULL;
 
 	if(widget_class != NULL) {
 		if((h->lowlevel = MwLLCreate(parent == NULL ? NULL : parent->lowlevel, x, y, width, height)) == NULL) {
-		    if(h->name) {
+			if(h->name) {
 				free(h->name);
 			}
 			free(h);

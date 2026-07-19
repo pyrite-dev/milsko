@@ -64,7 +64,7 @@ char* MwUTF8ToACP(const char* input) {
 		return MwStringDuplicate(input);
 	}
 
-	wout = malloc(wbytes);
+	wout = malloc(wbytes + sizeof(wchar_t));
 	len  = wbytes / sizeof(wchar_t);
 
 	memset(wout, 0, wbytes);
