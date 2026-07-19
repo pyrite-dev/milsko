@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.13)
 project(
  milsko
 )
@@ -88,7 +88,7 @@ if(MW_TRY_OPENGL)
 endif()
 
 if(MW_TRY_VULKAN)
-  find_package(Vulkan OPTIONAL VULKAN)
+  find_package(Vulkan)
   if(${Vulkan_FOUND})
     set(MW_BUILD_VULKAN ON)
     message(STATUS "Vulkan widget has been enabled")
