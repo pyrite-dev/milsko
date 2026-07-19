@@ -34,6 +34,8 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 		SetBkMode(handle->lowlevel->gdi.hDC, old_bkmode);
 		SelectObject(handle->lowlevel->gdi.hDC, old_font);
 
+        free(t);
+
 		return 0;
 	}
 
