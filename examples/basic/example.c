@@ -112,7 +112,7 @@ int main() {
 				   MwNtext, "font",
 				   NULL);
 	button4 = MwVaCreateWidget(MwButtonClass, "button", window, 50, 225, 100, 125,
-				   MwNtext, "日本語の表記体系",
+				   MwNtext, "lorem ipsum",
 				   MwNbackground, "#f66",
 				   MwNforeground, "#000",
 				   NULL);
