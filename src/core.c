@@ -527,7 +527,7 @@ static void MwAfterStep(MwWidget handle) {
 	}
 #endif
 
-	if(arrlen(handle->tick_list) > 0 && (MwTimeGetTick() - handle->last_tick) >= MwWaitMS) {
+	if(arrlen(handle->tick_list) > 0 && (MwTimeGetTick() - handle->last_tick) >= (MwGetInteger(handle, MwNwaitMS) == MwDEFAULT ? MwWaitMS : MwGetInteger(handle, MwNwaitMS))) {
 		for(i = 0; i < arrlen(handle->tick_list); i++) {
 			MwDispatch(handle->tick_list[i], tick);
 			MwDispatchUserHandler(handle->tick_list[i], MwNtickHandler, NULL);
@@ -569,7 +569,7 @@ int MwPending(MwWidget handle) {
 	for(i = 0; i < arrlen(handle->children); i++) {
 		if(MwPending(handle->children[i])) return 1;
 	}
-	return (arrlen(handle->tick_list) > 0 && (MwTimeGetTick() - handle->last_tick) >= MwWaitMS) || (arrlen(handle->destroy_queue) > 0) || (handle->widget_class == NULL ? 0 : MwLLPending(handle->lowlevel));
+	return (arrlen(handle->tick_list) > 0 && (MwTimeGetTick() - handle->last_tick) >= (MwGetInteger(handle, MwNwaitMS) == MwDEFAULT ? MwWaitMS : MwGetInteger(handle, MwNwaitMS))) || (arrlen(handle->destroy_queue) > 0) || (handle->widget_class == NULL ? 0 : MwLLPending(handle->lowlevel));
 }
 
 void MwLoop(MwWidget handle) {
