@@ -125,21 +125,19 @@ sub scan_wayland_protocol {
     }
 }
 
-
 sub scan_wayland_protocol_from_file {
-    my $proto  = $_[0];
-    my $file = $_[1];
+    my $proto   = $_[0];
+    my $file    = $_[1];
     my $proto_c = "src/backend/wayland/wayland-${proto}-protocol.c";
 
     if (
         system(
-"wayland-scanner private-code ./resource/wayland/${file} ${proto_c}"
+            "wayland-scanner private-code ./resource/wayland/${file} ${proto_c}"
         ) != 0
       )
     {
         print(
-"^ Error on getting private code for ./resource/wayland/${file}\n"
-        );
+            "^ Error on getting private code for ./resource/wayland/${file}\n");
     }
     else {
         new_object($proto_c);
@@ -151,11 +149,10 @@ sub scan_wayland_protocol_from_file {
       )
     {
         print(
-"^ Error on getting client header for ./resource/wayland/${file}\n"
+            "^ Error on getting client header for ./resource/wayland/${file}\n"
         );
     }
 }
-
 
 our %params = ();
 

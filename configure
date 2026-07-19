@@ -82,7 +82,10 @@ my @features_keys = (
 );
 
 sub def_platform {
-	if($target ne "Darwin" and $target ne "ClassicMacOS" and $target ne "Windows" and $target ne "Haiku") {
+	if($target eq "Windows") {
+	    param_set("freetype2",        0);
+	    param_set("stb-truetype",     0);
+	} elsif($target ne "Darwin" and $target ne "ClassicMacOS" and $target ne "Haiku") {
 	    param_set("freetype2",        1);
 	    param_set("stb-truetype",     0);
 	} else {
