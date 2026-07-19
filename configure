@@ -59,7 +59,7 @@ my %features = (
     "stb-image"            => "use stb_image, instead use libjpeg/libpng",
     "stb-truetype"         => "use stb_truetype",
     "freetype2"            => "use FreeType2",
-    "directwrite"          => "(Windows only) use DirectWrite",
+    "gdi-text"             => "(Windows only) use GDI Text",
     "xrender"              => "(X11 only) use XRender",
     "opengl"               => "build OpenGL widget",
     "vulkan"               => "build Vulkan widget",
@@ -73,7 +73,7 @@ my %features = (
 );
 my @features_keys = (
     "1classic-theme", "1stb-image",
-    "1stb-truetype",  "1freetype2", "1directwrite",
+    "1stb-truetype",  "1freetype2", "1gdi-text",
     "1opengl",        "2xrender",
     "1vulkan",        "2vulkan-string-helper",
     "1shared",        "1static",
@@ -101,23 +101,9 @@ sub def_platform {
         param_set("x11", 1);
     }
     if($target eq "Windows") {
-        if ($^O eq "Win32")
-        {
-            require Win32;
-            Win32->import();
-            my ( $osvername, $major, $minor, $id ) = Win32::GetOSVersion();
-
-            if($major >= 10) {
-                param_set("directwrite", 1);
-            } else {
-                param_set("directwrite", 0);
-            }
-        } else {
-            # assume cross compiling
-            param_set("directwrite", 1);
-        }
+        param_set("gdi-text", 1);
     } else {
-        param_set("directwrite", 0);
+        param_set("gdi-text", 0);
     }
 }
 

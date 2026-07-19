@@ -315,7 +315,7 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 		MwAddTickList(h);
 	}
 
-#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_DIRECTWRITE)
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT)
 	if(IsFirstVisible(h)) {
 	font_setup:
 		h->root_font	     = MwFontLoad(MwTTFData, MwTTFDataSize);
@@ -744,7 +744,7 @@ int MwGetInteger(MwWidget handle, const char* key) {
 		return MwDEFAULT;
 	} else {
 		if(shgeti(handle->integer, key) == -1) {
-#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_DIRECTWRITE)
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT)
 			if(strcmp(key, MwNbitmapFont) == 0) return inherit_integer(handle, key, 0);
 #else
 			if(strcmp(key, MwNbitmapFont) == 0) return inherit_integer(handle, key, 1);
@@ -795,7 +795,7 @@ const char* MwGetText(MwWidget handle, const char* key) {
 	return shget(handle->text, key);
 }
 
-#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_DIRECTWRITE)
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT)
 static void* inherit_void(MwWidget handle, const char* key) {
 	void* v;
 
@@ -811,7 +811,7 @@ void* MwGetVoid(MwWidget handle, const char* key) {
 
 	if(v != NULL) return v;
 
-#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_DIRECTWRITE)
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT)
 	if(strcmp(key, MwNfont) == 0 || strcmp(key, MwNboldFont) == 0 || strcmp(key, MwNmonospaceFont) == 0 || strcmp(key, MwNboldMonospaceFont) == 0) {
 		v = inherit_void(handle, key);
 

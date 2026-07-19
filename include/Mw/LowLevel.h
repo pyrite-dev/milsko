@@ -344,9 +344,7 @@ MWDECL int MwFL_FT2Setup(void);
 #ifdef USE_STB_TRUETYPE
 MWDECL int MwFL_STBTTSetup(void);
 #endif
-#ifdef USE_DIRECTWRITE
-MWDECL int MwFL_DWSetup(void);
-#endif
+
 #ifdef USE_GDI_TEXT
 MWDECL int MwFL_GDISetup(void);
 #endif

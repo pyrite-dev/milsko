@@ -39,19 +39,6 @@ else()
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-  if(${CMAKE_CROSSCOMPILING})
-    message(STATUS "DirectWrite support has been enabled")
-    option(MW_USE_DIRECTWRITE "Use DirectWrite" ON)
-  else()
-    # DirectWrite stuff can only be used on Win10+
-    if(${CMAKE_SYSTEM_VERSION} GREATER_EQUAL 10)
-      message(STATUS "DirectWrite support has been enabled")
-      option(MW_USE_DIRECTWRITE "Use DirectWrite" ON)
-    else()
-      message(WARNING "DirectWrite support has been disabled (must be compiling on Win10+)")
-      option(MW_USE_DIRECTWRITE "Use DirectWrite" OFF)
-    endif()
-  endif()
   option(MW_USE_GDI_TEXT "Use GDI for text rendering" ON)
 endif()
 
@@ -164,13 +151,6 @@ if(MW_USE_FREETYPE2)
   endif()
 endif()
 
-if(MW_USE_DIRECTWRITE)
-  target_compile_definitions(
-    Mw
-    PRIVATE
-    USE_DIRECTWRITE
-  )
-endif()
 
 if(MW_USE_GDI_TEXT)
   target_compile_definitions(

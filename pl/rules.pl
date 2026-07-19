@@ -134,8 +134,8 @@ if (param_get("freetype2")) {
     }
 }
 
-if (param_get("directwrite")) {
-    add_cflags("-DUSE_DIRECTWRITE");
+if (param_get("gdi-text")) {
+    add_cflags("-DUSE_GDI_TEXT");
 }
 
 if (param_get("vulkan") && param_get("vulkan-string-helper")) {
