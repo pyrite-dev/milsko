@@ -23,6 +23,20 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);
 
+	if(handle->lowlevel->common.type == MwLLBackendGDI) {
+		HFONT	 old_font   = SelectObject(handle->lowlevel->gdi.hDC, ttf->font);
+		int	 old_bkmode = SetBkMode(handle->lowlevel->gdi.hDC, TRANSPARENT);
+		COLORREF old_color  = SetTextColor(handle->lowlevel->gdi.hDC, color->gdi.color);
+
+		TextOut(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t, strlen(t));
+
+		SetTextColor(handle->lowlevel->gdi.hDC, old_color);
+		SetBkMode(handle->lowlevel->gdi.hDC, old_bkmode);
+		SelectObject(handle->lowlevel->gdi.hDC, old_font);
+
+		return 0;
+	}
+
 	px = malloc(tw * th * 4);
 
 	bmih.biSize	     = sizeof(bmih);
@@ -69,7 +83,6 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	free(px);
 
 	DeleteObject(hbm);
-
 	free(t);
 
 	return 0;

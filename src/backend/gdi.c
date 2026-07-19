@@ -502,7 +502,8 @@ static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 	if(b < 0) b = 0;
 
 	if(c->gdi.brush != NULL) DeleteObject(c->gdi.brush);
-	c->gdi.brush	= CreateSolidBrush(GetNearestColor(dc, RGB(r, g, b)));
+	c->gdi.color	= GetNearestColor(dc, RGB(r, g, b));
+	c->gdi.brush	= CreateSolidBrush(c->gdi.color);
 	c->common.red	= r;
 	c->common.green = g;
 	c->common.blue	= b;

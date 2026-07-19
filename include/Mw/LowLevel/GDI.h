@@ -34,7 +34,8 @@ struct _MwLLGDI {
 struct _MwLLGDIColor {
 	struct _MwLLCommonColor common;
 
-	HBRUSH brush;
+	COLORREF color;
+	HBRUSH	 brush;
 };
 
 struct _MwLLGDIPixmap {
