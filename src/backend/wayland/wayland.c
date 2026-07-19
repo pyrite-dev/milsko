@@ -177,6 +177,9 @@ static void xdg_toplevel_configure(void*		data,
 		}
 	}
 
+	if(width < 50) width = 50;
+	if(height < 50) height = 50;
+
 	MwLLWaylandRegionInvalidate(self);
 	self->wayland.ww = width;
 	self->wayland.wh = height;
@@ -451,6 +454,9 @@ static void popup_configure(void*	      data,
 			    int32_t	      height) {
 	MwLL self = data;
 	(void)xdg_popup;
+
+	if(width < 50) width = 50;
+	if(height < 50) height = 50;
 	self->wayland.x	 = x;
 	self->wayland.y	 = y;
 	self->wayland.ww = width;
@@ -599,6 +605,9 @@ static void layer_shell_configure(void*				data,
 				  uint32_t			height) {
 	MwLL self = data;
 	zwlr_layer_surface_v1_ack_configure(surface, serial);
+
+	if(width < 50) width = 50;
+	if(height < 50) height = 50;
 
 	self->wayland.ww = width;
 	self->wayland.wh = height;
@@ -1106,13 +1115,11 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	}
 
 	/* Prevent an integer underflow when the w/h is too low */
-	if((w < 2 || h < 2)) {
-		handle->wayland.ww = 2;
-		handle->wayland.wh = 2;
-	} else {
-		handle->wayland.ww = w;
-		handle->wayland.wh = h;
-	}
+	if(w < 50) w = 50;
+	if(h < 50) h = 50;
+
+	handle->wayland.ww = w;
+	handle->wayland.wh = h;
 
 	if(!handle->wayland.setting_wh) {
 		handle->wayland.setting_wh = 1;
