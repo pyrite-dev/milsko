@@ -25,6 +25,7 @@
 
 #ifdef _MILSKO
 #include <windows.h>
+#include <mmsystem.h>
 #ifndef GWLP_USERDATA
 #define GWLP_USERDATA GWL_USERDATA
 #define GWLP_WNDPROC GWL_WNDPROC

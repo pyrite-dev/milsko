@@ -1072,6 +1072,10 @@ int MwLibraryInit(void) {
 	    NULL};
 	int i;
 
+#ifdef _WIN32
+	timeBeginPeriod(10);
+#endif
+
 #ifdef USE_WAYLAND
 	if(MwWaylandCairoOnly) {
 		calls[0] = MwLLCairoCallInit;

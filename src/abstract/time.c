@@ -2,7 +2,7 @@
 
 #if defined(_WIN32)
 long MwTimeGetTick(void) {
-	return GetTickCount();
+	return timeGetTime();
 }
 
 void MwTimeSleep(int ms) {
