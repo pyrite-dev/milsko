@@ -22,7 +22,7 @@ MWDECL MwTTFInfo MwTTFGetInfo(unsigned char* data, int size);
 
 /*!
  * @brief Free the TrueType font information
- * @brief info Information
+ * @param info Information
  */
 MWDECL void MwTTFFreeInfo(MwTTFInfo info);
 
