@@ -1,8 +1,8 @@
 #ifdef USE_GDI_TEXT
 #include <Mw/Milsko.h>
 
-static HANDLE	     WINAPI (*_AddFontMemResourceEx)(PVOID pFileView, DWORD cjSize, PVOID pvResrved, DWORD* pNumFonts) = NULL;
-static BOOL	     WINAPI (*_RemoveFontMemResourceEx)(HANDLE h)						       = NULL;
+static HANDLE(WINAPI* _AddFontMemResourceEx)(PVOID pFileView, DWORD cjSize, PVOID pvResrved, DWORD* pNumFonts) = NULL;
+static BOOL(WINAPI* _RemoveFontMemResourceEx)(HANDLE h)							       = NULL;
 static HANDLE WINAPI _AddFontMemResourceExPolyFill(PVOID pFileView, DWORD cjSize, PVOID pvResrved, DWORD* pNumFonts);
 static BOOL WINAPI   _RemoveFontMemResourceExPolyFill(HANDLE h);
 
@@ -28,7 +28,7 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);
 
-	if(handle->lowlevel->common.type == MwLLBackendGDI) {
+	if(handle->lowlevel->common.type == MwLLBackendGDI && MwGetInteger(handle, MwNmodernLook) == MwFALMwFALSE) {
 		HFONT	 old_font   = SelectObject(handle->lowlevel->gdi.hDC, ttf->font);
 		int	 old_bkmode = SetBkMode(handle->lowlevel->gdi.hDC, TRANSPARENT);
 		COLORREF old_color  = SetTextColor(handle->lowlevel->gdi.hDC, color->gdi.color);
