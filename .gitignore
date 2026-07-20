@@ -21,6 +21,8 @@ compile_flags.txt
 .DS_Store
 /vms
 /BorMakefile
+*.err
+*.zip
 
 *.pef
 *.dsk
