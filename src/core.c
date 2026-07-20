@@ -1063,7 +1063,9 @@ int MwLibraryInit(void) {
 #ifdef USE_GDI
 	    MwLLGDICallInit,
 #endif
-
+#ifdef CLASSIC_MAC_OS
+	    MwLLClassicMacOSCallInit,
+#endif
 #ifdef USE_HAIKU
 	    MwLLHaikuCallInit,
 #endif
@@ -1107,7 +1109,9 @@ int MwLibraryInit(void) {
 #ifdef USE_GDI
 	       " GDI"
 #endif
-
+#ifdef CLASSIC_MAC_OS
+	       " ClassicMacOS"
+#endif
 	       "\n");
 #endif
 	return 1;
