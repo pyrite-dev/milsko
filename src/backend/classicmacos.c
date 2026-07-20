@@ -1,6 +1,5 @@
 #include <Mw/Milsko.h>
 #include <Threads.h>
-#include <QuickDraw.h>
 
 #include "../../external/stb_ds.h"
 
@@ -65,7 +64,11 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 	}
 
 	ClosePoly();
-	FillCPoly(p, &qd.ltGray);
+
+	PenMode(patCopy);
+	RGBForeColor(&col);
+	PaintPoly(p);
+
 	KillPoly(p);
 
 	EndUpdate(handle->cmacos.window);
@@ -132,9 +135,23 @@ static void MwLLNextEventImpl(MwLL handle) {
 	switch(event.what) {
 	case updateEvt:
 	{
-	}
-	// MwLLDispatch(handle, draw, NULL);
-	break;
+		/*
+		    This is our blocker for getting anything running.
+		    This needs to be called at this point to start drawing anything.
+		    ...It locks up and/or crashes the entire system. At least on SheepShaver.
+		    It's not a stack overflow, it's not anything in the drawing functions.
+			It's *something* else. But because Classic Mac OS development is like
+			digging up forbidden tombs while stabbing yourself in the eye several times,
+			I don't know what.
+
+			Fun fact: for as much as everyone loves to glaze about AI being the future
+			of programming, even Claude got confused when I gave up and tried to ask it
+			for help. Information about Classic Mac OS probably takes up 0.0001% of its
+			knowledge base; god knows it's hard enough finding information online about
+			this!
+		    */
+		MwLLDispatch(handle, draw, NULL);
+	} break;
 	case osEvt:
 		break;
 	case mouseUp:

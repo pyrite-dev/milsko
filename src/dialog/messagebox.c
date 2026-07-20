@@ -70,7 +70,7 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	if((flag & MwMB_ICONMASK) != 0) {
 		MwWidget      icon;
 		MwLLPixmap    px;
-		unsigned int* data = NULL;
+		MwU32* data = NULL;
 
 		icon = MwCreateWidget(MwImageClass, "image", window, 8, (h - 48) / 2, 48, 48);
 
