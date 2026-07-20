@@ -52,9 +52,6 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 	col.green = color->common.green * 0x101;
 	col.blue  = color->common.blue * 0x101;
 
-	RGBForeColor(&col);
-	PenMode(patCopy);
-
 	for(i = 0; i < points_count; i++) {
 		if(i == 0) {
 			MoveTo(points[i].x, points[i].y);
