@@ -1143,8 +1143,10 @@ void MwReparent(MwWidget handle, MwWidget new_parent) {
 
 	if(new_parent == NULL) {
 		handle->top_step = 1;
+		arrput(handle->tick_list, handle);
 	} else {
 		handle->top_step = 0;
+		arrfree(handle->tick_list);
 	}
 
 	MwForceRender(handle);
