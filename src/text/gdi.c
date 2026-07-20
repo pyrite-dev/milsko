@@ -28,7 +28,7 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);
 
-	if(handle->lowlevel->common.type == MwLLBackendGDI && MwGetInteger(handle, MwNmodernLook) == MwFALMwFALSE) {
+	if(handle->lowlevel->common.type == MwLLBackendGDI && MwGetInteger(handle, MwNmodernLook) == MwFALSE) {
 		HFONT	 old_font   = SelectObject(handle->lowlevel->gdi.hDC, ttf->font);
 		int	 old_bkmode = SetBkMode(handle->lowlevel->gdi.hDC, TRANSPARENT);
 		COLORREF old_color  = SetTextColor(handle->lowlevel->gdi.hDC, color->gdi.color);
