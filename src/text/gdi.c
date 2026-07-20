@@ -1,6 +1,11 @@
 #ifdef USE_GDI_TEXT
 #include <Mw/Milsko.h>
 
+static HANDLE	     WINAPI (*AddFontMemResourceEx)(PVOID pFileView, DWORD cjSize, PVOID pvResrved, DWORD* pNumFonts) = NULL;
+static BOOL	     WINAPI (*RemoveFontMemResourceEx)(HANDLE h)						      = NULL;
+static HANDLE WINAPI AddFontMemResourceExPolyFill(PVOID pFileView, DWORD cjSize, PVOID pvResrved, DWORD* pNumFonts);
+static BOOL WINAPI   RemoveFontMemResourceExPolyFill(HANDLE h);
+
 struct _MwFLFont {
 	HANDLE handle;
 	HFONT  font;
@@ -121,15 +126,30 @@ static void* GDI_MwFontLoad(unsigned char* data, unsigned int size, int px) {
 
 	ttf->dc = GetDC(NULL);
 
-	if((ttf->handle = AddFontMemResourceEx(data, size, 0, &c)) == NULL) {
-		ReleaseDC(NULL, ttf->dc);
-		MwTTFFreeInfo(info);
-		free(ttf);
-		return NULL;
-	}
+	ttf->handle = NULL;
 
-	if((ttf->font = CreateFont(-px, 0, 0, 0, info->weight, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, info->family)) == NULL) {
-		RemoveFontMemResourceEx(ttf->handle);
+	if(AddFontMemResourceEx) {
+		if((ttf->handle = AddFontMemResourceEx(data, size, 0, &c)) == NULL) {
+			ReleaseDC(NULL, ttf->dc);
+			MwTTFFreeInfo(info);
+			free(ttf);
+			return NULL;
+		}
+	} /*else {
+		if((ttf->handle = AddFontMemResourceExPolyFill(data, size, 0, &c)) == NULL) {
+			ReleaseDC(NULL, ttf->dc);
+			MwTTFFreeInfo(info);
+			free(ttf);
+			return NULL;
+		}
+		}*/
+
+	if((ttf->font = CreateFont(-px, 0, 0, 0, info->weight, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, ttf->handle ? info->family : "Sans Serif")) == NULL) {
+		if(RemoveFontMemResourceEx) {
+			RemoveFontMemResourceEx(ttf->handle);
+		} else {
+			RemoveFontMemResourceExPolyFill(ttf->handle);
+		}
 		ReleaseDC(NULL, ttf->dc);
 		MwTTFFreeInfo(info);
 		free(ttf);
@@ -147,12 +167,97 @@ static void GDI_MwFontFree(void* handle) {
 	MwFLFont ttf = handle;
 
 	DeleteObject(ttf->font);
-	RemoveFontMemResourceEx(ttf->handle);
+	if(RemoveFontMemResourceEx) {
+		RemoveFontMemResourceEx(ttf->handle);
+	} else {
+		RemoveFontMemResourceExPolyFill(ttf->handle);
+	}
 	ReleaseDC(NULL, ttf->dc);
 	free(ttf);
 }
 
+static HANDLE WINAPI AddFontMemResourceExPolyFill(PVOID pFileView, DWORD cjSize, PVOID pvResrved, DWORD* pNumFonts) {
+	CHAR   temp_path_dir[MAX_PATH];
+	CHAR   temp_path_name[MAX_PATH];
+	HANDLE tempFile = NULL;
+	int    hr;
+
+	(void)pvResrved;
+
+	hr = GetTempPathA(MAX_PATH, temp_path_dir);
+	if(hr == 0) {
+		printf("GetTempPathA error %08lX\n", hr);
+		return hr;
+	}
+	hr = GetTempFileNameA(temp_path_dir, TEXT("MILSKO"), 0, temp_path_name);
+	if(hr == 0) {
+		printf("GetTempFileNameA error %08lX\n", hr);
+		return hr;
+	}
+
+	printf("extracting mem font to %s\n", temp_path_name);
+
+	tempFile = CreateFileA(temp_path_name,
+			       GENERIC_WRITE,
+			       0,
+			       NULL,
+			       CREATE_ALWAYS,
+			       FILE_ATTRIBUTE_NORMAL | FILE_FLAG_DELETE_ON_CLOSE,
+			       NULL);
+
+	if(tempFile == INVALID_HANDLE_VALUE) {
+		DWORD err = GetLastError();
+		if(err == ERROR_ALREADY_EXISTS) {
+			tempFile = CreateFileA(temp_path_name,
+					       GENERIC_WRITE,
+					       0,
+					       NULL,
+					       OPEN_ALWAYS,
+					       FILE_ATTRIBUTE_NORMAL | FILE_FLAG_DELETE_ON_CLOSE,
+					       NULL);
+			printf("%d\n", tempFile);
+			if(tempFile != INVALID_HANDLE_VALUE) {
+				goto success;
+			} else {
+				err = GetLastError();
+			}
+		}
+		printf("CreateFileA error %08lX\n", err);
+		return hr;
+	}
+
+success:
+	hr = WriteFile(tempFile, pFileView, cjSize, NULL, NULL);
+	if(hr != 0) {
+		printf("WriteFile error %08lX\n", hr);
+		return 0;
+	}
+
+	*pNumFonts = AddFontResource(temp_path_name);
+
+	return tempFile;
+};
+static BOOL WINAPI RemoveFontMemResourceExPolyFill(HANDLE h) {
+	if(h)
+		CloseHandle(h);
+	return TRUE;
+};
+
 int MwFL_GDISetup(void) {
+	void* gdilib = LoadLibrary("gdi32.dll");
+	if(!gdilib) {
+		printf("gdi32.dll not found(?????)\n");
+	} else {
+		AddFontMemResourceEx = (void*)GetProcAddress(gdilib, "AddFontMemResourceEx");
+		if(!AddFontMemResourceEx) {
+			AddFontMemResourceEx = AddFontMemResourceExPolyFill;
+		}
+		RemoveFontMemResourceEx = (void*)GetProcAddress(gdilib, "RemoveFontMemResourceEx");
+		if(!RemoveFontMemResourceEx) {
+			RemoveFontMemResourceEx = RemoveFontMemResourceExPolyFill;
+		}
+	}
+
 	MwFLDrawText   = GDI_MwDrawText;
 	MwFLTextWidth  = GDI_MwTextWidth;
 	MwFLTextHeight = GDI_MwTextHeight;
@@ -160,4 +265,5 @@ int MwFL_GDISetup(void) {
 	MwFLFontFree   = GDI_MwFontFree;
 	return 0;
 }
+
 #endif

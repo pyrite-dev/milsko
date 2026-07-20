@@ -248,6 +248,10 @@ struct _MwMouse {
 	int	button;
 };
 
+enum _MwTTFType {
+	MwTTFTypeUNKNOWN = 0
+};
+
 struct _MwTTFInfo {
 	char* family;
 	int   weight;
