@@ -177,8 +177,10 @@ static void xdg_toplevel_configure(void*		data,
 		}
 	}
 
-	if(width < 50) width = 50;
-	if(height < 50) height = 50;
+	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
+		if(width < 50) width = 50;
+		if(height < 50) height = 50;
+	}
 
 	MwLLWaylandRegionInvalidate(self);
 	self->wayland.ww = width;
@@ -1115,8 +1117,10 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	}
 
 	/* Prevent an integer underflow when the w/h is too low */
-	if(w < 50) w = 50;
-	if(h < 50) h = 50;
+	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
+		if(w < 50) w = 50;
+		if(h < 50) h = 50;
+	}
 
 	handle->wayland.ww = w;
 	handle->wayland.wh = h;
