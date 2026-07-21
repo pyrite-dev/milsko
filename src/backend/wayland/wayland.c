@@ -1641,7 +1641,6 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 
 		wl_surface_commit(handle->wayland.framebuffer.surface);
 		wl_surface_commit(handle->wayland.backbuffer.surface);
-		printf("h??\n");
 	}
 }
 
