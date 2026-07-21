@@ -6,7 +6,6 @@
 - Added `MwTabFocus` for letting a tab widget steal focus.
 - New table widget (`MwTableClass`).
 - Added `MwWindowShouldClose` for letting custom loops know when a window should close.
-- Menu widget works better under compositors that use CSD.
 - Remove VMS build files
 - Wayland backend:
     - Can now create layer surfaces (Use `MwLLMakeToolWindow` on a parentless window)
@@ -14,3 +13,4 @@
     - has drastically improved CSD (functionality wise)
     - Uses KMSDRM directly for the OpenGL widget instead of wl_egl for a smoother experience
     - Various overall performance improvements putting it on the same level as the X11 backend finally
+    - Menu widget works better under compositors that use CSD.
