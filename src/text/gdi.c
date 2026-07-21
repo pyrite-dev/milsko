@@ -248,11 +248,11 @@ int MwFL_GDISetup(void) {
 	if(!gdilib) {
 		printf("gdi32.dll not found(?????)\n");
 	} else {
-		_AddFontMemResourceEx = (void*)GetProcAddress(gdilib, "_AddFontMemResourceEx");
+		_AddFontMemResourceEx = (void*)GetProcAddress(gdilib, "AddFontMemResourceEx");
 		if(!_AddFontMemResourceEx) {
 			_AddFontMemResourceEx = _AddFontMemResourceExPolyFill;
 		}
-		_RemoveFontMemResourceEx = (void*)GetProcAddress(gdilib, "_RemoveFontMemResourceEx");
+		_RemoveFontMemResourceEx = (void*)GetProcAddress(gdilib, "RemoveFontMemResourceEx");
 		if(!_RemoveFontMemResourceEx) {
 			_RemoveFontMemResourceEx = _RemoveFontMemResourceExPolyFill;
 		}
