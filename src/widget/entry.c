@@ -1,5 +1,5 @@
 #include <Mw/Milsko.h>
-#include <stb_ds.h>
+#include "../../external/stb_ds.h"
 
 static int wcreate(MwWidget handle) {
 	MwEntry	 t		= malloc(sizeof(*t));
