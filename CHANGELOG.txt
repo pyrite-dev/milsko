@@ -7,6 +7,7 @@
 - New table widget (`MwTableClass`).
 - Added `MwWindowShouldClose` for letting custom loops know when a window should close.
 - Remove VMS build files
+- Entry widgets now have blinking cursor that appears only when you hover over the widget.
 - Wayland backend:
     - Can now create layer surfaces (Use `MwLLMakeToolWindow` on a parentless window)
     - Now properly handles keys being held down
