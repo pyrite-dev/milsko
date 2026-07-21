@@ -320,6 +320,7 @@ struct _MwLLWayland {
 	MwRect clipping_rect;
 	MwBool no;
 
+	MwBool	changing;
 	MwBool	detatching;
 	MwPoint detach_point;
 

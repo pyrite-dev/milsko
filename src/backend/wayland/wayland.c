@@ -1604,6 +1604,7 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 		p = p->wayland.parent;
 	}
 
+	handle->wayland.changing     = MwTRUE;
 	handle->wayland.detatching   = MwTRUE;
 	handle->wayland.detach_point = *point;
 	handle->wayland.detach_point.x += x;
@@ -1637,6 +1638,10 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		xdg_toplevel_set_min_size(handle->wayland.toplevel->xdg_top_level, minx, miny);
 		xdg_toplevel_set_max_size(handle->wayland.toplevel->xdg_top_level, maxx, maxy);
+
+		wl_surface_commit(handle->wayland.framebuffer.surface);
+		wl_surface_commit(handle->wayland.backbuffer.surface);
+		printf("h??\n");
 	}
 }
 
@@ -1753,6 +1758,8 @@ static void MwLLMakeToolWindowImpl(MwLL handle) {
 	} else {
 		handle->wayland.type_to_be = MwLL_WAYLAND_POPUP;
 	}
+
+	handle->wayland.changing = MwTRUE;
 }
 
 static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
@@ -1782,6 +1789,11 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 	MwLL topmost_parent;
 	int  x, y;
 	WIDGET_CHECK(handle);
+
+	if(!handle->wayland.changing) {
+		return;
+	}
+	handle->wayland.changing = MwFALSE;
 
 	x = handle->wayland.detatching ? handle->wayland.detach_point.x : handle->wayland.x;
 	y = handle->wayland.detatching ? handle->wayland.detach_point.y : handle->wayland.y;
