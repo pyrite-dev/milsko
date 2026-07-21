@@ -23,7 +23,7 @@
 /*!
  * @brief Version in string
  */
-#define MwVERSION "1.3"
+#define MwVERSION "1.4"
 
 /*!
  * @brief Version in string
