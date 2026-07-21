@@ -262,9 +262,10 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 	h->opaque   = NULL;
 	h->user	    = NULL;
 
-	h->top_step	= 0;
-	h->draw_queue	= NULL;
-	h->resize_queue = NULL;
+	h->top_step	     = 0;
+	h->draw_queue	     = NULL;
+	h->resize_queue	     = NULL;
+	h->monitored_entries = NULL;
 
 	if(parent == NULL) arrput(h->tick_list, h);
 

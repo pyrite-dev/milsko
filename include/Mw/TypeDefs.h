@@ -117,6 +117,7 @@ struct _MwWidget {
 	int	  top_step;
 	MwWidget* draw_queue;
 	MwWidget* resize_queue;
+	MwWidget* monitored_entries;
 
 	int  berserk;
 	long last_tick;
@@ -138,6 +139,8 @@ struct _MwEntry {
 	int	cursor;
 	int	right;
 	int	length;
+	int	active;
+	int	cursor_blink_timer;
 	MwPoint mouse;
 };
 

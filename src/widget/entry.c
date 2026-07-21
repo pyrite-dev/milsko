@@ -1,12 +1,18 @@
 #include <Mw/Milsko.h>
+#include "stb_ds.h"
 
 static int wcreate(MwWidget handle) {
-	MwEntry t = malloc(sizeof(*t));
+	MwEntry	 t		= malloc(sizeof(*t));
+	MwWidget topmost_parent = handle->parent;
 
-	t->cursor	 = 0;
-	t->right	 = 0;
-	t->length	 = 0;
-	handle->internal = t;
+	t->cursor	      = 0;
+	t->right	      = 0;
+	t->length	      = 0;
+	t->cursor_blink_timer = 0;
+	handle->internal      = t;
+
+	while(topmost_parent->parent) topmost_parent = topmost_parent->parent;
+	arrpush(topmost_parent->monitored_entries, handle);
 
 	MwSetDefault(handle);
 
@@ -16,9 +22,27 @@ static int wcreate(MwWidget handle) {
 }
 
 static void destroy(MwWidget handle) {
+	int	 i;
+	MwWidget topmost_parent = handle->parent;
+
+	while(topmost_parent->parent) topmost_parent = topmost_parent->parent;
+	for(i = 0; i < arrlen(topmost_parent->monitored_entries); i++) {
+		if(topmost_parent->monitored_entries[i] == handle) {
+			arrdel(topmost_parent->monitored_entries, i);
+			break;
+		}
+	}
 	free(handle->internal);
 }
-
+static void tick(MwWidget handle) {
+	MwEntry t = handle->internal;
+	if(t->active) {
+		if(++t->cursor_blink_timer >= 30) {
+			t->cursor_blink_timer = 0;
+		}
+		MwDispatch(handle, draw);
+	}
+}
 static void draw(MwWidget handle) {
 	MwRect	    r;
 	MwEntry	    t	 = handle->internal;
@@ -71,11 +95,13 @@ static void draw(MwWidget handle) {
 			for(i = 0; i < textlen; i++) show[i] = 'M';
 			show[i] = 0;
 
-			currc.x	     = p.x + MwTextWidth(handle, font, show);
-			currc.y	     = (r.height - h) / 2 + MwDefaultBorderWidth(handle);
-			currc.width  = 1;
-			currc.height = h;
-			MwDrawRect(handle, &currc, text);
+			if(t->active && t->cursor_blink_timer <= 15) {
+				currc.x	     = p.x + MwTextWidth(handle, font, show);
+				currc.y	     = (r.height - h) / 2 + MwDefaultBorderWidth(handle);
+				currc.width  = 1;
+				currc.height = h;
+				MwDrawRect(handle, &currc, text);
+			}
 
 			free(show);
 		}
@@ -148,6 +174,23 @@ static void mouse_up(MwWidget handle, void* ptr) {
 #define mouse_up MwForceRender2
 #endif
 
+static void mouse_down(MwWidget handle, void* ptr) {
+	int	 i		= 0;
+	MwEntry	 t		= handle->internal;
+	MwWidget topmost_parent = handle->parent;
+
+	while(topmost_parent->parent) topmost_parent = topmost_parent->parent;
+
+	for(i = 0; i < arrlen(topmost_parent->monitored_entries); i++) {
+		MwEntry t	      = topmost_parent->monitored_entries[i]->internal;
+		t->active	      = MwFALSE;
+		t->cursor_blink_timer = 0;
+		MwDispatch(topmost_parent->monitored_entries[i], draw);
+	}
+	t->active = MwTRUE;
+	MwForceRender2(handle, NULL);
+}
+
 static void prop_change(MwWidget handle, const char* prop) {
 	if(strcmp(prop, MwNtext) == 0 || strcmp(prop, MwNhideInput) == 0) MwForceRender(handle);
 
@@ -187,23 +230,23 @@ static void clipboard(MwWidget handle, const char* data) {
 }
 
 MwClassRec MwEntryClassRec = {
-    wcreate,	    /* create */
-    destroy,	    /* destroy */
-    draw,	    /* draw */
-    NULL,	    /* click */
-    NULL,	    /* parent_resize */
-    prop_change,    /* prop_change */
-    NULL,	    /* mouse_move */
-    mouse_up,	    /* mouse_up */
-    MwForceRender2, /* mouse_down */
-    key,	    /* key */
-    NULL,	    /* execute */
-    NULL,	    /* tick */
-    NULL,	    /* resize */
-    NULL,	    /* children_update */
-    NULL,	    /* children_prop_change */
-    clipboard,	    /* clipboard */
-    NULL,	    /* props_change */
+    wcreate,	 /* create */
+    destroy,	 /* destroy */
+    draw,	 /* draw */
+    NULL,	 /* click */
+    NULL,	 /* parent_resize */
+    prop_change, /* prop_change */
+    NULL,	 /* mouse_move */
+    mouse_up,	 /* mouse_up */
+    mouse_down,	 /* mouse_down */
+    key,	 /* key */
+    NULL,	 /* execute */
+    tick,	 /* tick */
+    NULL,	 /* resize */
+    NULL,	 /* children_update */
+    NULL,	 /* children_prop_change */
+    clipboard,	 /* clipboard */
+    NULL,	 /* props_change */
     NULL,
     NULL,
     NULL};
