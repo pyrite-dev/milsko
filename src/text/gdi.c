@@ -180,19 +180,19 @@ static HANDLE WINAPI _AddFontMemResourceExPolyFill(PVOID pFileView, DWORD cjSize
 	CHAR   temp_path_dir[MAX_PATH];
 	CHAR   temp_path_name[MAX_PATH];
 	HANDLE tempFile = NULL;
-	int    hr;
+	DWORD hr;
 
 	(void)pvResrved;
 
 	hr = GetTempPathA(MAX_PATH, temp_path_dir);
 	if(hr == 0) {
 		printf("GetTempPathA error %08lX\n", hr);
-		return hr;
+		return NULL;
 	}
 	hr = GetTempFileNameA(temp_path_dir, TEXT("MILSKO"), 0, temp_path_name);
 	if(hr == 0) {
 		printf("GetTempFileNameA error %08lX\n", hr);
-		return hr;
+		return NULL;
 	}
 
 	printf("extracting mem font to %s\n", temp_path_name);
@@ -223,14 +223,14 @@ static HANDLE WINAPI _AddFontMemResourceExPolyFill(PVOID pFileView, DWORD cjSize
 			}
 		}
 		printf("CreateFileA error %08lX\n", err);
-		return hr;
+		return NULL;
 	}
 
 success:
 	hr = WriteFile(tempFile, pFileView, cjSize, NULL, NULL);
 	if(hr != 0) {
 		printf("WriteFile error %08lX\n", hr);
-		return 0;
+		return NULL;
 	}
 
 	*pNumFonts = AddFontResource(temp_path_name);
