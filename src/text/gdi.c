@@ -215,7 +215,6 @@ static HANDLE WINAPI _AddFontMemResourceExPolyFill(PVOID pFileView, DWORD cjSize
 					       OPEN_ALWAYS,
 					       FILE_ATTRIBUTE_NORMAL | FILE_FLAG_DELETE_ON_CLOSE,
 					       NULL);
-			printf("%d\n", tempFile);
 			if(tempFile != INVALID_HANDLE_VALUE) {
 				goto success;
 			} else {

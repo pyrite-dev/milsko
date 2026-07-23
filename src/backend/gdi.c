@@ -1148,7 +1148,6 @@ static void MwLLSetupDragAndDropImpl(MwLL handle) {
 		printf("RegisterDragDrop failed; %08lx\n", hr);
 		return;
 	}
-	printf("dnd setup\n");
 }
 
 static int MwLLGDICallInitImpl(void) {
