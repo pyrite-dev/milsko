@@ -329,7 +329,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "MSYS")
   PRIVATE
   USE_GDI
  )
-  list(APPEND LIBRARIES gdi32 winmm)
+  list(APPEND LIBRARIES gdi32 ole32 winmm)
   target_link_options(
   Mw
   PRIVATE
