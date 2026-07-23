@@ -9,6 +9,7 @@ static int wcreate(MwWidget handle) {
 	t->right	      = 0;
 	t->length	      = 0;
 	t->cursor_blink_timer = 0;
+	t->active = 0;
 	handle->internal      = t;
 
 	while(topmost_parent->parent) topmost_parent = topmost_parent->parent;
@@ -40,7 +41,7 @@ static void tick(MwWidget handle) {
 		if(++t->cursor_blink_timer >= 30) {
 			t->cursor_blink_timer = 0;
 		}
-		MwDispatch(handle, draw);
+		MwForceRender(handle);
 	}
 }
 static void draw(MwWidget handle) {
@@ -185,7 +186,7 @@ static void mouse_down(MwWidget handle, void* ptr) {
 		MwEntry t	      = topmost_parent->monitored_entries[i]->internal;
 		t->active	      = MwFALSE;
 		t->cursor_blink_timer = 0;
-		MwDispatch(topmost_parent->monitored_entries[i], draw);
+		MwForceRender(topmost_parent->monitored_entries[i]);
 	}
 	t->active = MwTRUE;
 	MwForceRender2(handle, NULL);

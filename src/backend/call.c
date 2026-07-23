@@ -52,8 +52,9 @@
 		MwLLSetClipboard = MwLLSetClipboardImpl; \
 		MwLLGetClipboard = MwLLGetClipboardImpl; \
 \
-		MwLLGetCursorCoord = MwLLGetCursorCoordImpl; \
-		MwLLGetScreenSize  = MwLLGetScreenSizeImpl; \
+		MwLLGetCursorCoord   = MwLLGetCursorCoordImpl; \
+		MwLLGetScreenSize    = MwLLGetScreenSizeImpl; \
+		MwLLSetupDragAndDrop = MwLLSetupDragAndDropImpl; \
 \
 		MwLLSetDarkTheme = MwLLSetDarkThemeImpl; \
 		MwLLDoModern	 = MwLLDoModernImpl; \

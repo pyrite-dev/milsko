@@ -212,8 +212,8 @@ static void MwLLFreeColorImpl(MwLLColor color) {}
 
 static MwBool lmao = MwFALSE;
 static int    MwLLPendingImpl(MwLL handle) {
-	   lmao = !lmao;
-	   return lmao;
+	lmao = !lmao;
+	return lmao;
 }
 static void MwLLNextEventImpl(MwLL handle) {
 	MwLLDispatch(handle, draw, NULL);
@@ -255,11 +255,12 @@ static MwBool MwLLDoModernImpl(MwLL handle) {
 }
 static void MwLLRaiseImpl(MwLL handle) {}
 static void MwLLClipImpl(MwLL handle, MwRect* rect) {}
+static void MwLLSetupDragAndDropImpl(MwLL handle) {}
 static int  MwLLCairoCallInitImpl(void) {
-	 if(cairo_load_funcs() != 0) {
-		 return 1;
-	 }
-	 return 0;
+	if(cairo_load_funcs() != 0) {
+		return 1;
+	}
+	return 0;
 }
 #include "call.c"
 CALL(Cairo);

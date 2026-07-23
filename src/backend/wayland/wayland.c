@@ -1779,6 +1779,10 @@ static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
 	rect->height = handle->wayland.mh;
 }
 
+static void MwLLSetupDragAndDropImpl(MwLL handle) {
+	(void)handle;
+}
+
 static void MwLLBeginStateChangeImpl(MwLL handle) {
 	(void)handle;
 	/* no-op */

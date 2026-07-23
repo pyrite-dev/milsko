@@ -50,8 +50,8 @@ void (*MwLLGetClipboard)(MwLL, int clipboard_type)			    = NULL;
 
 void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point) = NULL;
 void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect)	= NULL;
-
-void (*MwLLSetDarkTheme)(MwLL handle, int toggle) = NULL;
+void (*MwLLSetupDragAndDrop)(MwLL handle)		= NULL;
+void (*MwLLSetDarkTheme)(MwLL handle, int toggle)	= NULL;
 
 MwBool (*MwLLDoModern)(MwLL handle) = NULL;
 
@@ -64,6 +64,7 @@ void MwLLCreateCommon(MwLL handle) {
 	memset(handle->common.handler, 0, sizeof(*handle->common.handler));
 
 	handle->common.supports_transparency = 0;
+	handle->common.known_mime_types = NULL;
 }
 
 void MwLLDestroyCommon(MwLL handle) {

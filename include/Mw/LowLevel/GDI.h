@@ -29,6 +29,11 @@ struct _MwLLGDI {
 	int force_render;
 	int get_clipboard;
 	int get_darktheme;
+
+	/* drag and drop */
+	struct _MwLLGDIDropTarget* dropTarget;
+	struct _MwLLGDIDropSource* dropSource;
+	MwBool drag_update;
 };
 
 struct _MwLLGDIColor {
@@ -46,6 +51,14 @@ struct _MwLLGDIPixmap {
 	HBITMAP	 hMask;
 	HBITMAP	 hMask2;
 };
+
+struct _MwLLGDIDropTarget{
+    struct IDropTargetVtbl *lpVtbl;
+    LONG refCount;
+    HWND hwnd;
+    MwLL handle;
+};
+typedef struct _MwLLGDIDropTarget MwLLGDIDropTarget;
 
 MWDECL int     MwLLGDICallInit(void);
 MWDECL HCURSOR MwLLGDICreateCursor(MwCursor* image, MwCursor* mask);

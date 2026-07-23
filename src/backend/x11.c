@@ -1361,6 +1361,10 @@ static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
 	rect->height	  = xwa.height;
 }
 
+static void MwLLSetupDragAndDropImpl(MwLL handle) {
+	(void)handle;
+}
+
 static void MwLLBeginStateChangeImpl(MwLL handle) {
 	MwLLShow(handle, 0);
 }

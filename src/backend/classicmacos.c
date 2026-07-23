@@ -347,6 +347,10 @@ static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
 static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
 }
 
+static void MwLLSetupDragAndDropImpl(MwLL handle) {
+	(void)handle;
+}
+
 static void MwLLBeginStateChangeImpl(MwLL handle) {
 	MwLLShow(handle, 0);
 }

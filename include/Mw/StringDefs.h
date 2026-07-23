@@ -53,6 +53,7 @@
 #define MwNcolumnSpan "IcolumnSpan"
 #define MwNrowSpan "IrowSpan"
 #define MwNdisabled "Idisabled"
+#define MwNacceptsDnD "IacceptsDnD"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
@@ -62,6 +63,8 @@
 #define MwNforeground "Sforeground"
 #define MwNsubForeground "SsubForeground"
 #define MwNtitleForeground "StitleForeground"
+#define MwNacceptedMimeType "SacceptedMimeType"
+
 
 #define MwNvulkanExtension "SEvulkanExtension"
 #define MwNvulkanLayer "SEvulkanLayer"
@@ -98,5 +101,6 @@
 #define MwNdrawHandler "Cdraw"
 #define MwNclipboardHandler "Cclipboard"
 #define MwNdarkThemeHandler "CdarkTheme"
+#define MwNdragAndDropHandler "CdragAndDrop"
 
 #endif

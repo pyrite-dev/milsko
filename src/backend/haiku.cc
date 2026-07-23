@@ -879,6 +879,10 @@ static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
 	delete screen;
 }
 
+static void MwLLSetupDragAndDropImpl(MwLL handle) {
+	(void)handle;
+}
+
 static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)handle;
 	(void)toggle;

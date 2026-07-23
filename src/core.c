@@ -658,6 +658,10 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 
 		if(h->lowlevel != NULL) MwLLSetDarkTheme(h->lowlevel, n);
 	}
+
+	if(strcmp(key, MwNacceptsDnD) == 0) {
+		if(handle->lowlevel != NULL) MwLLSetupDragAndDrop(handle->lowlevel);
+	}
 }
 
 void MwSetText(MwWidget handle, const char* key, const char* value) {
@@ -691,6 +695,12 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 
 	if(strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0) {
 		MwForceRender(handle);
+	}
+
+	if(strcmp(key, MwNacceptedMimeType) == 0) {
+		if(handle->lowlevel != NULL) {
+			arrput(handle->lowlevel->common.known_mime_types, value);
+		}
 	}
 }
 

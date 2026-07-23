@@ -39,6 +39,7 @@ struct _MwLLCommon {
 	int    type;
 	int    coordinate_type;
 	MwBool supports_transparency;
+	const char** known_mime_types;
 
 	MwLLHandler handler;
 };
@@ -314,6 +315,12 @@ MWDECL void (*MwLLGetClipboard)(MwLL handle, int clipboard_type);
 
 MWDECL void (*MwLLGetCursorCoord)(MwLL handle, MwPoint* point);
 MWDECL void (*MwLLGetScreenSize)(MwLL handle, MwRect* rect);
+
+/*!
+ * @brief Setup drag and drop capabilities, should the user request it with MwNacceptsDnD
+ * @param handle Handle
+ */
+MWDECL void (*MwLLSetupDragAndDrop)(MwLL handle);
 
 /*!
  * @brief Set any extra parameters for dark theme
