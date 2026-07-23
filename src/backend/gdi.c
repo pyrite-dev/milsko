@@ -32,6 +32,9 @@ static struct symtbl {
 	    DWORD   dwMimeFlags,
 	    LPWSTR* ppwzMimeOut,
 	    DWORD   dwReserved);
+	HRESULT (*CoInitializeEx)(
+	    LPVOID pvReserved,
+	    DWORD  dwCoInit);
 } wsymtbl;
 
 static int is_plgblt_reliable = 0;
@@ -1163,29 +1166,6 @@ static int MwLLGDICallInitImpl(void) {
 
 	/* Drag and Drop initialization */
 	{
-		hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-		/* The only other error - COM already being initialized - can be ignored */
-		if(hr == RPC_E_CHANGED_MODE) {
-			goto no_dnd;
-		}
-		if(!SUCCEEDED(hr) && hr != S_FALSE) {
-			printf("CoInitialize error: %08lx\n", hr);
-			goto dnd_error;
-		}
-		hr = OleInitialize(NULL);
-		if(!SUCCEEDED(hr)) {
-			if(hr == RPC_E_CHANGED_MODE) {
-			no_dnd:
-				printf("Cannot do drag and drop; Microsoft hates you and if you use COM anywhere else it has to be apartment threaded.\n");
-				goto dnd_error;
-			} else {
-				printf("OleInitialize failed; %08lx. Drag and Drop won't be supported.\n", hr);
-				goto dnd_error;
-			}
-		}
-
-		wsymtbl.has_drag_and_drop = MwTRUE;
-
 		if(!(wsymtbl.shell32lib = LoadLibrary("shell32.dll"))) {
 			goto dnd_error;
 		};
@@ -1216,7 +1196,29 @@ static int MwLLGDICallInitImpl(void) {
 		SHELL32_FUNC(DragQueryFileA);
 		OLE32_FUNC(ReleaseStgMedium);
 		OLE32_FUNC(RegisterDragDrop);
+		OLE32_FUNC(CoInitializeEx);
 		URLMON_FUNC(FindMimeFromData);
+
+		hr = wsymtbl.CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+		/* The only other error - COM already being initialized - can be ignored */
+		if(hr == RPC_E_CHANGED_MODE) {
+			goto no_dnd;
+		}
+		if(!SUCCEEDED(hr) && hr != S_FALSE) {
+			printf("CoInitialize error: %08lx\n", hr);
+			goto dnd_error;
+		}
+		hr = OleInitialize(NULL);
+		if(!SUCCEEDED(hr)) {
+			if(hr == RPC_E_CHANGED_MODE) {
+			no_dnd:
+				printf("Cannot do drag and drop; Microsoft hates you and if you use COM anywhere else it has to be apartment threaded.\n");
+				goto dnd_error;
+			} else {
+				printf("OleInitialize failed; %08lx. Drag and Drop won't be supported.\n", hr);
+				goto dnd_error;
+			}
+		}
 
 		wsymtbl.has_drag_and_drop = MwTRUE;
 	}
