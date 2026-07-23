@@ -13,7 +13,6 @@ typedef struct userdata {
 static struct symtbl {
 	void* lib_dwmapi;
 	void* shell32lib;
-	void* urlmonlib;
 
 	MwBool has_drag_and_drop;
 	HRESULT(WINAPI* DwmSetWindowAttribute)(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
@@ -1055,17 +1054,9 @@ static int MwLLGDICallInitImpl(void) {
 		if(!(wsymtbl.shell32lib = LoadLibrary("shell32.dll"))) {
 			goto dnd_error;
 		};
-		if(!(wsymtbl.urlmonlib = LoadLibrary("Urlmon.dll"))) {
-			goto dnd_error;
-		};
 
 #define SHELL32_FUNC(x) \
 	if(!(wsymtbl.x = (void*)GetProcAddress(wsymtbl.shell32lib, #x))) { \
-		printf(#x "not found, drag and drop will not be supported"); \
-		goto dnd_error; \
-	}
-#define URLMON_FUNC(x) \
-	if(!(wsymtbl.x = (void*)GetProcAddress(wsymtbl.urlmonlib, #x))) { \
 		printf(#x "not found, drag and drop will not be supported"); \
 		goto dnd_error; \
 	}
