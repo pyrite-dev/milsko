@@ -1086,7 +1086,7 @@ static HRESULT STDMETHODCALLTYPE GDIDT_Drop(IDropTarget* this_, IDataObject* pDa
 			wsymtbl.DragQueryFileW(hDrop, i, path, MAX_PATH);
 			wsymtbl.DragQueryFileA(hDrop, i, path_normal, MAX_PATH);
 			hr = wsymtbl.FindMimeFromData(NULL, path, NULL, 0,
-						      NULL, FMFD_DEFAULT, &mime_type, 0x0);
+						      NULL, 0, &mime_type, 0x0);
 
 			mime_type_size	 = WideCharToMultiByte(CP_ACP, 0, mime_type, -1, NULL, 0, NULL, FALSE);
 			mime_type_normal = malloc(sizeof(mime_type_size));
