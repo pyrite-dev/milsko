@@ -91,6 +91,8 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	if(u == NULL) return DefWindowProc(hWnd, msg, wp, lp);
 
 	switch(msg) {
+	case WM_INITDIALOG:
+	    return TRUE;
 	case WM_PAINT:
 	{
 		PAINTSTRUCT ps;
@@ -181,6 +183,49 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		MwLLDispatch(u->ll, up, &p);
 		break;
 	}
+	case WM_DROPFILES: {
+    	HDROP	hDrop = (HDROP)wp;
+    	UINT	count;
+    	UINT	i, n;
+    	HRESULT hr;
+
+        count = wsymtbl.DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, 0);
+
+    	for(i = 0; i < count; i++) {
+    		wchar_t	 path[MAX_PATH];
+    		char	 path_normal[MAX_PATH];
+    		char*	 mime_type_normal;
+    		wchar_t* mime_type = NULL;
+    		int	 mime_type_size;
+    		HRESULT	 hr;
+    		int	 i;
+
+    		wsymtbl.DragQueryFileW(hDrop, i, path, MAX_PATH);
+    		wsymtbl.DragQueryFileA(hDrop, i, path_normal, MAX_PATH);
+    		hr = wsymtbl.FindMimeFromData(NULL, path, NULL, 0,
+    					      NULL, 0, &mime_type, 0x0);
+
+    		mime_type_size	 = WideCharToMultiByte(CP_ACP, 0, mime_type, -1, NULL, 0, NULL, FALSE);
+    		mime_type_normal = malloc(sizeof(mime_type_size));
+    		WideCharToMultiByte(CP_ACP, 0, mime_type, -1, mime_type_normal, mime_type_size, NULL, FALSE);
+
+    		if(mime_type_size == 0) {
+    			printf("Error converting mime type to multi-byte: %ld\n", GetLastError());
+    		} else {
+    			if(u->ll->common.known_mime_types) {
+    				for(n = 0; n < arrlen(u->ll->common.known_mime_types); n++) {
+    					if(strcmp(mime_type_normal, u->ll->common.known_mime_types[n]) == 0) {
+    						MwDispatchUserHandler(u->ll->common.user, MwNdragAndDropHandler, path_normal);
+    					}
+    				}
+    			} else {
+    				MwDispatchUserHandler(u->ll->common.user, MwNdragAndDropHandler, path_normal);
+    			}
+    		}
+    	}
+        DragFinish(hDrop);
+		break;
+	}
 	case WM_MOUSEMOVE:
 	{
 		MwPoint p;
@@ -210,6 +255,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 			SetCursorPos(p.x, p.y);
 		}
+
 		break;
 	}
 	case WM_SIZE:
@@ -443,9 +489,6 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	SetWindowPos(r->gdi.hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
-	r->gdi.dropTarget  = NULL;
-	r->gdi.drag_update = MwFALSE;
-
 	return r;
 }
 
@@ -459,8 +502,6 @@ static void MwLLDestroyImpl(MwLL handle) {
 	if(handle->gdi.clip != NULL) DeleteObject(handle->gdi.clip);
 
 	if(handle->gdi.cursor != NULL) DestroyCursor(handle->gdi.cursor);
-
-	if(handle->gdi.dropTarget) free(handle->gdi.dropTarget);
 
 	free(handle);
 }
@@ -575,7 +616,7 @@ static int MwLLPendingImpl(MwLL handle) {
 
 	(void)handle;
 
-	if(handle->gdi.get_clipboard || handle->gdi.get_darktheme || handle->gdi.drag_update) return 1;
+	if(handle->gdi.get_clipboard || handle->gdi.get_darktheme) return 1;
 	return PeekMessage(&msg, handle->gdi.hWnd, 0, 0, PM_NOREMOVE) ? 1 : 0;
 }
 
@@ -607,13 +648,11 @@ static void MwLLNextEventImpl(MwLL handle) {
 
 		handle->gdi.get_darktheme = 0;
 	}
-	if(handle->gdi.finishing_drag) {
-	    handle->gdi.drag_update = 0;
-        handle->gdi.finishing_drag = 0;
-	}
-	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+	while(PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+	    if(GetMessage(&msg, NULL, 0, 0)) {
+			TranslateMessage(&msg);
+		    DispatchMessage(&msg);
+		}
 	}
 }
 
@@ -1025,129 +1064,8 @@ static void MwLLClipImpl(MwLL handle, MwRect* rect) {
 	}
 }
 
-static HRESULT STDMETHODCALLTYPE GDIDT_QueryInterface(IDropTarget* this_, REFIID riid, void** ppv) {
-	if(IsEqualIID(riid, &IID_IUnknown) || IsEqualIID(riid, &IID_IDropTarget)) {
-		*ppv = this_;
-		this_->lpVtbl->AddRef(this_);
-		return S_OK;
-	}
-	*ppv = NULL;
-	return E_NOINTERFACE;
-}
-
-static ULONG STDMETHODCALLTYPE GDIDT_AddRef(IDropTarget* this_) {
-	MwLLGDIDropTarget* self = (MwLLGDIDropTarget*)this_;
-	return InterlockedIncrement(&self->refCount);
-}
-
-static ULONG STDMETHODCALLTYPE GDIDT_Release(IDropTarget* this_) {
-	MwLLGDIDropTarget* self = (MwLLGDIDropTarget*)this_;
-	LONG		   c	= InterlockedDecrement(&self->refCount);
-	if(c == 0) free(self);
-	return c;
-}
-
-static HRESULT STDMETHODCALLTYPE GDIDT_DragEnter(IDropTarget* this_, IDataObject* pDataObj,
-						 DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) {
-	*pdwEffect = DROPEFFECT_COPY;
-	return S_OK;
-}
-
-static HRESULT STDMETHODCALLTYPE GDIDT_DragOver(IDropTarget* this_, DWORD grfKeyState,
-						POINTL pt, DWORD* pdwEffect) {
-	MwLLGDIDropTarget* self	      = (MwLLGDIDropTarget*)this_;
-	self->handle->gdi.drag_update = MwTRUE;
-
-	return S_OK;
-}
-
-static HRESULT STDMETHODCALLTYPE GDIDT_DragLeave(IDropTarget* this_) {
-	MwLLGDIDropTarget* self	      = (MwLLGDIDropTarget*)this_;
-	self->handle->gdi.drag_update = MwFALSE;
-	return S_OK;
-}
-
-static HRESULT STDMETHODCALLTYPE GDIDT_Drop(IDropTarget* this_, IDataObject* pDataObj,
-					    DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) {
-	FORMATETC	   fmt = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
-	STGMEDIUM	   stg;
-	MwLLGDIDropTarget* self = (MwLLGDIDropTarget*)this_;
-
-	self->handle->gdi.drag_update = MwTRUE;
-
-	if(pDataObj->lpVtbl->GetData(pDataObj, &fmt, &stg) == S_OK) {
-		HDROP	hDrop = (HDROP)stg.hGlobal;
-		UINT	count = wsymtbl.DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, 0);
-		UINT	i, n;
-		HRESULT hr;
-
-		for(i = 0; i < count; i++) {
-			wchar_t	 path[MAX_PATH];
-			char	 path_normal[MAX_PATH];
-			char*	 mime_type_normal;
-			wchar_t* mime_type = NULL;
-			int	 mime_type_size;
-			HRESULT	 hr;
-			int	 i;
-
-			wsymtbl.DragQueryFileW(hDrop, i, path, MAX_PATH);
-			wsymtbl.DragQueryFileA(hDrop, i, path_normal, MAX_PATH);
-			hr = wsymtbl.FindMimeFromData(NULL, path, NULL, 0,
-						      NULL, 0, &mime_type, 0x0);
-
-			mime_type_size	 = WideCharToMultiByte(CP_ACP, 0, mime_type, -1, NULL, 0, NULL, FALSE);
-			mime_type_normal = malloc(sizeof(mime_type_size));
-			WideCharToMultiByte(CP_ACP, 0, mime_type, -1, mime_type_normal, mime_type_size, NULL, FALSE);
-
-			if(mime_type_size == 0) {
-				printf("Error converting mime type to multi-byte: %ld\n", GetLastError());
-			} else {
-				if(self->handle->common.known_mime_types) {
-					for(n = 0; n < arrlen(self->handle->common.known_mime_types); n++) {
-						if(strcmp(mime_type_normal, self->handle->common.known_mime_types[n]) == 0) {
-							MwDispatchUserHandler(self->handle->common.user, MwNdragAndDropHandler, path_normal);
-							self->handle->gdi.finishing_drag = 1;
-						}
-					}
-				} else {
-					MwDispatchUserHandler(self->handle->common.user, MwNdragAndDropHandler, path_normal);
-					self->handle->gdi.finishing_drag = 1;
-				}
-			}
-			free(mime_type);
-		}
-
-		wsymtbl.ReleaseStgMedium(&stg);
-		*pdwEffect = DROPEFFECT_COPY;
-	} else {
-		*pdwEffect = DROPEFFECT_NONE;
-	}
-	return S_OK;
-}
-
-static IDropTargetVtbl DropTarget_Vtbl = {
-    GDIDT_QueryInterface,
-    GDIDT_AddRef,
-    GDIDT_Release,
-    GDIDT_DragEnter,
-    GDIDT_DragOver,
-    GDIDT_DragLeave,
-    GDIDT_Drop};
-
 static void MwLLSetupDragAndDropImpl(MwLL handle) {
-	HRESULT hr = 0;
-
-	handle->gdi.dropTarget		 = (MwLLGDIDropTarget*)malloc(sizeof(MwLLGDIDropTarget));
-	handle->gdi.dropTarget->lpVtbl	 = &DropTarget_Vtbl;
-	handle->gdi.dropTarget->refCount = 1;
-	handle->gdi.dropTarget->hwnd	 = handle->gdi.hWnd;
-	handle->gdi.dropTarget->handle	 = handle;
-
-	hr = wsymtbl.RegisterDragDrop(handle->gdi.hWnd, (IDropTarget*)handle->gdi.dropTarget);
-	if(!SUCCEEDED(hr)) {
-		printf("RegisterDragDrop failed; %08lx\n", hr);
-		return;
-	}
+	DragAcceptFiles(handle->gdi.hWnd, TRUE);
 }
 
 static int MwLLGDICallInitImpl(void) {
