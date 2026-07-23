@@ -19,7 +19,6 @@ static struct symtbl {
 	HRESULT(WINAPI* DwmSetWindowAttribute)(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
 
 	UINT(WINAPI* DragQueryFileW)(HDROP hDrop, UINT iFile, LPWSTR lpszFile, UINT cch);
-	UINT(WINAPI* DragQueryFileA)(HDROP hDrop, UINT iFile, LPSTR lpszFile, UINT cch);
 	void (*DragAcceptFiles)(HWND hWnd, BOOL fAccept);
 	void (*DragFinish)(HDROP hDrop);
 } wsymtbl;
@@ -179,8 +178,13 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
         count = wsymtbl.DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, 0);
 
     	for(i = 0; i < count; i++) {
+       		wchar_t	 wpath[MAX_PATH];
     		char	 path[MAX_PATH];
-    		wsymtbl.DragQueryFileA(hDrop, i, path, MAX_PATH);
+    		wsymtbl.DragQueryFileW(hDrop, i, wpath, MAX_PATH);
+
+            memset(path, 0, sizeof(path));
+            WideCharToMultiByte(CP_UTF8, 0, wpath, -1, path, sizeof(path) - 1, NULL,  NULL);
+
 			MwLLDispatch(u->ll, drag_and_drop, path);
     	}
         wsymtbl.DragFinish(hDrop);
@@ -1067,7 +1071,6 @@ static int MwLLGDICallInitImpl(void) {
 	}
 
 		SHELL32_FUNC(DragQueryFileW);
-		SHELL32_FUNC(DragQueryFileA);
 		SHELL32_FUNC(DragAcceptFiles);
 		SHELL32_FUNC(DragFinish);
 
