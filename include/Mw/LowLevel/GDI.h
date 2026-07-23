@@ -34,6 +34,7 @@ struct _MwLLGDI {
 	struct _MwLLGDIDropTarget* dropTarget;
 	struct _MwLLGDIDropSource* dropSource;
 	MwBool drag_update;
+	MwBool finishing_drag;
 };
 
 struct _MwLLGDIColor {

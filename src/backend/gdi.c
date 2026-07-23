@@ -607,6 +607,10 @@ static void MwLLNextEventImpl(MwLL handle) {
 
 		handle->gdi.get_darktheme = 0;
 	}
+	if(handle->gdi.finishing_drag) {
+	    handle->gdi.drag_update = 0;
+        handle->gdi.finishing_drag = 0;
+	}
 	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -1102,11 +1106,12 @@ static HRESULT STDMETHODCALLTYPE GDIDT_Drop(IDropTarget* this_, IDataObject* pDa
 					for(n = 0; n < arrlen(self->handle->common.known_mime_types); n++) {
 						if(strcmp(mime_type_normal, self->handle->common.known_mime_types[n]) == 0) {
 							MwDispatchUserHandler(self->handle->common.user, MwNdragAndDropHandler, path_normal);
-							break;
+							self->handle->gdi.finishing_drag = 1;
 						}
 					}
 				} else {
 					MwDispatchUserHandler(self->handle->common.user, MwNdragAndDropHandler, path_normal);
+					self->handle->gdi.finishing_drag = 1;
 				}
 			}
 			free(mime_type);
