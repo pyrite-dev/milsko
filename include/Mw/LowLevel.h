@@ -206,6 +206,7 @@ struct _MwLLHandler {
 	void (*focus_out)(MwLL handle, void* data);
 	void (*clipboard)(MwLL handle, void* data);
 	void (*dark_theme)(MwLL handle, void* data);
+	void (*drag_and_drop)(MwLL handle, void* data);
 };
 
 struct _MwLLTextDispatchTable {

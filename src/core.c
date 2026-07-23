@@ -192,6 +192,16 @@ static void llclipboardhandler(MwLL handle, void* data) {
 	MwDispatchUserHandler(h, MwNclipboardHandler, data);
 }
 
+static void lldraganddrophandler(MwLL handle, void* data) {
+	MwWidget h = (MwWidget)handle->common.user;
+	const char * p = data;
+	if(MwGetInteger(h, MwNdisabled) == 1) return;
+
+	printf("%s\n",p);
+	MwDispatchUserHandler(h, MwNdragAndDropHandler, data);
+}
+
+
 /* if both of them are true
  * 1. widget class is not NULL
  * 2.    parent is NULL
@@ -285,6 +295,7 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 		h->lowlevel->common.handler->focus_out	  = llfocusouthandler;
 		h->lowlevel->common.handler->clipboard	  = llclipboardhandler;
 		h->lowlevel->common.handler->dark_theme	  = lldarkthemehandler;
+		h->lowlevel->common.handler->drag_and_drop	  = lldraganddrophandler;
 	}
 
 	if(parent != NULL) arrput(parent->children, h);

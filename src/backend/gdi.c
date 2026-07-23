@@ -13,16 +13,13 @@ typedef struct userdata {
 static struct symtbl {
 	void* lib_dwmapi;
 	void* shell32lib;
-	void* ole32lib;
 	void* urlmonlib;
 
 	MwBool has_drag_and_drop;
 	HRESULT(WINAPI* DwmSetWindowAttribute)(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
+
 	UINT(WINAPI* DragQueryFileW)(HDROP hDrop, UINT iFile, LPWSTR lpszFile, UINT cch);
 	UINT(WINAPI* DragQueryFileA)(HDROP hDrop, UINT iFile, LPSTR lpszFile, UINT cch);
-	void(WINAPI* ReleaseStgMedium)(LPSTGMEDIUM unnamedParam1);
-	HRESULT(WINAPI* OleInitialize)(LPVOID pvReserved);
-	HRESULT(WINAPI* RegisterDragDrop)(HWND hwnd, LPDROPTARGET pDropTarget);
 	HRESULT(WINAPI* FindMimeFromData)(
 	    LPBC    pBC,
 	    LPCWSTR pwzUrl,
@@ -32,9 +29,8 @@ static struct symtbl {
 	    DWORD   dwMimeFlags,
 	    LPWSTR* ppwzMimeOut,
 	    DWORD   dwReserved);
-	HRESULT (*CoInitializeEx)(
-	    LPVOID pvReserved,
-	    DWORD  dwCoInit);
+	void (*DragAcceptFiles)(HWND hWnd, BOOL fAccept);
+	void (*DragFinish)(HDROP hDrop);
 } wsymtbl;
 
 static int is_plgblt_reliable = 0;
@@ -215,15 +211,15 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
     			if(u->ll->common.known_mime_types) {
     				for(n = 0; n < arrlen(u->ll->common.known_mime_types); n++) {
     					if(strcmp(mime_type_normal, u->ll->common.known_mime_types[n]) == 0) {
-    						MwDispatchUserHandler(u->ll->common.user, MwNdragAndDropHandler, path_normal);
+         				    MwLLDispatch(u->ll, drag_and_drop, path_normal);
     					}
     				}
     			} else {
-    				MwDispatchUserHandler(u->ll->common.user, MwNdragAndDropHandler, path_normal);
+    				MwLLDispatch(u->ll, drag_and_drop, path_normal);
     			}
     		}
     	}
-        DragFinish(hDrop);
+        wsymtbl.DragFinish(hDrop);
 		break;
 	}
 	case WM_MOUSEMOVE:
@@ -1065,7 +1061,7 @@ static void MwLLClipImpl(MwLL handle, MwRect* rect) {
 }
 
 static void MwLLSetupDragAndDropImpl(MwLL handle) {
-	DragAcceptFiles(handle->gdi.hWnd, TRUE);
+	wsymtbl.DragAcceptFiles(handle->gdi.hWnd, TRUE);
 }
 
 static int MwLLGDICallInitImpl(void) {
@@ -1091,20 +1087,12 @@ static int MwLLGDICallInitImpl(void) {
 		if(!(wsymtbl.shell32lib = LoadLibrary("shell32.dll"))) {
 			goto dnd_error;
 		};
-		if(!(wsymtbl.ole32lib = LoadLibrary("ole32.dll"))) {
-			goto dnd_error;
-		};
 		if(!(wsymtbl.urlmonlib = LoadLibrary("Urlmon.dll"))) {
 			goto dnd_error;
 		};
 
 #define SHELL32_FUNC(x) \
 	if(!(wsymtbl.x = (void*)GetProcAddress(wsymtbl.shell32lib, #x))) { \
-		printf(#x "not found, drag and drop will not be supported"); \
-		goto dnd_error; \
-	}
-#define OLE32_FUNC(x) \
-	if(!(wsymtbl.x = (void*)GetProcAddress(wsymtbl.ole32lib, #x))) { \
 		printf(#x "not found, drag and drop will not be supported"); \
 		goto dnd_error; \
 	}
@@ -1116,31 +1104,9 @@ static int MwLLGDICallInitImpl(void) {
 
 		SHELL32_FUNC(DragQueryFileW);
 		SHELL32_FUNC(DragQueryFileA);
-		OLE32_FUNC(ReleaseStgMedium);
-		OLE32_FUNC(RegisterDragDrop);
-		OLE32_FUNC(CoInitializeEx);
+		SHELL32_FUNC(DragAcceptFiles);
+		SHELL32_FUNC(DragFinish);
 		URLMON_FUNC(FindMimeFromData);
-
-		hr = wsymtbl.CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-		/* The only other error - COM already being initialized - can be ignored */
-		if(hr == RPC_E_CHANGED_MODE) {
-			goto no_dnd;
-		}
-		if(!SUCCEEDED(hr) && hr != S_FALSE) {
-			printf("CoInitialize error: %08lx\n", hr);
-			goto dnd_error;
-		}
-		hr = OleInitialize(NULL);
-		if(!SUCCEEDED(hr)) {
-			if(hr == RPC_E_CHANGED_MODE) {
-			no_dnd:
-				printf("Cannot do drag and drop; Microsoft hates you and if you use COM anywhere else it has to be apartment threaded.\n");
-				goto dnd_error;
-			} else {
-				printf("OleInitialize failed; %08lx. Drag and Drop won't be supported.\n", hr);
-				goto dnd_error;
-			}
-		}
 
 		wsymtbl.has_drag_and_drop = MwTRUE;
 	}
