@@ -63,7 +63,6 @@
 #define MwNforeground "Sforeground"
 #define MwNsubForeground "SsubForeground"
 #define MwNtitleForeground "StitleForeground"
-#define MwNacceptedMimeType "SacceptedMimeType"
 
 
 #define MwNvulkanExtension "SEvulkanExtension"

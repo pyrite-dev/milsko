@@ -39,7 +39,6 @@ struct _MwLLCommon {
 	int    type;
 	int    coordinate_type;
 	MwBool supports_transparency;
-	const char** known_mime_types;
 
 	MwLLHandler handler;
 };

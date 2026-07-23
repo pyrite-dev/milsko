@@ -64,7 +64,6 @@ void MwLLCreateCommon(MwLL handle) {
 	memset(handle->common.handler, 0, sizeof(*handle->common.handler));
 
 	handle->common.supports_transparency = 0;
-	handle->common.known_mime_types = NULL;
 }
 
 void MwLLDestroyCommon(MwLL handle) {

@@ -707,12 +707,6 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 	if(strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0) {
 		MwForceRender(handle);
 	}
-
-	if(strcmp(key, MwNacceptedMimeType) == 0) {
-		if(handle->lowlevel != NULL) {
-			arrput(handle->lowlevel->common.known_mime_types, value);
-		}
-	}
 }
 
 void MwSetVoid(MwWidget handle, const char* key, void* value) {

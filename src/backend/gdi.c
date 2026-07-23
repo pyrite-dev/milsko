@@ -20,15 +20,6 @@ static struct symtbl {
 
 	UINT(WINAPI* DragQueryFileW)(HDROP hDrop, UINT iFile, LPWSTR lpszFile, UINT cch);
 	UINT(WINAPI* DragQueryFileA)(HDROP hDrop, UINT iFile, LPSTR lpszFile, UINT cch);
-	HRESULT(WINAPI* FindMimeFromData)(
-	    LPBC    pBC,
-	    LPCWSTR pwzUrl,
-	    LPVOID  pBuffer,
-	    DWORD   cbSize,
-	    LPCWSTR pwzMimeProposed,
-	    DWORD   dwMimeFlags,
-	    LPWSTR* ppwzMimeOut,
-	    DWORD   dwReserved);
 	void (*DragAcceptFiles)(HWND hWnd, BOOL fAccept);
 	void (*DragFinish)(HDROP hDrop);
 } wsymtbl;
@@ -188,36 +179,9 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
         count = wsymtbl.DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, 0);
 
     	for(i = 0; i < count; i++) {
-    		wchar_t	 path[MAX_PATH];
-    		char	 path_normal[MAX_PATH];
-    		char*	 mime_type_normal;
-    		wchar_t* mime_type = NULL;
-    		int	 mime_type_size;
-    		HRESULT	 hr;
-    		int	 i;
-
-    		wsymtbl.DragQueryFileW(hDrop, i, path, MAX_PATH);
-    		wsymtbl.DragQueryFileA(hDrop, i, path_normal, MAX_PATH);
-    		hr = wsymtbl.FindMimeFromData(NULL, path, NULL, 0,
-    					      NULL, 0, &mime_type, 0x0);
-
-    		mime_type_size	 = WideCharToMultiByte(CP_ACP, 0, mime_type, -1, NULL, 0, NULL, FALSE);
-    		mime_type_normal = malloc(sizeof(mime_type_size));
-    		WideCharToMultiByte(CP_ACP, 0, mime_type, -1, mime_type_normal, mime_type_size, NULL, FALSE);
-
-    		if(mime_type_size == 0) {
-    			printf("Error converting mime type to multi-byte: %ld\n", GetLastError());
-    		} else {
-    			if(u->ll->common.known_mime_types) {
-    				for(n = 0; n < arrlen(u->ll->common.known_mime_types); n++) {
-    					if(strcmp(mime_type_normal, u->ll->common.known_mime_types[n]) == 0) {
-         				    MwLLDispatch(u->ll, drag_and_drop, path_normal);
-    					}
-    				}
-    			} else {
-    				MwLLDispatch(u->ll, drag_and_drop, path_normal);
-    			}
-    		}
+    		char	 path[MAX_PATH];
+    		wsymtbl.DragQueryFileA(hDrop, i, path, MAX_PATH);
+			MwLLDispatch(u->ll, drag_and_drop, path);
     	}
         wsymtbl.DragFinish(hDrop);
 		break;
@@ -1106,7 +1070,6 @@ static int MwLLGDICallInitImpl(void) {
 		SHELL32_FUNC(DragQueryFileA);
 		SHELL32_FUNC(DragAcceptFiles);
 		SHELL32_FUNC(DragFinish);
-		URLMON_FUNC(FindMimeFromData);
 
 		wsymtbl.has_drag_and_drop = MwTRUE;
 	}
