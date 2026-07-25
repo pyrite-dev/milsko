@@ -180,6 +180,8 @@ static void mouse_down(MwWidget handle, void* ptr) {
 	MwEntry	 t		= handle->internal;
 	MwWidget topmost_parent = handle->parent;
 
+	(void)ptr;
+
 	while(topmost_parent->parent) topmost_parent = topmost_parent->parent;
 
 	for(i = 0; i < arrlen(topmost_parent->monitored_entries); i++) {

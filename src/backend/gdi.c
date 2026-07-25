@@ -172,8 +172,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	{
 		HDROP	hDrop = (HDROP)wp;
 		UINT	count;
-		UINT	i, n;
-		HRESULT hr;
+		UINT	i;
 
 		count = wsymtbl.DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, 0);
 
@@ -1034,7 +1033,6 @@ static void MwLLSetupDragAndDropImpl(MwLL handle) {
 
 static int MwLLGDICallInitImpl(void) {
 	void*	ntdll;
-	HRESULT hr;
 
 	memset(&wsymtbl, 0, sizeof(wsymtbl));
 

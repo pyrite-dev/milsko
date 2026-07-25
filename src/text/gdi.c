@@ -245,7 +245,7 @@ static BOOL WINAPI _RemoveFontMemResourceExPolyFill(HANDLE h) {
 int MwFL_GDISetup(void) {
 	void* gdilib = LoadLibrary("gdi32.dll");
 	if(!gdilib) {
-		printf("gdi32.dll not found(?????)\n");
+		printf("gdi32.dll not found(what)\n");
 	} else {
 		_AddFontMemResourceEx = (void*)GetProcAddress(gdilib, "AddFontMemResourceEx");
 		if(!_AddFontMemResourceEx) {

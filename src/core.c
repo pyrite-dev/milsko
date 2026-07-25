@@ -195,7 +195,6 @@ static void llclipboardhandler(MwLL handle, void* data) {
 
 static void lldraganddrophandler(MwLL handle, void* data) {
 	MwWidget    h = (MwWidget)handle->common.user;
-	const char* p = data;
 	if(MwGetInteger(h, MwNdisabled) == 1) return;
 
 	MwDispatchUserHandler(h, MwNdragAndDropHandler, data);
@@ -328,7 +327,9 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 
 #if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT)
 	if(IsFirstVisible(h)) {
+#ifdef USE_STB_TRUETYPE
 	font_setup:
+#endif
 		h->root_font	     = MwFontLoad(MwTTFData, MwTTFDataSize);
 		h->root_boldfont     = MwFontLoad(MwBoldTTFData, MwBoldTTFDataSize);
 		h->root_monofont     = MwFontLoad(MwMonospaceTTFData, MwMonospaceTTFDataSize);
