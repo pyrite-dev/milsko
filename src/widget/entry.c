@@ -9,7 +9,7 @@ static int wcreate(MwWidget handle) {
 	t->right	      = 0;
 	t->length	      = 0;
 	t->cursor_blink_timer = 0;
-	t->active = 0;
+	t->active	      = 0;
 	handle->internal      = t;
 
 	while(topmost_parent->parent) topmost_parent = topmost_parent->parent;

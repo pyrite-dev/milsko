@@ -194,7 +194,7 @@ static void llclipboardhandler(MwLL handle, void* data) {
 }
 
 static void lldraganddrophandler(MwLL handle, void* data) {
-	MwWidget    h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.user;
 	if(MwGetInteger(h, MwNdisabled) == 1) return;
 
 	MwDispatchUserHandler(h, MwNdragAndDropHandler, data);

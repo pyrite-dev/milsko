@@ -64,7 +64,6 @@
 #define MwNsubForeground "SsubForeground"
 #define MwNtitleForeground "StitleForeground"
 
-
 #define MwNvulkanExtension "SEvulkanExtension"
 #define MwNvulkanLayer "SEvulkanLayer"
 #define MwNvulkanConfig "VEvulkanConfig"

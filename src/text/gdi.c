@@ -28,10 +28,10 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);
 
-	if(handle->lowlevel->common.type == MwLLBackendGDI && MwGetInteger(handle, MwNmodernLook) == MwFALSE) {
+	if(handle->lowlevel->common.type == MwLLBackendGDI) {
 		HFONT	 old_font   = SelectObject(handle->lowlevel->gdi.hDC, ttf->font);
 		int	 old_bkmode = SetBkMode(handle->lowlevel->gdi.hDC, TRANSPARENT);
-		COLORREF old_color  = SetTextColor(handle->lowlevel->gdi.hDC, color->gdi.color);
+		COLORREF old_color  = SetTextColor(handle->lowlevel->gdi.hDC, RGB(color->common.red, color->common.green, color->common.blue));
 
 		TextOut(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t, strlen(t));
 
@@ -180,7 +180,7 @@ static HANDLE WINAPI _AddFontMemResourceExPolyFill(PVOID pFileView, DWORD cjSize
 	CHAR   temp_path_dir[MAX_PATH];
 	CHAR   temp_path_name[MAX_PATH];
 	HANDLE tempFile = NULL;
-	DWORD hr;
+	DWORD  hr;
 
 	(void)pvResrved;
 

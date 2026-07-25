@@ -170,9 +170,9 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 	}
 	case WM_DROPFILES:
 	{
-		HDROP	hDrop = (HDROP)wp;
-		UINT	count;
-		UINT	i;
+		HDROP hDrop = (HDROP)wp;
+		UINT  count;
+		UINT  i;
 
 		count = wsymtbl.DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, 0);
 
@@ -524,7 +524,8 @@ static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 }
 
 static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
-	HDC dc = GetDC(handle->gdi.hWnd);
+	HDC	 dc = GetDC(handle->gdi.hWnd);
+	COLORREF color;
 
 	if(r > 255) r = 255;
 	if(g > 255) g = 255;
@@ -533,9 +534,10 @@ static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
 	if(g < 0) g = 0;
 	if(b < 0) b = 0;
 
+	color = GetNearestColor(dc, RGB(r, g, b));
+
 	if(c->gdi.brush != NULL) DeleteObject(c->gdi.brush);
-	c->gdi.color	= GetNearestColor(dc, RGB(r, g, b));
-	c->gdi.brush	= CreateSolidBrush(c->gdi.color);
+	c->gdi.brush	= CreateSolidBrush(color);
 	c->common.red	= r;
 	c->common.green = g;
 	c->common.blue	= b;
@@ -1032,7 +1034,7 @@ static void MwLLSetupDragAndDropImpl(MwLL handle) {
 }
 
 static int MwLLGDICallInitImpl(void) {
-	void*	ntdll;
+	void* ntdll;
 
 	memset(&wsymtbl, 0, sizeof(wsymtbl));
 
