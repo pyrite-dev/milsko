@@ -77,7 +77,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 	switch(msg) {
 	case WM_INITDIALOG:
-	    return TRUE;
+		return TRUE;
 	case WM_PAINT:
 	{
 		PAINTSTRUCT ps;
@@ -168,25 +168,26 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		MwLLDispatch(u->ll, up, &p);
 		break;
 	}
-	case WM_DROPFILES: {
-    	HDROP	hDrop = (HDROP)wp;
-    	UINT	count;
-    	UINT	i, n;
-    	HRESULT hr;
+	case WM_DROPFILES:
+	{
+		HDROP	hDrop = (HDROP)wp;
+		UINT	count;
+		UINT	i, n;
+		HRESULT hr;
 
-        count = wsymtbl.DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, 0);
+		count = wsymtbl.DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, 0);
 
-    	for(i = 0; i < count; i++) {
-       		wchar_t	 wpath[MAX_PATH];
-    		char	 path[MAX_PATH];
-    		wsymtbl.DragQueryFileW(hDrop, i, wpath, MAX_PATH);
+		for(i = 0; i < count; i++) {
+			wchar_t wpath[MAX_PATH];
+			char	path[MAX_PATH];
+			wsymtbl.DragQueryFileW(hDrop, i, wpath, MAX_PATH);
 
-            memset(path, 0, sizeof(path));
-            WideCharToMultiByte(CP_UTF8, 0, wpath, -1, path, sizeof(path) - 1, NULL,  NULL);
+			memset(path, 0, sizeof(path));
+			WideCharToMultiByte(CP_UTF8, 0, wpath, -1, path, sizeof(path) - 1, NULL, NULL);
 
 			MwLLDispatch(u->ll, drag_and_drop, path);
-    	}
-        wsymtbl.DragFinish(hDrop);
+		}
+		wsymtbl.DragFinish(hDrop);
 		break;
 	}
 	case WM_MOUSEMOVE:
@@ -612,9 +613,9 @@ static void MwLLNextEventImpl(MwLL handle) {
 		handle->gdi.get_darktheme = 0;
 	}
 	while(PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-	    if(GetMessage(&msg, NULL, 0, 0)) {
+		if(GetMessage(&msg, NULL, 0, 0)) {
 			TranslateMessage(&msg);
-		    DispatchMessage(&msg);
+			DispatchMessage(&msg);
 		}
 	}
 }

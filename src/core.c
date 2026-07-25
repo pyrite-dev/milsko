@@ -145,8 +145,9 @@ static void llclosehandler(MwLL handle, void* data) {
 }
 
 static void llmovehandler(MwLL handle, void* data) {
-	MwWidget h	 = (MwWidget)handle->common.user;
-	MwPoint* p	 = data;
+	MwWidget h = (MwWidget)handle->common.user;
+	MwPoint* p = data;
+
 	h->mouse_point.x = p->x;
 	h->mouse_point.y = p->y;
 
@@ -193,14 +194,12 @@ static void llclipboardhandler(MwLL handle, void* data) {
 }
 
 static void lldraganddrophandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->common.user;
-	const char * p = data;
+	MwWidget    h = (MwWidget)handle->common.user;
+	const char* p = data;
 	if(MwGetInteger(h, MwNdisabled) == 1) return;
 
-	printf("%s\n",p);
 	MwDispatchUserHandler(h, MwNdragAndDropHandler, data);
 }
-
 
 /* if both of them are true
  * 1. widget class is not NULL
@@ -282,20 +281,20 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 	if(parent == NULL) h->top_step = 1;
 
 	if(h->lowlevel != NULL) {
-		h->lowlevel->common.user		  = h;
-		h->lowlevel->common.handler->draw	  = lldrawhandler;
-		h->lowlevel->common.handler->up		  = lluphandler;
-		h->lowlevel->common.handler->down	  = lldownhandler;
-		h->lowlevel->common.handler->resize	  = llresizehandler;
-		h->lowlevel->common.handler->close	  = llclosehandler;
-		h->lowlevel->common.handler->move	  = llmovehandler;
-		h->lowlevel->common.handler->key	  = llkeyhandler;
-		h->lowlevel->common.handler->key_released = llkeyrelhandler;
-		h->lowlevel->common.handler->focus_in	  = llfocusinhandler;
-		h->lowlevel->common.handler->focus_out	  = llfocusouthandler;
-		h->lowlevel->common.handler->clipboard	  = llclipboardhandler;
-		h->lowlevel->common.handler->dark_theme	  = lldarkthemehandler;
-		h->lowlevel->common.handler->drag_and_drop	  = lldraganddrophandler;
+		h->lowlevel->common.user		   = h;
+		h->lowlevel->common.handler->draw	   = lldrawhandler;
+		h->lowlevel->common.handler->up		   = lluphandler;
+		h->lowlevel->common.handler->down	   = lldownhandler;
+		h->lowlevel->common.handler->resize	   = llresizehandler;
+		h->lowlevel->common.handler->close	   = llclosehandler;
+		h->lowlevel->common.handler->move	   = llmovehandler;
+		h->lowlevel->common.handler->key	   = llkeyhandler;
+		h->lowlevel->common.handler->key_released  = llkeyrelhandler;
+		h->lowlevel->common.handler->focus_in	   = llfocusinhandler;
+		h->lowlevel->common.handler->focus_out	   = llfocusouthandler;
+		h->lowlevel->common.handler->clipboard	   = llclipboardhandler;
+		h->lowlevel->common.handler->dark_theme	   = lldarkthemehandler;
+		h->lowlevel->common.handler->drag_and_drop = lldraganddrophandler;
 	}
 
 	if(parent != NULL) arrput(parent->children, h);
@@ -573,6 +572,7 @@ int MwStep(MwWidget handle) {
 		MwFreeWidget(handle);
 		return 1;
 	}
+
 	return 0;
 }
 

@@ -274,7 +274,7 @@ struct _MwClass {
 	MwHandlerChildrenProp	   children_prop_change;
 	MwHandlerClipboardReceived clipboard;
 	MwHandlerProps		   props_change;
-	MwHandler			   drag_and_drop;
+	MwHandler		   drag_and_drop;
 	void*			   reserved2;
 	void*			   reserved3;
 };
