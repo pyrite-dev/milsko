@@ -2,7 +2,7 @@
 
 #if defined(_WIN32)
 long MwTimeGetTick(void) {
-	return timeGetTime();
+	return MwLL_PFN_timeGetTime();
 }
 
 void MwTimeSleep(int ms) {
