@@ -43,9 +43,9 @@ static void color_set_disabled_if_disabled(MwWidget handle, MwLLColor rgb) {
 		MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
 
 		if(c != NULL) {
-			rgb->common.red	  = rgb->common.red + (c->common.red - rgb->common.red) * 0.5;
-			rgb->common.green = rgb->common.green + (c->common.green - rgb->common.green) * 0.5;
-			rgb->common.blue  = rgb->common.blue + (c->common.blue - rgb->common.blue) * 0.5;
+			rgb->common.red	  = (MwU8)(rgb->common.red + (c->common.red - rgb->common.red) * 0.5);
+			rgb->common.green = (MwU8)(rgb->common.green + (c->common.green - rgb->common.green) * 0.5);
+			rgb->common.blue  = (MwU8)(rgb->common.blue + (c->common.blue - rgb->common.blue) * 0.5);
 			MwLLColorUpdate(handle->lowlevel, rgb, rgb->common.red, rgb->common.green, rgb->common.blue);
 
 			MwLLFreeColor(c);
@@ -124,8 +124,11 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	int	       ColorDiff  = get_color_diff(handle);
 	double	       darkenStep = (ColorDiff / 2.) / rect->height;
 	unsigned long  sz	  = 1 * rect->height * 4;
-	unsigned char* data	  = malloc(sz);
+	unsigned char* data	  = malloc(sz*2);
 	MwRect	       r	  = *rect;
+	if(!data) {
+		return;
+	}
 	if(rect->width <= 0 || rect->height <= 0) {
 		free(data);
 		return;
@@ -138,7 +141,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	r.height -= 2;
 
 	for(y = 0; y < rect->height; y++) {
-		MwLLColor col = MwLightenColor(handle, color, -darken, -darken, -darken);
+		MwLLColor col = MwLightenColor(handle, color, (int)-darken, (int)-darken, (int)-darken);
 		int	  idx = y * 4;
 		color_set_disabled_if_disabled(handle, col);
 		data[idx]     = col->common.red;
@@ -458,11 +461,11 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p1[1].x = rect->x;
 		p1[1].y = rect->y + rect->height;
 
-		p1[2].x = rect->x + c * border;
-		p1[2].y = rect->y + rect->height - s * border;
+		p1[2].x = (int)(rect->x + c * border);
+		p1[2].y = (int)(rect->y + rect->height - s * border);
 
 		p1[3].x = rect->x + rect->width / 2;
-		p1[3].y = rect->y + border;
+		p1[3].y = (int)(rect->y + border);
 
 		p2[0].x = rect->x + rect->width / 2;
 		p2[0].y = rect->y;
@@ -470,14 +473,14 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p2[1].x = rect->x + rect->width;
 		p2[1].y = rect->y + rect->height;
 
-		p2[2].x = rect->x + rect->width - c * border;
-		p2[2].y = rect->y + rect->height - s * border;
+		p2[2].x = (int)(rect->x + rect->width - c * border);
+		p2[2].y = (int)(rect->y + rect->height - s * border);
 
 		p2[3].x = rect->x + rect->width / 2;
-		p2[3].y = rect->y + border;
+		p2[3].y = (int)(rect->y + border);
 
-		p3[0].x = rect->x + c * border;
-		p3[0].y = rect->y + rect->height - s * border;
+		p3[0].x = (int)(rect->x + c * border);
+		p3[0].y = (int)(rect->y + rect->height - s * border);
 
 		p3[1].x = rect->x;
 		p3[1].y = rect->y + rect->height;
@@ -485,30 +488,30 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p3[2].x = rect->x + rect->width;
 		p3[2].y = rect->y + rect->height;
 
-		p3[3].x = rect->x + rect->width - c * border;
-		p3[3].y = rect->y + rect->height - s * border;
+		p3[3].x = (int)(rect->x + rect->width - c * border);
+		p3[3].y = (int)(rect->y + rect->height - s * border);
 
 		MwLLPolygon(handle->lowlevel, p1, 4, invert ? darker : lighter);
 		MwLLPolygon(handle->lowlevel, p2, 4, invert ? lighter : darker);
 		MwLLPolygon(handle->lowlevel, p3, 4, invert ? lighter : darker);
 
-		p4[0].x = rect->x + c * border;
-		p4[0].y = rect->y + rect->height - s * border;
+		p4[0].x = (int)(rect->x + c * border);
+		p4[0].y = (int)(rect->y + rect->height - s * border);
 
-		p4[1].x = rect->x + rect->width - c * border;
-		p4[1].y = rect->y + rect->height - s * border;
+		p4[1].x = (int)(rect->x + rect->width - c * border);
+		p4[1].y = (int)(rect->y + rect->height - s * border);
 
 		p4[2].x = rect->x + rect->width / 2;
-		p4[2].y = rect->y + border;
+		p4[2].y = (int)(rect->y + border);
 	} else if(direction == MwSOUTH) {
 		p1[0].x = rect->x;
 		p1[0].y = rect->y;
 
-		p1[1].x = rect->x + c * border;
-		p1[1].y = rect->y + s * border;
+		p1[1].x = (int)(rect->x + c * border);
+		p1[1].y = (int)(rect->y + s * border);
 
-		p1[2].x = rect->x + rect->width - c * border;
-		p1[2].y = rect->y + s * border;
+		p1[2].x = (int)(rect->x + rect->width - c * border);
+		p1[2].y = (int)(rect->y + s * border);
 
 		p1[3].x = rect->x + rect->width;
 		p1[3].y = rect->y;
@@ -516,11 +519,11 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p2[0].x = rect->x;
 		p2[0].y = rect->y;
 
-		p2[1].x = rect->x + c * border;
-		p2[1].y = rect->y + s * border;
+		p2[1].x = (int)(rect->x + c * border);
+		p2[1].y = (int)(rect->y + s * border);
 
 		p2[2].x = rect->x + rect->width / 2;
-		p2[2].y = rect->y + rect->height - border;
+		p2[2].y = (int)(rect->y + rect->height - border);
 
 		p2[3].x = rect->x + rect->width / 2;
 		p2[3].y = rect->y + rect->height;
@@ -532,32 +535,32 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p3[1].y = rect->y + rect->height;
 
 		p3[2].x = rect->x + rect->width / 2;
-		p3[2].y = rect->y + rect->height - border;
+		p3[2].y = (int)(rect->y + rect->height - border);
 
-		p3[3].x = rect->x + rect->width - c * border;
-		p3[3].y = rect->y + s * border;
+		p3[3].x = (int)(rect->x + rect->width - c * border);
+		p3[3].y = (int)(rect->y + s * border);
 
 		MwLLPolygon(handle->lowlevel, p1, 4, invert ? darker : lighter);
 		MwLLPolygon(handle->lowlevel, p2, 4, invert ? darker : lighter);
 		MwLLPolygon(handle->lowlevel, p3, 4, invert ? lighter : darker);
 
-		p4[0].x = rect->x + c * border;
-		p4[0].y = rect->y + s * border;
+		p4[0].x = (int)(rect->x + c * border);
+		p4[0].y = (int)(rect->y + s * border);
 
-		p4[1].x = rect->x + rect->width - c * border;
-		p4[1].y = rect->y + s * border;
+		p4[1].x = (int)(rect->x + rect->width - c * border);
+		p4[1].y = (int)(rect->y + s * border);
 
 		p4[2].x = rect->x + rect->width / 2;
-		p4[2].y = rect->y + rect->height - border;
+		p4[2].y = (int)(rect->y + rect->height - border);
 	} else if(direction == MwEAST) {
 		p1[0].x = rect->x;
 		p1[0].y = rect->y;
 
-		p1[1].x = rect->x + c * border;
-		p1[1].y = rect->y + s * border;
+		p1[1].x = (int)(rect->x + c * border);
+		p1[1].y = (int)(rect->y + s * border);
 
-		p1[2].x = rect->x + c * border;
-		p1[2].y = rect->y + rect->height - s * border;
+		p1[2].x = (int)(rect->x + c * border);
+		p1[2].y = (int)(rect->y + rect->height - s * border);
 
 		p1[3].x = rect->x;
 		p1[3].y = rect->y + rect->height;
@@ -568,14 +571,14 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p2[1].x = rect->x + rect->width;
 		p2[1].y = rect->y + rect->height / 2;
 
-		p2[2].x = rect->x + rect->width - border;
+		p2[2].x = (int)(rect->x + rect->width - border);
 		p2[2].y = rect->y + rect->height / 2;
 
-		p2[3].x = rect->x + c * border;
-		p2[3].y = rect->y + s * border;
+		p2[3].x = (int)(rect->x + c * border);
+		p2[3].y = (int)(rect->y + s * border);
 
-		p3[0].x = rect->x + c * border;
-		p3[0].y = rect->y + rect->height - s * border;
+		p3[0].x = (int)(rect->x + c * border);
+		p3[0].y = (int)(rect->y + rect->height - s * border);
 
 		p3[1].x = rect->x;
 		p3[1].y = rect->y + rect->height;
@@ -583,30 +586,30 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p3[2].x = rect->x + rect->width;
 		p3[2].y = rect->y + rect->height / 2;
 
-		p3[3].x = rect->x + rect->width - border;
+		p3[3].x = (int)(rect->x + rect->width - border);
 		p3[3].y = rect->y + rect->height / 2;
 
 		MwLLPolygon(handle->lowlevel, p1, 4, invert ? darker : lighter);
 		MwLLPolygon(handle->lowlevel, p2, 4, invert ? darker : lighter);
 		MwLLPolygon(handle->lowlevel, p3, 4, invert ? lighter : darker);
 
-		p4[0].x = rect->x + rect->width - border;
+		p4[0].x = (int)(rect->x + rect->width - border);
 		p4[0].y = rect->y + rect->height / 2;
 
-		p4[1].x = rect->x + c * border;
-		p4[1].y = rect->y + rect->height - s * border;
+		p4[1].x = (int)(rect->x + c * border);
+		p4[1].y = (int)(rect->y + rect->height - s * border);
 
-		p4[2].x = rect->x + c * border;
-		p4[2].y = rect->y + s * border;
+		p4[2].x = (int)(rect->x + c * border);
+		p4[2].y = (int)(rect->y + s * border);
 	} else if(direction == MwWEST) {
 		p1[0].x = rect->x;
 		p1[0].y = rect->y + rect->height / 2;
 
-		p1[1].x = rect->x + border;
+		p1[1].x = (int)(rect->x + border);
 		p1[1].y = rect->y + rect->height / 2;
 
-		p1[2].x = rect->x + rect->width - c * border;
-		p1[2].y = rect->y + s * border;
+		p1[2].x = (int)(rect->x + rect->width - c * border);
+		p1[2].y = (int)(rect->y + s * border);
 
 		p1[3].x = rect->x + rect->width;
 		p1[3].y = rect->y;
@@ -614,11 +617,11 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p2[0].x = rect->x;
 		p2[0].y = rect->y + rect->height / 2;
 
-		p2[1].x = rect->x + border;
+		p2[1].x = (int)(rect->x + border);
 		p2[1].y = rect->y + rect->height / 2;
 
-		p2[2].x = rect->x + rect->width - c * border;
-		p2[2].y = rect->y + rect->height - s * border;
+		p2[2].x = (int)(rect->x + rect->width - c * border);
+		p2[2].y = (int)(rect->y + rect->height - s * border);
 
 		p2[3].x = rect->x + rect->width;
 		p2[3].y = rect->y + rect->height;
@@ -626,11 +629,11 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p3[0].x = rect->x + rect->width;
 		p3[0].y = rect->y;
 
-		p3[1].x = rect->x + rect->width - c * border;
-		p3[1].y = rect->y + s * border;
+		p3[1].x = (int)(rect->x + rect->width - c * border);
+		p3[1].y = (int)(rect->y + s * border);
 
-		p3[2].x = rect->x + rect->width - c * border;
-		p3[2].y = rect->y + rect->height - s * border;
+		p3[2].x = (int)(rect->x + rect->width - c * border);
+		p3[2].y = (int)(rect->y + rect->height - s * border);
 
 		p3[3].x = rect->x + rect->width;
 		p3[3].y = rect->y + rect->height;
@@ -639,14 +642,14 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		MwLLPolygon(handle->lowlevel, p2, 4, invert ? lighter : darker);
 		MwLLPolygon(handle->lowlevel, p3, 4, invert ? lighter : darker);
 
-		p4[0].x = rect->x + border;
+		p4[0].x = (int)(rect->x + border);
 		p4[0].y = rect->y + rect->height / 2;
 
-		p4[1].x = rect->x + rect->width - c * border;
-		p4[1].y = rect->y + rect->height - s * border;
+		p4[1].x = (int)(rect->x + rect->width - c * border);
+		p4[1].y = (int)(rect->y + rect->height - s * border);
 
-		p4[2].x = rect->x + rect->width - c * border;
-		p4[2].y = rect->y + s * border;
+		p4[2].x = (int)(rect->x + rect->width - c * border);
+		p4[2].y = (int)(rect->y + s * border);
 	}
 	MwLLPolygon(handle->lowlevel, p4, 3, col);
 
@@ -830,13 +833,13 @@ void MwPixmapReloadRaw(MwLLPixmap px, unsigned char* rgb) {
 
 		a /= 255;
 		if(a != 0) {
-			pout[0] = pin[0] * a;
-			pout[1] = pin[1] * a;
-			pout[2] = pin[2] * a;
+			pout[0] = (unsigned char)(pin[0] * a);
+			pout[1] = (unsigned char)(pin[1] * a);
+			pout[2] = (unsigned char)(pin[2] * a);
 
-			pout[0] += base->common.red * (1 - a);
-			pout[1] += base->common.green * (1 - a);
-			pout[2] += base->common.blue * (1 - a);
+			pout[0] += (unsigned char)(base->common.red * (1 - a));
+			pout[1] += (unsigned char)(base->common.green * (1 - a));
+			pout[2] += (unsigned char)(base->common.blue * (1 - a));
 			pout[3] = 255;
 		}
 	}
@@ -867,6 +870,11 @@ MwLLPixmap MwLoadIcon(MwWidget handle, MwU32* data) {
 	unsigned char* rgba   = malloc(width * height * 4);
 	MwLLPixmap     px;
 	int	       i;
+
+	if(!rgba) {
+		printf("Null malloc! out of memory?\n");
+		return NULL;
+	}
 
 	memset(rgba, 0, width * height * 4);
 
@@ -905,7 +913,11 @@ MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
 
 	sh_new_strdup(c);
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+	sscanf_s(data[0], "%d %d %d %d", &col, &row, &colors, &cpp);
+#else
 	sscanf(data[0], "%d %d %d %d", &col, &row, &colors, &cpp);
+#endif
 
 	for(i = 0; i < colors; i++) {
 		char  k[128];
@@ -942,6 +954,10 @@ MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
 
 	rgb	  = malloc(row * col * 4);
 	comp	  = malloc(cpp + 1);
+	if(!rgb || !comp) {
+		printf("Null malloc! Out of memory?");
+		return NULL;
+	}
 	comp[cpp] = 0;
 	for(y = 0; y < row; y++) {
 		for(x = 0; x < col; x++) {
