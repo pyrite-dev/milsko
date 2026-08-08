@@ -110,9 +110,9 @@ static void color_picker_image_update(color_picker_t* picker) {
 				picker->color_picker_image_data[i + 2] = 0;
 				picker->color_picker_image_data[i + 3] = 0;
 			} else if(dist >= 180.) {
-				picker->color_picker_image_data[i]     = dist;
-				picker->color_picker_image_data[i + 1] = dist;
-				picker->color_picker_image_data[i + 2] = dist;
+				picker->color_picker_image_data[i]     = (unsigned char)dist;
+				picker->color_picker_image_data[i + 1] = (unsigned char)dist;
+				picker->color_picker_image_data[i + 2] = (unsigned char)dist;
 				picker->color_picker_image_data[i + 3] = 255;
 			} else {
 				MwHSV hsv_v;
@@ -121,26 +121,26 @@ static void color_picker_image_update(color_picker_t* picker) {
 					double xd = (M_PI / 180.) * ((double)_x);
 					double yd = (M_PI / 180.) * ((double)_y);
 
-					float angle = atan2(yd, xd) - M_PI;
-					float hue   = (angle * 180.) / M_PI;
+					double angle = atan2(yd, xd) - M_PI;
+					double hue   = (angle * 180.) / M_PI;
 
 					if(hue < 0.0) {
 						hue += 360;
 					}
-					hsv_v.h			       = (hue) * (HSV_HUE_STEPS / 360.);
-					hsv_v.s			       = (dist) * (HSV_SAT_MAX / 180.);
+					hsv_v.h			       = (MwU8)((hue) * (HSV_HUE_STEPS / 360.));
+					hsv_v.s			       = (MwU8)((dist) * (HSV_SAT_MAX / 180.));
 					picker->hue_table[n]	       = hsv_v;
 					picker->hue_table[n].generated = 1;
 				}
 
 				hsv_v	= picker->hue_table[n];
-				hsv_v.v = HSV_VAL_MAX - (picker->value * HSV_VAL_MAX);
+				hsv_v.v = (MwU8)(HSV_VAL_MAX - (picker->value * HSV_VAL_MAX));
 
 				hsv2rgb(hsv_v.h, hsv_v.s, hsv_v.v, &color.red, &color.green, &color.blue);
 
-				picker->color_picker_image_data[i]     = color.red;
-				picker->color_picker_image_data[i + 1] = color.green;
-				picker->color_picker_image_data[i + 2] = color.blue;
+				picker->color_picker_image_data[i]     = (unsigned char)color.red;
+				picker->color_picker_image_data[i + 1] = (unsigned char)color.green;
+				picker->color_picker_image_data[i + 2] = (unsigned char)color.blue;
 
 				picker->color_picker_image_data[i + 3] = 255;
 				n++;

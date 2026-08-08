@@ -76,6 +76,12 @@ static void resize(MwWidget handle) {
 
 static int wcreate(MwWidget handle) {
 	MwViewport vp = malloc(sizeof(*vp));
+
+	if(!vp) {
+		printf("Out Of Memory\n");
+		return 1;
+	}
+
 	memset(vp, 0, sizeof(*vp));
 
 	handle->internal = vp;
@@ -151,7 +157,7 @@ static void tick(MwWidget handle) {
 		v  = MwGetInteger(vp->vscroll, MwNvalue);
 		mv = MwGetInteger(vp->vscroll, MwNmaxValue);
 		l  = MwGetInteger(vp->frame, MwNheight);
-		v  = (mv - l) * (double)v / mv;
+		v  = (int)((mv - l) * (double)v / mv);
 
 		if(v < 0) v = 0;
 		MwVaApply(vp->inframe,
@@ -166,7 +172,7 @@ static void tick(MwWidget handle) {
 		v  = MwGetInteger(vp->hscroll, MwNvalue);
 		mv = MwGetInteger(vp->hscroll, MwNmaxValue);
 		l  = MwGetInteger(vp->frame, MwNwidth);
-		v  = (mv - l) * (double)v / mv;
+		v  = (int)((mv - l) * (double)v / mv);
 
 		if(v < 0) v = 0;
 		MwVaApply(vp->inframe,

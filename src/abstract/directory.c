@@ -19,15 +19,18 @@ typedef struct dir {
 
 void* MwDirectoryOpen(const char* path) {
 	dir_t* dir = malloc(sizeof(*dir));
-#ifdef _WIN32
-	char* p = malloc(strlen(path) + 2 + 1);
-	strcpy(p, path);
-	if(strchr(path, '/') != NULL) {
-		strcat(p, "/");
-	} else {
-		strcat(p, "\\");
+	if(!dir) {
+		printf("Out Of Memory\n");
+		return NULL;
 	}
-	strcat(p, "*");
+#ifdef _WIN32
+	char* p = MwStringDuplicate(path);
+	if(strchr(path, '/') != NULL) {
+		MwStringConcat(p, "/");
+	} else {
+		MwStringConcat(p, "\\");
+	}
+	MwStringConcat(p, "*");
 	if((dir->hFind = FindFirstFile(p, &dir->ffd)) == INVALID_HANDLE_VALUE) {
 		free(p);
 		free(dir);
@@ -65,6 +68,10 @@ void MwDirectoryClose(void* handle) {
 MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	dir_t*		  dir	= handle;
 	MwDirectoryEntry* entry = malloc(sizeof(*entry));
+	if(!entry) {
+		printf("Out Of Memory\n");
+		return NULL;
+	}
 #ifdef _WIN32
 	ULARGE_INTEGER* l;
 
@@ -170,8 +177,8 @@ static void MwDirectoryJoinSingle(char* target, char* p) {
 		b[0] = DIRSEP;
 		b[1] = 0;
 
-		strcat(target, b);
-		strcat(target, p);
+		MwStringConcat(target, b);
+		MwStringConcat(target, p);
 	}
 
 	for(i = strlen(target) - 1; i >= 0; i--) {
@@ -187,17 +194,16 @@ static void MwDirectoryJoinSingle(char* target, char* p) {
 		b[0] = DIRSEP;
 		b[1] = 0;
 
-		strcat(target, b);
+		MwStringConcat(target, b);
 	}
 }
 
 char* MwDirectoryJoin(char* a, char* b) {
-	char* p	   = malloc(strlen(a) + 1 + strlen(b) + 1);
+	char* p	   = MwStringDuplicate(a);
 	char* bdup = MwStringDuplicate(b);
 	char* b2   = bdup;
 	int   i;
 
-	strcpy(p, a);
 	for(i = strlen(p) - 1; i >= 0; i--) {
 		if(p[i] == DIRSEP) {
 			p[i] = 0;

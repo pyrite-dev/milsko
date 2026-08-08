@@ -1,21 +1,53 @@
 #include <Mw/Milsko.h>
 
 char* MwStringDuplicate(const char* str) {
-	char* r = malloc(strlen(str) + 1);
+	int   sz = strlen(str) + 1;
+	char* r = malloc(sz);
+	if(!r) {
+		printf("Out Of Memory\n");
+		return NULL;
+	}
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+	strcpy_s(r, sz, str);
+#else
 	strcpy(r, str);
+#endif
 
 	return r;
 }
 
 char* MwStringConcat(const char* str1, const char* str2) {
-	char* r = malloc(strlen(str1) + strlen(str2) + 1);
+	int   sz = strlen(str1) + strlen(str2) + 1;
+	char* r = malloc(sz);
+	if(!r) {
+		printf("Out Of Memory\n");
+		return NULL;
+	}
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+	strcpy_s(r, sz, str1);
+	strcat_s(r, sz, str2);
+#else
 	strcpy(r, str1);
 	strcat(r, str2);
+#endif
 
 	return r;
 }
 
 void MwStringSize(char* out, MwOffset size) {
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+	if(size / 1024 == 0) {
+		sprintf_s(out, 255, "%d", (int)size);
+	} else if(size / 1024 / 1024 == 0) {
+		sprintf_s(out, 255, "%.1fK", (double)size / 1024);
+	} else if(size / 1024 / 1024 / 1024 == 0) {
+		sprintf_s(out, 255, "%.1fM", (double)size / 1024 / 1024);
+	} else {
+		sprintf_s(out, 255, "%.1fG", (double)size / 1024 / 1024 / 1024);
+	}
+#else
 	if(size / 1024 == 0) {
 		sprintf(out, "%d", (int)size);
 	} else if(size / 1024 / 1024 == 0) {
@@ -25,16 +57,28 @@ void MwStringSize(char* out, MwOffset size) {
 	} else {
 		sprintf(out, "%.1fG", (double)size / 1024 / 1024 / 1024);
 	}
+#endif
 }
 
 void MwStringTime(char* out, time_t t) {
 	struct tm*  tm	     = localtime(&t);
 	const char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
+
+
 	if(tm == NULL) {
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+		sprintf_s(out, 255, "localtime error");
+#else
 		sprintf(out, "localtime error");
+#endif
+
 	} else {
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+		sprintf_s(out, 255, "%s %2d %02d:%02d %d", months[tm->tm_mon], tm->tm_mday, tm->tm_hour, tm->tm_min, 1900 + tm->tm_year);
+#else
 		sprintf(out, "%s %2d %02d:%02d %d", months[tm->tm_mon], tm->tm_mday, tm->tm_hour, tm->tm_min, 1900 + tm->tm_year);
+#endif
 	}
 }
 void MwStringPrintIntoBuffer(char* out, MwU32 size, const char* fmt, ...) {
@@ -43,6 +87,9 @@ void MwStringPrintIntoBuffer(char* out, MwU32 size, const char* fmt, ...) {
 
 #if __STDC_VERSION__ >= 199901L
 	vsnprintf(out, size, fmt, va);
+/* MSVC2022 reports the STDC_VERSION as fucking 1994. Thanks Bill Gates. */
+#elif defined(_MSC_VER) && (_MSC_VER >= 1400)
+	vsprintf_s(out, size, fmt, va);
 #else
 	vsprintf(out, fmt, va);
 #endif

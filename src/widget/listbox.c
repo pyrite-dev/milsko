@@ -203,11 +203,16 @@ static void frame_draw(MwWidget handle) {
 				int   seek = 0;
 				int   l	   = 0;
 				char* old  = str;
+				int   sz   = strlen(old) + 5;
 
 				if(ind < 0) ind = 0;
 
-				str = malloc(strlen(old) + 5);
+				str = malloc(sz);
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+				strcpy_s(str, sz, old);
+#else
 				strcpy(str, old);
+#endif
 				free(old);
 
 				while(str[seek] != 0) {
@@ -317,6 +322,11 @@ static void resize(MwWidget handle, int no_resize) {
 
 static int wcreate(MwWidget handle) {
 	MwListBox lb = malloc(sizeof(*lb));
+	if(!lb) {
+		printf("Out Of Memory\n");
+		return 1;
+	}
+
 	memset(lb, 0, sizeof(*lb));
 
 	handle->internal = lb;

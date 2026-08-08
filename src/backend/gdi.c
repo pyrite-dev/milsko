@@ -397,6 +397,11 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	userdata_t* u = malloc(sizeof(*u));
 	WNDCLASSEX  wc;
 
+	if(!r || !u) {
+		printf("Out Of Memory\n");
+		return NULL;
+	}
+
 	memset(&wc, 0, sizeof(wc));
 	wc.cbSize	 = sizeof(WNDCLASSEX);
 	wc.style	 = CS_HREDRAW | CS_VREDRAW;
@@ -482,6 +487,11 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 	HPEN   pen = CreatePen(PS_NULL, 0, RGB(0, 0, 0));
 	int    i;
 
+	if(!p) {
+		printf("Out Of Memory\n");
+		return;
+	}
+
 	for(i = 0; i < points_count; i++) {
 		p[i].x = points[i].x;
 		p[i].y = points[i].y;
@@ -515,6 +525,11 @@ static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 	MwLLColor c = malloc(sizeof(*c));
+
+	if(!c) {
+		printf("Out Of Memory\n");
+		return NULL;
+	}
 
 	c->gdi.brush = NULL;
 
@@ -593,10 +608,20 @@ static void MwLLNextEventImpl(MwLL handle) {
 	if(handle->gdi.get_clipboard) {
 		HGLOBAL hg;
 		if(OpenClipboard(handle->gdi.hWnd) != 0 && (hg = GetClipboardData(CF_TEXT)) != NULL) {
-			char* txt = malloc(GlobalSize(hg));
+			int   sz  = GlobalSize(hg);
+			char* txt = malloc(sz);
 			char* clp = GlobalLock(hg);
 
+			if(!txt || !clp) {
+				printf("Out of Memory\n");
+				return;
+			}
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+			strcpy_s(txt, sz, clp);
+#else
 			strcpy(txt, clp);
+#endif
 
 			GlobalUnlock(hg);
 			CloseClipboard();
@@ -626,7 +651,17 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 	HDC		 dc = GetDC(handle->gdi.hWnd);
 	BITMAPINFOHEADER bmih;
 
+	if(!r) {
+		printf("Out Of Memory\n");
+		return NULL;
+	}
+
 	r->common.raw = malloc(width * height * 4);
+	if(!r->common.raw) {
+		printf("Out Of Memory\n");
+		return NULL;
+	}
+
 	memcpy(r->common.raw, data, 4 * width * height);
 
 	r->common.width	 = width;
@@ -666,6 +701,12 @@ static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
 
 	words  = malloc(w * r->common.height);
 	words2 = malloc(w * r->common.height);
+
+	if(!words || !words2) {
+		printf("Out Of Memory\n");
+		return;
+	}
+
 	memset(words, 0, w * r->common.height);
 	memset(words2, 0, w * r->common.height);
 	for(y = 0; y < r->common.height; y++) {
@@ -917,12 +958,30 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_ty
 	(void)clipboard_type;
 	if(OpenClipboard(handle->gdi.hWnd) != 0) {
 		char* lock;
+		int   sz = strlen(text) + 1;
 
 		EmptyClipboard();
-		hg = GlobalAlloc(GHND | GMEM_SHARE, strlen(text) + 1);
+		hg = GlobalAlloc(GHND | GMEM_SHARE, sz);
+
+		if(!hg) {
+			printf("Out of Memory\n");
+			return;
+		}
 
 		lock = GlobalLock(hg);
+
+		if(!lock) {
+			printf("Out Of Memory\n");
+			GlobalUnlock(hg);
+			CloseClipboard();
+			return;
+		}
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+		strcpy_s(lock, sz, text);
+#else
 		strcpy(lock, text);
+#endif
 		GlobalUnlock(hg);
 
 		SetClipboardData(CF_TEXT, hg);

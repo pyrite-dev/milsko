@@ -28,7 +28,7 @@ static int calc_length(MwWidget handle) {
 	int area = MwGetInteger(handle, MwNareaShown);
 	if(area > len) area = len;
 
-	return max * (double)area / len;
+	return (int)(max * (double)area / len);
 }
 
 static int calc_position(MwWidget handle) {
@@ -36,7 +36,7 @@ static int calc_position(MwWidget handle) {
 	int len = MwGetInteger(handle, MwNmaxValue) - MwGetInteger(handle, MwNminValue);
 	int val = MwGetInteger(handle, MwNvalue);
 
-	return (max - calc_length(handle)) * (double)val / len;
+	return (int)((max - calc_length(handle)) * (double)val / len);
 }
 
 static void add_value(MwWidget handle, int mul) {
@@ -54,7 +54,7 @@ static void add_value(MwWidget handle, int mul) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	    r, rt, rbar;
+	MwRect	    r = {0}, rt = {0}, rbar = {0};
 	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwLLColor   dark = MwLightenColor(handle, base, -64, -64, -64);
 	MwScrollBar scr	 = handle->internal;

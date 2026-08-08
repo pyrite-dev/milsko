@@ -88,9 +88,9 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 
 		if(c != NULL) {
 			fadedColor		 = MwLLAllocColor(handle->lowlevel, color->common.red, color->common.blue, color->common.green);
-			fadedColor->common.red	 = fadedColor->common.red + (c->common.red - fadedColor->common.red) * 0.5;
-			fadedColor->common.green = fadedColor->common.green + (c->common.green - fadedColor->common.green) * 0.5;
-			fadedColor->common.blue	 = fadedColor->common.blue + (c->common.blue - fadedColor->common.blue) * 0.5;
+			fadedColor->common.red	 = (MwU8)(fadedColor->common.red + (c->common.red - fadedColor->common.red) * 0.5);
+			fadedColor->common.green = (MwU8)(fadedColor->common.green + (c->common.green - fadedColor->common.green) * 0.5);
+			fadedColor->common.blue	 = (MwU8)(fadedColor->common.blue + (c->common.blue - fadedColor->common.blue) * 0.5);
 			MwLLColorUpdate(handle->lowlevel, fadedColor, fadedColor->common.red, fadedColor->common.green, fadedColor->common.blue);
 
 			MwLLFreeColor(c);
@@ -109,6 +109,11 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 		if(*input == 0 || cp == '\n') {
 			char* line = malloc(input - last + 1);
 			int   i;
+
+			if(!line) {
+				printf("Out Of Memory\n");
+				return;
+			}
 
 			memcpy(line, last, input - last);
 
@@ -176,6 +181,11 @@ int MwTextWidth(MwWidget handle, MwFLFont ttf, const char* text) {
 		if(*input == 0 || cp == '\n') {
 			char* line = malloc(input - last + 1);
 			int   i;
+
+			if(!line) {
+				printf("Out Of Memory\n");
+				return 1;
+			}
 
 			memcpy(line, last, input - last);
 
@@ -249,6 +259,11 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 	tw = MwTextWidth(handle, NULL, text);
 	th = MwTextHeight(handle, NULL, text);
 	px = malloc(tw * th * 4);
+
+	if(!px) {
+		printf("Out of Memory\n");
+		return;
+	}
 
 	memset(px, 0, tw * th * 4);
 

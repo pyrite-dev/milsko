@@ -55,11 +55,11 @@ static void draw(MwWidget handle) {
 			double sh = (double)oh / px->common.height;
 
 			if(sw < sh) {
-				r.width	 = px->common.width * sw;
-				r.height = px->common.height * sw;
+				r.width	 = (int)(px->common.width * sw);
+				r.height = (int)(px->common.height * sw);
 			} else {
-				r.width	 = px->common.width * sh;
-				r.height = px->common.height * sh;
+				r.width	 = (int)(px->common.width * sh);
+				r.height = (int)(px->common.height * sh);
 			}
 			r.width -= MwGetInteger(handle, MwNpadding) * 2;
 			r.height -= MwGetInteger(handle, MwNpadding) * 2;
@@ -68,8 +68,8 @@ static void draw(MwWidget handle) {
 			r.height = px->common.height;
 		}
 
-		r.x += (double)(ow - r.width) / 2;
-		r.y += (double)(oh - r.height) / 2;
+		r.x += (int)((double)(ow - r.width) / 2);
+		r.y += (int)((double)(oh - r.height) / 2);
 
 		MwLLDrawPixmap(handle->lowlevel, &r, px);
 	} else {

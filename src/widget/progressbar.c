@@ -34,7 +34,7 @@ static void draw(MwWidget handle) {
 	r.width -= MwDefaultBorderWidth(handle) * 2;
 	r.height -= MwDefaultBorderWidth(handle) * 2;
 
-	r.width = r.width * w;
+	r.width = (int)(r.width * w);
 	MwDrawRect(handle, &r, fill);
 
 	MwLLFreeColor(fill);

@@ -330,11 +330,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "MSYS")
   USE_GDI
  )
   list(APPEND LIBRARIES gdi32 ole32 winmm uuid)
+  if(NOT MSVC)
   target_link_options(
   Mw
   PRIVATE
   -static-libgcc
  )
+  endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   #  target_sources(
   #  Mw
