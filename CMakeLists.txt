@@ -85,7 +85,7 @@ if(MW_TRY_VULKAN)
   if(${Vulkan_FOUND})
     set(MW_BUILD_VULKAN ON)
     message(STATUS "Vulkan widget has been enabled")
-  else(
+  else()
     message(WARNING "Vulkan widget has been disabled")
   endif()
 endif()
@@ -466,17 +466,14 @@ if(MW_BUILD_VULKAN)
   )
   endif()
 
+  check_include_files(vulkan/VULKAN.h HAS_VK_HEADER)
+  if(HAS_VK_HEADER)
   target_compile_definitions(
         Mw
           PRIVATE
           MW_VULKAN
         )
-else()
-  target_compile_definitions(
-        Mw
-          PRIVATE
-          MW_VULKAN_NO_INCLUDE
-        )
+  endif()
 endif()
 
 target_compile_definitions(
