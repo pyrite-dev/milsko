@@ -1095,11 +1095,7 @@ int MwLibraryInit(void) {
 		However, uhh, Visual Studio 2022. For some fucking reason.
 		Thanks for coming to my TED Talk.
 	*/
-    char * winmmPathFull = NULL;
-	char winmmPath[MAX_PATH] = {0};
-	GetSystemDirectory(winmmPath, MAX_PATH);
-	winmmPathFull = MwStringConcat(winmmPath, "\\winmm.dll");
-	MwLL_winmmLib = LoadLibraryA(winmmPath);
+	MwLL_winmmLib = LoadLibrary("winmm.dll");
 	MwLL_PFN_timeGetTime	 = (void *)GetProcAddress(MwLL_winmmLib, "timeGetTime");
 	MwLL_PFN_timeBeginPeriod = (void *)GetProcAddress(MwLL_winmmLib, "timeBeginPeriod");
 

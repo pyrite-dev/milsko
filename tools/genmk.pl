@@ -116,7 +116,7 @@ sub generate {
     print(OUT "LD = $link\n");
     print(OUT "\n");
     print(OUT
-"MW_CFLAGS = ${cdll} ${inc}include ${inc}external${dir}libz${dir}include ${def}_MILSKO ${def}_MILSKO_BUILD ${def}USE_GDI ${def}USE_STB_IMAGE ${def}STBI_NO_SIMD ${def}USE_GDI_TEXT\n"
+"MW_CFLAGS = ${cdll} ${inc}include ${inc}external${dir}libz${dir}include ${def}_MILSKO ${def}_MILSKO_BUILD ${def}USE_GDI ${def}USE_STB_IMAGE ${def}STBI_NO_SIMD ${def}USE_GDI_TEXT ${def}MW_OPENGL\n"
     );
     print(OUT "MW_LDFLAGS = $dll\n");
     print(OUT "EXE_CFLAGS = ${inc}include\n");
