@@ -1,5 +1,11 @@
 #include <Mw/Milsko.h>
 
+#ifdef _WIN32
+void *MwLL_winmmLib;
+long (__stdcall* MwLL_PFN_timeGetTime)(void);
+unsigned int (__stdcall* MwLL_PFN_timeBeginPeriod)(unsigned int period);
+#endif
+
 MwLL (*MwLLCreate)(MwLL parent, int x, int y, int width, int height) = NULL;
 void (*MwLLDestroy)(MwLL handle)				     = NULL;
 
