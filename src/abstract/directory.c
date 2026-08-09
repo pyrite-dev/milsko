@@ -19,12 +19,13 @@ typedef struct dir {
 
 void* MwDirectoryOpen(const char* path) {
 	dir_t* dir = malloc(sizeof(*dir));
-	if(!dir) {
+	char * p;
+    if(!dir) {
 		printf("Out Of Memory\n");
 		return NULL;
 	}
 #ifdef _WIN32
-	char* p = MwStringDuplicate(path);
+	p = MwStringDuplicate(path);
 	if(strchr(path, '/') != NULL) {
 		MwStringConcat(p, "/");
 	} else {
