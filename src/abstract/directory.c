@@ -68,13 +68,20 @@ void MwDirectoryClose(void* handle) {
 MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	dir_t*		  dir	= handle;
 	MwDirectoryEntry* entry = malloc(sizeof(*entry));
-	if(!entry) {
+#ifdef _WIN32
+    ULARGE_INTEGER* l;
+#elif defined(CLASSIC_MAC_OS)
+#else
+    struct dirent* d;
+	struct stat    s;
+	char*	       p;
+#endif
+  
+   if(!entry) {
 		printf("Out Of Memory\n");
 		return NULL;
 	}
 #ifdef _WIN32
-	ULARGE_INTEGER* l;
-
 	if(!dir->next) return NULL;
 
 	entry->name = MwStringDuplicate(dir->ffd.cFileName);
@@ -98,9 +105,6 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 #elif defined(CLASSIC_MAC_OS)
 /* todo */
 #else
-	struct dirent* d;
-	struct stat    s;
-	char*	       p;
 	if((d = readdir(dir->dir)) == NULL) {
 		free(entry);
 		return NULL;
