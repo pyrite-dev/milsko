@@ -364,9 +364,9 @@ MWDECL void* (*MwFLFontLoad)(unsigned char* data, unsigned int size, int px);
 MWDECL void (*MwFLFontFree)(void* handle);
 
 #ifdef _WIN32
-void *MwLL_winmmLib;
-long (__stdcall* MwLL_PFN_timeGetTime)(void);
-unsigned int (__stdcall* MwLL_PFN_timeBeginPeriod)(unsigned int period);
+MWDECL void *MwLL_winmmLib;
+MWDECL long (__stdcall* MwLL_PFN_timeGetTime)(void);
+MWDECL unsigned int (__stdcall* MwLL_PFN_timeBeginPeriod)(unsigned int period);
 #endif
 
 #ifdef __cplusplus
