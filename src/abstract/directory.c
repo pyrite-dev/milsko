@@ -19,19 +19,21 @@ typedef struct dir {
 
 void* MwDirectoryOpen(const char* path) {
 	dir_t* dir = malloc(sizeof(*dir));
-	char * p;
-    if(!dir) {
+	char*  p;
+	if(!dir) {
 		printf("Out Of Memory\n");
 		return NULL;
 	}
 #ifdef _WIN32
-	p = MwStringDuplicate(path);
+	p = malloc(strlen(path) + 2 + 1);
+
+	strcpy(p, path);
 	if(strchr(path, '/') != NULL) {
-		MwStringConcat(p, "/");
+		strcat(p, "/");
 	} else {
-		MwStringConcat(p, "\\");
+		strcat(p, "\\");
 	}
-	MwStringConcat(p, "*");
+	strcat(p, "*");
 	if((dir->hFind = FindFirstFile(p, &dir->ffd)) == INVALID_HANDLE_VALUE) {
 		free(p);
 		free(dir);
@@ -70,15 +72,15 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	dir_t*		  dir	= handle;
 	MwDirectoryEntry* entry = malloc(sizeof(*entry));
 #ifdef _WIN32
-    ULARGE_INTEGER* l;
+	ULARGE_INTEGER* l;
 #elif defined(CLASSIC_MAC_OS)
 #else
-    struct dirent* d;
+	struct dirent* d;
 	struct stat    s;
 	char*	       p;
 #endif
-  
-   if(!entry) {
+
+	if(!entry) {
 		printf("Out Of Memory\n");
 		return NULL;
 	}
