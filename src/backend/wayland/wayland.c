@@ -584,13 +584,12 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 
 /* Popup destroy function */
 static void destroy_popup(MwLL r) {
-
 	MwLLWaylandBackbufferDestroy(&r->wayland);
 	MwLLWaylandFramebufferDestroy(&r->wayland);
 
-	xdg_surface_destroy(r->wayland.popup->xdg_surface);
-
 	xdg_popup_destroy(r->wayland.popup->xdg_popup);
+
+	xdg_surface_destroy(r->wayland.popup->xdg_surface);
 
 	xdg_positioner_destroy(r->wayland.popup->xdg_positioner);
 
