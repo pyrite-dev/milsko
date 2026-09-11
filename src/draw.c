@@ -124,7 +124,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	int	       ColorDiff  = get_color_diff(handle);
 	double	       darkenStep = (ColorDiff / 2.) / rect->height;
 	unsigned long  sz	  = 1 * rect->height * 4;
-	unsigned char* data	  = malloc(sz*2);
+	unsigned char* data	  = malloc(sz * 2);
 	MwRect	       r	  = *rect;
 	if(!data) {
 		return;
@@ -952,8 +952,8 @@ MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
 		}
 	}
 
-	rgb	  = malloc(row * col * 4);
-	comp	  = malloc(cpp + 1);
+	rgb  = malloc(row * col * 4);
+	comp = malloc(cpp + 1);
 	if(!rgb || !comp) {
 		printf("Null malloc! Out of memory?");
 		return NULL;

@@ -1090,14 +1090,14 @@ int MwLibraryInit(void) {
 	int i;
 
 #ifdef _WIN32
-	/* 
+	/*
 		There's no Windows configuration that Milsko supports that doesn't have winmm.
 		However, uhh, Visual Studio 2022. For some fucking reason.
 		Thanks for coming to my TED Talk.
 	*/
-	MwLL_winmmLib = LoadLibrary("winmm.dll");
-	MwLL_PFN_timeGetTime	 = (void *)GetProcAddress(MwLL_winmmLib, "timeGetTime");
-	MwLL_PFN_timeBeginPeriod = (void *)GetProcAddress(MwLL_winmmLib, "timeBeginPeriod");
+	MwLL_winmmLib		 = LoadLibrary("winmm.dll");
+	MwLL_PFN_timeGetTime	 = (void*)GetProcAddress(MwLL_winmmLib, "timeGetTime");
+	MwLL_PFN_timeBeginPeriod = (void*)GetProcAddress(MwLL_winmmLib, "timeBeginPeriod");
 
 	MwLL_PFN_timeBeginPeriod(10);
 #endif

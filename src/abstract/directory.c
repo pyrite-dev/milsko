@@ -19,8 +19,8 @@ typedef struct dir {
 
 void* MwDirectoryOpen(const char* path) {
 	dir_t* dir = malloc(sizeof(*dir));
-	char * p;
-    if(!dir) {
+	char*  p;
+	if(!dir) {
 		printf("Out Of Memory\n");
 		return NULL;
 	}
@@ -70,15 +70,15 @@ MwDirectoryEntry* MwDirectoryRead(void* handle) {
 	dir_t*		  dir	= handle;
 	MwDirectoryEntry* entry = malloc(sizeof(*entry));
 #ifdef _WIN32
-    ULARGE_INTEGER* l;
+	ULARGE_INTEGER* l;
 #elif defined(CLASSIC_MAC_OS)
 #else
-    struct dirent* d;
+	struct dirent* d;
 	struct stat    s;
 	char*	       p;
 #endif
-  
-   if(!entry) {
+
+	if(!entry) {
 		printf("Out Of Memory\n");
 		return NULL;
 	}

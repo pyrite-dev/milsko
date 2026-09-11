@@ -2,7 +2,7 @@
 
 char* MwStringDuplicate(const char* str) {
 	int   sz = strlen(str) + 1;
-	char* r = malloc(sz);
+	char* r	 = malloc(sz);
 	if(!r) {
 		printf("Out Of Memory\n");
 		return NULL;
@@ -19,7 +19,7 @@ char* MwStringDuplicate(const char* str) {
 
 char* MwStringConcat(const char* str1, const char* str2) {
 	int   sz = strlen(str1) + strlen(str2) + 1;
-	char* r = malloc(sz);
+	char* r	 = malloc(sz);
 	if(!r) {
 		printf("Out Of Memory\n");
 		return NULL;
@@ -63,8 +63,6 @@ void MwStringSize(char* out, MwOffset size) {
 void MwStringTime(char* out, time_t t) {
 	struct tm*  tm	     = localtime(&t);
 	const char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-
-
 
 	if(tm == NULL) {
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)

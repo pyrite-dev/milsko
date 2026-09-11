@@ -10,8 +10,10 @@ static int wcreate(MwWidget handle) {
 
 static void draw(MwWidget handle) {
 	MwRect	   r;
-	MwLLColor  base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwLLColor  base	 = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor  base2 = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
+	MwLLColor  text2 = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
+	MwLLPixmap bgpx	 = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -27,12 +29,42 @@ static void draw(MwWidget handle) {
 	r.x = (MwGetInteger(handle, MwNwidth) - r.width) / 2;
 	r.y = (MwGetInteger(handle, MwNheight) - r.height) / 2;
 
-	MwDrawWidgetBack(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0, MwDEFAULT);
+	MwDrawFrame(handle, &r, base, 1);
+	MwDrawRect(handle, &r, base2);
 	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
 	if(handle->pressed || MwGetInteger(handle, MwNchecked)) {
-		/* TODO: write check mark */
+		MwPoint p[6];
+		int	gap_w = r.width / 4 / 3;
+		int	gap_h = r.height / 4 / 3;
+
+		r.x += gap_w;
+		r.y += gap_h;
+		r.width -= gap_w * 2;
+		r.height -= gap_h * 2;
+
+		p[0].x = r.x;
+		p[0].y = r.y + r.height * 2 / 3;
+
+		p[1].x = r.x + r.width / 3;
+		p[1].y = r.y + r.height;
+
+		p[2].x = r.x + r.width;
+		p[2].y = r.y + r.height / 3;
+
+		p[3] = p[2];
+		p[3].y -= r.height / 3;
+
+		p[4] = p[1];
+		p[4].y -= r.height / 3;
+
+		p[5] = p[0];
+		p[5].y -= r.height / 3;
+
+		MwLLPolygon(handle->lowlevel, p, 6, text2);
 	}
 
+	MwLLFreeColor(text2);
+	MwLLFreeColor(base2);
 	MwLLFreeColor(base);
 }
 
