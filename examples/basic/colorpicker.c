@@ -35,12 +35,14 @@ int main() {
 
 	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT,
 				  MwDEFAULT, 640, 480, MwNtitle, "color picker", NULL);
-	MwSetText(window, MwNbackground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultBackground : MwDefaultDarkBackground);
+	MwSetText(window, MwNbackground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
+	MwSetText(window, MwNforeground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultDarkForeground : MwDefaultForeground);
 
 	button = MwVaCreateWidget(MwButtonClass, "button", window, 160, 180, 320, 120,
 				  MwNtext, "change window background",
 				  NULL);
-	MwSetText(button, MwNbackground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultBackground : MwDefaultDarkBackground);
+	MwSetText(button, MwNbackground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
+	MwSetText(button, MwNforeground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultDarkForeground : MwDefaultForeground);
 
 	MwAddUserHandler(button, MwNactivateHandler, file_picker, NULL);
 
