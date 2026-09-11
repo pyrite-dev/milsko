@@ -171,10 +171,6 @@ static void xdg_toplevel_configure(void*		data,
 	if(width == 0 || height == 0) {
 		width  = self->wayland.ww;
 		height = self->wayland.wh;
-		/* if it's still 0 then bail */
-		if(width == 0 || height == 0) {
-			return;
-		}
 	}
 
 	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
@@ -257,6 +253,7 @@ void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 
 /* Toplevel setup function */
 static void setup_toplevel(MwLL r, int x, int y) {
+	char* mw_force_csd  = getenv("MW_FORCE_CSD");
 	r->wayland.type	    = MwLL_WAYLAND_TOPLEVEL;
 	r->wayland.toplevel = malloc(sizeof(struct _MwLLWaylandTopLevel));
 	r->wayland.x	    = x;
@@ -284,7 +281,10 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	}
 
 	/* check now if we have decorations so that everything else can act accordingly */
-	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL && getenv("MW_FORCE_CSD") == NULL) {
+	if(mw_force_csd != NULL) {
+		r->wayland.has_decorations = strcmp(mw_force_csd, "0") == 0;
+		r->wayland.do_csd	   = strcmp(mw_force_csd, "1") == 0;
+	} else if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
 		r->wayland.has_decorations = MwTRUE;
 	} else {
 		r->wayland.do_csd = MwTRUE;
@@ -492,11 +492,12 @@ struct xdg_popup_listener popup_listener = {
 
 /* Popup setup function */
 static void setup_popup(MwLL r, int x, int y, MwLL parent) {
-	MwLL topmost_parent = r->wayland.parent;
-	r->wayland.type	    = MwLL_WAYLAND_POPUP;
-	r->wayland.x	    = x;
-	r->wayland.y	    = y;
-	r->wayland.popup    = malloc(sizeof(struct _MwLLWaylandPopup));
+	char* mw_force_csd   = getenv("MW_FORCE_CSD");
+	MwLL  topmost_parent = r->wayland.parent;
+	r->wayland.type	     = MwLL_WAYLAND_POPUP;
+	r->wayland.x	     = x;
+	r->wayland.y	     = y;
+	r->wayland.popup     = malloc(sizeof(struct _MwLLWaylandPopup));
 
 	if(parent) {
 		MwWidget p = parent->common.user;
@@ -527,7 +528,10 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	}
 
 	/* check now if we have decorations so that everything else can act accordingly */
-	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL && getenv("MW_FORCE_CSD") == NULL) {
+	if(mw_force_csd != NULL) {
+		r->wayland.has_decorations = strcmp(mw_force_csd, "0") == 0;
+		r->wayland.do_csd	   = strcmp(mw_force_csd, "1") == 0;
+	} else if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
 		r->wayland.has_decorations = MwTRUE;
 	} else {
 		r->wayland.do_csd = MwTRUE;
