@@ -25,13 +25,15 @@ void* MwDirectoryOpen(const char* path) {
 		return NULL;
 	}
 #ifdef _WIN32
-	p = MwStringDuplicate(path);
+	p = malloc(strlen(path) + 2 + 1);
+
+	strcpy(p, path);
 	if(strchr(path, '/') != NULL) {
-		MwStringConcat(p, "/");
+		strcat(p, "/");
 	} else {
-		MwStringConcat(p, "\\");
+		strcat(p, "\\");
 	}
-	MwStringConcat(p, "*");
+	strcat(p, "*");
 	if((dir->hFind = FindFirstFile(p, &dir->ffd)) == INVALID_HANDLE_VALUE) {
 		free(p);
 		free(dir);
