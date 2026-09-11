@@ -187,6 +187,17 @@ MWDECL MwLLPixmap MWAPI MwLoadIcon(MwWidget handle, MwU32* data);
  */
 MWDECL void MWAPI MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert);
 
+/*!
+ * @brief Draws a circle
+ * @param handle Widget
+ * @param rect Rectangle area
+ * @param color Color
+ * @param color Background to fade to; widget background used if NULL
+ * @param filled Fill the circle or not
+ * @param outward
+ */
+MWDECL void MWAPI MwDrawCircle(MwWidget handle, MwRect* rect, MwLLColor color, MwLLColor background, int filled);
+
 /* text.c */
 
 /*!

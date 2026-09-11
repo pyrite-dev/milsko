@@ -30,7 +30,37 @@ static void draw(MwWidget handle) {
 	r.x = (MwGetInteger(handle, MwNwidth) - r.width) / 2;
 	r.y = (MwGetInteger(handle, MwNheight) - r.height) / 2;
 
-	MwDrawDiamond(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0);
+	if(MwGetInteger(handle, MwNmodernLook) == 1) {
+		int	  is_checked = (handle->pressed || MwGetInteger(handle, MwNchecked));
+		MwLLColor darker;
+		MwLLColor inner;
+		MwLLColor innerunsel = base;
+
+		if(MwGetInteger(handle, MwNdarkTheme) == 1) {
+			darker	   = MwLLAllocColor(handle->lowlevel, 255, 255, 255);
+			innerunsel = MwLightenColor(handle, base, 80, 80, 80);
+			inner	   = darker;
+		} else {
+			darker = MwLLAllocColor(handle->lowlevel, 0, 0, 0);
+			inner  = MwLightenColor(handle, is_checked ? darker : base, -80, -80, -80);
+		}
+		MwDrawCircle(handle, &r, darker, NULL, 1);
+
+		if(!MwGetInteger(handle, MwNdisabled)) {
+			r.x += 2;
+			r.y += 2;
+			r.width -= 4;
+			r.height -= 4;
+			if(!is_checked) {
+				MwDrawCircle(handle, &r, innerunsel, innerunsel, 1);
+			} else {
+				MwDrawCircle(handle, &r, inner, innerunsel, 1);
+			}
+		}
+		MwLLFreeColor(darker);
+	} else {
+		MwDrawDiamond(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0);
+	}
 
 	MwLLFreeColor(base);
 }
@@ -49,29 +79,38 @@ static void click(MwWidget handle) {
 
 	MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
 }
+static void mouse_down(MwWidget handle, void* ptr) {
+	handle->held = 1;
+	MwForceRender2(handle, ptr);
+}
+
+static void mouse_up(MwWidget handle, void* ptr) {
+	handle->held = 0;
+	MwForceRender2(handle, ptr);
+}
 
 static void prop_change(MwWidget handle, const char* key) {
 	if(strcmp(key, MwNchecked) == 0) MwForceRender(handle);
 }
 
 MwClassRec MwRadioBoxClassRec = {
-    wcreate,	    /* create */
-    NULL,	    /* destroy */
-    draw,	    /* draw */
-    click,	    /* click */
-    NULL,	    /* parent_resize */
-    prop_change,    /* prop_change */
-    NULL,	    /* mouse_move */
-    MwForceRender2, /* mouse_up */
-    MwForceRender2, /* mouse_down */
-    NULL,	    /* key */
-    NULL,	    /* execute */
-    NULL,	    /* tick */
-    NULL,	    /* resize */
-    NULL,	    /* children_update */
-    NULL,	    /* children_prop_change */
-    NULL,	    /* clipboard */
-    NULL,	    /* props_change */
+    wcreate,	 /* create */
+    NULL,	 /* destroy */
+    draw,	 /* draw */
+    click,	 /* click */
+    NULL,	 /* parent_resize */
+    prop_change, /* prop_change */
+    NULL,	 /* mouse_move */
+    mouse_up,	 /* mouse_up */
+    mouse_down,	 /* mouse_down */
+    NULL,	 /* key */
+    NULL,	 /* execute */
+    NULL,	 /* tick */
+    NULL,	 /* resize */
+    NULL,	 /* children_update */
+    NULL,	 /* children_prop_change */
+    NULL,	 /* clipboard */
+    NULL,	 /* props_change */
     NULL,
     NULL,
     NULL};

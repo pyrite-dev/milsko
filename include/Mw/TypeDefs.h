@@ -92,6 +92,7 @@ struct _MwWidget {
 	MwPoint mouse_point;
 	int	close;
 	int	prop_event;
+	int	held;
 
 	void* internal;
 	void* opaque;

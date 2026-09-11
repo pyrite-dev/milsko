@@ -124,7 +124,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	int	       ColorDiff  = get_color_diff(handle);
 	double	       darkenStep = (ColorDiff / 2.) / rect->height;
 	unsigned long  sz	  = 1 * rect->height * 4;
-	unsigned char* data	  = malloc(sz*2);
+	unsigned char* data	  = malloc(sz * 2);
 	MwRect	       r	  = *rect;
 	if(!data) {
 		return;
@@ -302,6 +302,103 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	MwLLFreeColor(lighter);
 	MwLLFreeColor(darker);
 }
+
+void MwDrawCircle(MwWidget handle, MwRect* rect, MwLLColor color, MwLLColor background, int filled) {
+	MwLLPixmap     pixmap;
+	int	       width  = rect->width;
+	int	       height = rect->height;
+	unsigned long  sz     = (unsigned long)width * height * 4;
+	unsigned char* data;
+	double	       cx, cy, rx, ry;
+	int	       border;
+	int	       x, y;
+	int	       ColorDiff = (get_color_diff(handle));
+	MwLLColor      darker	 = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
+	MwLLColor      lighter	 = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
+	MwLLColor      base	 = MwLightenColor(handle, color, 0, 0, 0);
+
+	color_set_disabled_if_disabled(handle, darker);
+	color_set_disabled_if_disabled(handle, lighter);
+	color_set_disabled_if_disabled(handle, base);
+
+	if(width <= 0 || height <= 0) return;
+
+	data = malloc(sz);
+	if(!data) return;
+	memset(data, 0, sz);
+
+	cx     = width / 2.0;
+	cy     = height / 2.0;
+	rx     = width / 2.0;
+	ry     = height / 2.0;
+	border = filled ? 0 : MwDefaultBorderWidth(handle);
+
+	for(y = 0; y < height; y++) {
+		for(x = 0; x < width; x++) {
+			double nx   = (x + 0.5 - cx) / rx;
+			double ny   = (y + 0.5 - cy) / ry;
+			double dist = nx * nx + ny * ny;
+			int    inside;
+			double inx	 = (x + 0.5 - cx) / (rx - border);
+			double iny	 = (y + 0.5 - cy) / (ry - border);
+			double innerDist = inx * inx + iny * iny;
+			if(filled) {
+				inside = dist <= 1.0;
+			} else if(rx > border && ry > border) {
+				inside = dist <= 1.0 && innerDist > 1.0;
+			} else {
+				inside = dist <= 1.0;
+			}
+
+			if(inside) {
+				MwLLColor      mixColor;
+				MwLLColor      c = background ? background : (handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground)));
+				double	       mod;
+				unsigned char* pout = &data[(y * width + x) * 4];
+
+				if(MwGetInteger(handle, MwNdarkTheme)) {
+					mixColor = MwLightenColor(handle, base, -ColorDiff, -ColorDiff, -ColorDiff);
+				} else {
+					mixColor = MwLightenColor(handle, base, ColorDiff, ColorDiff, ColorDiff);
+				}
+
+				if(MwGetInteger(handle, MwNdisabled)) {
+					mod = (innerDist * 2.) - 1;
+				} else {
+					mod = (innerDist / 2.) + 0.5;
+				}
+				color_set_disabled_if_disabled(handle, mixColor);
+
+				if(c != NULL) {
+					mixColor->common.red   = (MwU8)(mixColor->common.red + (c->common.red - mixColor->common.red) * mod);
+					mixColor->common.green = (MwU8)(mixColor->common.green + (c->common.green - mixColor->common.green) * mod);
+					mixColor->common.blue  = (MwU8)(mixColor->common.blue + (c->common.blue - mixColor->common.blue) * mod);
+					MwLLColorUpdate(handle->lowlevel, mixColor, mixColor->common.red, mixColor->common.green, mixColor->common.blue);
+
+					if(c != background) {
+						MwLLFreeColor(c);
+					}
+				}
+
+				pout[0] = (MwU8)mixColor->common.red;
+				pout[1] = (MwU8)mixColor->common.green;
+				pout[2] = (MwU8)mixColor->common.blue;
+
+				pout[3] = 255;
+			}
+		}
+	}
+
+	pixmap = MwLLCreatePixmap(handle->lowlevel, data, width, height);
+	MwLLDrawPixmap(handle->lowlevel, rect, pixmap);
+	MwLLDestroyPixmap(pixmap);
+
+	MwLLFreeColor(lighter);
+	MwLLFreeColor(darker);
+	MwLLFreeColor(base);
+
+	free(data);
+};
 
 static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same) {
 	MwPoint	  p[7];
@@ -952,8 +1049,8 @@ MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
 		}
 	}
 
-	rgb	  = malloc(row * col * 4);
-	comp	  = malloc(cpp + 1);
+	rgb  = malloc(row * col * 4);
+	comp = malloc(cpp + 1);
 	if(!rgb || !comp) {
 		printf("Null malloc! Out of memory?");
 		return NULL;

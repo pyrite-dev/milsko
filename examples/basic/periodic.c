@@ -237,8 +237,7 @@ int main() {
 			sprintf(buf, "%sBox %d", i == 0 ? "Check" : "Radio", j + 1);
 			MwVaCreateWidget(MwLabelClass, "label", b, 0, 0, 0, 0,
 					 MwNtext, buf,
-					 MwNalignment, MwALIGNMENT_BEGINNING,
-					 NULL);
+					 MwNalignment, MwALIGNMENT_BEGINNING, MwNdisabled, (j == 5) ? 1 : 0, NULL);
 		}
 	}
 
