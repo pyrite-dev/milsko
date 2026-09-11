@@ -127,8 +127,8 @@ static void color_picker_image_update(color_picker_t* picker) {
 					if(hue < 0.0) {
 						hue += 360;
 					}
-					hsv_v.h			       = (MwU8)((hue) * (HSV_HUE_STEPS / 360.));
-					hsv_v.s			       = (MwU8)((dist) * (HSV_SAT_MAX / 180.));
+					hsv_v.h			       = (MwU16)((hue) * (HSV_HUE_STEPS / 360.));
+					hsv_v.s			       = (MwU16)((dist) * (HSV_SAT_MAX / 180.));
 					picker->hue_table[n]	       = hsv_v;
 					picker->hue_table[n].generated = 1;
 				}
