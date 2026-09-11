@@ -5,13 +5,17 @@ MwWidget window;
 MwWidget button;
 MwWidget mb;
 
+#ifdef BUG
 MwBool fpicker_wait = MwFALSE;
 MwBool msgbox_wait  = MwFALSE;
+#endif
 
 void MWAPI ok(MwWidget handle, void* user, void* call) {
 	(void)handle;
 	(void)call;
+#ifdef BUG
 	msgbox_wait = MwFALSE;
+#endif
 }
 
 void MWAPI file_callback(MwWidget handle, void* user_data, void* call_data) {
@@ -22,6 +26,7 @@ void MWAPI file_callback(MwWidget handle, void* user_data, void* call_data) {
 	MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, ok, mb);
 	MwAddUserHandler(mb, MwNcloseHandler, ok, mb);
 
+#ifdef BUG
 	msgbox_wait = MwTRUE;
 
 	while(msgbox_wait) {
@@ -29,6 +34,7 @@ void MWAPI file_callback(MwWidget handle, void* user_data, void* call_data) {
 	}
 
 	fpicker_wait = MwFALSE;
+#endif
 }
 
 void MWAPI file_picker(MwWidget handle, void* user_data, void* call_data) {
@@ -42,6 +48,7 @@ void MWAPI file_picker(MwWidget handle, void* user_data, void* call_data) {
 
 	MwSetText(fpicker, MwNbackground, MwGetInteger(fpicker, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
 
+#ifdef BUG
 	fpicker_wait = MwTRUE;
 
 	while(fpicker_wait) {
@@ -50,6 +57,7 @@ void MWAPI file_picker(MwWidget handle, void* user_data, void* call_data) {
 
 	MwDestroyWidget(fpicker);
 	MwDestroyWidget(mb);
+#endif
 }
 
 int main() {
