@@ -180,6 +180,9 @@ static void xdg_toplevel_configure(void*		data,
 	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		if(width < 50) width = 50;
 		if(height < 50) height = 50;
+	} else {
+		if(width < 1) width = 1;
+		if(height < 1) height = 1;
 	}
 
 	MwLLWaylandRegionInvalidate(self);
@@ -281,7 +284,7 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	}
 
 	/* check now if we have decorations so that everything else can act accordingly */
-	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
+	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL && getenv("MW_FORCE_CSD") == NULL) {
 		r->wayland.has_decorations = MwTRUE;
 	} else {
 		r->wayland.do_csd = MwTRUE;
@@ -524,7 +527,7 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	}
 
 	/* check now if we have decorations so that everything else can act accordingly */
-	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
+	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL && getenv("MW_FORCE_CSD") == NULL) {
 		r->wayland.has_decorations = MwTRUE;
 	} else {
 		r->wayland.do_csd = MwTRUE;
@@ -537,10 +540,10 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	xdg_positioner_set_size(r->wayland.popup->xdg_positioner, r->wayland.ww, r->wayland.wh);
 	xdg_positioner_set_anchor_rect(
 	    r->wayland.popup->xdg_positioner,
-	    topmost_parent->wayland.x, topmost_parent->wayland.y, r->wayland.ww, r->wayland.wh);
-	xdg_positioner_set_offset(
-	    r->wayland.popup->xdg_positioner,
-	    r->wayland.x, r->wayland.y);
+	    r->wayland.x, r->wayland.y, r->wayland.ww, r->wayland.wh);
+	// xdg_positioner_set_offset(
+	//     r->wayland.popup->xdg_positioner,
+	//     r->wayland.x, r->wayland.y);
 
 	xdg_positioner_set_anchor(r->wayland.popup->xdg_positioner, XDG_POSITIONER_ANCHOR_NONE);
 	xdg_positioner_set_gravity(r->wayland.popup->xdg_positioner, XDG_POSITIONER_GRAVITY_NONE);
@@ -1120,6 +1123,9 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		if(w < 50) w = 50;
 		if(h < 50) h = 50;
+	} else {
+		if(w < 1) w = 1;
+		if(h < 1) h = 1;
 	}
 
 	handle->wayland.ww = w;
