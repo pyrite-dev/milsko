@@ -942,11 +942,13 @@ static void dark_theme_listener(MwLL handle, MwU32 new_value) {
 static void detect_dark_theme(MwLL handle) {
 	MwU32 value = 0;
 
-	MwLLDBusPortalGet(&wl_call_tbl.dbus, &handle->wayland.dbus, "org.freedesktop.portal.Settings", "org.freedesktop.appearance", "color-scheme", &value);
-	handle->wayland.dark_theme = (value == 1) ? 1 : 0;
-
-	MwLLDBusPortalWatch(&wl_call_tbl.dbus, &handle->wayland.dbus, "org.freedesktop.portal.Settings");
-
+	if(handle->common.theme_override != 0) {
+		handle->wayland.dark_theme = (handle->common.theme_override == 2) ? 1 : 0;
+	} else {
+		MwLLDBusPortalGet(&wl_call_tbl.dbus, &handle->wayland.dbus, "org.freedesktop.portal.Settings", "org.freedesktop.appearance", "color-scheme", &value);
+		handle->wayland.dark_theme = (value == 1) ? 1 : 0;
+		MwLLDBusPortalWatch(&wl_call_tbl.dbus, &handle->wayland.dbus, "org.freedesktop.portal.Settings");
+	}
 	MwLLDispatch(handle, dark_theme, &handle->wayland.dark_theme);
 }
 #endif
@@ -1381,9 +1383,8 @@ static int MwLLPendingImpl(MwLL handle) {
 	}
 
 #ifdef USE_DBUS
-	if(wl_call_tbl.has_dbus) {
+	if(wl_call_tbl.has_dbus || handle->common.theme_override == 0) {
 		if(handle->wayland.dark_theme_detection) {
-
 			handle->wayland.dark_theme_detection = MwFALSE;
 			detect_dark_theme(handle);
 			MwLLDispatch(handle, draw, NULL);
@@ -1907,10 +1908,22 @@ static void MwLLClipImpl(MwLL handle, MwRect* rect) {
 
 static int MwLLWaylandCallInitImpl(void) {
 #ifdef __linux__
-	MwBool loadWayland = MwFALSE;
-	if(getenv("MILSKO_BACKEND")) {
-		loadWayland |=
-		    (strcmp(getenv("MILSKO_BACKEND"), "wayland") == 0);
+	MwBool loadWayland	  = MwFALSE;
+	char*  milsko_backend_env = getenv("MILSKO_BACKEND");
+	char*  mw_backend_env	  = getenv("MW_BACKEND");
+
+	if(milsko_backend_env || mw_backend_env) {
+		if(milsko_backend_env) {
+			/*
+			 * (deprecated since 1.5+ but we have no reason to ever remove the old variable.
+			 * MW_BACKEND is just the one that's documented)
+			 */
+			printf("[WARNING] MILSKO_BACKEND env is deprecated, use MW_BACKEND instead.\n");
+			loadWayland |= (strcmp(milsko_backend_env, "wayland") == 0);
+		} else {
+			loadWayland |= (strcmp(mw_backend_env, "wayland") == 0);
+		}
+
 	} else if(getenv("WAYLAND_DISPLAY")) {
 		loadWayland |= (getenv("WAYLAND_DISPLAY") != NULL);
 	}

@@ -327,9 +327,12 @@ static XVisualInfo* get_visual_info(Display* display) {
 static void detect_dark_theme(MwLL handle) {
 	MwU32 value	 = 0;
 	MwU32 dark_theme = 0;
-	MwLLDBusPortalGet(&xsymtbl.dbus, &handle->x11.dbus, "org.freedesktop.portal.Settings", "org.freedesktop.appearance", "color-scheme", &value);
-
-	dark_theme = (value == 1) ? 1 : 0;
+	if(handle->common.theme_override != 0) {
+		dark_theme = (handle->common.theme_override == 2) ? 1 : 0;
+	} else {
+		MwLLDBusPortalGet(&xsymtbl.dbus, &handle->x11.dbus, "org.freedesktop.portal.Settings", "org.freedesktop.appearance", "color-scheme", &value);
+		dark_theme = (value == 1) ? 1 : 0;
+	}
 
 	MwLLDispatch(handle, dark_theme, &dark_theme);
 }
@@ -652,7 +655,7 @@ static int MwLLPendingImpl(MwLL handle) {
 	if(handle->x11.dark_theme_detection) {
 		handle->x11.dark_theme_detection = MwFALSE;
 #ifdef USE_DBUS
-		if(xsymtbl.has_dbus) {
+		if(xsymtbl.has_dbus || handle->common.theme_override == 0) {
 			detect_dark_theme(handle);
 			MwLLDispatch(handle, draw, NULL);
 		}
@@ -1403,10 +1406,21 @@ static void MwLLClipImpl(MwLL handle, MwRect* rect) {
 }
 
 static int MwLLX11CallInitImpl(void) {
-	MwBool loadX11 = MwFALSE;
-	if(getenv("MILSKO_BACKEND")) {
-		loadX11 |=
-		    (strcmp(getenv("MILSKO_BACKEND"), "x11") == 0);
+	MwBool loadX11		  = MwFALSE;
+	char*  milsko_backend_env = getenv("MILSKO_BACKEND");
+	char*  mw_backend_env	  = getenv("MW_BACKEND");
+
+	if(milsko_backend_env || mw_backend_env) {
+		if(milsko_backend_env) {
+			/*
+			 * (deprecated since 1.5+ but we have no reason to ever remove the old variable.
+			 * MW_BACKEND is just the one that's documented)
+			 */
+			printf("[WARNING] MILSKO_BACKEND env is deprecated, use MW_BACKEND instead.\n");
+			loadX11 |= (strcmp(milsko_backend_env, "x11") == 0);
+		} else {
+			loadX11 |= (strcmp(mw_backend_env, "x11") == 0);
+		}
 	} else if(getenv("DISPLAY")) {
 		loadX11 |= (getenv("DISPLAY") != NULL);
 	}

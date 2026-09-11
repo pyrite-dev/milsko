@@ -41,6 +41,11 @@ struct _MwLLCommon {
 	MwBool supports_transparency;
 
 	MwLLHandler handler;
+
+#if defined(USE_WAYLAND) || defined(USE_X11)
+	/*  0 = default, 1 = light, 2 = dark */
+	int theme_override;
+#endif
 };
 
 struct _MwLLCommonColor {
@@ -364,9 +369,9 @@ MWDECL void* (*MwFLFontLoad)(unsigned char* data, unsigned int size, int px);
 MWDECL void (*MwFLFontFree)(void* handle);
 
 #ifdef _WIN32
-MWDECL void *MwLL_winmmLib;
-MWDECL long (__stdcall* MwLL_PFN_timeGetTime)(void);
-MWDECL unsigned int (__stdcall* MwLL_PFN_timeBeginPeriod)(unsigned int period);
+MWDECL void* MwLL_winmmLib;
+MWDECL long(__stdcall* MwLL_PFN_timeGetTime)(void);
+MWDECL unsigned int(__stdcall* MwLL_PFN_timeBeginPeriod)(unsigned int period);
 #endif
 
 #ifdef __cplusplus
