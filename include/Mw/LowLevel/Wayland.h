@@ -412,7 +412,7 @@ struct _MwLLWayland {
 	MwI32	ox, oy;
 	MwU32	ww, wh;	       /* Window position */
 	MwPoint cur_mouse_pos; /* Currently known mouse position */
-	MwLL	currentlyHeldWidget;
+	MwLL*	currentlyHeldWidgets;
 	MwLL	focusedWidget;
 
 	int resizing;
@@ -486,9 +486,9 @@ int MwLLWaylandHyprlandGetRoundness(void);
 
 void MwLLWaylandHangUntilConfigured(MwLL handle);
 
-// MwBool MwLLWaylandWidgetIsDestroyed(MwLL self);
-// void   MwLLWaylandWidgetUndestroy(MwLL self);
-void MwLLWaylandChildrenIterate(MwLL handle, void (*func)(MwLL handle, MwLL child));
+MwBool MwLLWaylandWidgetIsDestroyed(MwLL self);
+void   MwLLWaylandWidgetUndestroy(MwLL self);
+void   MwLLWaylandChildrenIterate(MwLL handle, void (*func)(MwLL handle, MwLL child));
 
 /* Function for setting up the callbacks/structs that will be registered upon the relevant interfaces being found. */
 void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland);
@@ -498,8 +498,13 @@ void MwLLWaylandClipboardRead(wl_clipboard_device_context_t* ctx, int clipboard_
 /* Flush Wayland events */
 void MwLLWaylandFlush(MwLL handle);
 
+void MwLLWaylandCascadeChildren(MwLL handle);
+
 /* Standard procedure before event callbacks in Wayland  */
-#define WAYLAND_EVENT_OP_START(self)
+#define WAYLAND_EVENT_OP_START(self) \
+	if(MwLLWaylandWidgetIsDestroyed(self)) { \
+		return; \
+	}
 
 /* Footer for WAYLAND_EVENT_OP_START */
 #define WAYLAND_EVENT_OP_END(self)

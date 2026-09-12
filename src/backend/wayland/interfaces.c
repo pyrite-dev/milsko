@@ -531,13 +531,17 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	MwLL	self	       = data;
 	MwLL	topmost_parent = self;
 	MwMouse p;
-	MwBool	inArea = MwFALSE;
+	MwBool	inArea		     = MwFALSE;
+	MwLL*	currentlyHeldWidgets = NULL;
+	int	i;
 
 	(void)time;
 	(void)wl_pointer;
 
 	WAYLAND_EVENT_OP_START(self);
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
+
+	currentlyHeldWidgets = topmost_parent->wayland.currentlyHeldWidgets;
 
 	if(self->wayland.framebuffer.surface) {
 		inArea |= self->wayland.framebuffer.surface == curSurface;
@@ -555,6 +559,19 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 		MwLLDispatch(self, move, &p);
 		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
 	}
+	for(i = 0; i < arrlen(currentlyHeldWidgets); i++) {
+		MwLL new_topmost = currentlyHeldWidgets[i];
+		p.point		 = topmost_parent->wayland.cur_mouse_pos;
+		while(new_topmost->wayland.parent) {
+			p.point.x -= new_topmost->wayland.x;
+			p.point.y -= new_topmost->wayland.y;
+			new_topmost = new_topmost->wayland.parent;
+		}
+
+		MwLLDispatch(currentlyHeldWidgets[i], move, &p);
+	}
+
+	MwLLWaylandCascadeChildren(self);
 
 	WAYLAND_EVENT_OP_END(self);
 };
@@ -598,7 +615,7 @@ static void mouse_dispatch(MwLL self, MwMouse p, MwU32 state) {
 
 	if(self->common.user) {
 		MwWidget w = self->common.user;
-		int	 i;
+		int	 i, n;
 		for(i = 0; i < arrlen(w->children); i++) {
 			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
 				MwLL	child	       = w->children[i]->lowlevel;
@@ -624,8 +641,26 @@ static void mouse_dispatch(MwLL self, MwMouse p, MwU32 state) {
 				if(
 				    point.x >= absolute_pos.x && point.x <= absolute_pos.x + child->wayland.ww &&
 				    point.y >= absolute_pos.y && point.y <= absolute_pos.y + child->wayland.wh) {
-
+					int idx = -1;
+					for(n = 0; n < arrlen(topmost_parent->wayland.currentlyHeldWidgets); n++) {
+						if(topmost_parent->wayland.currentlyHeldWidgets[n] == child) {
+							idx = n;
+						}
+					}
 					p.point = relative_mouse_pos;
+
+					switch(state) {
+					case WL_POINTER_BUTTON_STATE_PRESSED:
+						if(idx == -1) {
+							arrpush(topmost_parent->wayland.currentlyHeldWidgets, child);
+						}
+						break;
+					case WL_POINTER_BUTTON_STATE_RELEASED:
+						if(idx != -1) {
+							arrdel(topmost_parent->wayland.currentlyHeldWidgets, idx);
+						}
+						break;
+					}
 
 					mouse_dispatch(child, p, state);
 				}
@@ -638,12 +673,15 @@ static void mouse_dispatch(MwLL self, MwMouse p, MwU32 state) {
 static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 serial, MwU32 time, MwU32 button, MwU32 state) {
 	MwLL	self = data;
 	MwMouse p;
+	MwLL	topmost_parent = self;
+	int	i;
 
 	(void)wl_pointer;
 	(void)serial;
 	(void)time;
 
 	WAYLAND_EVENT_OP_START(self);
+	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
 	p.point = self->wayland.cur_mouse_pos;
 
@@ -666,6 +704,10 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	case WL_POINTER_BUTTON_STATE_RELEASED:
 		MwLLDispatch(self, up, &p);
 		break;
+	}
+
+	for(i = 0; i < arrlen(self->wayland.currentlyHeldWidgets); i++) {
+		arrdel(self->wayland.currentlyHeldWidgets, i);
 	}
 	mouse_dispatch(self, p, state);
 
