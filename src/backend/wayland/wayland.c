@@ -242,7 +242,8 @@ static void xdg_surface_configure(
 
 	xdg_surface_ack_configure(xdg_surface, serial);
 
-	MwLLDispatch(self, draw, NULL);
+	MwLLWaylandCascadeChildren(self);
+	// MwLLDispatch(self, draw, NULL);
 
 	if(self->wayland.configured) {
 		MwLLWaylandBufferUpdate(self, &self->wayland.framebuffer);
@@ -996,7 +997,7 @@ void MwLLWaylandCascadeChildren(MwLL handle) {
 	handle->wayland.cascading_child_num = 0;
 	MwLLWaylandChildrenIterate(handle, count_child);
 
-	handle->wayland.do_cascading_draw = 10;
+	handle->wayland.do_cascading_draw = handle->wayland.cascading_child_num * 10;
 	MwLLWaylandChildrenIterate(handle, cascade_child);
 }
 
@@ -1005,6 +1006,10 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r = malloc(sizeof(*r));
 	memset(r, 0, sizeof(*r));
 	MwLLCreateCommon(r);
+
+	if(MwLLWaylandWidgetIsDestroyed(r)) {
+		MwLLWaylandWidgetUndestroy(r);
+	}
 
 	r->wayland.is_toplevel = parent == NULL;
 	r->wayland.is_clipping = 0;
@@ -1123,7 +1128,8 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 
 	if(handle->wayland.type != MwLL_WAYLAND_TOPLEVEL) recursive_render(handle);
 
-	MwLLDispatch(handle, draw, NULL);
+	MwLLWaylandCascadeChildren(handle);
+	// MwLLDispatch(handle, draw, NULL);
 }
 
 static void actually_set_wh(MwLL handle) {
@@ -1152,7 +1158,8 @@ static void actually_set_wh(MwLL handle) {
 	MwLLWaylandFramebufferSetup(&handle->wayland);
 	MwLLWaylandBackbufferDestroy(&handle->wayland);
 	MwLLWaylandBackbufferSetup(&handle->wayland);
-	MwLLDispatch(handle, draw, NULL);
+	MwLLWaylandCascadeChildren(handle);
+	// MwLLDispatch(handle, draw, NULL);
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
@@ -1401,6 +1408,10 @@ static int MwLLPendingImpl(MwLL handle) {
 	};
 	int pending = 0;
 
+	if(MwLLWaylandWidgetIsDestroyed(handle) || !handle->wayland.valid) {
+		return 0;
+	}
+
 	handle->wayland.resizing = 0;
 
 	if(handle->wayland.setting_wh) {
@@ -1433,7 +1444,8 @@ static int MwLLPendingImpl(MwLL handle) {
 		if(handle->wayland.dark_theme_detection) {
 			handle->wayland.dark_theme_detection = MwFALSE;
 			detect_dark_theme(handle);
-			MwLLDispatch(handle, draw, NULL);
+			MwLLWaylandCascadeChildren(handle);
+			// MwLLDispatch(handle, draw, NULL);
 		} else {
 			MwLLDBusPortalPoll(&wl_call_tbl.dbus, &handle->wayland.dbus, handle, "org.freedesktop.portal.Settings", "org.freedesktop.appearance", "color-scheme", &dark_theme_listener);
 		}
@@ -1881,27 +1893,6 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 	if(!handle->wayland.parent)
 		handle->wayland.dark_theme_detection = MwTRUE;
 
-	if(handle->common.user) {
-		MwWidget w = handle->common.user;
-		int	 i;
-		for(i = 0; i < arrlen(w->children); i++) {
-			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
-				MwLL child			     = w->children[i]->lowlevel;
-				child->wayland.sublevel->xdg_surface = handle->wayland.popup->xdg_surface;
-				// if(child->wayland.sublevel->subsurface)
-				// wl_subsurface_destroy(child->wayland.sublevel->subsurface);
-				MwLLWaylandFlush(handle);
-
-				// child->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(child->wayland.sublevel->subcompositor, child->wayland.framebuffer.surface, handle->wayland.framebuffer.surface);
-				// wl_subsurface_set_desync(child->wayland.sublevel->subsurface);
-				// wl_subsurface_set_position(child->wayland.sublevel->subsurface, child->wayland.x, child->wayland.y);
-
-				// wl_subsurface_place_above(child->wayland.sublevel->subsurface, handle->wayland.framebuffer.surface);
-				MwLLEndStateChangeImpl(w->children[i]->lowlevel);
-			}
-		}
-	}
-
 	recursive_render(handle);
 
 	handle->wayland.events_pending = 1;
@@ -1913,7 +1904,8 @@ static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)toggle;
 
 	/* Not Really what's supposed to happen with this function, but take this opprutunity to do the handlers that will force everything to redraw. */
-	MwLLDispatch(handle, resize, NULL);
+	MwLLWaylandCascadeChildren(handle);
+	// MwLLDispatch(handle, resize, NULL);
 	MwLLDispatch(handle, draw, NULL);
 }
 

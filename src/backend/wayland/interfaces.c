@@ -681,6 +681,7 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	(void)time;
 
 	WAYLAND_EVENT_OP_START(self);
+
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
 	p.point = self->wayland.cur_mouse_pos;
