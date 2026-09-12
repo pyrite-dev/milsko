@@ -238,8 +238,6 @@ struct _MwLLWaylandTopLevel {
 };
 
 struct _MwLLWaylandSublevel {
-	struct wl_subsurface*	 subsurface;
-	struct wl_subcompositor* subcompositor;
 
 	MwLL parent;
 
@@ -488,8 +486,9 @@ int MwLLWaylandHyprlandGetRoundness(void);
 
 void MwLLWaylandHangUntilConfigured(MwLL handle);
 
-MwBool MwLLWaylandWidgetIsDestroyed(MwLL self);
-void   MwLLWaylandWidgetUndestroy(MwLL self);
+// MwBool MwLLWaylandWidgetIsDestroyed(MwLL self);
+// void   MwLLWaylandWidgetUndestroy(MwLL self);
+void MwLLWaylandChildrenIterate(MwLL handle, void (*func)(MwLL handle, MwLL child));
 
 /* Function for setting up the callbacks/structs that will be registered upon the relevant interfaces being found. */
 void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland);
@@ -500,10 +499,7 @@ void MwLLWaylandClipboardRead(wl_clipboard_device_context_t* ctx, int clipboard_
 void MwLLWaylandFlush(MwLL handle);
 
 /* Standard procedure before event callbacks in Wayland  */
-#define WAYLAND_EVENT_OP_START(self) \
-	if(MwLLWaylandWidgetIsDestroyed(self)) { \
-		return; \
-	}
+#define WAYLAND_EVENT_OP_START(self)
 
 /* Footer for WAYLAND_EVENT_OP_START */
 #define WAYLAND_EVENT_OP_END(self)

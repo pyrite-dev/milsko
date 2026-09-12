@@ -49,7 +49,6 @@ if (grep(/^wayland$/, @backends)) {
     new_object("src/backend/cairo.c");
     new_object("src/backend/wayland/wayland.c");
     new_object("src/backend/wayland/buffer.c");
-    new_object("src/backend/wayland/hyprland.c");
     new_object("src/backend/wayland/interfaces.c");
     new_object("src/backend/wayland/region.c");
 

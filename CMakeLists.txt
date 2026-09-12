@@ -269,7 +269,6 @@ if(MW_USE_WAYLAND)
                 src/backend/cairo.c
                 src/backend/wayland/wayland.c
                 src/backend/wayland/buffer.c
-                src/backend/wayland/hyprland.c
                 src/backend/wayland/interfaces.c
                 src/backend/wayland/region.c
                 )

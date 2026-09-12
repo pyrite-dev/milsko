@@ -12,37 +12,51 @@ MwBool MwWaylandVulkan = MwFALSE;
 
 MwBool MwWaylandCairoOnly = MwFALSE;
 
-static pthread_mutex_t destroyedWidgetsTableMutex;
-/*
- * So Wayland, bless its soul; it keeps using callbacks LONG after they should not only be destroyed but the widget doesn't even exist anymore. Naturally, this causes use after free. so we fight fire with fire in the worst code i've ever written: by storing the freed pointers here, we disallow wayland from ever using them again. if something else is created that takes this slot, we remove it from the table.
- *
- * To illustrate how bad this code is: if Israel and Palestine found out I was doing this then the Israel/Palestine conflict would be solved because both world leaders would come to the conclusion that this code is the worst thing ever.
- */
-static MwLL* destroyedWidgetsTable;
+// static pthread_mutex_t destroyedWidgetsTableMutex;
+// /*
+//  * So Wayland, bless its soul; it keeps using callbacks LONG after they should not only be destroyed but the widget doesn't even exist anymore. Naturally, this causes use after free. so we fight fire with fire in the worst code i've ever written: by storing the freed pointers here, we disallow wayland from ever using them again. if something else is created that takes this slot, we remove it from the table.
+//  *
+//  * To illustrate how bad this code is: if Israel and Palestine found out I was doing this then the Israel/Palestine conflict would be solved because both world leaders would come to the conclusion that this code is the worst thing ever.
+//  */
+// static MwLL* destroyedWidgetsTable;
 
-MwBool MwLLWaylandWidgetIsDestroyed(MwLL self) {
-	int i;
-	pthread_mutex_lock(&destroyedWidgetsTableMutex);
-	for(i = 0; i < arrlen(destroyedWidgetsTable); i++) {
-		if(self == destroyedWidgetsTable[i]) {
-			pthread_mutex_unlock(&destroyedWidgetsTableMutex);
-			return MwTRUE;
+// MwBool MwLLWaylandWidgetIsDestroyed(MwLL self) {
+// 	int i;
+// 	pthread_mutex_lock(&destroyedWidgetsTableMutex);
+// 	for(i = 0; i < arrlen(destroyedWidgetsTable); i++) {
+// 		if(self == destroyedWidgetsTable[i]) {
+// 			pthread_mutex_unlock(&destroyedWidgetsTableMutex);
+// 			return MwTRUE;
+// 		}
+// 	}
+// 	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
+// 	return MwFALSE;
+// }
+// void MwLLWaylandWidgetUndestroy(MwLL self) {
+// 	int i;
+// 	pthread_mutex_lock(&destroyedWidgetsTableMutex);
+// 	for(i = 0; i < arrlen(destroyedWidgetsTable); i++) {
+// 		if(self == destroyedWidgetsTable[i]) {
+// 			arrdel(destroyedWidgetsTable, i);
+// 			break;
+// 		}
+// 	}
+// 	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
+// 	return;
+// }
+//
+
+void MwLLWaylandChildrenIterate(MwLL handle, void (*func)(MwLL handle, MwLL child)) {
+	if(handle->common.user) {
+		MwWidget w = handle->common.user;
+		int	 i;
+		for(i = 0; i < arrlen(w->children); i++) {
+			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
+				MwLL child = w->children[i]->lowlevel;
+				func(handle, child);
+			}
 		}
 	}
-	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
-	return MwFALSE;
-}
-void MwLLWaylandWidgetUndestroy(MwLL self) {
-	int i;
-	pthread_mutex_lock(&destroyedWidgetsTableMutex);
-	for(i = 0; i < arrlen(destroyedWidgetsTable); i++) {
-		if(self == destroyedWidgetsTable[i]) {
-			arrdel(destroyedWidgetsTable, i);
-			break;
-		}
-	}
-	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
-	return;
 }
 
 static int event_loop(MwLL handle);
@@ -370,18 +384,6 @@ static void destroy_toplevel(MwLL r) {
 	wl_pointer_destroy(r->wayland.pointer);
 	wl_keyboard_destroy(r->wayland.keyboard);
 
-	if(r->common.user) {
-		MwWidget w = r->common.user;
-		int	 i;
-		for(i = 0; i < arrlen(w->children); i++) {
-			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
-				MwLL child = w->children[i]->lowlevel;
-				wl_subsurface_destroy(child->wayland.sublevel->subsurface);
-				child->wayland.sublevel->subsurface = NULL;
-			}
-		}
-	}
-
 	wl_surface_destroy(r->wayland.framebuffer.surface);
 
 	free(r->wayland.toplevel);
@@ -421,30 +423,18 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(compositor);
 
-	r->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(r->wayland.sublevel->subcompositor, r->wayland.framebuffer.surface, parent_surface);
-
-	wl_subsurface_set_desync(r->wayland.sublevel->subsurface);
-	wl_subsurface_set_position(r->wayland.sublevel->subsurface, x, y);
-
-	if(parent) {
-		wl_subsurface_place_above(r->wayland.sublevel->subsurface, parent->wayland.framebuffer.surface);
-	}
-
 	r->wayland.xkb_keymap = parent->wayland.xkb_keymap;
 	r->wayland.xkb_state  = parent->wayland.xkb_state;
 
 	r->wayland.configured = MwTRUE;
 
 	MwLLWaylandFramebufferSetup(&r->wayland);
-	MwLLWaylandBackbufferSetup(&r->wayland);
 }
 
 /* Sublevel setup function */
 static void destroy_sublevel(MwLL r) {
 	MwLLWaylandBackbufferDestroy(&r->wayland);
 	MwLLWaylandFramebufferDestroy(&r->wayland);
-
-	wl_subsurface_destroy(r->wayland.sublevel->subsurface);
 
 	free(r->wayland.sublevel);
 
@@ -873,12 +863,7 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 	r->wayland.x	  = x;
 	r->wayland.y	  = y;
 	r->wayland.parent = parent;
-	if(MwLLWaylandWidgetIsDestroyed(parent)) {
-		r->wayland.valid = MwFALSE;
-		return;
-	} else {
-		r->wayland.valid = MwTRUE;
-	}
+	r->wayland.valid  = MwTRUE;
 
 	if(ty == MwLL_WAYLAND_UNKNOWN) {
 		if(parent == NULL) {
@@ -963,10 +948,6 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	memset(r, 0, sizeof(*r));
 	MwLLCreateCommon(r);
 
-	if(MwLLWaylandWidgetIsDestroyed(r)) {
-		MwLLWaylandWidgetUndestroy(r);
-	}
-
 	r->wayland.is_toplevel = parent == NULL;
 	r->wayland.is_clipping = 0;
 
@@ -1030,15 +1011,11 @@ static void MwLLDestroyImpl(MwLL handle) {
 		printf("widget invalid\n");
 	}
 
-	pthread_mutex_lock(&destroyedWidgetsTableMutex);
-	arrput(destroyedWidgetsTable, handle);
-	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
+	// pthread_mutex_lock(&destroyedWidgetsTableMutex);
+	// arrput(destroyedWidgetsTable, handle);
+	// pthread_mutex_unlock(&destroyedWidgetsTableMutex);
 
 	free(handle);
-
-	// if(topmost_parent->wayland.currentlyHeldWidget == handle) {
-	// 	topmost_parent->wayland.currentlyHeldWidget = NULL;
-	// }
 }
 
 static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
@@ -1066,7 +1043,7 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 		/* toplevels cannot be moved */
 		break;
 	case MwLL_WAYLAND_SUBLEVEL:
-		wl_subsurface_set_position(handle->wayland.sublevel->subsurface, x, y);
+		/* sublevels are drawn according to their own x/y */
 		break;
 	case MwLL_WAYLAND_POPUP:
 		xdg_positioner_set_anchor_rect(handle->wayland.popup->xdg_positioner, handle->wayland.parent->wayland.x, handle->wayland.parent->wayland.y, handle->wayland.ww, handle->wayland.wh);
@@ -1141,6 +1118,41 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	}
 
 	handle->wayland.events_pending = 1;
+}
+static void draw_child(MwLL handle, MwLL child);
+static void draw_children(MwLL handle);
+
+static void draw_child(MwLL handle, MwLL child) {
+	cairo_t*	 c;
+	cairo_surface_t* cs;
+	cairo_t*	 selected_cairo = handle->wayland.cairo.front_cairo;
+
+	wl_surface_commit(child->wayland.framebuffer.surface);
+
+	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, child->wayland.ww, child->wayland.wh);
+	c  = cairo_create(cs);
+
+	cairo_set_source_surface(c, child->wayland.cairo.front_cs, 0, 0);
+	cairo_pattern_set_filter(cairo_get_source(c), CAIRO_FILTER_NEAREST);
+
+	cairo_set_operator(handle->wayland.cairo.front_cairo, CAIRO_OPERATOR_OVER);
+
+	cairo_paint(c);
+
+	cairo_set_source_surface(selected_cairo, cs, child->wayland.x, child->wayland.y);
+	cairo_paint(selected_cairo);
+
+	cairo_destroy(c);
+	cairo_surface_destroy(cs);
+
+	draw_children(child);
+}
+
+static void draw_children(MwLL handle) {
+	MwLLWaylandChildrenIterate(handle, draw_child);
+
+	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+	handle->wayland.force_render = MwTRUE;
 }
 
 typedef struct {
@@ -1304,6 +1316,8 @@ static void MwLLEndDrawImpl(MwLL handle) {
 			MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
 		}
 		MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
+
+		draw_children(handle);
 	}
 }
 
@@ -1360,10 +1374,6 @@ static int MwLLPendingImpl(MwLL handle) {
 	    .events = POLLOUT,
 	};
 	int pending = 0;
-
-	if(MwLLWaylandWidgetIsDestroyed(handle) || !handle->wayland.valid) {
-		return 0;
-	}
 
 	handle->wayland.resizing = 0;
 
@@ -1670,7 +1680,7 @@ static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
 			    dec->decoration, toggle ? ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE : ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
 		} else {
 			handle->wayland.do_csd = !toggle;
-			wl_subsurface_set_position(handle->wayland.toplevel->ssurface, handle->wayland.do_csd ? CSD_BORDER_FRAME_LEFT : 0, handle->wayland.do_csd ? CSD_BORDER_FRAME_TOP : 0);
+			// wl_subsurface_set_position(handle->wayland.toplevel->ssurface, handle->wayland.do_csd ? CSD_BORDER_FRAME_LEFT : 0, handle->wayland.do_csd ? CSD_BORDER_FRAME_TOP : 0);
 		}
 	}
 }
@@ -1845,20 +1855,16 @@ static void MwLLEndStateChangeImpl(MwLL handle) {
 			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
 				MwLL child			     = w->children[i]->lowlevel;
 				child->wayland.sublevel->xdg_surface = handle->wayland.popup->xdg_surface;
-				if(child->wayland.sublevel->subsurface)
-					wl_subsurface_destroy(child->wayland.sublevel->subsurface);
+				// if(child->wayland.sublevel->subsurface)
+				// wl_subsurface_destroy(child->wayland.sublevel->subsurface);
 				MwLLWaylandFlush(handle);
 
-				child->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(child->wayland.sublevel->subcompositor, child->wayland.framebuffer.surface, handle->wayland.framebuffer.surface);
-				wl_subsurface_set_desync(child->wayland.sublevel->subsurface);
-				wl_subsurface_set_position(child->wayland.sublevel->subsurface, child->wayland.x, child->wayland.y);
+				// child->wayland.sublevel->subsurface = wl_subcompositor_get_subsurface(child->wayland.sublevel->subcompositor, child->wayland.framebuffer.surface, handle->wayland.framebuffer.surface);
+				// wl_subsurface_set_desync(child->wayland.sublevel->subsurface);
+				// wl_subsurface_set_position(child->wayland.sublevel->subsurface, child->wayland.x, child->wayland.y);
 
-				wl_subsurface_place_above(child->wayland.sublevel->subsurface, handle->wayland.framebuffer.surface);
+				// wl_subsurface_place_above(child->wayland.sublevel->subsurface, handle->wayland.framebuffer.surface);
 				MwLLEndStateChangeImpl(w->children[i]->lowlevel);
-
-				if(topmost_parent) {
-					topmost_parent->wayland.currentlyHeldWidget = NULL;
-				}
 			}
 		}
 	}
