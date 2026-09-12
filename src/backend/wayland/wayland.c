@@ -13,11 +13,11 @@ MwBool MwWaylandVulkan = MwFALSE;
 MwBool MwWaylandCairoOnly = MwFALSE;
 
 static pthread_mutex_t destroyedWidgetsTableMutex;
-// /*
-//  * So Wayland, bless its soul; it keeps using callbacks LONG after they should not only be destroyed but the widget doesn't even exist anymore. Naturally, this causes use after free. so we fight fire with fire in the worst code i've ever written: by storing the freed pointers here, we disallow wayland from ever using them again. if something else is created that takes this slot, we remove it from the table.
-//  *
-//  * To illustrate how bad this code is: if Israel and Palestine found out I was doing this then the Israel/Palestine conflict would be solved because both world leaders would come to the conclusion that this code is the worst thing ever.
-//  */
+/*
+ * So Wayland, bless its soul; it keeps using callbacks LONG after they should not only be destroyed but the widget doesn't even exist anymore. Naturally, this causes use after free. so we fight fire with fire in the worst code i've ever written: by storing the freed pointers here, we disallow wayland from ever using them again. if something else is created that takes this slot, we remove it from the table.
+ *
+ * To illustrate how bad this code is: if Israel and Palestine found out I was doing this then the Israel/Palestine conflict would be solved because both world leaders would come to the conclusion that this code is the worst thing ever.
+ */
 static MwLL* destroyedWidgetsTable;
 
 MwBool MwLLWaylandWidgetIsDestroyed(MwLL self) {
@@ -862,7 +862,12 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 	r->wayland.x	  = x;
 	r->wayland.y	  = y;
 	r->wayland.parent = parent;
-	r->wayland.valid  = MwTRUE;
+	if(MwLLWaylandWidgetIsDestroyed(parent)) {
+		r->wayland.valid = MwFALSE;
+		return;
+	} else {
+		r->wayland.valid = MwTRUE;
+	}
 
 	if(ty == MwLL_WAYLAND_UNKNOWN) {
 		if(parent == NULL) {
@@ -1064,9 +1069,9 @@ static void MwLLDestroyImpl(MwLL handle) {
 		printf("widget invalid\n");
 	}
 
-	// pthread_mutex_lock(&destroyedWidgetsTableMutex);
-	// arrput(destroyedWidgetsTable, handle);
-	// pthread_mutex_unlock(&destroyedWidgetsTableMutex);
+	pthread_mutex_lock(&destroyedWidgetsTableMutex);
+	arrput(destroyedWidgetsTable, handle);
+	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
 
 	free(handle);
 }
