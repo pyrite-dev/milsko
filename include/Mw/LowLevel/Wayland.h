@@ -454,6 +454,8 @@ struct _MwLLWayland {
 	MwU64  next_elapsed;
 	long   start_time;
 	long   end_time;
+
+	MwBool on_hyprland;
 };
 
 struct _MwLLWaylandColor {
@@ -478,6 +480,11 @@ void MwLLWaylandBufferDestroy(struct _MwLLWaylandShmBuffer* buffer);
 
 void MwLLWaylandRegionSetup(MwLL handle);
 void MwLLWaylandRegionInvalidate(MwLL handle);
+
+int MwLLWaylandDoRoundness(MwLL handle);
+
+/* Reads the "roundness" value out of ~/.config/hypr/hyprland.lua, or returns `fallback` if unavailable. */
+int MwLLWaylandHyprlandGetRoundness(void);
 
 void MwLLWaylandHangUntilConfigured(MwLL handle);
 

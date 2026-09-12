@@ -269,6 +269,7 @@ if(MW_USE_WAYLAND)
                 src/backend/cairo.c
                 src/backend/wayland/wayland.c
                 src/backend/wayland/buffer.c
+                src/backend/wayland/hyprland.c
                 src/backend/wayland/interfaces.c
                 src/backend/wayland/region.c
                 )
@@ -331,7 +332,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "MSYS")
  )
   list(APPEND LIBRARIES gdi32 ole32 uuid)
   if(NOT MSVC)
-  target_link_options(
+    target_link_options(
   Mw
   PRIVATE
   -static-libgcc
@@ -468,7 +469,7 @@ if(MW_BUILD_VULKAN)
 
   check_include_files(vulkan/VULKAN.h HAS_VK_HEADER)
   if(HAS_VK_HEADER)
-  target_compile_definitions(
+    target_compile_definitions(
         Mw
           PRIVATE
           MW_VULKAN
