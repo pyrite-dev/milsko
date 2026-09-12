@@ -19,6 +19,35 @@ static void setup_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
 static void destroy_clipboard(MwLL self, struct wl_seat* wl_seat);
 static void destroy_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
 
+/* Recursively dispatch a key event to a widget and its children */
+static void recursive_dispatch_key(MwLL handle, int* k) {
+	MwWidget h = (MwWidget)handle->common.user;
+	MwLLDispatch(handle, key, k);
+	if(h) {
+		int i;
+		for(i = 0; i < arrlen(h->children); i++) {
+			MwLLDispatch(h->children[i]->lowlevel, key, k);
+			if(arrlen(h->children[i]->children) > 0) {
+				recursive_dispatch_key(h->children[i]->lowlevel, k);
+			}
+		}
+	}
+};
+/* Recursively dispatch a key released event to a widget and its children */
+static void recursive_dispatch_key_released(MwLL handle, int* k) {
+	MwWidget h = (MwWidget)handle->common.user;
+	MwLLDispatch(handle, key_released, k);
+	if(h) {
+		int i;
+		for(i = 0; i < arrlen(h->children); i++) {
+			MwLLDispatch(h->children[i]->lowlevel, key_released, k);
+			if(arrlen(h->children[i]->children) > 0) {
+				recursive_dispatch_key_released(h->children[i]->lowlevel, k);
+			}
+		}
+	}
+};
+
 /* Recursively dispatch a move event to a widget and its children */
 static void recursive_dispatch_move(MwLL handle, MwMouse* p) {
 	MwWidget h = (MwWidget)handle->common.user;
@@ -923,15 +952,11 @@ static void keyboard_key(void*		     data,
 
 			if(key != -1) {
 				if(state == WL_KEYBOARD_KEY_STATE_PRESSED) {
-					MwLL topmost_parent = self;
-					while(topmost_parent->wayland.parent) {
-						MwLLDispatch(topmost_parent, key, &key);
-						topmost_parent = topmost_parent->wayland.parent;
-					}
+					recursive_dispatch_key(self, &key);
 					self->wayland.holding_key      = MwTRUE;
 					self->wayland.last_pressed_key = key;
 				} else {
-					MwLLDispatch(self, key_released, &key);
+					recursive_dispatch_key_released(self, &key);
 					self->wayland.holding_key = MwFALSE;
 				}
 				self->wayland.start_time   = MwTimeGetTick();
@@ -1193,6 +1218,24 @@ static void wp_viewporter_interface_destroy(struct _MwLLWayland* wayland, waylan
 	(void)data;
 }
 
+/* wp_fifo_manager_v1 setup function */
+static wayland_protocol_t* wp_fifo_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
+	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
+	(void)version;
+	proto->listener = NULL;
+	proto->context	= wl_registry_bind(wayland->registry, name, &wp_fifo_manager_v1_interface, 1);
+
+	return proto;
+}
+
+static void wp_fifo_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	(void)wayland;
+	if(data->context) {
+		wp_fifo_manager_v1_destroy(data->context);
+	}
+	free(data);
+}
+
 /* zxdg_decoration_manager_v1 setup function */
 static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland_protocol_t*		      proto = malloc(sizeof(wayland_protocol_t));
@@ -1295,6 +1338,7 @@ void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland) {
 	WL_INTERFACE(zwp_pointer_constraints_v1);
 	WL_INTERFACE(zwp_relative_pointer_manager_v1);
 	WL_INTERFACE(xdg_wm_base);
+	WL_INTERFACE(wp_fifo_manager_v1);
 	WL_INTERFACE(zwlr_layer_shell_v1); /* Only used for layer surface, but we use it always if it's turned into a tool window */
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(wp_viewporter);

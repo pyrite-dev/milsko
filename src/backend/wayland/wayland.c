@@ -242,8 +242,7 @@ static void xdg_surface_configure(
 
 	xdg_surface_ack_configure(xdg_surface, serial);
 
-	MwLLWaylandCascadeChildren(self);
-	// MwLLDispatch(self, draw, NULL);
+	MwLLDispatch(self, draw, NULL);
 
 	if(self->wayland.configured) {
 		MwLLWaylandBufferUpdate(self, &self->wayland.framebuffer);
@@ -260,7 +259,11 @@ void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 			// Yes this is needed every time, it's how we fix weston.
 			if(self->wayland.configured)
 				wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
-			wl_surface_commit(buffer->surface);
+			if(self->wayland.fifo_wait) {
+				MwLLWaylandFifoCommit(buffer);
+			} else {
+				wl_surface_commit(buffer->surface);
+			}
 		}
 	}
 }
@@ -309,7 +312,9 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	/* Create a wl_surface, a xdg_surface and a xdg_toplevel */
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
 	r->wayland.backbuffer.surface  = wl_compositor_create_surface(r->wayland.compositor);
-	r->wayland.toplevel->ssurface  = wl_subcompositor_get_subsurface(r->wayland.toplevel->scompositor, r->wayland.framebuffer.surface, r->wayland.backbuffer.surface);
+	MwLLWaylandFifoSurfaceSetup(&r->wayland, &r->wayland.framebuffer);
+	MwLLWaylandFifoSurfaceSetup(&r->wayland, &r->wayland.backbuffer);
+	r->wayland.toplevel->ssurface = wl_subcompositor_get_subsurface(r->wayland.toplevel->scompositor, r->wayland.framebuffer.surface, r->wayland.backbuffer.surface);
 	wl_subsurface_set_desync(r->wayland.toplevel->ssurface);
 
 	r->wayland.toplevel->xdg_surface =
@@ -384,6 +389,8 @@ static void destroy_toplevel(MwLL r) {
 	wl_pointer_destroy(r->wayland.pointer);
 	wl_keyboard_destroy(r->wayland.keyboard);
 
+	MwLLWaylandFifoSurfaceDestroy(&r->wayland.framebuffer);
+	MwLLWaylandFifoSurfaceDestroy(&r->wayland.backbuffer);
 	wl_surface_destroy(r->wayland.framebuffer.surface);
 
 	free(r->wayland.toplevel);
@@ -422,6 +429,7 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 	}
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(compositor);
+	MwLLWaylandFifoSurfaceSetup(&r->wayland, &r->wayland.framebuffer);
 
 	r->wayland.xkb_keymap = parent->wayland.xkb_keymap;
 	r->wayland.xkb_state  = parent->wayland.xkb_state;
@@ -546,6 +554,7 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	r->wayland.xkb_state  = topmost_parent->wayland.xkb_state;
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
+	MwLLWaylandFifoSurfaceSetup(&r->wayland, &r->wayland.framebuffer);
 
 	r->wayland.popup->xdg_surface =
 	    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context, r->wayland.framebuffer.surface);
@@ -586,6 +595,8 @@ static void destroy_popup(MwLL r) {
 	xdg_surface_destroy(r->wayland.popup->xdg_surface);
 
 	xdg_positioner_destroy(r->wayland.popup->xdg_positioner);
+
+	MwLLWaylandFifoSurfaceDestroy(&r->wayland.framebuffer);
 
 	wl_surface_destroy(r->wayland.framebuffer.surface);
 
@@ -670,6 +681,7 @@ static void setup_layer_surface(MwLL r, int x, int y, int width, int height) {
 	r->wayland.xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
+	MwLLWaylandFifoSurfaceSetup(&r->wayland, &r->wayland.framebuffer);
 
 	r->wayland.layer_surface->surface = zwlr_layer_shell_v1_get_layer_surface(layer_shell, r->wayland.framebuffer.surface, NULL, ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY, "milsko-surfaces");
 
@@ -699,6 +711,8 @@ static void destroy_layer_surface(MwLL r) {
 		zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(r->wayland, zxdg_decoration_manager_v1)->context;
 		zxdg_decoration_manager_v1_destroy(dec->manager);
 	}
+
+	MwLLWaylandFifoSurfaceDestroy(&r->wayland.framebuffer);
 
 	wl_surface_destroy(r->wayland.framebuffer.surface);
 
@@ -1128,8 +1142,7 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 
 	if(handle->wayland.type != MwLL_WAYLAND_TOPLEVEL) recursive_render(handle);
 
-	MwLLWaylandCascadeChildren(handle);
-	// MwLLDispatch(handle, draw, NULL);
+	MwLLDispatch(handle, draw, NULL);
 }
 
 static void actually_set_wh(MwLL handle) {
@@ -1158,8 +1171,7 @@ static void actually_set_wh(MwLL handle) {
 	MwLLWaylandFramebufferSetup(&handle->wayland);
 	MwLLWaylandBackbufferDestroy(&handle->wayland);
 	MwLLWaylandBackbufferSetup(&handle->wayland);
-	MwLLWaylandCascadeChildren(handle);
-	// MwLLDispatch(handle, draw, NULL);
+	MwLLDispatch(handle, draw, NULL);
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
@@ -1444,8 +1456,7 @@ static int MwLLPendingImpl(MwLL handle) {
 		if(handle->wayland.dark_theme_detection) {
 			handle->wayland.dark_theme_detection = MwFALSE;
 			detect_dark_theme(handle);
-			MwLLWaylandCascadeChildren(handle);
-			// MwLLDispatch(handle, draw, NULL);
+			MwLLDispatch(handle, draw, NULL);
 		} else {
 			MwLLDBusPortalPoll(&wl_call_tbl.dbus, &handle->wayland.dbus, handle, "org.freedesktop.portal.Settings", "org.freedesktop.appearance", "color-scheme", &dark_theme_listener);
 		}
@@ -1474,10 +1485,12 @@ static int MwLLPendingImpl(MwLL handle) {
 		return pending;
 	}
 
+	if(!handle->wayland.disable_fifo) handle->wayland.fifo_wait = MwTRUE;
 	MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
 	}
+	if(!handle->wayland.disable_fifo) handle->wayland.fifo_wait = MwFALSE;
 
 	return handle->wayland.force_render || handle->wayland.events_pending || pending;
 }
@@ -1494,9 +1507,11 @@ static void MwLLNextEventImpl(MwLL handle) {
 	}
 
 	if(handle->wayland.force_render) {
+		handle->wayland.fifo_wait = MwTRUE;
 		MwLLDispatch(handle, draw, NULL);
 		if(handle->wayland.configured) MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
 		handle->wayland.force_render = 0;
+		handle->wayland.fifo_wait    = MwFALSE;
 	}
 	if(handle->wayland.events_pending) {
 		handle->wayland.events_pending = 0;
@@ -1904,7 +1919,7 @@ static void MwLLSetDarkThemeImpl(MwLL handle, int toggle) {
 	(void)toggle;
 
 	/* Not Really what's supposed to happen with this function, but take this opprutunity to do the handlers that will force everything to redraw. */
-	MwLLWaylandCascadeChildren(handle);
+	MwLLDispatch(handle, draw, NULL);
 	// MwLLDispatch(handle, resize, NULL);
 	MwLLDispatch(handle, draw, NULL);
 }
@@ -1958,10 +1973,14 @@ static int MwLLWaylandCallInitImpl(void) {
 		} else {
 			loadWayland |= (strcmp(mw_backend_env, "wayland") == 0);
 		}
+	}
 
-	} else if(getenv("WAYLAND_DISPLAY")) {
+	/* NOTE: when vulkan is enabled, refuse to default to wayland. Remove this if I ever get Vulkan widget working with the new surfaces system. */
+#ifndef MW_VULKAN
+	else if(getenv("WAYLAND_DISPLAY")) {
 		loadWayland |= (getenv("WAYLAND_DISPLAY") != NULL);
 	}
+#endif
 
 #ifdef MW_OPENGL
 	if(getenv("WSLENV") || getenv("WSL_DISTRO_NAME")) {

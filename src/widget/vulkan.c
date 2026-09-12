@@ -240,6 +240,8 @@ static int vulkan_instance_setup(MwWidget handle, vulkan_t* o) {
 #endif
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
+		MwWidget topmost_parent = handle;
+
 		arrput(o->enabledExtensions, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 		/* take this opprutunity to set the widget to always render */
 		MwWaylandVulkan = MwTRUE;

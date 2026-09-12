@@ -240,6 +240,12 @@ static int wcreate(MwWidget handle) {
 		waylandopengl_t* o = r	    = malloc(sizeof(*o));
 		int		 gbm_format = 0;
 		EGLConfig	 egl_configs[1024];
+		MwWidget	 topmost_parent = handle;
+
+		/* Disable fifo waiting when we have an OpenGL widget */
+		while(topmost_parent->parent) topmost_parent = topmost_parent->parent;
+		topmost_parent->lowlevel->wayland.disable_fifo = MwTRUE;
+
 		memset(o, 0, sizeof(waylandopengl_t));
 
 		o->gllib = MwDynamicOpen("libEGL.so");

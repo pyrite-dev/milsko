@@ -207,6 +207,7 @@ MwInline int wayland_load_funcs() {
 #include "Wayland/relative-pointer-client-protocol.h"
 #include "Wayland/xdg-toplevel-icon-client-protocol.h"
 #include "Wayland/wlr-layer-shell-client-protocol.h"
+#include "Wayland/fifo-client-protocol.h"
 #endif
 
 typedef struct wayland_protocol {
@@ -266,6 +267,7 @@ struct _MwLLWaylandShmBuffer {
 	struct wl_buffer*   shm_buffer_back;
 	struct wl_surface*  surface;
 	struct wl_output*   output;
+	struct wp_fifo_v1*  fifo;
 
 	MwU8*  buf;
 	MwU8*  buf_back;
@@ -435,6 +437,8 @@ struct _MwLLWayland {
 	struct _MwLLWaylandShmBuffer  backbuffer;
 	struct _MwLLWaylandShmBuffer  cursor;
 	struct _MwLLWaylandShmBuffer* icon;
+	MwBool			      fifo_wait;
+	MwBool			      disable_fifo;
 
 	MwLLPixmap icon_pixmap;
 
@@ -471,6 +475,17 @@ void MwLLWaylandFramebufferDestroy(struct _MwLLWayland* handle);
 void MwLLWaylandBackbufferSetup(struct _MwLLWayland* wayland);
 /* Destroy the backbuffer */
 void MwLLWaylandBackbufferDestroy(struct _MwLLWayland* handle);
+
+/* Bind a wp_fifo_v1 object to `buffer`'s surface, if wp_fifo_manager_v1 is available and it doesn't have one already. */
+void MwLLWaylandFifoSurfaceSetup(struct _MwLLWayland* wayland, struct _MwLLWaylandShmBuffer* buffer);
+/* Destroy `buffer`'s wp_fifo_v1 object, if any. */
+void MwLLWaylandFifoSurfaceDestroy(struct _MwLLWaylandShmBuffer* buffer);
+/* Commit `buffer`'s surface, constraining the update to the next display refresh via wp_fifo_v1 if bound. */
+void MwLLWaylandFifoCommit(struct _MwLLWaylandShmBuffer* buffer);
+
+#ifdef MW_VULKAN
+#warning Wayland backend currently disabled by default when Vulkan enabled. Use with caution (MW_BACKEND=wayland to override).
+#endif
 
 void MwLLWaylandBufferSetup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height);
 void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer);
