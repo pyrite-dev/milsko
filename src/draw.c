@@ -53,105 +53,6 @@ static void color_set_disabled_if_disabled(MwWidget handle, MwLLColor rgb) {
 	}
 };
 
-/* Whether (x, y) within a w*h rect falls inside a rounded-rect mask of the
- * given corner radius. Shared by every raster-based rounded fill below so
- * they all cut the same corner shape. */
-static int rounded_rect_contains(int x, int y, int w, int h, int rad) {
-	int cx = -1;
-	int cy = -1;
-
-	if(x < rad && y < rad) {
-		cx = rad;
-		cy = rad;
-	} else if(x >= w - rad && y < rad) {
-		cx = w - rad - 1;
-		cy = rad;
-	} else if(x < rad && y >= h - rad) {
-		cx = rad;
-		cy = h - rad - 1;
-	} else if(x >= w - rad && y >= h - rad) {
-		cx = w - rad - 1;
-		cy = h - rad - 1;
-	}
-
-	if(cx < 0) {
-		return 1;
-	}
-
-	{
-		int dx = x - cx;
-		int dy = y - cy;
-		return (dx * dx + dy * dy) <= rad * rad;
-	}
-}
-
-static void fill_rect(MwWidget handle, MwRect* rect, MwLLColor color) {
-	MwPoint p[4];
-
-	p[0].x = rect->x;
-	p[0].y = rect->y;
-
-	p[1].x = rect->x + rect->width;
-	p[1].y = rect->y;
-
-	p[2].x = rect->x + rect->width;
-	p[2].y = rect->y + rect->height;
-
-	p[3].x = rect->x;
-	p[3].y = rect->y + rect->height;
-
-	MwLLPolygon(handle->lowlevel, p, 4, color);
-}
-
-/* Flat-colored rounded-rect fill, for backdrops that need to match a rounded
- * border/fill's shape instead of a plain MwDrawRect square. */
-static void fill_rect_rounded(MwWidget handle, MwRect* rect, MwLLColor color, int roundness) {
-	MwLLPixmap     pixmap;
-	int	       x, y;
-	int	       w   = rect->width;
-	int	       h   = rect->height;
-	int	       rad = roundness;
-	unsigned char* data;
-
-	if(w <= 0 || h <= 0) {
-		return;
-	}
-
-	if(rad > w / 2) rad = w / 2;
-	if(rad > h / 2) rad = h / 2;
-
-	if(rad <= 0) {
-		fill_rect(handle, rect, color);
-		return;
-	}
-
-	data = malloc((unsigned long)w * h * 4);
-	if(!data) {
-		return;
-	}
-
-	memset(data, 0, (unsigned long)w * h * 4);
-
-	for(y = 0; y < h; y++) {
-		for(x = 0; x < w; x++) {
-			if(rounded_rect_contains(x, y, w, h, rad)) {
-				unsigned char* pout = &data[(y * w + x) * 4];
-
-				pout[0] = (unsigned char)color->common.red;
-				pout[1] = (unsigned char)color->common.green;
-				pout[2] = (unsigned char)color->common.blue;
-				pout[3] = 255;
-			}
-		}
-	}
-
-	pixmap = MwLLCreatePixmap(handle->lowlevel, data, w, h);
-	MwLLDrawPixmap(handle->lowlevel, rect, pixmap);
-	MwLLDestroyPixmap(pixmap);
-
-	free(data);
-}
-
 void MwParseColorNoAllocate(const char* text, MwRGB* rgb) {
 	if(text[0] == '#' && strlen(text) == 4) {
 		rgb->red   = hex(text + 1, 1);
@@ -199,104 +100,63 @@ MwLLColor MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, int b) 
 }
 
 void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
-	if(MwLLWaylandDoRoundness(handle->lowlevel)) {
-		fill_rect_rounded(handle, rect, color, MwLLWaylandHyprlandGetRoundness());
-	} else {
-		fill_rect(handle, rect, color);
-	}
+	MwPoint p[4];
+
+	p[0].x = rect->x;
+	p[0].y = rect->y;
+
+	p[1].x = rect->x + rect->width;
+	p[1].y = rect->y;
+
+	p[2].x = rect->x + rect->width;
+	p[2].y = rect->y + rect->height;
+
+	p[3].x = rect->x;
+	p[3].y = rect->y + rect->height;
+
+	MwLLPolygon(handle->lowlevel, p, 4, color);
 }
 
 void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
-	MwLLPixmap pixmap;
-	int	   y;
-	double	   darken    = 0.;
-	int	   ColorDiff = get_color_diff(handle);
-	MwRect	   r	     = *rect;
-	int	   roundness = MwLLWaylandDoRoundness(handle->lowlevel) ? MwLLWaylandHyprlandGetRoundness() : 0;
-
-	if(rect->width <= 0 || rect->height <= 0) {
+	MwLLPixmap     pixmap;
+	int	       y;
+	double	       darken	  = 0.;
+	int	       ColorDiff  = get_color_diff(handle);
+	double	       darkenStep = (ColorDiff / 2.) / rect->height;
+	unsigned long  sz	  = 1 * rect->height * 4;
+	unsigned char* data	  = malloc(sz * 2);
+	MwRect	       r	  = *rect;
+	if(!data) {
 		return;
 	}
+	if(rect->width <= 0 || rect->height <= 0) {
+		free(data);
+		return;
+	}
+	memset(data, 0, sz);
 
 	r.x += 1;
 	r.y += 1;
 	r.width -= 2;
 	r.height -= 2;
 
-	if(r.width <= 0 || r.height <= 0) {
-		return;
+	for(y = 0; y < rect->height; y++) {
+		MwLLColor col = MwLightenColor(handle, color, (int)-darken, (int)-darken, (int)-darken);
+		int	  idx = y * 4;
+		color_set_disabled_if_disabled(handle, col);
+		data[idx]     = col->common.red;
+		data[idx + 1] = col->common.green;
+		data[idx + 2] = col->common.blue;
+		data[idx + 3] = 255;
+		MwLLFreeColor(col);
+		darken += darkenStep;
 	}
 
-	if(roundness <= 0) {
-		double	       darkenStep = (ColorDiff / 2.) / rect->height;
-		unsigned long  sz	  = 1 * rect->height * 4;
-		unsigned char* data	  = malloc(sz * 2);
-		if(!data) {
-			return;
-		}
-		memset(data, 0, sz);
+	pixmap = MwLLCreatePixmap(handle->lowlevel, data, 1, rect->height);
+	MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
+	MwLLDestroyPixmap(pixmap);
 
-		for(y = 0; y < rect->height; y++) {
-			MwLLColor col = MwLightenColor(handle, color, (int)-darken, (int)-darken, (int)-darken);
-			int	  idx = y * 4;
-			color_set_disabled_if_disabled(handle, col);
-			data[idx]     = col->common.red;
-			data[idx + 1] = col->common.green;
-			data[idx + 2] = col->common.blue;
-			data[idx + 3] = 255;
-			MwLLFreeColor(col);
-			darken += darkenStep;
-		}
-
-		pixmap = MwLLCreatePixmap(handle->lowlevel, data, 1, rect->height);
-		MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
-		MwLLDestroyPixmap(pixmap);
-
-		free(data);
-		return;
-	} else {
-		int	       w   = r.width;
-		int	       h   = r.height;
-		int	       rad = roundness;
-		int	       x;
-		double	       darkenStep;
-		unsigned char* data;
-
-		if(rad > w / 2) rad = w / 2;
-		if(rad > h / 2) rad = h / 2;
-
-		darkenStep = (ColorDiff / 2.) / h;
-		data	   = malloc((unsigned long)w * h * 4);
-		if(!data) {
-			return;
-		}
-		memset(data, 0, (unsigned long)w * h * 4);
-
-		for(y = 0; y < h; y++) {
-			MwLLColor col = MwLightenColor(handle, color, (int)-darken, (int)-darken, (int)-darken);
-			color_set_disabled_if_disabled(handle, col);
-
-			for(x = 0; x < w; x++) {
-				if(rounded_rect_contains(x, y, w, h, rad)) {
-					unsigned char* pout = &data[(y * w + x) * 4];
-
-					pout[0] = (unsigned char)col->common.red;
-					pout[1] = (unsigned char)col->common.green;
-					pout[2] = (unsigned char)col->common.blue;
-					pout[3] = 255;
-				}
-			}
-
-			MwLLFreeColor(col);
-			darken += darkenStep;
-		}
-
-		pixmap = MwLLCreatePixmap(handle->lowlevel, data, w, h);
-		MwLLDrawPixmap(handle->lowlevel, &r, pixmap);
-		MwLLDestroyPixmap(pixmap);
-
-		free(data);
-	}
+	free(data);
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
@@ -343,8 +203,7 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 			MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
 
 			if(c != NULL) {
-				int roundness = MwLLWaylandDoRoundness(handle->lowlevel) ? MwLLWaylandHyprlandGetRoundness() : 0;
-				fill_rect_rounded(handle, rect, c, MwGetInteger(handle, MwNmodernLook) ? roundness : 0);
+				MwDrawRect(handle, rect, c);
 				MwLLFreeColor(c);
 			}
 		}
@@ -595,113 +454,48 @@ static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwLLColor color,
 	rect->height -= border * 2;
 }
 
-#define FRAME_ARC_STEPS 6
-
-/* Appends the points of an (up to) quarter-circle arc, sweeping from
- * start_deg to end_deg (in degrees, either direction), to `points`. */
-static void frame_border_append_arc(MwPoint* points, int* count, int cx, int cy, int radius, double start_deg, double end_deg, int steps) {
-	int i;
-	for(i = 0; i <= steps; i++) {
-		double deg	 = start_deg + (end_deg - start_deg) * ((double)i / steps);
-		double rad	 = deg * M_PI / 180.0;
-		points[*count].x = cx + (int)(cos(rad) * radius);
-		points[*count].y = cy + (int)(sin(rad) * radius);
-		(*count)++;
-	}
-}
-
-static void frame_border_complex(MwWidget handle, MwRect* rect, MwLLColor lighter, MwLLColor darker, int invert, int border, int diff, int same, int roundness) {
-	MwPoint p[36];
-	int	n;
-	int	x = rect->x;
-	int	y = rect->y;
-	int	w = rect->width;
-	int	h = rect->height;
-	int	r = roundness;
-	int	ib, ir;
+static void frame_border_complex(MwWidget handle, MwRect* rect, MwLLColor lighter, MwLLColor darker, int invert, int border, int diff, int same) {
+	MwPoint p[7];
 
 	(void)diff;
 	(void)same;
 
-	if(r < 0) r = 0;
-	if(r > w / 2) r = w / 2;
-	if(r > h / 2) r = h / 2;
+	p[0].x = rect->x;
+	p[0].y = rect->y;
 
-	if(r <= 0) {
-		p[0].x = x;
-		p[0].y = y;
+	p[1].x = rect->x + rect->width;
+	p[1].y = rect->y;
 
-		p[1].x = x + w;
-		p[1].y = y;
+	p[2].x = rect->x + rect->width - border;
+	p[2].y = rect->y + border;
+	p[3].x = rect->x + border;
+	p[3].y = rect->y + border;
 
-		p[2].x = x + w - border;
-		p[2].y = y + border;
-		p[3].x = x + border;
-		p[3].y = y + border;
+	p[4].x = rect->x + border;
+	p[4].y = rect->y + rect->height - border;
 
-		p[4].x = x + border;
-		p[4].y = y + h - border;
+	p[5].x = rect->x;
+	p[5].y = rect->y + rect->height;
+	MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
 
-		p[5].x = x;
-		p[5].y = y + h;
-		MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
+	p[0].x = rect->x + rect->width;
+	p[0].y = rect->y;
 
-		p[0].x = x + w;
-		p[0].y = y;
+	p[1].x = rect->x + rect->width - border;
+	p[1].y = rect->y + border;
 
-		p[1].x = x + w - border;
-		p[1].y = y + border;
+	p[2].x = rect->x + rect->width - border;
+	p[2].y = rect->y + rect->height - border;
 
-		p[2].x = x + w - border;
-		p[2].y = y + h - border;
+	p[3].x = rect->x + border;
+	p[3].y = rect->y + rect->height - border;
 
-		p[3].x = x + border;
-		p[3].y = y + h - border;
+	p[4].x = rect->x;
+	p[4].y = rect->y + rect->height;
 
-		p[4].x = x;
-		p[4].y = y + h;
-
-		p[5].x = x + w;
-		p[5].y = y + h;
-		MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
-		return;
-	}
-
-	/* With rounded outer corners, each half still meets the other along
-	 * the same two diagonals as the sharp-cornered version above, except
-	 * the TR and BL corners (shared between both halves) are cut by an
-	 * arc whose midpoint lies on that diagonal, and each half draws
-	 * exactly one side of it. The TL/BR corners belong entirely to one
-	 * half, so they get the full quarter-circle arc.
-	 *
-	 * The inner (border-offset) corners get the same treatment, using the
-	 * same corner centers as the outer arcs but shrunk by the border
-	 * width, so the border ring keeps a uniform thickness all the way
-	 * around the curve instead of jumping to a sharp point. If the border
-	 * is thicker than the roundness, this collapses back to the ordinary
-	 * sharp inner corner (ib == border, ir == 0). */
-	ib = (r > border) ? r : border;
-	ir = (r > border) ? (r - border) : 0;
-
-	/* Top-left half: TL (full), TR (near side), BL (near side). */
-	n = 0;
-	frame_border_append_arc(p, &n, x + r, y + r, r, 180, 270, FRAME_ARC_STEPS);
-	frame_border_append_arc(p, &n, x + w - r, y + r, r, 270, 315, FRAME_ARC_STEPS / 2);
-	frame_border_append_arc(p, &n, x + w - ib, y + ib, ir, 315, 270, FRAME_ARC_STEPS / 2);
-	frame_border_append_arc(p, &n, x + ib, y + ib, ir, 270, 180, FRAME_ARC_STEPS);
-	frame_border_append_arc(p, &n, x + ib, y + h - ib, ir, 180, 135, FRAME_ARC_STEPS / 2);
-	frame_border_append_arc(p, &n, x + r, y + h - r, r, 135, 180, FRAME_ARC_STEPS / 2);
-	MwLLPolygon(handle->lowlevel, p, n, invert ? lighter : darker);
-
-	/* Bottom-right half: TR (far side), BL (far side), BR (full). */
-	n = 0;
-	frame_border_append_arc(p, &n, x + w - r, y + r, r, 360, 315, FRAME_ARC_STEPS / 2);
-	frame_border_append_arc(p, &n, x + w - ib, y + ib, ir, 315, 360, FRAME_ARC_STEPS / 2);
-	frame_border_append_arc(p, &n, x + w - ib, y + h - ib, ir, 0, 90, FRAME_ARC_STEPS);
-	frame_border_append_arc(p, &n, x + ib, y + h - ib, ir, 90, 135, FRAME_ARC_STEPS / 2);
-	frame_border_append_arc(p, &n, x + r, y + h - r, r, 135, 90, FRAME_ARC_STEPS / 2);
-	frame_border_append_arc(p, &n, x + w - r, y + h - r, r, 90, 0, FRAME_ARC_STEPS);
-	MwLLPolygon(handle->lowlevel, p, n, invert ? lighter : darker);
+	p[5].x = rect->x + rect->width;
+	p[5].y = rect->y + rect->height;
+	MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
 }
 
 static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same) {
@@ -709,19 +503,18 @@ static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwLLColor color
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
 	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff);
 	MwRect	  r	    = *rect;
-	int	  roundness = MwLLWaylandDoRoundness(handle->lowlevel) ? MwLLWaylandHyprlandGetRoundness() : 0;
 
 	color_set_disabled_if_disabled(handle, darker);
 	color_set_disabled_if_disabled(handle, lighter);
 
-	frame_border_complex(handle, rect, lighter, darker, invert, border == 1 ? 1 : (border / 2), diff, same, roundness);
+	frame_border_complex(handle, rect, lighter, darker, invert, border == 1 ? 1 : (border / 2), diff, same);
 
 	if(border > 1) {
 		r.x += border / 2;
 		r.y += border / 2;
 		r.width -= border;
 		r.height -= border;
-		frame_border_complex(handle, &r, lighter, darker, !invert, border / 2, diff, same, roundness);
+		frame_border_complex(handle, &r, lighter, darker, !invert, border / 2, diff, same);
 	}
 
 	MwLLFreeColor(lighter);

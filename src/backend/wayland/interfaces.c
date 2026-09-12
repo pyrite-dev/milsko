@@ -40,19 +40,15 @@ static void new_protocol(void* data, struct wl_registry* registry,
 	MwLL self = data;
 	(void)version;
 	(void)registry;
-	wayland_protocol_callback_table_t* cb;
 
 	WAYLAND_EVENT_OP_START(self);
 
-	cb = shget(self->wayland.wl_protocol_setup_map, interface);
+	wayland_protocol_callback_table_t* cb = shget(self->wayland.wl_protocol_setup_map, interface);
 	if(cb != NULL) {
 		shput(self->wayland.wl_protocol_map, interface, cb->setup(name, data, version));
-	} else if(strcmp(interface, "wp_alpha_modifier_v1") == 0) {
 		/* we don't care for adding this protocol, we just use it to know if the compositor will let us have transparent surfaces */
+	} else if(strcmp(interface, "wp_alpha_modifier_v1") == 0) {
 		self->common.supports_transparency = MwTRUE;
-	} else if(strstr(interface, "hyprland") != NULL) {
-		/* we have nothing to make use of with hyprland, we just want to check if we're running under it. */
-		self->wayland.on_hyprland = MwTRUE;
 	} else {
 		// printf("unknown interface %s\n", interface);
 	}
