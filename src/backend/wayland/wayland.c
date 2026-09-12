@@ -942,6 +942,60 @@ static void detect_dark_theme(MwLL handle) {
 }
 #endif
 
+static void draw_child(MwLL handle, MwLL child);
+static void draw_children(MwLL handle);
+
+static void draw_child(MwLL handle, MwLL child) {
+	cairo_t*	 c;
+	cairo_surface_t* cs;
+	cairo_t*	 selected_cairo = handle->wayland.cairo.front_cairo;
+
+	wl_surface_commit(child->wayland.framebuffer.surface);
+
+	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, child->wayland.ww, child->wayland.wh);
+	c  = cairo_create(cs);
+
+	cairo_set_source_surface(c, child->wayland.cairo.front_cs, 0, 0);
+	cairo_pattern_set_filter(cairo_get_source(c), CAIRO_FILTER_NEAREST);
+
+	cairo_set_operator(handle->wayland.cairo.front_cairo, CAIRO_OPERATOR_OVER);
+
+	cairo_paint(c);
+
+	cairo_set_source_surface(selected_cairo, cs, child->wayland.x, child->wayland.y);
+	cairo_paint(selected_cairo);
+
+	cairo_destroy(c);
+	cairo_surface_destroy(cs);
+
+	draw_children(child);
+}
+
+static void draw_children(MwLL handle) {
+	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+
+	MwLLWaylandChildrenIterate(handle, draw_child);
+
+	if(handle->wayland.configured) MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
+	handle->wayland.events_pending = MwFALSE;
+}
+
+static void cascade_child(MwLL handle, MwLL child) {
+	child->wayland.do_cascading_draw = 10;
+}
+
+static void count_child(MwLL handle, MwLL child) {
+	handle->wayland.cascading_child_num++;
+}
+
+static void cascade_children(MwLL handle) {
+	handle->wayland.cascading_child_num = 0;
+	MwLLWaylandChildrenIterate(handle, count_child);
+
+	handle->wayland.do_cascading_draw = 10;
+	MwLLWaylandChildrenIterate(handle, cascade_child);
+}
+
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL r;
 	r = malloc(sizeof(*r));
@@ -1035,8 +1089,11 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 	WIDGET_CHECK(handle);
 	MwLLWaylandRegionInvalidate(handle);
-	handle->wayland.x = x;
-	handle->wayland.y = y;
+
+	if(handle->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
+		handle->wayland.x = x;
+		handle->wayland.y = y;
+	}
 
 	switch(handle->wayland.type) {
 	case MwLL_WAYLAND_TOPLEVEL:
@@ -1118,41 +1175,6 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 	}
 
 	handle->wayland.events_pending = 1;
-}
-static void draw_child(MwLL handle, MwLL child);
-static void draw_children(MwLL handle);
-
-static void draw_child(MwLL handle, MwLL child) {
-	cairo_t*	 c;
-	cairo_surface_t* cs;
-	cairo_t*	 selected_cairo = handle->wayland.cairo.front_cairo;
-
-	wl_surface_commit(child->wayland.framebuffer.surface);
-
-	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, child->wayland.ww, child->wayland.wh);
-	c  = cairo_create(cs);
-
-	cairo_set_source_surface(c, child->wayland.cairo.front_cs, 0, 0);
-	cairo_pattern_set_filter(cairo_get_source(c), CAIRO_FILTER_NEAREST);
-
-	cairo_set_operator(handle->wayland.cairo.front_cairo, CAIRO_OPERATOR_OVER);
-
-	cairo_paint(c);
-
-	cairo_set_source_surface(selected_cairo, cs, child->wayland.x, child->wayland.y);
-	cairo_paint(selected_cairo);
-
-	cairo_destroy(c);
-	cairo_surface_destroy(cs);
-
-	draw_children(child);
-}
-
-static void draw_children(MwLL handle) {
-	MwLLWaylandChildrenIterate(handle, draw_child);
-
-	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
-	handle->wayland.force_render = MwTRUE;
 }
 
 typedef struct {
@@ -1317,7 +1339,7 @@ static void MwLLEndDrawImpl(MwLL handle) {
 		}
 		MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
 
-		draw_children(handle);
+		cascade_children(handle);
 	}
 }
 
@@ -1382,6 +1404,12 @@ static int MwLLPendingImpl(MwLL handle) {
 		handle->wayland.setting_wh = 0;
 	}
 
+	if(handle->wayland.do_cascading_draw) {
+		draw_children(handle);
+		if(handle->wayland.do_cascading_draw > 0)
+			handle->wayland.do_cascading_draw--;
+	}
+
 	handle->wayland.end_time = MwTimeGetTick();
 
 	if(handle->wayland.holding_key) {
@@ -1440,6 +1468,7 @@ static int MwLLPendingImpl(MwLL handle) {
 
 static void MwLLNextEventImpl(MwLL handle) {
 	WIDGET_CHECK(handle);
+
 	if(!MwWaylandVulkan) {
 		if(handle->wayland.did_event_loop_early) {
 			handle->wayland.did_event_loop_early = MwFALSE;

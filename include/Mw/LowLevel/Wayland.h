@@ -424,6 +424,8 @@ struct _MwLLWayland {
 
 	MwBool force_render;
 	MwBool did_event_loop_early;
+	MwBool do_cascading_draw;
+	int    cascading_child_num;
 
 	MwBool dispatching_resize;
 
@@ -452,8 +454,6 @@ struct _MwLLWayland {
 	MwU64  next_elapsed;
 	long   start_time;
 	long   end_time;
-
-	MwBool on_hyprland;
 };
 
 struct _MwLLWaylandColor {

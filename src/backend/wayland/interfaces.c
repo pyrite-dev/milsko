@@ -559,76 +559,79 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	WAYLAND_EVENT_OP_END(self);
 };
 
-// static void recursive_dispatch_mouse_down(MwLL handle, MwMouse* p) {
-// 	MwWidget h = (MwWidget)handle->common.user;
-// 	MwLLDispatch(handle, down, p);
-// 	if(h) {
-// 		int i;
-// 		for(i = 0; i < arrlen(h->children); i++) {
-// 			MwLLDispatch(h->children[i]->lowlevel, down, p);
-// 			if(arrlen(h->children[i]->children) > 0) {
-// 				recursive_dispatch_mouse_down(h->children[i]->lowlevel, p);
-// 			}
-// 		}
-// 	}
-// };
-// static void recursive_dispatch_mouse_up(MwLL handle, MwMouse* p) {
-// 	MwWidget h = (MwWidget)handle->common.user;
-// 	MwLLDispatch(handle, up, p);
-// 	if(h) {
-// 		int i;
-// 		for(i = 0; i < arrlen(h->children); i++) {
-// 			MwLLDispatch(h->children[i]->lowlevel, up, p);
-// 			if(arrlen(h->children[i]->children) > 0) {
-// 				recursive_dispatch_mouse_up(h->children[i]->lowlevel, p);
-// 			}
-// 		}
-// 	}
-// };
-
-static void pointer_iterate_master(MwLL handle, MwLL child, MwBool down) {
-	MwLL	topmost_parent = handle;
-	MwPoint point;
-	MwPoint relative_pos;
-	MwPoint absolute_pos;
-
-	absolute_pos.x = child->wayland.x;
-	absolute_pos.y = child->wayland.y;
-
-	while(topmost_parent->wayland.parent) {
-		topmost_parent = topmost_parent->wayland.parent;
-		if(topmost_parent) {
-			absolute_pos.x += topmost_parent->wayland.x;
-			absolute_pos.y += topmost_parent->wayland.y;
+static void recursive_dispatch_mouse_down(MwLL handle, MwMouse* p) {
+	MwWidget h = (MwWidget)handle->common.user;
+	MwLLDispatch(handle, down, p);
+	if(h) {
+		int i;
+		for(i = 0; i < arrlen(h->children); i++) {
+			MwLLDispatch(h->children[i]->lowlevel, down, p);
+			if(arrlen(h->children[i]->children) > 0) {
+				recursive_dispatch_mouse_down(h->children[i]->lowlevel, p);
+			}
 		}
 	}
-
-	point	       = topmost_parent->wayland.cur_mouse_pos;
-	relative_pos.x = point.x - absolute_pos.x;
-	relative_pos.y = point.y - absolute_pos.y;
-
-	if(
-	    point.x >= absolute_pos.x && point.x <= absolute_pos.x + child->wayland.ww &&
-	    point.y >= absolute_pos.y && point.y <= absolute_pos.y + child->wayland.wh) {
-		MwMouse p;
-		p.point = relative_pos;
-
-		if(down) {
-			MwLLDispatch(child, down, &p);
-		} else {
-			MwLLDispatch(child, up, &p);
+};
+static void recursive_dispatch_mouse_up(MwLL handle, MwMouse* p) {
+	MwWidget h = (MwWidget)handle->common.user;
+	MwLLDispatch(handle, up, p);
+	if(h) {
+		int i;
+		for(i = 0; i < arrlen(h->children); i++) {
+			MwLLDispatch(h->children[i]->lowlevel, up, p);
+			if(arrlen(h->children[i]->children) > 0) {
+				recursive_dispatch_mouse_up(h->children[i]->lowlevel, p);
+			}
 		}
-
-		printf("%p %s (%d %d %d %d)\n", child, down ? "DOWN" : "UP", p.point.x, p.point.y, child->wayland.ww, child->wayland.wh);
 	}
-}
-static void pointer_iterate_down(MwLL handle, MwLL child) {
-	pointer_iterate_master(handle, child, MwTRUE);
-	MwLLWaylandChildrenIterate(child, pointer_iterate_down);
-}
-static void pointer_iterate_up(MwLL handle, MwLL child) {
-	pointer_iterate_master(handle, child, MwFALSE);
-	MwLLWaylandChildrenIterate(child, pointer_iterate_up);
+};
+
+static void mouse_dispatch(MwLL self, MwMouse p, MwU32 state) {
+	switch(state) {
+	case WL_POINTER_BUTTON_STATE_PRESSED:
+		MwLLDispatch(self, down, &p);
+		break;
+	case WL_POINTER_BUTTON_STATE_RELEASED:
+		MwLLDispatch(self, up, &p);
+		break;
+	}
+
+	if(self->common.user) {
+		MwWidget w = self->common.user;
+		int	 i;
+		for(i = 0; i < arrlen(w->children); i++) {
+			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
+				MwLL	child	       = w->children[i]->lowlevel;
+				MwLL	topmost_parent = child;
+				MwPoint point;
+				MwPoint relative_mouse_pos;
+				MwPoint absolute_pos;
+
+				absolute_pos.x = child->wayland.x;
+				absolute_pos.y = child->wayland.y;
+				while(topmost_parent->wayland.parent) {
+					topmost_parent = topmost_parent->wayland.parent;
+					if(topmost_parent) {
+						absolute_pos.x += topmost_parent->wayland.x;
+						absolute_pos.y += topmost_parent->wayland.y;
+					}
+				}
+
+				point		     = topmost_parent->wayland.cur_mouse_pos;
+				relative_mouse_pos.x = point.x - absolute_pos.x;
+				relative_mouse_pos.y = point.y - absolute_pos.y;
+
+				if(
+				    point.x >= absolute_pos.x && point.x <= absolute_pos.x + child->wayland.ww &&
+				    point.y >= absolute_pos.y && point.y <= absolute_pos.y + child->wayland.wh) {
+
+					p.point = relative_mouse_pos;
+
+					mouse_dispatch(child, p, state);
+				}
+			}
+		}
+	}
 }
 
 /* `wl_pointer.button` callback */
@@ -656,17 +659,15 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 		break;
 	}
 	self->wayland.held_down = state == WL_POINTER_BUTTON_STATE_PRESSED;
-
 	switch(state) {
 	case WL_POINTER_BUTTON_STATE_PRESSED:
 		MwLLDispatch(self, down, &p);
-		MwLLWaylandChildrenIterate(self, pointer_iterate_down);
 		break;
 	case WL_POINTER_BUTTON_STATE_RELEASED:
 		MwLLDispatch(self, up, &p);
-		MwLLWaylandChildrenIterate(self, pointer_iterate_up);
 		break;
 	}
+	mouse_dispatch(self, p, state);
 
 	if(!self->wayland.has_decorations && self->wayland.do_csd) {
 		if(state != WL_POINTER_BUTTON_STATE_RELEASED)
@@ -674,6 +675,8 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 		else
 			xdg_borderless_step_mup(self, p, serial);
 	}
+
+	MwLLForceRender(self);
 
 	WAYLAND_EVENT_OP_END(self);
 };
