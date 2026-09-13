@@ -269,12 +269,17 @@ int main() {
 	wclock = child(f);
 
 	f = frame("Chart", -PaddingContent, -PaddingContent, MwChartClass,
+		  MwNtype, MwCHART_3D_BAR,
+		  MwNcolumnSpan, 2,
 		  NULL);
 	w = child(f);
-	MwChartAdd(w, -1, "A", -100, NULL);
-	MwChartAdd(w, -1, "B", 100, NULL);
-	MwChartAdd(w, -1, "C", 200, NULL);
-	MwChartAdd(w, -1, "D", 300, NULL);
+	MwChartAdd(w, -1, "A", -400, NULL);
+	MwChartAdd(w, -1, "B", -200, NULL);
+	MwChartAdd(w, -1, "C", -100, NULL);
+	MwChartAdd(w, -1, "D", 100, NULL);
+	MwChartAdd(w, -1, "E", 200, NULL);
+	MwChartAdd(w, -1, "F", 400, NULL);
+	MwChartAdd(w, -1, "G", 800, NULL);
 
 	f = frame("ComboBox", -PaddingContent, 24, MwComboBoxClass, NULL);
 	w = child(f);
@@ -288,6 +293,7 @@ int main() {
 
 	f = frame("Label", -PaddingContent, -PaddingContent, MwLabelClass,
 		  MwNtext, "Epic text\nNewline can be used too!",
+		  MwNcolumnSpan, 2,
 		  NULL);
 
 	f     = frame("ListBox", -PaddingContent, -PaddingContent, MwListBoxClass,
@@ -321,9 +327,7 @@ int main() {
 			 MwNtitle, "Sub window 2",
 			 NULL);
 
-	f = frame("Tab", -PaddingContent, -PaddingContent, MwTabClass,
-		  MwNcolumnSpan, 2,
-		  NULL);
+	f = frame("Tab", -PaddingContent, -PaddingContent, MwTabClass, NULL);
 	w = child(f);
 	MwSetText(MwTabAdd(w, "ABC"), MwNbackground, "#f00");
 	MwSetText(MwTabAdd(w, "DEF"), MwNbackground, "#0f0");

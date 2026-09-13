@@ -99,19 +99,23 @@ MwLLColor MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, int b) 
 	return MwLLAllocColor(handle->lowlevel, cr, cg, cb);
 }
 
+void MwFixRect(MwRect* rect) {
+	if(rect->width < 0) {
+		rect->width *= -1;
+		rect->x -= rect->width;
+	}
+
+	if(rect->height < 0) {
+		rect->height *= -1;
+		rect->y -= rect->height;
+	}
+}
+
 void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 	MwPoint p[4];
 	MwRect	r = *rect;
 
-	if(r.width < 0) {
-		r.width *= -1;
-		r.x -= r.width;
-	}
-
-	if(r.height < 0) {
-		r.height *= -1;
-		r.y -= r.height;
-	}
+	MwFixRect(&r);
 
 	p[0].x = r.x;
 	p[0].y = r.y;
@@ -132,15 +136,7 @@ void MwDrawRectLine(MwWidget handle, MwRect* rect, MwLLColor color) {
 	MwPoint p[5];
 	MwRect	r = *rect;
 
-	if(r.width < 0) {
-		r.width *= -1;
-		r.x -= r.width;
-	}
-
-	if(r.height < 0) {
-		r.height *= -1;
-		r.y -= r.height;
-	}
+	MwFixRect(&r);
 
 	p[0].x = r.x;
 	p[0].y = r.y;

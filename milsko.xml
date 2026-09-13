@@ -232,6 +232,7 @@
 		</enumeration>
 		<enumeration name="MwCHART">
 			<integer name="MwCHART_BAR">0</integer>
+			<integer name="MwCHART_3D_BAR" />
 		</enumeration>
 		<enumeration name="MwMOUSE">
 			<integer name="MwMOUSE_LEFT">1</integer>
@@ -657,6 +658,8 @@
 		<widget name="Chart">
 			<properties>
 				<property name="type" />
+				<property name="minValue" />
+				<property name="maxValue" />
 			</properties>
 			<functions>
 				<function name="Set">

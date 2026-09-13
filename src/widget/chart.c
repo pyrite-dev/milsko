@@ -27,12 +27,43 @@ static int wcreate(MwWidget handle) {
 
 	MwSetDefault(handle);
 
+	MwSetInteger(handle, MwNtype, MwCHART_BAR);
+
 	return 0;
 }
 
 static void destroy(MwWidget handle) {
 	MwChartReset(handle);
 	free(handle->internal);
+}
+
+static void draw_line(MwWidget handle, const char* text, double x, double y, double width, double height, MwLLColor color) {
+	MwPoint p[2];
+	int	type = MwGetInteger(handle, MwNtype);
+
+	p[0].x = x;
+	p[0].y = y;
+
+	p[1].x = x + width;
+	p[1].y = p[0].y;
+	MwDrawText(handle, NULL, p, text, MwALIGNMENT_END, color);
+
+	if(type == MwCHART_3D_BAR) {
+		MwPoint p2[2];
+
+		p2[0] = p[0];
+		p2[1] = p[0];
+
+		p2[1].x += height;
+		p2[1].y -= height;
+
+		MwLLLine(handle->lowlevel, &p2[0], color);
+
+		p[0].x += height;
+		p[0].y -= height;
+		p[1].y -= height;
+	}
+	MwLLLine(handle->lowlevel, &p[0], color);
 }
 
 static void draw(MwWidget handle) {
@@ -46,17 +77,21 @@ static void draw(MwWidget handle) {
 	int	     gap;
 	int	     width;
 	MwRect	     node;
-	double	     min   = 0xffffffff;
-	double	     max   = -0xffffffff;
+	double	     vmin  = 0xffffffff;
+	double	     vmax  = -0xffffffff;
 	int	     space = MwTextHeight(handle, NULL, "M");
 	MwPoint	     p[2];
+	int	     type = MwGetInteger(handle, MwNtype);
 
 	for(n = 0; colors[n] != NULL; n++);
 
 	for(i = 0; i < arrlen(c->entries); i++) {
-		if(min > c->entries[i].value) min = c->entries[i].value;
-		if(max < c->entries[i].value) max = c->entries[i].value;
+		if(vmin > c->entries[i].value) vmin = c->entries[i].value;
+		if(vmax < c->entries[i].value) vmax = c->entries[i].value;
 	}
+
+	if(MwGetInteger(handle, MwNminValue) != MwDEFAULT) vmin = MwGetInteger(handle, MwNminValue);
+	if(MwGetInteger(handle, MwNmaxValue) != MwDEFAULT) vmax = MwGetInteger(handle, MwNmaxValue);
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -64,57 +99,140 @@ static void draw(MwWidget handle) {
 	r.height = MwGetInteger(handle, MwNheight);
 	MwDrawRect(handle, &r, base);
 
-	if(min > 0) {
-		min = 0;
-	} else if(min < 0) {
-		min -= r.height / 10;
-	}
+	if(type == MwCHART_BAR || type == MwCHART_3D_BAR) {
+		double s     = 1.5;
+		double ovmin = vmin;
+		double ovmax = vmax;
+		double twidth;
+		char   buf[128];
 
-	node.x = 16;
-	node.y = 0;
+		node.x = 128;
+		node.y = 0;
 
-	width = (r.width - node.x) * 2 / (arrlen(c->entries) * 3 + 1);
-	gap   = width / 2;
+		width = (r.width - node.x) * s / (arrlen(c->entries) * (1 + s) + 1);
+		gap   = width / s;
 
-	p[0].x = node.x;
-	p[0].y = r.height - space;
+		twidth = (width + gap) * arrlen(c->entries) + gap;
 
-	p[1].x = node.x + (width + gap) * arrlen(c->entries) + gap;
-	p[1].y = p[0].y;
-	MwLLLine(handle->lowlevel, &p[0], border);
+		if(vmin > 0) {
+			vmin = 0;
+		} else if(vmin < 0) {
+			vmin -= (double)width / r.height * (vmax - vmin);
+		}
 
-	p[0].y = r.height - space - abs(min / (max - min) * (r.height - space));
-	p[1].y = p[0].y;
-	MwLLLine(handle->lowlevel, &p[0], border);
-	MwDrawText(handle, NULL, p, "0", MwALIGNMENT_END, border);
+		if(vmax < 0) {
+			vmax = 0;
+		} else if(vmax > 0) {
+			vmax += (double)width / r.height * (vmax - vmin);
+		}
 
-	p[0].x = node.x;
-	p[0].y = 0;
+		sprintf(buf, "%.2f", ovmax);
+		draw_line(handle, buf, node.x, (r.height - space) - (ovmax - vmin) / (vmax - vmin) * (r.height - space), twidth, width / 2, border);
 
-	p[1].x = node.x;
-	p[1].y = r.height - space;
-	MwLLLine(handle->lowlevel, &p[0], border);
+		draw_line(handle, "0", node.x, (r.height - space) - (0 - vmin) / (vmax - vmin) * (r.height - space), twidth, width / 2, border);
 
-	node.width = width;
-	for(i = 0; i < arrlen(c->entries); i++) {
-		MwLLColor color = MwParseColor(handle, c->entries[i].color == NULL ? colors[i % n] : c->entries[i].color);
+		sprintf(buf, "%.2f", ovmin);
+		draw_line(handle, buf, node.x, (r.height - space) - (ovmin - vmin) / (vmax - vmin) * (r.height - space), twidth, width / 2, border);
 
-		node.x += gap;
+		p[0].x = node.x;
+		p[0].y = 0;
 
-		node.height = c->entries[i].value / (max - min) * (r.height - space);
-		node.y	    = r.height - space - node.height - abs(min / (max - min) * (r.height - space));
+		p[1].x = node.x;
+		p[1].y = r.height - space;
+		MwLLLine(handle->lowlevel, &p[0], border);
 
-		MwDrawRect(handle, &node, color);
-		MwDrawRectLine(handle, &node, border);
+		p[0].x = node.x;
+		p[0].y = r.height - space;
 
-		p[0].x = node.x + node.width / 2;
-		p[0].y = r.height - space / 2;
+		p[1].x = node.x + twidth;
+		p[1].y = p[0].y;
+		MwLLLine(handle->lowlevel, &p[0], border);
 
-		MwDrawText(handle, NULL, p, c->entries[i].name, MwALIGNMENT_CENTER, border);
+		node.width = width;
+		for(i = 0; i < arrlen(c->entries); i++) {
+			int	  ColorDiff = MwGetColorDifference(handle);
+			MwLLColor color	    = MwParseColor(handle, c->entries[i].color == NULL ? colors[i % n] : c->entries[i].color);
+			MwLLColor colorl    = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
+			MwLLColor colord    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
+			MwPoint	  persp_top[5];
+			MwPoint	  persp_right[5];
 
-		node.x += node.width;
+			node.x += gap;
 
-		MwLLFreeColor(color);
+			node.height = -c->entries[i].value / (vmax - vmin) * (r.height - space);
+			node.y	    = (r.height - space) - (0 - vmin) / (vmax - vmin) * (r.height - space);
+
+			MwDrawRect(handle, &node, color);
+
+			if(type == MwCHART_3D_BAR) {
+				MwRect node2 = node;
+
+				MwFixRect(&node2);
+
+				persp_top[0] = *(MwPoint*)&node2;
+				persp_top[1] = *(MwPoint*)&node2;
+				persp_top[1].x += node2.width;
+
+				persp_top[2] = persp_top[1];
+				persp_top[3] = persp_top[0];
+
+				persp_top[2].x += node2.width / 2;
+				persp_top[2].y -= node2.width / 2;
+
+				persp_top[3].x += node2.width / 2;
+				persp_top[3].y -= node2.width / 2;
+
+				persp_top[4] = persp_top[0];
+
+				MwLLPolygon(handle->lowlevel, persp_top, 4, colorl);
+
+				persp_right[0] = *(MwPoint*)&node2;
+				persp_right[1] = *(MwPoint*)&node2;
+				persp_right[0].x += node2.width;
+				persp_right[1].x += node2.width;
+				persp_right[1].y += node2.height;
+
+				persp_right[2] = persp_right[1];
+				persp_right[3] = persp_right[0];
+
+				persp_right[2].x += node2.width / 2;
+				persp_right[2].y -= node2.width / 2;
+
+				persp_right[3].x += node2.width / 2;
+				persp_right[3].y -= node2.width / 2;
+
+				persp_right[4] = persp_right[0];
+
+				MwLLPolygon(handle->lowlevel, persp_right, 4, colord);
+			}
+
+			if(!MwGetInteger(handle, MwNmodernLook)) {
+				MwDrawRectLine(handle, &node, border);
+
+				if(type == MwCHART_3D_BAR) {
+					MwLLLine(handle->lowlevel, &persp_top[0], border);
+					MwLLLine(handle->lowlevel, &persp_top[1], border);
+					MwLLLine(handle->lowlevel, &persp_top[2], border);
+					MwLLLine(handle->lowlevel, &persp_top[3], border);
+
+					MwLLLine(handle->lowlevel, &persp_right[0], border);
+					MwLLLine(handle->lowlevel, &persp_right[1], border);
+					MwLLLine(handle->lowlevel, &persp_right[2], border);
+					MwLLLine(handle->lowlevel, &persp_right[3], border);
+				}
+			}
+
+			p[0].x = node.x + node.width / 2;
+			p[0].y = r.height - space / 2;
+
+			MwDrawText(handle, NULL, p, c->entries[i].name, MwALIGNMENT_CENTER, border);
+
+			node.x += node.width;
+
+			MwLLFreeColor(colord);
+			MwLLFreeColor(colorl);
+			MwLLFreeColor(color);
+		}
 	}
 
 	MwLLFreeColor(border);

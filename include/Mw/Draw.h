@@ -53,6 +53,13 @@ MWDECL void MWAPI MwColorTableInit(void);
 MWDECL MwLLColor MWAPI MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, int b);
 
 /*!
+ * @brief Fix a rectangle
+ * @param handle Widget
+ * @param rect Rectangle area
+ */
+MWDECL void MWAPI MwFixRect(MwRect* rect);
+
+/*!
  * @brief Draws a filled rectangle
  * @param handle Widget
  * @param rect Rectangle area
