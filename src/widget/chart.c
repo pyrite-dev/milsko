@@ -12,6 +12,8 @@ static const char* palette0[] = {
     "#888",
     NULL};
 
+#define NUMFMT "%.2f"
+
 static int wcreate(MwWidget handle) {
 	MwChart c = malloc(sizeof(*c));
 	memset(c, 0, sizeof(*c));
@@ -99,7 +101,18 @@ static void draw(MwWidget handle) {
 		double twidth;
 		char   buf[128];
 
-		node.x = 128;
+		node.x = 0;
+
+		for(i = 0; i < arrlen(c->entries); i++) {
+			int w;
+
+			sprintf(buf, NUMFMT, c->entries[i].value);
+
+			w = MwTextWidth(handle, NULL, buf);
+
+			if(node.x < w) node.x = w;
+		}
+
 		node.y = 0;
 
 		width = (r.width - node.x) * s / (arrlen(c->entries) * (1 + s) + 1);
@@ -119,12 +132,12 @@ static void draw(MwWidget handle) {
 			vmax += (double)width / r.height * (vmax - vmin);
 		}
 
-		sprintf(buf, "%.2f", ovmax);
+		sprintf(buf, NUMFMT, ovmax);
 		draw_line(handle, buf, node.x, (r.height - space) - (ovmax - vmin) / (vmax - vmin) * (r.height - space), twidth, width / 2, border);
 
 		draw_line(handle, "0", node.x, (r.height - space) - (0 - vmin) / (vmax - vmin) * (r.height - space), twidth, width / 2, border);
 
-		sprintf(buf, "%.2f", ovmin);
+		sprintf(buf, NUMFMT, ovmin);
 		draw_line(handle, buf, node.x, (r.height - space) - (ovmin - vmin) / (vmax - vmin) * (r.height - space), twidth, width / 2, border);
 
 		p[0].x = node.x;
