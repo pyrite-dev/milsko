@@ -62,6 +62,19 @@ static void draw_line(MwWidget handle, const char* text, double x, double y, dou
 	MwLLLine(handle->lowlevel, &p[0], color);
 }
 
+#define CALC_VMIN_VMAX \
+	if(vmin > 0) { \
+		vmin = 0; \
+	} else if(vmin < 0) { \
+		vmin -= (double)width / r.height * (vmax - vmin); \
+	} \
+\
+	if(vmax < 0) { \
+		vmax = 0; \
+	} else if(vmax > 0) { \
+		vmax += (double)width / r.height * (vmax - vmin); \
+	}
+
 static void draw(MwWidget handle) {
 	int	     ColorDiff = MwGetColorDifference(handle);
 	MwLLColor    base      = MwParseColor(handle, MwGetText(handle, MwNbackground));
@@ -73,13 +86,14 @@ static void draw(MwWidget handle) {
 	int	     n;
 	int	     gap;
 	int	     width;
-	MwRect	     node;
 	double	     vmin  = 0xffffffff;
 	double	     vmax  = -0xffffffff;
 	int	     space = MwTextHeight(handle, NULL, "M");
 	MwPoint	     p[2];
 	int	     type   = MwGetInteger(handle, MwNtype);
 	int	     modern = MwGetInteger(handle, MwNmodernLook);
+	double	     ovmin;
+	double	     ovmax;
 
 	for(n = 0; colors[n] != NULL; n++);
 
@@ -91,6 +105,9 @@ static void draw(MwWidget handle) {
 	if(MwGetInteger(handle, MwNminValue) != MwDEFAULT) vmin = MwGetInteger(handle, MwNminValue);
 	if(MwGetInteger(handle, MwNmaxValue) != MwDEFAULT) vmax = MwGetInteger(handle, MwNmaxValue);
 
+	ovmin = vmin;
+	ovmax = vmax;
+
 	r.x	 = 0;
 	r.y	 = 0;
 	r.width	 = MwGetInteger(handle, MwNwidth);
@@ -98,11 +115,10 @@ static void draw(MwWidget handle) {
 	MwDrawRect(handle, &r, base);
 
 	if(type == MwCHART_BAR || type == MwCHART_3D_BAR) {
-		double s     = 1.5;
-		double ovmin = vmin;
-		double ovmax = vmax;
+		double s = 1.5;
 		double twidth;
 		char   buf[128];
+		MwRect node;
 
 		node.x = 0;
 
@@ -121,19 +137,9 @@ static void draw(MwWidget handle) {
 		width = (r.width - node.x) * s / (arrlen(c->entries) * (1 + s) + 1);
 		gap   = width / s;
 
+		CALC_VMIN_VMAX;
+
 		twidth = (width + gap) * arrlen(c->entries) + gap;
-
-		if(vmin > 0) {
-			vmin = 0;
-		} else if(vmin < 0) {
-			vmin -= (double)width / r.height * (vmax - vmin);
-		}
-
-		if(vmax < 0) {
-			vmax = 0;
-		} else if(vmax > 0) {
-			vmax += (double)width / r.height * (vmax - vmin);
-		}
 
 		sprintf(buf, NUMFMT, ovmax);
 		draw_line(handle, buf, node.x, (r.height - space) - (ovmax - vmin) / (vmax - vmin) * (r.height - space), twidth, width / 2, border);
@@ -247,7 +253,7 @@ static void draw(MwWidget handle) {
 		double	cangle = 0;
 		int	k;
 		double	vsquish = type == MwCHART_3D_PIE ? 2 : 1;
-		MwPoint p[360 + 1 + 1];
+		MwPoint p2[360 + 1 + 1];
 
 		for(i = 0; i < arrlen(c->entries); i++) {
 			if(c->entries[i].value > 0) sum += c->entries[i].value;
@@ -268,62 +274,62 @@ static void draw(MwWidget handle) {
 				color  = MwParseColor(handle, c->entries[i].color == NULL ? colors[i % n] : c->entries[i].color);
 				colorl = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 
-				p[0].x = r.width / 2;
-				p[0].y = r.height / 2;
+				p2[0].x = r.width / 2;
+				p2[0].y = r.height / 2;
 				for(j = 0; j <= div; j++) {
 					double a = angle / div * j;
 
-					p[div - j + 1].x = p[0].x + cos((cangle + a - 90) / 180 * M_PI) * radius / 2;
-					p[div - j + 1].y = p[0].y + sin((cangle + a - 90) / 180 * M_PI) * radius / 2 / vsquish;
+					p2[div - j + 1].x = p2[0].x + cos((cangle + a - 90) / 180 * M_PI) * radius / 2;
+					p2[div - j + 1].y = p2[0].y + sin((cangle + a - 90) / 180 * M_PI) * radius / 2 / vsquish;
 				}
 
 				count = j + 1;
 
 				if((k == 0 || k == 1) && type == MwCHART_3D_PIE) {
 					int	j;
-					MwPoint p2[360 + 1 + 1];
+					MwPoint p3[360 + 1 + 1];
 					int	d = 0;
 
 					for(d = 1; d <= 2; d++) {
 						for(j = 0; j < count - 1; j++) {
-							p2[3 + j] = p[1 + j];
-							p2[3 + j].y += radius / 8 / d;
+							p3[3 + j] = p2[1 + j];
+							p3[3 + j].y += radius / 8 / d;
 						}
 
-						p2[0] = p[count - 1];
-						p2[1] = p[0];
-						p2[2] = p[1];
+						p3[0] = p2[count - 1];
+						p3[1] = p2[0];
+						p3[2] = p2[1];
 
 						if(k == 0) {
-							MwLLPolygon(handle->lowlevel, p2, count + 2, color);
+							MwLLPolygon(handle->lowlevel, p3, count + 2, color);
 						} else if(d == 1 && k == 1) {
 							for(j = 3; j < count + 1; j++) {
-								if(!modern) MwLLLine(handle->lowlevel, &p2[j], border);
+								if(!modern) MwLLLine(handle->lowlevel, &p3[j], border);
 							}
 
-							p[0] = p[1];
-							p[0].y += radius / 8;
-							if(!modern) MwLLLine(handle->lowlevel, p, border);
+							p2[0] = p2[1];
+							p2[0].y += radius / 8;
+							if(!modern) MwLLLine(handle->lowlevel, p2, border);
 						}
 					}
 				}
 
 				if(k == 2) {
-					MwLLPolygon(handle->lowlevel, p, count, type == MwCHART_3D_PIE ? colorl : color);
+					MwLLPolygon(handle->lowlevel, p2, count, type == MwCHART_3D_PIE ? colorl : color);
 				} else if(k == 3) {
 					int j;
 
-					p[count] = p[0];
+					p[count] = p2[0];
 					for(j = 0; j < count; j++) {
-						if(!modern) MwLLLine(handle->lowlevel, &p[j], border);
+						if(!modern) MwLLLine(handle->lowlevel, &p2[j], border);
 					}
 
-					p[0].x += cos((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4;
-					p[0].y += sin((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4 / vsquish;
+					p2[0].x += cos((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4;
+					p2[0].y += sin((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4 / vsquish;
 
 					handle->bgcolor = type == MwCHART_3D_PIE ? colorl : color;
 
-					MwDrawText(handle, NULL, p, c->entries[i].name, MwALIGNMENT_CENTER, border);
+					MwDrawText(handle, NULL, p2, c->entries[i].name, MwALIGNMENT_CENTER, border);
 				}
 
 				cangle += angle;
@@ -341,6 +347,53 @@ static void draw(MwWidget handle) {
 			MwLLLine(handle->lowlevel, p, border);
 
 			p[0].x = p[1].x = r.width / 2 + radius / 2;
+			MwLLLine(handle->lowlevel, p, border);
+		}
+	} else if(type == MwCHART_LINE) {
+		char   buf[128];
+		MwRect node;
+		double twidth;
+		double x = 0;
+
+		for(i = 0; i < arrlen(c->entries); i++) {
+			int w;
+
+			sprintf(buf, NUMFMT, c->entries[i].value);
+
+			w = MwTextWidth(handle, NULL, buf);
+
+			if(x < w) x = w;
+		}
+
+		width  = 16;
+		twidth = r.width - x;
+
+		CALC_VMIN_VMAX;
+
+		sprintf(buf, NUMFMT, ovmax);
+		draw_line(handle, buf, x, (r.height - space) - (ovmax - vmin) / (vmax - vmin) * (r.height - space), twidth, width / 2, border);
+
+		draw_line(handle, "0", x, (r.height - space) - (0 - vmin) / (vmax - vmin) * (r.height - space), twidth, width / 2, border);
+
+		sprintf(buf, NUMFMT, ovmin);
+		draw_line(handle, buf, x, (r.height - space) - (ovmin - vmin) / (vmax - vmin) * (r.height - space), twidth, width / 2, border);
+
+		draw_line(handle, "", x, (r.height - space) - (vmin - vmin) / (vmax - vmin) * (r.height - space), twidth, width / 2, border);
+
+		p[0].x = x;
+		p[0].y = 0;
+
+		p[1]   = p[0];
+		p[1].y = r.height - space;
+
+		MwLLLine(handle->lowlevel, p, border);
+
+		for(i = 1; i < arrlen(c->entries); i++) {
+			p[0].x = x + (r.width - x) / (arrlen(c->entries) + 1) * i;
+			p[0].y = (r.height - space) - (c->entries[i - 1].value - vmin) / (vmax - vmin) * (r.height - space);
+			p[1].x = x + (r.width - x) / (arrlen(c->entries) + 1) * (i + 1);
+			p[1].y = (r.height - space) - (c->entries[i].value - vmin) / (vmax - vmin) * (r.height - space);
+
 			MwLLLine(handle->lowlevel, p, border);
 		}
 	}

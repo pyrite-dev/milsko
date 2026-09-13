@@ -294,6 +294,19 @@ int main() {
 	MwChartAdd(w, -1, "G", 10, NULL);
 	MwChartAdd(w, -1, "H", 20, NULL);
 
+	f = frame("Line Chart", -PaddingContent, -PaddingContent, MwChartClass,
+		  MwNtype, MwCHART_LINE,
+		  NULL);
+	w = child(f);
+	MwChartAdd(w, -1, "A", -800, NULL);
+	MwChartAdd(w, -1, "B", -400, NULL);
+	MwChartAdd(w, -1, "C", -200, NULL);
+	MwChartAdd(w, -1, "D", -100, NULL);
+	MwChartAdd(w, -1, "E", 100, NULL);
+	MwChartAdd(w, -1, "F", 200, NULL);
+	MwChartAdd(w, -1, "G", 400, NULL);
+	MwChartAdd(w, -1, "H", 800, NULL);
+
 	f = frame("ComboBox", -PaddingContent, 24, MwComboBoxClass, NULL);
 	w = child(f);
 	MwComboBoxAdd(w, -1, "Hello!");
@@ -306,7 +319,6 @@ int main() {
 
 	f = frame("Label", -PaddingContent, -PaddingContent, MwLabelClass,
 		  MwNtext, "Epic text\nNewline can be used too!",
-		  MwNcolumnSpan, 2,
 		  NULL);
 
 	f     = frame("ListBox", -PaddingContent, -PaddingContent, MwListBoxClass,
