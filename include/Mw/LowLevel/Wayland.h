@@ -511,10 +511,10 @@ void MwLLWaylandFlush(MwLL handle);
 void MwLLWaylandCascadeChildren(MwLL handle);
 
 /* Standard procedure before event callbacks in Wayland  */
-#define WAYLAND_EVENT_OP_START(self) pthread_mutex_lock(&self->wayland.eventsMutex);
+#define WAYLAND_EVENT_OP_START(self)
 
 /* Footer for WAYLAND_EVENT_OP_START */
-#define WAYLAND_EVENT_OP_END(self) pthread_mutex_unlock(&self->wayland.eventsMutex);
+#define WAYLAND_EVENT_OP_END(self)
 
 /* the two decoration manager constructs */
 typedef struct zxdg_decoration_manager_v1_context {
