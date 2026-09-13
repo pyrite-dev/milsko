@@ -1,8 +1,8 @@
 #include <Mw/Milsko.h>
 
-// #define USE_CATPPUCCIN
+#define USE_CATPPUCCIN_DARK
 
-#ifdef USE_CATPPUCCIN
+#ifdef USE_CATPPUCCIN_LIGHT
 const char* MwDefaultBackground	     = "#eff1f5";
 const char* MwDefaultForeground	     = "#4c4f69";
 const char* MwDefaultSubBackground   = "#9ca0b0";
@@ -18,7 +18,7 @@ const char* MwDefaultTitleBackground = "#008";
 const char* MwDefaultTitleForeground = "#fff";
 #endif
 
-#ifdef USE_CATPPUCCIN
+#ifdef USE_CATPPUCCIN_DARK
 const char* MwDefaultDarkBackground	 = "#1e1e2e";
 const char* MwDefaultDarkForeground	 = "#cdd6f4";
 const char* MwDefaultDarkSubBackground	 = "#313244";
