@@ -245,6 +245,15 @@ int main() {
 		  MwNscale, 1,
 		  NULL);
 
+	f = frame("Clock", -PaddingContent, -PaddingContent, MwClockClass,
+		  MwNhour, 15,
+		  MwNminute, 0,
+		  MwNsecond, 10,
+		  NULL);
+
+	f = frame("Chart", -PaddingContent, -PaddingContent, MwCalendarClass,
+		  NULL);
+
 	f = frame("ComboBox", -PaddingContent, 24, MwComboBoxClass, NULL);
 	w = child(f);
 	MwComboBoxAdd(w, -1, "Hello!");

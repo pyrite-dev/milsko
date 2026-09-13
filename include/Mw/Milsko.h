@@ -37,6 +37,7 @@
 #include <Mw/Widget/Button.h>
 #include <Mw/Widget/Calendar.h>
 #include <Mw/Widget/CheckBox.h>
+#include <Mw/Widget/Clock.h>
 #include <Mw/Widget/ComboBox.h>
 #include <Mw/Widget/Entry.h>
 #include <Mw/Widget/Frame.h>

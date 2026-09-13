@@ -11,7 +11,7 @@
 
 #include "../external/stb_ds.h"
 
-static int get_color_diff(MwWidget handle) {
+int MwGetColorDifference(MwWidget handle) {
 	if(MwGetInteger(handle, MwNmodernLook)) {
 		return 40;
 	} else {
@@ -121,7 +121,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	MwLLPixmap     pixmap;
 	int	       y;
 	double	       darken	  = 0.;
-	int	       ColorDiff  = get_color_diff(handle);
+	int	       ColorDiff  = MwGetColorDifference(handle);
 	double	       darkenStep = (ColorDiff / 2.) / rect->height;
 	unsigned long  sz	  = 1 * rect->height * 4;
 	unsigned char* data	  = malloc(sz * 2);
@@ -178,7 +178,7 @@ void MwDrawFrameWithBorder(MwWidget handle, MwRect* rect, MwLLColor color, int i
 	if(MwGetInteger(handle, MwNmodernLook)) {
 		MwDrawFrameEx(handle, rect, color, invert, border, 0, 0);
 	} else {
-		int diff = get_color_diff(handle) / 3 * 2;
+		int diff = MwGetColorDifference(handle) / 3 * 2;
 
 		if(border >= 2) {
 			int i;
@@ -236,7 +236,7 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	MwPoint	  p[6];
 	int	  border    = MwDefaultBorderWidth(handle);
-	int	  ColorDiff = get_color_diff(handle) + (MwGetInteger(handle, MwNmodernLook) ? 48 : 0);
+	int	  ColorDiff = MwGetColorDifference(handle) + (MwGetInteger(handle, MwNmodernLook) ? 48 : 0);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
@@ -312,7 +312,7 @@ void MwDrawCircle(MwWidget handle, MwRect* rect, MwLLColor color, MwLLColor back
 	double	       cx, cy, rx, ry;
 	int	       border;
 	int	       x, y;
-	int	       ColorDiff = (get_color_diff(handle));
+	int	       ColorDiff = (MwGetColorDifference(handle));
 	MwLLColor      darker	 = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor      lighter	 = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 	MwLLColor      base	 = MwLightenColor(handle, color, 0, 0, 0);
@@ -385,6 +385,8 @@ void MwDrawCircle(MwWidget handle, MwRect* rect, MwLLColor color, MwLLColor back
 				pout[2] = (MwU8)mixColor->common.blue;
 
 				pout[3] = 255;
+
+				MwLLFreeColor(mixColor);
 			}
 		}
 	}
@@ -402,7 +404,7 @@ void MwDrawCircle(MwWidget handle, MwRect* rect, MwLLColor color, MwLLColor back
 
 static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same) {
 	MwPoint	  p[7];
-	int	  ColorDiff = get_color_diff(handle);
+	int	  ColorDiff = MwGetColorDifference(handle);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
 	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, ColorDiff - diff, ColorDiff - diff, ColorDiff - diff);
 	color_set_disabled_if_disabled(handle, darker);
@@ -499,7 +501,7 @@ static void frame_border_complex(MwWidget handle, MwRect* rect, MwLLColor lighte
 }
 
 static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same) {
-	int	  ColorDiff = get_color_diff(handle);
+	int	  ColorDiff = MwGetColorDifference(handle);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
 	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff);
 	MwRect	  r	    = *rect;
@@ -539,7 +541,7 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction) {
 	MwPoint	  p1[4], p2[4], p3[4], p4[3];
 	const int border    = MwGetInteger(handle, MwNmodernLook) ? 2 : MwDefaultBorderWidth(handle);
-	int	  ColorDiff = get_color_diff(handle);
+	int	  ColorDiff = MwGetColorDifference(handle);
 	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);

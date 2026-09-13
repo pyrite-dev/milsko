@@ -14,6 +14,13 @@ extern "C" {
 #endif
 
 /*!
+ * @brief Get a color difference for shadow
+ * @param handle Widget
+ * @return Color difference
+ */
+MWDECL int MWAPI MwGetColorDifference(MwWidget handle);
+
+/*!
  * @brief Parses a color text
  * @param handle Widget
  * @param text Color text

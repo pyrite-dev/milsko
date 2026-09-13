@@ -2,8 +2,7 @@
 
 char* MwACPTextToUTF8Text(const char* input) {
 #if defined(_WIN32) && defined(MW_HAS_WCHAR)
-	int mbbytes = (strlen(input) + 1) * 4;
-	int wbytes  = 0;
+	int wbytes = 0;
 	int len;
 
 	wchar_t* wout;
@@ -39,7 +38,6 @@ char* MwACPTextToUTF8Text(const char* input) {
 char* MwUTF8TextToACPText(const char* input) {
 #if defined(_WIN32) && defined(MW_HAS_WCHAR)
 	int mbbytes = (strlen(input) + 1) * 4;
-	int wbytes  = 0;
 	int len;
 
 	wchar_t* wout;

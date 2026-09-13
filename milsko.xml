@@ -106,6 +106,9 @@
 		<integer name="columns" />
 		<integer name="columnSpan" column="yes" />
 		<integer name="rowSpan" column="yes" />
+		<integer name="hour" />
+		<integer name="minute" />
+		<integer name="second" />
 
 		<!-- waitMS is a special property, only applies to toplevel widget -->
 		<integer name="waitMS" common="yes" />
@@ -653,6 +656,13 @@
 			<handlers>
 				<handler name="changed" />
 			</handlers>
+		</widget>
+		<widget name="Clock">
+			<properties>
+				<property name="hour" />
+				<property name="minute" />
+				<property name="second" />
+			</properties>
 		</widget>
 		<widget name="Entry">
 			<properties>

@@ -54,6 +54,9 @@
 #define MwNrowSpan "IrowSpan"
 #define MwNdisabled "Idisabled"
 #define MwNacceptsDnD "IacceptsDnD"
+#define MwNhour "Ihour"
+#define MwNminute "Iminute"
+#define MwNsecond "Isecond"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

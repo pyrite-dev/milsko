@@ -66,7 +66,7 @@ if (grep(/^wayland$/, @backends)) {
     scan_wayland_protocol("unstable", "primary-selection",   "-unstable-v1");
     scan_wayland_protocol("unstable", "pointer-constraints", "-unstable-v1");
     scan_wayland_protocol("unstable", "relative-pointer",    "-unstable-v1");
-    scan_wayland_protocol("staging",  "fifo",    "-v1");
+    scan_wayland_protocol("staging",  "fifo",                "-v1");
     scan_wayland_protocol_from_file("wlr-layer-shell",
         "wlr-layer-shell-unstable-v1.xml");
 
@@ -153,6 +153,8 @@ new_object("src/widget/box.c");
 new_object("src/widget/button.c");
 new_object("src/widget/calendar.c");
 new_object("src/widget/checkbox.c");
+new_object("src/widget/chart.c");
+new_object("src/widget/clock.c");
 new_object("src/widget/combobox.c");
 new_object("src/widget/entry.c");
 new_object("src/widget/frame.c");
