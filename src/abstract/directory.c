@@ -206,10 +206,12 @@ static void MwDirectoryJoinSingle(char* target, char* p) {
 }
 
 char* MwDirectoryJoin(char* a, char* b) {
-	char* p	   = MwStringDuplicate(a);
+	char* p	   = malloc(strlen(a) + 3 + strlen(b));
 	char* bdup = MwStringDuplicate(b);
 	char* b2   = bdup;
 	int   i;
+
+	strcpy(p, a);
 
 	for(i = strlen(p) - 1; i >= 0; i--) {
 		if(p[i] == DIRSEP) {
