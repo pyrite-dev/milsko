@@ -1178,8 +1178,6 @@ static wayland_protocol_t* wl_subcompositor_setup(MwU32 name, struct _MwLLWaylan
 	(void)version;
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		wayland->toplevel->scompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
-	} else {
-		wayland->sublevel->subcompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
 	}
 
 	return NULL;
@@ -1189,8 +1187,6 @@ static void wl_subcompositor_interface_destroy(struct _MwLLWayland* wayland, way
 	(void)data;
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		wl_subcompositor_destroy(wayland->toplevel->scompositor);
-	} else {
-		wl_subcompositor_destroy(wayland->sublevel->subcompositor);
 	}
 }
 
