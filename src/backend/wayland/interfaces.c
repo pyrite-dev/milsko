@@ -576,9 +576,9 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 		inArea |= self->wayland.framebuffer.surface == curSurface;
 	}
 
-	if(self->wayland.backbuffer.surface) {
-		inArea |= self->wayland.backbuffer.surface == curSurface;
-	}
+	// if(self->wayland.backbuffer.surface) {
+	// 	inArea |= self->wayland.backbuffer.surface == curSurface;
+	// }
 
 	self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
 	self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
@@ -601,7 +601,9 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 		}
 		MwLLWaylandCascadeChildren(self);
 	}
-
+	if(self->wayland.backbuffer.surface) {
+		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
+	}
 	WAYLAND_EVENT_OP_END(self);
 };
 
@@ -663,7 +665,8 @@ static void mouse_dispatch(MwLL self, MwMouse p, MwU32 state) {
 					}
 				}
 
-				point		     = topmost_parent->wayland.cur_mouse_pos;
+				point = topmost_parent->wayland.cur_mouse_pos;
+
 				relative_mouse_pos.x = point.x - absolute_pos.x;
 				relative_mouse_pos.y = point.y - absolute_pos.y;
 
@@ -721,9 +724,7 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	if(self->wayland.framebuffer.surface) {
 		inArea |= self->wayland.framebuffer.surface == curSurface;
 	}
-	if(self->wayland.backbuffer.surface) {
-		inArea |= self->wayland.backbuffer.surface == curSurface;
-	}
+
 	if(inArea) {
 		switch(button) {
 		case BTN_LEFT:
@@ -737,29 +738,23 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 			break;
 		}
 		self->wayland.held_down = state == WL_POINTER_BUTTON_STATE_PRESSED;
-		// switch(state) {
-		// case WL_POINTER_BUTTON_STATE_PRESSED:
-		// 	MwLLDispatch(self, down, &p);
-		// 	break;
-		// case WL_POINTER_BUTTON_STATE_RELEASED:
-		// 	MwLLDispatch(self, up, &p);
-		// 	break;
-		// }
 
 		for(i = 0; i < arrlen(self->wayland.currentlyHeldWidgets); i++) {
 			arrdel(self->wayland.currentlyHeldWidgets, i);
 		}
 		mouse_dispatch(self, p, state);
-
+	}
+	if(self->wayland.backbuffer.surface) {
 		if(!self->wayland.has_decorations && self->wayland.do_csd) {
 			if(state != WL_POINTER_BUTTON_STATE_RELEASED)
 				xdg_borderless_step_mdown(self, p, serial);
 			else
 				xdg_borderless_step_mup(self, p, serial);
 		}
-
-		MwLLForceRender(self);
 	}
+
+	MwLLForceRender(self);
+
 	WAYLAND_EVENT_OP_END(self);
 };
 
