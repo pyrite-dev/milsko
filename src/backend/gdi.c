@@ -1000,10 +1000,10 @@ static void MwLLMakeToolWindowImpl(MwLL handle) {
 	RECT   rc;
 	int    w, h;
 
+	GetClientRect(handle->gdi.hWnd, &rc);
+
 	SetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE, (LPARAM)lp);
 	SetWindowLongPtr(handle->gdi.hWnd, GWL_EXSTYLE, (LPARAM)WS_EX_TOOLWINDOW);
-
-	GetClientRect(handle->gdi.hWnd, &rc);
 
 	w = rc.right - rc.left;
 	h = rc.bottom - rc.top;

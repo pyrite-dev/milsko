@@ -7,6 +7,7 @@
 #define PaddingContent 2
 
 MwWidget window, menu, table;
+MwWidget wcal, wclock;
 MwMenu	 e;
 
 static void MWAPI resize(MwWidget handle, void* user, void* call) {
@@ -18,6 +19,24 @@ static void MWAPI resize(MwWidget handle, void* user, void* call) {
 		  MwNy, MwGetInteger(menu, MwNheight) + Padding,
 		  MwNwidth, w - Padding * 2,
 		  MwNheight, h - MwGetInteger(menu, MwNheight) - Padding * 2,
+		  NULL);
+}
+
+static void MWAPI tick(MwWidget handle, void* user, void* call) {
+	time_t	  t  = time(NULL);
+	struct tm tm = *localtime(&t);
+
+	MwVaApply(wcal,
+		  MwNyear, (int)tm.tm_year + 1900,
+		  MwNmonth, (int)tm.tm_mon,
+		  MwNdate, (int)tm.tm_mday,
+		  MwNday, (int)tm.tm_wday,
+		  NULL);
+
+	MwVaApply(wclock,
+		  MwNhour, (int)tm.tm_hour,
+		  MwNminute, (int)tm.tm_min,
+		  MwNsecond, (int)tm.tm_sec,
 		  NULL);
 }
 
@@ -241,17 +260,15 @@ int main() {
 		}
 	}
 
-	f = frame("Calendar", -PaddingContent, -PaddingContent, MwCalendarClass,
-		  MwNscale, 1,
-		  NULL);
+	f    = frame("Calendar", -PaddingContent, -PaddingContent, MwCalendarClass,
+		     MwNscale, 1,
+		     NULL);
+	wcal = child(f);
 
-	f = frame("Clock", -PaddingContent, -PaddingContent, MwClockClass,
-		  MwNhour, 15,
-		  MwNminute, 0,
-		  MwNsecond, 10,
-		  NULL);
+	f      = frame("Clock", -PaddingContent, -PaddingContent, MwClockClass, NULL);
+	wclock = child(f);
 
-	f = frame("Chart", -PaddingContent, -PaddingContent, MwCalendarClass,
+	f = frame("Chart", -PaddingContent, -PaddingContent, MwChartClass,
 		  NULL);
 
 	f = frame("ComboBox", -PaddingContent, 24, MwComboBoxClass, NULL);
@@ -321,7 +338,9 @@ int main() {
 			 NULL);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
+	MwAddUserHandler(window, MwNtickHandler, tick, NULL);
 
+	tick(window, NULL, NULL);
 	resize(window, NULL, NULL);
 
 	MwVaApply(table,
