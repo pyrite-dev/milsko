@@ -61,6 +61,14 @@ MWDECL MwLLColor MWAPI MwLightenColor(MwWidget handle, MwLLColor color, int r, i
 MWDECL void MWAPI MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color);
 
 /*!
+ * @brief Draws a rectangle
+ * @param handle Widget
+ * @param rect Rectangle area
+ * @param color Color
+ */
+MWDECL void MWAPI MwDrawRectLine(MwWidget handle, MwRect* rect, MwLLColor color);
+
+/*!
  * @brief Draws a filled rectangle that fades to a darker color
  * @param handle Widget
  * @param rect Rectangle area

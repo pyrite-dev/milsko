@@ -57,6 +57,7 @@
 #define MwNhour "Ihour"
 #define MwNminute "Iminute"
 #define MwNsecond "Isecond"
+#define MwNtype "Itype"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"

@@ -41,6 +41,23 @@ MwInline const char* MwComboBoxGet(MwWidget handle, int index) {
 	return text;
 }
 
+/*!
+ * @brief Deletes the entry from combobox
+ * @param handle Widget
+ * @param index Index
+ */
+MwInline void MwComboBoxDelete(MwWidget handle, int index) {
+	MwVaWidgetExecute(handle, "mwComboBoxDelete", NULL, index);
+}
+
+/*!
+ * @brief Resets the combobox
+ * @param handle Widget
+ */
+MwInline void MwComboBoxReset(MwWidget handle) {
+	MwVaWidgetExecute(handle, "mwComboBoxReset", NULL);
+}
+
 #ifdef __cplusplus
 }
 #endif

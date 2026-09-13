@@ -270,6 +270,11 @@ int main() {
 
 	f = frame("Chart", -PaddingContent, -PaddingContent, MwChartClass,
 		  NULL);
+	w = child(f);
+	MwChartAdd(w, -1, "A", -100, NULL);
+	MwChartAdd(w, -1, "B", 100, NULL);
+	MwChartAdd(w, -1, "C", 200, NULL);
+	MwChartAdd(w, -1, "D", 300, NULL);
 
 	f = frame("ComboBox", -PaddingContent, 24, MwComboBoxClass, NULL);
 	w = child(f);

@@ -1,10 +1,11 @@
 <?xml version="1.0" ?>
 <!--
-	Basically, you have to implement 10+n types:
+	Basically, you have to implement 11+n types:
 	 - Integer (int)
 	 - Unsigned integer (unsigned int)
 	 - Short integer (short)
 	 - Unsigned short integer (unsigned short)
+	 - Double (double)
 	 - String (char*)
 	 - Pointer (void*)
 	 - Struct and pointer to it
@@ -109,6 +110,7 @@
 		<integer name="hour" />
 		<integer name="minute" />
 		<integer name="second" />
+		<integer name="type" />
 
 		<!-- waitMS is a special property, only applies to toplevel widget -->
 		<integer name="waitMS" common="yes" />
@@ -227,6 +229,9 @@
 		<enumeration name="MwCLIPBOARD">
 			<integer name="MwCLIPBOARD_MAIN">0</integer>
 			<integer name="MwCLIPBOARD_PRIMARY" />
+		</enumeration>
+		<enumeration name="MwCHART">
+			<integer name="MwCHART_BAR">0</integer>
 		</enumeration>
 		<enumeration name="MwMOUSE">
 			<integer name="MwMOUSE_LEFT">1</integer>
@@ -649,6 +654,29 @@
 				<property name="scale" />
 			</properties>
 		</widget>
+		<widget name="Chart">
+			<properties>
+				<property name="type" />
+			</properties>
+			<functions>
+				<function name="Set">
+					<return>
+						<integer />
+					</return>
+					<arguments>
+						<integer name="index" />
+						<string name="text" />
+						<double name="value" />
+						<string name="color" />
+					</arguments>
+				</function>
+				<function name="Delete">
+					<arguments>
+						<integer name="index" />
+					</arguments>
+				</function>
+			</functions>
+		</widget>
 		<widget name="CheckBox">
 			<properties>
 				<property name="checked" />
@@ -879,9 +907,26 @@
 			</handlers>
 			<functions>
 				<function name="Add">
-					<integer name="index" />
-					<string name="text" />
+					<arguments>
+						<integer name="index" />
+						<string name="text" />
+					</arguments>
 				</function>
+				<function name="Get">
+					<return>
+						<string />
+					</return>
+					<arguments>
+						<integer name="index" />
+						<string name="text" />
+					</arguments>
+				</function>
+				<function name="Delete">
+					<arguments>
+						<integer name="index" />
+					</arguments>
+				</function>
+				<function name="Reset" />
 			</functions>
 		</widget>
 		<widget name="TreeView">

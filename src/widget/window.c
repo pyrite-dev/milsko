@@ -51,6 +51,7 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		mwWindowShouldCloseImpl(handle, out);
 	}
 }
+
 MwClassRec MwWindowClassRec = {
     wcreate,	  /* create */
     NULL,	  /* destroy */

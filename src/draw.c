@@ -101,20 +101,65 @@ MwLLColor MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, int b) 
 
 void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 	MwPoint p[4];
+	MwRect	r = *rect;
 
-	p[0].x = rect->x;
-	p[0].y = rect->y;
+	if(r.width < 0) {
+		r.width *= -1;
+		r.x -= r.width;
+	}
 
-	p[1].x = rect->x + rect->width;
-	p[1].y = rect->y;
+	if(r.height < 0) {
+		r.height *= -1;
+		r.y -= r.height;
+	}
 
-	p[2].x = rect->x + rect->width;
-	p[2].y = rect->y + rect->height;
+	p[0].x = r.x;
+	p[0].y = r.y;
 
-	p[3].x = rect->x;
-	p[3].y = rect->y + rect->height;
+	p[1].x = r.x + r.width;
+	p[1].y = r.y;
+
+	p[2].x = r.x + r.width;
+	p[2].y = r.y + r.height;
+
+	p[3].x = r.x;
+	p[3].y = r.y + r.height;
 
 	MwLLPolygon(handle->lowlevel, p, 4, color);
+}
+
+void MwDrawRectLine(MwWidget handle, MwRect* rect, MwLLColor color) {
+	MwPoint p[5];
+	MwRect	r = *rect;
+
+	if(r.width < 0) {
+		r.width *= -1;
+		r.x -= r.width;
+	}
+
+	if(r.height < 0) {
+		r.height *= -1;
+		r.y -= r.height;
+	}
+
+	p[0].x = r.x;
+	p[0].y = r.y;
+
+	p[1].x = r.x + r.width;
+	p[1].y = r.y;
+
+	p[2].x = r.x + r.width;
+	p[2].y = r.y + r.height;
+
+	p[3].x = r.x;
+	p[3].y = r.y + r.height;
+
+	p[4] = p[0];
+
+	MwLLLine(handle->lowlevel, &p[0], color);
+	MwLLLine(handle->lowlevel, &p[1], color);
+	MwLLLine(handle->lowlevel, &p[2], color);
+	MwLLLine(handle->lowlevel, &p[3], color);
 }
 
 void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {

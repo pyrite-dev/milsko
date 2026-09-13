@@ -20,12 +20,8 @@ static int wcreate(MwWidget handle) {
 
 static void destroy(MwWidget handle) {
 	MwComboBox cb = handle->internal;
-	int	   i;
 
-	for(i = 0; i < arrlen(cb->list); i++) {
-		free(cb->list[i]);
-	}
-	arrfree(cb->list);
+	MwComboBoxReset(handle);
 	free(handle->internal);
 }
 
@@ -145,6 +141,13 @@ static void prop_change(MwWidget handle, const char* prop) {
 	}
 }
 
+static void parent_resize(MwWidget handle) {
+	MwComboBox cb = handle->internal;
+	if(cb->opened) {
+		click(handle);
+	}
+}
+
 static void mwComboBoxAddImpl(MwWidget handle, int index, const char* text) {
 	MwComboBox cb = handle->internal;
 	char*	   t  = MwStringDuplicate(text);
@@ -153,13 +156,36 @@ static void mwComboBoxAddImpl(MwWidget handle, int index, const char* text) {
 
 	arrins(cb->list, index, t);
 
-	if(index <= MwGetInteger(handle, MwNvalue)) MwForceRender(handle);
+	MwForceRender(handle);
 }
 
 static const char* mwComboBoxGetImpl(MwWidget handle, int index) {
 	MwComboBox cb = handle->internal;
 
 	return cb->list[index];
+}
+
+static void mwComboBoxDeleteImpl(MwWidget handle, int index) {
+	MwComboBox cb = handle->internal;
+	int	   n  = MwGetInteger(handle, MwNvalue);
+
+	free(cb->list[index]);
+	arrdel(cb->list, index);
+
+	if(index < n && n > 0) {
+		MwSetInteger(handle, MwNvalue, n - 1);
+	}
+
+	MwForceRender(handle);
+}
+
+static void mwComboBoxResetImpl(MwWidget handle) {
+	MwComboBox cb = handle->internal;
+
+	arrfree(cb->list);
+	MwSetInteger(handle, MwNvalue, 0);
+
+	MwForceRender(handle);
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
@@ -172,12 +198,12 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		int index	   = va_arg(va, int);
 		*(const char**)out = mwComboBoxGetImpl(handle, index);
 	}
-}
-
-static void parent_resize(MwWidget handle) {
-	MwComboBox cb = handle->internal;
-	if(cb->opened) {
-		click(handle);
+	if(strcmp(name, "mwComboBoxDelete") == 0) {
+		int index = va_arg(va, int);
+		mwComboBoxDeleteImpl(handle, index);
+	}
+	if(strcmp(name, "mwComboBoxReset") == 0) {
+		mwComboBoxResetImpl(handle);
 	}
 }
 

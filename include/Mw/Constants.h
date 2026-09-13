@@ -113,6 +113,10 @@ enum MwCLIPBOARD {
 	MwCLIPBOARD_PRIMARY,
 };
 
+enum MwCHART {
+	MwCHART_BAR = 0
+};
+
 enum MwMOUSE {
 	MwMOUSE_LEFT = 1,
 	MwMOUSE_MIDDLE,

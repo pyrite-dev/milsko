@@ -30,6 +30,8 @@ typedef struct _MwBox*		      MwBox;
 typedef struct _MwSubWindow*	      MwSubWindow;
 typedef struct _MwTab*		      MwTab;
 typedef struct _MwTable*	      MwTable;
+typedef struct _MwChartEntry	      MwChartEntry;
+typedef struct _MwChart*	      MwChart;
 typedef struct _MwMouse		      MwMouse;
 typedef struct _MwTTFInfo*	      MwTTFInfo;
 #ifdef _MILSKO
@@ -245,6 +247,16 @@ struct _MwSubWindow {
 struct _MwTab {
 	MwWidget* frames;
 	char**	  names;
+};
+
+struct _MwChartEntry {
+	char*  name;
+	char*  color;
+	double value;
+};
+
+struct _MwChart {
+	MwChartEntry* entries;
 };
 
 struct _MwMouse {

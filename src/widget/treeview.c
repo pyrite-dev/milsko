@@ -317,6 +317,7 @@ static int wcreate(MwWidget handle) {
 }
 
 static void destroy(MwWidget handle) {
+	MwTreeViewReset(handle);
 	free(handle->internal);
 }
 
