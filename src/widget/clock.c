@@ -22,6 +22,8 @@ static void hand(MwWidget handle, double x, double y, double width, double lengt
 	double	c3  = cos(rad - M_PI);
 	double	s3  = sin(rad - M_PI);
 
+	if(width < width / 10) width = width / 10;
+
 	p[0].x = c2 * width / 2;
 	p[0].y = s2 * width / 2;
 
@@ -42,6 +44,7 @@ static void hand(MwWidget handle, double x, double y, double width, double lengt
 	p[4] = p[0];
 
 	MwLLPolygon(handle->lowlevel, p, 4, inside);
+
 	MwLLLine(handle->lowlevel, &p[0], border);
 	MwLLLine(handle->lowlevel, &p[1], border);
 	MwLLLine(handle->lowlevel, &p[2], border);
