@@ -12,7 +12,7 @@ void (*MwFLFontFree)(void* handle)								       = NULL;
 #endif
 
 #define FontWidth 7
-#define FontHeight 14
+#define FontHeight 13
 
 static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, MwLLColor color);
 
@@ -240,7 +240,7 @@ int MwTextHeight(MwWidget handle, MwFLFont ttf, const char* text) {
 
 void* MwFontLoad(unsigned char* data, unsigned int size) {
 	if(MwFLFontLoad)
-		return MwFLFontLoad(data, size, 14);
+		return MwFLFontLoad(data, size, 13);
 	return NULL;
 }
 
