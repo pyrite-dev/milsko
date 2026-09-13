@@ -5,7 +5,7 @@
 #ifdef USE_COCOA
 #define PERIODIC
 #endif
-#define USE_CLASSIC_THEME
+//#define USE_CLASSIC_THEME
 #define RESIZE_ON_TICK
 
 #define DRAW(handle) \
