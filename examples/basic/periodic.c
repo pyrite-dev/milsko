@@ -273,13 +273,14 @@ int main() {
 		  MwNcolumnSpan, 2,
 		  NULL);
 	w = child(f);
-	MwChartAdd(w, -1, "A", -400, NULL);
-	MwChartAdd(w, -1, "B", -200, NULL);
-	MwChartAdd(w, -1, "C", -100, NULL);
-	MwChartAdd(w, -1, "D", 100, NULL);
-	MwChartAdd(w, -1, "E", 200, NULL);
-	MwChartAdd(w, -1, "F", 400, NULL);
-	MwChartAdd(w, -1, "G", 800, NULL);
+	MwChartAdd(w, -1, "A", -800, NULL);
+	MwChartAdd(w, -1, "B", -400, NULL);
+	MwChartAdd(w, -1, "C", -200, NULL);
+	MwChartAdd(w, -1, "D", -100, NULL);
+	MwChartAdd(w, -1, "E", 100, NULL);
+	MwChartAdd(w, -1, "F", 200, NULL);
+	MwChartAdd(w, -1, "G", 400, NULL);
+	MwChartAdd(w, -1, "H", 800, NULL);
 
 	f = frame("ComboBox", -PaddingContent, 24, MwComboBoxClass, NULL);
 	w = child(f);
