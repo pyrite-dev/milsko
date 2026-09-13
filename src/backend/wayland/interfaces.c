@@ -11,6 +11,7 @@
 #include <linux/input-event-codes.h>
 #endif
 
+#include <stdbool.h>
 #include <sys/poll.h>
 
 static void setup_clipboard(MwLL self, struct wl_seat* wl_seat);
