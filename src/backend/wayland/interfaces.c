@@ -587,20 +587,20 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 		p.point = self->wayland.cur_mouse_pos;
 		MwLLDispatch(self, move, &p);
 		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
-	}
-	for(i = 0; i < arrlen(currentlyHeldWidgets); i++) {
-		MwLL new_topmost = currentlyHeldWidgets[i];
-		p.point		 = topmost_parent->wayland.cur_mouse_pos;
-		while(new_topmost->wayland.parent) {
-			p.point.x -= new_topmost->wayland.x;
-			p.point.y -= new_topmost->wayland.y;
-			new_topmost = new_topmost->wayland.parent;
+
+		for(i = 0; i < arrlen(currentlyHeldWidgets); i++) {
+			MwLL new_topmost = currentlyHeldWidgets[i];
+			p.point		 = topmost_parent->wayland.cur_mouse_pos;
+			while(new_topmost->wayland.parent) {
+				p.point.x -= new_topmost->wayland.x;
+				p.point.y -= new_topmost->wayland.y;
+				new_topmost = new_topmost->wayland.parent;
+			}
+
+			MwLLDispatch(currentlyHeldWidgets[i], move, &p);
 		}
-
-		MwLLDispatch(currentlyHeldWidgets[i], move, &p);
+		MwLLWaylandCascadeChildren(self);
 	}
-
-	MwLLWaylandCascadeChildren(self);
 
 	WAYLAND_EVENT_OP_END(self);
 };
@@ -704,6 +704,7 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	MwMouse p;
 	MwLL	topmost_parent = self;
 	int	i;
+	MwBool	inArea = MwFALSE;
 
 	(void)wl_pointer;
 	(void)serial;
@@ -711,45 +712,54 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 
 	WAYLAND_EVENT_OP_START(self);
 
-	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
+	if(self->wayland.type != MwLL_WAYLAND_POPUP) {
+		while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
+	}
 
 	p.point = self->wayland.cur_mouse_pos;
 
-	switch(button) {
-	case BTN_LEFT:
-		p.button = MwMOUSE_LEFT;
-		break;
-	case BTN_MIDDLE:
-		p.button = MwMOUSE_MIDDLE;
-		break;
-	case BTN_RIGHT:
-		p.button = MwMOUSE_RIGHT;
-		break;
+	if(self->wayland.framebuffer.surface) {
+		inArea |= self->wayland.framebuffer.surface == curSurface;
 	}
-	self->wayland.held_down = state == WL_POINTER_BUTTON_STATE_PRESSED;
-	switch(state) {
-	case WL_POINTER_BUTTON_STATE_PRESSED:
-		MwLLDispatch(self, down, &p);
-		break;
-	case WL_POINTER_BUTTON_STATE_RELEASED:
-		MwLLDispatch(self, up, &p);
-		break;
+	if(self->wayland.backbuffer.surface) {
+		inArea |= self->wayland.backbuffer.surface == curSurface;
 	}
+	if(inArea) {
+		switch(button) {
+		case BTN_LEFT:
+			p.button = MwMOUSE_LEFT;
+			break;
+		case BTN_MIDDLE:
+			p.button = MwMOUSE_MIDDLE;
+			break;
+		case BTN_RIGHT:
+			p.button = MwMOUSE_RIGHT;
+			break;
+		}
+		self->wayland.held_down = state == WL_POINTER_BUTTON_STATE_PRESSED;
+		// switch(state) {
+		// case WL_POINTER_BUTTON_STATE_PRESSED:
+		// 	MwLLDispatch(self, down, &p);
+		// 	break;
+		// case WL_POINTER_BUTTON_STATE_RELEASED:
+		// 	MwLLDispatch(self, up, &p);
+		// 	break;
+		// }
 
-	for(i = 0; i < arrlen(self->wayland.currentlyHeldWidgets); i++) {
-		arrdel(self->wayland.currentlyHeldWidgets, i);
+		for(i = 0; i < arrlen(self->wayland.currentlyHeldWidgets); i++) {
+			arrdel(self->wayland.currentlyHeldWidgets, i);
+		}
+		mouse_dispatch(self, p, state);
+
+		if(!self->wayland.has_decorations && self->wayland.do_csd) {
+			if(state != WL_POINTER_BUTTON_STATE_RELEASED)
+				xdg_borderless_step_mdown(self, p, serial);
+			else
+				xdg_borderless_step_mup(self, p, serial);
+		}
+
+		MwLLForceRender(self);
 	}
-	mouse_dispatch(self, p, state);
-
-	if(!self->wayland.has_decorations && self->wayland.do_csd) {
-		if(state != WL_POINTER_BUTTON_STATE_RELEASED)
-			xdg_borderless_step_mdown(self, p, serial);
-		else
-			xdg_borderless_step_mup(self, p, serial);
-	}
-
-	MwLLForceRender(self);
-
 	WAYLAND_EVENT_OP_END(self);
 };
 
@@ -1169,7 +1179,7 @@ static wayland_protocol_t* wl_subcompositor_setup(MwU32 name, struct _MwLLWaylan
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		wayland->toplevel->scompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
 	} else {
-		// wayland->sublevel->subcompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
+		wayland->sublevel->subcompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
 	}
 
 	return NULL;
@@ -1180,7 +1190,7 @@ static void wl_subcompositor_interface_destroy(struct _MwLLWayland* wayland, way
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		wl_subcompositor_destroy(wayland->toplevel->scompositor);
 	} else {
-		// wl_subcompositor_destroy(wayland->sublevel->subcompositor);
+		wl_subcompositor_destroy(wayland->sublevel->subcompositor);
 	}
 }
 
@@ -1216,24 +1226,6 @@ static wayland_protocol_t* wp_viewporter_setup(MwU32 name, struct _MwLLWayland* 
 static void wp_viewporter_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)wayland;
 	(void)data;
-}
-
-/* wp_fifo_manager_v1 setup function */
-static wayland_protocol_t* wp_fifo_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
-	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
-	(void)version;
-	proto->listener = NULL;
-	proto->context	= wl_registry_bind(wayland->registry, name, &wp_fifo_manager_v1_interface, 1);
-
-	return proto;
-}
-
-static void wp_fifo_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	if(data->context) {
-		wp_fifo_manager_v1_destroy(data->context);
-	}
-	free(data);
 }
 
 /* zxdg_decoration_manager_v1 setup function */
@@ -1338,7 +1330,6 @@ void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland) {
 	WL_INTERFACE(zwp_pointer_constraints_v1);
 	WL_INTERFACE(zwp_relative_pointer_manager_v1);
 	WL_INTERFACE(xdg_wm_base);
-	WL_INTERFACE(wp_fifo_manager_v1);
 	WL_INTERFACE(zwlr_layer_shell_v1); /* Only used for layer surface, but we use it always if it's turned into a tool window */
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(wp_viewporter);
@@ -1351,7 +1342,6 @@ void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland) {
 	} else if(wayland->type == MwLL_WAYLAND_LAYER_SURFACE) {
 		WL_INTERFACE(wp_viewporter);
 		WL_INTERFACE(wl_subcompositor);
-		WL_INTERFACE(wl_seat);
 		WL_INTERFACE(wl_seat);
 	} else {
 		WL_INTERFACE(wl_subcompositor);

@@ -239,8 +239,9 @@ struct _MwLLWaylandTopLevel {
 };
 
 struct _MwLLWaylandSublevel {
-
-	MwLL parent;
+	MwLL			 parent;
+	struct wl_subcompositor* subcompositor;
+	struct wl_subsurface*	 subsurface;
 
 	struct xdg_surface* xdg_surface;
 };

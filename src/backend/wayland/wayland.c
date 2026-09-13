@@ -417,8 +417,10 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 
 	if(parent->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		r->wayland.sublevel->xdg_surface = parent->wayland.toplevel->xdg_surface;
-	} else {
+	} else if(parent->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
 		r->wayland.sublevel->xdg_surface = parent->wayland.sublevel->xdg_surface;
+	} else if(parent->wayland.type == MwLL_WAYLAND_POPUP) {
+		r->wayland.sublevel->xdg_surface = parent->wayland.popup->xdg_surface;
 	}
 
 	wl_registry_add_listener(r->wayland.registry, &r->wayland.registry_listener, r);
@@ -427,9 +429,7 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 		raise(SIGTRAP);
 		return;
 	}
-
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(compositor);
-	MwLLWaylandFifoSurfaceSetup(&r->wayland, &r->wayland.framebuffer);
 
 	r->wayland.xkb_keymap = parent->wayland.xkb_keymap;
 	r->wayland.xkb_state  = parent->wayland.xkb_state;
@@ -542,10 +542,10 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	xdg_positioner_set_size(r->wayland.popup->xdg_positioner, r->wayland.ww, r->wayland.wh);
 	xdg_positioner_set_anchor_rect(
 	    r->wayland.popup->xdg_positioner,
-	    r->wayland.x, r->wayland.y, r->wayland.ww, r->wayland.wh);
-	// xdg_positioner_set_offset(
-	//     r->wayland.popup->xdg_positioner,
-	//     r->wayland.x, r->wayland.y);
+	    topmost_parent->wayland.x, topmost_parent->wayland.y, r->wayland.ww, r->wayland.wh);
+	xdg_positioner_set_offset(
+	    r->wayland.popup->xdg_positioner,
+	    r->wayland.x, r->wayland.y);
 
 	xdg_positioner_set_anchor(r->wayland.popup->xdg_positioner, XDG_POSITIONER_ANCHOR_NONE);
 	xdg_positioner_set_gravity(r->wayland.popup->xdg_positioner, XDG_POSITIONER_GRAVITY_NONE);
