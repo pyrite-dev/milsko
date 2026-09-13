@@ -6,38 +6,38 @@ cairo_call_table_t cairo_call_tbl;
 
 void MwLLCairoPolygon(struct _MwLLCairo handle, MwPoint* points, int points_count, MwLLColor color) {
 	int i;
-	cairo_set_source_rgba(handle.front_cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
-	cairo_new_path(handle.front_cairo);
+	cairo_set_source_rgba(handle.front_cairo_back, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
+	cairo_new_path(handle.front_cairo_back);
 	for(i = 0; i < points_count; i++) {
 		if(i == 0) {
-			cairo_move_to(handle.front_cairo, points[i].x, points[i].y);
+			cairo_move_to(handle.front_cairo_back, points[i].x, points[i].y);
 		} else {
-			cairo_line_to(handle.front_cairo, points[i].x, points[i].y);
+			cairo_line_to(handle.front_cairo_back, points[i].x, points[i].y);
 		}
 	}
-	cairo_close_path(handle.front_cairo);
+	cairo_close_path(handle.front_cairo_back);
 
-	cairo_set_operator(handle.front_cairo, CAIRO_OPERATOR_SOURCE);
-	cairo_fill(handle.front_cairo);
-	cairo_set_operator(handle.front_cairo, CAIRO_OPERATOR_OVER);
+	cairo_set_operator(handle.front_cairo_back, CAIRO_OPERATOR_SOURCE);
+	cairo_fill(handle.front_cairo_back);
+	cairo_set_operator(handle.front_cairo_back, CAIRO_OPERATOR_OVER);
 };
 
 void MwLLCairoLine(struct _MwLLCairo handle, MwPoint* points, MwLLColor color) {
 	int i;
 
-	cairo_set_antialias(handle.front_cairo, CAIRO_ANTIALIAS_NONE);
-	cairo_set_line_cap(handle.front_cairo, CAIRO_LINE_CAP_SQUARE);
-	cairo_set_source_rgba(handle.front_cairo, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
-	cairo_new_path(handle.front_cairo);
+	cairo_set_antialias(handle.front_cairo_back, CAIRO_ANTIALIAS_NONE);
+	cairo_set_line_cap(handle.front_cairo_back, CAIRO_LINE_CAP_SQUARE);
+	cairo_set_source_rgba(handle.front_cairo_back, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
+	cairo_new_path(handle.front_cairo_back);
 	for(i = 0; i < 2; i++) {
 		if(i == 0) {
-			cairo_move_to(handle.front_cairo, points[i].x, points[i].y);
+			cairo_move_to(handle.front_cairo_back, points[i].x, points[i].y);
 		} else {
-			cairo_line_to(handle.front_cairo, points[i].x, points[i].y);
+			cairo_line_to(handle.front_cairo_back, points[i].x, points[i].y);
 		}
 	}
-	cairo_close_path(handle.front_cairo);
-	cairo_stroke(handle.front_cairo);
+	cairo_close_path(handle.front_cairo_back);
+	cairo_stroke(handle.front_cairo_back);
 };
 
 MwLLPixmap MwLLCairoCreatePixmap(struct _MwLLCairo handle, unsigned char* data, int width, int height) {
@@ -88,7 +88,7 @@ void MwLLCairoDestroyPixmap(MwLLPixmap pixmap) {
 void MwLLCairoDrawPixmap(struct _MwLLCairo handle, MwRect* rect, MwLLPixmap pixmap) {
 	cairo_t*	 c;
 	cairo_surface_t* cs;
-	cairo_t*	 selected_cairo = handle.selected_cairo ? handle.selected_cairo : handle.front_cairo;
+	cairo_t*	 selected_cairo = handle.selected_cairo ? handle.selected_cairo : handle.front_cairo_back;
 	cs				= cairo_image_surface_create(CAIRO_FORMAT_ARGB32, rect->width, rect->height);
 	c				= cairo_create(cs);
 
@@ -101,7 +101,7 @@ void MwLLCairoDrawPixmap(struct _MwLLCairo handle, MwRect* rect, MwLLPixmap pixm
 	cairo_set_source_surface(c, pixmap->cairo.cs, 0, 0);
 	cairo_pattern_set_filter(cairo_get_source(c), CAIRO_FILTER_NEAREST);
 
-	cairo_set_operator(handle.front_cairo, CAIRO_OPERATOR_OVER);
+	cairo_set_operator(handle.front_cairo_back, CAIRO_OPERATOR_OVER);
 
 	cairo_paint(c);
 
@@ -118,7 +118,9 @@ void MwLLCairoFrontSetup(struct _MwLLCairo* cairo, MwU8* data, MwU32 width, MwU3
 	} else {
 		cairo->front_cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
 	}
-	cairo->front_cairo = cairo_create(cairo->front_cs);
+	cairo->front_cs_back	= cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+	cairo->front_cairo_back = cairo_create(cairo->front_cs_back);
+	cairo->front_cairo	= cairo_create(cairo->front_cs);
 }
 
 void MwLLCairoBackSetup(struct _MwLLCairo* cairo, MwU8* data, MwU32 width, MwU32 height) {
@@ -132,6 +134,7 @@ void MwLLCairoBackSetup(struct _MwLLCairo* cairo, MwU8* data, MwU32 width, MwU32
 
 void MwLLCairoFrontDestroy(struct _MwLLCairo* cairo) {
 	cairo_destroy(cairo->front_cairo);
+	cairo_destroy(cairo->front_cairo_back);
 	cairo_surface_destroy(cairo->front_cs);
 };
 void MwLLCairoBackDestroy(struct _MwLLCairo* cairo) {
@@ -169,7 +172,7 @@ static void MwLLDestroyImpl(MwLL handle) {
 }
 
 static void MwLLBeginDrawImpl(MwLL handle) {
-	handle->cairo.selected_cairo = handle->cairo.front_cairo;
+	handle->cairo.selected_cairo = handle->cairo.front_cairo_back;
 }
 static void MwLLEndDrawImpl(MwLL handle) {
 }
@@ -212,8 +215,8 @@ static void MwLLFreeColorImpl(MwLLColor color) {}
 
 static MwBool lmao = MwFALSE;
 static int    MwLLPendingImpl(MwLL handle) {
-	   lmao = !lmao;
-	   return lmao;
+	lmao = !lmao;
+	return lmao;
 }
 static void MwLLNextEventImpl(MwLL handle) {
 	MwLLDispatch(handle, draw, NULL);
@@ -257,10 +260,10 @@ static void MwLLRaiseImpl(MwLL handle) {}
 static void MwLLClipImpl(MwLL handle, MwRect* rect) {}
 static void MwLLSetupDragAndDropImpl(MwLL handle) {}
 static int  MwLLCairoCallInitImpl(void) {
-	 if(cairo_load_funcs() != 0) {
-		 return 1;
-	 }
-	 return 0;
+	if(cairo_load_funcs() != 0) {
+		return 1;
+	}
+	return 0;
 }
 #include "call.c"
 CALL(Cairo);

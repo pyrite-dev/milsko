@@ -2,39 +2,6 @@
 #include <sys/mman.h>
 #include "../../../external/stb_ds.h"
 
-/* Bind a wp_fifo_v1 object to `buffer`'s surface, if wp_fifo_manager_v1 is available and it doesn't have one already. */
-void MwLLWaylandFifoSurfaceSetup(struct _MwLLWayland* wayland, struct _MwLLWaylandShmBuffer* buffer) {
-	wayland_protocol_t* fifo_manager;
-
-	if(buffer->fifo || !buffer->surface) {
-		return;
-	}
-
-	fifo_manager = shget(wayland->wl_protocol_map, wp_fifo_manager_v1_interface.name);
-	if(!fifo_manager) {
-		return;
-	}
-
-	buffer->fifo = wp_fifo_manager_v1_get_fifo(fifo_manager->context, buffer->surface);
-}
-
-/* Destroy `buffer`'s wp_fifo_v1 object, if any. */
-void MwLLWaylandFifoSurfaceDestroy(struct _MwLLWaylandShmBuffer* buffer) {
-	if(buffer->fifo) {
-		wp_fifo_v1_destroy(buffer->fifo);
-		buffer->fifo = NULL;
-	}
-}
-
-/* Commit `buffer`'s surface, constraining the update to the next display refresh via wp_fifo_v1 if bound. */
-void MwLLWaylandFifoCommit(struct _MwLLWaylandShmBuffer* buffer) {
-	if(buffer->fifo) {
-		wp_fifo_v1_set_barrier(buffer->fifo);
-		wp_fifo_v1_wait_barrier(buffer->fifo);
-	}
-	wl_surface_commit(buffer->surface);
-}
-
 void MwLLWaylandFramebufferSetup(struct _MwLLWayland* wayland) {
 	MwLLWaylandBufferSetup(&wayland->framebuffer, wayland->ww, wayland->wh);
 

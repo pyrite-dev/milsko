@@ -225,11 +225,8 @@ void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 			// Yes this is needed every time, it's how we fix weston.
 			if(self->wayland.configured)
 				wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
-			if(self->wayland.fifo_wait) {
-				MwLLWaylandFifoCommit(buffer);
-			} else {
-				wl_surface_commit(buffer->surface);
-			}
+
+			wl_surface_commit(buffer->surface);
 		}
 	}
 }
@@ -278,9 +275,7 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	/* Create a wl_surface, a xdg_surface and a xdg_toplevel */
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
 	r->wayland.backbuffer.surface  = wl_compositor_create_surface(r->wayland.compositor);
-	MwLLWaylandFifoSurfaceSetup(&r->wayland, &r->wayland.framebuffer);
-	MwLLWaylandFifoSurfaceSetup(&r->wayland, &r->wayland.backbuffer);
-	r->wayland.toplevel->ssurface = wl_subcompositor_get_subsurface(r->wayland.toplevel->scompositor, r->wayland.framebuffer.surface, r->wayland.backbuffer.surface);
+	r->wayland.toplevel->ssurface  = wl_subcompositor_get_subsurface(r->wayland.toplevel->scompositor, r->wayland.framebuffer.surface, r->wayland.backbuffer.surface);
 	wl_subsurface_set_desync(r->wayland.toplevel->ssurface);
 
 	r->wayland.toplevel->xdg_surface =
@@ -356,8 +351,6 @@ static void destroy_toplevel(MwLL r) {
 	 * after this function returns, so every widget type that binds a seat (toplevel, popup,
 	 * layer surface) releases them the same way instead of leaking or double-freeing them. */
 
-	MwLLWaylandFifoSurfaceDestroy(&r->wayland.framebuffer);
-	MwLLWaylandFifoSurfaceDestroy(&r->wayland.backbuffer);
 	wl_surface_destroy(r->wayland.framebuffer.surface);
 
 	free(r->wayland.toplevel);
@@ -521,7 +514,6 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	r->wayland.xkb_state  = topmost_parent->wayland.xkb_state;
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
-	MwLLWaylandFifoSurfaceSetup(&r->wayland, &r->wayland.framebuffer);
 
 	r->wayland.popup->xdg_surface =
 	    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context, r->wayland.framebuffer.surface);
@@ -562,8 +554,6 @@ static void destroy_popup(MwLL r) {
 	xdg_surface_destroy(r->wayland.popup->xdg_surface);
 
 	xdg_positioner_destroy(r->wayland.popup->xdg_positioner);
-
-	MwLLWaylandFifoSurfaceDestroy(&r->wayland.framebuffer);
 
 	wl_surface_destroy(r->wayland.framebuffer.surface);
 
@@ -648,7 +638,6 @@ static void setup_layer_surface(MwLL r, int x, int y, int width, int height) {
 	r->wayland.xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
-	MwLLWaylandFifoSurfaceSetup(&r->wayland, &r->wayland.framebuffer);
 
 	r->wayland.layer_surface->surface = zwlr_layer_shell_v1_get_layer_surface(layer_shell, r->wayland.framebuffer.surface, NULL, ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY, "milsko-surfaces");
 
@@ -678,8 +667,6 @@ static void destroy_layer_surface(MwLL r) {
 		zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(r->wayland, zxdg_decoration_manager_v1)->context;
 		zxdg_decoration_manager_v1_destroy(dec->manager);
 	}
-
-	MwLLWaylandFifoSurfaceDestroy(&r->wayland.framebuffer);
 
 	wl_surface_destroy(r->wayland.framebuffer.surface);
 
@@ -810,15 +797,15 @@ static void clip(MwLL handle) {
 		handle->wayland.clipping_rect.height = my - cy;
 		MwLLWaylandRegionSetup(handle);
 
-		cairo_reset_clip(handle->wayland.cairo.front_cairo);
+		cairo_reset_clip(handle->wayland.cairo.front_cairo_back);
 		if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL && !handle->wayland.is_toplevel) {
-			cairo_rectangle(handle->wayland.cairo.front_cairo, cx - x, cy - y, mx - cx, my - cy);
-			cairo_clip(handle->wayland.cairo.front_cairo);
+			cairo_rectangle(handle->wayland.cairo.front_cairo_back, cx - x, cy - y, mx - cx, my - cy);
+			cairo_clip(handle->wayland.cairo.front_cairo_back);
 		}
 
 		if(handle->wayland.is_clipping) {
-			cairo_rectangle(handle->wayland.cairo.front_cairo, handle->wayland.clip.x, handle->wayland.clip.y, handle->wayland.clip.width, handle->wayland.clip.height);
-			cairo_clip(handle->wayland.cairo.front_cairo);
+			cairo_rectangle(handle->wayland.cairo.front_cairo_back, handle->wayland.clip.x, handle->wayland.clip.y, handle->wayland.clip.width, handle->wayland.clip.height);
+			cairo_clip(handle->wayland.cairo.front_cairo_back);
 		}
 	}
 }
@@ -933,22 +920,31 @@ static void draw_children(MwLL handle);
 static void draw_child(MwLL handle, MwLL child) {
 	cairo_t*	 c;
 	cairo_surface_t* cs;
-	cairo_t*	 selected_cairo = handle->wayland.cairo.front_cairo;
+	cairo_t*	 selected_cairo;
+	MwLL		 topmost_parent = handle;
+
+	if(topmost_parent->wayland.type != MwLL_WAYLAND_POPUP) {
+		while(topmost_parent->wayland.parent) {
+			topmost_parent = topmost_parent->wayland.parent;
+		}
+	}
 
 	wl_surface_commit(child->wayland.framebuffer.surface);
 
 	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, child->wayland.ww, child->wayland.wh);
 	c  = cairo_create(cs);
 
-	cairo_set_source_surface(c, child->wayland.cairo.front_cs, 0, 0);
+	cairo_set_source_surface(c, child->wayland.cairo.front_cs_back, 0, 0);
 	cairo_pattern_set_filter(cairo_get_source(c), CAIRO_FILTER_NEAREST);
 
-	cairo_set_operator(handle->wayland.cairo.front_cairo, CAIRO_OPERATOR_OVER);
+	cairo_set_operator(handle->wayland.cairo.front_cairo_back, CAIRO_OPERATOR_OVER);
 
 	cairo_paint(c);
 
-	cairo_set_source_surface(selected_cairo, cs, child->wayland.x, child->wayland.y);
-	cairo_paint(selected_cairo);
+	// printf("%d %d\n", child->wayland.x, child->wayland.y);
+
+	cairo_set_source_surface(handle->wayland.cairo.front_cairo_back, cs, child->wayland.x, child->wayland.y);
+	cairo_paint(handle->wayland.cairo.front_cairo_back);
 
 	cairo_destroy(c);
 	cairo_surface_destroy(cs);
@@ -965,20 +961,25 @@ static void draw_children(MwLL handle) {
 	handle->wayland.events_pending = MwFALSE;
 }
 
-static void cascade_child(MwLL handle, MwLL child) {
-	child->wayland.do_cascading_draw = 10;
-}
+static void frontbuffer_draw(MwLL handle) {
+	cairo_t*	 c;
+	cairo_surface_t* cs;
 
-static void count_child(MwLL handle, MwLL child) {
-	handle->wayland.cascading_child_num++;
-}
+	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, handle->wayland.ww, handle->wayland.wh);
+	c  = cairo_create(cs);
 
-void MwLLWaylandCascadeChildren(MwLL handle) {
-	handle->wayland.cascading_child_num = 0;
-	MwLLWaylandChildrenIterate(handle, count_child);
+	cairo_set_source_surface(c, handle->wayland.cairo.front_cs_back, 0, 0);
+	cairo_pattern_set_filter(cairo_get_source(c), CAIRO_FILTER_NEAREST);
 
-	handle->wayland.do_cascading_draw = handle->wayland.cascading_child_num * 10;
-	MwLLWaylandChildrenIterate(handle, cascade_child);
+	cairo_set_operator(handle->wayland.cairo.front_cairo_back, CAIRO_OPERATOR_OVER);
+
+	cairo_paint(c);
+
+	cairo_set_source_surface(handle->wayland.cairo.front_cairo, cs, 0, 0);
+	cairo_paint(handle->wayland.cairo.front_cairo);
+
+	cairo_destroy(c);
+	cairo_surface_destroy(cs);
 }
 
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
@@ -1069,7 +1070,6 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 }
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
-
 	MwLLWaylandRegionInvalidate(handle);
 
 	if(handle->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
@@ -1082,8 +1082,11 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 		/* toplevels cannot be moved */
 		break;
 	case MwLL_WAYLAND_SUBLEVEL:
-		/* sublevels are drawn according to their own x/y */
+	{
+		if(handle->wayland.parent)
+			MwLLForceRender(handle->wayland.parent);
 		break;
+	}
 	case MwLL_WAYLAND_POPUP:
 		xdg_positioner_set_anchor_rect(handle->wayland.popup->xdg_positioner, handle->wayland.parent->wayland.x, handle->wayland.parent->wayland.y, handle->wayland.ww, handle->wayland.wh);
 		xdg_positioner_set_offset(handle->wayland.popup->xdg_positioner, x, y);
@@ -1171,16 +1174,15 @@ const float_color one = {.2627451, .37254902, .49411765};
 const float_color two = {.05490196, .17254902, .30588235};
 
 static void MwLLBeginDrawImpl(MwLL handle) {
-
-	cairo_save(handle->wayland.cairo.front_cairo);
-	cairo_set_source_rgba(handle->wayland.cairo.front_cairo, 0, 0, 0, 0);
-	cairo_set_operator(handle->wayland.cairo.front_cairo, CAIRO_OPERATOR_SOURCE);
-	cairo_rectangle(handle->wayland.cairo.front_cairo, 0, 0, handle->wayland.ww, handle->wayland.wh);
-	cairo_fill(handle->wayland.cairo.front_cairo);
-	cairo_restore(handle->wayland.cairo.front_cairo);
+	cairo_save(handle->wayland.cairo.front_cairo_back);
+	cairo_set_source_rgba(handle->wayland.cairo.front_cairo_back, 0, 0, 0, 0);
+	cairo_set_operator(handle->wayland.cairo.front_cairo_back, CAIRO_OPERATOR_SOURCE);
+	cairo_rectangle(handle->wayland.cairo.front_cairo_back, 0, 0, handle->wayland.ww, handle->wayland.wh);
+	cairo_fill(handle->wayland.cairo.front_cairo_back);
+	cairo_restore(handle->wayland.cairo.front_cairo_back);
 
 	if(handle->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
-		handle->wayland.cairo.selected_cairo = handle->wayland.cairo.front_cairo;
+		handle->wayland.cairo.selected_cairo = handle->wayland.cairo.front_cairo_back;
 		return;
 	}
 
@@ -1310,7 +1312,7 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 		}
 		MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
 	}
-	handle->wayland.cairo.selected_cairo = handle->wayland.cairo.front_cairo;
+	handle->wayland.cairo.selected_cairo = handle->wayland.cairo.front_cairo_back;
 }
 
 static void MwLLEndDrawImpl(MwLL handle) {
@@ -1320,7 +1322,9 @@ static void MwLLEndDrawImpl(MwLL handle) {
 		}
 		MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
 
-		MwLLWaylandCascadeChildren(handle);
+		if(handle->wayland.type != MwLL_WAYLAND_SUBLEVEL) {
+			handle->wayland.do_cascading_draw = 1;
+		}
 	}
 }
 
@@ -1385,8 +1389,7 @@ static int MwLLPendingImpl(MwLL handle) {
 
 	if(handle->wayland.do_cascading_draw) {
 		draw_children(handle);
-		if(handle->wayland.do_cascading_draw > 0)
-			handle->wayland.do_cascading_draw--;
+		frontbuffer_draw(handle);
 	}
 
 	handle->wayland.end_time = MwTimeGetTick();
@@ -1437,12 +1440,10 @@ static int MwLLPendingImpl(MwLL handle) {
 		return pending;
 	}
 
-	if(!handle->wayland.disable_fifo) handle->wayland.fifo_wait = MwTRUE;
 	MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
 	}
-	if(!handle->wayland.disable_fifo) handle->wayland.fifo_wait = MwFALSE;
 
 	return handle->wayland.force_render || handle->wayland.events_pending || pending;
 }
@@ -1458,11 +1459,9 @@ static void MwLLNextEventImpl(MwLL handle) {
 	}
 
 	if(handle->wayland.force_render) {
-		handle->wayland.fifo_wait = MwTRUE;
 		MwLLDispatch(handle, draw, NULL);
 		if(handle->wayland.configured) MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
 		handle->wayland.force_render = 0;
-		handle->wayland.fifo_wait    = MwFALSE;
 	}
 	if(handle->wayland.events_pending) {
 		handle->wayland.events_pending = 0;
@@ -1559,7 +1558,6 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 }
 
 static void MwLLForceRenderImpl(MwLL handle) {
-
 	if(!handle->wayland.configured) {
 		return;
 	}
@@ -1567,9 +1565,6 @@ static void MwLLForceRenderImpl(MwLL handle) {
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 
 	handle->wayland.force_render = MwTRUE;
-	if(handle->wayland.parent) {
-		handle->wayland.parent->wayland.force_render = MwTRUE;
-	}
 }
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
@@ -1919,14 +1914,9 @@ static int MwLLWaylandCallInitImpl(void) {
 		} else {
 			loadWayland |= (strcmp(mw_backend_env, "wayland") == 0);
 		}
-	}
-
-	/* NOTE: when vulkan is enabled, refuse to default to wayland. Remove this if I ever get Vulkan widget working with the new surfaces system. */
-#ifndef MW_VULKAN
-	else if(getenv("WAYLAND_DISPLAY")) {
+	} else if(getenv("WAYLAND_DISPLAY")) {
 		loadWayland |= (getenv("WAYLAND_DISPLAY") != NULL);
 	}
-#endif
 
 #ifdef MW_OPENGL
 	if(getenv("WSLENV") || getenv("WSL_DISTRO_NAME")) {

@@ -600,7 +600,6 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 			MwLLDispatch(currentlyHeldWidgets[i], move, &p);
 		}
-		MwLLWaylandCascadeChildren(self);
 	}
 	if(self->wayland.backbuffer.surface) {
 		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
