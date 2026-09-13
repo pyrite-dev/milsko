@@ -184,8 +184,8 @@ static void MwDirectoryJoinSingle(char* target, char* p) {
 		b[0] = DIRSEP;
 		b[1] = 0;
 
-		MwStringConcat(target, b);
-		MwStringConcat(target, p);
+		strcat(target, b);
+		strcat(target, p);
 	}
 
 	for(i = strlen(target) - 1; i >= 0; i--) {
@@ -201,7 +201,7 @@ static void MwDirectoryJoinSingle(char* target, char* p) {
 		b[0] = DIRSEP;
 		b[1] = 0;
 
-		MwStringConcat(target, b);
+		strcat(target, b);
 	}
 }
 

@@ -11,9 +11,9 @@
 extern "C" {
 #endif
 
-MWDECL char* MWAPI MwACPToUTF8(const char* input);
+MWDECL char* MWAPI MwACPTextToUTF8Text(const char* input);
 
-MWDECL char* MWAPI MwUTF8ToACP(const char* input);
+MWDECL char* MWAPI MwUTF8TextToACPText(const char* input);
 
 #ifdef __cplusplus
 }

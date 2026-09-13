@@ -469,7 +469,7 @@ static void scan(MwWidget handle, const char* path, int record) {
 		if(strcmp(fc->entries[i]->name, ".") == 0 || strcmp(fc->entries[i]->name, "..") == 0) continue;
 		if(fc->entries[i]->type == MwDIRECTORY_DIRECTORY) {
 			char  date[128];
-			char* n = MwACPToUTF8(fc->entries[i]->name);
+			char* n = MwACPTextToUTF8Text(fc->entries[i]->name);
 
 			MwStringTime(date, fc->entries[i]->mtime);
 
@@ -487,7 +487,7 @@ static void scan(MwWidget handle, const char* path, int record) {
 		if(fc->entries[i]->type == MwDIRECTORY_FILE && !fc->dir_only) {
 			char  date[128];
 			char  size[128];
-			char* n = MwACPToUTF8(fc->entries[i]->name);
+			char* n = MwACPTextToUTF8Text(fc->entries[i]->name);
 
 			MwStringTime(date, fc->entries[i]->mtime);
 			MwStringSize(size, fc->entries[i]->size);

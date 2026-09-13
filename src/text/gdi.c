@@ -5,6 +5,8 @@ static HANDLE(WINAPI* _AddFontMemResourceEx)(PVOID pFileView, DWORD cjSize, PVOI
 static BOOL(WINAPI* _RemoveFontMemResourceEx)(HANDLE h)							       = NULL;
 static HANDLE WINAPI _AddFontMemResourceExPolyFill(PVOID pFileView, DWORD cjSize, PVOID pvResrved, DWORD* pNumFonts);
 static BOOL WINAPI   _RemoveFontMemResourceExPolyFill(HANDLE h);
+static BOOL(WINAPI* _TextOutW)(HDC hdc, int x, int y, LPCWSTR lpString, int c);
+static BOOL(WINAPI* _GetTextExtentPoint32W)(HDC hdc, LPCWSTR lpString, int c, LPSIZE psizl);
 
 struct _MwFLFont {
 	HANDLE handle;
@@ -19,8 +21,9 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	HBITMAP		 hbm;
 	RGBQUAD*	 bits = NULL;
 	HDC		 hmdc;
-	char*		 t = MwUTF8ToACP(text);
 	unsigned char*	 px;
+	char*		 t;
+	wchar_t*	 t16;
 	int		 y, x;
 	MwRect		 r;
 	MwLLPixmap	 p;
@@ -33,13 +36,19 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 		int	 old_bkmode = SetBkMode(handle->lowlevel->gdi.hDC, TRANSPARENT);
 		COLORREF old_color  = SetTextColor(handle->lowlevel->gdi.hDC, RGB(color->common.red, color->common.green, color->common.blue));
 
-		TextOut(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t, strlen(t));
+		if(_TextOutW == NULL) {
+			t = MwUTF8TextToACPText(text);
+			TextOutA(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t, strlen(t));
+			free(t);
+		} else {
+			t16 = MwUTF8TextToUTF16Text(text);
+			TextOutW(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t16, wcslen(t16));
+			free(t16);
+		}
 
 		SetTextColor(handle->lowlevel->gdi.hDC, old_color);
 		SetBkMode(handle->lowlevel->gdi.hDC, old_bkmode);
 		SelectObject(handle->lowlevel->gdi.hDC, old_font);
-
-		free(t);
 
 		return 0;
 	}
@@ -64,7 +73,15 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	SelectObject(hmdc, hbm);
 	SelectObject(hmdc, ttf->font);
 
-	TextOut(hmdc, 0, 0, t, strlen(t));
+	if(_TextOutW == NULL) {
+		t = MwUTF8TextToACPText(text);
+		TextOutA(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t, strlen(t));
+		free(t);
+	} else {
+		t16 = MwUTF8TextToUTF16Text(text);
+		TextOutW(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t16, wcslen(t16));
+		free(t16);
+	}
 
 	DeleteDC(hmdc);
 
@@ -90,18 +107,22 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	free(px);
 
 	DeleteObject(hbm);
-	free(t);
 
 	return 0;
 }
 
 static int GDI_MwTextWidth(MwFLFont ttf, const char* text) {
-	char* t = MwUTF8ToACP(text);
-	SIZE  sz;
+	SIZE sz;
 
-	GetTextExtentPoint32(ttf->dc, t, strlen(t), &sz);
-
-	free(t);
+	if(_GetTextExtentPoint32W == NULL) {
+		char* t = MwUTF8TextToACPText(text);
+		GetTextExtentPoint32A(ttf->dc, t, strlen(t), &sz);
+		free(t);
+	} else {
+		wchar_t* t16 = MwUTF8TextToUTF16Text(text);
+		_GetTextExtentPoint32W(ttf->dc, t16, wcslen(t16), &sz);
+		free(t16);
+	}
 
 	return sz.cx;
 }
@@ -255,6 +276,9 @@ int MwFL_GDISetup(void) {
 		if(!_RemoveFontMemResourceEx) {
 			_RemoveFontMemResourceEx = _RemoveFontMemResourceExPolyFill;
 		}
+
+		_TextOutW	       = (void*)GetProcAddress(gdilib, "TextOutW");
+		_GetTextExtentPoint32W = (void*)GetProcAddress(gdilib, "GetTextExtentPoint32W");
 	}
 
 	MwFLDrawText   = GDI_MwDrawText;

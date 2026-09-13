@@ -16,10 +16,12 @@ void MWAPI ok(MwWidget handle, void* user, void* call) {
 #ifdef BUG
 	msgbox_wait = MwFALSE;
 #endif
+
+	MwDestroyWidget(mb);
 }
 
 void MWAPI file_callback(MwWidget handle, void* user_data, void* call_data) {
-	mb = MwMessageBox(handle, call_data, "File chosen", MwMB_ICONERROR | MwMB_BUTTONOK);
+	mb = MwMessageBox(window, call_data, "File chosen", MwMB_ICONERROR | MwMB_BUTTONOK);
 
 	(void)user_data;
 
