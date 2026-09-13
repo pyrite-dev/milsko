@@ -734,6 +734,12 @@ static void destroy_widget(MwLL handle) {
 
 	MwLLShow(handle, MwFALSE);
 
+	if(wl_display_roundtrip(handle->wayland.display) == -1) {
+		printf("roundtrip failed\n");
+		raise(SIGTRAP);
+		return;
+	}
+
 	switch(handle->wayland.type) {
 	case MwLL_WAYLAND_TOPLEVEL:
 		destroy_toplevel(handle);
