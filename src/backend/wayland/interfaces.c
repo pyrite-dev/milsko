@@ -720,8 +720,7 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	MwLL	self = data;
 	MwMouse p;
 	MwLL	topmost_parent = self;
-	int	i;
-	MwBool	inArea = MwFALSE;
+	MwBool	inArea	       = MwFALSE;
 
 	(void)wl_pointer;
 	(void)serial;
@@ -753,9 +752,7 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 		}
 		self->wayland.held_down = state == WL_POINTER_BUTTON_STATE_PRESSED;
 
-		for(i = 0; i < arrlen(self->wayland.currentlyHeldWidgets); i++) {
-			arrdel(self->wayland.currentlyHeldWidgets, i);
-		}
+		arrsetlen(self->wayland.currentlyHeldWidgets, 0);
 		mouse_dispatch(self, p, state);
 	}
 	if(self->wayland.backbuffer.surface) {
@@ -1092,21 +1089,30 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 
 	WAYLAND_EVENT_OP_START(self);
 
+	/* Always remember the seat itself, regardless of which capabilities it has - this is
+	 * both what setup_clipboard()/setup_zwp_clipboard() below use, and what lets
+	 * wl_seat_interface_destroy() release it later even on a keyboard-only seat. */
+	self->wayland.pointer_seat = wl_seat;
+
 	if(capabilities & WL_SEAT_CAPABILITY_KEYBOARD) {
 		self->wayland.keyboard = wl_seat_get_keyboard(wl_seat);
 		wl_keyboard_add_listener(self->wayland.keyboard, &keyboard_listener, data);
 	}
 	if(capabilities & WL_SEAT_CAPABILITY_POINTER) {
-		self->wayland.pointer_seat = wl_seat;
-		self->wayland.pointer	   = wl_seat_get_pointer(wl_seat);
+		self->wayland.pointer = wl_seat_get_pointer(wl_seat);
 		wl_pointer_add_listener(self->wayland.pointer, &pointer_listener, data);
 	}
 	WAYLAND_EVENT_OP_END(self);
 
-	if(self->wayland.clipboard_manager.wl)
-		setup_clipboard(self, self->wayland.pointer_seat);
-	if(self->wayland.clipboard_manager.zwp)
-		setup_zwp_clipboard(self, self->wayland.pointer_seat);
+	/* Only hooked up if this seat actually has a pointer: wl_data_device.get_data_device()
+	 * requires a non-null seat, and pointer_seat is only ever null before the first
+	 * capabilities event has arrived at all. */
+	if(capabilities & WL_SEAT_CAPABILITY_POINTER) {
+		if(self->wayland.clipboard_manager.wl)
+			setup_clipboard(self, self->wayland.pointer_seat);
+		if(self->wayland.clipboard_manager.zwp)
+			setup_zwp_clipboard(self, self->wayland.pointer_seat);
+	}
 };
 
 static void output_geometry(void*	      data,
@@ -1160,8 +1166,9 @@ void xdg_wm_base_ping(void*		  data,
 /* wl_seat setup function */
 static wayland_protocol_t* wl_seat_setup(MwU32 name, MwLL ll, MwU32 version) {
 	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
-	MwU32		    ver	  = (version >= 4) ? 4 : 1;
+	MwU32		    ver	  = (version >= 4) ? 4 : 1; /* version 4 needed for wl_seat_release */
 	proto->listener		  = malloc(sizeof(struct wl_seat_listener));
+	proto->context		  = NULL;
 
 	((struct wl_seat_listener*)proto->listener)->name	  = wl_seat_name;
 	((struct wl_seat_listener*)proto->listener)->capabilities = wl_seat_capabilities;
@@ -1172,7 +1179,31 @@ static wayland_protocol_t* wl_seat_setup(MwU32 name, MwLL ll, MwU32 version) {
 }
 
 static void wl_seat_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
+	if(wayland->pointer != NULL) {
+		if(wl_proxy_get_version((struct wl_proxy*)wayland->pointer) >= WL_POINTER_RELEASE_SINCE_VERSION) {
+			wl_pointer_release(wayland->pointer);
+		} else {
+			wl_pointer_destroy(wayland->pointer);
+		}
+		wayland->pointer = NULL;
+	}
+	if(wayland->keyboard != NULL) {
+		if(wl_proxy_get_version((struct wl_proxy*)wayland->keyboard) >= WL_KEYBOARD_RELEASE_SINCE_VERSION) {
+			wl_keyboard_release(wayland->keyboard);
+		} else {
+			wl_keyboard_destroy(wayland->keyboard);
+		}
+		wayland->keyboard = NULL;
+	}
+	if(wayland->pointer_seat != NULL) {
+		if(wl_proxy_get_version((struct wl_proxy*)wayland->pointer_seat) >= WL_SEAT_RELEASE_SINCE_VERSION) {
+			wl_seat_release(wayland->pointer_seat);
+		} else {
+			wl_seat_destroy(wayland->pointer_seat);
+		}
+		wayland->pointer_seat = NULL;
+	}
+
 	free(data->listener);
 	free(data);
 }

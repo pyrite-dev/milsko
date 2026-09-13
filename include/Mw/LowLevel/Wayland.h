@@ -500,10 +500,6 @@ int MwLLWaylandHyprlandGetRoundness(void);
 
 void MwLLWaylandHangUntilConfigured(MwLL handle);
 
-MwBool MwLLWaylandWidgetIsDestroyed(MwLL self);
-void   MwLLWaylandWidgetUndestroy(MwLL self);
-void   MwLLWaylandChildrenIterate(MwLL handle, void (*func)(MwLL handle, MwLL child));
-
 /* Function for setting up the callbacks/structs that will be registered upon the relevant interfaces being found. */
 void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland);
 
@@ -515,18 +511,10 @@ void MwLLWaylandFlush(MwLL handle);
 void MwLLWaylandCascadeChildren(MwLL handle);
 
 /* Standard procedure before event callbacks in Wayland  */
-#define WAYLAND_EVENT_OP_START(self) \
-	if(MwLLWaylandWidgetIsDestroyed(self)) { \
-		return; \
-	}
+#define WAYLAND_EVENT_OP_START(self) pthread_mutex_lock(&self->wayland.eventsMutex);
 
 /* Footer for WAYLAND_EVENT_OP_START */
-#define WAYLAND_EVENT_OP_END(self)
-
-#define WIDGET_CHECK(handle) \
-	if(!handle->wayland.valid) { \
-		return; \
-	}
+#define WAYLAND_EVENT_OP_END(self) pthread_mutex_unlock(&self->wayland.eventsMutex);
 
 /* the two decoration manager constructs */
 typedef struct zxdg_decoration_manager_v1_context {

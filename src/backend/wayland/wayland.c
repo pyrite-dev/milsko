@@ -12,39 +12,6 @@ MwBool MwWaylandVulkan = MwFALSE;
 
 MwBool MwWaylandCairoOnly = MwFALSE;
 
-static pthread_mutex_t destroyedWidgetsTableMutex;
-/*
- * So Wayland, bless its soul; it keeps using callbacks LONG after they should not only be destroyed but the widget doesn't even exist anymore. Naturally, this causes use after free. so we fight fire with fire in the worst code i've ever written: by storing the freed pointers here, we disallow wayland from ever using them again. if something else is created that takes this slot, we remove it from the table.
- *
- * To illustrate how bad this code is: if Israel and Palestine found out I was doing this then the Israel/Palestine conflict would be solved because both world leaders would come to the conclusion that this code is the worst thing ever.
- */
-static MwLL* destroyedWidgetsTable;
-
-MwBool MwLLWaylandWidgetIsDestroyed(MwLL self) {
-	int i;
-	pthread_mutex_lock(&destroyedWidgetsTableMutex);
-	for(i = 0; i < arrlen(destroyedWidgetsTable); i++) {
-		if(self == destroyedWidgetsTable[i]) {
-			pthread_mutex_unlock(&destroyedWidgetsTableMutex);
-			return MwTRUE;
-		}
-	}
-	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
-	return MwFALSE;
-}
-void MwLLWaylandWidgetUndestroy(MwLL self) {
-	int i;
-	pthread_mutex_lock(&destroyedWidgetsTableMutex);
-	for(i = 0; i < arrlen(destroyedWidgetsTable); i++) {
-		if(self == destroyedWidgetsTable[i]) {
-			arrdel(destroyedWidgetsTable, i);
-			break;
-		}
-	}
-	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
-	return;
-}
-
 void MwLLWaylandChildrenIterate(MwLL handle, void (*func)(MwLL handle, MwLL child)) {
 	if(handle->common.user) {
 		MwWidget w = handle->common.user;
@@ -76,7 +43,6 @@ static void recursive_dispatch_resize(MwLL handle) {
 
 static void recursive_render(MwLL handle) {
 	int i;
-	WIDGET_CHECK(handle);
 
 	for(i = 0; i < arrlen(((MwWidget)handle->common.user)->children); i++) recursive_render(((MwWidget)handle->common.user)->children[i]->lowlevel);
 
@@ -386,8 +352,9 @@ static void destroy_toplevel(MwLL r) {
 
 	xkb_context_unref(r->wayland.xkb_context);
 
-	wl_pointer_destroy(r->wayland.pointer);
-	wl_keyboard_destroy(r->wayland.keyboard);
+	/* wl_pointer/wl_keyboard/wl_seat are torn down centrally in wl_seat_interface_destroy,
+	 * after this function returns, so every widget type that binds a seat (toplevel, popup,
+	 * layer surface) releases them the same way instead of leaking or double-freeing them. */
 
 	MwLLWaylandFifoSurfaceDestroy(&r->wayland.framebuffer);
 	MwLLWaylandFifoSurfaceDestroy(&r->wayland.backbuffer);
@@ -883,12 +850,7 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 	r->wayland.x	  = x;
 	r->wayland.y	  = y;
 	r->wayland.parent = parent;
-	if(MwLLWaylandWidgetIsDestroyed(parent)) {
-		r->wayland.valid = MwFALSE;
-		return;
-	} else {
-		r->wayland.valid = MwTRUE;
-	}
+	r->wayland.valid  = MwTRUE;
 
 	if(ty == MwLL_WAYLAND_UNKNOWN) {
 		if(parent == NULL) {
@@ -924,8 +886,6 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 			break;
 		}
 	}
-
-	WIDGET_CHECK(r);
 
 	r->wayland.region   = wl_compositor_create_region(r->wayland.compositor);
 	r->wayland.o_region = wl_compositor_create_region(r->wayland.compositor);
@@ -1025,11 +985,8 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL r;
 	r = malloc(sizeof(*r));
 	memset(r, 0, sizeof(*r));
+	pthread_mutex_init(&r->wayland.eventsMutex, NULL);
 	MwLLCreateCommon(r);
-
-	if(MwLLWaylandWidgetIsDestroyed(r)) {
-		MwLLWaylandWidgetUndestroy(r);
-	}
 
 	r->wayland.is_toplevel = parent == NULL;
 	r->wayland.is_clipping = 0;
@@ -1067,8 +1024,6 @@ static void MwLLDestroyImpl(MwLL handle) {
 		select_ret = select(1, NULL, NULL, NULL, &tv);
 	} while((select_ret == -1) && (errno == EINTR));
 
-	pthread_mutex_destroy(&handle->wayland.eventsMutex);
-
 #ifdef USE_DBUS
 	if(!wl_call_tbl.has_dbus) {
 		MwLLDBusFreeContext(&wl_call_tbl.dbus, &handle->wayland.dbus);
@@ -1094,9 +1049,7 @@ static void MwLLDestroyImpl(MwLL handle) {
 		printf("widget invalid\n");
 	}
 
-	pthread_mutex_lock(&destroyedWidgetsTableMutex);
-	arrput(destroyedWidgetsTable, handle);
-	pthread_mutex_unlock(&destroyedWidgetsTableMutex);
+	pthread_mutex_destroy(&handle->wayland.eventsMutex);
 
 	free(handle);
 }
@@ -1116,7 +1069,7 @@ static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsign
 }
 
 static void MwLLSetXYImpl(MwLL handle, int x, int y) {
-	WIDGET_CHECK(handle);
+
 	MwLLWaylandRegionInvalidate(handle);
 
 	if(handle->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
@@ -1181,7 +1134,6 @@ static void actually_set_wh(MwLL handle) {
 }
 
 static void MwLLSetWHImpl(MwLL handle, int w, int h) {
-	WIDGET_CHECK(handle);
 
 	if(handle->wayland.ww == w && handle->wayland.wh == h) {
 		return;
@@ -1219,7 +1171,7 @@ const float_color one = {.2627451, .37254902, .49411765};
 const float_color two = {.05490196, .17254902, .30588235};
 
 static void MwLLBeginDrawImpl(MwLL handle) {
-	WIDGET_CHECK(handle);
+
 	cairo_save(handle->wayland.cairo.front_cairo);
 	cairo_set_source_rgba(handle->wayland.cairo.front_cairo, 0, 0, 0, 0);
 	cairo_set_operator(handle->wayland.cairo.front_cairo, CAIRO_OPERATOR_SOURCE);
@@ -1373,7 +1325,6 @@ static void MwLLEndDrawImpl(MwLL handle) {
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
-	WIDGET_CHECK(handle);
 
 	clip(handle);
 
@@ -1384,7 +1335,6 @@ static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLL
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 	int i;
-	WIDGET_CHECK(handle);
 
 	clip(handle);
 
@@ -1425,10 +1375,6 @@ static int MwLLPendingImpl(MwLL handle) {
 	    .events = POLLOUT,
 	};
 	int pending = 0;
-
-	if(MwLLWaylandWidgetIsDestroyed(handle) || !handle->wayland.valid) {
-		return 0;
-	}
 
 	handle->wayland.resizing = 0;
 
@@ -1502,7 +1448,6 @@ static int MwLLPendingImpl(MwLL handle) {
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
-	WIDGET_CHECK(handle);
 
 	if(!MwWaylandVulkan) {
 		if(handle->wayland.did_event_loop_early) {
@@ -1525,7 +1470,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 }
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
-	WIDGET_CHECK(handle);
+
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		xdg_toplevel_set_title(handle->wayland.toplevel->xdg_top_level, title);
 	}
@@ -1551,7 +1496,6 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	WIDGET_CHECK(handle);
 
 	clip(handle);
 
@@ -1561,7 +1505,7 @@ static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
 }
 static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
-	WIDGET_CHECK(handle);
+
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		if(WAYLAND_GET_INTERFACE(handle->wayland, xdg_toplevel_icon_manager_v1) != NULL) {
 			struct xdg_toplevel_icon_manager_v1* icon_manager = WAYLAND_GET_INTERFACE(handle->wayland, xdg_toplevel_icon_manager_v1)->context;
@@ -1615,7 +1559,6 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 }
 
 static void MwLLForceRenderImpl(MwLL handle) {
-	WIDGET_CHECK(handle);
 
 	if(!handle->wayland.configured) {
 		return;
@@ -1631,8 +1574,6 @@ static void MwLLForceRenderImpl(MwLL handle) {
 
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	int x, y, xs, ys;
-
-	WIDGET_CHECK(handle);
 
 	if(handle->wayland.cursor.setup) {
 		MwLLWaylandBufferDestroy(&handle->wayland.cursor);
@@ -1684,7 +1625,7 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	MwLL p = handle->wayland.parent;
 	int  x = 0, y = 0;
-	WIDGET_CHECK(handle);
+
 	while(p != NULL) {
 		if(p->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
 			x += p->wayland.x;
@@ -1706,7 +1647,7 @@ static void MwLLShowImpl(MwLL handle, int show) {
 	if(!handle->wayland.configured) {
 		return;
 	}
-	WIDGET_CHECK(handle);
+
 	/* Some guy on a mailing list said that "abusing" wl_surface_attach for this purpose is bad? This is documented behavior so please I beg of you let me know if there's a compositor that actually has a problem with this. */
 	if(handle->wayland.framebuffer.surface) {
 		wl_surface_attach(handle->wayland.framebuffer.surface, show ? handle->wayland.framebuffer.shm_buffer : NULL, 0, 0);
@@ -1725,7 +1666,7 @@ static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
-	WIDGET_CHECK(handle);
+
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		xdg_toplevel_set_min_size(handle->wayland.toplevel->xdg_top_level, minx, miny);
 		xdg_toplevel_set_max_size(handle->wayland.toplevel->xdg_top_level, maxx, maxy);
@@ -1736,7 +1677,7 @@ static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int 
 }
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
-	WIDGET_CHECK(handle);
+
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		if(WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1) != NULL) {
 			zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(handle->wayland, zxdg_decoration_manager_v1)->context;
@@ -1763,7 +1704,7 @@ static void MwLLFocusImpl(MwLL handle) {
 
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	MwLL topmost_parent = handle;
-	WIDGET_CHECK(handle);
+
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 	if(handle->wayland.pointer_constraints && handle->wayland.relative_pointer_manager) {
 		if(toggle) {
@@ -1790,7 +1731,6 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 
 static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type) {
 	int i;
-	WIDGET_CHECK(handle);
 
 	if(handle->wayland.clipboard_buffer != NULL) {
 		free(handle->wayland.clipboard_buffer);
@@ -1817,7 +1757,7 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_ty
 
 static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
 	int i;
-	WIDGET_CHECK(handle);
+
 	if(clipboard_type == MwCLIPBOARD_PRIMARY) {
 		if(handle->wayland.supports_zwp) {
 			for(i = 0; i < arrlen(handle->wayland.clipboard_devices_zwp); i++) {
@@ -1839,8 +1779,6 @@ static void MwLLGetClipboardImpl(MwLL handle, int clipboard_type) {
 static void MwLLMakeToolWindowImpl(MwLL handle) {
 	MwBool can_do_layer_surface = MwFALSE;
 
-	WIDGET_CHECK(handle);
-
 	can_do_layer_surface = (WAYLAND_GET_INTERFACE(handle->wayland, zwlr_layer_shell_v1) != NULL);
 
 	if(!handle->wayland.parent && can_do_layer_surface) {
@@ -1855,14 +1793,12 @@ static void MwLLMakeToolWindowImpl(MwLL handle) {
 static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
 	MwLL topmost_parent = handle;
 
-	WIDGET_CHECK(handle);
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
 	*point = topmost_parent->wayland.cur_mouse_pos;
 }
 
 static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
-	WIDGET_CHECK(handle);
 
 	rect->x	     = 0;
 	rect->y	     = 0;
@@ -1882,7 +1818,6 @@ static void MwLLBeginStateChangeImpl(MwLL handle) {
 static void MwLLEndStateChangeImpl(MwLL handle) {
 	MwLL topmost_parent;
 	int  x, y;
-	WIDGET_CHECK(handle);
 
 	if(!handle->wayland.changing) {
 		return;
@@ -1942,7 +1877,7 @@ static MwBool MwLLDoModernImpl(MwLL handle) {
 
 static void MwLLRaiseImpl(MwLL handle) {
 	(void)handle;
-	/* 	WIDGET_CHECK(handle);
+	/*
 
 	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
 		MwLL topmost_parent = handle;
