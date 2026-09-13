@@ -634,6 +634,36 @@ static void recursive_dispatch_mouse_up(MwLL handle, MwMouse* p) {
 	}
 };
 
+static bool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwPoint* _relative_mouse_pos, MwPoint* _absolute_pos) {
+	MwLL	topmost_parent = child;
+	MwPoint point;
+	MwPoint relative_mouse_pos;
+	MwPoint absolute_pos;
+
+	absolute_pos.x = child->wayland.x;
+	absolute_pos.y = child->wayland.y;
+	while(topmost_parent->wayland.parent) {
+		topmost_parent = topmost_parent->wayland.parent;
+		if(topmost_parent) {
+			absolute_pos.x += topmost_parent->wayland.x;
+			absolute_pos.y += topmost_parent->wayland.y;
+		}
+	}
+
+	point = topmost_parent->wayland.cur_mouse_pos;
+
+	relative_mouse_pos.x = point.x - absolute_pos.x;
+	relative_mouse_pos.y = point.y - absolute_pos.y;
+
+	*_topmost_parent     = topmost_parent;
+	*_point		     = point;
+	*_relative_mouse_pos = relative_mouse_pos;
+	*_absolute_pos	     = absolute_pos;
+
+	return point.x >= absolute_pos.x && point.x <= absolute_pos.x + child->wayland.ww &&
+	       point.y >= absolute_pos.y && point.y <= absolute_pos.y + child->wayland.wh;
+}
+
 static void mouse_dispatch(MwLL self, MwMouse p, MwU32 state) {
 	switch(state) {
 	case WL_POINTER_BUTTON_STATE_PRESSED:
@@ -655,24 +685,7 @@ static void mouse_dispatch(MwLL self, MwMouse p, MwU32 state) {
 				MwPoint relative_mouse_pos;
 				MwPoint absolute_pos;
 
-				absolute_pos.x = child->wayland.x;
-				absolute_pos.y = child->wayland.y;
-				while(topmost_parent->wayland.parent) {
-					topmost_parent = topmost_parent->wayland.parent;
-					if(topmost_parent) {
-						absolute_pos.x += topmost_parent->wayland.x;
-						absolute_pos.y += topmost_parent->wayland.y;
-					}
-				}
-
-				point = topmost_parent->wayland.cur_mouse_pos;
-
-				relative_mouse_pos.x = point.x - absolute_pos.x;
-				relative_mouse_pos.y = point.y - absolute_pos.y;
-
-				if(
-				    point.x >= absolute_pos.x && point.x <= absolute_pos.x + child->wayland.ww &&
-				    point.y >= absolute_pos.y && point.y <= absolute_pos.y + child->wayland.wh) {
+				if(hit_detect(child, &topmost_parent, &point, &relative_mouse_pos, &absolute_pos)) {
 					int idx = -1;
 					for(n = 0; n < arrlen(topmost_parent->wayland.currentlyHeldWidgets); n++) {
 						if(topmost_parent->wayland.currentlyHeldWidgets[n] == child) {
@@ -844,6 +857,32 @@ static void keyboard_leave(void*	       data,
 	WAYLAND_EVENT_OP_END(self);
 };
 
+static void key_dispatch(MwLL self, int* k, MwBool down) {
+	if(self->common.user) {
+		MwWidget w = self->common.user;
+		int	 i, n;
+		for(i = 0; i < arrlen(w->children); i++) {
+			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
+				MwLL	child	       = w->children[i]->lowlevel;
+				MwLL	topmost_parent = child;
+				MwPoint point;
+				MwPoint relative_mouse_pos;
+				MwPoint absolute_pos;
+
+				if(hit_detect(child, &topmost_parent, &point, &relative_mouse_pos, &absolute_pos)) {
+					if(down) {
+						MwLLDispatch(child, key, k);
+					} else {
+						MwLLDispatch(child, key_released, k);
+					}
+
+					key_dispatch(child, k, down);
+				}
+			}
+		}
+	}
+}
+
 /* `wl_keyboard.key` callback */
 static void keyboard_key(void*		     data,
 			 struct wl_keyboard* wl_keyboard,
@@ -867,13 +906,10 @@ static void keyboard_key(void*		     data,
 		inArea |= self->wayland.framebuffer.surface == curSurface;
 	}
 
-	if(self->wayland.backbuffer.surface) {
-		inArea |= self->wayland.backbuffer.surface == curSurface;
-	}
-
 	inArea |= (self == topmost_parent->wayland.focusedWidget);
 
 	if(inArea) {
+
 		xkb_layout_index_t  layout;
 		MwU32		    levels;
 		xkb_level_index_t   level = 0;
@@ -957,13 +993,12 @@ static void keyboard_key(void*		     data,
 
 			if(key != -1) {
 				if(state == WL_KEYBOARD_KEY_STATE_PRESSED) {
-					recursive_dispatch_key(self, &key);
 					self->wayland.holding_key      = MwTRUE;
 					self->wayland.last_pressed_key = key;
 				} else {
-					recursive_dispatch_key_released(self, &key);
 					self->wayland.holding_key = MwFALSE;
 				}
+				key_dispatch(self, &key, state == WL_KEYBOARD_KEY_STATE_PRESSED);
 				self->wayland.start_time   = MwTimeGetTick();
 				self->wayland.next_elapsed = self->wayland.keyboard_delay;
 			}
