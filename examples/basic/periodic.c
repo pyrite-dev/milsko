@@ -269,7 +269,7 @@ int main() {
 	wclock = child(f);
 
 	f = frame("Chart", -PaddingContent, -PaddingContent, MwChartClass,
-		  MwNtype, MwCHART_3D_BAR,
+		  MwNtype, MwCHART_PIE,
 		  MwNcolumnSpan, 2,
 		  NULL);
 	w = child(f);

@@ -13,6 +13,7 @@ static const char* palette0[] = {
     NULL};
 
 #define NUMFMT "%.2f"
+#define PIE_DIV 4
 
 static int wcreate(MwWidget handle) {
 	MwChart c = malloc(sizeof(*c));
@@ -238,6 +239,60 @@ static void draw(MwWidget handle) {
 			MwLLFreeColor(colord);
 			MwLLFreeColor(colorl);
 			MwLLFreeColor(color);
+		}
+	} else if(type == MwCHART_PIE) {
+		double sum    = 0;
+		int    radius = r.width < r.height ? r.width : r.height;
+		double cangle = 0;
+		int    k;
+
+		for(i = 0; i < arrlen(c->entries); i++) {
+			if(c->entries[i].value > 0) sum += c->entries[i].value;
+		}
+
+		for(k = 0; k < 2; k++) {
+			for(i = 0; i < arrlen(c->entries); i++) {
+				MwLLColor color;
+				double	  angle = c->entries[i].value / sum * 360;
+				MwPoint	  p[360 + 1 + 1];
+				int	  div = angle / PIE_DIV;
+				int	  j;
+				int	  count;
+
+				if(c->entries[i].value <= 0) continue;
+
+				color = MwParseColor(handle, c->entries[i].color == NULL ? colors[i % n] : c->entries[i].color);
+
+				p[0].x = r.width / 2;
+				p[0].y = r.height / 2;
+				for(j = 0; j <= div; j++) {
+					double a = angle / div * j;
+
+					p[div - j + 1].x = p[0].x + cos((cangle + a - 90) / 180 * M_PI) * radius / 2;
+					p[div - j + 1].y = p[0].y + sin((cangle + a - 90) / 180 * M_PI) * radius / 2;
+				}
+
+				count = j + 1;
+
+				if(k == 0) {
+					MwLLPolygon(handle->lowlevel, p, count, color);
+				} else {
+					int j;
+
+					p[count] = p[0];
+					for(j = 0; j < count; j++) {
+						MwLLLine(handle->lowlevel, &p[j], border);
+					}
+
+					p[0].x += cos((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4;
+					p[0].y += sin((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4;
+					MwDrawText(handle, NULL, p, c->entries[i].name, MwALIGNMENT_CENTER, border);
+				}
+
+				cangle += angle;
+
+				MwLLFreeColor(color);
+			}
 		}
 	}
 

@@ -233,6 +233,7 @@
 		<enumeration name="MwCHART">
 			<integer name="MwCHART_BAR">0</integer>
 			<integer name="MwCHART_3D_BAR" />
+			<integer name="MwCHART_PIE" />
 		</enumeration>
 		<enumeration name="MwMOUSE">
 			<integer name="MwMOUSE_LEFT">1</integer>
