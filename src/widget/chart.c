@@ -10,13 +10,6 @@ static const char* palette0[] = {
     "#808",
     "#088",
     "#888",
-    "#f00",
-    "#0f0",
-    "#ff0",
-    "#00f",
-    "#f0f",
-    "#0ff",
-    "#fff",
     NULL};
 
 static int wcreate(MwWidget handle) {
