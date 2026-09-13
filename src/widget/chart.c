@@ -320,6 +320,9 @@ static void draw(MwWidget handle) {
 
 					p[0].x += cos((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4;
 					p[0].y += sin((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4 / vsquish;
+
+					handle->bgcolor = type == MwCHART_3D_PIE ? colorl : color;
+
 					MwDrawText(handle, NULL, p, c->entries[i].name, MwALIGNMENT_CENTER, border);
 				}
 
