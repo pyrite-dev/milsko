@@ -268,9 +268,8 @@ int main() {
 	f      = frame("Clock", -PaddingContent, -PaddingContent, MwClockClass, NULL);
 	wclock = child(f);
 
-	f = frame("Chart", -PaddingContent, -PaddingContent, MwChartClass,
-		  MwNtype, MwCHART_PIE,
-		  MwNcolumnSpan, 2,
+	f = frame("3D Bar Chart", -PaddingContent, -PaddingContent, MwChartClass,
+		  MwNtype, MwCHART_3D_BAR,
 		  NULL);
 	w = child(f);
 	MwChartAdd(w, -1, "A", -800, NULL);
@@ -281,6 +280,19 @@ int main() {
 	MwChartAdd(w, -1, "F", 200, NULL);
 	MwChartAdd(w, -1, "G", 400, NULL);
 	MwChartAdd(w, -1, "H", 800, NULL);
+
+	f = frame("3D Pie Chart", -PaddingContent, -PaddingContent, MwChartClass,
+		  MwNtype, MwCHART_3D_PIE,
+		  NULL);
+	w = child(f);
+	MwChartAdd(w, -1, "A", 10, NULL);
+	MwChartAdd(w, -1, "B", 20, NULL);
+	MwChartAdd(w, -1, "C", 30, NULL);
+	MwChartAdd(w, -1, "D", 10, NULL);
+	MwChartAdd(w, -1, "E", 20, NULL);
+	MwChartAdd(w, -1, "F", 30, NULL);
+	MwChartAdd(w, -1, "G", 10, NULL);
+	MwChartAdd(w, -1, "H", 20, NULL);
 
 	f = frame("ComboBox", -PaddingContent, 24, MwComboBoxClass, NULL);
 	w = child(f);

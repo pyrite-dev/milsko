@@ -13,7 +13,7 @@ static const char* palette0[] = {
     NULL};
 
 #define NUMFMT "%.2f"
-#define PIE_DIV 4
+#define PIE_DIV 10
 
 static int wcreate(MwWidget handle) {
 	MwChart c = malloc(sizeof(*c));
@@ -63,8 +63,9 @@ static void draw_line(MwWidget handle, const char* text, double x, double y, dou
 }
 
 static void draw(MwWidget handle) {
-	MwLLColor    base   = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor    border = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	int	     ColorDiff = MwGetColorDifference(handle);
+	MwLLColor    base      = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwLLColor    border    = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	MwRect	     r;
 	MwChart	     c = handle->internal;
 	int	     i;
@@ -77,7 +78,8 @@ static void draw(MwWidget handle) {
 	double	     vmax  = -0xffffffff;
 	int	     space = MwTextHeight(handle, NULL, "M");
 	MwPoint	     p[2];
-	int	     type = MwGetInteger(handle, MwNtype);
+	int	     type   = MwGetInteger(handle, MwNtype);
+	int	     modern = MwGetInteger(handle, MwNmodernLook);
 
 	for(n = 0; colors[n] != NULL; n++);
 
@@ -157,10 +159,9 @@ static void draw(MwWidget handle) {
 
 		node.width = width;
 		for(i = 0; i < arrlen(c->entries); i++) {
-			int	  ColorDiff = MwGetColorDifference(handle);
-			MwLLColor color	    = MwParseColor(handle, c->entries[i].color == NULL ? colors[i % n] : c->entries[i].color);
-			MwLLColor colorl    = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
-			MwLLColor colord    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
+			MwLLColor color	 = MwParseColor(handle, c->entries[i].color == NULL ? colors[i % n] : c->entries[i].color);
+			MwLLColor colorl = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
+			MwLLColor colord = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 			MwPoint	  persp_top[5];
 			MwPoint	  persp_right[5];
 
@@ -213,7 +214,7 @@ static void draw(MwWidget handle) {
 				MwLLPolygon(handle->lowlevel, persp_right, 4, colord);
 			}
 
-			if(!MwGetInteger(handle, MwNmodernLook)) {
+			if(!modern) {
 				MwDrawRectLine(handle, &node, border);
 
 				if(type == MwCHART_3D_BAR) {
@@ -240,28 +241,32 @@ static void draw(MwWidget handle) {
 			MwLLFreeColor(colorl);
 			MwLLFreeColor(color);
 		}
-	} else if(type == MwCHART_PIE) {
-		double sum    = 0;
-		int    radius = r.width < r.height ? r.width : r.height;
-		double cangle = 0;
-		int    k;
+	} else if(type == MwCHART_PIE || type == MwCHART_3D_PIE) {
+		double	sum    = 0;
+		int	radius = r.width < r.height ? r.width : r.height;
+		double	cangle = 0;
+		int	k;
+		double	vsquish = type == MwCHART_3D_PIE ? 2 : 1;
+		MwPoint p[360 + 1 + 1];
 
 		for(i = 0; i < arrlen(c->entries); i++) {
 			if(c->entries[i].value > 0) sum += c->entries[i].value;
 		}
 
-		for(k = 0; k < 2; k++) {
+		for(k = 0; k < 4; k++) {
 			for(i = 0; i < arrlen(c->entries); i++) {
 				MwLLColor color;
+				MwLLColor colorl;
 				double	  angle = c->entries[i].value / sum * 360;
-				MwPoint	  p[360 + 1 + 1];
-				int	  div = angle / PIE_DIV;
+				int	  div	= angle / PIE_DIV;
 				int	  j;
 				int	  count;
 
 				if(c->entries[i].value <= 0) continue;
+				if((k == 0 || k == 1) && type == MwCHART_PIE) continue;
 
-				color = MwParseColor(handle, c->entries[i].color == NULL ? colors[i % n] : c->entries[i].color);
+				color  = MwParseColor(handle, c->entries[i].color == NULL ? colors[i % n] : c->entries[i].color);
+				colorl = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 
 				p[0].x = r.width / 2;
 				p[0].y = r.height / 2;
@@ -269,30 +274,71 @@ static void draw(MwWidget handle) {
 					double a = angle / div * j;
 
 					p[div - j + 1].x = p[0].x + cos((cangle + a - 90) / 180 * M_PI) * radius / 2;
-					p[div - j + 1].y = p[0].y + sin((cangle + a - 90) / 180 * M_PI) * radius / 2;
+					p[div - j + 1].y = p[0].y + sin((cangle + a - 90) / 180 * M_PI) * radius / 2 / vsquish;
 				}
 
 				count = j + 1;
 
-				if(k == 0) {
-					MwLLPolygon(handle->lowlevel, p, count, color);
-				} else {
+				if((k == 0 || k == 1) && type == MwCHART_3D_PIE) {
+					int	j;
+					MwPoint p2[360 + 1 + 1];
+					int	d = 0;
+
+					for(d = 1; d <= 2; d++) {
+						for(j = 0; j < count - 1; j++) {
+							p2[3 + j] = p[1 + j];
+							p2[3 + j].y += radius / 8 / d;
+						}
+
+						p2[0] = p[count - 1];
+						p2[1] = p[0];
+						p2[2] = p[1];
+
+						if(k == 0) {
+							MwLLPolygon(handle->lowlevel, p2, count + 2, color);
+						} else if(d == 1 && k == 1) {
+							for(j = 3; j < count + 1; j++) {
+								if(!modern) MwLLLine(handle->lowlevel, &p2[j], border);
+							}
+
+							p[0] = p[1];
+							p[0].y += radius / 8;
+							if(!modern) MwLLLine(handle->lowlevel, p, border);
+						}
+					}
+				}
+
+				if(k == 2) {
+					MwLLPolygon(handle->lowlevel, p, count, type == MwCHART_3D_PIE ? colorl : color);
+				} else if(k == 3) {
 					int j;
 
 					p[count] = p[0];
 					for(j = 0; j < count; j++) {
-						MwLLLine(handle->lowlevel, &p[j], border);
+						if(!modern) MwLLLine(handle->lowlevel, &p[j], border);
 					}
 
 					p[0].x += cos((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4;
-					p[0].y += sin((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4;
+					p[0].y += sin((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4 / vsquish;
 					MwDrawText(handle, NULL, p, c->entries[i].name, MwALIGNMENT_CENTER, border);
 				}
 
 				cangle += angle;
 
+				MwLLFreeColor(colorl);
 				MwLLFreeColor(color);
 			}
+		}
+
+		if(!modern && type == MwCHART_3D_PIE) {
+			p[0].x = r.width / 2 - radius / 2;
+			p[0].y = r.height / 2;
+			p[1]   = p[0];
+			p[1].y += radius / 8;
+			MwLLLine(handle->lowlevel, p, border);
+
+			p[0].x = p[1].x = r.width / 2 + radius / 2;
+			MwLLLine(handle->lowlevel, p, border);
 		}
 	}
 
