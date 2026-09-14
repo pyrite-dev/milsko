@@ -157,7 +157,7 @@ struct MD_LABEL_HASH_TABLE_tag {
 };
 
 
-/* During analyzes of inline marks, we need to manage stacks of unresolved
+/* During analyzes of __inline marks, we need to manage stacks of unresolved
  * openers of the given type.
  * The stack connects the marks via MD_MARK::next;
  */
@@ -190,7 +190,7 @@ struct MD_CTX_tag {
     MD_LABEL_HASH_TABLE footnote_hashtable;
     unsigned next_footnote_index;   /* 1-based counter for sequential numbering */
 
-    /* Stack of inline/span markers.
+    /* Stack of __inline/span markers.
      * This is only used for parsing a single block contents but by storing it
      * here we may reuse the stack for subsequent blocks; i.e. we have fewer
      * (re)allocations. */
@@ -204,7 +204,7 @@ struct MD_CTX_tag {
     char mark_char_map[256];
 #endif
 
-    /* For resolving of inline spans. */
+    /* For resolving of __inline spans. */
     MD_MARKSTACK opener_stacks[20];
 #define ASTERISK_OPENERS_oo_mod3_0      (ctx->opener_stacks[0])     /* Opener-only */
 #define ASTERISK_OPENERS_oo_mod3_1      (ctx->opener_stacks[1])
@@ -228,7 +228,7 @@ struct MD_CTX_tag {
 #define PLUS_OPENERS                    (ctx->opener_stacks[19])
 
     /* Stack of dummies which need to call free() for pointers stored in them.
-     * These are constructed during inline parsing and freed after all the block
+     * These are constructed during __inline parsing and freed after all the block
      * is processed (i.e. all callbacks referring those strings are called). */
     MD_MARKSTACK ptr_stack;
 
@@ -370,7 +370,7 @@ struct MD_VERBATIMLINE_tag {
 
 
 /* Case insensitive check of string equality. */
-static inline int
+static __inline int
 md_ascii_case_eq(const CHAR* s1, const CHAR* s2, SZ n)
 {
     OFF i;
@@ -388,7 +388,7 @@ md_ascii_case_eq(const CHAR* s1, const CHAR* s2, SZ n)
     return 1;
 }
 
-static inline int
+static __inline int
 md_ascii_eq(const CHAR* s1, const CHAR* s2, SZ n)
 {
     return memcmp(s1, s2, n * sizeof(CHAR)) == 0;
@@ -887,7 +887,7 @@ struct MD_UNICODE_FOLD_INFO_tag {
     #define ISUNICODEPUNCT(off)             md_is_unicode_punct__(md_decode_utf16le__(STR(off), ctx->size - (off), NULL))
     #define ISUNICODEPUNCTBEFORE(off)       md_is_unicode_punct__(md_decode_utf16le_before__(ctx, off))
 
-    static inline int
+    static __inline int
     md_decode_unicode(const CHAR* str, OFF off, SZ str_size, SZ* p_char_size)
     {
         return md_decode_utf16le__(str+off, str_size-off, p_char_size);
@@ -968,7 +968,7 @@ struct MD_UNICODE_FOLD_INFO_tag {
     #define ISUNICODEPUNCT(off)             md_is_unicode_punct__(md_decode_utf8__(STR(off), ctx->size - (off), NULL))
     #define ISUNICODEPUNCTBEFORE(off)       md_is_unicode_punct__(md_decode_utf8_before__(ctx, off))
 
-    static inline unsigned
+    static __inline unsigned
     md_decode_unicode(const CHAR* str, OFF off, SZ str_size, SZ* p_char_size)
     {
         return md_decode_utf8__(str+off, str_size-off, p_char_size);
@@ -981,7 +981,7 @@ struct MD_UNICODE_FOLD_INFO_tag {
     #define ISUNICODEPUNCT(off)             ISPUNCT(off)
     #define ISUNICODEPUNCTBEFORE(off)       ISPUNCT((off)-1)
 
-    static inline void
+    static __inline void
     md_get_unicode_fold_info(unsigned codepoint, MD_UNICODE_FOLD_INFO* info)
     {
         info->codepoints[0] = codepoint;
@@ -990,7 +990,7 @@ struct MD_UNICODE_FOLD_INFO_tag {
         info->n_codepoints = 1;
     }
 
-    static inline unsigned
+    static __inline unsigned
     md_decode_unicode(const CHAR* str, OFF off, SZ str_size, SZ* p_size)
     {
         MD_UNUSED(str_size);
@@ -1088,7 +1088,7 @@ md_skip_unicode_whitespace(const CHAR* label, OFF off, SZ size)
  ***  Recognizing raw HTML  ***
  ******************************/
 
-/* md_is_html_tag() may be called when processing inlines (inline raw HTML)
+/* md_is_html_tag() may be called when processing __inlines (__inline raw HTML)
  * or when breaking document to blocks (checking for start of HTML block type 7).
  *
  * When breaking document to blocks, we do not yet know line boundaries, but
@@ -1420,7 +1420,7 @@ md_is_entity_str(MD_CTX* ctx, const CHAR* text, OFF beg, OFF max_end, OFF* p_end
     }
 }
 
-static inline int
+static __inline int
 md_is_entity(MD_CTX* ctx, OFF beg, OFF max_end, OFF* p_end)
 {
     return md_is_entity_str(ctx, ctx->text, beg, max_end, p_end);
@@ -1597,7 +1597,7 @@ abort:
 #define MD_FNV1A_BASE       2166136261U
 #define MD_FNV1A_PRIME      16777619U
 
-static inline unsigned
+static __inline unsigned
 md_fnv1a(unsigned base, const void* data, size_t n)
 {
     const unsigned char* buf = (const unsigned char*) data;
@@ -2169,7 +2169,7 @@ md_free_footnote_defs(MD_CTX* ctx)
  ***  Recognizing Links  ***
  ***************************/
 
-/* Note this code is partially shared between processing inlines and blocks
+/* Note this code is partially shared between processing __inlines and blocks
  * as reference definitions and links share some helper parser functions.
  */
 
@@ -2333,7 +2333,7 @@ md_is_link_destination_B(MD_CTX* ctx, OFF beg, OFF max_end, OFF* p_end,
     return 1;
 }
 
-static inline int
+static __inline int
 md_is_link_destination(MD_CTX* ctx, OFF beg, OFF max_end, OFF* p_end,
                        OFF* p_contents_beg, OFF* p_contents_end)
 {
@@ -2586,7 +2586,7 @@ abort:
 }
 
 static int
-md_is_inline_link_spec(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
+md_is___inline_link_spec(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
                        OFF beg, OFF* p_end, MD_LINK_ATTR* attr)
 {
     MD_SIZE line_index = 0;
@@ -2705,7 +2705,7 @@ md_free_ref_defs(MD_CTX* ctx)
  ***  Processing Inlines (a.k.a Spans)  ***
  ******************************************/
 
-/* We process inlines in few phases:
+/* We process __inlines in few phases:
  *
  * (1) We go through the block text and collect all significant characters
  *     which may start/end a span or some other significant position into
@@ -2850,6 +2850,8 @@ md_opener_stack(MD_CTX* ctx, int mark_index)
 
         default:        MD_UNREACHABLE();
     }
+
+    return NULL;
 }
 
 static MD_MARK*
@@ -2894,14 +2896,14 @@ md_add_mark(MD_CTX* ctx)
         } while(0)
 
 
-static inline void
+static __inline void
 md_mark_stack_push(MD_CTX* ctx, MD_MARKSTACK* stack, int mark_index)
 {
     ctx->marks[mark_index].next = stack->top;
     stack->top = mark_index;
 }
 
-static inline int
+static __inline int
 md_mark_stack_pop(MD_CTX* ctx, MD_MARKSTACK* stack)
 {
     int top = stack->top;
@@ -2912,21 +2914,21 @@ md_mark_stack_pop(MD_CTX* ctx, MD_MARKSTACK* stack)
 
 /* Sometimes, we need to store a pointer into the mark. It can only happen
  * for dummy marks. */
-static inline void
+static __inline void
 md_mark_store_ptr(MD_CTX* ctx, int mark_index, void* ptr)
 {
     MD_ASSERT(ctx->marks[mark_index].ch == 'D');
     ctx->marks[mark_index].pointer = ptr;
 }
 
-static inline void*
+static __inline void*
 md_mark_get_ptr(MD_CTX* ctx, int mark_index)
 {
     MD_ASSERT(ctx->marks[mark_index].ch == 'D');
     return ctx->marks[mark_index].pointer;
 }
 
-static inline void
+static __inline void
 md_resolve_range(MD_CTX* ctx, int opener_index, int closer_index)
 {
     MD_MARK* opener = &ctx->marks[opener_index];
@@ -3716,7 +3718,7 @@ md_collect_marks(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, int table_m
     }
 
     /* Add a dummy mark at the end of the mark vector to simplify
-     * process_inlines(). */
+     * process___inlines(). */
     ADD_MARK(127, ctx->size, ctx->size, MD_MARK_RESOLVED);
 
 abort:
@@ -3949,11 +3951,11 @@ md_resolve_bracket_link(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
         }
     } else {
         if(closer->end < ctx->size  &&  CH(closer->end) == _T('(')) {
-            /* Might be inline link. */
-            OFF inline_link_end = UINT_MAX;
+            /* Might be __inline link. */
+            OFF __inline_link_end = UINT_MAX;
             int following_mark_index = closer_index + 1;
 
-            is_link = md_is_inline_link_spec(ctx, lines, n_lines, closer->end, &inline_link_end, &attr);
+            is_link = md_is___inline_link_spec(ctx, lines, n_lines, closer->end, &__inline_link_end, &attr);
             if(is_link < 0)
                 return -1;
 
@@ -3963,10 +3965,10 @@ md_resolve_bracket_link(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
                 while(following_mark_index < ctx->n_marks) {
                     MD_MARK* mark = &ctx->marks[following_mark_index];
 
-                    if(mark->beg >= inline_link_end)
+                    if(mark->beg >= __inline_link_end)
                         break;
                     if((mark->flags & (MD_MARK_OPENER | MD_MARK_RESOLVED)) == (MD_MARK_OPENER | MD_MARK_RESOLVED)) {
-                        if(ctx->marks[mark->next].beg >= inline_link_end) {
+                        if(ctx->marks[mark->next].beg >= __inline_link_end) {
                             /* Cancel the link status. */
                             if(attr.title_needs_free)
                                 free(attr.title);
@@ -3983,7 +3985,7 @@ md_resolve_bracket_link(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
 
             if(is_link) {
                 /* Eat the "(...)" */
-                closer->end = inline_link_end;
+                closer->end = __inline_link_end;
                 md_disable_marks(ctx, closer_index+1, following_mark_index);
             }
         }
@@ -4626,7 +4628,7 @@ md_analyze_permissive_autolink(MD_CTX* ctx, int mark_index)
 
 #define MD_ANALYZE_NOSKIP_EMPH  0x01
 
-static inline void
+static __inline void
 md_analyze_marks(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
                  int mark_beg, int mark_end, const CHAR* mark_chars, const CHAR* noskip_mark_chars)
 {
@@ -4696,7 +4698,7 @@ md_analyze_marks(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
 
 /* Analyze marks (build ctx->marks). */
 static int
-md_analyze_inlines(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, int table_mode)
+md_analyze___inlines(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, int table_mode)
 {
     int i;
     int ret;
@@ -4853,7 +4855,7 @@ abort:
 
 /* Render the output, accordingly to the analyzed ctx->marks. */
 static int
-md_process_inlines(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines)
+md_process___inlines(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines)
 {
     MD_TEXTTYPE text_type;
     const MD_LINE* line = lines;
@@ -5278,7 +5280,7 @@ md_process_table_row(MD_CTX* ctx, MD_BLOCKTYPE cell_type, OFF beg, OFF end,
 
     /* Break the line into table cells by identifying pipe characters who
      * form the cell boundary. */
-    MD_CHECK(md_analyze_inlines(ctx, &line, 1, 1));
+    MD_CHECK(md_analyze___inlines(ctx, &line, 1, 1));
 
     /* We have to remember the cell boundaries in local buffer because
      * ctx->marks[] shall be reused during cell contents processing. */
@@ -5411,8 +5413,8 @@ md_process_normal_block_contents(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_li
     int i;
     int ret;
 
-    MD_CHECK(md_analyze_inlines(ctx, lines, n_lines, 0));
-    MD_CHECK(md_process_inlines(ctx, lines, n_lines));
+    MD_CHECK(md_analyze___inlines(ctx, lines, n_lines, 0));
+    MD_CHECK(md_process___inlines(ctx, lines, n_lines));
 
 abort:
     /* Free any temporary memory blocks stored within some dummy marks. */
