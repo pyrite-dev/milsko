@@ -40,6 +40,7 @@ int main() {
 
 	window	     = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 400, 400,
 					MwNtitle, "dnd",
+					MwNacceptsDnD, 1,
 					NULL);
 	instructions = MwVaCreateWidget(MwLabelClass, "button", window, 50, 50, 300, 125,
 					MwNtext, "drag a file and its name will show up below.",

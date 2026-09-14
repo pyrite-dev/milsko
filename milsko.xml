@@ -107,6 +107,7 @@
 		<integer name="columns" />
 		<integer name="columnSpan" column="yes" />
 		<integer name="rowSpan" column="yes" />
+		<integer name="acceptsDnD" column="yes" />
 		<integer name="hour" />
 		<integer name="minute" />
 		<integer name="second" />
@@ -196,6 +197,9 @@
 		</handler>
 		<handler name="darkTheme" common="yes">
 			<integer pointer="yes" />
+		</handler>
+		<handler name="dragAndDrop" common="yes">
+			<string />
 		</handler>
 	</handlers>
 	<enumerations>
