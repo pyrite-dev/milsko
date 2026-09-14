@@ -26,7 +26,7 @@ pipeline {
 			parallel {
 				stage("Build for Linux 64-bit") {
 					agent {
-						label "built-in"
+						label "untrusted"
 					}
 					steps {
 						sh("git clean -dfx")
