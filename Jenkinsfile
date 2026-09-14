@@ -78,6 +78,11 @@ pipeline {
 					agent {
 						label "built-in"
 					}
+					environment {
+						WATCOM = "/usr/watcom"
+						INCLUDE = "/usr/watcom/h:/usr/watcom/h/nt"
+						PATH = "/usr/watcom/binl64:${env.PATH}"
+					}
 					steps {
 						sh("git clean -dfx")
 						sh("wmake -f WatMakefile")
