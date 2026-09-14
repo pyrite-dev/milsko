@@ -176,7 +176,7 @@ struct MD_CTX_tag {
     MD_PARSER parser;
     void* userdata;
 
-    /* When this is true, it allows some optimizations. */
+    /* When this is 1, it allows some optimizations. */
     int doc_ends_with_newline;
 
     /* Helper temporary growing buffer. */
@@ -384,9 +384,9 @@ md_ascii_case_eq(const CHAR* s1, const CHAR* s2, SZ n)
         if(ISLOWER_(ch2))
             ch2 += ('A'-'a');
         if(ch1 != ch2)
-            return false;
+            return 0;
     }
-    return true;
+    return 1;
 }
 
 static inline int
@@ -1107,7 +1107,7 @@ md_is_html_tag(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg, OFF 
     MD_ASSERT(CH(beg) == _T('<'));
 
     if(off + 1 >= line_end)
-        return false;
+        return 0;
     off++;
 
     /* For parsing attributes, we need a little state automaton below.
@@ -1130,7 +1130,7 @@ md_is_html_tag(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg, OFF 
 
     /* Tag name */
     if(off >= line_end  ||  !ISALPHA(off))
-        return false;
+        return 0;
     off++;
     while(off < line_end  &&  (ISALNUM(off)  ||  CH(off) == _T('-')))
         off++;
@@ -1179,22 +1179,22 @@ md_is_html_tag(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg, OFF 
                 else if(!ISANYOF(off, _T("\"'=<>`"))  &&  !ISNEWLINE(off))
                     attr_state = 41;
                 else
-                    return false;
+                    return 0;
                 off++;
             } else {
                 /* Anything unexpected. */
-                return false;
+                return 0;
             }
         }
 
         /* We have to be on a single line. See definition of start condition
          * of HTML block, type 7. */
         if(n_lines == 0)
-            return false;
+            return 0;
 
         line_index++;
         if(line_index >= n_lines)
-            return false;
+            return 0;
 
         off = lines[line_index].beg;
         line_end = lines[line_index].end;
@@ -1203,15 +1203,15 @@ md_is_html_tag(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg, OFF 
             attr_state = 1;
 
         if(off >= max_end)
-            return false;
+            return 0;
     }
 
 done:
     if(off >= max_end)
-        return false;
+        return 0;
 
     *p_end = off+1;
-    return true;
+    return 1;
 }
 
 static int
@@ -1226,15 +1226,15 @@ md_scan_for_html_closer(MD_CTX* ctx, const MD_CHAR* str, MD_SIZE len,
     if(off < *p_scan_horizon  &&  *p_scan_horizon >= max_end - len) {
         /* We have already scanned the range up to the max_end so we know
          * there is nothing to see. */
-        return false;
+        return 0;
     }
 
-    while(true) {
+    while(1) {
         while(off + len <= lines[line_index].end  &&  off + len <= max_end) {
             if(md_ascii_eq(STR(off), str, len)) {
                 /* Success. */
                 *p_end = off + len;
-                return true;
+                return 1;
             }
             off++;
         }
@@ -1243,7 +1243,7 @@ md_scan_for_html_closer(MD_CTX* ctx, const MD_CHAR* str, MD_SIZE len,
         if(off >= max_end  ||  line_index >= n_lines) {
             /* Failure. */
             *p_scan_horizon = off;
-            return false;
+            return 0;
         }
 
         off = lines[line_index].beg;
@@ -1258,9 +1258,9 @@ md_is_html_comment(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg, 
     MD_ASSERT(CH(beg) == _T('<'));
 
     if(off + 4 >= lines[0].end)
-        return false;
+        return 0;
     if(CH(off+1) != _T('!')  ||  CH(off+2) != _T('-')  ||  CH(off+3) != _T('-'))
-        return false;
+        return 0;
 
     /* Skip only "<!" so that we accept also "<!-->" or "<!--->" */
     off += 2;
@@ -1276,9 +1276,9 @@ md_is_html_processing_instruction(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_l
     OFF off = beg;
 
     if(off + 2 >= lines[0].end)
-        return false;
+        return 0;
     if(CH(off+1) != _T('?'))
-        return false;
+        return 0;
     off += 2;
 
     return md_scan_for_html_closer(ctx, _T("?>"), 2,
@@ -1291,14 +1291,14 @@ md_is_html_declaration(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF b
     OFF off = beg;
 
     if(off + 2 >= lines[0].end)
-        return false;
+        return 0;
     if(CH(off+1) != _T('!'))
-        return false;
+        return 0;
     off += 2;
 
     /* Declaration name. */
     if(off >= lines[0].end  ||  !ISALPHA(off))
-        return false;
+        return 0;
     off++;
     while(off < lines[0].end  &&  ISALPHA(off))
         off++;
@@ -1316,9 +1316,9 @@ md_is_html_cdata(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg, OF
     OFF off = beg;
 
     if(off + open_size >= lines[0].end)
-        return false;
+        return 0;
     if(memcmp(STR(off), open_str, open_size * sizeof(CHAR)) != 0)
-        return false;
+        return 0;
     off += open_size;
 
     return md_scan_for_html_closer(ctx, _T("]]>"), 3,
@@ -1352,9 +1352,9 @@ md_is_hex_entity_contents(MD_CTX* ctx, const CHAR* text, OFF beg, OFF max_end, O
 
     if(1 <= off - beg  &&  off - beg <= 6) {
         *p_end = off;
-        return true;
+        return 1;
     } else {
-        return false;
+        return 0;
     }
 }
 
@@ -1369,9 +1369,9 @@ md_is_dec_entity_contents(MD_CTX* ctx, const CHAR* text, OFF beg, OFF max_end, O
 
     if(1 <= off - beg  &&  off - beg <= 7) {
         *p_end = off;
-        return true;
+        return 1;
     } else {
-        return false;
+        return 0;
     }
 }
 
@@ -1384,16 +1384,16 @@ md_is_named_entity_contents(MD_CTX* ctx, const CHAR* text, OFF beg, OFF max_end,
     if(off < max_end  &&  ISALPHA_(text[off]))
         off++;
     else
-        return false;
+        return 0;
 
     while(off < max_end  &&  ISALNUM_(text[off])  &&  off - beg <= 48)
         off++;
 
     if(2 <= off - beg  &&  off - beg <= 48) {
         *p_end = off;
-        return true;
+        return 1;
     } else {
-        return false;
+        return 0;
     }
 }
 
@@ -1415,9 +1415,9 @@ md_is_entity_str(MD_CTX* ctx, const CHAR* text, OFF beg, OFF max_end, OFF* p_end
 
     if(is_contents  &&  off < max_end  &&  text[off] == _T(';')) {
         *p_end = off+1;
-        return true;
+        return 1;
     } else {
-        return false;
+        return 0;
     }
 }
 
@@ -1517,10 +1517,10 @@ md_build_attribute(MD_CTX* ctx, const CHAR* raw_text, SZ raw_size,
 
     /* If there is no backslash and no ampersand, build trivial attribute
      * without any malloc(). */
-    is_trivial = true;
+    is_trivial = 1;
     for(raw_off = 0; raw_off < raw_size; raw_off++) {
         if(ISANYOF3_(raw_text[raw_off], _T('\\'), _T('&'), _T('\0'))) {
-            is_trivial = false;
+            is_trivial = 0;
             break;
         }
     }
@@ -1623,7 +1623,7 @@ md_label_hash(const CHAR* label, SZ size)
     unsigned hash = MD_FNV1A_BASE;
     OFF off;
     unsigned codepoint;
-    int is_whitespace = false;
+    int is_whitespace = 0;
 
     off = md_skip_unicode_whitespace(label, 0, size);
     while(off < size) {
@@ -1761,7 +1761,7 @@ static int
 md_is_complex_label_bucket(MD_LABEL_HASH_TABLE* table, void* bucket)
 {
     if(bucket == NULL)
-        return false;
+        return 0;
 
     return (MD_LABEL_HASH_ENTRY*) bucket < (MD_LABEL_HASH_ENTRY*) table->defs  ||
            (MD_LABEL_HASH_ENTRY*) bucket >= (MD_LABEL_HASH_ENTRY*)((char*)table->defs + table->n_defs * table->def_size);
@@ -2031,9 +2031,9 @@ md_is_footnote_label(MD_CTX* ctx, OFF beg, OFF* p_end)
     if(end - beg > 0  &&  end < ctx->size  &&  CH(end) == _T(']')) {
         if(p_end != NULL)
             *p_end = end;
-        return true;
+        return 1;
     } else {
-        return false;
+        return 0;
     }
 }
 
@@ -2061,17 +2061,17 @@ md_is_footnote_definition(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines)
 
     label_beg = off;
     if(!md_is_footnote_label(ctx, label_beg, &off))
-        return false;
+        return 0;
     label_end = off;
 
     /* Closing bracket. */
     if(off >= lines[0].end  ||  CH(off) != _T(']'))
-        return false;
+        return 0;
     off++;
 
     /* Colon. */
     if(off >= lines[0].end  ||  CH(off) != _T(':'))
-        return false;
+        return 0;
     off++;
 
     /* Skip optional whitespace after colon on the first line. */
@@ -2199,7 +2199,7 @@ md_is_link_label(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
     *p_beg_line_index = 0;
 
     if(CH(off) != _T('['))
-        return false;
+        return 0;
     off++;
 
     while(1) {
@@ -2214,7 +2214,7 @@ md_is_link_label(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
                 contents_end = off + 2;
                 off += 2;
             } else if(CH(off) == _T('[')) {
-                return false;
+                return 0;
             } else if(CH(off) == _T(']')) {
                 if(contents_beg < contents_end) {
                     /* Success. */
@@ -2222,10 +2222,10 @@ md_is_link_label(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
                     *p_contents_end = contents_end;
                     *p_end = off+1;
                     *p_end_line_index = line_index;
-                    return true;
+                    return 1;
                 } else {
                     /* Link label must have some non-whitespace contents. */
-                    return false;
+                    return 0;
                 }
             } else {
                 unsigned codepoint;
@@ -2245,7 +2245,7 @@ md_is_link_label(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
 
             len++;
             if(len > 999)
-                return false;
+                return 0;
         }
 
         line_index++;
@@ -2256,7 +2256,7 @@ md_is_link_label(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
             break;
     }
 
-    return false;
+    return 0;
 }
 
 static int
@@ -2266,7 +2266,7 @@ md_is_link_destination_A(MD_CTX* ctx, OFF beg, OFF max_end, OFF* p_end,
     OFF off = beg;
 
     if(off >= max_end  ||  CH(off) != _T('<'))
-        return false;
+        return 0;
     off++;
 
     while(off < max_end) {
@@ -2276,20 +2276,20 @@ md_is_link_destination_A(MD_CTX* ctx, OFF beg, OFF max_end, OFF* p_end,
         }
 
         if(ISNEWLINE(off)  ||  CH(off) == _T('<'))
-            return false;
+            return 0;
 
         if(CH(off) == _T('>')) {
             /* Success. */
             *p_contents_beg = beg+1;
             *p_contents_end = off;
             *p_end = off+1;
-            return true;
+            return 1;
         }
 
         off++;
     }
 
-    return false;
+    return 0;
 }
 
 static int
@@ -2314,7 +2314,7 @@ md_is_link_destination_B(MD_CTX* ctx, OFF beg, OFF max_end, OFF* p_end,
         if(CH(off) == _T('(')) {
             parenthesis_level++;
             if(parenthesis_level > 32)
-                return false;
+                return 0;
         } else if(CH(off) == _T(')')) {
             if(parenthesis_level == 0)
                 break;
@@ -2325,13 +2325,13 @@ md_is_link_destination_B(MD_CTX* ctx, OFF beg, OFF max_end, OFF* p_end,
     }
 
     if(parenthesis_level != 0  ||  off == beg)
-        return false;
+        return 0;
 
     /* Success. */
     *p_contents_beg = beg;
     *p_contents_end = off;
     *p_end = off;
-    return true;
+    return 1;
 }
 
 static inline int
@@ -2359,11 +2359,11 @@ md_is_link_title(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
     if(off >= lines[line_index].end) {
         line_index++;
         if(line_index >= n_lines)
-            return false;
+            return 0;
         off = lines[line_index].beg;
     }
     if(off == beg)
-        return false;
+        return 0;
 
     *p_beg_line_index = line_index;
 
@@ -2372,7 +2372,7 @@ md_is_link_title(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
         case _T('"'):   closer_char = _T('"'); break;
         case _T('\''):  closer_char = _T('\''); break;
         case _T('('):   closer_char = _T(')'); break;
-        default:        return false;
+        default:        return 0;
     }
     off++;
 
@@ -2389,10 +2389,10 @@ md_is_link_title(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
                 *p_contents_end = off;
                 *p_end = off+1;
                 *p_end_line_index = line_index;
-                return true;
+                return 1;
             } else if(closer_char == _T(')')  &&  CH(off) == _T('(')) {
                 /* ()-style title cannot contain (unescaped '(')) */
-                return false;
+                return 0;
             }
 
             off++;
@@ -2401,7 +2401,7 @@ md_is_link_title(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
         line_index++;
     }
 
-    return false;
+    return 0;
 }
 
 /* Returns 0 if it is not a reference definition.
@@ -2418,13 +2418,13 @@ md_is_link_reference_definition(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lin
     OFF label_contents_beg;
     OFF label_contents_end;
     MD_SIZE label_contents_line_index;
-    int label_is_multiline = false;
+    int label_is_multiline = 0;
     OFF dest_contents_beg;
     OFF dest_contents_end;
     OFF title_contents_beg;
     OFF title_contents_end;
     MD_SIZE title_contents_line_index;
-    int title_is_multiline = false;
+    int title_is_multiline = 0;
     OFF off;
     MD_SIZE line_index = 0;
     MD_SIZE tmp_line_index;
@@ -2435,12 +2435,12 @@ md_is_link_reference_definition(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lin
     if(!md_is_link_label(ctx, lines, n_lines, lines[0].beg,
                 &off, &label_contents_line_index, &line_index,
                 &label_contents_beg, &label_contents_end))
-        return false;
+        return 0;
     label_is_multiline = (label_contents_line_index != line_index);
 
     /* Colon. */
     if(off >= lines[line_index].end  ||  CH(off) != _T(':'))
-        return false;
+        return 0;
     off++;
 
     /* Optional white space with up to one line break. */
@@ -2449,14 +2449,14 @@ md_is_link_reference_definition(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lin
     if(off >= lines[line_index].end) {
         line_index++;
         if(line_index >= n_lines)
-            return false;
+            return 0;
         off = lines[line_index].beg;
     }
 
     /* Link destination. */
     if(!md_is_link_destination(ctx, off, lines[line_index].end,
                 &off, &dest_contents_beg, &dest_contents_end))
-        return false;
+        return 0;
 
     /* (Optional) title. Note we interpret it as an title only if nothing
      * more follows on its last line. */
@@ -2470,7 +2470,7 @@ md_is_link_reference_definition(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lin
         line_index += tmp_line_index;
     } else {
         /* Not a title. */
-        title_is_multiline = false;
+        title_is_multiline = 0;
         title_contents_beg = off;
         title_contents_end = off;
         title_contents_line_index = 0;
@@ -2478,7 +2478,7 @@ md_is_link_reference_definition(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lin
 
     /* Nothing more can follow on the last line. */
     if(off < lines[line_index].end)
-        return false;
+        return 0;
 
     if(label_is_multiline) {
         CHAR* label;
@@ -2493,7 +2493,7 @@ md_is_link_reference_definition(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lin
             free(label);
             goto abort;
         }
-        def->label_needs_free = true;
+        def->label_needs_free = 1;
     } else {
         def = (MD_REF_DEF*) md_add_label_def(ctx, &ctx->ref_def_hashtable,
                     STR(label_contents_beg), label_contents_end - label_contents_beg);
@@ -2507,7 +2507,7 @@ md_is_link_reference_definition(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lin
         MD_CHECK(md_merge_lines_alloc(ctx, title_contents_beg, title_contents_end,
                     lines + title_contents_line_index, n_lines - title_contents_line_index,
                     _T('\n'), &def->title, &def->title_size));
-        def->title_needs_free = true;
+        def->title_needs_free = 1;
     } else {
         def->title = (CHAR*) STR(title_contents_beg);
         def->title_size = title_contents_end - title_contents_beg;
@@ -2535,13 +2535,13 @@ md_is_link_reference(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
     int is_multiline;
     CHAR* label;
     SZ label_size;
-    int ret = false;
+    int ret = 0;
 
     MD_ASSERT(CH(beg) == _T('[') || CH(beg) == _T('!'));
     MD_ASSERT(CH(end-1) == _T(']'));
 
     if(ctx->max_ref_def_output == 0)
-        return false;
+        return 0;
 
     beg += (CH(beg) == _T('!') ? 2 : 1);
     end--;
@@ -2564,7 +2564,7 @@ md_is_link_reference(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
         attr->dest_end = def->dest_end;
         attr->title = def->title;
         attr->title_size = def->title_size;
-        attr->title_needs_free = false;
+        attr->title_needs_free = 0;
     }
 
     if(is_multiline)
@@ -2575,7 +2575,7 @@ md_is_link_reference(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
         MD_SIZE output_size_estimation = def->entry.label_size + def->title_size + def->dest_end - def->dest_beg;
         if(output_size_estimation < ctx->max_ref_def_output) {
             ctx->max_ref_def_output -= output_size_estimation;
-            ret = true;
+            ret = 1;
         } else {
             MD_LOG("Too many link reference definition instantiations.");
             ctx->max_ref_def_output = 0;
@@ -2597,7 +2597,7 @@ md_is_inline_link_spec(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
     MD_SIZE title_contents_line_index;
     int title_is_multiline;
     OFF off = beg;
-    int ret = false;
+    int ret = 0;
 
     md_lookup_line(off, lines, n_lines, &line_index);
 
@@ -2610,7 +2610,7 @@ md_is_inline_link_spec(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
     if(off >= lines[line_index].end  &&  (off >= ctx->size  ||  ISNEWLINE(off))) {
         line_index++;
         if(line_index >= n_lines)
-            return false;
+            return 0;
         off = lines[line_index].beg;
     }
 
@@ -2620,16 +2620,16 @@ md_is_inline_link_spec(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
         attr->dest_end = off;
         attr->title = NULL;
         attr->title_size = 0;
-        attr->title_needs_free = false;
+        attr->title_needs_free = 0;
         off++;
         *p_end = off;
-        return true;
+        return 1;
     }
 
     /* Link destination. */
     if(!md_is_link_destination(ctx, off, lines[line_index].end,
                         &off, &attr->dest_beg, &attr->dest_end))
-        return false;
+        return 0;
 
     /* (Optional) title. */
     if(md_is_link_title(ctx, lines + line_index, n_lines - line_index, off,
@@ -2641,7 +2641,7 @@ md_is_inline_link_spec(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
         line_index += tmp_line_index;
     } else {
         /* Not a title. */
-        title_is_multiline = false;
+        title_is_multiline = 0;
         title_contents_beg = off;
         title_contents_end = off;
         title_contents_line_index = 0;
@@ -2653,7 +2653,7 @@ md_is_inline_link_spec(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
     if(off >= lines[line_index].end) {
         line_index++;
         if(line_index >= n_lines)
-            return false;
+            return 0;
         off = lines[line_index].beg;
     }
     if(CH(off) != _T(')'))
@@ -2663,20 +2663,20 @@ md_is_inline_link_spec(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
     if(title_contents_beg >= title_contents_end) {
         attr->title = NULL;
         attr->title_size = 0;
-        attr->title_needs_free = false;
+        attr->title_needs_free = 0;
     } else if(!title_is_multiline) {
         attr->title = (CHAR*) STR(title_contents_beg);
         attr->title_size = title_contents_end - title_contents_beg;
-        attr->title_needs_free = false;
+        attr->title_needs_free = 0;
     } else {
         MD_CHECK(md_merge_lines_alloc(ctx, title_contents_beg, title_contents_end,
                     lines + title_contents_line_index, n_lines - title_contents_line_index,
                     _T('\n'), &attr->title, &attr->title_size));
-        attr->title_needs_free = true;
+        attr->title_needs_free = 1;
     }
 
     *p_end = off;
-    ret = true;
+    ret = 1;
 
 abort:
     return ret;
@@ -3036,11 +3036,11 @@ md_is_code_span(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
     OFF closer_end;
     SZ mark_len;
     OFF line_end;
-    int has_space_after_opener = false;
-    int has_eol_after_opener = false;
-    int has_space_before_closer = false;
-    int has_eol_before_closer = false;
-    int has_only_space = true;
+    int has_space_after_opener = 0;
+    int has_eol_after_opener = 0;
+    int has_space_before_closer = 0;
+    int has_eol_before_closer = 0;
+    int has_only_space = 1;
     MD_SIZE line_index = 0;
 
     line_end = lines[0].end;
@@ -3055,22 +3055,22 @@ md_is_code_span(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
 
     mark_len = opener_end - opener_beg;
     if(mark_len > CODESPAN_MARK_MAXLEN)
-        return false;
+        return 0;
 
     /* Check whether we already know there is no closer of this length.
      * If so, re-scan does no sense. This fixes issue #59. */
     if(last_potential_closers[mark_len-1] >= lines[n_lines-1].end  ||
        (*p_reached_paragraph_end  &&  last_potential_closers[mark_len-1] < opener_end))
-        return false;
+        return 0;
 
     closer_beg = opener_end;
     closer_end = opener_end;
 
     /* Find closer mark. */
-    while(true) {
+    while(1) {
         while(closer_beg < line_end  &&  CH(closer_beg) != _T('`')) {
             if(CH(closer_beg) != _T(' '))
-                has_only_space = false;
+                has_only_space = 0;
             closer_beg++;
         }
         closer_end = closer_beg;
@@ -3086,7 +3086,7 @@ md_is_code_span(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
 
         if(closer_end - closer_beg > 0) {
             /* We have found a back-tick which is not part of the closer. */
-            has_only_space = false;
+            has_only_space = 0;
 
             /* But if we eventually fail, remember it as a potential closer
              * of its own length for future attempts. This mitigates needs for
@@ -3101,8 +3101,8 @@ md_is_code_span(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
             line_index++;
             if(line_index >= n_lines) {
                 /* Reached end of the paragraph and still nothing. */
-                *p_reached_paragraph_end = true;
-                return false;
+                *p_reached_paragraph_end = 1;
+                return 0;
             }
             /* Try on the next line. */
             line_end = lines[line_index].end;
@@ -3143,7 +3143,7 @@ md_is_code_span(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, OFF beg,
     closer->beg = closer_beg;
     closer->end = closer_end;
     closer->flags = MD_MARK_POTENTIAL_CLOSER;
-    return true;
+    return 1;
 }
 
 static int
@@ -3155,33 +3155,33 @@ md_is_autolink_uri(MD_CTX* ctx, OFF beg, OFF max_end, OFF* p_end)
 
     /* Check for scheme. */
     if(off >= max_end  ||  !ISALNUM(off))
-        return false;
+        return 0;
     off++;
     while(1) {
         if(off >= max_end)
-            return false;
+            return 0;
         if(off - beg > 32)
-            return false;
+            return 0;
         if(CH(off) == _T(':')  &&  off - beg >= 3)
             break;
         if(!ISALNUM(off) && CH(off) != _T('+') && CH(off) != _T('-') && CH(off) != _T('.'))
-            return false;
+            return 0;
         off++;
     }
 
     /* Check the path after the scheme. */
     while(off < max_end  &&  CH(off) != _T('>')) {
         if(ISWHITESPACE(off) || ISCNTRL(off) || CH(off) == _T('<'))
-            return false;
+            return 0;
         off++;
     }
 
     if(off >= max_end)
-        return false;
+        return 0;
 
     MD_ASSERT(CH(off) == _T('>'));
     *p_end = off+1;
-    return true;
+    return 1;
 }
 
 static int
@@ -3202,11 +3202,11 @@ md_is_autolink_email(MD_CTX* ctx, OFF beg, OFF max_end, OFF* p_end)
     while(off < max_end  &&  (ISALNUM(off) || ISANYOF(off, _T(".!#$%&'*+/=?^_`{|}~-"))))
         off++;
     if(off <= beg+1)
-        return false;
+        return 0;
 
     /* '@' */
     if(off >= max_end  ||  CH(off) != _T('@'))
-        return false;
+        return 0;
     off++;
 
     /* Labels delimited with '.'; each label is sequence of 1 - 63 alnum
@@ -3223,32 +3223,32 @@ md_is_autolink_email(MD_CTX* ctx, OFF beg, OFF max_end, OFF* p_end)
             break;
 
         if(label_len > 63)
-            return false;
+            return 0;
 
         off++;
     }
 
     if(label_len <= 0  || off >= max_end  ||  CH(off) != _T('>') ||  CH(off-1) == _T('-'))
-        return false;
+        return 0;
 
     *p_end = off+1;
-    return true;
+    return 1;
 }
 
 static int
 md_is_autolink(MD_CTX* ctx, OFF beg, OFF max_end, OFF* p_end, int* p_missing_mailto)
 {
     if(md_is_autolink_uri(ctx, beg, max_end, p_end)) {
-        *p_missing_mailto = false;
-        return true;
+        *p_missing_mailto = 0;
+        return 1;
     }
 
     if(md_is_autolink_email(ctx, beg, max_end, p_end)) {
-        *p_missing_mailto = true;
-        return true;
+        *p_missing_mailto = 1;
+        return 1;
     }
 
-    return false;
+    return 0;
 }
 
 static int
@@ -3258,13 +3258,13 @@ md_collect_marks(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines, int table_m
     int ret = 0;
     MD_MARK* mark;
     OFF codespan_last_potential_closers[CODESPAN_MARK_MAXLEN] = { 0 };
-    int codespan_scanned_till_paragraph_end = false;
+    int codespan_scanned_till_paragraph_end = 0;
 
     for(line_index = 0; line_index < n_lines; line_index++) {
         const MD_LINE* line = &lines[line_index];
         OFF off = line->beg;
 
-        while(true) {
+        while(1) {
             CHAR ch;
 
 #ifdef MD4C_USE_UTF16
@@ -3776,7 +3776,7 @@ static void md_analyze_link_contents(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE 
 
 /* Try to resolve a bracket pair as a wiki link '[[destination]]' or
  * '[[destination|label]]'.
- * Returns true if resolved, false if not a wiki link, -1 on error. */
+ * Returns 1 if resolved, 0 if not a wiki link, -1 on error. */
 static int
 md_resolve_bracket_wikilink(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
                             int opener_index, int closer_index,
@@ -3791,16 +3791,16 @@ md_resolve_bracket_wikilink(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
     OFF off;
 
     if(!(ctx->parser.flags & MD_FLAG_WIKILINKS))
-        return false;
+        return 0;
 
     if(opener->ch != _T('[')  ||  opener->end - opener->beg != 1  ||
        next_opener == NULL  ||  next_opener->ch != _T('[')  ||  next_opener->end - next_opener->beg != 1  ||
        next_closer == NULL  ||  next_closer->ch != _T(']')  ||  next_closer->end - next_closer->beg != 1)
-        return false;
+        return 0;
 
     /* Check that the next_opener and next_closer are nested properly. */
     if(next_opener->beg != opener->beg - 1  ||  next_closer->beg != closer->beg + 1)
-        return false;
+        return 0;
 
     /* We don't allow destination to be longer than 100 characters.
      * Lets scan to see whether there is '|'. (If not then the whole
@@ -3824,12 +3824,12 @@ md_resolve_bracket_wikilink(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
     dest_beg = opener->end;
     dest_end = (delim != NULL) ? delim->beg : closer->beg;
     if(dest_end - dest_beg == 0 || dest_end - dest_beg > 100)
-        return false;
+        return 0;
 
     /* There may not be any new line in the destination. */
     for(off = dest_beg; off < dest_end; off++) {
         if(ISNEWLINE(off))
-            return false;
+            return 0;
     }
 
     md_pop_openers(ctx, opener_index);
@@ -3857,7 +3857,7 @@ md_resolve_bracket_wikilink(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
         md_analyze_link_contents(ctx, lines, n_lines, delim_index+1, closer_index);
 
     *p_opener_index = next_opener->prev;
-    return true;
+    return 1;
 }
 
 /* Resolve footnote references [^label] in the current block. */
@@ -3871,9 +3871,9 @@ md_resolve_bracket_footnote(MD_CTX* ctx, MD_MARK* opener, MD_MARK* closer,
     OFF label_beg, label_end;
 
     if(!(ctx->parser.flags & MD_FLAG_FOOTNOTES))
-        return false;
+        return 0;
     if(opener->ch != _T('[')  ||  opener->end >= ctx->size  ||  CH(opener->end) != _T('^'))
-        return false;
+        return 0;
 
     /* Expand the opener to eat the '^' */
     opener->end++;
@@ -3882,14 +3882,14 @@ md_resolve_bracket_footnote(MD_CTX* ctx, MD_MARK* opener, MD_MARK* closer,
     /* Verify the label satisfies the label rules. */
     label_beg = opener->end;
     if(!md_is_footnote_label(ctx, label_beg, &label_end)  ||  label_end != closer->beg)
-        return false;
+        return 0;
 
     if(label_beg >= label_end)
-        return false;   /* empty label */
+        return 0;   /* empty label */
 
     def = md_lookup_footnote_def(ctx, STR(label_beg), label_end - label_beg);
     if(def == NULL)
-        return false;
+        return 0;
 
     /* Assign index on first reference. */
     if(def->index == 0)
@@ -3909,7 +3909,7 @@ md_resolve_bracket_footnote(MD_CTX* ctx, MD_MARK* opener, MD_MARK* closer,
     *last_link_end = closer->end;
 
     *p_opener_index = opener->prev;
-    return true;
+    return 1;
 }
 
 /* Try to resolve a bracket pair as a CommonMark link or image.
@@ -3924,7 +3924,7 @@ md_resolve_bracket_link(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
                         OFF* last_img_beg, OFF* last_img_end)
 {
     MD_LINK_ATTR attr;
-    int is_link = false;
+    int is_link = 0;
 
     if(next_opener != NULL  &&  next_opener->beg == closer->end) {
         if(next_closer->beg > closer->end + 1) {
@@ -3971,7 +3971,7 @@ md_resolve_bracket_link(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines,
                             /* Cancel the link status. */
                             if(attr.title_needs_free)
                                 free(attr.title);
-                            is_link = false;
+                            is_link = 0;
                             break;
                         }
 
@@ -4457,8 +4457,8 @@ md_analyze_permissive_autolink_segment(MD_CTX* ctx, OFF off, OFF end, OFF* p_end
 {
     int n_components = 0;
     int n_open_brackets = 0;
-    int seen_word_delim = true;
-    int seen_component_delim = true;
+    int seen_word_delim = 1;
+    int seen_component_delim = 1;
     OFF component_beg = off;
 
     if(word_extra == NULL)
@@ -4494,18 +4494,18 @@ md_analyze_permissive_autolink_segment(MD_CTX* ctx, OFF off, OFF end, OFF* p_end
         }
 
         if(ISALNUM(off)  ||  ISANYOF(off, word_extra)) {
-            seen_word_delim = false;
-            seen_component_delim = false;
+            seen_word_delim = 0;
+            seen_component_delim = 0;
         } else {
             if(seen_word_delim)
                 break;
 
             if(ISANYOF(off, word_delims)) {
-                seen_word_delim = true;
+                seen_word_delim = 1;
             } else if(component_delim != _T('\0')  &&  CH(off) == component_delim) {
                 if(seen_component_delim)
                     break;
-                seen_component_delim = true;
+                seen_component_delim = 1;
                 component_beg = off;
                 n_components++;
             } else {
@@ -4519,7 +4519,7 @@ md_analyze_permissive_autolink_segment(MD_CTX* ctx, OFF off, OFF end, OFF* p_end
             off++;
     }
 
-    /* Rollback falsely consumed delimiter. */
+    /* Rollback 0ly consumed delimiter. */
     if(seen_word_delim || seen_component_delim)
         off = (scan_backwards ? off+1 : off-1);
 
@@ -4550,7 +4550,7 @@ md_analyze_permissive_autolink(MD_CTX* ctx, int mark_index)
     /* E-mail requires the user name (before '@', i.e. scanning backwards). */
     if(opener->ch == '@') {
         MD_ASSERT(CH(opener->beg) == _T('@'));
-        if(md_analyze_permissive_autolink_segment(ctx, beg, line_beg, &beg, true,
+        if(md_analyze_permissive_autolink_segment(ctx, beg, line_beg, &beg, 1,
                 _T('\0'), NULL, _T(".-_+"), &left_cursor) < 1)
             return;
 
@@ -4575,14 +4575,14 @@ md_analyze_permissive_autolink(MD_CTX* ctx, int mark_index)
 
     /* Scan for hostname segment. Hostname is mandatory and requires at least two
      * components delimited with a dot. */
-    if(md_analyze_permissive_autolink_segment(ctx, end, line_end, &end, false,
+    if(md_analyze_permissive_autolink_segment(ctx, end, line_end, &end, 0,
             _T('.'), NULL, _T("-_"), &right_cursor) < 2)
         return;
 
     if(opener->ch != '@') {
         /* Scan for path segment. */
         if(end < line_end  &&  CH(end) == _T('/')) {
-            if(md_analyze_permissive_autolink_segment(ctx, end+1, line_end, &end, false,
+            if(md_analyze_permissive_autolink_segment(ctx, end+1, line_end, &end, 0,
                         _T('/'), _T(".+-_~%"), NULL, &right_cursor) < 0)
                 return;
 
@@ -4593,14 +4593,14 @@ md_analyze_permissive_autolink(MD_CTX* ctx, int mark_index)
 
         /* Scan for query segment. */
         if(end < line_end  &&  CH(end) == _T('?')) {
-            if(md_analyze_permissive_autolink_segment(ctx, end+1, line_end, &end, false,
+            if(md_analyze_permissive_autolink_segment(ctx, end+1, line_end, &end, 0,
                         _T('&'), _T("._=()"), _T("+-"), &right_cursor) < 0)
                 return;
         }
 
         /* Scan for fragment segment. */
         if(end < line_end  &&  CH(end) == _T('#')) {
-            if(md_analyze_permissive_autolink_segment(ctx, end+1, line_end, &end, false,
+            if(md_analyze_permissive_autolink_segment(ctx, end+1, line_end, &end, 0,
                         _T('\0'), NULL, _T(".-+_"), &right_cursor) < 0)
                 return;
         }
@@ -5058,7 +5058,7 @@ md_process_inlines(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines)
 
                     MD_CHECK(md_enter_leave_span_a(ctx, (mark->ch != ']'),
                                 (opener->ch == '!' ? MD_SPAN_IMG : MD_SPAN_A),
-                                STR(dest_mark->beg), dest_mark->end - dest_mark->beg, false,
+                                STR(dest_mark->beg), dest_mark->end - dest_mark->beg, 0,
                                 md_mark_get_ptr(ctx, (int)(title_mark - ctx->marks)),
 								title_mark->prev));
 
@@ -5116,7 +5116,7 @@ md_process_inlines(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_lines)
 
                     if(closer->flags & MD_MARK_VALIDPERMISSIVEAUTOLINK)
                         MD_CHECK(md_enter_leave_span_a(ctx, (mark->flags & MD_MARK_OPENER),
-                                    MD_SPAN_A, dest, dest_size, true, NULL, 0));
+                                    MD_SPAN_A, dest, dest_size, 1, NULL, 0));
                     break;
                 }
 
@@ -5279,7 +5279,7 @@ md_process_table_row(MD_CTX* ctx, MD_BLOCKTYPE cell_type, OFF beg, OFF end,
 
     /* Break the line into table cells by identifying pipe characters who
      * form the cell boundary. */
-    MD_CHECK(md_analyze_inlines(ctx, &line, 1, true));
+    MD_CHECK(md_analyze_inlines(ctx, &line, 1, 1));
 
     /* We have to remember the cell boundaries in local buffer because
      * ctx->marks[] shall be reused during cell contents processing. */
@@ -5412,7 +5412,7 @@ md_process_normal_block_contents(MD_CTX* ctx, const MD_LINE* lines, MD_SIZE n_li
     int i;
     int ret;
 
-    MD_CHECK(md_analyze_inlines(ctx, lines, n_lines, false));
+    MD_CHECK(md_analyze_inlines(ctx, lines, n_lines, 0));
     MD_CHECK(md_process_inlines(ctx, lines, n_lines));
 
 abort:
@@ -5532,7 +5532,7 @@ md_process_leaf_block(MD_CTX* ctx, MD_BLOCK* block)
     MD_ATTRIBUTE_BUILD info_build = { 0 };
     MD_ATTRIBUTE_BUILD lang_build = { 0 };
     int is_in_tight_list;
-    int clean_fence_code_detail = false;
+    int clean_fence_code_detail = 0;
     int ret = 0;
 
     /* For large tables check the table density: If it's too low, lets suppress
@@ -5563,7 +5563,7 @@ md_process_leaf_block(MD_CTX* ctx, MD_BLOCK* block)
     memset(&det, 0, sizeof(det));
 
     if(ctx->n_containers == 0)
-        is_in_tight_list = false;
+        is_in_tight_list = 0;
     else
         is_in_tight_list = !ctx->containers[ctx->n_containers-1].is_loose;
 
@@ -5576,7 +5576,7 @@ md_process_leaf_block(MD_CTX* ctx, MD_BLOCK* block)
             /* For fenced code block, we may need to set the info string. */
             if(block->data != 0) {
                 memset(&det.code, 0, sizeof(MD_BLOCK_CODE_DETAIL));
-                clean_fence_code_detail = true;
+                clean_fence_code_detail = 1;
                 MD_CHECK(md_setup_fenced_code_detail(ctx, block, &det.code, &info_build, &lang_build));
             }
             break;
@@ -5665,13 +5665,13 @@ md_process_all_blocks(MD_CTX* ctx)
 
         switch(block->type) {
             case MD_BLOCK_UL:
-                det.ul.is_tight = (block->flags & MD_BLOCK_LOOSE_LIST) ? false : true;
+                det.ul.is_tight = (block->flags & MD_BLOCK_LOOSE_LIST) ? 0 : 1;
                 det.ul.mark = (CHAR) block->data;
                 break;
 
             case MD_BLOCK_OL:
                 det.ol.start = block->n_lines;
-                det.ol.is_tight = (block->flags & MD_BLOCK_LOOSE_LIST) ? false : true;
+                det.ol.is_tight = (block->flags & MD_BLOCK_LOOSE_LIST) ? 0 : 1;
                 det.ol.mark_delimiter = (CHAR) block->data;
                 break;
 
@@ -5709,13 +5709,13 @@ md_process_all_blocks(MD_CTX* ctx)
                 MD_ENTER_BLOCK(block->type, &det);
 
                 if(block->type == MD_BLOCK_UL || block->type == MD_BLOCK_OL) {
-                    ctx->containers[ctx->n_containers].is_loose = (block->flags & MD_BLOCK_LOOSE_LIST) ? true : false;
+                    ctx->containers[ctx->n_containers].is_loose = (block->flags & MD_BLOCK_LOOSE_LIST) ? 1 : 0;
                     ctx->n_containers++;
                 } else if(block->type == MD_BLOCK_QUOTE  ||  block->type == MD_BLOCK_ADMONITION) {
                     /* This causes that any text in a block quote, even if
                      * nested inside a tight list item, is wrapped with
                      * <p>...</p>. */
-                    ctx->containers[ctx->n_containers].is_loose = true;
+                    ctx->containers[ctx->n_containers].is_loose = 1;
                     ctx->n_containers++;
                 }
             }
@@ -5876,7 +5876,7 @@ md_consume_link_reference_definitions(MD_CTX* ctx)
     /* We may need to turn the first line after the link ref. def(s) into HR.
      * (https://github.com/mity/md4c/issues/414) */
     if(n < n_lines  &&  md_is_hr_line(ctx, lines[n].beg, &ignored, &ignored)) {
-        inject_hr = true;
+        inject_hr = 1;
         n++;    /* Remove one more line below. */
     }
 
@@ -6045,7 +6045,7 @@ md_is_hr_line(MD_CTX* ctx, OFF beg, OFF* p_end, OFF* p_killer)
     int n = 1;
 
     if(!ISANYOF(beg, _T("-_*")))
-        return false;
+        return 0;
 
     while(off < ctx->size  &&  (CH(off) == CH(beg) || CH(off) == _T(' ') || CH(off) == _T('\t'))) {
         if(CH(off) == CH(beg))
@@ -6055,17 +6055,17 @@ md_is_hr_line(MD_CTX* ctx, OFF beg, OFF* p_end, OFF* p_killer)
 
     if(n < 3) {
         *p_killer = off;
-        return false;
+        return 0;
     }
 
     /* Nothing else can be present on the line. */
     if(off < ctx->size  &&  !ISNEWLINE(off)) {
         *p_killer = off;
-        return false;
+        return 0;
     }
 
     *p_end = off;
-    return true;
+    return 1;
 }
 
 static int
@@ -6079,18 +6079,18 @@ md_is_atxheader_line(MD_CTX* ctx, OFF beg, OFF* p_beg, OFF* p_end, unsigned* p_l
     n = off - beg;
 
     if(n > 6)
-        return false;
+        return 0;
     *p_level = n;
 
     if(!(ctx->parser.flags & MD_FLAG_PERMISSIVEATXHEADERS)  &&  off < ctx->size  &&
        !ISBLANK(off)  &&  !ISNEWLINE(off))
-        return false;
+        return 0;
 
     while(off < ctx->size  &&  ISBLANK(off))
         off++;
     *p_beg = off;
     *p_end = off;
-    return true;
+    return 1;
 }
 
 static int
@@ -6107,35 +6107,35 @@ md_is_setext_underline(MD_CTX* ctx, OFF beg, OFF* p_end, unsigned* p_level)
 
     /* But nothing more is allowed on the line. */
     if(off < ctx->size  &&  !ISNEWLINE(off))
-        return false;
+        return 0;
 
     *p_level = (CH(beg) == _T('=') ? 1 : 2);
     *p_end = off;
-    return true;
+    return 1;
 }
 
 static int
 md_is_table_underline(MD_CTX* ctx, OFF beg, OFF* p_end, unsigned* p_col_count)
 {
     OFF off = beg;
-    int found_pipe = false;
+    int found_pipe = 0;
     unsigned col_count = 0;
 
     if(off < ctx->size  &&  CH(off) == _T('|')) {
-        found_pipe = true;
+        found_pipe = 1;
         off++;
         while(off < ctx->size  &&  ISWHITESPACE(off))
             off++;
     }
 
     while(1) {
-        int delimited = false;
+        int delimited = 0;
 
         /* Cell underline ("-----", ":----", "----:" or ":----:") */
         if(off < ctx->size  &&  CH(off) == _T(':'))
             off++;
         if(off >= ctx->size  ||  CH(off) != _T('-'))
-            return false;
+            return 0;
         while(off < ctx->size  &&  CH(off) == _T('-'))
             off++;
         if(off < ctx->size  &&  CH(off) == _T(':'))
@@ -6147,8 +6147,8 @@ md_is_table_underline(MD_CTX* ctx, OFF beg, OFF* p_end, unsigned* p_col_count)
         while(off < ctx->size  &&  ISWHITESPACE(off))
             off++;
         if(off < ctx->size  &&  CH(off) == _T('|')) {
-            delimited = true;
-            found_pipe =  true;
+            delimited = 1;
+            found_pipe =  1;
             off++;
             while(off < ctx->size  &&  ISWHITESPACE(off))
                 off++;
@@ -6159,15 +6159,15 @@ md_is_table_underline(MD_CTX* ctx, OFF beg, OFF* p_end, unsigned* p_col_count)
             break;
 
         if(!delimited)
-            return false;
+            return 0;
     }
 
     if(!found_pipe)
-        return false;
+        return 0;
 
     *p_end = off;
     *p_col_count = col_count;
-    return true;
+    return 1;
 }
 
 static int
@@ -6180,7 +6180,7 @@ md_is_opening_code_fence(MD_CTX* ctx, OFF beg, OFF* p_end)
 
     /* Fence must have at least three characters. */
     if(off - beg < 3)
-        return false;
+        return 0;
 
     ctx->code_fence_length = off - beg;
 
@@ -6192,19 +6192,19 @@ md_is_opening_code_fence(MD_CTX* ctx, OFF beg, OFF* p_end)
     while(off < ctx->size  &&  !ISNEWLINE(off)) {
         /* Backtick-based fence must not contain '`' in the info string. */
         if(CH(beg) == _T('`')  &&  CH(off) == _T('`'))
-            return false;
+            return 0;
         off++;
     }
 
     *p_end = off;
-    return true;
+    return 1;
 }
 
 static int
 md_is_closing_code_fence(MD_CTX* ctx, CHAR ch, OFF beg, OFF* p_end)
 {
     OFF off = beg;
-    int ret = false;
+    int ret = 0;
 
     /* Closing fence must have at least the same length and use same char as
      * opening one. */
@@ -6221,7 +6221,7 @@ md_is_closing_code_fence(MD_CTX* ctx, CHAR ch, OFF beg, OFF* p_end)
     if(off < ctx->size  &&  !ISNEWLINE(off))
         goto out;
 
-    ret = true;
+    ret = 1;
 
 out:
     /* Note we set *p_end even on failure: If we are not closing fence, caller
@@ -6272,7 +6272,7 @@ static const TAG xx[] = { Xend };
 #undef X
 #undef Xend
 
-/* Returns type of the raw HTML block, or false if it is not HTML block.
+/* Returns type of the raw HTML block, or 0 if it is not HTML block.
  * (Refer to CommonMark specification for details about the types.)
  */
 static int
@@ -6356,7 +6356,7 @@ md_is_html_block_start_condition(MD_CTX* ctx, OFF beg)
         }
     }
 
-    return false;
+    return 0;
 }
 
 /* Case sensitive check whether there is a substring 'what' between 'beg'
@@ -6370,15 +6370,15 @@ md_line_contains(MD_CTX* ctx, OFF beg, const CHAR* what, SZ what_len, OFF* p_end
             break;
         if(memcmp(STR(i), what, what_len * sizeof(CHAR)) == 0) {
             *p_end = i + what_len;
-            return true;
+            return 1;
         }
     }
 
     *p_end = i;
-    return false;
+    return 0;
 }
 
-/* Returns type of HTML block end condition or false if not an end condition.
+/* Returns type of HTML block end condition or 0 if not an end condition.
  *
  * Note it fills p_end even when it is not end condition as the caller
  * does not need to analyze contents of a raw HTML block.
@@ -6400,7 +6400,7 @@ md_is_html_block_end_condition(MD_CTX* ctx, OFF beg, OFF* p_end)
                                CH(off+2+t1[i].len) == _T('>'))
                             {
                                 *p_end = off+2+t1[i].len+1;
-                                return true;
+                                return 1;
                             }
                         }
                     }
@@ -6408,20 +6408,20 @@ md_is_html_block_end_condition(MD_CTX* ctx, OFF beg, OFF* p_end)
                 off++;
             }
             *p_end = off;
-            return false;
+            return 0;
         }
 
         case 2:
-            return (md_line_contains(ctx, beg, _T("-->"), 3, p_end) ? 2 : false);
+            return (md_line_contains(ctx, beg, _T("-->"), 3, p_end) ? 2 : 0);
 
         case 3:
-            return (md_line_contains(ctx, beg, _T("?>"), 2, p_end) ? 3 : false);
+            return (md_line_contains(ctx, beg, _T("?>"), 2, p_end) ? 3 : 0);
 
         case 4:
-            return (md_line_contains(ctx, beg, _T(">"), 1, p_end) ? 4 : false);
+            return (md_line_contains(ctx, beg, _T(">"), 1, p_end) ? 4 : 0);
 
         case 5:
-            return (md_line_contains(ctx, beg, _T("]]>"), 3, p_end) ? 5 : false);
+            return (md_line_contains(ctx, beg, _T("]]>"), 3, p_end) ? 5 : 0);
 
         case 6:     MD_FALLTHROUGH();
         case 7:
@@ -6430,12 +6430,12 @@ md_is_html_block_end_condition(MD_CTX* ctx, OFF beg, OFF* p_end)
                 *p_end = beg;
                 return ctx->html_block_type;
             }
-            return false;
+            return 0;
 
         default:
             MD_UNREACHABLE();
     }
-    return false;
+    return 0;
 }
 
 
@@ -6444,14 +6444,14 @@ md_is_container_compatible(const MD_CONTAINER* pivot, const MD_CONTAINER* contai
 {
     /* Block quote has no "items" like lists. */
     if(container->ch == _T('>'))
-        return false;
+        return 0;
 
     if(container->ch != pivot->ch)
-        return false;
+        return 0;
     if(container->mark_indent > pivot->contents_indent)
-        return false;
+        return 0;
 
-    return true;
+    return 1;
 }
 
 static int
@@ -6484,12 +6484,12 @@ md_enter_child_containers(MD_CTX* ctx, int n_children)
 
     for(i = ctx->n_containers - n_children; i < ctx->n_containers; i++) {
         MD_CONTAINER* c = &ctx->containers[i];
-        int is_ordered_list = false;
+        int is_ordered_list = 0;
 
         switch(c->ch) {
             case _T(')'):
             case _T('.'):
-                is_ordered_list = true;
+                is_ordered_list = 1;
                 MD_FALLTHROUGH();
 
             case _T('-'):
@@ -6532,12 +6532,12 @@ md_leave_child_containers(MD_CTX* ctx, int n_keep)
 
     while(ctx->n_containers > n_keep) {
         MD_CONTAINER* c = &ctx->containers[ctx->n_containers-1];
-        int is_ordered_list = false;
+        int is_ordered_list = 0;
 
         switch(c->ch) {
             case _T(')'):
             case _T('.'):
-                is_ordered_list = true;
+                is_ordered_list = 1;
                 MD_FALLTHROUGH();
 
             case _T('-'):
@@ -6576,29 +6576,29 @@ md_is_container_mark(MD_CTX* ctx, unsigned indent, OFF beg, OFF* p_end, MD_CONTA
     OFF max_end;
 
     if(off >= ctx->size  ||  indent >= ctx->code_indent_offset)
-        return false;
+        return 0;
 
     /* Check for block quote mark. */
     if(CH(off) == _T('>')) {
         off++;
         p_container->ch = _T('>');
-        p_container->is_loose = false;
-        p_container->is_task = false;
+        p_container->is_loose = 0;
+        p_container->is_task = 0;
         p_container->mark_indent = indent;
         p_container->contents_indent = indent + 1;
         *p_end = off;
-        return true;
+        return 1;
     }
 
     /* Check for list item bullet mark. */
     if(ISANYOF(off, _T("-+*"))  &&  (off+1 >= ctx->size || ISBLANK(off+1) || ISNEWLINE(off+1))) {
         p_container->ch = CH(off);
-        p_container->is_loose = false;
-        p_container->is_task = false;
+        p_container->is_loose = 0;
+        p_container->is_task = 0;
         p_container->mark_indent = indent;
         p_container->contents_indent = indent + 1;
         *p_end = off+1;
-        return true;
+        return 1;
     }
 
     /* Check for ordered list item marks. */
@@ -6616,15 +6616,15 @@ md_is_container_mark(MD_CTX* ctx, unsigned indent, OFF beg, OFF* p_end, MD_CONTA
        (off+1 >= ctx->size || ISBLANK(off+1) || ISNEWLINE(off+1)))
     {
         p_container->ch = CH(off);
-        p_container->is_loose = false;
-        p_container->is_task = false;
+        p_container->is_loose = 0;
+        p_container->is_task = 0;
         p_container->mark_indent = indent;
         p_container->contents_indent = indent + off - beg + 1;
         *p_end = off+1;
-        return true;
+        return 1;
     }
 
-    return false;
+    return 0;
 }
 
 static unsigned
@@ -6666,7 +6666,7 @@ md_analyze_line(MD_CTX* ctx, OFF beg, OFF* p_end,
     line->indent = md_line_indentation(ctx, total_indent, off, &off);
     total_indent += line->indent;
     line->beg = off;
-    line->enforce_new_block = false;
+    line->enforce_new_block = 0;
 
     /* Given the indentation and block quote marks '>', determine how many of
      * the current containers are our parents. */
@@ -6707,7 +6707,7 @@ md_analyze_line(MD_CTX* ctx, OFF beg, OFF* p_end,
         }
     }
 
-    while(true) {
+    while(1) {
         /* Check whether we are fenced code continuation. */
         if(pivot_line->type == MD_LINE_FENCEDCODE) {
             line->beg = off;
@@ -6717,7 +6717,7 @@ md_analyze_line(MD_CTX* ctx, OFF beg, OFF* p_end,
             if(line->indent < ctx->code_indent_offset) {
                 if(md_is_closing_code_fence(ctx, CH(pivot_line->beg), off, &off)) {
                     line->type = MD_LINE_BLANK;
-                    ctx->last_line_has_list_loosening_effect = false;
+                    ctx->last_line_has_list_loosening_effect = 0;
                     break;
                 }
             }
@@ -6772,7 +6772,7 @@ md_analyze_line(MD_CTX* ctx, OFF beg, OFF* p_end,
                     line->indent -= ctx->code_indent_offset;
                 else
                     line->indent = 0;
-                ctx->last_line_has_list_loosening_effect = false;
+                ctx->last_line_has_list_loosening_effect = 0;
             } else {
                 line->type = MD_LINE_BLANK;
                 ctx->consecutive_blank_lines++;
@@ -6803,7 +6803,7 @@ md_analyze_line(MD_CTX* ctx, OFF beg, OFF* p_end,
             }
             ctx->consecutive_blank_lines = 0;
 
-            ctx->last_line_has_list_loosening_effect = false;
+            ctx->last_line_has_list_loosening_effect = 0;
         }
 
         /* Check whether we are Setext underline. */
@@ -6944,7 +6944,7 @@ md_analyze_line(MD_CTX* ctx, OFF beg, OFF* p_end,
             if(md_is_opening_code_fence(ctx, off, &off)) {
                 line->type = MD_LINE_FENCEDCODE;
                 line->data = 1;
-                line->enforce_new_block = true;
+                line->enforce_new_block = 1;
                 break;
             }
         }
@@ -6966,7 +6966,7 @@ md_analyze_line(MD_CTX* ctx, OFF beg, OFF* p_end,
                     ctx->html_block_type = 0;
                 }
 
-                line->enforce_new_block = true;
+                line->enforce_new_block = 1;
                 line->type = MD_LINE_HTML;
                 break;
             }
@@ -7008,7 +7008,7 @@ md_analyze_line(MD_CTX* ctx, OFF beg, OFF* p_end,
                (tmp + 3 == ctx->size  ||  ISBLANK(tmp+3)  ||  ISNEWLINE(tmp+3)))
             {
                 MD_CONTAINER* task_container = (n_children > 0 ? &ctx->containers[ctx->n_containers-1] : &container);
-                task_container->is_task = true;
+                task_container->is_task = 1;
                 task_container->task_mark_off = tmp + 1;
                 off = tmp + 3;
                 while(off < ctx->size  &&  ISWHITESPACE(off))
@@ -7097,7 +7097,7 @@ md_analyze_line(MD_CTX* ctx, OFF beg, OFF* p_end,
                 if(line->end - line->beg == md_strlen(MD_ADMONITION_TAGS[i]) + 3  &&
                    md_ascii_case_eq(STR(line->beg+2), MD_ADMONITION_TAGS[i], line->end - line->beg - 3))
                 {
-                    ctx->containers[ctx->n_containers-1].is_admonition = true;
+                    ctx->containers[ctx->n_containers-1].is_admonition = 1;
                     ctx->containers[ctx->n_containers-1].admonition_type = i;
                     line->type = MD_LINE_BLANK;
                     break;
