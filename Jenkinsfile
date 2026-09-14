@@ -29,8 +29,6 @@ pipeline {
 						label "untrusted"
 					}
 					steps {
-						sh("apt-get update")
-						sh("apt-get install -y build-essential libx11-dev wayland-protocols libwayland-dev")
 						sh("git clean -dfx")
 						sh("./configure --enable-opengl --enable-vulkan --without-vulkan-string-helper")
 						sh("make -j4")
@@ -43,8 +41,6 @@ pipeline {
 						label "untrusted"
 					}
 					steps {
-						sh("apt-get update")
-						sh("apt-get install -y make mingw-w64")
 						sh("git clean -dfx")
 						sh("./configure --enable-opengl --cross --target=Windows --host=i686-w64-mingw32")
 						sh("make -j4")
@@ -58,8 +54,6 @@ pipeline {
 						label "untrusted"
 					}
 					steps {
-						sh("apt-get update")
-						sh("apt-get install -y make mingw-w64")
 						sh("git clean -dfx")
 						sh("./configure --enable-opengl --cross --target=Windows --host=x86_64-w64-mingw32")
 						sh("make -j4")
@@ -84,18 +78,7 @@ pipeline {
 					agent {
 						label "untrusted"
 					}
-					environment {
-						WATCOM = "/usr/watcom"
-						INCLUDE = "/usr/watcom/h:/usr/watcom/h/nt"
-						PATH = "/usr/watcom/binl64:${env.PATH}"
-					}
 					steps {
-						sh("apt-get update")
-						sh("apt-get install -y wget")
-						sh("git clean -dfx")
-						sh("wget https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/ow-snapshot.tar.xz")
-						sh("mkdir -p /usr/watcom")
-						sh("tar xvf ow-snapshot.tar.xz -C /usr/watcom")
 						sh("git clean -dfx")
 						sh("wmake -f WatMakefile")
 						sh("mv src/Mw.dll MwWat32.dll")
