@@ -26,7 +26,7 @@ pipeline {
 			parallel {
 				stage("Build for Linux 64-bit") {
 					agent {
-						label "untrusted"
+						label "built-in"
 					}
 					steps {
 						sh("git clean -dfx")
@@ -38,7 +38,7 @@ pipeline {
 				}
 				stage("Build for Windows 32-bit") {
 					agent {
-						label "untrusted"
+						label "built-in"
 					}
 					steps {
 						sh("git clean -dfx")
@@ -51,7 +51,7 @@ pipeline {
 				}
 				stage("Build for Windows 64-bit") {
 					agent {
-						label "untrusted"
+						label "built-in"
 					}
 					steps {
 						sh("git clean -dfx")
@@ -76,7 +76,7 @@ pipeline {
 				}
 				stage("Build for Windows 32-bit (Watcom)") {
 					agent {
-						label "untrusted"
+						label "built-in"
 					}
 					steps {
 						sh("git clean -dfx")
