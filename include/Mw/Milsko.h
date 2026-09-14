@@ -40,6 +40,7 @@
 #include <Mw/Widget/CheckBox.h>
 #include <Mw/Widget/Clock.h>
 #include <Mw/Widget/ComboBox.h>
+#include <Mw/Widget/Document.h>
 #include <Mw/Widget/Entry.h>
 #include <Mw/Widget/Frame.h>
 #include <Mw/Widget/Image.h>

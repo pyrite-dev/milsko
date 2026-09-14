@@ -111,6 +111,7 @@
 		<integer name="minute" />
 		<integer name="second" />
 		<integer name="type" />
+		<integer name="autoResize" />
 
 		<!-- waitMS is a special property, only applies to toplevel widget -->
 		<integer name="waitMS" common="yes" />

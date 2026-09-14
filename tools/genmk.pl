@@ -230,6 +230,6 @@ scan_examples("examples/gldemos");
 
 @examples = sort(@examples);
 
-generate("BorMakefile", "Borland");
+#generate("BorMakefile", "Borland");
 generate("NTMakefile",  "MSVC");
 generate("WatMakefile", "Watcom");

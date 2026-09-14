@@ -155,6 +155,7 @@ new_object("src/widget/checkbox.c");
 new_object("src/widget/chart.c");
 new_object("src/widget/clock.c");
 new_object("src/widget/combobox.c");
+new_object("src/widget/document.c");
 new_object("src/widget/entry.c");
 new_object("src/widget/frame.c");
 new_object("src/widget/image.c");
@@ -212,6 +213,7 @@ new_example("examples/basic/filechooser");
 new_example("examples/basic/periodic");
 new_example("examples/basic/subwindow");
 new_example("examples/basic/tab");
+new_example("examples/basic/document");
 
 if (param_get("opengl")) {
     new_example("examples/gldemos/boing",    $gl_libs);

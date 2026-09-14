@@ -58,6 +58,7 @@
 #define MwNminute "Iminute"
 #define MwNsecond "Isecond"
 #define MwNtype "Itype"
+#define MwNautoResize "IautoResize"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
