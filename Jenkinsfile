@@ -29,6 +29,7 @@ pipeline {
 						label "untrusted"
 					}
 					steps {
+						sh("apt-get install build-essential libx11-dev wayland-protocols libwayland-dev")
 						sh("git clean -dfx")
 						sh("./configure --enable-opengl --enable-vulkan --without-vulkan-string-helper")
 						sh("make -j4")
