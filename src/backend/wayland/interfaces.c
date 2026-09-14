@@ -100,11 +100,32 @@ static void wl_offer(void*		   data,
 		     struct wl_data_offer* wl_data_offer,
 		     const char*	   mime_type) {
 	wl_clipboard_device_context_t* self = data;
-	wl_data_offer_accept(wl_data_offer, self->ll->wayland.clipboard_serial, mime_type);
+	int			       i;
+	for(i = 0; i < sizeof(self->accepted_types) / sizeof(self->accepted_types[0]); i++) {
+		if(strcmp(self->accepted_types[i], mime_type) == 0) {
+			wl_data_offer_accept(wl_data_offer, self->ll->wayland.clipboard_serial, mime_type);
+			memset(self->selected_mime_type, 0, 4096);
+			snprintf(self->selected_mime_type, sizeof(self->selected_mime_type), "%s", mime_type);
+			break;
+		}
+	}
 };
 
+static void wl_source_actions(void*		    data,
+			      struct wl_data_offer* wl_data_offer,
+			      uint32_t		    source_actions) {
+
+	// printf("%d\n", source_actions);
+};
+
+static void wl_action(void*		    data,
+		      struct wl_data_offer* wl_data_offer,
+		      uint32_t		    dnd_action) {};
+
 struct wl_data_offer_listener offer_listener = {
-    .offer = wl_offer,
+    .offer	    = wl_offer,
+    .source_actions = wl_source_actions,
+    .action	    = wl_action,
 };
 
 static void wl_data_device_data_offer(void*		     data,
@@ -125,7 +146,7 @@ static void wl_data_device_enter(void*			data,
 				 wl_fixed_t		x,
 				 wl_fixed_t		y,
 				 struct wl_data_offer*	id) {
-	MwLL self = data;
+	wl_clipboard_device_context_t* self = data;
 	(void)wl_data_device;
 	(void)surface;
 	(void)x;
@@ -134,33 +155,86 @@ static void wl_data_device_enter(void*			data,
 
 	WAYLAND_EVENT_OP_START(self);
 
-	self->wayland.clipboard_serial = serial;
+	self->ll->wayland.clipboard_serial = serial;
 
 	WAYLAND_EVENT_OP_END(self);
 };
 static void wl_data_device_leave(void*			data,
 				 struct wl_data_device* wl_data_device) {
-	MwLL self = data;
+	wl_clipboard_device_context_t* self = data;
 
-	WAYLAND_EVENT_OP_START(self);
-	wl_data_device_destroy(wl_data_device);
-	WAYLAND_EVENT_OP_END(self);
+	if(self->offer.wl) {
+		wl_data_offer_destroy(self->offer.wl);
+		self->offer.wl = NULL;
+	}
 };
 static void wl_data_device_motion(void*			 data,
 				  struct wl_data_device* wl_data_device,
 				  uint32_t		 time,
 				  wl_fixed_t		 x,
 				  wl_fixed_t		 y) {
-	(void)data;
 	(void)wl_data_device;
 	(void)time;
 	(void)x;
 	(void)y;
+	wl_clipboard_device_context_t* self = data;
+
+	if(self->selected_mime_type[0] != '\0' && self->offer.wl) {
+		wl_data_offer_set_actions(self->offer.wl, WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY, WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY);
+	}
 };
 static void wl_data_device_drop(void*		       data,
 				struct wl_data_device* wl_data_device) {
-	(void)data;
-	(void)wl_data_device;
+	wl_clipboard_device_context_t* self = data;
+	int			       fds[2];
+	fd_set			       set;
+	char*			       buf = NULL;
+	struct timeval		       timeout;
+	int			       rc = 0;
+
+	if(pipe(fds) != 0) {
+
+		return;
+	}
+
+	FD_ZERO(&set);
+	FD_SET(fds[0], &set);
+	timeout.tv_sec	= 0;
+	timeout.tv_usec = 1000;
+
+	wl_data_offer_receive(self->offer.wl, self->selected_mime_type, fds[1]);
+	close(fds[1]);
+
+	MwLLWaylandFlush(self->ll);
+	wl_display_roundtrip(self->ll->wayland.display);
+
+	while(MwTRUE) {
+		rc = select(fds[0] + 1, &set, NULL, NULL, &timeout);
+		if(rc <= 0) {
+			break;
+		} else {
+			char	b;
+			ssize_t n = read(fds[0], &b, sizeof(b));
+			if(n <= 0) {
+				break;
+			}
+			arrpush(buf, b);
+		}
+	}
+	arrpush(buf, 0);
+	close(fds[0]);
+
+	setup_clipboard(self->ll, self->ll->wayland.pointer_seat);
+
+	if(strstr(buf, "file://")) {
+		MwLLDispatch(self->ll, drag_and_drop, buf + sizeof("file://") - 1);
+	} else {
+		MwLLDispatch(self->ll, drag_and_drop, buf);
+	}
+
+	arrfree(buf);
+
+	self->selected_mime_type[0] = '\0';
 };
 
 static void wl_data_device_selection(void*		    data,
@@ -256,6 +330,7 @@ static void wl_data_source_listener_target(void*		  data,
 	(void)data;
 	(void)wl_data_source;
 	(void)mime_type;
+	printf("test\n");
 };
 static void wl_data_source_listener_send(void*			data,
 					 struct wl_data_source* wl_data_source,
@@ -297,6 +372,7 @@ static void wl_data_source_listener_cancelled(void*		     data,
 	wl_data_source_offer(self->wayland.clipboard_source.wl, "TEXT");
 	wl_data_source_offer(self->wayland.clipboard_source.wl, "STRING");
 	wl_data_source_offer(self->wayland.clipboard_source.wl, "UTF8_STRING");
+	wl_data_source_offer(self->wayland.clipboard_source.wl, "text/uri-list");
 
 	wl_data_source_add_listener(self->wayland.clipboard_source.wl, &wl_data_source_listener, self);
 
@@ -348,7 +424,7 @@ struct zwp_primary_selection_source_v1_listener zwp_primary_selection_source_v1_
 /* wl_data_device_manager setup function */
 static wayland_protocol_t* wl_data_device_manager_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	(void)version;
-	wayland->clipboard_manager.wl = wl_registry_bind(wayland->registry, name, &wl_data_device_manager_interface, 2);
+	wayland->clipboard_manager.wl = wl_registry_bind(wayland->registry, name, &wl_data_device_manager_interface, 3);
 
 	wayland->clipboard_source.wl = wl_data_device_manager_create_data_source(wayland->clipboard_manager.wl);
 
@@ -357,6 +433,7 @@ static wayland_protocol_t* wl_data_device_manager_setup(MwU32 name, struct _MwLL
 	wl_data_source_offer(wayland->clipboard_source.wl, "TEXT");
 	wl_data_source_offer(wayland->clipboard_source.wl, "STRING");
 	wl_data_source_offer(wayland->clipboard_source.wl, "UTF8_STRING");
+	wl_data_source_offer(wayland->clipboard_source.wl, "text/uri-list");
 
 	wl_data_source_add_listener(wayland->clipboard_source.wl, &wl_data_source_listener, wayland);
 
@@ -1040,6 +1117,13 @@ static void setup_zwp_clipboard(MwLL self, struct wl_seat* wl_seat) {
 	device_ctx_zwp->ll	   = self;
 	zwp_primary_selection_device_v1_add_listener(device_ctx_zwp->device.zwp, &zwp_primary_selection_device_v1_listener, device_ctx_zwp);
 	arrpush(self->wayland.clipboard_devices_zwp, device_ctx_zwp);
+
+	device_ctx_zwp->accepted_types[0] = "text/plain";
+	device_ctx_zwp->accepted_types[1] = "text/plain;charset=utf-8";
+	device_ctx_zwp->accepted_types[2] = "TEXT";
+	device_ctx_zwp->accepted_types[3] = "STRING";
+	device_ctx_zwp->accepted_types[4] = "UTF8_STRING";
+	device_ctx_zwp->accepted_types[5] = "text/uri-list";
 }
 static void setup_clipboard(MwLL self, struct wl_seat* wl_seat) {
 	wl_clipboard_device_context_t* device_ctx_wl = malloc(sizeof(wl_clipboard_device_context_t));
@@ -1050,6 +1134,13 @@ static void setup_clipboard(MwLL self, struct wl_seat* wl_seat) {
 
 	wl_data_device_add_listener(device_ctx_wl->device.wl, &wl_data_device_listener, device_ctx_wl);
 	arrpush(self->wayland.clipboard_devices_wl, device_ctx_wl);
+
+	device_ctx_wl->accepted_types[0] = "text/plain";
+	device_ctx_wl->accepted_types[1] = "text/plain;charset=utf-8";
+	device_ctx_wl->accepted_types[2] = "TEXT";
+	device_ctx_wl->accepted_types[3] = "STRING";
+	device_ctx_wl->accepted_types[4] = "UTF8_STRING";
+	device_ctx_wl->accepted_types[5] = "text/uri-list";
 };
 
 static void keyboard_repeat_info(void*		     data,

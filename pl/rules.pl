@@ -207,6 +207,7 @@ new_example("examples/basic/combobox");
 new_example("examples/basic/treeview");
 new_example("examples/basic/box");
 new_example("examples/basic/clipboard");
+new_example("examples/basic/dnd");
 new_example("examples/basic/sevensegment");
 new_example("examples/basic/calculator");
 new_example("examples/basic/filechooser");

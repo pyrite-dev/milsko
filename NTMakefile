@@ -6,9 +6,9 @@ MW_LDFLAGS = /DLL
 EXE_CFLAGS = /Iinclude
 EXE_LDFLAGS = 
 .SUFFIXES: .obj .c
-all: src\Mw.dll examples\basic\box.exe examples\basic\calculator.exe examples\basic\checkbox.exe examples\basic\clipboard.exe examples\basic\colorpicker.exe examples\basic\combobox.exe examples\basic\document.exe examples\basic\example.exe examples\basic\filechooser.exe examples\basic\image.exe examples\basic\listbox.exe examples\basic\messagebox.exe examples\basic\periodic.exe examples\basic\progressbar.exe examples\basic\radiobox.exe examples\basic\rotate.exe examples\basic\scrollbar.exe examples\basic\sevensegment.exe examples\basic\subwindow.exe examples\basic\tab.exe examples\basic\treeview.exe examples\basic\viewport.exe examples\gldemos\boing.exe examples\gldemos\clock.exe examples\gldemos\cube.exe examples\gldemos\gears.exe examples\gldemos\triangle.exe examples\gldemos\tripaint.exe
+all: src\Mw.dll examples\basic\box.exe examples\basic\calculator.exe examples\basic\checkbox.exe examples\basic\clipboard.exe examples\basic\colorpicker.exe examples\basic\combobox.exe examples\basic\dnd.exe examples\basic\document.exe examples\basic\example.exe examples\basic\filechooser.exe examples\basic\image.exe examples\basic\listbox.exe examples\basic\messagebox.exe examples\basic\periodic.exe examples\basic\progressbar.exe examples\basic\radiobox.exe examples\basic\rotate.exe examples\basic\scrollbar.exe examples\basic\sevensegment.exe examples\basic\subwindow.exe examples\basic\tab.exe examples\basic\treeview.exe examples\basic\viewport.exe examples\gldemos\boing.exe examples\gldemos\clock.exe examples\gldemos\cube.exe examples\gldemos\gears.exe examples\gldemos\triangle.exe examples\gldemos\tripaint.exe
 lib: src\Mw.dll
-examples: examples\basic\box.exe examples\basic\calculator.exe examples\basic\checkbox.exe examples\basic\clipboard.exe examples\basic\colorpicker.exe examples\basic\combobox.exe examples\basic\document.exe examples\basic\example.exe examples\basic\filechooser.exe examples\basic\image.exe examples\basic\listbox.exe examples\basic\messagebox.exe examples\basic\periodic.exe examples\basic\progressbar.exe examples\basic\radiobox.exe examples\basic\rotate.exe examples\basic\scrollbar.exe examples\basic\sevensegment.exe examples\basic\subwindow.exe examples\basic\tab.exe examples\basic\treeview.exe examples\basic\viewport.exe examples\gldemos\boing.exe examples\gldemos\clock.exe examples\gldemos\cube.exe examples\gldemos\gears.exe examples\gldemos\triangle.exe examples\gldemos\tripaint.exe
+examples: examples\basic\box.exe examples\basic\calculator.exe examples\basic\checkbox.exe examples\basic\clipboard.exe examples\basic\colorpicker.exe examples\basic\combobox.exe examples\basic\dnd.exe examples\basic\document.exe examples\basic\example.exe examples\basic\filechooser.exe examples\basic\image.exe examples\basic\listbox.exe examples\basic\messagebox.exe examples\basic\periodic.exe examples\basic\progressbar.exe examples\basic\radiobox.exe examples\basic\rotate.exe examples\basic\scrollbar.exe examples\basic\sevensegment.exe examples\basic\subwindow.exe examples\basic\tab.exe examples\basic\treeview.exe examples\basic\viewport.exe examples\gldemos\boing.exe examples\gldemos\clock.exe examples\gldemos\cube.exe examples\gldemos\gears.exe examples\gldemos\triangle.exe examples\gldemos\tripaint.exe
 clean: 
 	del /f /q external\libz\src\adler32.obj
 	del /f /q external\libz\src\compress.obj
@@ -112,6 +112,7 @@ clean:
 	del /f /q examples\basic\clipboard.obj
 	del /f /q examples\basic\colorpicker.obj
 	del /f /q examples\basic\combobox.obj
+	del /f /q examples\basic\dnd.obj
 	del /f /q examples\basic\document.obj
 	del /f /q examples\basic\example.obj
 	del /f /q examples\basic\filechooser.obj
@@ -140,6 +141,7 @@ clean:
 	del /f /q examples\basic\clipboard.exe
 	del /f /q examples\basic\colorpicker.exe
 	del /f /q examples\basic\combobox.exe
+	del /f /q examples\basic\dnd.exe
 	del /f /q examples\basic\document.exe
 	del /f /q examples\basic\example.exe
 	del /f /q examples\basic\filechooser.exe
@@ -198,6 +200,12 @@ examples\basic\combobox.exe: examples\basic\combobox.obj src\Mw.dll
 
 examples\basic\combobox.obj: examples/basic/combobox.c
 	$(CC) $(EXE_CFLAGS) /Fo$@ examples/basic/combobox.c
+
+examples\basic\dnd.exe: examples\basic\dnd.obj src\Mw.dll
+	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\basic\dnd.obj  src\Mw.lib
+
+examples\basic\dnd.obj: examples/basic/dnd.c
+	$(CC) $(EXE_CFLAGS) /Fo$@ examples/basic/dnd.c
 
 examples\basic\document.exe: examples\basic\document.obj src\Mw.dll
 	$(LD) $(EXE_LDFLAGS) /OUT:$@ examples\basic\document.obj  src\Mw.lib

@@ -292,6 +292,9 @@ typedef struct wl_clipboard_device_context {
 		struct zwp_primary_selection_offer_v1* zwp;
 	} offer;
 
+	const char* accepted_types[6];
+	char	    selected_mime_type[4096];
+
 	MwLL ll;
 	// struct wl_seat* seat;
 } wl_clipboard_device_context_t;
