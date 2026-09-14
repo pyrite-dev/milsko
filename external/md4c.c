@@ -24,7 +24,6 @@
  */
 
 #include <limits.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5840,7 +5839,7 @@ md_consume_link_reference_definitions(MD_CTX* ctx)
     MD_LINE* lines = (MD_LINE*) (ctx->current_block + 1);
     MD_SIZE n_lines = ctx->current_block->n_lines;
     MD_SIZE n = 0;
-    bool inject_hr = false;
+    int inject_hr = 0;
     OFF ignored;
 
     while(n < n_lines) {

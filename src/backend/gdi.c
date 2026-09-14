@@ -178,13 +178,14 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 		for(i = 0; i < count; i++) {
 			wchar_t wpath[MAX_PATH];
-			char	path[MAX_PATH];
+			char*	path;
 			wsymtbl.DragQueryFileW(hDrop, i, wpath, MAX_PATH);
 
-			memset(path, 0, sizeof(path));
-			WideCharToMultiByte(CP_UTF8, 0, wpath, -1, path, sizeof(path) - 1, NULL, NULL);
+			path = MwUTF16TextToUTF8Text(wpath);
 
 			MwLLDispatch(u->ll, drag_and_drop, path);
+
+			free(path);
 		}
 		wsymtbl.DragFinish(hDrop);
 		break;
