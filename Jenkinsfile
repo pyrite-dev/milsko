@@ -38,7 +38,7 @@ pipeline {
 				}
 				stage("Build for Windows 32-bit") {
 					agent {
-						label "built-in"
+						label "untrusted"
 					}
 					steps {
 						sh("git clean -dfx")
@@ -51,7 +51,7 @@ pipeline {
 				}
 				stage("Build for Windows 64-bit") {
 					agent {
-						label "built-in"
+						label "untrusted"
 					}
 					steps {
 						sh("git clean -dfx")
@@ -76,7 +76,7 @@ pipeline {
 				}
 				stage("Build for Windows 32-bit (Watcom)") {
 					agent {
-						label "built-in"
+						label "untrusted"
 					}
 					environment {
 						WATCOM = "/usr/watcom"
