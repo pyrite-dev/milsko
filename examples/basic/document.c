@@ -49,8 +49,6 @@ int main() {
 
 	document = MwVaCreateWidget(MwDocumentClass, "document", MwViewportGetViewport(viewport), 0, 0, 0, 0,
 				    MwNtext, text,
-				    MwNbackground, "#fff",
-				    MwNforeground, "#000",
 				    NULL);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize_window, NULL);
