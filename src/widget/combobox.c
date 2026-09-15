@@ -19,8 +19,6 @@ static int wcreate(MwWidget handle) {
 }
 
 static void destroy(MwWidget handle) {
-	MwComboBox cb = handle->internal;
-
 	MwComboBoxReset(handle);
 	free(handle->internal);
 }

@@ -44,7 +44,7 @@ static void draw_line(MwWidget handle, const char* text, double x, double y, dou
 	p[1].y = p[0].y;
 	MwDrawText(handle, NULL, p, text, MwALIGNMENT_END, color);
 
-	if(type == MwCHART_3D_BAR) {
+	if(type == MwCHART_BAR_3D) {
 		MwPoint p2[2];
 
 		p2[0] = p[0];
@@ -150,7 +150,7 @@ static void bar_chart(MwWidget handle, MwRect* _r, double vmin, double vmax, int
 
 		MwDrawRect(handle, &node, color);
 
-		if(type == MwCHART_3D_BAR) {
+		if(type == MwCHART_BAR_3D) {
 			MwRect node2 = node;
 
 			MwFixRect(&node2);
@@ -195,7 +195,7 @@ static void bar_chart(MwWidget handle, MwRect* _r, double vmin, double vmax, int
 		if(!modern) {
 			MwDrawRectLine(handle, &node, border);
 
-			if(type == MwCHART_3D_BAR) {
+			if(type == MwCHART_BAR_3D) {
 				MwLLLine(handle->lowlevel, &persp_top[0], border);
 				MwLLLine(handle->lowlevel, &persp_top[1], border);
 				MwLLLine(handle->lowlevel, &persp_top[2], border);
@@ -231,7 +231,7 @@ static void pie_chart(MwWidget handle, MwRect* _r, const char** colors, int n, M
 	int	k;
 	int	type	= MwGetInteger(handle, MwNtype);
 	int	modern	= MwGetInteger(handle, MwNmodernLook);
-	double	vsquish = type == MwCHART_3D_PIE ? 2 : 1;
+	double	vsquish = type == MwCHART_PIE_3D ? 2 : 1;
 	int	i;
 	MwPoint p[2];
 	MwPoint p2[360 + 1 + 1];
@@ -266,7 +266,7 @@ static void pie_chart(MwWidget handle, MwRect* _r, const char** colors, int n, M
 
 			count = j + 1;
 
-			if((k == 0 || k == 1) && type == MwCHART_3D_PIE) {
+			if((k == 0 || k == 1) && type == MwCHART_PIE_3D) {
 				int	j;
 				MwPoint p3[360 + 1 + 1];
 				int	d = 0;
@@ -296,7 +296,7 @@ static void pie_chart(MwWidget handle, MwRect* _r, const char** colors, int n, M
 			}
 
 			if(k == 2) {
-				MwLLPolygon(handle->lowlevel, p2, count, type == MwCHART_3D_PIE ? colorl : color);
+				MwLLPolygon(handle->lowlevel, p2, count, type == MwCHART_PIE_3D ? colorl : color);
 			} else if(k == 3) {
 				int j;
 
@@ -308,7 +308,7 @@ static void pie_chart(MwWidget handle, MwRect* _r, const char** colors, int n, M
 				p2[0].x += cos((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4;
 				p2[0].y += sin((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4 / vsquish;
 
-				handle->bgcolor = type == MwCHART_3D_PIE ? colorl : color;
+				handle->bgcolor = type == MwCHART_PIE_3D ? colorl : color;
 
 				MwDrawText(handle, NULL, p2, c->entries[i].name, MwALIGNMENT_CENTER, border);
 			}
@@ -320,7 +320,7 @@ static void pie_chart(MwWidget handle, MwRect* _r, const char** colors, int n, M
 		}
 	}
 
-	if(!modern && type == MwCHART_3D_PIE) {
+	if(!modern && type == MwCHART_PIE_3D) {
 		p[0].x = r.width / 2 - radius / 2;
 		p[0].y = r.height / 2;
 		p[1]   = p[0];
@@ -425,11 +425,11 @@ static void draw(MwWidget handle) {
 
 	switch(type) {
 	case MwCHART_BAR:
-	case MwCHART_3D_BAR:
+	case MwCHART_BAR_3D:
 		bar_chart(handle, &r, vmin, vmax, space, colors, n, border);
 		break;
 	case MwCHART_PIE:
-	case MwCHART_3D_PIE:
+	case MwCHART_PIE_3D:
 		pie_chart(handle, &r, colors, n, border);
 		break;
 	case MwCHART_LINE:
