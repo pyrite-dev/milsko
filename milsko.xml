@@ -112,7 +112,6 @@
 		<integer name="minute" />
 		<integer name="second" />
 		<integer name="type" />
-		<integer name="autoResize" />
 
 		<!-- waitMS is a special property, only applies to toplevel widget -->
 		<integer name="waitMS" common="yes" />
@@ -200,6 +199,9 @@
 		</handler>
 		<handler name="dragAndDrop" common="yes">
 			<string />
+		</handler>
+		<handler name="layout">
+			<integer pointer="yes" />
 		</handler>
 	</handlers>
 	<enumerations>
@@ -701,6 +703,14 @@
 				<property name="minute" />
 				<property name="second" />
 			</properties>
+		</widget>
+		<widget name="Document">
+			<properties>
+				<property name="text" />
+			</properties>
+			<handlers>
+				<handler name="layout" />
+			</handlers>
 		</widget>
 		<widget name="Entry">
 			<properties>

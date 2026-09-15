@@ -32,6 +32,8 @@ typedef struct _MwTab*		      MwTab;
 typedef struct _MwTable*	      MwTable;
 typedef struct _MwChartEntry	      MwChartEntry;
 typedef struct _MwChart*	      MwChart;
+typedef struct _MwDocumentLayout      MwDocumentLayout;
+typedef struct _MwDocument*	      MwDocument;
 typedef struct _MwMouse		      MwMouse;
 typedef struct _MwTTFInfo*	      MwTTFInfo;
 #ifdef _MILSKO
@@ -262,6 +264,23 @@ struct _MwChart {
 struct _MwMouse {
 	MwPoint point;
 	int	button;
+};
+
+struct _MwDocumentLayout {
+	int type;
+
+	int x;
+	int y;
+
+	char* text;
+	int   integer;
+
+	MwFLFont font;
+};
+
+struct _MwDocument {
+	MwDocumentLayout* layouts;
+	MwFLFont	  headers[6];
 };
 
 struct _MwTTFInfo {

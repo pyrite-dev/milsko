@@ -58,7 +58,6 @@
 #define MwNminute "Iminute"
 #define MwNsecond "Isecond"
 #define MwNtype "Itype"
-#define MwNautoResize "IautoResize"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
@@ -105,5 +104,6 @@
 #define MwNclipboardHandler "Cclipboard"
 #define MwNdarkThemeHandler "CdarkTheme"
 #define MwNdragAndDropHandler "CdragAndDrop"
+#define MwNlayoutHandler "Clayout"
 
 #endif
