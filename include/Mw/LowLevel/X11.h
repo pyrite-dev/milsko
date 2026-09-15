@@ -27,20 +27,36 @@ struct _MwLLX11 {
 	unsigned int width;
 	unsigned int height;
 
-	Display* display;
-	Window	 window;
-	Pixmap	 pixmap;
-	GC	 gc;
-	Colormap colormap;
-	Atom	 wm_delete;
-	Atom	 wm_protocols;
-	Atom	 utf8_string;
-	Atom	 compound_text;
-	Atom	 text;
-	Atom	 clipboard;
-	Atom	 selection;
-	XIM	 xim;
-	XIC	 xic;
+	Display*      display;
+	Window	      window;
+	Pixmap	      pixmap;
+	GC	      gc;
+	Colormap      colormap;
+	Atom	      wm_delete;
+	Atom	      wm_protocols;
+	Atom	      utf8_string;
+	Atom	      compound_text;
+	Atom	      text;
+	Atom	      clipboard;
+	Atom	      selection;
+	Atom	      xdnd_type_list;
+	Atom	      xdnd_selection;
+	Atom	      xdnd_enter;
+	Atom	      xdnd_position;
+	Atom	      xdnd_status;
+	Atom	      xdnd_leave;
+	Atom	      xdnd_drop;
+	Atom	      xdnd_finished;
+	Atom	      xdnd_action_copy;
+	Atom	      xdnd_text_uri_list;
+	Atom	      xdnd_text_plain;
+	Atom	      xdnd_aware;
+	int	      xdnd_source;
+	unsigned char xdnd_version;
+	int	      xdnd_format;
+
+	XIM xim;
+	XIC xic;
 
 	long clipboard_time;
 	int  clipboard_pending; /* 1 if UTF8_STRING, 2 if COMPOUND_TEXT, 3 if TEXT, 4 if STRING, otherwise 0 */

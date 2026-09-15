@@ -82,6 +82,8 @@ static struct symtbl {
 	void (*XSetICFocus)(XIC);
 	XImage* (*XGetImage)(Display*, Drawable, int, int, unsigned int, unsigned int, unsigned long, int);
 	int (*XRaiseWindow)(Display*, Window);
+	int (*XFlush)(Display*);
+	char* (*XGetAtomName)(Display*, Atom);
 
 	XSizeHints* (*XAllocSizeHints)(void);
 	XVisualInfo* (*XGetVisualInfo)(Display*, long, XVisualInfo*, int*);
@@ -186,6 +188,8 @@ static struct symtbl {
 #define XChangeWindowAttributes xsymtbl.XChangeWindowAttributes
 #define XGetImage xsymtbl.XGetImage
 #define XRaiseWindow xsymtbl.XRaiseWindow
+#define XFlush xsymtbl.XFlush
+#define XGetAtomName xsymtbl.XGetAtomName
 
 #if USE_XRENDER
 #define XRenderFindStandardFormat xsymtbl.XRenderFindStandardFormat
@@ -425,6 +429,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->x11.colormap	    = DefaultColormap(r->x11.display, XDefaultScreen(r->x11.display));
 	r->x11.wm_delete    = XInternAtom(r->x11.display, "WM_DELETE_WINDOW", False);
 	r->x11.wm_protocols = XInternAtom(r->x11.display, "WM_PROTOCOLS", False);
+
 	XSetWMProtocols(r->x11.display, r->x11.window, &r->x11.wm_delete, 1);
 
 	r->x11.utf8_string   = XInternAtom(r->x11.display, "UTF8_STRING", False);
@@ -432,6 +437,21 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->x11.text	     = XInternAtom(r->x11.display, "TEXT", False);
 	r->x11.clipboard     = XInternAtom(r->x11.display, "CLIPBOARD", False);
 	r->x11.selection     = XInternAtom(r->x11.display, "_MILSKO_SELECTION_", False);
+
+	r->x11.xdnd_type_list	  = XInternAtom(r->x11.display, "XdndTypeList", False);
+	r->x11.xdnd_selection	  = XInternAtom(r->x11.display, "XdndSelection", False);
+	r->x11.xdnd_enter	  = XInternAtom(r->x11.display, "XdndEnter", False);
+	r->x11.xdnd_position	  = XInternAtom(r->x11.display, "XdndPosition", False);
+	r->x11.xdnd_status	  = XInternAtom(r->x11.display, "XdndStatus", False);
+	r->x11.xdnd_leave	  = XInternAtom(r->x11.display, "XdndLeave", False);
+	r->x11.xdnd_drop	  = XInternAtom(r->x11.display, "XdndDrop", False);
+	r->x11.xdnd_finished	  = XInternAtom(r->x11.display, "XdndFinished", False);
+	r->x11.xdnd_action_copy	  = XInternAtom(r->x11.display, "XdndActionCopy", False);
+	r->x11.xdnd_text_uri_list = XInternAtom(r->x11.display, "text/uri-list", False);
+	r->x11.xdnd_text_plain	  = XInternAtom(r->x11.display, "text/plain", False);
+	r->x11.xdnd_aware	  = XInternAtom(r->x11.display, "XdndAware", False);
+	r->x11.xdnd_version	  = 5;
+	r->x11.xdnd_format	  = None;
 
 	r->x11.clipboard_pending = 0;
 
@@ -704,10 +724,15 @@ static void MwLLNextEventImpl(MwLL handle) {
 
 	while(XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, ClientMessage, &ev) || XCheckTypedWindowEvent(handle->x11.display, handle->x11.window, SelectionNotify, &ev) || XCheckWindowEvent(handle->x11.display, handle->x11.window, mask, &ev)) {
 		int render = 0;
-		if(ev.type == Expose) {
+		switch(ev.type) {
+		case Expose:
+		{
 			handle->x11.force_render = 0;
 			render			 = 1;
-		} else if(ev.type == ButtonPress) {
+			break;
+		};
+		case ButtonPress:
+		{
 			MwMouse p;
 			p.point.x = ev.xbutton.x;
 			p.point.y = ev.xbutton.y;
@@ -728,7 +753,10 @@ static void MwLLNextEventImpl(MwLL handle) {
 #endif
 
 			MwLLDispatch(handle, down, &p);
-		} else if(ev.type == ButtonRelease) {
+			break;
+		};
+		case ButtonRelease:
+		{
 			MwMouse p;
 			p.point.x = ev.xbutton.x;
 			p.point.y = ev.xbutton.y;
@@ -745,24 +773,122 @@ static void MwLLNextEventImpl(MwLL handle) {
 			}
 
 			MwLLDispatch(handle, up, &p);
-		} else if(ev.type == ConfigureNotify) {
+			break;
+		};
+		case ConfigureNotify:
+		{
 			if(handle->x11.width != (unsigned int)ev.xconfigure.width || handle->x11.height != (unsigned int)ev.xconfigure.height) {
 				MwLLDispatch(handle, resize, NULL);
 				destroy_pixmap(handle);
 				create_pixmap(handle);
 				render = 1;
+				break;
 			}
 			handle->x11.width  = ev.xconfigure.width;
 			handle->x11.height = ev.xconfigure.height;
-		} else if(ev.type == ClientMessage) {
+		};
+		case ClientMessage:
+		{
+
 			if(ev.xclient.message_type == handle->x11.wm_protocols && ev.xclient.data.l[0] == (long)handle->x11.wm_delete) {
 				MwLLDispatch(handle, close, NULL);
 			}
-		} else if(ev.type == FocusIn) {
+
+			if(
+			    ev.xclient.message_type == handle->x11.xdnd_enter ||
+			    ev.xclient.message_type == handle->x11.xdnd_position ||
+			    ev.xclient.message_type == handle->x11.xdnd_drop) {
+				char* name = XGetAtomName(handle->x11.display, ev.xclient.message_type);
+
+				if(ev.xclient.message_type == handle->x11.xdnd_enter) {
+					Bool	       list    = ev.xclient.data.l[1] & 1;
+					int	       version = ev.xclient.data.l[1] >> 24;
+					unsigned long  count   = 0;
+					unsigned char* formats = NULL;
+					unsigned long  i;
+					handle->x11.xdnd_source = ev.xclient.data.l[0];
+					if(list) {
+						Atom	      actualType;
+						int32_t	      actualFormat;
+						unsigned long bytesAfter;
+
+						XGetWindowProperty((Display*)handle->x11.display,
+								   handle->x11.xdnd_source,
+								   handle->x11.xdnd_type_list,
+								   0,
+								   LONG_MAX,
+								   False,
+								   4,
+								   &actualType,
+								   &actualFormat,
+								   &count,
+								   &bytesAfter,
+								   (unsigned char**)&formats);
+					} else {
+						count = 0;
+
+						if(ev.xclient.data.l[2] != None)
+							formats[count++] = ev.xclient.data.l[2];
+						if(ev.xclient.data.l[3] != None)
+							formats[count++] = ev.xclient.data.l[3];
+						if(ev.xclient.data.l[4] != None)
+							formats[count++] = ev.xclient.data.l[4];
+					}
+
+					for(i = 0; i < count; i++) {
+						if(formats[i] == handle->x11.xdnd_text_uri_list || formats[i] == handle->x11.xdnd_text_plain) {
+							handle->x11.xdnd_format = formats[i];
+							printf("format %d\n", handle->x11.xdnd_format);
+							break;
+						}
+					}
+
+					if(list) {
+						XFree(formats);
+					}
+				}
+				if(ev.xclient.message_type == handle->x11.xdnd_position && handle->x11.xdnd_version >= 5) {
+					XEvent reply;
+					reply.xclient.message_type = handle->x11.xdnd_status;
+
+					if(handle->x11.xdnd_format) {
+						reply.xclient.data.l[1] = 1;
+						if(handle->x11.xdnd_version >= 2) reply.xclient.data.l[4] = handle->x11.xdnd_action_copy;
+					}
+					XSendEvent(handle->x11.display, handle->x11.xdnd_source, False, NoEventMask, &reply);
+					XFlush(handle->x11.display);
+				}
+				if(ev.xclient.message_type == handle->x11.xdnd_drop && handle->x11.xdnd_version >= 5) {
+					Time time = CurrentTime;
+					if(handle->x11.xdnd_version >= 1)
+						time = ev.xclient.data.l[2];
+
+					if(handle->x11.xdnd_format) {
+						XConvertSelection((Display*)handle->x11.display,
+								  handle->x11.xdnd_selection,
+								  handle->x11.xdnd_format,
+								  handle->x11.xdnd_selection,
+								  (Window)handle->x11.window,
+								  time);
+					}
+				}
+
+				XFree(name);
+			}
+			break;
+		};
+		case FocusIn:
+		{
 			MwLLDispatch(handle, focus_in, NULL);
-		} else if(ev.type == FocusOut) {
+			break;
+		};
+		case FocusOut:
+		{
 			MwLLDispatch(handle, focus_out, NULL);
-		} else if(ev.type == MotionNotify) {
+			break;
+		};
+		case MotionNotify:
+		{
 			MwPoint		  p;
 			XWindowAttributes attr;
 
@@ -780,7 +906,11 @@ static void MwLLNextEventImpl(MwLL handle) {
 			if(handle->x11.grabbed && (p.x != 0 || p.y != 0)) {
 				XWarpPointer(handle->x11.display, None, handle->x11.window, 0, 0, 0, 0, attr.width / 2, attr.height / 2);
 			}
-		} else if(ev.type == KeyPress || ev.type == KeyRelease) {
+			break;
+		};
+		case KeyPress:
+		case KeyRelease:
+		{
 			int    n = -1;
 			char   str[512];
 			KeySym sym;
@@ -844,10 +974,60 @@ static void MwLLNextEventImpl(MwLL handle) {
 					MwLLDispatch(handle, key_released, &n);
 				}
 			}
-		} else if(ev.type == SelectionNotify) {
+			break;
+		};
+		case SelectionNotify:
+		{
 			handle->x11.clipboard_pending = 0;
 
-			if(ev.xselection.property != None) {
+			if(ev.xselection.property == handle->x11.xdnd_selection) {
+				XEvent	      reply;
+				char*	      data;
+				unsigned long result;
+				Atom	      actualType;
+				int32_t	      actualFormat;
+				unsigned long bytesAfter;
+
+				XGetWindowProperty(handle->x11.display,
+						   ev.xselection.requestor, ev.xselection.property,
+						   0, LONG_MAX, False, ev.xselection.target,
+						   &actualType, &actualFormat, &result, &bytesAfter,
+						   (unsigned char**)&data);
+
+				if(result == 0)
+					break;
+
+				/* !! untested lmao !! */
+				printf("File(s) dropped: %s\n", data);
+				char* data_ptr = data;
+				while(data_ptr) {
+					char* next = strstr(data, "\n");
+					if(next) *next = '\0';
+
+					printf("%s\n", data_ptr);
+
+					if(strstr(data_ptr, "file://")) {
+						MwLLDispatch(handle, drag_and_drop, data_ptr + sizeof("file://") - 1);
+					} else {
+						MwLLDispatch(handle, drag_and_drop, data_ptr);
+					}
+					if(next) data_ptr = next + 1;
+					else
+						data_ptr = NULL;
+				}
+
+				if(data)
+					XFree(data);
+
+				if(handle->x11.xdnd_version >= 2) {
+					reply.xclient.message_type = handle->x11.xdnd_finished;
+					reply.xclient.data.l[1]	   = result;
+					reply.xclient.data.l[2]	   = handle->x11.xdnd_action_copy;
+
+					XSendEvent((Display*)handle->x11.display, handle->x11.xdnd_source, False, NoEventMask, &reply);
+					XFlush((Display*)handle->x11.display);
+				}
+			} else if(ev.xselection.property != None) {
 				Atom	       type;
 				int	       format;
 				unsigned long  nitems, after, size;
@@ -884,9 +1064,9 @@ static void MwLLNextEventImpl(MwLL handle) {
 						free(buf);
 					}
 				}
-
 				XDeleteProperty(handle->x11.display, handle->x11.window, handle->x11.selection);
 			}
+		} break;
 		}
 		if(render) {
 			int	     x, y;
@@ -1365,7 +1545,7 @@ static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
 }
 
 static void MwLLSetupDragAndDropImpl(MwLL handle) {
-	(void)handle;
+	XChangeProperty(handle->x11.display, handle->x11.window, handle->x11.xdnd_aware, 4, 32, PropModeReplace, &handle->x11.xdnd_version, 1);
 }
 
 static void MwLLBeginStateChangeImpl(MwLL handle) {
@@ -1512,6 +1692,8 @@ static int MwLLX11CallInitImpl(void) {
 	X11_FUNC_LOAD(XSetICFocus);
 	X11_FUNC_LOAD(XGetImage);
 	X11_FUNC_LOAD(XRaiseWindow);
+	X11_FUNC_LOAD(XFlush);
+	X11_FUNC_LOAD(XGetAtomName);
 
 	X11_FUNC_LOAD(XAllocSizeHints);
 	X11_FUNC_LOAD(XGetVisualInfo);

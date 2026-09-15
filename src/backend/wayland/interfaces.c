@@ -19,6 +19,7 @@ static void setup_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
 
 static void destroy_clipboard(MwLL self, struct wl_seat* wl_seat);
 static void destroy_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
+static bool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwPoint* _relative_mouse_pos, MwPoint* _absolute_pos);
 
 /* Recursively dispatch a key event to a widget and its children */
 static void recursive_dispatch_key(MwLL handle, int* k) {
@@ -168,6 +169,57 @@ static void wl_data_device_leave(void*			data,
 		self->offer.wl = NULL;
 	}
 };
+
+static MwBool motion_cursor_change(MwLL self, wl_clipboard_device_context_t* ctx) {
+	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL && self->wayland.accepts_dnd) {
+		return MwTRUE;
+	} else if(self->common.user) {
+		MwWidget w = self->common.user;
+		int	 i, n;
+		for(i = 0; i < arrlen(w->children); i++) {
+			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
+				MwLL	child	       = w->children[i]->lowlevel;
+				MwLL	topmost_parent = child;
+				MwPoint point;
+				MwPoint relative_mouse_pos;
+				MwPoint absolute_pos;
+
+				if(hit_detect(child, &topmost_parent, &point, &relative_mouse_pos, &absolute_pos)) {
+					return MwTRUE;
+				} else {
+					return motion_cursor_change(child, ctx);
+				}
+			}
+		}
+	}
+	return MwFALSE;
+}
+
+static void clipboard_dispatch(MwLL self, char* buf) {
+	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL && self->wayland.accepts_dnd) {
+		MwLLDispatch(self, drag_and_drop, buf);
+	} else if(self->common.user) {
+		MwWidget w = self->common.user;
+		int	 i, n;
+		for(i = 0; i < arrlen(w->children); i++) {
+			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
+				MwLL	child	       = w->children[i]->lowlevel;
+				MwLL	topmost_parent = child;
+				MwPoint point;
+				MwPoint relative_mouse_pos;
+				MwPoint absolute_pos;
+
+				if(hit_detect(child, &topmost_parent, &point, &relative_mouse_pos, &absolute_pos) && child->wayland.accepts_dnd) {
+					MwLLDispatch(child, drag_and_drop, buf);
+					return;
+				} else {
+					clipboard_dispatch(child, buf);
+				}
+			}
+		}
+	}
+}
+
 static void wl_data_device_motion(void*			 data,
 				  struct wl_data_device* wl_data_device,
 				  uint32_t		 time,
@@ -179,8 +231,15 @@ static void wl_data_device_motion(void*			 data,
 	(void)y;
 	wl_clipboard_device_context_t* self = data;
 
+	self->ll->wayland.cur_mouse_pos.x = wl_fixed_to_int(x);
+	self->ll->wayland.cur_mouse_pos.y = wl_fixed_to_int(y);
+
 	if(self->selected_mime_type[0] != '\0' && self->offer.wl) {
-		wl_data_offer_set_actions(self->offer.wl, WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY, WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY);
+		if(motion_cursor_change(self->ll, self)) {
+			wl_data_offer_set_actions(self->offer.wl, WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY, WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY);
+		} else {
+			wl_data_offer_set_actions(self->offer.wl, WL_DATA_DEVICE_MANAGER_DND_ACTION_NONE, WL_DATA_DEVICE_MANAGER_DND_ACTION_NONE);
+		};
 	}
 };
 static void wl_data_device_drop(void*		       data,
@@ -193,7 +252,6 @@ static void wl_data_device_drop(void*		       data,
 	int			       rc = 0;
 
 	if(pipe(fds) != 0) {
-
 		return;
 	}
 
@@ -226,10 +284,20 @@ static void wl_data_device_drop(void*		       data,
 
 	setup_clipboard(self->ll, self->ll->wayland.pointer_seat);
 
-	if(strstr(buf, "file://")) {
-		MwLLDispatch(self->ll, drag_and_drop, buf + sizeof("file://") - 1);
-	} else {
-		MwLLDispatch(self->ll, drag_and_drop, buf);
+	char* buf_ptr = buf;
+	while(buf_ptr) {
+		char* next = strstr(buf_ptr, "\n");
+		if(next) {
+			*next = '\0';
+			if(strstr(buf_ptr, "file://")) {
+				clipboard_dispatch(self->ll, buf_ptr + sizeof("file://") - 1);
+			} else {
+				clipboard_dispatch(self->ll, buf_ptr);
+			}
+			buf_ptr = next + 1;
+		} else {
+			buf_ptr = NULL;
+		}
 	}
 
 	arrfree(buf);

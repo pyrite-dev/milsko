@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-MwWidget window, instructions, text1, cur_text;
+MwWidget window, box, instructions, cur_text, text_listbox;
 
 static void MWAPI resize(MwWidget handle, void* user_data, void* call_data) {
 	unsigned int w, h;
@@ -11,17 +11,7 @@ static void MWAPI resize(MwWidget handle, void* user_data, void* call_data) {
 	w = MwGetInteger(handle, MwNwidth);
 	h = MwGetInteger(handle, MwNheight);
 
-	MwVaApply(instructions,
-		  MwNy, 50,
-		  MwNwidth, w - 50 * 2,
-		  MwNheight, h - 125 - 50 * 3,
-		  NULL);
-
-	MwVaApply(text1,
-		  MwNy, 150,
-		  MwNwidth, w - 25 * 2,
-		  MwNheight, h - 125 - 50 * 3,
-		  NULL);
+	MwVaApply(box, MwNwidth, w, MwNheight, h, NULL);
 }
 static void MWAPI dnd(MwWidget handle, void* user_data, void* call_data) {
 	char* filename = call_data;
@@ -30,29 +20,35 @@ static void MWAPI dnd(MwWidget handle, void* user_data, void* call_data) {
 	(void)user_data;
 
 	if(filename != NULL) {
-		MwVaApply(cur_text, MwNtext, filename, NULL);
-		MwForceRender(cur_text);
+		MwListBoxSet(text_listbox, -1, -1, filename);
+		MwForceRender(text_listbox);
 	}
 }
 
 int main() {
-	MwLibraryInit();
+	MwSizeHints hints;
 
-	window	     = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 400, 400,
-					MwNtitle, "dnd",
+	MwLibraryInit();
+	hints.min_width = hints.min_height = 600;
+
+	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 600, 600,
+				  MwNtitle, "dnd",
+				  MwNsizeHints, &hints,
+				  NULL);
+
+	box = MwVaCreateWidget(MwBoxClass, NULL, window, 0, 0, 800, 800, MwNorientation, MwVERTICAL, MwNpadding, 25, NULL);
+
+	instructions = MwVaCreateWidget(MwLabelClass, "button", box, 50, 50, 750, 50,
+					MwNtext, "drag files onto this text box, and their names will show up below.",
 					MwNacceptsDnD, 1,
 					NULL);
-	instructions = MwVaCreateWidget(MwLabelClass, "button", window, 50, 50, 300, 125,
-					MwNtext, "drag a file and its name will show up below.",
-					NULL);
-	text1	     = MwVaCreateWidget(MwLabelClass, "label", window, 25, 150, 300, 75,
+	text_listbox = MwVaCreateWidget(MwListBoxClass, "label", box, 25, 150, 750, 700,
 					MwNtext, "",
+					MwNacceptsDnD, 1,
 					NULL);
-
-	cur_text = text1;
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
-	MwAddUserHandler(window, MwNdragAndDropHandler, dnd, NULL);
+	MwAddUserHandler(instructions, MwNdragAndDropHandler, dnd, NULL);
 
 	resize(window, NULL, NULL);
 

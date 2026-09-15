@@ -1794,7 +1794,6 @@ static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {
 }
 
 static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
-
 	rect->x	     = 0;
 	rect->y	     = 0;
 	rect->width  = handle->wayland.mw;
@@ -1803,6 +1802,7 @@ static void MwLLGetScreenSizeImpl(MwLL handle, MwRect* rect) {
 
 static void MwLLSetupDragAndDropImpl(MwLL handle) {
 	(void)handle;
+	handle->wayland.accepts_dnd = MwTRUE;
 }
 
 static void MwLLBeginStateChangeImpl(MwLL handle) {
