@@ -35,6 +35,7 @@ int main() {
 	int   i;
 
 	strcpy(text, "# Hello world!\nThis is a __test__ text...\n\n`Some monospace here`\n\n~~Removed~~");
+	strcat(text, "\n```\nint main(){\n  printf(\"Hello, world!\\n\");\n}\n```");
 	for(i = 0; i < 10; i++) {
 		strcat(text, "\n\n**Lorem ipsum** dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
 	}

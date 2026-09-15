@@ -156,6 +156,14 @@ static int enter_block(MD_BLOCKTYPE type, void* detail, void* userdata) {
 		arrput(d->layouts, l);
 		break;
 	}
+	case MD_BLOCK_CODE:
+	{
+		l.type	  = MwDOCUMENT_MONOSPACE;
+		l.integer = 1;
+
+		arrput(d->layouts, l);
+		break;
+	}
 	default:
 		break;
 	}
@@ -183,6 +191,14 @@ static int leave_block(MD_BLOCKTYPE type, void* detail, void* userdata) {
 	case MD_BLOCK_P:
 	{
 		l.type = MwDOCUMENT_NEWLINE;
+
+		arrput(d->layouts, l);
+		break;
+	}
+	case MD_BLOCK_CODE:
+	{
+		l.type	  = MwDOCUMENT_MONOSPACE;
+		l.integer = 0;
 
 		arrput(d->layouts, l);
 		break;
@@ -311,11 +327,23 @@ static int text(MD_TEXTTYPE type, const MD_CHAR* text, MD_SIZE size, void* userd
 			next = strchr(str, ' ');
 			if(next != NULL) next[0] = 0;
 
-			if(strlen(str) > 0) {
+			if(strcmp(str, "\n") == 0) {
+				memset(&l, 0, sizeof(l));
+
+				l.type = MwDOCUMENT_NEWLINE;
+
+				arrput(d->layouts, l);
+			} else if(strlen(str) > 0) {
 				memset(&l, 0, sizeof(l));
 
 				l.type = MwDOCUMENT_TEXT;
 				l.text = MwStringDuplicate(str);
+
+				arrput(d->layouts, l);
+			} else {
+				memset(&l, 0, sizeof(l));
+
+				l.type = MwDOCUMENT_SPACE;
 
 				arrput(d->layouts, l);
 			}
@@ -372,6 +400,11 @@ static void layout(MwWidget handle) {
 			l->y = y;
 
 			x += t;
+			break;
+		}
+		case MwDOCUMENT_SPACE:
+		{
+			x += MwTextWidth(handle, TOPFONT, " ");
 			break;
 		}
 		case MwDOCUMENT_NEWLINE:
