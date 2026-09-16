@@ -749,6 +749,7 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	if(self->wayland.backbuffer.surface) {
 		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
 	}
+
 	WAYLAND_EVENT_OP_END(self);
 };
 
@@ -1511,6 +1512,21 @@ static void zwlr_layer_shell_v1_interface_destroy(struct _MwLLWayland* wayland, 
 	free(data);
 }
 
+static wayland_protocol_t* wp_fifo_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
+	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
+
+	proto->context	= wl_registry_bind(wayland->registry, name, &wp_fifo_manager_v1_interface, version);
+	proto->listener = NULL;
+
+	return proto;
+}
+
+static void wp_fifo_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	(void)wayland;
+
+	free(data);
+}
+
 /* Function for setting up the callbacks/structs that will be registered upon the relevant interfaces being found. */
 void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland) {
 /* Convience macro for adding the interface functions to the setup map */
@@ -1553,6 +1569,7 @@ void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland) {
 		WL_INTERFACE(xdg_toplevel_icon_manager_v1);
 		WL_INTERFACE(wl_subcompositor);
 		WL_INTERFACE(wl_seat);
+		WL_INTERFACE(wp_fifo_manager_v1);
 	} else if(wayland->type == MwLL_WAYLAND_POPUP) {
 		WL_INTERFACE(wl_seat);
 	} else if(wayland->type == MwLL_WAYLAND_LAYER_SURFACE) {

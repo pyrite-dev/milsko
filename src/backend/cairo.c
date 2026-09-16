@@ -113,13 +113,16 @@ void MwLLCairoDrawPixmap(struct _MwLLCairo handle, MwRect* rect, MwLLPixmap pixm
 
 void MwLLCairoFrontSetup(struct _MwLLCairo* cairo, MwU8* data, MwU32 width, MwU32 height) {
 	if(data) {
-		cairo->front_cs = cairo_image_surface_create_for_data(data, CAIRO_FORMAT_ARGB32, width, height, width * 4);
+		cairo->front_cs	      = cairo_image_surface_create_for_data(data, CAIRO_FORMAT_ARGB32, width, height, width * 4);
+		cairo->frontbuffer_cs = cairo_image_surface_create_for_data(data, CAIRO_FORMAT_ARGB32, width, height, width * 4);
 	} else {
-		cairo->front_cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+		cairo->front_cs	      = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+		cairo->frontbuffer_cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
 	}
-	cairo->front_cs_back	= cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
-	cairo->front_cairo_back = cairo_create(cairo->front_cs_back);
-	cairo->front_cairo	= cairo_create(cairo->front_cs);
+	cairo->front_cs_back	 = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+	cairo->front_cairo_back	 = cairo_create(cairo->front_cs_back);
+	cairo->front_cairo	 = cairo_create(cairo->front_cs);
+	cairo->frontbuffer_cairo = cairo_create(cairo->frontbuffer_cs);
 }
 
 void MwLLCairoBackSetup(struct _MwLLCairo* cairo, MwU8* data, MwU32 width, MwU32 height) {
@@ -135,6 +138,8 @@ void MwLLCairoFrontDestroy(struct _MwLLCairo* cairo) {
 	cairo_destroy(cairo->front_cairo);
 	cairo_destroy(cairo->front_cairo_back);
 	cairo_surface_destroy(cairo->front_cs);
+	cairo_surface_destroy(cairo->frontbuffer_cs);
+	cairo_destroy(cairo->frontbuffer_cairo);
 };
 void MwLLCairoBackDestroy(struct _MwLLCairo* cairo) {
 	cairo_destroy(cairo->back_cairo);
@@ -214,8 +219,8 @@ static void MwLLFreeColorImpl(MwLLColor color) {}
 
 static MwBool lmao = MwFALSE;
 static int    MwLLPendingImpl(MwLL handle) {
-	   lmao = !lmao;
-	   return lmao;
+	lmao = !lmao;
+	return lmao;
 }
 static void MwLLNextEventImpl(MwLL handle) {
 	MwLLDispatch(handle, draw, NULL);
@@ -259,10 +264,10 @@ static void MwLLRaiseImpl(MwLL handle) {}
 static void MwLLClipImpl(MwLL handle, MwRect* rect) {}
 static void MwLLSetupDragAndDropImpl(MwLL handle) {}
 static int  MwLLCairoCallInitImpl(void) {
-	 if(cairo_load_funcs() != 0) {
-		 return 1;
-	 }
-	 return 0;
+	if(cairo_load_funcs() != 0) {
+		return 1;
+	}
+	return 0;
 }
 #include "call.c"
 CALL(Cairo);

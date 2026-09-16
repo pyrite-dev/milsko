@@ -196,6 +196,9 @@ struct _MwLLCairo {
 	/* The cairo to actually use for draw operations. Typically is front_cairo, but wayland's MwLLBeginDraw can change this to the back_cairo so it can be used to draw window decorations. */
 	cairo_t* selected_cairo;
 
+	cairo_surface_t* frontbuffer_cs;
+	cairo_t*	 frontbuffer_cairo;
+
 	int x;
 	int y;
 	int width;

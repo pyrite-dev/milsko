@@ -265,6 +265,10 @@ static void setup_toplevel(MwLL r, int x, int y) {
 	r->wayland.toplevel->ssurface  = wl_subcompositor_get_subsurface(r->wayland.toplevel->scompositor, r->wayland.framebuffer.surface, r->wayland.backbuffer.surface);
 	wl_subsurface_set_desync(r->wayland.toplevel->ssurface);
 
+	if(WAYLAND_GET_INTERFACE(r->wayland, wp_fifo_manager_v1) != NULL) {
+		r->wayland.framebuffer.fifo = wp_fifo_manager_v1_get_fifo(WAYLAND_GET_INTERFACE(r->wayland, wp_fifo_manager_v1)->context, r->wayland.framebuffer.surface);
+	}
+
 	r->wayland.toplevel->xdg_surface =
 	    xdg_wm_base_get_xdg_surface(WAYLAND_GET_INTERFACE(r->wayland, xdg_wm_base)->context, r->wayland.backbuffer.surface);
 	r->wayland.toplevel->xdg_top_level = xdg_surface_get_toplevel(r->wayland.toplevel->xdg_surface);
@@ -407,10 +411,13 @@ static void popup_configure(void*	      data,
 
 	if(width < 50) width = 50;
 	if(height < 50) height = 50;
-	self->wayland.x	 = x;
-	self->wayland.y	 = y;
-	self->wayland.ww = width;
-	self->wayland.wh = height;
+	self->wayland.x = x;
+	self->wayland.y = y;
+
+	if(!self->wayland.setting_wh) {
+		self->wayland.ww = width;
+		self->wayland.wh = height;
+	}
 };
 
 static void popup_done(void*		 data,
@@ -439,10 +446,11 @@ struct xdg_popup_listener popup_listener = {
 static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	char* mw_force_csd   = getenv("MW_FORCE_CSD");
 	MwLL  topmost_parent = r->wayland.parent;
-	r->wayland.type	     = MwLL_WAYLAND_POPUP;
-	r->wayland.x	     = x;
-	r->wayland.y	     = y;
-	r->wayland.popup     = malloc(sizeof(struct _MwLLWaylandPopup));
+
+	r->wayland.type	 = MwLL_WAYLAND_POPUP;
+	r->wayland.x	 = x;
+	r->wayland.y	 = y;
+	r->wayland.popup = malloc(sizeof(struct _MwLLWaylandPopup));
 
 	if(parent) {
 		MwWidget p = parent->common.user;
@@ -908,13 +916,8 @@ static void draw_child(MwLL handle, MwLL child) {
 	cairo_t*	 c;
 	cairo_surface_t* cs;
 	cairo_t*	 selected_cairo;
-	MwLL		 topmost_parent = handle;
 
-	if(topmost_parent->wayland.type != MwLL_WAYLAND_POPUP) {
-		while(topmost_parent->wayland.parent) {
-			topmost_parent = topmost_parent->wayland.parent;
-		}
-	}
+	draw_children(child);
 
 	wl_surface_commit(child->wayland.framebuffer.surface);
 
@@ -928,19 +931,17 @@ static void draw_child(MwLL handle, MwLL child) {
 
 	cairo_paint(c);
 
-	// printf("%d %d\n", child->wayland.x, child->wayland.y);
-
 	cairo_set_source_surface(handle->wayland.cairo.front_cairo_back, cs, child->wayland.x, child->wayland.y);
 	cairo_paint(handle->wayland.cairo.front_cairo_back);
 
 	cairo_destroy(c);
 	cairo_surface_destroy(cs);
-
-	draw_children(child);
 }
 
 static void draw_children(MwLL handle) {
 	wl_surface_damage(handle->wayland.framebuffer.surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+
+	cairo_reset_clip(handle->wayland.cairo.front_cairo_back);
 
 	MwLLWaylandChildrenIterate(handle, draw_child);
 
@@ -949,24 +950,13 @@ static void draw_children(MwLL handle) {
 }
 
 static void frontbuffer_draw(MwLL handle) {
-	cairo_t*	 c;
-	cairo_surface_t* cs;
-
-	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, handle->wayland.ww, handle->wayland.wh);
-	c  = cairo_create(cs);
+	cairo_t* c = handle->wayland.cairo.frontbuffer_cairo;
 
 	cairo_set_source_surface(c, handle->wayland.cairo.front_cs_back, 0, 0);
 	cairo_pattern_set_filter(cairo_get_source(c), CAIRO_FILTER_NEAREST);
-
 	cairo_set_operator(handle->wayland.cairo.front_cairo_back, CAIRO_OPERATOR_OVER);
 
 	cairo_paint(c);
-
-	cairo_set_source_surface(handle->wayland.cairo.front_cairo, cs, 0, 0);
-	cairo_paint(handle->wayland.cairo.front_cairo);
-
-	cairo_destroy(c);
-	cairo_surface_destroy(cs);
 }
 
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
@@ -1301,10 +1291,17 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 }
 
 static void MwLLEndDrawImpl(MwLL handle) {
+	MwLL root = handle;
+	while(root->wayland.type == MwLL_WAYLAND_SUBLEVEL && root->wayland.parent) {
+		root = root->wayland.parent;
+	}
+	root->wayland.do_cascading_draw = MwTRUE;
+
 	if(handle->wayland.configured) {
 		if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 			MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
 		}
+
 		MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
 	}
 }
@@ -1363,9 +1360,10 @@ static int MwLLPendingImpl(MwLL handle) {
 
 	handle->wayland.resizing = 0;
 
-	if(handle->wayland.type != MwLL_WAYLAND_SUBLEVEL) {
+	if(handle->wayland.do_cascading_draw) {
 		draw_children(handle);
 		frontbuffer_draw(handle);
+		handle->wayland.do_cascading_draw = MwFALSE;
 	}
 
 	if(handle->wayland.setting_wh) {
@@ -1430,7 +1428,6 @@ static int MwLLPendingImpl(MwLL handle) {
 }
 
 static void MwLLNextEventImpl(MwLL handle) {
-
 	if(!MwWaylandVulkan) {
 		if(handle->wayland.did_event_loop_early) {
 			handle->wayland.did_event_loop_early = MwFALSE;
@@ -1450,7 +1447,6 @@ static void MwLLNextEventImpl(MwLL handle) {
 }
 
 static void MwLLSetTitleImpl(MwLL handle, const char* title) {
-
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 		xdg_toplevel_set_title(handle->wayland.toplevel->xdg_top_level, title);
 	}

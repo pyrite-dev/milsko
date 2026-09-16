@@ -207,6 +207,7 @@ MwInline int wayland_load_funcs() {
 #include "Wayland/relative-pointer-client-protocol.h"
 #include "Wayland/xdg-toplevel-icon-client-protocol.h"
 #include "Wayland/wlr-layer-shell-client-protocol.h"
+#include "Wayland/fifo-client-protocol.h"
 #endif
 
 typedef struct wayland_protocol {
@@ -265,6 +266,7 @@ struct _MwLLWaylandShmBuffer {
 	struct wl_buffer*   shm_buffer_back;
 	struct wl_surface*  surface;
 	struct wl_output*   output;
+	struct wp_fifo_v1*  fifo;
 
 	MwU8*  buf;
 	MwU8*  buf_back;
@@ -426,8 +428,12 @@ struct _MwLLWayland {
 
 	MwBool force_render;
 	MwBool did_event_loop_early;
+	MwBool do_cascading_draw;
+	int    cascading_child_num;
 
 	MwBool dispatching_resize;
+
+	MwBool is_toplevel_menu;
 
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  backbuffer;

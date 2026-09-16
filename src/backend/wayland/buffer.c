@@ -10,6 +10,9 @@ void MwLLWaylandFramebufferSetup(struct _MwLLWayland* wayland) {
 	memset(wayland->framebuffer.buf_back, 0, wayland->framebuffer.buf_size);
 	if(wayland->configured)
 		wl_surface_attach(wayland->framebuffer.surface, wayland->framebuffer.shm_buffer, 0, 0);
+	if(wayland->framebuffer.fifo)
+		wp_fifo_v1_set_barrier(wayland->framebuffer.fifo);
+
 	wl_surface_commit(wayland->framebuffer.surface);
 
 	MwLLWaylandHangUntilConfigured((MwLL)wayland);
@@ -38,6 +41,8 @@ void MwLLWaylandBackbufferSetup(struct _MwLLWayland* wayland) {
 	memset(wayland->backbuffer.buf_back, 255, wayland->backbuffer.buf_size);
 	if(wayland->configured)
 		wl_surface_attach(wayland->backbuffer.surface, wayland->backbuffer.shm_buffer, 0, 0);
+	// if(wayland->framebuffer.fifo)
+	// wp_fifo_v1_set_barrier(wayland->framebuffer.fifo);
 	wl_surface_commit(wayland->backbuffer.surface);
 	MwLLWaylandHangUntilConfigured((MwLL)wayland);
 	MwLLWaylandBufferUpdate((MwLL)wayland, &wayland->backbuffer);
@@ -119,9 +124,11 @@ void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 		memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
 		if(buffer->surface) {
 			// Yes this is needed every time, it's how we fix weston.
-			if(self->wayland.configured)
+			if(self->wayland.configured) {
 				wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
-
+			}
+			if(buffer->fifo)
+				wp_fifo_v1_wait_barrier(buffer->fifo);
 			wl_surface_commit(buffer->surface);
 		}
 	}

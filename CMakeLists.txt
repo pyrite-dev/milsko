@@ -261,6 +261,7 @@ if(MW_USE_WAYLAND)
         scan_wayland_protocol("unstable" "primary-selection" "-unstable-v1")
         scan_wayland_protocol("unstable" "pointer-constraints" "-unstable-v1")
         scan_wayland_protocol("unstable" "relative-pointer" "-unstable-v1")
+        scan_wayland_protocol("staging" "fifo" "-v1")
         scan_wayland_protocol_from_file("wlr-layer-shell" "wlr-layer-shell-unstable-v1.xml")
 
         target_sources(
