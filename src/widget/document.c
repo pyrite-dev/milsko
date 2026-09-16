@@ -474,6 +474,21 @@ static void add_clickable(MwDocument d, char* c_title, MwRect* clickable) {
 	arrput(d->clickables, c);
 }
 
+static void mouse_move(MwWidget handle) {
+	char*	   event = in_hitbox(handle, &handle->mouse_point);
+	MwDocument d	 = handle->internal;
+
+	if(d->center_cursor && event == NULL) {
+		MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
+
+		d->center_cursor = 0;
+	} else if(!d->center_cursor && event != NULL) {
+		MwLLSetCursor(handle->lowlevel, &MwCursorCenter, &MwCursorCenterMask);
+
+		d->center_cursor = 1;
+	}
+}
+
 static void layout(MwWidget handle) {
 	MwDocument d = handle->internal;
 	int	   w = MwGetInteger(handle, MwNwidth);
@@ -602,6 +617,7 @@ static void layout(MwWidget handle) {
 
 	arrfree(fontstack);
 
+	mouse_move(handle);
 	MwForceRender(handle);
 }
 
@@ -626,21 +642,6 @@ static void prop_change(MwWidget handle, const char* key) {
 		md_parse(str, strlen(str), &parser, handle->internal);
 
 		layout(handle);
-	}
-}
-
-static void mouse_move(MwWidget handle) {
-	char*	   event = in_hitbox(handle, &handle->mouse_point);
-	MwDocument d	 = handle->internal;
-
-	if(d->center_cursor && event == NULL) {
-		MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
-
-		d->center_cursor = 0;
-	} else if(!d->center_cursor && event != NULL) {
-		MwLLSetCursor(handle->lowlevel, &MwCursorCenter, &MwCursorCenterMask);
-
-		d->center_cursor = 1;
 	}
 }
 
