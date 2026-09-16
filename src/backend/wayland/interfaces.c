@@ -1000,7 +1000,7 @@ static void keyboard_leave(void*	       data,
 	WAYLAND_EVENT_OP_END(self);
 };
 
-static void key_dispatch(MwLL self, int* k, MwBool down) {
+void MwLLRecursiveKeyDispatch(MwLL self, int* k, MwBool down) {
 	if(self->common.user) {
 		MwWidget w = self->common.user;
 		int	 i, n;
@@ -1019,7 +1019,7 @@ static void key_dispatch(MwLL self, int* k, MwBool down) {
 						MwLLDispatch(child, key_released, k);
 					}
 
-					key_dispatch(child, k, down);
+					MwLLRecursiveKeyDispatch(child, k, down);
 				}
 			}
 		}
@@ -1141,7 +1141,7 @@ static void keyboard_key(void*		     data,
 				} else {
 					self->wayland.holding_key = MwFALSE;
 				}
-				key_dispatch(self, &key, state == WL_KEYBOARD_KEY_STATE_PRESSED);
+				MwLLRecursiveKeyDispatch(self, &key, state == WL_KEYBOARD_KEY_STATE_PRESSED);
 				self->wayland.start_time   = MwTimeGetTick();
 				self->wayland.next_elapsed = self->wayland.keyboard_delay;
 			}

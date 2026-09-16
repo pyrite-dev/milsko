@@ -433,8 +433,6 @@ struct _MwLLWayland {
 
 	MwBool dispatching_resize;
 
-	MwBool is_toplevel_menu;
-
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  backbuffer;
 	struct _MwLLWaylandShmBuffer  cursor;
@@ -490,6 +488,9 @@ void MwLLWaylandClipboardRead(wl_clipboard_device_context_t* ctx, int clipboard_
 
 /* Flush Wayland events */
 void MwLLWaylandFlush(MwLL handle);
+
+/* recursively dispatch the key event to focused widgets.  */
+void MwLLRecursiveKeyDispatch(MwLL self, int* k, MwBool down);
 
 /* Standard procedure before event callbacks in Wayland  */
 #define WAYLAND_EVENT_OP_START(self)

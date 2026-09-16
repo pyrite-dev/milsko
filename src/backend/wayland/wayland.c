@@ -1376,11 +1376,7 @@ static int MwLLPendingImpl(MwLL handle) {
 	if(handle->wayland.holding_key) {
 		float elapsed = ((float)(handle->wayland.end_time - (float)handle->wayland.start_time));
 		if(elapsed >= handle->wayland.next_elapsed) {
-			MwLL topmost_parent = handle;
-			while(topmost_parent->wayland.parent) {
-				MwLLDispatch(topmost_parent, key, &handle->wayland.last_pressed_key);
-				topmost_parent = topmost_parent->wayland.parent;
-			}
+			MwLLRecursiveKeyDispatch(handle, &handle->wayland.last_pressed_key, MwTRUE);
 			handle->wayland.next_elapsed = elapsed + handle->wayland.keyboard_rate;
 		}
 	}
