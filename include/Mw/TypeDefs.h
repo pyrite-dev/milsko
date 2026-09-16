@@ -33,6 +33,7 @@ typedef struct _MwTable*	      MwTable;
 typedef struct _MwChartEntry	      MwChartEntry;
 typedef struct _MwChart*	      MwChart;
 typedef struct _MwDocumentLayout      MwDocumentLayout;
+typedef struct _MwDocumentClickable   MwDocumentClickable;
 typedef struct _MwDocument*	      MwDocument;
 typedef struct _MwMouse		      MwMouse;
 typedef struct _MwTTFInfo*	      MwTTFInfo;
@@ -278,9 +279,17 @@ struct _MwDocumentLayout {
 	MwFLFont font;
 };
 
+struct _MwDocumentClickable {
+	MwRect hitbox;
+	char*  event;
+};
+
 struct _MwDocument {
-	MwDocumentLayout* layouts;
-	MwFLFont	  headers[6];
+	MwDocumentLayout*    layouts;
+	MwDocumentClickable* clickables;
+	MwFLFont	     headers[6];
+
+	int center_cursor;
 };
 
 struct _MwTTFInfo {

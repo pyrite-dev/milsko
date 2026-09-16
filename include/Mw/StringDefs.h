@@ -84,6 +84,7 @@
 #define MwNactivateHandler "Cactivate"
 #define MwNlistBoxActivateHandler "ClistBoxActivate"
 #define MwNtreeViewActivateHandler "CtreeViewActivate"
+#define MwNdocumentActivateHandler "CdocumentActivate"
 #define MwNresizeHandler "Cresize"
 #define MwNtickHandler "Ctick"
 #define MwNmenuHandler "Cmenu"

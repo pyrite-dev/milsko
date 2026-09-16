@@ -154,6 +154,9 @@
 		<handler name="treeViewActivate">
 			<pointer />
 		</handler>
+		<handler name="documentActivate">
+			<string />
+		</handler>
 		<handler name="resize" common="yes" />
 		<handler name="tick" common="yes" />
 		<handler name="menu">
@@ -710,6 +713,7 @@
 			</properties>
 			<handlers>
 				<handler name="layout" />
+				<handler name="documentActivate" />
 			</handlers>
 		</widget>
 		<widget name="Entry">

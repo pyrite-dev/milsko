@@ -63,6 +63,26 @@ MWDECL MwCursor MwCursorHidden;
  */
 MWDECL MwCursor MwCursorHiddenMask;
 
+/*!
+ * @brief Hand cursor
+ */
+MWDECL MwCursor MwCursorHand;
+
+/*!
+ * @brief Hand cursor mask
+ */
+MWDECL MwCursor MwCursorHandMask;
+
+/*!
+ * @brief Center cursor
+ */
+MWDECL MwCursor MwCursorCenter;
+
+/*!
+ * @brief Center cursor mask
+ */
+MWDECL MwCursor MwCursorCenterMask;
+
 #ifdef __cplusplus
 }
 #endif

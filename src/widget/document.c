@@ -3,7 +3,7 @@
 #include "../../external/md4c.h"
 #include "../../external/stb_ds.h"
 
-#define IsFontChange(x) ((x) == MwDOCUMENT_HEADER || (x) == MwDOCUMENT_BOLD || (x) == MwDOCUMENT_MONOSPACE || (x) == MwDOCUMENT_STRIKETHROUGH)
+#define IsFontChange(x) ((x) == MwDOCUMENT_HEADER || (x) == MwDOCUMENT_BOLD || (x) == MwDOCUMENT_MONOSPACE)
 
 static void reset(MwWidget handle) {
 	MwDocument d = handle->internal;
@@ -13,6 +13,11 @@ static void reset(MwWidget handle) {
 		if(d->layouts[i].text != NULL) free(d->layouts[i].text);
 	}
 	arrfree(d->layouts);
+
+	for(i = 0; i < arrlen(d->clickables); i++) {
+		if(d->clickables[i].event != NULL) free(d->clickables[i].event);
+	}
+	arrfree(d->clickables);
 }
 
 static int wcreate(MwWidget handle) {
@@ -52,11 +57,11 @@ static void draw(MwWidget handle) {
 	MwRect	   r;
 	int	   i;
 	MwFLFont   font = NULL;
-	MwPoint	   u_p, s_p;
-	int	   u = 0, s = 0;
+	MwPoint	   u_p, s_p, c_p;
+	int	   u = 0, s = 0, c = 0;
 
-	u_p.x = u_p.y = 0;
-	s_p.x = s_p.y = 0;
+	u_p.x = s_p.x = c_p.x = 0;
+	u_p.y = s_p.y = c_p.y = 0;
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -75,9 +80,7 @@ static void draw(MwWidget handle) {
 			p.x = l->x;
 			p.y = l->y + MwTextHeight(handle, font, l->text) / 2;
 
-			MwDrawText(handle, font, &p, l->text, MwALIGNMENT_BEGINNING, text);
-
-			if(u || s) {
+			if(u || s || c) {
 				MwPoint line[2];
 				int	j;
 
@@ -85,31 +88,74 @@ static void draw(MwWidget handle) {
 					u_p.x = 0;
 					u_p.y = l->y;
 				}
+				if(s_p.y != l->y) {
+					s_p.x = 0;
+					s_p.y = l->y;
+				}
+				if(c_p.y != l->y) {
+					c_p.x = 0;
+					c_p.y = l->y;
+				}
 
-				line[0] = u_p;
-				line[1] = u_p;
+				for(j = 0; j < 3; j++) {
+					if(j == 0) {
+						if(!u) continue;
+						line[0] = u_p;
+						line[1] = u_p;
+					} else if(j == 1) {
+						if(!s) continue;
+						line[0] = s_p;
+						line[1] = s_p;
+					} else if(j == 2) {
+						if(!c) continue;
+						line[0] = c_p;
+						line[1] = c_p;
+					}
 
-				line[1].x = p.x + MwTextWidth(handle, font, l->text);
-				u_p.x	  = line[1].x;
+					line[1].x = p.x + MwTextWidth(handle, font, l->text);
 
-				for(j = 0; j < 2; j++) {
-					line[0].y += MwTextHeight(handle, font, l->text) / 2;
-					line[1].y += MwTextHeight(handle, font, l->text) / 2;
-					if((j == 0 && s) || (j == 1 && u)) MwLLLine(handle->lowlevel, line, text);
+					if(j == 0) u_p.x = line[1].x;
+					if(j == 1) s_p.x = line[1].x;
+					if(j == 2) c_p.x = line[1].x;
+
+					if(j == 2) {
+						MwRect c_r;
+
+						c_r.x	   = line[0].x;
+						c_r.y	   = line[0].y;
+						c_r.width  = line[1].x - line[0].x;
+						c_r.height = MwTextHeight(handle, font, l->text);
+
+						MwDrawRect(handle, &c_r, text);
+					}
+
+					if(j == 0 || j == 1) {
+						line[0].y += MwTextHeight(handle, font, l->text) / 2 * (2 - j);
+						line[1].y += MwTextHeight(handle, font, l->text) / 2 * (2 - j);
+						MwLLLine(handle->lowlevel, line, c ? base : text);
+					}
 				}
 			}
+
+			handle->bgcolor = c ? text : NULL;
+			MwDrawText(handle, font, &p, l->text, MwALIGNMENT_BEGINNING, c ? base : text);
+			handle->bgcolor = NULL;
 			break;
 		}
 		case MwDOCUMENT_UNDERLINE:
 		case MwDOCUMENT_STRIKETHROUGH:
+		case MwDOCUMENT_CLICKABLE:
 		{
 			if(l->type == MwDOCUMENT_UNDERLINE) {
 				u = l->integer;
-			} else {
+			} else if(l->type == MwDOCUMENT_STRIKETHROUGH) {
 				s = l->integer;
+			} else {
+				c = l->integer;
 			}
 
-			if(l->type == MwDOCUMENT_UNDERLINE ? u : s) {
+			if(l->type == MwDOCUMENT_UNDERLINE ? u : l->type == MwDOCUMENT_STRIKETHROUGH ? s
+												     : c) {
 				int j;
 
 				for(j = i + 1; j < arrlen(d->layouts) && d->layouts[j].type != l->type; j++) {
@@ -121,8 +167,10 @@ static void draw(MwWidget handle) {
 
 						if(l->type == MwDOCUMENT_UNDERLINE) {
 							u_p = p;
-						} else {
+						} else if(l->type == MwDOCUMENT_STRIKETHROUGH) {
 							s_p = p;
+						} else {
+							c_p = p;
 						}
 						break;
 					}
@@ -139,6 +187,29 @@ static void draw(MwWidget handle) {
 
 	MwLLFreeColor(text);
 	MwLLFreeColor(base);
+}
+
+static char* in_hitbox(MwWidget handle, MwPoint* p) {
+	int	   i;
+	MwDocument d = handle->internal;
+
+	for(i = 0; i < arrlen(d->clickables); i++) {
+		MwRect hitbox = d->clickables[i].hitbox;
+
+		if(hitbox.x <= p->x && p->x <= (hitbox.x + hitbox.width) && hitbox.y <= p->y && p->y <= (hitbox.y + hitbox.height)) {
+			return d->clickables[i].event;
+		}
+	}
+
+	return NULL;
+}
+
+static void click(MwWidget handle) {
+	char* event;
+
+	if((event = in_hitbox(handle, &handle->mouse_point)) != NULL) {
+		MwDispatchUserHandler(handle, MwNdocumentActivateHandler, event);
+	}
 }
 
 static int enter_block(MD_BLOCKTYPE type, void* detail, void* userdata) {
@@ -251,6 +322,21 @@ static int enter_span(MD_SPANTYPE type, void* detail, void* userdata) {
 		arrput(d->layouts, l);
 		break;
 	}
+	case MD_SPAN_A:
+	{
+		MD_ATTRIBUTE* href = &((MD_SPAN_A_DETAIL*)detail)->href;
+		char*	      text = malloc(href->size + 1);
+
+		memcpy(text, href->text, href->size);
+		text[href->size] = 0;
+
+		l.type	  = MwDOCUMENT_CLICKABLE;
+		l.text	  = text;
+		l.integer = 1;
+
+		arrput(d->layouts, l);
+		break;
+	}
 	default:
 		break;
 	}
@@ -294,6 +380,14 @@ static int leave_span(MD_SPANTYPE type, void* detail, void* userdata) {
 	case MD_SPAN_DEL:
 	{
 		l.type	  = MwDOCUMENT_STRIKETHROUGH;
+		l.integer = 0;
+
+		arrput(d->layouts, l);
+		break;
+	}
+	case MD_SPAN_A:
+	{
+		l.type	  = MwDOCUMENT_CLICKABLE;
 		l.integer = 0;
 
 		arrput(d->layouts, l);
@@ -371,6 +465,15 @@ static int text(MD_TEXTTYPE type, const MD_CHAR* text, MD_SIZE size, void* userd
 #define TOPFONT fontstack[arrlen(fontstack) - 1]
 #define POP arrdel(fontstack, arrlen(fontstack) - 1);
 
+static void add_clickable(MwDocument d, char* c_title, MwRect* clickable) {
+	MwDocumentClickable c;
+
+	c.hitbox = *clickable;
+	c.event	 = MwStringDuplicate(c_title);
+
+	arrput(d->clickables, c);
+}
+
 static void layout(MwWidget handle) {
 	MwDocument d = handle->internal;
 	int	   w = MwGetInteger(handle, MwNwidth);
@@ -378,8 +481,15 @@ static void layout(MwWidget handle) {
 	int	   x	     = 0;
 	int	   y	     = 0;
 	MwFLFont*  fontstack = NULL;
+	MwRect	   clickable;
+	char*	   c_title = NULL;
 
 	arrput(fontstack, NULL);
+
+	for(i = 0; i < arrlen(d->clickables); i++) {
+		if(d->clickables[i].event != NULL) free(d->clickables[i].event);
+	}
+	arrfree(d->clickables);
 
 	for(i = 0; i < arrlen(d->layouts); i++) {
 		MwDocumentLayout* l = &d->layouts[i];
@@ -399,7 +509,21 @@ static void layout(MwWidget handle) {
 			l->x = x;
 			l->y = y;
 
+			if(c_title != NULL) {
+				if(clickable.y < y) {
+					if(clickable.y >= 0 && clickable.width > 0) add_clickable(d, c_title, &clickable);
+
+					clickable.x = x;
+					clickable.y = y;
+				}
+			}
+
 			x += t;
+
+			if(c_title != NULL) {
+				clickable.width = x - clickable.x;
+			}
+
 			break;
 		}
 		case MwDOCUMENT_SPACE:
@@ -411,6 +535,11 @@ static void layout(MwWidget handle) {
 		{
 			x = 0;
 			y += MwTextHeight(handle, TOPFONT, "M");
+
+			if(c_title != NULL) {
+				add_clickable(d, c_title, &clickable);
+			}
+
 			break;
 		}
 		case MwDOCUMENT_BOLD:
@@ -444,6 +573,22 @@ static void layout(MwWidget handle) {
 				y += MwTextHeight(handle, TOPFONT, "M");
 
 				POP;
+			}
+			break;
+		}
+		case MwDOCUMENT_CLICKABLE:
+		{
+			if(l->integer) {
+				clickable.y	 = -100;
+				clickable.width	 = 0;
+				clickable.height = MwTextHeight(handle, TOPFONT, "M");
+
+				c_title = MwStringDuplicate(l->text);
+			} else {
+				if(clickable.y >= 0 && clickable.width > 0) add_clickable(d, c_title, &clickable);
+
+				free(c_title);
+				c_title = NULL;
 			}
 			break;
 		}
@@ -484,6 +629,21 @@ static void prop_change(MwWidget handle, const char* key) {
 	}
 }
 
+static void mouse_move(MwWidget handle) {
+	char*	   event = in_hitbox(handle, &handle->mouse_point);
+	MwDocument d	 = handle->internal;
+
+	if(d->center_cursor && event == NULL) {
+		MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
+
+		d->center_cursor = 0;
+	} else if(!d->center_cursor && event != NULL) {
+		MwLLSetCursor(handle->lowlevel, &MwCursorCenter, &MwCursorCenterMask);
+
+		d->center_cursor = 1;
+	}
+}
+
 static void resize(MwWidget handle) {
 	layout(handle);
 }
@@ -492,10 +652,10 @@ MwClassRec MwDocumentClassRec = {
     wcreate,	 /* create */
     destroy,	 /* destroy */
     draw,	 /* draw */
-    NULL,	 /* click */
+    click,	 /* click */
     NULL,	 /* parent_resize */
     prop_change, /* prop_change */
-    NULL,	 /* mouse_move */
+    mouse_move,	 /* mouse_move */
     NULL,	 /* mouse_up */
     NULL,	 /* mouse_down */
     NULL,	 /* key */
