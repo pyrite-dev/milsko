@@ -1431,20 +1431,6 @@ static void xdg_wm_base_interface_destroy(struct _MwLLWayland* wayland, wayland_
 	free(data);
 }
 
-/* xdg_wm_base setup function */
-static wayland_protocol_t* wp_viewporter_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
-	wayland_protocol_t* proto = malloc(sizeof(wayland_protocol_t));
-	(void)version;
-	proto->context = wl_registry_bind(wayland->registry, name, &wp_viewporter_interface, 1);
-
-	return proto;
-}
-
-static void wp_viewporter_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
-	(void)data;
-}
-
 /* zxdg_decoration_manager_v1 setup function */
 static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
 	wayland_protocol_t*		      proto = malloc(sizeof(wayland_protocol_t));
@@ -1564,7 +1550,6 @@ void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland) {
 	WL_INTERFACE(xdg_wm_base);
 	WL_INTERFACE(zwlr_layer_shell_v1); /* Only used for layer surface, but we use it always if it's turned into a tool window */
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
-		WL_INTERFACE(wp_viewporter);
 		WL_INTERFACE(zxdg_decoration_manager_v1);
 		WL_INTERFACE(xdg_toplevel_icon_manager_v1);
 		WL_INTERFACE(wl_subcompositor);
@@ -1573,7 +1558,6 @@ void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland) {
 	} else if(wayland->type == MwLL_WAYLAND_POPUP) {
 		WL_INTERFACE(wl_seat);
 	} else if(wayland->type == MwLL_WAYLAND_LAYER_SURFACE) {
-		WL_INTERFACE(wp_viewporter);
 		WL_INTERFACE(wl_subcompositor);
 		WL_INTERFACE(wl_seat);
 	} else {

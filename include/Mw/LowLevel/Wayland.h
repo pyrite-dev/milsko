@@ -320,7 +320,6 @@ struct _MwLLWayland {
 	enum _MwLLWaylandType type_to_be;
 
 	MwRect clipping_rect;
-	MwBool no;
 
 	MwBool	changing;
 	MwBool	detatching;
@@ -361,8 +360,6 @@ struct _MwLLWayland {
 	struct wl_region*	    region;
 	struct wl_output*	    output;
 
-	struct wp_viewport* vp;
-
 	MwBool					do_lock_pointer;
 	struct zwp_pointer_constraints_v1*	pointer_constraints;
 	struct zwp_relative_pointer_manager_v1* relative_pointer_manager;
@@ -378,9 +375,8 @@ struct _MwLLWayland {
 	MwBool dark_theme_detection;
 	MwU32  dark_theme;
 
-	/* clipboard related stuff.
+	/* clipboard/ related stuff.
 	 * Note that unlike most interfaces, we don't keep zwp_primary_selection stuff in a wayland_protocol_t because we use wl_data_device as a fallback and want to have it share memory space.*/
-
 	struct {
 		struct wl_data_device_manager*			wl;
 		struct zwp_primary_selection_device_manager_v1* zwp;
