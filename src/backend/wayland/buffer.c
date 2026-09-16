@@ -113,3 +113,16 @@ void MwLLWaylandBufferDestroy(struct _MwLLWaylandShmBuffer* buffer) {
 	close(buffer->fd_back);
 	buffer->setup = MwFALSE;
 }
+
+void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
+	if(self->wayland.configured) {
+		memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
+		if(buffer->surface) {
+			// Yes this is needed every time, it's how we fix weston.
+			if(self->wayland.configured)
+				wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
+
+			wl_surface_commit(buffer->surface);
+		}
+	}
+}

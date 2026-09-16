@@ -31,3 +31,5 @@ compile_flags.txt
 *.finf
 *.gdb
 
+flamegraph.svg
+perf.*

@@ -426,12 +426,8 @@ struct _MwLLWayland {
 
 	MwBool force_render;
 	MwBool did_event_loop_early;
-	MwBool do_cascading_draw;
-	int    cascading_child_num;
 
 	MwBool dispatching_resize;
-
-	MwBool is_toplevel_menu;
 
 	struct _MwLLWaylandShmBuffer  framebuffer;
 	struct _MwLLWaylandShmBuffer  backbuffer;
@@ -439,15 +435,6 @@ struct _MwLLWayland {
 	struct _MwLLWaylandShmBuffer* icon;
 
 	MwLLPixmap icon_pixmap;
-
-	pthread_mutex_t eventsMutex;
-
-	int cancelEvent;
-	int numCallbacksRunning;
-
-	uint32_t last_time;
-
-	MwBool moving;
 
 	MwI64  keyboard_rate;
 	MwI32  keyboard_delay;

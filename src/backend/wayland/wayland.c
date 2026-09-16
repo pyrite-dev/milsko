@@ -218,19 +218,6 @@ static void xdg_surface_configure(
 	self->wayland.configured = MwTRUE;
 }
 
-void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
-	if(self->wayland.configured) {
-		memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
-		if(buffer->surface) {
-			// Yes this is needed every time, it's how we fix weston.
-			if(self->wayland.configured)
-				wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
-
-			wl_surface_commit(buffer->surface);
-		}
-	}
-}
-
 /* Toplevel setup function */
 static void setup_toplevel(MwLL r, int x, int y) {
 	char* mw_force_csd  = getenv("MW_FORCE_CSD");
@@ -986,7 +973,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	MwLL r;
 	r = malloc(sizeof(*r));
 	memset(r, 0, sizeof(*r));
-	pthread_mutex_init(&r->wayland.eventsMutex, NULL);
+	// pthread_mutex_init(&r->wayland.eventsMutex, NULL);
 	MwLLCreateCommon(r);
 
 	r->wayland.is_toplevel = parent == NULL;
@@ -1014,8 +1001,6 @@ static void MwLLDestroyImpl(MwLL handle) {
 	// wl_display_cancel_read(handle->wayland.display);
 
 	MwLLWaylandFlush(handle);
-
-	handle->wayland.cancelEvent = MwTRUE;
 
 	MwLLDestroyCommon(handle);
 
@@ -1050,7 +1035,7 @@ static void MwLLDestroyImpl(MwLL handle) {
 		printf("widget invalid\n");
 	}
 
-	pthread_mutex_destroy(&handle->wayland.eventsMutex);
+	// pthread_mutex_destroy(&handle->wayland.eventsMutex);
 
 	free(handle);
 }
@@ -1321,10 +1306,6 @@ static void MwLLEndDrawImpl(MwLL handle) {
 			MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
 		}
 		MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
-
-		if(handle->wayland.type != MwLL_WAYLAND_SUBLEVEL) {
-			handle->wayland.do_cascading_draw = 1;
-		}
 	}
 }
 
@@ -1382,14 +1363,14 @@ static int MwLLPendingImpl(MwLL handle) {
 
 	handle->wayland.resizing = 0;
 
+	if(handle->wayland.type != MwLL_WAYLAND_SUBLEVEL) {
+		draw_children(handle);
+		frontbuffer_draw(handle);
+	}
+
 	if(handle->wayland.setting_wh) {
 		actually_set_wh(handle);
 		handle->wayland.setting_wh = 0;
-	}
-
-	if(handle->wayland.do_cascading_draw) {
-		draw_children(handle);
-		frontbuffer_draw(handle);
 	}
 
 	handle->wayland.end_time = MwTimeGetTick();
