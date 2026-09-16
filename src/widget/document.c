@@ -514,7 +514,7 @@ static void layout(MwWidget handle) {
 		{
 			int t = MwTextWidth(handle, TOPFONT, l->text);
 
-			if(x > 0) x += MwTextWidth(handle, TOPFONT, " ");
+			if(x > 0) x += MwTextWidth(handle, TOPFONT, ".");
 
 			if((x + t) >= w) {
 				x = 0;
@@ -543,7 +543,7 @@ static void layout(MwWidget handle) {
 		}
 		case MwDOCUMENT_SPACE:
 		{
-			x += MwTextWidth(handle, TOPFONT, " ");
+			x += MwTextWidth(handle, TOPFONT, ".");
 			break;
 		}
 		case MwDOCUMENT_NEWLINE:

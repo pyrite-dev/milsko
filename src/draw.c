@@ -138,6 +138,9 @@ void MwDrawRectLine(MwWidget handle, MwRect* rect, MwLLColor color) {
 
 	MwFixRect(&r);
 
+	r.width--;
+	r.height--;
+
 	p[0].x = r.x;
 	p[0].y = r.y;
 
