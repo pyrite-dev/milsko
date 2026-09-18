@@ -30,7 +30,7 @@ pipeline {
 					}
 					steps {
 						sh("git clean -dfx")
-						sh("./configure --enable-opengl --enable-d3d9 --enable-d3d8 --enable-vulkan --without-vulkan-string-helper")
+						sh("./configure --enable-opengl --enable-vulkan --without-vulkan-string-helper")
 						sh("make -j4")
 						sh("mv src/libMw.so libMw64.so")
 						archiveArtifacts("libMw64.so")
