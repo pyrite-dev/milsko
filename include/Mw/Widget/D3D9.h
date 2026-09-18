@@ -38,22 +38,22 @@ extern "C" {
 #endif
 
 #ifdef MW_DIRECTX9
-MwInline LPDIRECT3D9 MwDirectXGetD3D9(MwWidget handle) {
+MwInline LPDIRECT3D9 MwD3D9GetD3D(MwWidget handle) {
 	LPDIRECT3D9 out = NULL;
 	MwVaWidgetExecute(handle, "mwDirectXGetD3D9", &out, NULL);
 	return out;
 };
-MwInline LPDIRECT3DDEVICE9 MwDirectXGetD3Dev9(MwWidget handle) {
+MwInline LPDIRECT3DDEVICE9 MwD3D9GetD3Dev(MwWidget handle) {
 	LPDIRECT3DDEVICE9 out = NULL;
 	MwVaWidgetExecute(handle, "mwDirectXGetD3Dev9", &out);
 	return out;
 };
 #else
-MwInline void* MwDirectXGetD3D9(MwWidget handle) {
+MwInline void* MwD3D9GetD3D(MwWidget handle) {
 	(void)handle;
 	return NULL;
 };
-MwInline void* MwDirectXGetD3Dev9(MwWidget handle) {
+MwInline void* MwD3D9GetD3Dev(MwWidget handle) {
 	(void)handle;
 	return NULL;
 };

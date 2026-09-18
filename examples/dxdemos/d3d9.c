@@ -48,8 +48,8 @@ int main() {
 
 	d3d8 = MwCreateWidget(MwD3D9Class, NULL, window, (1024 - 800) / 2, (768 - 600) / 2, 800, 600);
 
-	d3d    = MwDirectXGetD3D9(d3d8);
-	d3ddev = MwDirectXGetD3Dev9(d3d8);
+	d3d    = MwD3D9GetD3D(d3d8);
+	d3ddev = MwD3D9GetD3Dev(d3d8);
 
 	// create three vertices using the CUSTOMVERTEX struct built earlier
 	struct CUSTOMVERTEX vertices[] =
