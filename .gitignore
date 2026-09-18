@@ -33,3 +33,5 @@ compile_flags.txt
 
 flamegraph.svg
 perf.*
+
+nul
