@@ -12,9 +12,12 @@ typedef struct gdid3d9 {
 } gdid3d9_t;
 
 static int wcreate_d3d9(MwWidget handle) {
-	void*	   r = NULL;
-	MwWidget   w = handle;
-	gdid3d9_t* o = malloc(sizeof(gdid3d9_t));
+	void*		      r = NULL;
+	MwWidget	      w = handle;
+	gdid3d9_t*	      o = malloc(sizeof(gdid3d9_t));
+	HRESULT		      hr;
+	char		      errbuf[2048];
+	D3DPRESENT_PARAMETERS d3dpp; // create a struct to hold various device information
 
 	o->d3d9dll = LoadLibrary("d3d9.dll");
 	if(!o->d3d9dll) {
@@ -24,8 +27,10 @@ static int wcreate_d3d9(MwWidget handle) {
 	o->Direct3DCreate9 = (void*)GetProcAddress(o->d3d9dll, "Direct3DCreate9");
 
 	o->d3d = o->Direct3DCreate9(D3D_SDK_VERSION); // create the Direct3D interface
-
-	D3DPRESENT_PARAMETERS d3dpp; // create a struct to hold various device information
+	if(hr != D3D_OK) {
+		MwDispatchError(1, "Direct3DCreate9 NULL");
+		return 1;
+	}
 
 	ZeroMemory(&d3dpp, sizeof(d3dpp));		  // clear out the struct for use
 	d3dpp.Windowed	    = TRUE;			  // program windowed, not fullscreen
@@ -33,13 +38,18 @@ static int wcreate_d3d9(MwWidget handle) {
 	d3dpp.hDeviceWindow = handle->lowlevel->gdi.hWnd; // set the window to be used by Direct3D
 
 	// create a device class using this information and information from the d3dpp stuct
-	o->d3d->lpVtbl->CreateDevice(o->d3d,
-				     D3DADAPTER_DEFAULT,
-				     D3DDEVTYPE_HAL,
-				     handle->lowlevel->gdi.hWnd,
-				     D3DCREATE_MIXED_VERTEXPROCESSING,
-				     &d3dpp,
-				     &o->d3ddev);
+	hr = o->d3d->lpVtbl->CreateDevice(o->d3d,
+					  D3DADAPTER_DEFAULT,
+					  D3DDEVTYPE_HAL,
+					  handle->lowlevel->gdi.hWnd,
+					  D3DCREATE_MIXED_VERTEXPROCESSING,
+					  &d3dpp,
+					  &o->d3ddev);
+	if(hr != D3D_OK) {
+		MwStringPrintIntoBuffer(errbuf, sizeof(errbuf) - 1, "CreateDevice ERROR: %s", hr);
+		MwDispatchError(1, errbuf);
+		return 1;
+	}
 
 	handle->internal = o;
 

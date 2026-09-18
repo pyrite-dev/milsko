@@ -17,21 +17,33 @@ static int wcreate_d3d8(MwWidget handle) {
 	gdid3d8_t*	      o = malloc(sizeof(gdid3d8_t));
 	D3DPRESENT_PARAMETERS d3dpp;
 	D3DDISPLAYMODE	      dispMode;
+	HRESULT		      hr;
+	char		      errbuf[2048] = {0};
 
 	o->d3d8dll = LoadLibrary("d3d8.dll");
 	if(!o->d3d8dll) {
-		MessageBox(NULL, "d3d8.dll not found! Is DirectX8 installed?", "Error", MB_OK);
-		ExitProcess(-1);
+		MwDispatchError(1, "d3d8.dll not found! Is DirectX8 installed?");
+		return 1;
 	}
 	o->Direct3DCreate8 = (void*)GetProcAddress(o->d3d8dll, "Direct3DCreate8");
 	if(!o->Direct3DCreate8) {
-		MessageBox(NULL, "Direct3DCreate8 not found! Is DirectX8 installed properly?", "Error", MB_OK);
-		ExitProcess(-1);
+		MwDispatchError(1, "Direct3DCreate8 not found! Is DirectX8 installed properly?");
+		return 1;
 	}
 
 	o->d3d = o->Direct3DCreate8(D3D_SDK_VERSION);
+	if(!o->Direct3DCreate8) {
+		MwStringPrintIntoBuffer(errbuf, sizeof(errbuf) - 1, "Direct3DCreate8 NULL: %s", hr);
+		MwDispatchError(1, errbuf);
+		return 1;
+	}
 
-	o->d3d->lpVtbl->GetAdapterDisplayMode(o->d3d, D3DADAPTER_DEFAULT, &dispMode);
+	hr = o->d3d->lpVtbl->GetAdapterDisplayMode(o->d3d, D3DADAPTER_DEFAULT, &dispMode);
+	if(hr != D3D_OK) {
+		MwStringPrintIntoBuffer(errbuf, sizeof(errbuf) - 1, "GetAdapterDisplayMode ERROR: %s", hr);
+		MwDispatchError(1, errbuf);
+		return 1;
+	}
 
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
 	d3dpp.Windowed		     = TRUE;
@@ -49,8 +61,18 @@ static int wcreate_d3d8(MwWidget handle) {
 				     D3DCREATE_MIXED_VERTEXPROCESSING,
 				     &d3dpp,
 				     &o->d3ddev);
+	if(hr != D3D_OK) {
+		MwStringPrintIntoBuffer(errbuf, sizeof(errbuf) - 1, "CreateDevice ERROR: %s", hr);
+		MwDispatchError(1, errbuf);
+		return 1;
+	}
 
 	o->d3ddev->lpVtbl->SetRenderState(o->d3ddev, D3DRS_LIGHTING, FALSE);
+	if(hr != D3D_OK) {
+		MwStringPrintIntoBuffer(errbuf, sizeof(errbuf) - 1, "SetRenderState ERROR: %s", hr);
+		MwDispatchError(1, errbuf);
+		return 1;
+	}
 
 	handle->internal = o;
 
