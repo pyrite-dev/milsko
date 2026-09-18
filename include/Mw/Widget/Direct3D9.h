@@ -38,14 +38,14 @@ MWDECL MwClass MwDirect3D9Class;
 extern "C" {
 #endif
 
-MwInline LPDIRECT3D9 MwDirect3D9GetD3D(MwWidget handle) {
+MwInline LPDIRECT3D9 MwDirect3D9GetDirect3D9(MwWidget handle) {
 	LPDIRECT3D9 out = NULL;
-	MwVaWidgetExecute(handle, "mwDirect3D9GetD3D9", &out, NULL);
+	MwVaWidgetExecute(handle, "mwDirect3D9GetDirect3D9", &out, NULL);
 	return out;
 };
-MwInline LPDIRECT3DDEVICE9 MwDirect3D9GetD3DDevice(MwWidget handle) {
+MwInline LPDIRECT3DDEVICE9 MwDirect3D9GetDirect3DDevice9(MwWidget handle) {
 	LPDIRECT3DDEVICE9 out = NULL;
-	MwVaWidgetExecute(handle, "mwDirect3D9GetD3DDevice9", &out);
+	MwVaWidgetExecute(handle, "mwDirect3D9GetDirect3DDevice9", &out);
 	return out;
 };
 

@@ -71,8 +71,8 @@ int main() {
 
 	d3d9 = MwCreateWidget(MwDirect3D9Class, NULL, window, (1024 - 800) / 2, (768 - 600) / 2, 800, 600);
 
-	d3d    = MwDirect3D9GetD3D(d3d9);
-	d3ddev = MwDirect3D9GetD3DDevice(d3d9);
+	d3d    = MwDirect3D9GetDirect3D9(d3d9);
+	d3ddev = MwDirect3D9GetDirect3DDevice9(d3d9);
 
 	d3ddev->lpVtbl->CreateVertexBuffer(d3ddev,
 					   3 * sizeof(struct CUSTOMVERTEX),

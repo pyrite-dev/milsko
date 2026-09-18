@@ -69,10 +69,10 @@ static void func_handler_d3d9(MwWidget handle, const char* name, void* out,
 
 	(void)va;
 
-	if(strcmp(name, "mwDirect3D9GetD3D9") == 0) {
+	if(strcmp(name, "mwDirect3D9GetDirect3D9") == 0) {
 		*(LPDIRECT3D9*)out = o->d3d;
 	}
-	if(strcmp(name, "mwDirect3D9GetD3DDevice9") == 0) {
+	if(strcmp(name, "mwDirect3D9GetDirect3DDevice9") == 0) {
 		*(LPDIRECT3DDEVICE9*)out = o->d3ddev;
 	}
 }
