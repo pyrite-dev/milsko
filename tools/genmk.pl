@@ -154,8 +154,10 @@ sub generate {
         $needlibs = "${lib}clib3r.lib";
         $c_dllout = "option implib=src${dir}Mw.lib";
 
-        $dx8_flags = "${def}MW_DIRECTX8";
-        $dx9_flags = "${def}MW_DIRECTX9";
+        $dx8_flags = "\$(DX8_FLAGS)";
+        $dx8_block = dx8_detect_block();
+        $dx9_flags = "\$(DX9_FLAGS)";
+        $dx9_block = dx9_detect_block();
     }
 
     open(OUT, ">", $output);
