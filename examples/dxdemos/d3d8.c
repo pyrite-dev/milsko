@@ -1,15 +1,14 @@
 /*
  * Adapted from:
- * http://www.directxtutorial.com/Lesson.aspx?lessonid=9-4-1
- * http://www.directxtutorial.com/Lesson.aspx?lessonid=9-4-4
+ * https://web.archive.org/web/20211126225651/https://www.codeguru.com/multimedia/using-direct3d8-the-basics/
  */
 #include <Mw/Milsko.h>
-#include <Mw/Widget/DirectX.h>
+#include <Mw/Widget/D3D8.h>
 
-MwWidget		window, d3d9;
-LPDIRECT3D9		d3d;
-LPDIRECT3DDEVICE9	d3ddev;
-LPDIRECT3DVERTEXBUFFER9 v_buffer;
+MwWidget		window, d3d8;
+LPDIRECT3D8		d3d;
+LPDIRECT3DDEVICE8	d3ddev;
+LPDIRECT3DVERTEXBUFFER8 v_buffer;
 
 struct CUSTOMVERTEX {
 	FLOAT x, y, z, rhw; // from the D3DFVF_XYZRHW flag
@@ -24,12 +23,12 @@ static void MWAPI draw(MwWidget handle, void* user, void* client) {
 	d3ddev->lpVtbl->BeginScene(d3ddev); // begins the 3D scene
 
 	// select which vertex format we are using
-	d3ddev->lpVtbl->SetFVF(d3ddev, CUSTOMFVF);
+	d3ddev->lpVtbl->SetVertexShader(d3ddev, CUSTOMFVF);
 
 	// select the vertex buffer to display
-	d3ddev->lpVtbl->SetStreamSource(d3ddev, 0, v_buffer, 0, sizeof(struct CUSTOMVERTEX));
+	d3ddev->lpVtbl->SetStreamSource(d3ddev, 0, v_buffer, sizeof(struct CUSTOMVERTEX));
 
-	// copy the vertex buffer to the back buffer
+	// // copy the vertex buffer to the back buffer
 	d3ddev->lpVtbl->DrawPrimitive(d3ddev, D3DPT_TRIANGLELIST, 0, 1);
 
 	d3ddev->lpVtbl->EndScene(d3ddev); // ends the 3D scene
@@ -38,14 +37,16 @@ static void MWAPI draw(MwWidget handle, void* user, void* client) {
 }
 
 int main() {
+	BYTE* pVoid;
+
 	MwLibraryInit();
 
 	window = MwCreateWidget(MwWindowClass, NULL, NULL, MwDEFAULT, MwDEFAULT, 1024, 768);
 
-	d3d9 = MwCreateWidget(MwD3D9Class, NULL, window, (1024 - 800) / 2, (768 - 600) / 2, 800, 600);
+	d3d8 = MwCreateWidget(MwD3D8Class, NULL, window, (1024 - 800) / 2, (768 - 600) / 2, 800, 600);
 
-	d3d    = MwDirectXGetD3D9(d3d9);
-	d3ddev = MwDirectXGetD3Dev9(d3d9);
+	d3d    = MwDirectXGetD3D8(d3d8);
+	d3ddev = MwDirectXGetD3Dev8(d3d8);
 
 	// create three vertices using the CUSTOMVERTEX struct built earlier
 	struct CUSTOMVERTEX vertices[] =
@@ -78,12 +79,9 @@ int main() {
 					   0,
 					   CUSTOMFVF,
 					   D3DPOOL_MANAGED,
-					   &v_buffer,
-					   NULL);
+					   &v_buffer);
 
-	VOID* pVoid; // the void pointer
-
-	v_buffer->lpVtbl->Lock(v_buffer, 0, 0, (void**)&pVoid, 0); // lock the vertex buffer
+	v_buffer->lpVtbl->Lock(v_buffer, 0, 0, (BYTE**)&pVoid, 0); // lock the vertex buffer
 	memcpy(pVoid, vertices, sizeof(vertices));		   // copy the vertices to the locked buffer
 	v_buffer->lpVtbl->Unlock(v_buffer);			   // unlock the vertex buffer
 

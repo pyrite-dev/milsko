@@ -1,7 +1,7 @@
 CC = wcc386 -bt=nt -q
 LD = wlink option quiet
 
-MW_CFLAGS = -bd -i=include -i=external/libz/include -d_MILSKO -d_MILSKO_BUILD -dUSE_GDI -dUSE_STB_IMAGE -dSTBI_NO_SIMD -dUSE_GDI_TEXT -dMW_OPENGL -dMW_DIRECTX
+MW_CFLAGS = -bd -i=include -i=external/libz/include -d_MILSKO -d_MILSKO_BUILD -dUSE_GDI -dUSE_STB_IMAGE -dSTBI_NO_SIMD -dUSE_GDI_TEXT -dMW_OPENGL -dMW_DIRECTX8 -dMW_DIRECTX9
 MW_LDFLAGS = system nt_dll
 EXE_CFLAGS = -i=include
 EXE_LDFLAGS = system nt

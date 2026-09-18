@@ -3,27 +3,28 @@
  * @brief DirectX widget.
  * @warning Only avaliable on Windows.
  */
-#ifndef __MW_WIDGET_DIRECTX_H__
-#define __MW_WIDGET_DIRECTX_H__
+#ifndef __MW_WIDGET_D3D9_H__
+#define __MW_WIDGET_D3D9_H__
 
 #include <Mw/Core.h>
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
 
-#if !defined(MW_DIRECTX_NO_INCLUDE)
+#if !defined(MW_D3D9_NO_INCLUDE)
 
 /* https://github.com/microsoft/Windows-classic-samples/issues/317 */
 #if defined(__MINGW32__) || defined(__MINGW64__)
 #define NTDDI_VERSION 0x07000000
 #define _WIN32_WINNT 0x0A00
-
-#endif
-
-#include <d3d9.h>
 #endif
 
 #ifndef _WIN32
-#error DirectX widget only avaliable for Win32 backends
+#error D3D9 widget only avaliable for Win32 backends
+#else
+#ifdef MW_DIRECTX9
+#include <d3d9.h>
+#endif
+#endif
 #endif
 
 /*!

@@ -32,8 +32,10 @@ else()
   option(MW_TRY_OPENGL "Try to compile OpenGL widget or not" ON)
   option(MW_TRY_VULKAN "Try to compile Vulkan widget or not" ON)
 endif()
+
 if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
-  option(MW_TRY_DIRECTX "Try to compile DirectX widget or not" ON)
+  option(MW_TRY_D3D8 "Try to compile D3D8 widget or not" ON)
+  option(MW_TRY_D3D9 "Try to compile D3D9 widget or not" ON)
 endif()
 
 
@@ -94,13 +96,19 @@ if(MW_TRY_VULKAN)
   endif()
 endif()
 
-if(MW_TRY_DIRECTX)
+if(MW_TRY_D3D8 OR MW_TRY_D3D9)
   include(${CMAKE_CURRENT_SOURCE_DIR}/resource/FindDirectX.cmake)
   if(DIRECTX_FOUND)
-    set(MW_BUILD_DIRECTX ON)
-    message(STATUS "DirectX widget has been enabled")
+    if(MW_TRY_D3D8)
+      set(MW_BUILD_D3D8 ON)
+      message(STATUS "D3D8 widget has been enabled")
+    endif()
+    if(MW_TRY_D3D9)
+      set(MW_BUILD_D3D9 ON)
+      message(STATUS "D3D9 widget has been enabled")
+    endif()
   else()
-    message(STATUS "DirectX widget has been disabled")
+    message(STATUS "DirectX widgets have been disabled (DirectX not found)")
   endif()
 endif()
 
@@ -491,13 +499,20 @@ if(MW_BUILD_VULKAN)
   endif()
 endif()
 
-if(MW_BUILD_DIRECTX)
-  list(APPEND LIBRARIES ${DIRECTX_D3DX9_LIBRARIES})
+if(MW_BUILD_D3D8)
   target_compile_definitions(
-      Mw
-        PRIVATE
-        MW_DIRECTX
-      )
+          Mw
+            PUBLIC
+            MW_DIRECTX8
+          )
+endif()
+
+if(MW_BUILD_D3D9)
+  target_compile_definitions(
+          Mw
+            PUBLIC
+            MW_DIRECTX9
+          )
 endif()
 
 target_compile_definitions(

@@ -2,7 +2,7 @@ CC = cl /TC /c /nologo
 LD = link /nologo
 
 !if [where d3d9.h >nul 2>nul]
-!if [for /f "delims=" %P in ('where d3d9.h 2^>nul') do @echo DX9_FLAGS = /DMW_DIRECTX /I"%~dpP">dx9flags.mk]
+!if [for /f "delims=" %P in ('where d3d9.h 2^>nul') do @echo DX9_FLAGS = /DMW_DIRECTX9 /I"%~dpP">dx9flags.mk]
 !endif
 !else
 !if [echo DX9_FLAGS =>dx9flags.mk]
@@ -14,7 +14,7 @@ LD = link /nologo
 DX9_FLAGS =
 !endif
 
-MW_CFLAGS =  /Iinclude /Iexternal\libz\include /D_MILSKO /D_MILSKO_BUILD /DUSE_GDI /DUSE_STB_IMAGE /DSTBI_NO_SIMD /DUSE_GDI_TEXT /DMW_OPENGL $(DX9_FLAGS)
+MW_CFLAGS =  /Iinclude /Iexternal\libz\include /D_MILSKO /D_MILSKO_BUILD /DUSE_GDI /DUSE_STB_IMAGE /DSTBI_NO_SIMD /DUSE_GDI_TEXT /DMW_OPENGL $(DX8_FLAGS) $(DX9_FLAGS)
 MW_LDFLAGS = /DLL
 EXE_CFLAGS = /Iinclude
 EXE_LDFLAGS = 

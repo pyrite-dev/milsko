@@ -1,12 +1,12 @@
 #include <Mw/Milsko.h>
 
-#ifndef MW_DIRECTX
-#define MW_DIRECTX_NO_INCLUDE
+#ifndef MW_DIRECTX9
+#define MW_DIRECTX9_NO_INCLUDE
 MWDECL MwClass MwDX9Class;
 
 MwClass MwDX9Class = NULL;
 #else
-#include <Mw/Widget/DirectX.h>
+#include <Mw/Widget/D3D9.h>
 
 typedef struct gdid3d9 {
 	void* d3d9dll;
@@ -17,7 +17,7 @@ typedef struct gdid3d9 {
 
 } gdid3d9_t;
 
-static int wcreate(MwWidget handle) {
+static int wcreate_d3d9(MwWidget handle) {
 	void*	   r = NULL;
 	MwWidget   w = handle;
 	gdid3d9_t* o = malloc(sizeof(gdid3d9_t));
@@ -52,7 +52,7 @@ static int wcreate(MwWidget handle) {
 	return 0;
 }
 
-static void destroy(MwWidget handle) {
+static void destroy_d3d9(MwWidget handle) {
 	MwWidget   w = handle;
 	gdid3d9_t* o = handle->internal;
 
@@ -62,8 +62,8 @@ static void destroy(MwWidget handle) {
 	free(handle->internal);
 }
 
-static void func_handler(MwWidget handle, const char* name, void* out,
-			 va_list va) {
+static void func_handler_d3d9(MwWidget handle, const char* name, void* out,
+			      va_list va) {
 	gdid3d9_t* o = handle->internal;
 
 	if(strcmp(name, "mwDirectXGetD3D9") == 0) {
@@ -74,23 +74,23 @@ static void func_handler(MwWidget handle, const char* name, void* out,
 	}
 }
 
-MwClassRec MwDX9ClassRec = {wcreate,	  /* create */
-			    destroy,	  /* destroy */
-			    NULL,	  /* draw */
-			    NULL,	  /* click */
-			    NULL,	  /* parent_resize */
-			    NULL,	  /* prop_change */
-			    NULL,	  /* mouse_move */
-			    NULL,	  /* mouse_up */
-			    NULL,	  /* mouse_down */
-			    NULL,	  /* key */
-			    func_handler, /* execute */
-			    NULL,	  /* tick */
-			    NULL,	  /* resize */
-			    NULL,	  /* children_update */
-			    NULL,	  /* children_prop_change */
-			    NULL,	  /* clipboard */
-			    NULL,	  /* props_change */
+MwClassRec MwDX9ClassRec = {wcreate_d3d9,      /* create */
+			    destroy_d3d9,      /* destroy */
+			    NULL,	       /* draw */
+			    NULL,	       /* click */
+			    NULL,	       /* parent_resize */
+			    NULL,	       /* prop_change */
+			    NULL,	       /* mouse_move */
+			    NULL,	       /* mouse_up */
+			    NULL,	       /* mouse_down */
+			    NULL,	       /* key */
+			    func_handler_d3d9, /* execute */
+			    NULL,	       /* tick */
+			    NULL,	       /* resize */
+			    NULL,	       /* children_update */
+			    NULL,	       /* children_prop_change */
+			    NULL,	       /* clipboard */
+			    NULL,	       /* props_change */
 			    NULL, NULL, NULL};
 MwClass	   MwD3D9Class	 = &MwDX9ClassRec;
 #endif
