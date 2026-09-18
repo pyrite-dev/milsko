@@ -32,6 +32,10 @@ else()
   option(MW_TRY_OPENGL "Try to compile OpenGL widget or not" ON)
   option(MW_TRY_VULKAN "Try to compile Vulkan widget or not" ON)
 endif()
+if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
+  option(MW_TRY_DIRECTX "Try to compile DirectX widget or not" ON)
+endif()
+
 
 option(MW_INSTALL_HEADERS "Install headers" ON)
 
@@ -87,6 +91,16 @@ if(MW_TRY_VULKAN)
     message(STATUS "Vulkan widget has been enabled")
   else()
     message(WARNING "Vulkan widget has been disabled")
+  endif()
+endif()
+
+if(MW_TRY_DIRECTX)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/resource/FindDirectX.cmake)
+  if(DIRECTX_FOUND)
+    set(MW_BUILD_DIRECTX ON)
+    message(STATUS "DirectX widget has been enabled")
+  else()
+    message(STATUS "DirectX widget has been disabled")
   endif()
 endif()
 
@@ -475,6 +489,15 @@ if(MW_BUILD_VULKAN)
           MW_VULKAN
         )
   endif()
+endif()
+
+if(MW_BUILD_DIRECTX)
+  list(APPEND LIBRARIES ${DIRECTX_D3DX9_LIBRARIES})
+  target_compile_definitions(
+      Mw
+        PRIVATE
+        MW_DIRECTX
+      )
 endif()
 
 target_compile_definitions(

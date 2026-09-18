@@ -54,6 +54,9 @@ param_set("examples",             1);
 # (option that only makes sense on x11)
 param_set("allow-sloppy-focus", 0);
 
+# (option that only makes sense on Windows)
+param_set("directx", 0);
+
 my %features = (
     "classic-theme"        => "use classic theme",
     "stb-image"            => "use stb_image, instead use libjpeg/libpng",
@@ -69,7 +72,8 @@ my %features = (
     "wayland"              => "enable wayland backend",
     "gnustep"              => "use gnustep",
     "dbus" => "use DBus on supported platform",
-    "allow-sloppy-focus" => "prevent the x11 backend from using XSetInputFocus to enforce click-to-focus"
+    "allow-sloppy-focus" => "prevent the x11 backend from using XSetInputFocus to enforce click-to-focus",
+    "directx" => "(Windows only) build DirectX widget"
 );
 my @features_keys = (
     "1classic-theme", "1stb-image",
@@ -78,7 +82,7 @@ my @features_keys = (
     "1vulkan",        "2vulkan-string-helper",
     "1shared",        "1static",
     "1wayland", "1gnustep",
-    "1dbus"
+    "1dbus",          "1directx"
 );
 
 sub def_platform {

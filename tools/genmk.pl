@@ -42,6 +42,23 @@ sub cobjs {
     return $r;
 }
 
+sub dx9_detect_block {
+    return <<'EOF';
+!if [where d3d9.h >nul 2>nul]
+!if [for /f "delims=" %P in ('where d3d9.h 2^>nul') do @echo DX9_FLAGS = /DMW_DIRECTX /I"%~dpP">dx9flags.mk]
+!endif
+!else
+!if [echo DX9_FLAGS =>dx9flags.mk]
+!endif
+!endif
+!if exist("dx9flags.mk")
+!include "dx9flags.mk"
+!else
+DX9_FLAGS =
+!endif
+EOF
+}
+
 sub generate {
     my ($output, $type) = @_;
 
@@ -65,6 +82,8 @@ sub generate {
     my $lib        = "";
     my $c_dllout   = "";
     my $c_dllafter = "";
+    my $dx9_flags = "";
+    my $dx9_block = "";
 
     if ($type eq "Borland") {
         $cc     = "bcc32 -c";
@@ -88,6 +107,12 @@ sub generate {
         $def    = "/D";
         $inc    = "/I";
         $dll    = "/DLL";
+
+        # DX9 headers aren't part of every MSVC/Windows SDK install, so probe
+        # PATH for a d3d9.h at build time (on the machine actually running
+        # nmake) rather than baking in a yes/no here.
+        $dx9_flags = "\$(DX9_FLAGS)";
+        $dx9_block = dx9_detect_block();
     }
     elsif ($type eq "Watcom") {
         $cc     = "wcc386 -bt=nt -q";
@@ -109,14 +134,20 @@ sub generate {
         $prefobj  = "file ";
         $needlibs = "${lib}clib3r.lib";
         $c_dllout = "option implib=src${dir}Mw.lib";
+
+        $dx9_flags = "${def}MW_DIRECTX";
     }
 
     open(OUT, ">", $output);
     print(OUT "CC = $cc\n");
     print(OUT "LD = $link\n");
     print(OUT "\n");
+    if ($dx9_block ne "") {
+        print(OUT $dx9_block);
+        print(OUT "\n");
+    }
     print(OUT
-"MW_CFLAGS = ${cdll} ${inc}include ${inc}external${dir}libz${dir}include ${def}_MILSKO ${def}_MILSKO_BUILD ${def}USE_GDI ${def}USE_STB_IMAGE ${def}STBI_NO_SIMD ${def}USE_GDI_TEXT ${def}MW_OPENGL\n"
+"MW_CFLAGS = ${cdll} ${inc}include ${inc}external${dir}libz${dir}include ${def}_MILSKO ${def}_MILSKO_BUILD ${def}USE_GDI ${def}USE_STB_IMAGE ${def}STBI_NO_SIMD ${def}USE_GDI_TEXT ${def}MW_OPENGL ${dx9_flags}\n"
     );
     print(OUT "MW_LDFLAGS = $dll\n");
     print(OUT "EXE_CFLAGS = ${inc}include\n");
@@ -152,6 +183,9 @@ sub generate {
     }
     print(OUT "	$del src${dir}Mw.dll\n");
     print(OUT "	$del src${dir}Mw.lib\n");
+    if ($dx9_block ne "") {
+        print(OUT "	$del dx9flags.mk\n");
+    }
     foreach my $f (@examples) {
         my $b = $f;
         $b =~ s/\.c$/.obj/;
