@@ -187,10 +187,10 @@ if (param_get("opengl")) {
 if (param_get("vulkan")) {
     add_cflags("-DMW_VULKAN");
 }
-if (param_get("directx8")) {
+if (param_get("d3d8")) {
     add_cflags("-DMW_DIRECTX8");
 }
-if (param_get("directx9")) {
+if (param_get("d3d9")) {
     add_cflags("-DMW_DIRECTX9");
 }
 
@@ -238,11 +238,11 @@ if (param_get("vulkan")) {
     new_example("examples/vkdemos/vulkan");
 }
 
-if (param_get("directx8")) {
+if (param_get("d3d8")) {
     new_example("examples/dxdemos/d3d8");
 }
 
-if (param_get("directx9")) {
+if (param_get("d3d9")) {
     new_example("examples/dxdemos/d3d9");
 }
 
