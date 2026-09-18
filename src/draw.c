@@ -39,7 +39,9 @@ static int hex(const char* txt, int len) {
 }
 
 static void color_set_disabled_if_disabled(MwWidget handle, MwLLColor rgb) {
-	if(MwGetInteger(handle, MwNdisabled) == 1) {
+	int n;
+
+	if((n = MwGetInteger(handle, MwNdisabled)) != MwDEFAULT && n) {
 		MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
 
 		if(c != NULL) {

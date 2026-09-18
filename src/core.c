@@ -69,7 +69,8 @@ static void lldrawhandler(MwLL handle, void* data) {
 static void lluphandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->common.user;
 	MwMouse* p = data;
-	if(MwGetInteger(h, MwNdisabled) == 1) return;
+	int	 n;
+	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
 	if(p->button == MwMOUSE_LEFT) h->pressed = 0;
 	h->mouse_point.x = p->point.x;
@@ -83,7 +84,8 @@ static void lluphandler(MwLL handle, void* data) {
 static void lldownhandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->common.user;
 	MwMouse* p = data;
-	if(MwGetInteger(h, MwNdisabled) == 1) return;
+	int	 n;
+	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
 	if(p->button == MwMOUSE_LEFT) h->pressed = 1;
 	h->mouse_point.x = p->point.x;
@@ -158,7 +160,8 @@ static void llmovehandler(MwLL handle, void* data) {
 static void llkeyhandler(MwLL handle, void* data) {
 	MwWidget h   = (MwWidget)handle->common.user;
 	int	 key = *(int*)data;
-	if(MwGetInteger(h, MwNdisabled) == 1) return;
+	int	 n;
+	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
 	MwDispatch3(h, key, key);
 	MwDispatchUserHandler(h, MwNkeyHandler, data);
@@ -166,28 +169,32 @@ static void llkeyhandler(MwLL handle, void* data) {
 
 static void llkeyrelhandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->common.user;
-	if(MwGetInteger(h, MwNdisabled) == 1) return;
+	int	 n;
+	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
 	MwDispatchUserHandler(h, MwNkeyReleaseHandler, data);
 }
 
 static void llfocusinhandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->common.user;
-	if(MwGetInteger(h, MwNdisabled) == 1) return;
+	int	 n;
+	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
 	MwDispatchUserHandler(h, MwNfocusInHandler, data);
 }
 
 static void llfocusouthandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->common.user;
-	if(MwGetInteger(h, MwNdisabled) == 1) return;
+	int	 n;
+	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
 	MwDispatchUserHandler(h, MwNfocusOutHandler, data);
 }
 
 static void llclipboardhandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->common.user;
-	if(MwGetInteger(h, MwNdisabled) == 1) return;
+	int	 n;
+	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
 	MwDispatch3(h, clipboard, data);
 	MwDispatchUserHandler(h, MwNclipboardHandler, data);
@@ -195,7 +202,8 @@ static void llclipboardhandler(MwLL handle, void* data) {
 
 static void lldraganddrophandler(MwLL handle, void* data) {
 	MwWidget h = (MwWidget)handle->common.user;
-	if(MwGetInteger(h, MwNdisabled) == 1) return;
+	int	 n;
+	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
 	MwDispatchUserHandler(h, MwNdragAndDropHandler, data);
 }

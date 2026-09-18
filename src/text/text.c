@@ -82,8 +82,9 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 	char*	  last	= input;
 	int	  cp;
 	MwLLColor fadedColor = NULL;
+	int	  n;
 
-	if(MwGetInteger(handle, MwNdisabled) == 1) {
+	if((n = MwGetInteger(handle, MwNdisabled)) != MwDEFAULT && n) {
 		MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
 
 		if(c != NULL) {
@@ -107,8 +108,10 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 		input += MwUTF8ToUTF32(input, &cp);
 
 		if(*input == 0 || cp == '\n') {
-			char* line = malloc(input - last + 1);
-			int   i;
+			char*	line = malloc(input - last + 1);
+			int	i;
+			MwPoint l[2];
+			int	tw, th;
 
 			if(!line) {
 				printf("Out Of Memory\n");
@@ -134,12 +137,18 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 				continue;
 			}
 
+			tw = MwTextWidth(handle, ttf, line);
+			th = MwTextHeight(handle, ttf, line);
+
 			p.x = point->x;
 			if(align == MwALIGNMENT_CENTER) {
-				p.x -= MwTextWidth(handle, ttf, line) / 2;
+				p.x -= tw / 2;
 			} else if(align == MwALIGNMENT_END) {
-				p.x -= MwTextWidth(handle, ttf, line);
+				p.x -= tw;
 			}
+
+			l[0].x = p.x;
+			l[1].x = l[0].x + tw;
 
 #ifdef TTF
 			if(MwFLDrawText)
@@ -147,7 +156,19 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 #endif
 					bitmap_MwDrawText(handle, &p, line, is_bold(handle, ttf), fadedColor ? fadedColor : color);
 
-			p.y += MwTextHeight(handle, ttf, line);
+			l[0].y = l[1].y = p.y;
+
+			if((n = MwGetInteger(handle, MwNstrikethrough)) != MwDEFAULT && n) {
+				MwLLLine(handle->lowlevel, l, color);
+			}
+
+			if((n = MwGetInteger(handle, MwNunderline)) != MwDEFAULT && n) {
+				l[0].y += th / 2;
+				l[1].y += th / 2;
+				MwLLLine(handle->lowlevel, l, color);
+			}
+
+			p.y += th;
 
 			free(line);
 

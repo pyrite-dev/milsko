@@ -58,6 +58,8 @@
 #define MwNminute "Iminute"
 #define MwNsecond "Isecond"
 #define MwNtype "Itype"
+#define MwNstrikethrough "Istrikethrough"
+#define MwNunderline "Iunderline"
 
 #define MwNtitle "Stitle"
 #define MwNtext "Stext"
