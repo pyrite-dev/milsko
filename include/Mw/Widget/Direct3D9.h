@@ -3,61 +3,51 @@
  * @brief DirectX widget.
  * @warning Only avaliable on Windows.
  */
-#ifndef __MW_WIDGET_D3D9_H__
-#define __MW_WIDGET_D3D9_H__
+#ifndef __MW_WIDGET_DIRECT3D9_H__
+#define __MW_WIDGET_DIRECT3D9_H__
 
 #include <Mw/Core.h>
 #include <Mw/MachDep.h>
 #include <Mw/TypeDefs.h>
 
-#if !defined(MW_D3D9_NO_INCLUDE)
+#if !defined(MW_DIRECT3D9_NO_INCLUDE)
 
 /* https://github.com/microsoft/Windows-classic-samples/issues/317 */
 #if defined(__MINGW32__) || defined(__MINGW64__)
+#undef NTDDI_VERSION
+#undef _WIN32_WINNT
+
 #define NTDDI_VERSION 0x07000000
 #define _WIN32_WINNT 0x0A00
 #endif
 
 #ifndef _WIN32
 #error D3D9 widget only avaliable for Win32 backends
-#undef MW_DIRECTX9
+#undef MW_DIRECT3D9
 #else
-#ifdef MW_DIRECTX9
 #include <d3d9.h>
-#endif
 #endif
 #endif
 
 /*!
  * @brief D3D9 widget class
  */
-MWDECL MwClass MwD3D9Class;
+MWDECL MwClass MwDirect3D9Class;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifdef MW_DIRECTX9
-MwInline LPDIRECT3D9 MwD3D9GetD3D(MwWidget handle) {
+MwInline LPDIRECT3D9 MwDirect3D9GetD3D(MwWidget handle) {
 	LPDIRECT3D9 out = NULL;
-	MwVaWidgetExecute(handle, "mwDirectXGetD3D9", &out, NULL);
+	MwVaWidgetExecute(handle, "mwDirect3D9GetD3D9", &out, NULL);
 	return out;
 };
-MwInline LPDIRECT3DDEVICE9 MwD3D9GetD3Dev(MwWidget handle) {
+MwInline LPDIRECT3DDEVICE9 MwDirect3D9GetD3DDevice(MwWidget handle) {
 	LPDIRECT3DDEVICE9 out = NULL;
-	MwVaWidgetExecute(handle, "mwDirectXGetD3Dev9", &out);
+	MwVaWidgetExecute(handle, "mwDirect3D9GetD3DDevice9", &out);
 	return out;
 };
-#else
-MwInline void* MwD3D9GetD3D(MwWidget handle) {
-	(void)handle;
-	return NULL;
-};
-MwInline void* MwD3D9GetD3Dev(MwWidget handle) {
-	(void)handle;
-	return NULL;
-};
-#endif
 
 #ifdef __cplusplus
 }

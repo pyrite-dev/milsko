@@ -14,7 +14,7 @@ LD = wlink option quiet
 DX9_FLAGS =
 !endif
 
-MW_CFLAGS = -bd -i=include -i=external/libz/include -d_MILSKO -d_MILSKO_BUILD -dUSE_GDI -dUSE_STB_IMAGE -dSTBI_NO_SIMD -dUSE_GDI_TEXT -dMW_OPENGL $(DX8_FLAGS) $(DX9_FLAGS)
+MW_CFLAGS = -bd -i=include -i=external/libz/include -d_MILSKO -d_MILSKO_BUILD -dUSE_GDI -dUSE_STB_IMAGE -dSTBI_NO_SIMD -dUSE_GDI_TEXT -dMW_OPENGL $(DX9_FLAGS)
 MW_LDFLAGS = system nt_dll
 EXE_CFLAGS = -i=include
 EXE_LDFLAGS = system nt

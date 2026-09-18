@@ -1,19 +1,17 @@
 #include <Mw/Milsko.h>
 
-#ifdef MW_DIRECTX9
-#include <Mw/Widget/D3D9.h>
+#ifdef MW_DIRECT3D9
+#include <Mw/Widget/Direct3D9.h>
 typedef struct gdid3d9 {
 	void* d3d9dll;
 	IDirect3D9* (*Direct3DCreate9)(UINT sdk_version);
 
 	LPDIRECT3D9	  d3d;	  // the pointer to our Direct3D interface
-	LPDIRECT3DDEVICE9 d3ddev; // the pointer to the device class\
+	LPDIRECT3DDEVICE9 d3ddev; // the pointer to the device class
 
 } gdid3d9_t;
 
 static int wcreate_d3d9(MwWidget handle) {
-	void*		      r = NULL;
-	MwWidget	      w = handle;
 	gdid3d9_t*	      o = malloc(sizeof(gdid3d9_t));
 	HRESULT		      hr;
 	char		      errbuf[2048];
@@ -27,7 +25,7 @@ static int wcreate_d3d9(MwWidget handle) {
 	o->Direct3DCreate9 = (void*)GetProcAddress(o->d3d9dll, "Direct3DCreate9");
 
 	o->d3d = o->Direct3DCreate9(D3D_SDK_VERSION); // create the Direct3D interface
-	if(hr != D3D_OK) {
+	if(o->d3d == NULL) {
 		MwDispatchError(1, "Direct3DCreate9 NULL");
 		return 1;
 	}
@@ -57,7 +55,6 @@ static int wcreate_d3d9(MwWidget handle) {
 }
 
 static void destroy_d3d9(MwWidget handle) {
-	MwWidget   w = handle;
 	gdid3d9_t* o = handle->internal;
 
 	o->d3ddev->lpVtbl->Release(o->d3ddev); // close and release the 3D device
@@ -70,35 +67,35 @@ static void func_handler_d3d9(MwWidget handle, const char* name, void* out,
 			      va_list va) {
 	gdid3d9_t* o = handle->internal;
 
-	if(strcmp(name, "mwDirectXGetD3D9") == 0) {
+	(void)va;
+
+	if(strcmp(name, "mwDirect3D9GetD3D9") == 0) {
 		*(LPDIRECT3D9*)out = o->d3d;
 	}
-	if(strcmp(name, "mwDirectXGetD3Dev9") == 0) {
+	if(strcmp(name, "mwDirect3D9GetD3DDevice9") == 0) {
 		*(LPDIRECT3DDEVICE9*)out = o->d3ddev;
 	}
 }
 
-MwClassRec MwDX9ClassRec = {wcreate_d3d9,      /* create */
-			    destroy_d3d9,      /* destroy */
-			    NULL,	       /* draw */
-			    NULL,	       /* click */
-			    NULL,	       /* parent_resize */
-			    NULL,	       /* prop_change */
-			    NULL,	       /* mouse_move */
-			    NULL,	       /* mouse_up */
-			    NULL,	       /* mouse_down */
-			    NULL,	       /* key */
-			    func_handler_d3d9, /* execute */
-			    NULL,	       /* tick */
-			    NULL,	       /* resize */
-			    NULL,	       /* children_update */
-			    NULL,	       /* children_prop_change */
-			    NULL,	       /* clipboard */
-			    NULL,	       /* props_change */
-			    NULL, NULL, NULL};
-MwClass	   MwD3D9Class	 = &MwDX9ClassRec;
+MwClassRec MwDirect3D9ClassRec = {wcreate_d3d9,	     /* create */
+				  destroy_d3d9,	     /* destroy */
+				  NULL,		     /* draw */
+				  NULL,		     /* click */
+				  NULL,		     /* parent_resize */
+				  NULL,		     /* prop_change */
+				  NULL,		     /* mouse_move */
+				  NULL,		     /* mouse_up */
+				  NULL,		     /* mouse_down */
+				  NULL,		     /* key */
+				  func_handler_d3d9, /* execute */
+				  NULL,		     /* tick */
+				  NULL,		     /* resize */
+				  NULL,		     /* children_update */
+				  NULL,		     /* children_prop_change */
+				  NULL,		     /* clipboard */
+				  NULL,		     /* props_change */
+				  NULL, NULL, NULL};
+MwClass	   MwDirect3D9Class    = &MwDirect3D9ClassRec;
 #else
-MWDECL MwClass MwDX9Class;
-
-MwClass MwDX9Class = NULL;
+MwClass MwDirect3D9Class = NULL;
 #endif

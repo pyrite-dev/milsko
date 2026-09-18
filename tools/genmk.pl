@@ -42,24 +42,6 @@ sub cobjs {
     return $r;
 }
 
-
-sub dx8_detect_block {
-    return <<'EOF';
-!if [where d3d8.h >nul 2>nul]
-!if [for /f "delims=" %P in ('where d3d8.h 2^>nul') do @echo DX8_FLAGS = /DMW_DIRECTX8 /I"%~dpP">dx8flags.mk]
-!endif
-!else
-!if [echo DX8_FLAGS =>dx9flags.mk]
-!endif
-!endif
-!if exist("dx8flags.mk")
-!include "dx8flags.mk"
-!else
-DX8_FLAGS =
-!endif
-EOF
-}
-
 sub dx9_detect_block {
     return <<'EOF';
 !if [where d3d9.h >nul 2>nul]
@@ -100,10 +82,8 @@ sub generate {
     my $lib        = "";
     my $c_dllout   = "";
     my $c_dllafter = "";
-    my $dx8_flags = "";
-    my $dx8_block = "";
-    my $dx9_flags = "";
-    my $dx9_block = "";
+    my $dx9_flags  = "";
+    my $dx9_block  = "";
 
     if ($type eq "Borland") {
         $cc     = "bcc32 -c";
@@ -128,8 +108,6 @@ sub generate {
         $inc    = "/I";
         $dll    = "/DLL";
 
-        $dx8_flags = "\$(DX8_FLAGS)";
-        $dx8_block = dx8_detect_block();
         $dx9_flags = "\$(DX9_FLAGS)";
         $dx9_block = dx9_detect_block();
     }
@@ -154,8 +132,6 @@ sub generate {
         $needlibs = "${lib}clib3r.lib";
         $c_dllout = "option implib=src${dir}Mw.lib";
 
-        $dx8_flags = "\$(DX8_FLAGS)";
-        $dx8_block = dx8_detect_block();
         $dx9_flags = "\$(DX9_FLAGS)";
         $dx9_block = dx9_detect_block();
     }
@@ -169,7 +145,7 @@ sub generate {
         print(OUT "\n");
     }
     print(OUT
-"MW_CFLAGS = ${cdll} ${inc}include ${inc}external${dir}libz${dir}include ${def}_MILSKO ${def}_MILSKO_BUILD ${def}USE_GDI ${def}USE_STB_IMAGE ${def}STBI_NO_SIMD ${def}USE_GDI_TEXT ${def}MW_OPENGL ${dx8_flags} ${dx9_flags}\n"
+"MW_CFLAGS = ${cdll} ${inc}include ${inc}external${dir}libz${dir}include ${def}_MILSKO ${def}_MILSKO_BUILD ${def}USE_GDI ${def}USE_STB_IMAGE ${def}STBI_NO_SIMD ${def}USE_GDI_TEXT ${def}MW_OPENGL ${dx9_flags}\n"
     );
     print(OUT "MW_LDFLAGS = $dll\n");
     print(OUT "EXE_CFLAGS = ${inc}include\n");

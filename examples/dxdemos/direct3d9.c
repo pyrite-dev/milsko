@@ -4,11 +4,9 @@
  * http://www.directxtutorial.com/Lesson.aspx?lessonid=9-4-4
  */
 #include <Mw/Milsko.h>
-#include <Mw/Widget/D3D9.h>
+#include <Mw/Widget/Direct3D9.h>
 
-#ifdef MW_DIRECTX9
-
-MwWidget		window, d3d8;
+MwWidget		window, d3d9;
 LPDIRECT3D9		d3d;
 LPDIRECT3DDEVICE9	d3ddev;
 LPDIRECT3DVERTEXBUFFER9 v_buffer;
@@ -41,16 +39,6 @@ static void MWAPI draw(MwWidget handle, void* user, void* client) {
 
 int main() {
 	VOID* pVoid;
-
-	MwLibraryInit();
-
-	window = MwCreateWidget(MwWindowClass, NULL, NULL, MwDEFAULT, MwDEFAULT, 1024, 768);
-
-	d3d8 = MwCreateWidget(MwD3D9Class, NULL, window, (1024 - 800) / 2, (768 - 600) / 2, 800, 600);
-
-	d3d    = MwD3D9GetD3D(d3d8);
-	d3ddev = MwD3D9GetD3Dev(d3d8);
-
 	// create three vertices using the CUSTOMVERTEX struct built earlier
 	struct CUSTOMVERTEX vertices[] =
 	    {
@@ -77,6 +65,15 @@ int main() {
 		},
 	    };
 
+	MwLibraryInit();
+
+	window = MwCreateWidget(MwWindowClass, NULL, NULL, MwDEFAULT, MwDEFAULT, 1024, 768);
+
+	d3d9 = MwCreateWidget(MwDirect3D9Class, NULL, window, (1024 - 800) / 2, (768 - 600) / 2, 800, 600);
+
+	d3d    = MwDirect3D9GetD3D(d3d9);
+	d3ddev = MwDirect3D9GetD3DDevice(d3d9);
+
 	d3ddev->lpVtbl->CreateVertexBuffer(d3ddev,
 					   3 * sizeof(struct CUSTOMVERTEX),
 					   0,
@@ -93,5 +90,3 @@ int main() {
 
 	MwLoop(window);
 }
-
-#endif

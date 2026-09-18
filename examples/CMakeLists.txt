@@ -7,7 +7,7 @@ if(${MW_TRY_VULKAN})
 endif()
 
 if(WIN32)
-  if(${MW_TRY_D3D8} OR ${MW_BUILD_D3D8})
+  if(${MW_TRY_DIRECT3D9})
     add_subdirectory(dxdemos)
   endif()
 endif()
