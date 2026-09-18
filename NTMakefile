@@ -2,14 +2,14 @@ CC = cl /TC /c /nologo
 LD = link /nologo
 
 !if [where d3d9.h >nul 2>nul]
-!if [for /f "delims=" %P in ('where d3d9.h 2^>nul') do @echo DX9_FLAGS = /DMW_DIRECT3D9 /I"%~dpP">dx9flags.mk]
+!if [for /f "delims=" %P in ('where d3d9.h 2^>nul') do @echo DX9_FLAGS = /DMW_DIRECT3D9 /I"%~dpP">d3d9flags.mk]
 !endif
 !else
-!if [echo DX9_FLAGS =>dx9flags.mk]
+!if [echo DX9_FLAGS =>d3d9flags.mk]
 !endif
 !endif
-!if exist("dx9flags.mk")
-!include "dx9flags.mk"
+!if exist("d3d9flags.mk")
+!include "d3d9flags.mk"
 !else
 DX9_FLAGS =
 !endif
@@ -122,7 +122,7 @@ clean:
 	del /f /q src\widget\window.obj
 	del /f /q src\Mw.dll
 	del /f /q src\Mw.lib
-	del /f /q dx9flags.mk
+	del /f /q d3d9flags.mk
 	del /f /q examples\basic\box.obj
 	del /f /q examples\basic\calculator.obj
 	del /f /q examples\basic\checkbox.obj

@@ -42,17 +42,17 @@ sub cobjs {
     return $r;
 }
 
-sub dx9_detect_block {
+sub d3d9_detect_block {
     return <<'EOF';
 !if [where d3d9.h >nul 2>nul]
-!if [for /f "delims=" %P in ('where d3d9.h 2^>nul') do @echo DX9_FLAGS = /DMW_DIRECT3D9 /I"%~dpP">dx9flags.mk]
+!if [for /f "delims=" %P in ('where d3d9.h 2^>nul') do @echo DX9_FLAGS = /DMW_DIRECT3D9 /I"%~dpP">d3d9flags.mk]
 !endif
 !else
-!if [echo DX9_FLAGS =>dx9flags.mk]
+!if [echo DX9_FLAGS =>d3d9flags.mk]
 !endif
 !endif
-!if exist("dx9flags.mk")
-!include "dx9flags.mk"
+!if exist("d3d9flags.mk")
+!include "d3d9flags.mk"
 !else
 DX9_FLAGS =
 !endif
@@ -82,8 +82,8 @@ sub generate {
     my $lib        = "";
     my $c_dllout   = "";
     my $c_dllafter = "";
-    my $dx9_flags  = "";
-    my $dx9_block  = "";
+    my $d3d9_flags  = "";
+    my $d3d9_block  = "";
 
     if ($type eq "Borland") {
         $cc     = "bcc32 -c";
@@ -108,8 +108,8 @@ sub generate {
         $inc    = "/I";
         $dll    = "/DLL";
 
-        $dx9_flags = "\$(DX9_FLAGS)";
-        $dx9_block = dx9_detect_block();
+        $d3d9_flags = "\$(DX9_FLAGS)";
+        $d3d9_block = d3d9_detect_block();
     }
     elsif ($type eq "Watcom") {
         $cc     = "wcc386 -bt=nt -q";
@@ -132,20 +132,20 @@ sub generate {
         $needlibs = "${lib}clib3r.lib";
         $c_dllout = "option implib=src${dir}Mw.lib";
 
-        $dx9_flags = "\$(DX9_FLAGS)";
-        $dx9_block = dx9_detect_block();
+        $d3d9_flags = "\$(DX9_FLAGS)";
+        $d3d9_block = d3d9_detect_block();
     }
 
     open(OUT, ">", $output);
     print(OUT "CC = $cc\n");
     print(OUT "LD = $link\n");
     print(OUT "\n");
-    if ($dx9_block ne "") {
-        print(OUT $dx9_block);
+    if ($d3d9_block ne "") {
+        print(OUT $d3d9_block);
         print(OUT "\n");
     }
     print(OUT
-"MW_CFLAGS = ${cdll} ${inc}include ${inc}external${dir}libz${dir}include ${def}_MILSKO ${def}_MILSKO_BUILD ${def}USE_GDI ${def}USE_STB_IMAGE ${def}STBI_NO_SIMD ${def}USE_GDI_TEXT ${def}MW_OPENGL ${dx9_flags}\n"
+"MW_CFLAGS = ${cdll} ${inc}include ${inc}external${dir}libz${dir}include ${def}_MILSKO ${def}_MILSKO_BUILD ${def}USE_GDI ${def}USE_STB_IMAGE ${def}STBI_NO_SIMD ${def}USE_GDI_TEXT ${def}MW_OPENGL ${d3d9_flags}\n"
     );
     print(OUT "MW_LDFLAGS = $dll\n");
     print(OUT "EXE_CFLAGS = ${inc}include\n");
@@ -181,8 +181,8 @@ sub generate {
     }
     print(OUT "	$del src${dir}Mw.dll\n");
     print(OUT "	$del src${dir}Mw.lib\n");
-    if ($dx9_block ne "") {
-        print(OUT "	$del dx9flags.mk\n");
+    if ($d3d9_block ne "") {
+        print(OUT "	$del d3d9flags.mk\n");
     }
     foreach my $f (@examples) {
         my $b = $f;
