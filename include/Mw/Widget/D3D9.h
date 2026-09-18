@@ -20,6 +20,7 @@
 
 #ifndef _WIN32
 #error D3D9 widget only avaliable for Win32 backends
+#undef MW_DIRECTX9
 #else
 #ifdef MW_DIRECTX9
 #include <d3d9.h>
@@ -36,6 +37,7 @@ MWDECL MwClass MwD3D9Class;
 extern "C" {
 #endif
 
+#ifdef MW_DIRECTX9
 MwInline LPDIRECT3D9 MwDirectXGetD3D9(MwWidget handle) {
 	LPDIRECT3D9 out = NULL;
 	MwVaWidgetExecute(handle, "mwDirectXGetD3D9", &out, NULL);
@@ -46,6 +48,16 @@ MwInline LPDIRECT3DDEVICE9 MwDirectXGetD3Dev9(MwWidget handle) {
 	MwVaWidgetExecute(handle, "mwDirectXGetD3Dev9", &out);
 	return out;
 };
+#else
+MwInline void* MwDirectXGetD3D9(MwWidget handle) {
+	(void)handle;
+	return NULL;
+};
+MwInline void* MwDirectXGetD3Dev9(MwWidget handle) {
+	(void)handle;
+	return NULL;
+};
+#endif
 
 #ifdef __cplusplus
 }

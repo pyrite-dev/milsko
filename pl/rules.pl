@@ -178,7 +178,8 @@ new_object("src/widget/window.c");
 
 new_object("src/widget/opengl.c");
 new_object("src/widget/vulkan.c");
-new_object("src/widget/directx.c");
+new_object("src/widget/d3d8.c");
+new_object("src/widget/d3d9.c");
 
 if (param_get("opengl")) {
     add_cflags("-DMW_OPENGL");
@@ -186,8 +187,11 @@ if (param_get("opengl")) {
 if (param_get("vulkan")) {
     add_cflags("-DMW_VULKAN");
 }
-if (param_get("directx")) {
-    add_cflags("-DMW_DIRECTX");
+if (param_get("directx8")) {
+    add_cflags("-DMW_DIRECTX8");
+}
+if (param_get("directx9")) {
+    add_cflags("-DMW_DIRECTX9");
 }
 
 new_object("src/dialog/*.c");
@@ -234,8 +238,12 @@ if (param_get("vulkan")) {
     new_example("examples/vkdemos/vulkan");
 }
 
-if (param_get("directx")) {
-    new_example("examples/dxdemos/directx9");
+if (param_get("directx8")) {
+    new_example("examples/dxdemos/d3d8");
+}
+
+if (param_get("directx9")) {
+    new_example("examples/dxdemos/d3d9");
 }
 
 1;

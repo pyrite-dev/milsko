@@ -59,6 +59,8 @@ sub scan {
     while (my $file = readdir($dh)) {
         if (   !(($dir . "/" . $file) eq "src/widget/opengl.c")
             && !(($dir . "/" . $file) eq "src/widget/vulkan.c")
+            && !(($dir . "/" . $file) eq "src/widget/d3d8.c")
+            && !(($dir . "/" . $file) eq "src/widget/d3d9.c")
             && !(($dir . "/" . $file) eq "external/stb_truetype.c")
             && !(($dir . "/" . $file) eq "external/stb_image.c")
             && ($file =~ /\.c$/))

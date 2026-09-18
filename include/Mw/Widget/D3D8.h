@@ -22,6 +22,7 @@
 
 #ifndef _WIN32
 #error D3D8 widget only avaliable for Win32 backends
+#undef MW_DIRECTX8
 #else
 #ifdef MW_DIRECTX8
 #include <d3d8.h>
@@ -37,6 +38,7 @@ MWDECL MwClass MwD3D8Class;
 extern "C" {
 #endif
 
+#ifdef MW_DIRECTX8
 MwInline LPDIRECT3D8 MwDirectXGetD3D8(MwWidget handle) {
 	LPDIRECT3D8 out = NULL;
 	MwVaWidgetExecute(handle, "mwDirectXGetD3D8", &out, NULL);
@@ -47,6 +49,16 @@ MwInline LPDIRECT3DDEVICE8 MwDirectXGetD3Dev8(MwWidget handle) {
 	MwVaWidgetExecute(handle, "mwDirectXGetD3Dev8", &out);
 	return out;
 };
+#else
+MwInline void* MwDirectXGetD3D8(MwWidget handle) {
+	(void)handle;
+	return NULL;
+};
+MwInline void* MwDirectXGetD3Dev8(MwWidget handle) {
+	(void)handle;
+	return NULL;
+};
+#endif
 
 #ifdef __cplusplus
 }

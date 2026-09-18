@@ -1,13 +1,7 @@
 #include <Mw/Milsko.h>
 
-#ifndef MW_DIRECTX8
-#define MW_DIRECTX8_NO_INCLUDE
-MWDECL MwClass MwDX8Class;
-
-MwClass MwDX8Class = NULL;
-#else
+#ifdef MW_DIRECTX8
 #include <Mw/Widget/D3D8.h>
-
 typedef struct gdid3d8 {
 	void* d3d8dll;
 	IDirect3D8* (*Direct3DCreate8)(UINT sdk_version);
@@ -104,4 +98,8 @@ MwClassRec MwDX8ClassRec = {wcreate_d3d8,      /* create */
 			    NULL,	       /* props_change */
 			    NULL, NULL, NULL};
 MwClass	   MwD3D8Class	 = &MwDX8ClassRec;
+#else
+MWDECL MwClass MwDX8Class;
+
+MwClass MwDX8Class = NULL;
 #endif

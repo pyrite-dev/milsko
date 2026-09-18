@@ -5,6 +5,8 @@
 #include <Mw/Milsko.h>
 #include <Mw/Widget/D3D8.h>
 
+#ifdef MW_DIRECTX8
+
 MwWidget		window, d3d8;
 LPDIRECT3D8		d3d;
 LPDIRECT3DDEVICE8	d3ddev;
@@ -89,3 +91,5 @@ int main() {
 
 	MwLoop(window);
 }
+
+#endif

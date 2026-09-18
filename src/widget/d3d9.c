@@ -1,13 +1,7 @@
 #include <Mw/Milsko.h>
 
-#ifndef MW_DIRECTX9
-#define MW_DIRECTX9_NO_INCLUDE
-MWDECL MwClass MwDX9Class;
-
-MwClass MwDX9Class = NULL;
-#else
+#ifdef MW_DIRECTX9
 #include <Mw/Widget/D3D9.h>
-
 typedef struct gdid3d9 {
 	void* d3d9dll;
 	IDirect3D9* (*Direct3DCreate9)(UINT sdk_version);
@@ -93,4 +87,8 @@ MwClassRec MwDX9ClassRec = {wcreate_d3d9,      /* create */
 			    NULL,	       /* props_change */
 			    NULL, NULL, NULL};
 MwClass	   MwD3D9Class	 = &MwDX9ClassRec;
+#else
+MWDECL MwClass MwDX9Class;
+
+MwClass MwDX9Class = NULL;
 #endif
