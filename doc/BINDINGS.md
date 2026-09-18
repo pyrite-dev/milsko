@@ -1,3 +1,5 @@
+\* = in-dev version
+
 # Active Bindings
 
 | Language | Repo                                                                  | Version | Notes          |
