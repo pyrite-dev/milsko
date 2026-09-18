@@ -4,7 +4,7 @@
 
 | Language | Repo                                                                  | Version | Notes          |
 | -------- | --------------------------------------------------------------------- | ------- | -------------- |
-| Node.js  | [milsko-node](https://forgejo.nishi.boats/pyrite-dev/milsko-node)     | 1.4     |                |
+| Node.js  | [milsko-node](https://forgejo.nishi.boats/pyrite-dev/milsko-node)     | 1.4     | Auto-generated |
 | C++      | [mwcxx](https://forgejo.nishi.boats/pyrite-dev/mwcxx)                 | 1.5*    | Auto-generated |
 | Python   | [milsko-py](https://forgejo.nishi.boats/pyrite-dev/milsko-py)         | 1.5*    | Auto-generated |
 | Pascal   | [milsko-pascal](https://forgejo.nishi.boats/pyrite-dev/milsko-pascal) | 1.5*    | Auto-generated |
