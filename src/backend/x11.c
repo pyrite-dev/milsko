@@ -978,6 +978,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 		};
 		case SelectionNotify:
 		{
+#if 0
 			handle->x11.clipboard_pending = 0;
 
 			if(ev.xselection.property == handle->x11.xdnd_selection) {
@@ -1066,6 +1067,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 				}
 				XDeleteProperty(handle->x11.display, handle->x11.window, handle->x11.selection);
 			}
+#endif
 		} break;
 		}
 		if(render) {

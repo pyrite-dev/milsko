@@ -48,7 +48,7 @@ int main() {
 					NULL);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
-	MwAddUserHandler(instructions, MwNdragAndDropHandler, dnd, NULL);
+	MwAddUserHandler(window, MwNdragAndDropHandler, dnd, NULL);
 
 	resize(window, NULL, NULL);
 
