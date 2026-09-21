@@ -17,9 +17,9 @@
 static void setup_clipboard(MwLL self, struct wl_seat* wl_seat);
 static void setup_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
 
-static void destroy_clipboard(MwLL self, struct wl_seat* wl_seat);
-static void destroy_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
-static bool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwPoint* _relative_mouse_pos, MwPoint* _absolute_pos);
+static void   destroy_clipboard(MwLL self, struct wl_seat* wl_seat);
+static void   destroy_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
+static MwBool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwPoint* _relative_mouse_pos, MwPoint* _absolute_pos);
 
 /* Recursively dispatch a key event to a widget and its children */
 static void recursive_dispatch_key(MwLL handle, int* k) {
@@ -398,7 +398,6 @@ static void wl_data_source_listener_target(void*		  data,
 	(void)data;
 	(void)wl_data_source;
 	(void)mime_type;
-	printf("test\n");
 };
 static void wl_data_source_listener_send(void*			data,
 					 struct wl_data_source* wl_data_source,
@@ -591,6 +590,10 @@ static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 	if(self->wayland.backbuffer.surface == surface) {
 		curSurface = surface;
 	}
+
+	self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
+	self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
+
 	WAYLAND_EVENT_OP_END(self);
 };
 
@@ -780,7 +783,7 @@ static void recursive_dispatch_mouse_up(MwLL handle, MwMouse* p) {
 	}
 };
 
-static bool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwPoint* _relative_mouse_pos, MwPoint* _absolute_pos) {
+static MwBool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwPoint* _relative_mouse_pos, MwPoint* _absolute_pos) {
 	MwLL	topmost_parent = child;
 	MwPoint point;
 	MwPoint relative_mouse_pos;
@@ -791,8 +794,15 @@ static bool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwPoi
 	while(topmost_parent->wayland.parent) {
 		topmost_parent = topmost_parent->wayland.parent;
 		if(topmost_parent) {
-			absolute_pos.x += topmost_parent->wayland.x;
-			absolute_pos.y += topmost_parent->wayland.y;
+			/* if the topmost parent is a popup then its x/y is irrelevant to us.
+			 * it's gonna be the position of the popup itself, and we want our
+			 * position to be relative to the popup itself. */
+			if(topmost_parent->wayland.type != MwLL_WAYLAND_POPUP) {
+				if(topmost_parent->wayland.x > 0)
+					absolute_pos.x += topmost_parent->wayland.x;
+				if(topmost_parent->wayland.y > 0)
+					absolute_pos.y += topmost_parent->wayland.y;
+			}
 		}
 	}
 
