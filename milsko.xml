@@ -105,15 +105,13 @@
 		<integer name="waitLayout" />
 		<integer name="scale" />
 		<integer name="columns" />
-		<integer name="commonSpan" common="yes" />
-		<integer name="rowSpan" common="yes" />
-		<integer name="acceptsDnD" common="yes" />
+		<integer name="columnSpan" column="yes" />
+		<integer name="rowSpan" column="yes" />
+		<integer name="acceptsDnD" column="yes" />
 		<integer name="hour" />
 		<integer name="minute" />
 		<integer name="second" />
 		<integer name="type" />
-		<integer name="strikethrough" common="yes" />
-		<integer name="underline" common="yes" />
 
 		<!-- waitMS is a special property, only applies to toplevel widget -->
 		<integer name="waitMS" common="yes" />
@@ -206,7 +204,7 @@
 			<string />
 		</handler>
 		<handler name="layout">
-			<integer pointer="yes" />
+			<struct defname="MwRect" pointer="yes" />
 		</handler>
 	</handlers>
 	<enumerations>
@@ -1072,10 +1070,20 @@
 					<return>
 						<pointer />
 					</return>
-					<arguments>
-						<integer enumname="MwVulkanField" name="field" />
-						<integer pointer="yes" name="output" />
-					</arguments>
+				</function>
+			</functions>
+		</widget>
+		<widget name="Direct3D9">
+			<functions>
+				<function name="GetDirect3D9">
+					<return>
+						<pointer />
+					</return>
+				</function>
+				<function name="GetDirect3DDevice9">
+					<return>
+						<pointer />
+					</return>
 				</function>
 			</functions>
 		</widget>

@@ -498,6 +498,7 @@ static void layout(MwWidget handle) {
 	MwFLFont*  fontstack = NULL;
 	MwRect	   clickable;
 	char*	   c_title = NULL;
+	MwRect	   size;
 
 	arrput(fontstack, NULL);
 
@@ -612,8 +613,9 @@ static void layout(MwWidget handle) {
 		l->font = TOPFONT;
 	}
 
-	y += MwTextHeight(handle, TOPFONT, "M");
-	MwDispatchUserHandler(handle, MwNlayoutHandler, &y);
+	size.width  = w;
+	size.height = y + MwTextHeight(handle, TOPFONT, "M");
+	MwDispatchUserHandler(handle, MwNlayoutHandler, &size);
 
 	arrfree(fontstack);
 

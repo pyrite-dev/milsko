@@ -22,11 +22,12 @@ static void MWAPI resize_window(MwWidget handle, void* user, void* call) {
 }
 
 static void MWAPI layout_document(MwWidget handle, void* user, void* call) {
-	int height = *(int*)call;
+	MwRect size = *(MwRect*)call;
 
-	MwViewportSetSize(viewport, MwGetInteger(document, MwNwidth), height);
+	MwViewportSetSize(viewport, size.width, size.height);
 	MwVaApply(document,
-		  MwNheight, height,
+		  MwNwidth, size.width,
+		  MwNheight, size.height,
 		  NULL);
 }
 
