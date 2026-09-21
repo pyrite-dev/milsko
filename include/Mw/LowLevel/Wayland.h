@@ -271,6 +271,7 @@ struct _MwLLWaylandShmBuffer {
 	MwU8*  buf;
 	MwU8*  buf_back;
 	MwU64  buf_size;
+	MwU64  buf_capacity;
 	int    fd;
 	int    fd_back;
 	MwBool setup;
@@ -466,6 +467,12 @@ void MwLLWaylandBackbufferDestroy(struct _MwLLWayland* handle);
 void MwLLWaylandBufferSetup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height);
 void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer);
 void MwLLWaylandBufferDestroy(struct _MwLLWaylandShmBuffer* buffer);
+/* Resize an already set-up shm buffer pair in place, growing the backing pool with
+ * wl_shm_pool_resize instead of tearing it down and recreating it from scratch. */
+void MwLLWaylandBufferResize(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height);
+
+void MwLLWaylandFramebufferResize(struct _MwLLWayland* wayland);
+void MwLLWaylandBackbufferResize(struct _MwLLWayland* wayland);
 
 void MwLLWaylandRegionSetup(MwLL handle);
 void MwLLWaylandRegionInvalidate(MwLL handle);

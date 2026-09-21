@@ -173,10 +173,7 @@ static void xdg_toplevel_configure(void*		data,
 	if(self->wayland.resizing == 0) {
 		xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, 0, 0, self->wayland.ww, self->wayland.wh);
 
-		MwLLWaylandBackbufferDestroy(&self->wayland);
-		MwLLWaylandBackbufferSetup(&self->wayland);
-		MwLLWaylandFramebufferDestroy(&self->wayland);
-		MwLLWaylandFramebufferSetup(&self->wayland);
+		MwLLWaylandFramebufferResize(&self->wayland);
 
 		MwLLWaylandRegionSetup(self);
 		MwLLDispatch(self, resize, NULL);
@@ -1112,10 +1109,7 @@ static void actually_set_wh(MwLL handle) {
 	MwLLWaylandRegionSetup(handle);
 	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) recursive_render(handle);
 
-	MwLLWaylandFramebufferDestroy(&handle->wayland);
-	MwLLWaylandFramebufferSetup(&handle->wayland);
-	MwLLWaylandBackbufferDestroy(&handle->wayland);
-	MwLLWaylandBackbufferSetup(&handle->wayland);
+	MwLLWaylandFramebufferResize(&handle->wayland);
 	MwLLDispatch(handle, draw, NULL);
 }
 

@@ -7,7 +7,7 @@ void MwLLWaylandFramebufferSetup(struct _MwLLWayland* wayland) {
 
 	MwLLCairoFrontSetup(&wayland->cairo, wayland->framebuffer.buf_back, wayland->ww, wayland->wh);
 
-	memset(wayland->framebuffer.buf_back, 0, wayland->framebuffer.buf_size);
+	memset(wayland->framebuffer.buf_back, 255, wayland->framebuffer.buf_size);
 	if(wayland->configured)
 		wl_surface_attach(wayland->framebuffer.surface, wayland->framebuffer.shm_buffer, 0, 0);
 	if(wayland->framebuffer.fifo)
@@ -38,7 +38,7 @@ void MwLLWaylandBackbufferSetup(struct _MwLLWayland* wayland) {
 
 	MwLLCairoBackSetup(&wayland->cairo, wayland->backbuffer.buf_back, w, h);
 
-	memset(wayland->backbuffer.buf_back, 255, wayland->backbuffer.buf_size);
+	memset(wayland->backbuffer.buf_back, 0, wayland->backbuffer.buf_size);
 	if(wayland->configured)
 		wl_surface_attach(wayland->backbuffer.surface, wayland->backbuffer.shm_buffer, 0, 0);
 	// if(wayland->framebuffer.fifo)
@@ -90,6 +90,8 @@ void MwLLWaylandBufferSetup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, M
 	buffer->buf	 = mmap(NULL, buffer->buf_size, PROT_WRITE, MAP_SHARED, buffer->fd, 0);
 	buffer->buf_back = mmap(NULL, buffer->buf_size, PROT_WRITE, MAP_SHARED, buffer->fd_back, 0);
 
+	buffer->buf_capacity = buffer->buf_size;
+
 	fsync(buffer->fd);
 	fsync(buffer->fd_back);
 
@@ -108,8 +110,8 @@ void MwLLWaylandBufferDestroy(struct _MwLLWaylandShmBuffer* buffer) {
 	if(!buffer->setup) {
 		return;
 	}
-	if(buffer->buf) munmap(buffer->buf, buffer->buf_size);
-	if(buffer->buf_back) munmap(buffer->buf_back, buffer->buf_size);
+	if(buffer->buf) munmap(buffer->buf, buffer->buf_capacity);
+	if(buffer->buf_back) munmap(buffer->buf_back, buffer->buf_capacity);
 	if(buffer->shm_buffer) wl_buffer_destroy(buffer->shm_buffer);
 	if(buffer->shm_buffer_back) wl_buffer_destroy(buffer->shm_buffer_back);
 	if(buffer->shm_pool) wl_shm_pool_destroy(buffer->shm_pool);
@@ -119,14 +121,63 @@ void MwLLWaylandBufferDestroy(struct _MwLLWaylandShmBuffer* buffer) {
 	buffer->setup = MwFALSE;
 }
 
+void MwLLWaylandBufferResize(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height) {
+	MwLLWaylandBufferDestroy(buffer);
+	MwLLWaylandBufferSetup(buffer, width, height);
+	memset(buffer->buf_back, 0, buffer->buf_size);
+	memset(buffer->buf, 0, buffer->buf_size);
+}
+
+void MwLLWaylandFramebufferResize(struct _MwLLWayland* wayland) {
+	MwLLWaylandBufferResize(&wayland->framebuffer, wayland->ww, wayland->wh);
+
+	MwLLCairoFrontDestroy(&wayland->cairo);
+	MwLLCairoFrontSetup(&wayland->cairo, wayland->framebuffer.buf_back, wayland->ww, wayland->wh);
+
+	if(wayland->configured)
+		wl_surface_attach(wayland->framebuffer.surface, wayland->framebuffer.shm_buffer, 0, 0);
+	if(wayland->framebuffer.fifo)
+		wp_fifo_v1_set_barrier(wayland->framebuffer.fifo);
+
+	wl_surface_commit(wayland->framebuffer.surface);
+
+	MwLLWaylandHangUntilConfigured((MwLL)wayland);
+	MwLLWaylandBufferUpdate((MwLL)wayland, &wayland->framebuffer);
+}
+
+void MwLLWaylandBackbufferResize(struct _MwLLWayland* wayland) {
+	MwU32 w = wayland->ww;
+	MwU32 h = wayland->wh;
+
+	if(wayland->type != MwLL_WAYLAND_TOPLEVEL) {
+		return;
+	}
+
+	if(!wayland->has_decorations && wayland->do_csd) {
+		w += (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
+		h += (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
+	}
+
+	MwLLWaylandBufferResize(&wayland->backbuffer, w, h);
+
+	MwLLCairoBackDestroy(&wayland->cairo);
+	MwLLCairoBackSetup(&wayland->cairo, wayland->backbuffer.buf_back, w, h);
+
+	if(wayland->configured)
+		wl_surface_attach(wayland->backbuffer.surface, wayland->backbuffer.shm_buffer, 0, 0);
+	wl_surface_commit(wayland->backbuffer.surface);
+	MwLLWaylandHangUntilConfigured((MwLL)wayland);
+	MwLLWaylandBufferUpdate((MwLL)wayland, &wayland->backbuffer);
+}
+
 void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 	if(self->wayland.configured) {
 		memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
 		if(buffer->surface) {
 			// Yes this is needed every time, it's how we fix weston.
-			if(self->wayland.configured) {
-				wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
-			}
+			// if(self->wayland.configured) {
+			// 	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
+			// }
 			if(buffer->fifo)
 				wp_fifo_v1_wait_barrier(buffer->fifo);
 			wl_surface_commit(buffer->surface);
