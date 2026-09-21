@@ -939,6 +939,13 @@ static void draw_children(MwLL handle) {
 
 	cairo_reset_clip(handle->wayland.cairo.front_cairo_back);
 
+	if(handle->wayland.snapshot) {
+		cairo_set_operator(handle->wayland.cairo.front_cairo_back, CAIRO_OPERATOR_SOURCE);
+		cairo_set_source_surface(handle->wayland.cairo.front_cairo_back, handle->wayland.snapshot, 0, 0);
+		cairo_paint(handle->wayland.cairo.front_cairo_back);
+		cairo_set_operator(handle->wayland.cairo.front_cairo_back, CAIRO_OPERATOR_OVER);
+	}
+
 	MwLLWaylandChildrenIterate(handle, draw_child);
 
 	if(handle->wayland.configured) MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
@@ -1298,6 +1305,21 @@ static void MwLLEndDrawImpl(MwLL handle) {
 		root = root->wayland.parent;
 	}
 	root->wayland.do_cascading_draw = MwTRUE;
+
+	if(handle->wayland.snapshot) {
+		cairo_surface_destroy(handle->wayland.snapshot);
+		handle->wayland.snapshot = NULL;
+	}
+	if(handle->wayland.ww > 0 && handle->wayland.wh > 0) {
+		cairo_t* snap_cr;
+
+		handle->wayland.snapshot = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, handle->wayland.ww, handle->wayland.wh);
+		snap_cr			 = cairo_create(handle->wayland.snapshot);
+		cairo_set_operator(snap_cr, CAIRO_OPERATOR_SOURCE);
+		cairo_set_source_surface(snap_cr, handle->wayland.cairo.front_cs_back, 0, 0);
+		cairo_paint(snap_cr);
+		cairo_destroy(snap_cr);
+	}
 
 	if(handle->wayland.configured) {
 		if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {

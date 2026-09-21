@@ -428,6 +428,8 @@ struct _MwLLWayland {
 	MwBool do_cascading_draw;
 	int    cascading_child_num;
 
+	cairo_surface_t* snapshot;
+
 	MwBool dispatching_resize;
 
 	struct _MwLLWaylandShmBuffer  framebuffer;
