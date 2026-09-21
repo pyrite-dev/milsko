@@ -196,9 +196,8 @@ static void xdg_toplevel_close(
     void* data, struct xdg_toplevel* xdg_toplevel) {
 	MwLL self = data;
 	(void)xdg_toplevel;
-	WAYLAND_EVENT_OP_START(self);
+
 	MwLLDispatch(self, close, NULL);
-	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `xdg_surface.configure` callback */

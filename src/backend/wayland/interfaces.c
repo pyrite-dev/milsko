@@ -72,8 +72,6 @@ static void new_protocol(void* data, struct wl_registry* registry,
 	(void)version;
 	(void)registry;
 
-	WAYLAND_EVENT_OP_START(self);
-
 	wayland_protocol_callback_table_t* cb = shget(self->wayland.wl_protocol_setup_map, interface);
 	if(cb != NULL) {
 		shput(self->wayland.wl_protocol_map, interface, cb->setup(name, data, version));
@@ -83,8 +81,6 @@ static void new_protocol(void* data, struct wl_registry* registry,
 	} else {
 		// printf("unknown interface %s\n", interface);
 	}
-
-	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `wl_registry.global_remove` callback */
@@ -154,11 +150,7 @@ static void wl_data_device_enter(void*			data,
 	(void)y;
 	(void)id;
 
-	WAYLAND_EVENT_OP_START(self);
-
 	self->ll->wayland.clipboard_serial = serial;
-
-	WAYLAND_EVENT_OP_END(self);
 };
 static void wl_data_device_leave(void*			data,
 				 struct wl_data_device* wl_data_device) {
@@ -407,12 +399,10 @@ static void wl_data_source_listener_send(void*			data,
 	(void)wl_data_source;
 	(void)mime_type;
 
-	WAYLAND_EVENT_OP_START(self);
 	if(self->wayland.clipboard_buffer != NULL) {
 		write(fd, self->wayland.clipboard_buffer, strlen(self->wayland.clipboard_buffer));
 		close(fd);
 	}
-	WAYLAND_EVENT_OP_END(self);
 };
 static void wl_data_source_listener_cancelled(void*		     data,
 					      struct wl_data_source* wl_data_source);
@@ -427,8 +417,6 @@ static void wl_data_source_listener_cancelled(void*		     data,
 					      struct wl_data_source* wl_data_source) {
 	MwLL self = data;
 
-	WAYLAND_EVENT_OP_START(self);
-
 	if(wl_data_source)
 		wl_data_source_destroy(wl_data_source);
 
@@ -442,8 +430,6 @@ static void wl_data_source_listener_cancelled(void*		     data,
 	wl_data_source_offer(self->wayland.clipboard_source.wl, "text/uri-list");
 
 	wl_data_source_add_listener(self->wayland.clipboard_source.wl, &wl_data_source_listener, self);
-
-	WAYLAND_EVENT_OP_END(self);
 };
 
 static void zwp_primary_selection_source_v1_send(void*					 data,
@@ -454,21 +440,15 @@ static void zwp_primary_selection_source_v1_send(void*					 data,
 	(void)wl_data_source;
 	(void)mime_type;
 
-	WAYLAND_EVENT_OP_START(self);
-
 	if(self->wayland.clipboard_buffer != NULL) {
 		write(fd, self->wayland.clipboard_buffer, strlen(self->wayland.clipboard_buffer));
 		close(fd);
 	}
-
-	WAYLAND_EVENT_OP_END(self);
 };
 static void zwp_primary_selection_source_v1_cancelled(void*				      data,
 						      struct zwp_primary_selection_source_v1* wl_data_source) {
 	MwLL self = data;
 	(void)wl_data_source;
-
-	WAYLAND_EVENT_OP_START(self);
 
 	zwp_primary_selection_source_v1_destroy(self->wayland.clipboard_source.zwp);
 
@@ -479,8 +459,6 @@ static void zwp_primary_selection_source_v1_cancelled(void*				      data,
 	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "TEXT");
 	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "STRING");
 	zwp_primary_selection_source_v1_offer(self->wayland.clipboard_source.zwp, "UTF8_STRING");
-
-	WAYLAND_EVENT_OP_END(self);
 };
 
 struct zwp_primary_selection_source_v1_listener zwp_primary_selection_source_v1_listener = {
@@ -577,7 +555,6 @@ static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 	(void)surface_y;
 	(void)wl_pointer;
 
-	WAYLAND_EVENT_OP_START(self);
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
 	if(self->wayland.framebuffer.surface == surface) {
@@ -593,20 +570,15 @@ static void pointer_enter(void* data, struct wl_pointer* wl_pointer, MwU32 seria
 
 	self->wayland.cur_mouse_pos.x = wl_fixed_to_int(surface_x);
 	self->wayland.cur_mouse_pos.y = wl_fixed_to_int(surface_y);
-
-	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `wl_pointer.leave` callback */
 static void pointer_leave(void* data, struct wl_pointer* wl_pointer, MwU32 serial,
 			  struct wl_surface* surface) {
-	MwLL self = data;
+	(void)data;
 	(void)wl_pointer;
 	(void)serial;
 	(void)surface;
-	WAYLAND_EVENT_OP_START(self);
-	curSurface = NULL;
-	WAYLAND_EVENT_OP_END(self);
 };
 
 static void xdg_borderless_step_mdown(MwLL self, MwMouse p, MwU32 serial) {
@@ -676,15 +648,11 @@ static void relative_pointer_motion(void*			    data,
 	(void)dx;
 	(void)dy;
 
-	WAYLAND_EVENT_OP_START(self);
-
 	p.point.x = wl_fixed_to_int(dxUnaccel);
 	p.point.y = wl_fixed_to_int(dyUnaccel);
 
 	recursive_dispatch_move(self, &p);
 	if(self->wayland.locked_pointer) zwp_locked_pointer_v1_set_cursor_position_hint(self->wayland.locked_pointer, 0, CSD_BORDER_FRAME_TOP);
-
-	WAYLAND_EVENT_OP_END(self);
 }
 
 struct zwp_relative_pointer_v1_listener MwLLWaylandRelativePointerListener =
@@ -716,7 +684,6 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	(void)time;
 	(void)wl_pointer;
 
-	WAYLAND_EVENT_OP_START(self);
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
 	currentlyHeldWidgets = topmost_parent->wayland.currentlyHeldWidgets;
@@ -752,8 +719,6 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	if(self->wayland.backbuffer.surface) {
 		wl_pointer_set_cursor(self->wayland.pointer, self->wayland.pointer_serial, self->wayland.cursor.surface, 0, 0);
 	}
-
-	WAYLAND_EVENT_OP_END(self);
 };
 
 static void recursive_dispatch_mouse_down(MwLL handle, MwMouse* p) {
@@ -794,10 +759,8 @@ static MwBool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwP
 	while(topmost_parent->wayland.parent) {
 		topmost_parent = topmost_parent->wayland.parent;
 		if(topmost_parent) {
-			/* if the topmost parent is a popup then its x/y is irrelevant to us.
-			 * it's gonna be the position of the popup itself, and we want our
-			 * position to be relative to the popup itself. */
-			if(topmost_parent->wayland.type != MwLL_WAYLAND_POPUP) {
+			/* if the topmost parent is a popup/subwindow then its x/y is irrelevant to us. */
+			if(topmost_parent->wayland.type != MwLL_WAYLAND_POPUP && topmost_parent->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
 				if(topmost_parent->wayland.x > 0)
 					absolute_pos.x += topmost_parent->wayland.x;
 				if(topmost_parent->wayland.y > 0)
@@ -881,8 +844,6 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	(void)serial;
 	(void)time;
 
-	WAYLAND_EVENT_OP_START(self);
-
 	if(self->wayland.type != MwLL_WAYLAND_POPUP) {
 		while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 	}
@@ -909,19 +870,18 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 
 		arrsetlen(self->wayland.currentlyHeldWidgets, 0);
 		mouse_dispatch(self, p, state);
-	}
-	if(self->wayland.backbuffer.surface) {
-		if(!self->wayland.has_decorations && self->wayland.do_csd) {
-			if(state != WL_POINTER_BUTTON_STATE_RELEASED)
-				xdg_borderless_step_mdown(self, p, serial);
-			else
-				xdg_borderless_step_mup(self, p, serial);
+
+		if(self->wayland.backbuffer.surface) {
+			if(!self->wayland.has_decorations && self->wayland.do_csd) {
+				if(state != WL_POINTER_BUTTON_STATE_RELEASED)
+					xdg_borderless_step_mdown(self, p, serial);
+				else
+					xdg_borderless_step_mup(self, p, serial);
+			}
 		}
 	}
 
 	MwLLForceRender(self);
-
-	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `wl_pointer.axis` callback */
@@ -984,13 +944,9 @@ static void keyboard_enter(void*	       data,
 	(void)surface;
 	(void)keys;
 
-	WAYLAND_EVENT_OP_START(self);
-
 	self->wayland.keyboard_serial = serial;
 
 	MwLLDispatch(self, focus_in, NULL);
-
-	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `wl_keyboard.leave` callback */
@@ -1003,11 +959,7 @@ static void keyboard_leave(void*	       data,
 	(void)serial;
 	(void)surface;
 
-	WAYLAND_EVENT_OP_START(self);
-
 	MwLLDispatch(self, focus_out, NULL);
-
-	WAYLAND_EVENT_OP_END(self);
 };
 
 void MwLLRecursiveKeyDispatch(MwLL self, int* k, MwBool down) {
@@ -1053,8 +1005,6 @@ static void keyboard_key(void*		     data,
 
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
-	WAYLAND_EVENT_OP_START(self);
-
 	if(self->wayland.framebuffer.surface) {
 		inArea |= self->wayland.framebuffer.surface == curSurface;
 	}
@@ -1072,7 +1022,7 @@ static void keyboard_key(void*		     data,
 		int		    i;
 
 		if(!self->wayland.xkb_keymap) {
-			WAYLAND_EVENT_OP_END(self);
+
 			return;
 		}
 
@@ -1087,7 +1037,7 @@ static void keyboard_key(void*		     data,
 		}
 		syms_num = xkb_keymap_key_get_syms_by_level(self->wayland.xkb_keymap, keycode, layout, level, &syms_out);
 		if(syms_out == NULL) {
-			WAYLAND_EVENT_OP_END(self);
+
 			return;
 		}
 
@@ -1161,8 +1111,6 @@ static void keyboard_key(void*		     data,
 	if(!MwWaylandVulkan) {
 		MwLLDispatch(self, draw, NULL);
 	}
-
-	WAYLAND_EVENT_OP_END(self);
 };
 
 /* `wl_keyboard.modifiers` callback */
@@ -1179,13 +1127,9 @@ static void keyboard_modifiers(void*		   data,
 	(void)group;
 	(void)mods_latched;
 
-	WAYLAND_EVENT_OP_START(self);
-
 	self->wayland.mod_state = 0;
 	self->wayland.mod_state |= mods_depressed;
 	self->wayland.mod_state |= mods_locked;
-
-	WAYLAND_EVENT_OP_END(self);
 };
 
 static void setup_zwp_clipboard(MwLL self, struct wl_seat* wl_seat) {
@@ -1256,8 +1200,6 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 				 MwU32 capabilities) {
 	MwLL self = data;
 
-	WAYLAND_EVENT_OP_START(self);
-
 	/* Always remember the seat itself, regardless of which capabilities it has - this is
 	 * both what setup_clipboard()/setup_zwp_clipboard() below use, and what lets
 	 * wl_seat_interface_destroy() release it later even on a keyboard-only seat. */
@@ -1271,7 +1213,6 @@ static void wl_seat_capabilities(void* data, struct wl_seat* wl_seat,
 		self->wayland.pointer = wl_seat_get_pointer(wl_seat);
 		wl_pointer_add_listener(self->wayland.pointer, &pointer_listener, data);
 	}
-	WAYLAND_EVENT_OP_END(self);
 
 	/* Only hooked up if this seat actually has a pointer: wl_data_device.get_data_device()
 	 * requires a non-null seat, and pointer_seat is only ever null before the first

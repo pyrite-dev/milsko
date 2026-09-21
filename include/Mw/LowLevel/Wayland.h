@@ -488,12 +488,6 @@ void MwLLWaylandFlush(MwLL handle);
 /* recursively dispatch the key event to focused widgets.  */
 void MwLLRecursiveKeyDispatch(MwLL self, int* k, MwBool down);
 
-/* Standard procedure before event callbacks in Wayland  */
-#define WAYLAND_EVENT_OP_START(self)
-
-/* Footer for WAYLAND_EVENT_OP_START */
-#define WAYLAND_EVENT_OP_END(self)
-
 /* the two decoration manager constructs */
 typedef struct zxdg_decoration_manager_v1_context {
 	struct zxdg_decoration_manager_v1*  manager;
