@@ -986,6 +986,9 @@ static void MwLLDestroyImpl(MwLL handle) {
 	int	       i;
 	struct timeval tv;
 	int	       select_ret;
+	MwLL	       topmost_parent = handle;
+
+	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 
 	event_loop(handle);
 	// wl_display_cancel_read(handle->wayland.display);
@@ -1023,6 +1026,12 @@ static void MwLLDestroyImpl(MwLL handle) {
 		destroy_widget(handle);
 	} else {
 		printf("widget invalid\n");
+	}
+
+	for(i = 0; i < arrlen(topmost_parent->wayland.currentlyHeldWidgets); i++) {
+		if(topmost_parent->wayland.currentlyHeldWidgets[i] == handle) {
+			arrdel(topmost_parent->wayland.currentlyHeldWidgets, i);
+		}
 	}
 
 	// pthread_mutex_destroy(&handle->wayland.eventsMutex);
