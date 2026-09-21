@@ -175,9 +175,10 @@ void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 		memcpy(buffer->buf, buffer->buf_back, buffer->buf_size);
 		if(buffer->surface) {
 			// Yes this is needed every time, it's how we fix weston.
-			// if(self->wayland.configured) {
-			// 	wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
-			// }
+			// it's also how we fix comboboxes.
+			if(self->wayland.configured) {
+				wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
+			}
 			if(buffer->fifo)
 				wp_fifo_v1_wait_barrier(buffer->fifo);
 			wl_surface_commit(buffer->surface);
