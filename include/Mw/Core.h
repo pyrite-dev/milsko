@@ -390,6 +390,13 @@ MWDECL void MWAPI MwFreeWidget(MwWidget handle);
  */
 MWDECL void MWAPI MwGetFrame(MwWidget handle, MwRect* rect);
 
+/*!
+ * @brief Gets the clipping frame of the widget
+ * @param handle Widget
+ * @param rect Frame
+ */
+MWDECL void MWAPI MwGetClipFrame(MwWidget handle, MwRect* rect);
+
 #ifdef _MILSKO
 MWDECL void MwForceRender_Internal(MwWidget handle);
 MWDECL void MwForceRender2_Internal(MwWidget handle, void* ptr);

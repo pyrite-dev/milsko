@@ -59,17 +59,9 @@ static void draw(MwWidget handle) {
 	MwFLFont   font = NULL;
 	MwPoint	   u_p, s_p, c_p;
 	int	   u = 0, s = 0, c = 0;
-	int	   s_y = 0;
-	int	   s_h = MwGetInteger(handle, MwNheight);
-	MwWidget   p   = handle->parent;
+	MwRect	   clip;
 
-	s_y = MwGetInteger(handle, MwNy);
-	while(p != NULL && p->widget_class != MwWindowClass) {
-		s_y += MwGetInteger(p, MwNy);
-
-		p = p->parent;
-	}
-	s_y *= -1;
+	MwGetClipFrame(handle, &clip);
 
 	u_p.x = s_p.x = c_p.x = 0;
 	u_p.y = s_p.y = c_p.y = 0;
@@ -87,11 +79,12 @@ static void draw(MwWidget handle) {
 		case MwDOCUMENT_TEXT:
 		{
 			MwPoint p;
+			int	th2;
 
 			p.x = l->x;
-			p.y = l->y + MwTextHeight(handle, font, l->text) / 2;
+			p.y = l->y + (th2 = MwTextHeight(handle, font, l->text) / 2);
 
-			if(p.y <= s_y || p.y >= s_y + s_h) break;
+			if((p.y + th2) <= clip.y || (p.y - th2) >= clip.y + clip.height) break;
 
 			if(u || s || c) {
 				MwPoint line[2];

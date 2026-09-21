@@ -1125,3 +1125,35 @@ MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
 
 	return px;
 }
+
+static int _min(int a, int b) {
+	return a < b ? a : b;
+}
+
+static int _max(int a, int b) {
+	return a > b ? a : b;
+}
+
+void MwIntersectRect(MwRect* a, const MwRect* b) {
+	int x;
+	int y;
+	int right;
+	int bottom;
+
+	x      = _max(a->x, b->x);
+	y      = _max(a->y, b->y);
+	right  = _min(a->x + a->width, b->x + b->width);
+	bottom = _min(a->y + a->height, b->y + b->height);
+
+	a->x = x;
+	a->y = y;
+
+	if(right <= x || bottom <= x) {
+		a->width  = 0;
+		a->height = 0;
+		return;
+	}
+
+	a->width  = right - x;
+	a->height = bottom - y;
+}

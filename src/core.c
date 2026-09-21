@@ -1241,4 +1241,31 @@ void MwGetFrame(MwWidget handle, MwRect* rect) {
 	rect->height = MwGetInteger(handle, MwNheight);
 }
 
+void MwGetClipFrame(MwWidget handle, MwRect* rect) {
+	MwWidget child = handle;
+	MwWidget p     = handle->parent;
+	int	 o_x = 0, o_y = 0;
+
+	rect->x	     = 0;
+	rect->y	     = 0;
+	rect->width  = MwGetInteger(handle, MwNwidth);
+	rect->height = MwGetInteger(handle, MwNheight);
+	while(p != NULL && p->widget_class != MwWindowClass) {
+		MwRect pclip;
+
+		o_x += MwGetInteger(child, MwNx);
+		o_y += MwGetInteger(child, MwNy);
+
+		pclip.x	     = -o_x;
+		pclip.y	     = -o_y;
+		pclip.width  = MwGetInteger(p, MwNwidth);
+		pclip.height = MwGetInteger(p, MwNheight);
+		MwIntersectRect(rect, &pclip);
+		if(rect->width == 0 || rect->height == 0) break;
+
+		child = p;
+		p     = p->parent;
+	}
+}
+
 const char* MwVersionString = MwVERSION;

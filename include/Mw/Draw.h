@@ -220,6 +220,13 @@ MWDECL void MWAPI MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, 
  */
 MWDECL void MWAPI MwDrawCircle(MwWidget handle, MwRect* rect, MwLLColor color, MwLLColor background, int filled);
 
+/*!
+ * @brief Calculate intersect of 2 rectangles
+ * @param a 1st rectangle
+ * @param a 2nd rectangle
+ */
+MWDECL void MwIntersectRect(MwRect* a, const MwRect* b);
+
 /* text.c */
 
 /*!
