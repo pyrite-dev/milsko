@@ -31,9 +31,9 @@ void MwLLCairoLine(struct _MwLLCairo handle, MwPoint* points, MwLLColor color) {
 	cairo_set_source_rgba(handle.front_cairo_back, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
 	for(i = 0; i < 2; i++) {
 		if(i == 0) {
-			cairo_move_to(handle.front_cairo_back, points[i].x, points[i].y);
+			cairo_move_to(handle.front_cairo_back, points[i].x + 0.5, points[i].y + 0.5);
 		} else {
-			cairo_line_to(handle.front_cairo_back, points[i].x, points[i].y);
+			cairo_line_to(handle.front_cairo_back, points[i].x + 0.5, points[i].y + 0.5);
 		}
 	}
 	cairo_stroke(handle.front_cairo_back);

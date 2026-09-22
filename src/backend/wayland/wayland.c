@@ -1986,7 +1986,7 @@ static int MwLLWaylandCallInitImpl(void) {
 
 #ifdef MW_OPENGL
 	if(getenv("WSLENV") || getenv("WSL_DISTRO_NAME")) {
-		loadWayland = 0;
+		//loadWayland = 0;
 	}
 #endif
 
