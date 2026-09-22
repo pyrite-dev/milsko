@@ -45,7 +45,7 @@ sub cobjs {
 sub d3d9_detect_block {
     return <<'EOF';
 !if [where /R "%DXSDK_DIR%\\Include" d3d9.h >nul 2>nul]
-!if [for /f "delims=" %P in ('where /R "%DXSDK_DIR%\\Include" d3d9.h 2^>nul') do @echo DX9_FLAGS = /DMW_DIRECT3D9 /I"%~dpP">d3d9flags.mk]
+!if [echo DX9_FLAGS = /DMW_DIRECT3D9 /I"%DXSDK_DIR%\\Include">d3d9flags.mk]
 !endif
 !else
 !if [echo DX9_FLAGS =>d3d9flags.mk]

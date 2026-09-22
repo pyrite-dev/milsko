@@ -246,7 +246,7 @@ print(OUT
 "	clang-format --verbose -i `find tools src include examples \"(\" -name \"*.c\" -or -name \"*.cc\" -or -name \"*.h\" -or -name \"*.m\" \")\" -and -not -name \"*ttf.c\"`\n"
 );
 print(OUT
-"	perltidy -b -bext=\"/\" --paren-tightness=2 `find tools pl configure -name \"*.pl\"`\n"
+"	perltidy -b -bext=\"/\" --paren-tightness=2 `find tools pl -name \"*.pl\"` configure\n"
 );
 print(OUT "\n");
 print(OUT "lib:");
