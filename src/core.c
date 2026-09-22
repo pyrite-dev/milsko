@@ -679,7 +679,7 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 		if(h->lowlevel != NULL) MwLLSetDarkTheme(h->lowlevel, n);
 	}
 
-	if(strcmp(key, MwNacceptsDnD) == 0) {
+	if(strcmp(key, MwNacceptsDnD) == 0 && n) {
 		if(handle->lowlevel != NULL) MwLLSetupDragAndDrop(handle->lowlevel);
 	}
 }

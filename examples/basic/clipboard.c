@@ -45,7 +45,6 @@ static void MWAPI tick(MwWidget handle, void* user_data, void* call_data) {
 	MwGetClipboard(handle, MwCLIPBOARD_MAIN);
 	cur_text = text2;
 	MwGetClipboard(handle, MwCLIPBOARD_PRIMARY);
-	MwForceRender(window);
 }
 
 int main() {

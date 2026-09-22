@@ -44,11 +44,10 @@ int main() {
 					NULL);
 	text_listbox = MwVaCreateWidget(MwListBoxClass, "label", box, 25, 150, 750, 700,
 					MwNtext, "",
-					MwNacceptsDnD, 1,
 					NULL);
 
 	MwAddUserHandler(window, MwNresizeHandler, resize, NULL);
-	MwAddUserHandler(window, MwNdragAndDropHandler, dnd, NULL);
+	MwAddUserHandler(instructions, MwNdragAndDropHandler, dnd, NULL);
 
 	resize(window, NULL, NULL);
 
