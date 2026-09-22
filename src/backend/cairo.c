@@ -31,9 +31,9 @@ void MwLLCairoLine(struct _MwLLCairo handle, MwPoint* points, MwLLColor color) {
 	cairo_set_source_rgba(handle.front_cairo_back, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
 	for(i = 0; i < 2; i++) {
 		if(i == 0) {
-			cairo_move_to(handle.front_cairo_back, points[i].x + 0.5, points[i].y + 0.5);
+			cairo_move_to(handle.front_cairo_back, points[i].x, points[i].y);
 		} else {
-			cairo_line_to(handle.front_cairo_back, points[i].x + 0.5, points[i].y + 0.5);
+			cairo_line_to(handle.front_cairo_back, points[i].x, points[i].y);
 		}
 	}
 	cairo_stroke(handle.front_cairo_back);
@@ -219,8 +219,8 @@ static void MwLLFreeColorImpl(MwLLColor color) {}
 
 static MwBool lmao = MwFALSE;
 static int    MwLLPendingImpl(MwLL handle) {
-	   lmao = !lmao;
-	   return lmao;
+	lmao = !lmao;
+	return lmao;
 }
 static void MwLLNextEventImpl(MwLL handle) {
 	MwLLDispatch(handle, draw, NULL);
@@ -264,10 +264,10 @@ static void MwLLRaiseImpl(MwLL handle) {}
 static void MwLLClipImpl(MwLL handle, MwRect* rect) {}
 static void MwLLSetupDragAndDropImpl(MwLL handle) {}
 static int  MwLLCairoCallInitImpl(void) {
-	 if(cairo_load_funcs() != 0) {
-		 return 1;
-	 }
-	 return 0;
+	if(cairo_load_funcs() != 0) {
+		return 1;
+	}
+	return 0;
 }
 #include "call.c"
 CALL(Cairo);

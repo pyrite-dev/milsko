@@ -1505,11 +1505,19 @@ void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland) {
 	WL_INTERFACE(zwp_relative_pointer_manager_v1);
 	WL_INTERFACE(xdg_wm_base);
 	WL_INTERFACE(zwlr_layer_shell_v1); /* Only used for layer surface, but we use it always if it's turned into a tool window */
-	WL_INTERFACE(wl_subcompositor);
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(zxdg_decoration_manager_v1);
 		WL_INTERFACE(xdg_toplevel_icon_manager_v1);
+		WL_INTERFACE(wl_subcompositor);
+		WL_INTERFACE(wl_seat);
 		WL_INTERFACE(wp_fifo_manager_v1);
+	} else if(wayland->type == MwLL_WAYLAND_POPUP) {
+		WL_INTERFACE(wl_seat);
+	} else if(wayland->type == MwLL_WAYLAND_LAYER_SURFACE) {
+		WL_INTERFACE(wl_subcompositor);
+		WL_INTERFACE(wl_seat);
+	} else {
+		WL_INTERFACE(wl_subcompositor);
 	}
 #undef WL_INTERFACE
 }

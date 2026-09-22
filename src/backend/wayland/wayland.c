@@ -892,7 +892,6 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 	r->wayland.parent = parent;
 	r->wayland.valid  = MwTRUE;
 
-	printf("type %d\n", ty);
 	if(ty == MwLL_WAYLAND_UNKNOWN) {
 		if(parent == NULL) {
 			setup_toplevel(r, x, y);
@@ -1986,7 +1985,7 @@ static int MwLLWaylandCallInitImpl(void) {
 
 #ifdef MW_OPENGL
 	if(getenv("WSLENV") || getenv("WSL_DISTRO_NAME")) {
-		//loadWayland = 0;
+		// loadWayland = 0;
 	}
 #endif
 
