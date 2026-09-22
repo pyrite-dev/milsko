@@ -366,6 +366,8 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 		r->wayland.sublevel->xdg_surface = parent->wayland.toplevel->xdg_surface;
 	} else if(parent->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
 		r->wayland.sublevel->xdg_surface = parent->wayland.sublevel->xdg_surface;
+	} else if(parent->wayland.type == MwLL_WAYLAND_SUBSURFACE) {
+		r->wayland.sublevel->xdg_surface = parent->wayland.subsurface->xdg_surface;
 	} else if(parent->wayland.type == MwLL_WAYLAND_POPUP) {
 		r->wayland.sublevel->xdg_surface = parent->wayland.popup->xdg_surface;
 	}
@@ -388,6 +390,66 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 
 /* Sublevel setup function */
 static void destroy_sublevel(MwLL r) {
+	MwLLWaylandBackbufferDestroy(&r->wayland);
+	MwLLWaylandFramebufferDestroy(&r->wayland);
+
+	free(r->wayland.sublevel);
+
+	r->wayland.configured = MwFALSE;
+}
+
+/* Subsurface setup function */
+static void setup_subsurface(MwLL parent, MwLL r, int x, int y) {
+	struct wl_compositor* compositor     = parent->wayland.compositor;
+	struct wl_surface*    parent_surface = parent->wayland.framebuffer.surface;
+
+	r->wayland.subsurface	      = malloc(sizeof(struct _MwLLWaylandSubsurface));
+	r->wayland.subsurface->parent = parent;
+
+	r->wayland.type = MwLL_WAYLAND_SUBSURFACE;
+
+	r->wayland.display = parent->wayland.display;
+
+	MwLLWaylandSetupCallbacks(&r->wayland);
+
+	r->wayland.registry = wl_display_get_registry(parent->wayland.display);
+	r->wayland.display  = parent->wayland.display;
+
+	if(parent->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
+		r->wayland.subsurface->xdg_surface = parent->wayland.toplevel->xdg_surface;
+	} else {
+		r->wayland.subsurface->xdg_surface = parent->wayland.subsurface->xdg_surface;
+	}
+
+	wl_registry_add_listener(r->wayland.registry, &r->wayland.registry_listener, r);
+	if(wl_display_roundtrip(r->wayland.display) == -1) {
+		printf("roundtrip failed: %d\n", wl_display_get_error(r->wayland.display));
+		raise(SIGTRAP);
+		return;
+	}
+
+	r->wayland.framebuffer.surface = wl_compositor_create_surface(compositor);
+
+	r->wayland.subsurface->subsurface = wl_subcompositor_get_subsurface(r->wayland.subsurface->subcompositor, r->wayland.framebuffer.surface, parent_surface);
+
+	wl_subsurface_set_desync(r->wayland.subsurface->subsurface);
+	wl_subsurface_set_position(r->wayland.subsurface->subsurface, x, y);
+
+	if(parent) {
+		wl_subsurface_place_above(r->wayland.subsurface->subsurface, parent->wayland.framebuffer.surface);
+	}
+
+	r->wayland.xkb_keymap = parent->wayland.xkb_keymap;
+	r->wayland.xkb_state  = parent->wayland.xkb_state;
+
+	r->wayland.configured = MwTRUE;
+
+	MwLLWaylandFramebufferSetup(&r->wayland);
+	MwLLWaylandBackbufferSetup(&r->wayland);
+}
+
+/* Subsurface setup function */
+static void destroy_subsurface(MwLL r) {
 	MwLLWaylandBackbufferDestroy(&r->wayland);
 	MwLLWaylandFramebufferDestroy(&r->wayland);
 
@@ -830,6 +892,7 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 	r->wayland.parent = parent;
 	r->wayland.valid  = MwTRUE;
 
+	printf("type %d\n", ty);
 	if(ty == MwLL_WAYLAND_UNKNOWN) {
 		if(parent == NULL) {
 			setup_toplevel(r, x, y);
@@ -861,6 +924,9 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 			break;
 		case MwLL_WAYLAND_LAYER_SURFACE:
 			setup_layer_surface(r, x, y, width, height);
+			break;
+		case MwLL_WAYLAND_SUBSURFACE:
+			setup_subsurface(parent, r, x, y);
 			break;
 		}
 	}
@@ -1085,6 +1151,9 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 						 y, 0, 0, x);
 		break;
 	case MwLL_WAYLAND_UNKNOWN:
+		break;
+	case MwLL_WAYLAND_SUBSURFACE:
+		wl_subsurface_set_position(handle->wayland.subsurface->subsurface, x, y);
 		break;
 	}
 	MwLLWaylandRegionSetup(handle);

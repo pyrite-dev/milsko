@@ -351,13 +351,22 @@ static int vulkan_surface_setup(MwWidget handle, vulkan_t* o) {
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
 		LOAD_VK_FUNCTION(vkCreateWaylandSurfaceKHR);
 
-		VkWaylandSurfaceCreateInfoKHR createInfo = {
+		VkWaylandSurfaceCreateInfoKHR createInfo;
+
+		/* transition to a subsurface */
+		MwLLBeginStateChange(handle->lowlevel);
+		handle->lowlevel->wayland.changing   = MwTRUE;
+		handle->lowlevel->wayland.type_to_be = MwLL_WAYLAND_SUBSURFACE;
+		MwLLEndStateChange(handle->lowlevel);
+
+		createInfo = (VkWaylandSurfaceCreateInfoKHR){
 		    .sType   = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR,
 		    .pNext   = NULL,
 		    .flags   = 0,
 		    .display = handle->lowlevel->wayland.display,
 		    .surface = handle->lowlevel->wayland.framebuffer.surface,
 		};
+
 		VK_CMD(_vkCreateWaylandSurfaceKHR(o->vkInstance, &createInfo, NULL, &o->vkSurface));
 	}
 #endif
@@ -609,6 +618,7 @@ void MwVulkanConfigure(MwVulkanConfig* cfg) {
 }
 
 int MwVulkanSupported(void) {
+	printf("[vulkan support not copmiled]\n");
 	return 0;
 }
 #endif

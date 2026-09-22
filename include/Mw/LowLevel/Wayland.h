@@ -257,6 +257,14 @@ struct _MwLLWaylandLayerSurface {
 	struct zwlr_layer_surface_v1* surface;
 };
 
+struct _MwLLWaylandSubsurface {
+	MwLL parent;
+
+	struct xdg_surface*	 xdg_surface;
+	struct wl_subsurface*	 subsurface;
+	struct wl_subcompositor* subcompositor;
+};
+
 /* Shared set of anything needed for a shm buffer.  */
 struct _MwLLWaylandShmBuffer {
 	struct wl_shm*	    shm;
@@ -283,6 +291,7 @@ enum _MwLLWaylandType {
 	MwLL_WAYLAND_SUBLEVEL,
 	MwLL_WAYLAND_POPUP,
 	MwLL_WAYLAND_LAYER_SURFACE,
+	MwLL_WAYLAND_SUBSURFACE,
 };
 
 typedef struct wl_clipboard_device_context {
@@ -315,6 +324,8 @@ struct _MwLLWayland {
 		struct _MwLLWaylandPopup* popup;
 		/* Pointer for data that's only loaded if the widget is a layer surface */
 		struct _MwLLWaylandLayerSurface* layer_surface;
+		/* Pointer for data that's only loaded if the widget is a subsurface */
+		struct _MwLLWaylandSubsurface* subsurface;
 	};
 
 	enum _MwLLWaylandType type;

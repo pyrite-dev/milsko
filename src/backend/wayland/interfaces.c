@@ -1350,6 +1350,8 @@ static wayland_protocol_t* wl_subcompositor_setup(MwU32 name, struct _MwLLWaylan
 	(void)version;
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		wayland->toplevel->scompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
+	} else if(wayland->type == MwLL_WAYLAND_SUBSURFACE) {
+		wayland->subsurface->subcompositor = wl_registry_bind(wayland->registry, name, &wl_subcompositor_interface, 1);
 	}
 
 	return NULL;
@@ -1359,6 +1361,9 @@ static void wl_subcompositor_interface_destroy(struct _MwLLWayland* wayland, way
 	(void)data;
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		wl_subcompositor_destroy(wayland->toplevel->scompositor);
+	}
+	if(wayland->type == MwLL_WAYLAND_SUBSURFACE) {
+		wl_subcompositor_destroy(wayland->subsurface->subcompositor);
 	}
 }
 
@@ -1500,19 +1505,11 @@ void MwLLWaylandSetupCallbacks(struct _MwLLWayland* wayland) {
 	WL_INTERFACE(zwp_relative_pointer_manager_v1);
 	WL_INTERFACE(xdg_wm_base);
 	WL_INTERFACE(zwlr_layer_shell_v1); /* Only used for layer surface, but we use it always if it's turned into a tool window */
+	WL_INTERFACE(wl_subcompositor);
 	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
 		WL_INTERFACE(zxdg_decoration_manager_v1);
 		WL_INTERFACE(xdg_toplevel_icon_manager_v1);
-		WL_INTERFACE(wl_subcompositor);
-		WL_INTERFACE(wl_seat);
 		WL_INTERFACE(wp_fifo_manager_v1);
-	} else if(wayland->type == MwLL_WAYLAND_POPUP) {
-		WL_INTERFACE(wl_seat);
-	} else if(wayland->type == MwLL_WAYLAND_LAYER_SURFACE) {
-		WL_INTERFACE(wl_subcompositor);
-		WL_INTERFACE(wl_seat);
-	} else {
-		WL_INTERFACE(wl_subcompositor);
 	}
 #undef WL_INTERFACE
 }

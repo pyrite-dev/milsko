@@ -467,7 +467,7 @@ if(MW_BUILD_VULKAN)
   )
   endif()
 
-  check_include_files(vulkan/VULKAN.h HAS_VK_HEADER)
+  check_include_files(vulkan/vulkan.h HAS_VK_HEADER)
   if(HAS_VK_HEADER)
     target_compile_definitions(
         Mw
