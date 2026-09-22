@@ -4,7 +4,7 @@
 #include <Mw/Widget/Direct3D9.h>
 typedef struct gdid3d9 {
 	void* d3d9dll;
-	IDirect3D9*(D3DAPI* Direct3DCreate9)(UINT sdk_version);
+	IDirect3D9*(WINAPI* Direct3DCreate9)(UINT sdk_version);
 
 	LPDIRECT3D9	  d3d;	  // the pointer to our Direct3D interface
 	LPDIRECT3DDEVICE9 d3ddev; // the pointer to the device class

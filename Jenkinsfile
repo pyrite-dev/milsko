@@ -42,7 +42,7 @@ pipeline {
 					}
 					steps {
 						sh("git clean -dfx")
-						sh("./configure --enable-opengl --enable-d3d9 --enable-d3d8 --cross --target=Windows --host=i686-w64-mingw32")
+						sh("./configure --enable-opengl --cross --target=Windows --host=i686-w64-mingw32")
 						sh("make -j4")
 						sh("mv src/Mw.dll Mw32.dll")
 						sh("mv src/libMw.dll.a libMw32.dll.a")
@@ -55,7 +55,7 @@ pipeline {
 					}
 					steps {
 						sh("git clean -dfx")
-						sh("./configure --enable-opengl --enable-d3d9 --enable-d3d8 --cross --target=Windows --host=x86_64-w64-mingw32")
+						sh("./configure --enable-opengl --cross --target=Windows --host=x86_64-w64-mingw32")
 						sh("make -j4")
 						sh("mv src/Mw.dll Mw64.dll")
 						sh("mv src/libMw.dll.a libMw64.dll.a")
