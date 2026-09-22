@@ -59,6 +59,17 @@ DX9_FLAGS =
 EOF
 }
 
+sub skip_d3d9 {
+    my $f    = $_[0];
+    my $type = $_[1];
+
+    if (($f =~ /\/dxdemos\//) and not($type eq "Watcom")) {
+        return 1;
+    }
+
+    return 0;
+}
+
 sub generate {
     my ($output, $type) = @_;
 
@@ -82,8 +93,8 @@ sub generate {
     my $lib        = "";
     my $c_dllout   = "";
     my $c_dllafter = "";
-    my $d3d9_flags  = "";
-    my $d3d9_block  = "";
+    my $d3d9_flags = "";
+    my $d3d9_block = "";
 
     if ($type eq "Borland") {
         $cc     = "bcc32 -c";
@@ -112,7 +123,7 @@ sub generate {
         $d3d9_block = d3d9_detect_block();
     }
     elsif ($type eq "Watcom") {
-        $cc     = "wcc386 -bt=nt -q";
+        $cc     = "wcc386 -bt=nt -q -fr";
         $link   = "wlink option quiet";
         $out    = "-fo=";
         $dllout = "name ";
@@ -131,6 +142,8 @@ sub generate {
         $prefobj  = "file ";
         $needlibs = "${lib}clib3r.lib";
         $c_dllout = "option implib=src${dir}Mw.lib";
+
+        $d3d9_flags = "${def}MW_DIRECT3D9";
     }
 
     open(OUT, ">", $output);
@@ -154,6 +167,9 @@ sub generate {
     }
     print(OUT "all: src${dir}Mw.dll");
     foreach my $f (@examples) {
+        if (skip_d3d9($f, $type)) {
+            next;
+        }
         $b = $f;
         $b =~ s/\.c$/.exe/;
         $b =~ s/\//$dir/g;
@@ -163,6 +179,9 @@ sub generate {
     print(OUT "lib: src${dir}Mw.dll\n");
     print(OUT "examples:");
     foreach my $f (@examples) {
+        if (skip_d3d9($f, $type)) {
+            next;
+        }
         $b = $f;
         $b =~ s/\.c$/.exe/;
         $b =~ s/\//$dir/g;
@@ -171,6 +190,9 @@ sub generate {
     print(OUT "\n");
     print(OUT "clean: $symbolic\n");
     foreach my $f (@cfiles) {
+        if (skip_d3d9($f, $type)) {
+            next;
+        }
         my $b = $f;
         $b =~ s/\.c$/.obj/;
         $b =~ s/\//$dir/g;
@@ -182,12 +204,18 @@ sub generate {
         print(OUT "	$del d3d9flags.mk\n");
     }
     foreach my $f (@examples) {
+        if (skip_d3d9($f, $type)) {
+            next;
+        }
         my $b = $f;
         $b =~ s/\.c$/.obj/;
         $b =~ s/\//$dir/g;
         print(OUT "	$del $b\n");
     }
     foreach my $f (@examples) {
+        if (skip_d3d9($f, $type)) {
+            next;
+        }
         $b = $f;
         $b =~ s/\.c$/.exe/;
         $b =~ s/\//$dir/g;
@@ -195,6 +223,9 @@ sub generate {
     }
     print(OUT "\n");
     foreach my $f (@examples) {
+        if (skip_d3d9($f, $type)) {
+            next;
+        }
         my $b = $f;
         $b =~ s/\.c$/.exe/;
         $b =~ s/\//$dir/g;
@@ -256,6 +287,7 @@ push(@cfiles, "src/backend/gdi.c");
 
 scan_examples("examples/basic");
 scan_examples("examples/gldemos");
+scan_examples("examples/dxdemos");
 
 @examples = sort(@examples);
 

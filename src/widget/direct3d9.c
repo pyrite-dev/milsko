@@ -4,12 +4,16 @@
 #include <Mw/Widget/Direct3D9.h>
 typedef struct gdid3d9 {
 	void* d3d9dll;
-	IDirect3D9* (*Direct3DCreate9)(UINT sdk_version);
+	IDirect3D9*(D3DAPI* Direct3DCreate9)(UINT sdk_version);
 
 	LPDIRECT3D9	  d3d;	  // the pointer to our Direct3D interface
 	LPDIRECT3DDEVICE9 d3ddev; // the pointer to the device class
 
 } gdid3d9_t;
+
+#ifndef D3D_SDK_VERSION
+#define D3D_SDK_VERSION 32
+#endif
 
 static int wcreate_d3d9(MwWidget handle) {
 	gdid3d9_t*	      o = malloc(sizeof(gdid3d9_t));

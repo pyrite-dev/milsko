@@ -25,6 +25,9 @@
 #error D3D9 widget only avaliable for Win32 backends
 #undef MW_DIRECT3D9
 #else
+#ifdef __WATCOMC__
+#include <windows.h>
+#endif
 #include <d3d9.h>
 #endif
 #endif
