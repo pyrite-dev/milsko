@@ -1,6 +1,6 @@
 /*!
- * @file Mw/Widget/DirectX.h
- * @brief DirectX widget.
+ * @file Mw/Widget/Direct3D9.h
+ * @brief Direct3D9 widget.
  * @warning Only avaliable on Windows.
  */
 #ifndef __MW_WIDGET_DIRECT3D9_H__
