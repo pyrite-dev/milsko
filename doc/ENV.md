@@ -1,3 +1,5 @@
+# Environment vaiables
+
 Platforms that support both X11 and Wayland (Linux, namely) support launching Milsko programs with following environment variables:
 
 - `MW_BACKEND`: set to either `wayland` or `x11` to force which display protocol Wayland uses
