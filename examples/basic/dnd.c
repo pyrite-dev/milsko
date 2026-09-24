@@ -26,10 +26,11 @@ static void MWAPI dnd(MwWidget handle, void* user_data, void* call_data) {
 }
 
 int main() {
-	MwSizeHints hints;
+	MwSizeHints hints = {0};
 
 	MwLibraryInit();
 	hints.min_width = hints.min_height = 600;
+	// hints.max_width = hints.max_height = 600;
 
 	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT, MwDEFAULT, 600, 600,
 				  MwNtitle, "dnd",
