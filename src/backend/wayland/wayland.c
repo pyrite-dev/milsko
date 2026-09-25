@@ -2,6 +2,7 @@
 
 #include <sys/poll.h>
 #include <sys/mman.h>
+#include <sys/resource.h>
 
 #include "../../../external/stb_ds.h"
 
@@ -1967,6 +1968,17 @@ static int MwLLWaylandCallInitImpl(void) {
 	MwBool loadWayland	  = MwFALSE;
 	char*  milsko_backend_env = getenv("MILSKO_BACKEND");
 	char*  mw_backend_env	  = getenv("MW_BACKEND");
+
+	struct rlimit rl;
+
+	/* Set both soft and hard limit to 65536 file descriptors */
+	rl.rlim_cur = 65536; /* soft limit */
+	rl.rlim_max = 65536; /* hard limit */
+
+	if(setrlimit(RLIMIT_NOFILE, &rl) == -1) {
+		perror("setrlimit");
+		return 1;
+	}
 
 	if(milsko_backend_env || mw_backend_env) {
 		if(milsko_backend_env) {

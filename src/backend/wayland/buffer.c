@@ -62,8 +62,8 @@ void MwLLWaylandBufferSetup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, M
 
 	buffer->fd	= mkstemp(temp_name);
 	buffer->fd_back = mkstemp(temp_name_back);
-	if(buffer->fd >= FD_SETSIZE - 1) {
-		MwDispatchError(-1, "Amount of allocated buffers has reached FD_SETSIZE! Cannot continue.\n");
+	if(buffer->fd >= 65536) {
+		MwDispatchError(-1, "Amount of allocated buffers has gone above 65536! Cannot continue.\n");
 		return;
 	}
 
