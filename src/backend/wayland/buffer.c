@@ -55,24 +55,28 @@ void MwLLWaylandBackbufferDestroy(struct _MwLLWayland* wayland) {
 
 void MwLLWaylandBufferSetup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height) {
 	int  stride	      = width * 4;
-	char temp_name[]      = "/tmp/milsko-wl-shm-XXXXXX";
-	char temp_name_back[] = "/tmp/milsko-wl-shm-back-XXXXXX";
+	char temp_name[]      = "/tmp/milsko-wl-shm-XXXXXXXX";
+	char temp_name_back[] = "/tmp/milsko-wl-shm-back-XXXXXXXX";
 
 	buffer->buf_size = width * height * 4;
 
 	buffer->fd	= mkstemp(temp_name);
 	buffer->fd_back = mkstemp(temp_name_back);
+	if(buffer->fd >= FD_SETSIZE - 1) {
+		MwDispatchError(-1, "Amount of allocated buffers has reached FD_SETSIZE! Cannot continue.\n");
+		return;
+	}
 
 	unlink(temp_name);
 	unlink(temp_name_back);
 
 	if(posix_fallocate(buffer->fd, 0, buffer->buf_size) != 0) {
-		printf("failure setting up wl_shm: could not fallocate. %s.\n", strerror(errno));
+		printf("failure setting up wl_shm (front buf): could not fallocate. %s.\n", strerror(errno));
 		close(buffer->fd);
 		return;
 	}
 	if(posix_fallocate(buffer->fd_back, 0, buffer->buf_size) != 0) {
-		printf("failure setting up wl_shm: could not fallocate. %s.\n", strerror(errno));
+		printf("failure setting up wl_shm (back buf): could not fallocate. %s.\n", strerror(errno));
 		close(buffer->fd_back);
 		return;
 	}
