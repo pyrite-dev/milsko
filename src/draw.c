@@ -954,7 +954,7 @@ MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 }
 
 static void pixmap_prop(MwWidget handle, const char* prop) {
-	if(strcmp(prop, MwNbackground) == 0 || strcmp(prop, MwNsubBackground) == 0) {
+	if(strcmp(prop, MwNbackground) == 0) {
 		int i;
 
 		for(i = 0; i < arrlen(handle->pixmaps); i++) MwPixmapReloadRaw(handle->pixmaps[i], NULL);
