@@ -373,11 +373,13 @@ static int is_bottom_right(MwWidget handle, MwPoint* p) {
 static void mouse_move(MwWidget handle) {
 	MwSubWindow sw = handle->internal;
 
+	if(handle->pressed) return;
+
 	if(is_bottom_right(handle, &handle->mouse_point)) {
 		if(sw->mouse_cache == 0) MwLLSetCursor(handle->lowlevel, &MwCursorBottomRight, &MwCursorBottomRightMask);
 
 		sw->mouse_cache = 1;
-	} else if(!handle->pressed && sw->mouse_cache != 0) {
+	} else if(sw->mouse_cache != 0) {
 		sw->mouse_cache = 0;
 
 		MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
