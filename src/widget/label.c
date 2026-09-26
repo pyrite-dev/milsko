@@ -129,7 +129,7 @@ static void draw_seven_segment(MwWidget handle) {
 	MwColor	       shadow = MwLightenColor(handle, base, MwDefaultShadow, MwDefaultShadow, MwDefaultShadow);
 	int	       align;
 	const char*    str   = MwGetText(handle, MwNtext);
-	MwPixmap       bgpx  = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwPixmap       bgpx  = MwGetPointer(handle, MwNbackgroundPixmap);
 	MwLabel	       lab   = handle->internal;
 	int	       l_one = MwGetInteger(handle, MwNlength) - (MwGetInteger(handle, MwNlength) % 2);
 	int	       s_one = (l_one * 3 / 4) - ((l_one * 3 / 4) % 2) + 1;
@@ -320,7 +320,7 @@ static void draw_normal(MwWidget handle) {
 	MwColor	    shadow = MwLightenColor(handle, base, MwDefaultShadow, MwDefaultShadow, MwDefaultShadow);
 	int	    align;
 	const char* str	 = MwGetText(handle, MwNtext);
-	MwPixmap    bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwPixmap    bgpx = MwGetPointer(handle, MwNbackgroundPixmap);
 
 	if(str == NULL) str = "";
 

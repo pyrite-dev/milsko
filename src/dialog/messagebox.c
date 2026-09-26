@@ -21,7 +21,7 @@ static void spawn_button(MwWidget handle, int x, int y, int id, const char* text
 static void messagebox_destroy_inject(MwWidget handle) {
 	void* px;
 
-	if((px = MwGetVoid(handle, MwNpixmap)) != NULL) MwDestroyPixmap(px);
+	if((px = MwGetPointer(handle, MwNpixmap)) != NULL) MwDestroyPixmap(px);
 }
 
 static void MWAPI messagebox_close(MwWidget handle, void* user, void* call) {
@@ -109,7 +109,7 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 
 		px = MwLoadIcon(icon, data);
 
-		MwSetVoid(icon, MwNpixmap, px);
+		MwSetPointer(icon, MwNpixmap, px);
 
 		left = 8 + 48 + 8;
 	}

@@ -16,7 +16,7 @@ static void draw(MwWidget handle) {
 	MwColor	 base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwColor	 fill = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	double	 w;
-	MwPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwPixmap bgpx = MwGetPointer(handle, MwNbackgroundPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;

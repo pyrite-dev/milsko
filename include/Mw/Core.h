@@ -162,12 +162,12 @@ MWDECL void MWAPI MwSetInteger(MwWidget handle, const char* key, int n);
 MWDECL void MWAPI MwSetText(MwWidget handle, const char* key, const char* value);
 
 /*!
- * @brief Sets a void pointer property
+ * @brief Sets a pointer property
  * @param handle Widget
  * @param key Key
  * @param value Value
  */
-MWDECL void MWAPI MwSetVoid(MwWidget handle, const char* key, void* value);
+MWDECL void MWAPI MwSetPointer(MwWidget handle, const char* key, void* value);
 
 /*!
  * @brief Gets the integer property
@@ -186,12 +186,12 @@ MWDECL int MWAPI MwGetInteger(MwWidget handle, const char* key);
 MWDECL const char* MWAPI MwGetText(MwWidget handle, const char* key);
 
 /*!
- * @brief Gets the void pointer property
+ * @brief Gets the pointer property
  * @param handle Widget
  * @param key Key
  * @return Value
  */
-MWDECL void* MWAPI MwGetVoid(MwWidget handle, const char* key);
+MWDECL void* MWAPI MwGetPointer(MwWidget handle, const char* key);
 
 /*!
  * @brief Sets the default property

@@ -71,8 +71,8 @@ static int is_monospace(MwWidget handle, MwFLFont ttf) {
 static MwFLFont assume_ttf(MwWidget handle, MwFLFont ttf) {
 	if(is_bitmap(handle, ttf)) return NULL;
 
-	if(is_monospace(handle, ttf)) return is_bold(handle, ttf) ? MwGetVoid(handle, MwNboldMonospaceFont) : MwGetVoid(handle, MwNmonospaceFont);
-	return is_bold(handle, ttf) ? MwGetVoid(handle, MwNboldFont) : MwGetVoid(handle, MwNfont);
+	if(is_monospace(handle, ttf)) return is_bold(handle, ttf) ? MwGetPointer(handle, MwNboldMonospaceFont) : MwGetPointer(handle, MwNmonospaceFont);
+	return is_bold(handle, ttf) ? MwGetPointer(handle, MwNboldFont) : MwGetPointer(handle, MwNfont);
 }
 #endif
 

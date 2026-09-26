@@ -45,7 +45,7 @@ static int icon_width(MwWidget handle, const char* text) {
 
 	for(i = 0; i < arrlen(t->names); i++) {
 		if(strcmp(t->names[i], text) == 0) {
-			MwPixmap px = MwGetVoid(t->frames[i], MwNiconPixmap);
+			MwPixmap px = MwGetPointer(t->frames[i], MwNiconPixmap);
 
 			if(px == NULL) return 0;
 
@@ -97,7 +97,7 @@ static void draw(MwWidget handle) {
 			x += r2.width;
 
 			if(iw > 0) {
-				MwPixmap px = MwGetVoid(t->frames[i], MwNiconPixmap);
+				MwPixmap px = MwGetPointer(t->frames[i], MwNiconPixmap);
 				MwRect	 rp;
 
 				rp = r2;

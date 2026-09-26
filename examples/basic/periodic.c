@@ -118,7 +118,7 @@ static MwWidget frame(const char* name, int width, int height, MwClass cl, ...) 
 		MwAddUserHandler(frame, MwNresizeHandler, resize_content, NULL);
 
 		MwVaApply(f,
-			  "VhandledWidget", w,
+			  "PhandledWidget", w,
 			  MwNcolumnSpan, MwGetInteger(w, MwNcolumnSpan),
 			  MwNrowSpan, MwGetInteger(w, MwNrowSpan),
 			  NULL);
@@ -132,7 +132,7 @@ static MwWidget frame(const char* name, int width, int height, MwClass cl, ...) 
 }
 
 static MwWidget child(MwWidget w) {
-	return MwGetVoid(w, "VhandledWidget");
+	return MwGetPointer(w, "PhandledWidget");
 }
 
 static void MWAPI menu_handler(MwWidget handle, void* user, void* call) {

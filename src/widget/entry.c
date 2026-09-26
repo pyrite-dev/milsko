@@ -50,7 +50,7 @@ static void draw(MwWidget handle) {
 	MwColor	    base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwColor	    text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	const char* str	 = MwGetText(handle, MwNtext);
-	MwPixmap    bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwPixmap    bgpx = MwGetPointer(handle, MwNbackgroundPixmap);
 	MwFLFont    font = MwFLBuildFont(MwFLFlagMonospace);
 	if(str == NULL) str = "";
 

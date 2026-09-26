@@ -18,8 +18,8 @@ static void draw(MwWidget handle) {
 	MwColor	    base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 	MwColor	    text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	const char* str	 = MwGetText(handle, MwNtext);
-	MwPixmap    px	 = MwGetVoid(handle, MwNpixmap);
-	MwPixmap    bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwPixmap    px	 = MwGetPointer(handle, MwNpixmap);
+	MwPixmap    bgpx = MwGetPointer(handle, MwNbackgroundPixmap);
 	int	    inv;
 
 	if(str == NULL) str = "";

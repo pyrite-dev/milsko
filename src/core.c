@@ -745,7 +745,7 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 	}
 }
 
-void MwSetVoid(MwWidget handle, const char* key, void* value) {
+void MwSetPointer(MwWidget handle, const char* key, void* value) {
 	if(IsFirstVisible(handle) && strcmp(key, MwNiconPixmap) == 0) {
 		MwLLSetIcon(handle->lowlevel, value);
 	} else if(strcmp(key, MwNsizeHints) == 0) {
@@ -851,14 +851,14 @@ const char* MwGetText(MwWidget handle, const char* key) {
 static void* inherit_void(MwWidget handle, const char* key) {
 	void* v;
 
-	if(handle->parent != NULL && (v = MwGetVoid(handle->parent, key)) != NULL) {
+	if(handle->parent != NULL && (v = MwGetPointer(handle->parent, key)) != NULL) {
 		return v;
 	}
 	return NULL;
 }
 #endif
 
-void* MwGetVoid(MwWidget handle, const char* key) {
+void* MwGetPointer(MwWidget handle, const char* key) {
 	void* v = shget(handle->data, key);
 
 	if(v != NULL) return v;
@@ -936,10 +936,10 @@ static void MwVaListApply_Internal(MwWidget handle, va_list va, int only_early) 
 			if(only_early && key[1] != 'E') continue;
 
 			MwAddUserHandler(handle, key, h, NULL);
-		} else if(key[0] == 'V') {
+		} else if(key[0] == 'P') {
 			void* v = va_arg(va, void*);
 			if(only_early && key[1] != 'E') continue;
-			MwSetVoid(handle, key, v);
+			MwSetPointer(handle, key, v);
 		}
 	}
 	if(x != MwDEFAULT && y != MwDEFAULT) {

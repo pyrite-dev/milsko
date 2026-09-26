@@ -291,7 +291,7 @@ static void draw(MwWidget handle) {
 	MwRect	    r, r2, r3;
 	const char* title = MwGetText(handle, MwNtitle);
 	int	    incr  = 0;
-	MwPixmap    px	  = MwGetVoid(handle, MwNiconPixmap);
+	MwPixmap    px	  = MwGetPointer(handle, MwNiconPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;

@@ -60,7 +60,7 @@ static void draw(MwWidget handle) {
 	MwScrollBar scr	 = handle->internal;
 	int or ;
 	int	 uy, dy, ux, dx;
-	MwPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwPixmap bgpx = MwGetPointer(handle, MwNbackgroundPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;

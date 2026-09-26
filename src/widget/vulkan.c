@@ -576,7 +576,7 @@ static void prop_change(MwWidget handle, const char* prop) {
 
 		arrput(o->enabledLayers, str);
 	} else if(strcmp(prop, MwNvulkanConfig) == 0) {
-		memcpy(&o->vulkan_config, MwGetVoid(handle, MwNvulkanConfig), sizeof(MwVulkanConfig));
+		memcpy(&o->vulkan_config, MwGetPointer(handle, MwNvulkanConfig), sizeof(MwVulkanConfig));
 	}
 }
 
