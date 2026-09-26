@@ -1446,8 +1446,7 @@ static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 	return c;
 }
 
-static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
-	(void)handle;
+static void MwLLColorUpdateImpl(MwLLColor c, int r, int g, int b) {
 	c->common.red	= r;
 	c->common.blue	= b;
 	c->common.green = g;
