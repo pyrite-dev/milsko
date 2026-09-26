@@ -244,7 +244,9 @@ struct _MwSubWindow {
 	int	 width;
 	int	 height;
 	MwPoint	 cursor_start;
+	MwPoint	 local_start;
 	MwPoint	 base;
+	int	 mouse_cache;
 };
 
 struct _MwTab {

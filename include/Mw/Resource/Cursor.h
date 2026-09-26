@@ -83,6 +83,16 @@ MWDECL MwCursor MwCursorCenter;
  */
 MWDECL MwCursor MwCursorCenterMask;
 
+/*!
+ * @brief Bottom right cursor
+ */
+MWDECL MwCursor MwCursorBottomRight;
+
+/*!
+ * @brief Bottom right cursor mask
+ */
+MWDECL MwCursor MwCursorBottomRightMask;
+
 #ifdef __cplusplus
 }
 #endif

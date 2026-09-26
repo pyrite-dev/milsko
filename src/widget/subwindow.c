@@ -359,10 +359,29 @@ static void prop_change(MwWidget handle, const char* key) {
 	if(strcmp(key, MwNtitle) == 0 || strcmp(key, MwNiconPixmap) == 0) MwForceRender(handle);
 }
 
-static MwWidget mwSubWindowGetFrameImpl(MwWidget handle) {
+static int is_bottom_right(MwWidget handle, MwPoint* p) {
+	int w = MwGetInteger(handle, MwNwidth);
+	int h = MwGetInteger(handle, MwNheight);
+
+	if(p->x >= (w - TitleHeight) && p->y >= (h - TitleHeight)) {
+		return 1;
+	}
+
+	return 0;
+}
+
+static void mouse_move(MwWidget handle) {
 	MwSubWindow sw = handle->internal;
 
-	return sw->frame;
+	if(is_bottom_right(handle, &handle->mouse_point)) {
+		if(sw->mouse_cache == 0) MwLLSetCursor(handle->lowlevel, &MwCursorBottomRight, &MwCursorBottomRightMask);
+
+		sw->mouse_cache = 1;
+	} else if(!handle->pressed && sw->mouse_cache != 0) {
+		sw->mouse_cache = 0;
+
+		MwLLSetCursor(handle->lowlevel, &MwCursorDefault, &MwCursorDefaultMask);
+	}
 }
 
 static void mouse_down(MwWidget handle, void* ptr) {
@@ -371,11 +390,18 @@ static void mouse_down(MwWidget handle, void* ptr) {
 
 	if(m->button == MwMOUSE_LEFT && !sw->minimized && !sw->maximized) {
 		MwGetCursorCoord(handle, &sw->cursor_start);
-		sw->base.x = MwGetInteger(handle, MwNx);
-		sw->base.y = MwGetInteger(handle, MwNy);
+		sw->local_start = handle->mouse_point;
+		sw->base.x	= MwGetInteger(handle, MwNx);
+		sw->base.y	= MwGetInteger(handle, MwNy);
 	}
 
 	MwLLRaise(handle->lowlevel);
+}
+
+static MwWidget mwSubWindowGetFrameImpl(MwWidget handle) {
+	MwSubWindow sw = handle->internal;
+
+	return sw->frame;
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
@@ -394,10 +420,17 @@ static void tick(MwWidget handle) {
 
 		MwGetCursorCoord(handle, &p);
 
-		MwVaApply(handle,
-			  MwNx, sw->base.x + p.x - sw->cursor_start.x,
-			  MwNy, sw->base.y + p.y - sw->cursor_start.y,
-			  NULL);
+		if(sw->mouse_cache == 1) {
+			MwVaApply(handle,
+				  MwNwidth, handle->mouse_point.x,
+				  MwNheight, handle->mouse_point.y,
+				  NULL);
+		} else {
+			MwVaApply(handle,
+				  MwNx, sw->base.x + p.x - sw->cursor_start.x,
+				  MwNy, sw->base.y + p.y - sw->cursor_start.y,
+				  NULL);
+		}
 	}
 }
 
@@ -408,7 +441,7 @@ MwClassRec MwSubWindowClassRec = {
     NULL,	   /* click */
     parent_resize, /* parent_resize */
     prop_change,   /* prop_change */
-    NULL,	   /* mouse_move */
+    mouse_move,	   /* mouse_move */
     NULL,	   /* mouse_up */
     mouse_down,	   /* mouse_down */
     NULL,	   /* key */

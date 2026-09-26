@@ -23,11 +23,11 @@
 #define RESIZE(handle) \
 	{ \
 		int RESIZE_i; \
+		MwDispatch(handle, resize); \
 		MwDispatchUserHandler(handle, MwNresizeHandler, NULL); \
 		for(RESIZE_i = 0; RESIZE_i < arrlen(handle->children); RESIZE_i++) { \
 			MwDispatch(handle->children[RESIZE_i], parent_resize); \
 		} \
-		MwDispatch(handle, resize); \
 	}
 
 static void MWAPI     MwVaListApply_Internal(MwWidget handle, va_list va, int only_early);
@@ -590,7 +590,7 @@ int MwPending(MwWidget handle) {
 	for(i = 0; i < arrlen(handle->children); i++) {
 		if(MwPending(handle->children[i])) return 1;
 	}
-	return (arrlen(handle->tick_list) > 0 && (MwTimeGetTick() - handle->last_tick) >= (MwGetInteger(handle, MwNwaitMS) == MwDEFAULT ? MwWaitMS : MwGetInteger(handle, MwNwaitMS))) || (arrlen(handle->destroy_queue) > 0) || (handle->widget_class == NULL ? 0 : MwLLPending(handle->lowlevel));
+	return (arrlen(handle->tick_list) > 0 && (MwTimeGetTick() - handle->last_tick) >= (MwGetInteger(handle, MwNwaitMS) == MwDEFAULT ? MwWaitMS : MwGetInteger(handle, MwNwaitMS))) || (arrlen(handle->destroy_queue) > 0) || (arrlen(handle->resize_queue) > 0) || (handle->widget_class == NULL ? 0 : MwLLPending(handle->lowlevel));
 }
 
 void MwLoop(MwWidget handle) {
