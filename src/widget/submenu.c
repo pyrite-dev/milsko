@@ -13,19 +13,10 @@ static int wcreate(MwWidget handle) {
 	return 0;
 }
 
-static void null_all(MwMenu menu) {
-	int i;
-	for(i = 0; i < arrlen(menu->sub); i++) {
-		null_all(menu->sub[i]);
-	}
-	menu->wsub = NULL;
-}
-
 static void destroy(MwWidget handle) {
 	MwMenu menu = handle->internal;
 
-	menu->wsub = NULL;
-	null_all(menu);
+	if(menu != NULL && menu->wsub == handle) menu->wsub = NULL;
 }
 
 static void draw(MwWidget handle) {
@@ -126,8 +117,9 @@ static void click(MwWidget handle) {
 
 			if(MwGetInteger(handle, MwNleftPadding) <= handle->mouse_point.x && rc.y <= handle->mouse_point.y && handle->mouse_point.y <= (int)(rc.y + rc.height)) {
 				if(menu->sub[i]->wsub == NULL && arrlen(menu->sub[i]->sub) > 0) {
-					MwPoint p;
-					int	j;
+					MwPoint	 p;
+					MwWidget sw;
+					int	 j;
 
 					for(j = 0; j < arrlen(menu->sub); j++) {
 						if(menu->sub[j]->wsub != NULL) MwDestroyWidget(menu->sub[j]->wsub);
@@ -137,8 +129,14 @@ static void click(MwWidget handle) {
 					p.x = MwGetInteger(handle, MwNwidth);
 					p.y = rc.y - 3;
 
-					menu->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
-					MwSubMenuAppear(menu->sub[i]->wsub, menu->sub[i], &p, 0);
+					/* some backends (e.g. Wayland) dispatch input while creating a widget, which can re-enter this handler */
+					sw = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, 0, 0, 0);
+					if(sw != NULL && (menu->sub[i]->wsub != NULL || handle->destroyed)) {
+						MwDestroyWidget(sw);
+					} else if(sw != NULL) {
+						menu->sub[i]->wsub = sw;
+						MwSubMenuAppear(sw, menu->sub[i], &p, 0);
+					}
 					i = -1;
 				} else if(menu->sub[i]->wsub != NULL && arrlen(menu->sub[i]->sub) > 0) {
 					while(w->parent->widget_class == MwSubMenuClass) w = w->parent;

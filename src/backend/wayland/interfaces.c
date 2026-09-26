@@ -777,7 +777,8 @@ static void mouse_dispatch(MwLL self, MwMouse p, MwU32 state) {
 
 	switch(state) {
 	case WL_POINTER_BUTTON_STATE_PRESSED:
-		MwLLDispatch(target, down, &p);
+		/* otherwise the recursion below reaches the target and dispatches it there */
+		if(target == self) MwLLDispatch(target, down, &p);
 		break;
 	case WL_POINTER_BUTTON_STATE_RELEASED:
 		MwLLDispatch(target, up, &p);

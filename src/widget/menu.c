@@ -45,9 +45,22 @@ static void recursive_free(MwMenu m) {
 	free(m);
 }
 
+/* submenus are freed after us and would otherwise touch the entries we are about to free */
+static void detach_submenus(MwWidget handle) {
+	int i;
+
+	for(i = 0; i < arrlen(handle->children); i++) {
+		if(handle->children[i]->widget_class != MwSubMenuClass) continue;
+
+		handle->children[i]->internal = NULL;
+		detach_submenus(handle->children[i]);
+	}
+}
+
 static void destroy(MwWidget handle) {
 	MwMenu m = handle->internal;
 
+	detach_submenus(handle);
 	recursive_free(m);
 }
 
@@ -92,15 +105,25 @@ static void destroy(MwWidget handle) {
 	p.x += tw / 2 + 5; \
 	}
 
+/* some backends (e.g. Wayland) dispatch input while creating a widget, which can re-enter these
+ * handlers; if a submenu for this item appeared meanwhile, drop ours instead of orphaning that one.
+ * a release handled during creation saw no submenu yet, so keep it open as mouse_up would have */
 #define NEW_SUBMENU \
-	MwPoint p2; \
+	MwPoint	 p2; \
+	MwWidget sw; \
 \
 	p2.x = p.x - 5 - tw / 2; \
 	p2.y = p.y + th / 2 + 5; \
 \
-	m->sub[i]->wsub = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, MwGetInteger(handle, MwNheight), 0, 0); \
-	MwSubMenuAppear(m->sub[i]->wsub, m->sub[i], &p2, 0); \
-	m->sub[i]->cleaned = 0;
+	sw = MwCreateWidget(MwSubMenuClass, "submenu", handle, 0, MwGetInteger(handle, MwNheight), 0, 0); \
+	if(sw != NULL && m->sub[i]->wsub != NULL) { \
+		MwDestroyWidget(sw); \
+	} else if(sw != NULL) { \
+		m->sub[i]->wsub	   = sw; \
+		m->sub[i]->keep	   = handle->pressed ? 0 : 1; \
+		m->sub[i]->cleaned = 0; \
+		MwSubMenuAppear(sw, m->sub[i], &p2, 0); \
+	}
 
 static void draw(MwWidget handle) {
 	MwColor base = MwParseColor(handle, MwGetString(handle, MwNbackground));
