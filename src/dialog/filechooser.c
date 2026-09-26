@@ -105,7 +105,7 @@ static void MWAPI files_activate(MwWidget handle, void* user, void* call) {
 
 static void MWAPI okay_activate(MwWidget handle, void* user, void* call) {
 	filechooser_t* fc = handle->parent->opaque;
-	char*	       t  = (char*)MwGetText(fc->filename, MwNtext);
+	char*	       t  = (char*)MwGetString(fc->filename, MwNtext);
 	struct stat    s;
 	char*	       p = NULL;
 
@@ -195,7 +195,7 @@ static void MWAPI addr_activate(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	scan(handle->parent, MwGetText(handle, MwNtext), 1);
+	scan(handle->parent, MwGetString(handle, MwNtext), 1);
 }
 
 static void layout(MwWidget handle) {

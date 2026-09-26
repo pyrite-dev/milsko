@@ -55,10 +55,10 @@ static void draw(MwWidget handle) {
 	int	ColorDiff = MwGetColorDifference(handle);
 	int	ShadowDist;
 	int	BaseWidth;
-	MwColor base   = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor base   = MwParseColor(handle, MwGetString(handle, MwNbackground));
 	MwColor shadow = MwLightenColor(handle, base, -ColorDiff, -ColorDiff, -ColorDiff);
-	MwColor inside = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
-	MwColor border = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
+	MwColor inside = MwParseColor(handle, MwGetString(handle, MwNsubBackground));
+	MwColor border = MwParseColor(handle, MwGetString(handle, MwNsubForeground));
 	MwRect	r;
 	int	i;
 	double	w;

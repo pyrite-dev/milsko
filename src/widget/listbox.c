@@ -136,10 +136,10 @@ static void MWAPI frame_mouse_move(MwWidget handle, void* user, void* call) {
 static void frame_draw(MwWidget handle) {
 	MwRect	  r, r2;
 	MwListBox lb	= handle->parent->internal;
-	MwColor	  base	= MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor	  base2 = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
-	MwColor	  text	= MwParseColor(handle, MwGetText(handle, MwNforeground));
-	MwColor	  text2 = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
+	MwColor	  base	= MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor	  base2 = MwParseColor(handle, MwGetString(handle, MwNsubBackground));
+	MwColor	  text	= MwParseColor(handle, MwGetString(handle, MwNforeground));
+	MwColor	  text2 = MwParseColor(handle, MwGetString(handle, MwNsubForeground));
 	int	  i;
 	MwPoint	  p;
 	int	  st = 0;
@@ -359,8 +359,8 @@ static void destroy(MwWidget handle) {
 
 static void draw(MwWidget handle) {
 	MwRect	  r;
-	MwColor	  base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor	  text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	  base = MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor	  text = MwParseColor(handle, MwGetString(handle, MwNforeground));
 	MwListBox lb   = handle->internal;
 
 	r.x	 = 0;

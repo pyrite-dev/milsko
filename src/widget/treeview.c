@@ -167,10 +167,10 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 static void frame_draw(MwWidget handle) {
 	MwRect	   r, r2;
 	MwTreeView tv	 = handle->parent->internal;
-	MwColor	   base	 = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor	   base2 = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
-	MwColor	   text	 = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	MwColor	   text2 = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
+	MwColor	   base	 = MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor	   base2 = MwParseColor(handle, MwGetString(handle, MwNsubBackground));
+	MwColor	   text	 = MwParseColor(handle, MwGetString(handle, MwNforeground));
+	MwColor	   text2 = MwParseColor(handle, MwGetString(handle, MwNsubForeground));
 	MwPoint	   p;
 	int	   shared = 0;
 	int	   i;
@@ -322,7 +322,7 @@ static void destroy(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwColor c = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor c = MwParseColor(handle, MwGetString(handle, MwNbackground));
 	MwRect	r;
 
 	r.x	 = 0;

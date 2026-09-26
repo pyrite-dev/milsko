@@ -58,8 +58,8 @@ static int icon_width(MwWidget handle, const char* text) {
 
 static void draw(MwWidget handle) {
 	MwTab	t  = handle->internal;
-	MwColor c  = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor ct = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor c  = MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor ct = MwParseColor(handle, MwGetString(handle, MwNforeground));
 	MwRect	r, r2;
 	int	h = tab_height(handle);
 	int	i;

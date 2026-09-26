@@ -81,8 +81,8 @@ static MwPixmap blit(MwWidget handle, const char* str, MwColor bg, MwColor fg, i
 }
 
 static void draw(MwWidget handle) {
-	MwColor	    c	 = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor	    cf	 = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	    c	 = MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor	    cf	 = MwParseColor(handle, MwGetString(handle, MwNforeground));
 	MwColor	    cb	 = MwParseColor(handle, "#fff");
 	MwColor	    cb_g = MwParseColor(handle, "#666");
 	MwColor	    ct	 = MwParseColor(handle, "#000");

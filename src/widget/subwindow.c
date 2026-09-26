@@ -11,7 +11,7 @@ static void close_draw(MwWidget handle) {
 	int	w = MwGetInteger(handle, MwNwidth);
 	int	h = MwGetInteger(handle, MwNheight);
 	MwPoint p[2];
-	MwColor c  = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor c  = MwParseColor(handle, MwGetString(handle, MwNforeground));
 	int	bw = MwDefaultBorderWidth(handle);
 
 	p[0].x = bw * 2;
@@ -52,7 +52,7 @@ static void maximize_draw(MwWidget handle) {
 	int	w = MwGetInteger(handle, MwNwidth);
 	int	h = MwGetInteger(handle, MwNheight);
 	MwPoint p[2];
-	MwColor c  = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor c  = MwParseColor(handle, MwGetString(handle, MwNforeground));
 	int	bw = MwDefaultBorderWidth(handle);
 
 	p[0].x = bw * 2;
@@ -117,7 +117,7 @@ static void minimize_draw(MwWidget handle) {
 	int	w = MwGetInteger(handle, MwNwidth);
 	int	h = MwGetInteger(handle, MwNheight);
 	MwPoint p[2];
-	MwColor c  = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor c  = MwParseColor(handle, MwGetString(handle, MwNforeground));
 	int	bw = MwDefaultBorderWidth(handle);
 
 	p[0].x = bw * 2;
@@ -285,11 +285,11 @@ static void destroy(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwColor	    c  = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor	    tb = MwParseColor(handle, MwGetText(handle, MwNtitleBackground));
-	MwColor	    tf = MwParseColor(handle, MwGetText(handle, MwNtitleForeground));
+	MwColor	    c  = MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor	    tb = MwParseColor(handle, MwGetString(handle, MwNtitleBackground));
+	MwColor	    tf = MwParseColor(handle, MwGetString(handle, MwNtitleForeground));
 	MwRect	    r, r2, r3;
-	const char* title = MwGetText(handle, MwNtitle);
+	const char* title = MwGetString(handle, MwNtitle);
 	int	    incr  = 0;
 	MwPixmap    px	  = MwGetPointer(handle, MwNiconPixmap);
 

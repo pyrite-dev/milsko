@@ -15,9 +15,9 @@ static int wcreate(MwWidget handle) {
 static void draw(MwWidget handle) {
 	MwRect	    r;
 	MwPoint	    point;
-	MwColor	    base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor	    text = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	const char* str	 = MwGetText(handle, MwNtext);
+	MwColor	    base = MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor	    text = MwParseColor(handle, MwGetString(handle, MwNforeground));
+	const char* str	 = MwGetString(handle, MwNtext);
 	MwPixmap    px	 = MwGetPointer(handle, MwNpixmap);
 	MwPixmap    bgpx = MwGetPointer(handle, MwNbackgroundPixmap);
 	int	    inv;

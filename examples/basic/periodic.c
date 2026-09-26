@@ -354,9 +354,9 @@ int main() {
 
 	f = frame("Tab", -PaddingContent, -PaddingContent, MwTabClass, NULL);
 	w = child(f);
-	MwSetText(MwTabAdd(w, "ABC"), MwNbackground, "#f00");
-	MwSetText(MwTabAdd(w, "DEF"), MwNbackground, "#0f0");
-	MwSetText(MwTabAdd(w, "GHI"), MwNbackground, "#00f");
+	MwSetString(MwTabAdd(w, "ABC"), MwNbackground, "#f00");
+	MwSetString(MwTabAdd(w, "DEF"), MwNbackground, "#0f0");
+	MwSetString(MwTabAdd(w, "GHI"), MwNbackground, "#00f");
 
 	f = frame("TreeView", -PaddingContent, -PaddingContent, MwTreeViewClass, NULL);
 	w = child(f);

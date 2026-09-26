@@ -55,7 +55,7 @@ static void add_value(MwWidget handle, int mul) {
 
 static void draw(MwWidget handle) {
 	MwRect	    r = {0}, rt = {0}, rbar = {0};
-	MwColor	    base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	    base = MwParseColor(handle, MwGetString(handle, MwNbackground));
 	MwColor	    dark = MwLightenColor(handle, base, -64, -64, -64);
 	MwScrollBar scr	 = handle->internal;
 	int or ;

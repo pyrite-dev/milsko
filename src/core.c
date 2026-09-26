@@ -275,6 +275,7 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 	h->destroy_inject     = NULL;
 	h->prop_inject_pixmap = NULL;
 	h->pixmaps	      = NULL;
+	h->colors	      = NULL;
 	h->tick_list	      = NULL;
 	h->destroyed	      = 0;
 	h->bgcolor	      = NULL;
@@ -314,13 +315,13 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 
 	if(parent != NULL) arrput(parent->children, h);
 
-	sh_new_strdup(h->text);
+	sh_new_strdup(h->string);
 	sh_new_strdup(h->integer);
 	sh_new_strdup(h->handler);
 	sh_new_strdup(h->data);
 
 	shdefault(h->integer, MwDEFAULT);
-	shdefault(h->text, NULL);
+	shdefault(h->string, NULL);
 	shdefault(h->handler, NULL);
 	shdefault(h->data, NULL);
 
@@ -450,11 +451,11 @@ void MwFreeWidget(MwWidget handle) {
 
 	shfree(handle->integer);
 
-	for(i = 0; i < shlen(handle->text); i++) {
-		free(handle->text[i].value);
-		handle->text[i].value = NULL;
+	for(i = 0; i < shlen(handle->string); i++) {
+		free(handle->string[i].value);
+		handle->string[i].value = NULL;
 	}
-	shfree(handle->text);
+	shfree(handle->string);
 	for(i = 0; i < shlen(handle->handler); i++) {
 		arrfree(handle->handler[i].value);
 	}
@@ -466,6 +467,9 @@ void MwFreeWidget(MwWidget handle) {
 
 	while(arrlen(handle->pixmaps) > 0) MwDestroyPixmap(handle->pixmaps[0]);
 	arrfree(handle->pixmaps);
+
+	while(arrlen(handle->colors) > 0) MwFreeColor(handle->colors[0]);
+	arrfree(handle->colors);
 
 	arrfree(handle->draw_queue);
 	arrfree(handle->resize_queue);
@@ -711,18 +715,18 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 	}
 }
 
-void MwSetText(MwWidget handle, const char* key, const char* value) {
+void MwSetString(MwWidget handle, const char* key, const char* value) {
 	if(handle->widget_class == MwWindowClass && strcmp(key, MwNtitle) == 0) {
 		MwLLSetTitle(handle->lowlevel, value);
 	} else {
 		char* v = value == NULL ? NULL : MwStringDuplicate(value);
 
-		if(shgeti(handle->text, key) != -1) free(shget(handle->text, key));
+		if(shgeti(handle->string, key) != -1) free(shget(handle->string, key));
 
 		if(value != NULL) {
-			shput(handle->text, key, v);
+			shput(handle->string, key, v);
 		} else {
-			shdel(handle->text, key);
+			shdel(handle->string, key);
 		}
 	}
 	if(handle->prop_event) {
@@ -814,13 +818,13 @@ int MwGetInteger(MwWidget handle, const char* key) {
 	}
 }
 
-const char* MwGetText(MwWidget handle, const char* key) {
-	if((shgeti(handle->text, key) == -1 || strcmp(shget(handle->text, key), "DEFAULT") == 0) && (strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0 || strcmp(key, MwNtitleBackground) == 0 || strcmp(key, MwNtitleForeground) == 0)) {
+const char* MwGetString(MwWidget handle, const char* key) {
+	if((shgeti(handle->string, key) == -1 || strcmp(shget(handle->string, key), "DEFAULT") == 0) && (strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0 || strcmp(key, MwNtitleBackground) == 0 || strcmp(key, MwNtitleForeground) == 0)) {
 		const char* v = NULL;
-		if(shgeti(handle->text, key) != -1 && strcmp(shget(handle->text, key), "DEFAULT") != 0) {
+		if(shgeti(handle->string, key) != -1 && strcmp(shget(handle->string, key), "DEFAULT") != 0) {
 			MwWidget h = handle->parent;
 			while(h != NULL) {
-				if((v = MwGetText(h, key)) != NULL) break;
+				if((v = MwGetString(h, key)) != NULL) break;
 				h = h->parent;
 			}
 		}
@@ -844,7 +848,7 @@ const char* MwGetText(MwWidget handle, const char* key) {
 		return v;
 	}
 
-	return shget(handle->text, key);
+	return shget(handle->string, key);
 }
 
 #if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT)
@@ -930,7 +934,7 @@ static void MwVaListApply_Internal(MwWidget handle, va_list va, int only_early) 
 			char* t = va_arg(va, char*);
 			if(only_early && key[1] != 'E') continue;
 
-			MwSetText(handle, key, t);
+			MwSetString(handle, key, t);
 		} else if(key[0] == 'C') {
 			MwUserHandler h = va_arg(va, MwUserHandler);
 			if(only_early && key[1] != 'E') continue;

@@ -10,10 +10,10 @@
 
 typedef struct _MwClass *	      MwClass, MwClassRec;
 typedef struct _MwIntegerKeyValue     MwIntegerKeyValue;
-typedef struct _MwTextKeyValue	      MwTextKeyValue;
+typedef struct _MwStringKeyValue      MwStringKeyValue;
 typedef struct _MwUserHandlerArray    MwUserHandlerArray;
 typedef struct _MwUserHandlerKeyValue MwUserHandlerKeyValue;
-typedef struct _MwVoidKeyValue	      MwVoidKeyValue;
+typedef struct _MwPointerKeyValue     MwPointerKeyValue;
 typedef struct _MwMenu*		      MwMenu;
 typedef struct _MwEntry*	      MwEntry;
 typedef struct _MwViewport*	      MwViewport;
@@ -62,7 +62,7 @@ typedef void (*MwHandlerClipboardReceived)(MwWidget handle, const char* data);
 typedef void(MWAPI* MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 typedef void(MWAPI* MwErrorHandler)(int code, const char* message, void* user_data);
 
-struct _MwTextKeyValue {
+struct _MwStringKeyValue {
 	char* key;
 	char* value;
 };
@@ -82,7 +82,7 @@ struct _MwUserHandlerKeyValue {
 	MwUserHandlerArray* value;
 };
 
-struct _MwVoidKeyValue {
+struct _MwPointerKeyValue {
 	char* key;
 	void* value;
 };
@@ -101,6 +101,8 @@ struct _MwPixmap {
 struct _MwColor {
 	MwLLColor	lowlevel;
 	MwLLCommonColor common;
+
+	MwWidget handle;
 };
 
 struct _MwFont {
@@ -130,11 +132,12 @@ struct _MwWidget {
 	MwHandlerProp prop_inject_pixmap; /* this is for pixmap; do not use */
 
 	MwPixmap* pixmaps;
+	MwColor*  colors;
 
 	MwIntegerKeyValue*     integer;
-	MwTextKeyValue*	       text;
+	MwStringKeyValue*      string;
 	MwUserHandlerKeyValue* handler;
-	MwVoidKeyValue*	       data;
+	MwPointerKeyValue*     data;
 
 	MwWidget* destroy_queue;
 	MwWidget* tick_list;

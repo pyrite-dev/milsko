@@ -52,8 +52,8 @@ static void destroy(MwWidget handle) {
 
 static void draw(MwWidget handle) {
 	MwDocument d	= handle->internal;
-	MwColor	   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor	   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	   base = MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor	   text = MwParseColor(handle, MwGetString(handle, MwNforeground));
 	MwRect	   r;
 	int	   i;
 	MwFLFont   font = NULL;
@@ -634,7 +634,7 @@ static void prop_change(MwWidget handle, const char* key) {
 
 	if(strcmp(key, MwNtext) == 0) {
 		MD_PARSER   parser;
-		const char* str = MwGetText(handle, MwNtext);
+		const char* str = MwGetString(handle, MwNtext);
 
 		memset(&parser, 0, sizeof(parser));
 

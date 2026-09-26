@@ -9,7 +9,7 @@ static int wcreate(MwWidget handle) {
 	e	 = handle->internal;
 	e->right = 32;
 
-	MwSetText(handle, MwNtext, "0");
+	MwSetString(handle, MwNtext, "0");
 
 	return 0;
 }
@@ -24,7 +24,7 @@ static void draw(MwWidget handle) {
 	MwEntry e = handle->internal;
 	MwRect	r;
 	int	pr;
-	MwColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor base = MwParseColor(handle, MwGetString(handle, MwNbackground));
 
 	MwEntryClass->draw(handle);
 
@@ -65,7 +65,7 @@ static void draw(MwWidget handle) {
 
 static void key(MwWidget handle, int code) {
 	MwEntry	    e	= handle->internal;
-	const char* str = MwGetText(handle, MwNtext);
+	const char* str = MwGetString(handle, MwNtext);
 	int	    ok	= 0;
 	if(str == NULL) str = "";
 
@@ -96,7 +96,7 @@ static void mouse_up(MwWidget handle, void* ptr) {
 	MwEntry	    e	= handle->internal;
 	int	    w	= MwGetInteger(handle, MwNwidth);
 	int	    h	= MwGetInteger(handle, MwNheight);
-	const char* str = MwGetText(handle, MwNtext);
+	const char* str = MwGetString(handle, MwNtext);
 
 	if(((MwMouse*)ptr)->button != MwMOUSE_LEFT) return;
 
@@ -107,7 +107,7 @@ static void mouse_up(MwWidget handle, void* ptr) {
 		} else {
 			MwStringPrintIntoBuffer(s, 512, "%g", atof(str) + 1);
 		}
-		MwSetText(handle, MwNtext, s);
+		MwSetString(handle, MwNtext, s);
 
 		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
 	}

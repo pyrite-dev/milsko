@@ -47,9 +47,9 @@ static void tick(MwWidget handle) {
 static void draw(MwWidget handle) {
 	MwRect	    r;
 	MwEntry	    t	 = handle->internal;
-	MwColor	    base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor	    text = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	const char* str	 = MwGetText(handle, MwNtext);
+	MwColor	    base = MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor	    text = MwParseColor(handle, MwGetString(handle, MwNforeground));
+	const char* str	 = MwGetString(handle, MwNtext);
 	MwPixmap    bgpx = MwGetPointer(handle, MwNbackgroundPixmap);
 	MwFLFont    font = MwFLBuildFont(MwFLFlagMonospace);
 	if(str == NULL) str = "";
@@ -114,7 +114,7 @@ static void draw(MwWidget handle) {
 
 static void key(MwWidget handle, int code) {
 	MwEntry	    t	= handle->internal;
-	const char* str = MwGetText(handle, MwNtext);
+	const char* str = MwGetString(handle, MwNtext);
 	char*	    out;
 	if(str == NULL) str = "";
 
@@ -127,7 +127,7 @@ static void key(MwWidget handle, int code) {
 		MwUTF8Copy(str, 0, out, 0, t->cursor);
 		MwUTF8Copy(str, t->cursor + 1, out, t->cursor, MwUTF8Length(str) - (t->cursor + 1));
 
-		MwSetText(handle, MwNtext, out);
+		MwSetString(handle, MwNtext, out);
 		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
 
 		free(out);
@@ -150,13 +150,13 @@ static void key(MwWidget handle, int code) {
 
 		t->cursor++;
 
-		MwSetText(handle, MwNtext, out);
+		MwSetString(handle, MwNtext, out);
 		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
 
 		free(out);
 	}
 
-	if(MwGetText(handle, MwNtext) != NULL) t->length = MwUTF8Length(MwGetText(handle, MwNtext));
+	if(MwGetString(handle, MwNtext) != NULL) t->length = MwUTF8Length(MwGetString(handle, MwNtext));
 
 	MwForceRender(handle);
 }
@@ -199,7 +199,7 @@ static void prop_change(MwWidget handle, const char* prop) {
 
 	if(strcmp(prop, MwNtext) == 0) {
 		MwEntry t   = handle->internal;
-		int	len = MwUTF8Length(MwGetText(handle, MwNtext));
+		int	len = MwUTF8Length(MwGetString(handle, MwNtext));
 		if(len < t->cursor) {
 			t->cursor = len;
 		} else if(t->length == t->cursor) {
@@ -211,7 +211,7 @@ static void prop_change(MwWidget handle, const char* prop) {
 
 static void clipboard(MwWidget handle, const char* data) {
 	MwEntry	    t	= handle->internal;
-	const char* str = MwGetText(handle, MwNtext);
+	const char* str = MwGetString(handle, MwNtext);
 	char*	    out;
 	if(!str) {
 		str = "";
@@ -226,7 +226,7 @@ static void clipboard(MwWidget handle, const char* data) {
 
 	t->cursor += MwUTF8Length(data);
 
-	MwSetText(handle, MwNtext, out);
+	MwSetString(handle, MwNtext, out);
 	free(out);
 
 	MwForceRender(handle);

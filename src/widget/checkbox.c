@@ -10,9 +10,9 @@ static int wcreate(MwWidget handle) {
 
 static void draw(MwWidget handle) {
 	MwRect	 r;
-	MwColor	 base  = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor	 base2 = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
-	MwColor	 text2 = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
+	MwColor	 base  = MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor	 base2 = MwParseColor(handle, MwGetString(handle, MwNsubBackground));
+	MwColor	 text2 = MwParseColor(handle, MwGetString(handle, MwNsubForeground));
 	MwPixmap bgpx  = MwGetPointer(handle, MwNbackgroundPixmap);
 
 	r.x	 = 0;

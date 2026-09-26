@@ -376,7 +376,7 @@
 						<integer name="n" />
 					</arguments>
 				</function>
-				<function name="MwSetText">
+				<function name="MwSetString">
 					<arguments>
 						<widget name="handle" />
 						<string name="key" />
@@ -399,7 +399,7 @@
 						<string name="key" />
 					</arguments>
 				</function>
-				<function name="MwGetText">
+				<function name="MwGetString">
 					<return>
 						<string />
 					</return>
@@ -408,7 +408,7 @@
 						<string name="key" />
 					</arguments>
 				</function>
-				<function name="MwGePointer">
+				<function name="MwGetPointer">
 					<return>
 						<pointer />
 					</return>

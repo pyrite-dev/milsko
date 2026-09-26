@@ -185,10 +185,10 @@ static void MWAPI color_picker_click(MwWidget handle, void* user, void* call) {
 	fb = picker->chosen_color.blue > 128 ? 0 : 255;
 
 	MwStringPrintIntoBuffer(fgColor, 8, "#%02X%02X%02X", fr, fg, fb);
-	MwSetText(picker->color_display_text, MwNforeground, fgColor);
+	MwSetString(picker->color_display_text, MwNforeground, fgColor);
 
-	MwSetText(picker->color_display_text, MwNbackground, hexColor);
-	MwSetText(picker->color_display_text, MwNtext, hexColor);
+	MwSetString(picker->color_display_text, MwNbackground, hexColor);
+	MwSetString(picker->color_display_text, MwNtext, hexColor);
 }
 static void MWAPI color_picker_on_change_value(MwWidget handle, void* user,
 					       void* call) {
@@ -244,7 +244,7 @@ static void MWAPI color_display_text_change(MwWidget handle, void* user,
 
 	(void)call;
 
-	memcpy(&hexColor, MwGetText(handle, MwNtext), 8);
+	memcpy(&hexColor, MwGetString(handle, MwNtext), 8);
 
 	color = MwParseColor(handle, hexColor);
 
@@ -253,10 +253,10 @@ static void MWAPI color_display_text_change(MwWidget handle, void* user,
 	fb = color->common->blue > 128 ? 0 : 255;
 
 	MwStringPrintIntoBuffer(fgColor, 9, "#%02X%02X%02X", fr, fg, fb);
-	MwSetText(picker->color_display_text, MwNforeground, fgColor);
+	MwSetString(picker->color_display_text, MwNforeground, fgColor);
 
-	MwSetText(picker->color_display_text, MwNbackground, hexColor);
-	MwSetText(picker->color_display_text, MwNtext, hexColor);
+	MwSetString(picker->color_display_text, MwNbackground, hexColor);
+	MwSetString(picker->color_display_text, MwNtext, hexColor);
 
 	picker->chosen_color.red   = color->common->red;
 	picker->chosen_color.green = color->common->green;
@@ -302,8 +302,8 @@ color_picker_t* color_picker_setup(MwWidget parent, int w, int h) {
 	    MwEntryClass, "colorDisplayText", picker->parent, IMG_POS_X(w) + (PICKER_SIZE / 2) - ((PICKER_SIZE / 4) / 2),
 	    IMG_POS_Y(h) - (PICKER_SIZE / 16) - MARGIN, (PICKER_SIZE / 4), PICKER_SIZE / 16);
 
-	MwSetText(picker->color_display_text, MwNbackground, "#FFFFFF");
-	MwSetText(picker->color_display_text, MwNtext, "#FFFFFF");
+	MwSetString(picker->color_display_text, MwNbackground, "#FFFFFF");
+	MwSetString(picker->color_display_text, MwNtext, "#FFFFFF");
 	/* MwSetInteger(picker->color_display_text, Mwnali, MwALIGNMENT_CENTER); */
 
 	MwAddUserHandler(picker->color_display_text, MwNactivateHandler,
@@ -330,7 +330,7 @@ color_picker_t* color_picker_setup(MwWidget parent, int w, int h) {
 	picker->finish = MwCreateWidget(
 	    MwButtonClass, "colorPickerFinish", picker->parent, IMG_POS_X(w),
 	    IMG_POS_Y(h) + PICKER_SIZE + MARGIN, PICKER_SIZE, (WIN_SIZE - PICKER_SIZE - MARGIN * 4) / 2);
-	MwSetText(picker->finish, MwNtext, "Select");
+	MwSetString(picker->finish, MwNtext, "Select");
 	MwSetInteger(picker->finish, MwNhasBorder, 1);
 	MwSetInteger(picker->finish, MwNinverted, 1);
 

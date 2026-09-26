@@ -85,7 +85,7 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 	int	n;
 
 	if((n = MwGetInteger(handle, MwNdisabled)) != MwDEFAULT && n) {
-		MwColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
+		MwColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetString(handle->parent, MwNbackground));
 
 		if(c != NULL) {
 			fadedColor		  = MwAllocColor(handle, color->common->red, color->common->blue, color->common->green);

@@ -124,11 +124,11 @@ static void draw_h(MwWidget handle, unsigned char* raw, int x, int y, int stride
 
 static void draw_seven_segment(MwWidget handle) {
 	MwRect	       r;
-	MwColor	       base   = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor	       text   = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	       base   = MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor	       text   = MwParseColor(handle, MwGetString(handle, MwNforeground));
 	MwColor	       shadow = MwLightenColor(handle, base, MwDefaultShadow, MwDefaultShadow, MwDefaultShadow);
 	int	       align;
-	const char*    str   = MwGetText(handle, MwNtext);
+	const char*    str   = MwGetString(handle, MwNtext);
 	MwPixmap       bgpx  = MwGetPointer(handle, MwNbackgroundPixmap);
 	MwLabel	       lab   = handle->internal;
 	int	       l_one = MwGetInteger(handle, MwNlength) - (MwGetInteger(handle, MwNlength) % 2);
@@ -315,11 +315,11 @@ static void draw_seven_segment(MwWidget handle) {
 static void draw_normal(MwWidget handle) {
 	MwRect	    r;
 	MwPoint	    p;
-	MwColor	    base   = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor	    text   = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	    base   = MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor	    text   = MwParseColor(handle, MwGetString(handle, MwNforeground));
 	MwColor	    shadow = MwLightenColor(handle, base, MwDefaultShadow, MwDefaultShadow, MwDefaultShadow);
 	int	    align;
-	const char* str	 = MwGetText(handle, MwNtext);
+	const char* str	 = MwGetString(handle, MwNtext);
 	MwPixmap    bgpx = MwGetPointer(handle, MwNbackgroundPixmap);
 
 	if(str == NULL) str = "";

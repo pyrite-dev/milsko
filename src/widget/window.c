@@ -10,7 +10,7 @@ static int wcreate(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwColor c = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor c = MwParseColor(handle, MwGetString(handle, MwNbackground));
 	MwRect	r;
 
 	r.x	 = 0;

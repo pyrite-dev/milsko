@@ -568,11 +568,11 @@ static void prop_change(MwWidget handle, const char* prop) {
 	}
 
 	if(strcmp(prop, MwNvulkanExtension) == 0) {
-		char* str = MwStringDuplicate(MwGetText(handle, MwNvulkanExtension));
+		char* str = MwStringDuplicate(MwGetString(handle, MwNvulkanExtension));
 
 		arrput(o->enabledExtensions, str);
 	} else if(strcmp(prop, MwNvulkanLayer) == 0) {
-		char* str = MwStringDuplicate(MwGetText(handle, MwNvulkanExtension));
+		char* str = MwStringDuplicate(MwGetString(handle, MwNvulkanExtension));
 
 		arrput(o->enabledLayers, str);
 	} else if(strcmp(prop, MwNvulkanConfig) == 0) {

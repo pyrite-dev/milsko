@@ -15,7 +15,7 @@ void MWAPI file_callback(MwWidget handle, void* user_data, void* call_data) {
 	rgb->green &= 0xff;
 	rgb->blue &= 0xff;
 	MwStringPrintIntoBuffer(hexColor, 8, "#%02X%02X%02X", rgb->red, rgb->green, rgb->blue);
-	MwSetText(window, MwNbackground, hexColor);
+	MwSetString(window, MwNbackground, hexColor);
 }
 
 void MWAPI file_picker(MwWidget handle, void* user_data, void* call_data) {
@@ -27,7 +27,7 @@ void MWAPI file_picker(MwWidget handle, void* user_data, void* call_data) {
 
 	MwAddUserHandler(cpicker, MwNcolorChosenHandler, file_callback, NULL);
 
-	MwSetText(cpicker, MwNbackground, MwGetInteger(cpicker, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
+	MwSetString(cpicker, MwNbackground, MwGetInteger(cpicker, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
 }
 
 int main() {
@@ -35,14 +35,14 @@ int main() {
 
 	window = MwVaCreateWidget(MwWindowClass, "main", NULL, MwDEFAULT,
 				  MwDEFAULT, 640, 480, MwNtitle, "color picker", NULL);
-	MwSetText(window, MwNbackground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
-	MwSetText(window, MwNforeground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultDarkForeground : MwDefaultForeground);
+	MwSetString(window, MwNbackground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
+	MwSetString(window, MwNforeground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultDarkForeground : MwDefaultForeground);
 
 	button = MwVaCreateWidget(MwButtonClass, "button", window, 160, 180, 320, 120,
 				  MwNtext, "change window background",
 				  NULL);
-	MwSetText(button, MwNbackground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
-	MwSetText(button, MwNforeground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultDarkForeground : MwDefaultForeground);
+	MwSetString(button, MwNbackground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
+	MwSetString(button, MwNforeground, MwGetInteger(window, MwNdarkTheme) ? MwDefaultDarkForeground : MwDefaultForeground);
 
 	MwAddUserHandler(button, MwNactivateHandler, file_picker, NULL);
 

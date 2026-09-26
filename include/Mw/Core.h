@@ -159,7 +159,7 @@ MWDECL void MWAPI MwSetInteger(MwWidget handle, const char* key, int n);
  * @param key Key
  * @param value Value
  */
-MWDECL void MWAPI MwSetText(MwWidget handle, const char* key, const char* value);
+MWDECL void MWAPI MwSetString(MwWidget handle, const char* key, const char* value);
 
 /*!
  * @brief Sets a pointer property
@@ -183,7 +183,7 @@ MWDECL int MWAPI MwGetInteger(MwWidget handle, const char* key);
  * @param key Key
  * @return Value
  */
-MWDECL const char* MWAPI MwGetText(MwWidget handle, const char* key);
+MWDECL const char* MWAPI MwGetString(MwWidget handle, const char* key);
 
 /*!
  * @brief Gets the pointer property

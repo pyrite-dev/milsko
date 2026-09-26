@@ -102,7 +102,7 @@ static void destroy(MwWidget handle) {
 
 static void draw(MwWidget handle) {
 	MwRect	r;
-	MwColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor base = MwParseColor(handle, MwGetString(handle, MwNbackground));
 
 	r.x	 = 0;
 	r.y	 = 0;

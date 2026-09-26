@@ -42,7 +42,7 @@ static void color_set_disabled_if_disabled(MwWidget handle, MwColor rgb) {
 	int n;
 
 	if((n = MwGetInteger(handle, MwNdisabled)) != MwDEFAULT && n) {
-		MwColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
+		MwColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetString(handle->parent, MwNbackground));
 
 		if(c != NULL) {
 			rgb->common->red   = (MwU8)(rgb->common->red + (c->common->red - rgb->common->red) * 0.5);
@@ -251,7 +251,7 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwColor color, int invert, 
 
 	if(border) {
 		if(!handle->lowlevel->common.supports_transparency) {
-			MwColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
+			MwColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetString(handle->parent, MwNbackground));
 
 			if(c != NULL) {
 				MwDrawRect(handle, rect, c);
@@ -403,7 +403,7 @@ void MwDrawCircle(MwWidget handle, MwRect* rect, MwColor color, MwColor backgrou
 
 			if(inside) {
 				MwColor	       mixColor;
-				MwColor	       c = background ? background : (handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground)));
+				MwColor	       c = background ? background : (handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetString(handle->parent, MwNbackground)));
 				double	       mod;
 				unsigned char* pout = &data[(y * width + x) * 4];
 
@@ -990,7 +990,7 @@ MwPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height) {
 void MwPixmapReloadRaw(MwPixmap px, unsigned char* rgb) {
 	int	 i;
 	MwWidget handle = px->handle;
-	MwColor	 base	= handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
+	MwColor	 base	= handle->bgcolor == NULL ? MwParseColor(handle, MwGetString(handle, MwNbackground)) : handle->bgcolor;
 
 	if(rgb != NULL) memcpy(px->raw, rgb, px->common->width * px->common->height * 4);
 
@@ -1044,7 +1044,6 @@ void MwDestroyPixmap(MwPixmap pixmap) {
 			break;
 		}
 	}
-
 	if(arrlen(handle->pixmaps) == 0) handle->prop_inject_pixmap = NULL;
 
 	MwLLDestroyPixmap(pixmap->lowlevel);
@@ -1061,6 +1060,7 @@ MwColor MwAllocColor(MwWidget handle, unsigned int red, unsigned int green, unsi
 
 	color->lowlevel = MwLLAllocColor(handle->lowlevel, red, green, blue);
 	color->common	= &color->lowlevel->common;
+	color->handle	= handle;
 
 	return color;
 }
@@ -1076,6 +1076,16 @@ void MwColorUpdate(MwColor c, int r, int g, int b) {
 }
 
 void MwFreeColor(MwColor color) {
+	int	 i;
+	MwWidget handle = color->handle;
+
+	for(i = 0; i < arrlen(handle->colors); i++) {
+		if(handle->colors[i] == color) {
+			arrdel(handle->colors, i);
+			break;
+		}
+	}
+
 	MwLLFreeColor(color->lowlevel);
 	free(color);
 }

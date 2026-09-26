@@ -48,7 +48,7 @@ void MWAPI file_picker(MwWidget handle, void* user_data, void* call_data) {
 
 	MwAddUserHandler(fpicker, MwNfileChosenHandler, file_callback, NULL);
 
-	MwSetText(fpicker, MwNbackground, MwGetInteger(fpicker, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
+	MwSetString(fpicker, MwNbackground, MwGetInteger(fpicker, MwNdarkTheme) ? MwDefaultDarkBackground : MwDefaultBackground);
 
 #ifdef BUG
 	fpicker_wait = MwTRUE;

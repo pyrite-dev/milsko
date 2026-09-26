@@ -31,10 +31,10 @@ static void MWAPI resize(MwWidget handle, void* client, void* user) {
 }
 
 static void MWAPI activate(MwWidget handle, void* client, void* user) {
-	const char* n = MwGetText(handle, MwNtext);
+	const char* n = MwGetString(handle, MwNtext);
 
 	if(('0' <= n[0] && n[0] <= '9') || n[0] == '.') {
-		const char* s = MwGetText(inp, MwNtext);
+		const char* s = MwGetString(inp, MwNtext);
 		char*	    r;
 
 		if(n[0] == '.' && s != NULL) {
@@ -52,7 +52,7 @@ static void MWAPI activate(MwWidget handle, void* client, void* user) {
 			  NULL);
 		free(r);
 	} else if(n[0] == 'E') {
-		const char* s = MwGetText(inp, MwNtext);
+		const char* s = MwGetString(inp, MwNtext);
 
 		if(s != NULL) {
 			stack[sp++] = atof(s);

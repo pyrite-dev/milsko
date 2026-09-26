@@ -395,8 +395,8 @@ static void line_chart(MwWidget handle, MwRect* _r, double vmin, double vmax, in
 }
 
 static void draw(MwWidget handle) {
-	MwColor	     base   = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwColor	     border = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	     base   = MwParseColor(handle, MwGetString(handle, MwNbackground));
+	MwColor	     border = MwParseColor(handle, MwGetString(handle, MwNforeground));
 	MwRect	     r;
 	MwChart	     c = handle->internal;
 	int	     i;

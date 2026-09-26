@@ -33,10 +33,10 @@ void MWAPI tick(MwWidget handle, void* user, void* call) {
 		tm = localtime(&t);
 
 		MwStringPrintIntoBuffer(buf, 512, "%s %02d %s", mon[tm->tm_mon], tm->tm_mday, wday[tm->tm_wday]);
-		MwSetText(ldate, MwNtext, buf);
+		MwSetString(ldate, MwNtext, buf);
 
 		MwStringPrintIntoBuffer(buf, 512, "%02d:%02d %s", tm->tm_hour % 12, tm->tm_min, tm->tm_hour >= 12 ? "PM" : "AM");
-		MwSetText(ltime, MwNtext, buf);
+		MwSetString(ltime, MwNtext, buf);
 
 		render = 1;
 
@@ -141,10 +141,10 @@ int main() {
 				  MwNtitle, "clock",
 				  NULL);
 
-	bgcolor = MwParseColor(window, MwGetText(window, MwNbackground));
+	bgcolor = MwParseColor(window, MwGetString(window, MwNbackground));
 	MwColorGet(bgcolor, &br, &bg, &bb);
 
-	fgcolor = MwParseColor(window, MwGetText(window, MwNforeground));
+	fgcolor = MwParseColor(window, MwGetString(window, MwNforeground));
 	MwColorGet(fgcolor, &fr, &fg, &fb);
 
 	opengl = MwCreateWidget(MwOpenGLClass, "clock", window, 0, 0, 100, 100);
