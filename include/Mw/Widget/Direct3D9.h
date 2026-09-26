@@ -22,8 +22,8 @@
 #endif
 
 #ifndef _WIN32
-#error D3D9 widget only avaliable for Win32 backends
-#undef MW_DIRECT3D9
+typedef void* LPDIRECT3D9;
+typedef void* LPDIRECT3DDEVICE9;
 #else
 #ifdef __WATCOMC__
 #include <windows.h>
