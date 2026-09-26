@@ -60,7 +60,7 @@ static void draw(MwWidget handle) {
 		p[5] = p[0];
 		p[5].y -= r.height / 3;
 
-		MwLLPolygon(handle->lowlevel, p, 6, text2->lowlevel);
+		MwPolygon(handle, p, 6, text2);
 	}
 
 	MwFreeColor(text2);

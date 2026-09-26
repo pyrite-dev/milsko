@@ -138,7 +138,7 @@ static void draw(MwWidget handle) {
 					if(j == 0 || j == 1) {
 						line[0].y += MwTextHeight(handle, font, l->text) / 2 * (2 - j);
 						line[1].y += MwTextHeight(handle, font, l->text) / 2 * (2 - j);
-						MwLLLine(handle->lowlevel, line, (c ? base : text)->lowlevel);
+						MwLine(handle, line, (c ? base : text));
 					}
 				}
 			}

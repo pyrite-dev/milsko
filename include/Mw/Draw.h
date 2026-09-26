@@ -84,6 +84,23 @@ MWDECL void MWAPI MwDrawRectLine(MwWidget handle, MwRect* rect, MwColor color);
 MWDECL void MWAPI MwDrawRectFading(MwWidget handle, MwRect* rect, MwColor color);
 
 /*!
+ * @brief Draws a polygon
+ * @param handle Widget
+ * @param points Points (counter-clockwise)
+ * @param points_count Amount of points
+ * @param color Color
+ */
+MWDECL void MWAPI MwPolygon(MwWidget handle, MwPoint* points, int points_count, MwColor color);
+
+/*!
+ * @brief Draws a Line
+ * @param handle Widget
+ * @param points Points
+ * @param color Color
+ */
+MWDECL void MWAPI MwLine(MwWidget handle, MwPoint* points, MwColor color);
+
+/*!
  * @brief Draws a frame
  * @param handle Widget
  * @param rect Rectangle area

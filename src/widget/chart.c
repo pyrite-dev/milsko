@@ -53,13 +53,13 @@ static void draw_line(MwWidget handle, const char* text, double x, double y, dou
 		p2[1].x += height;
 		p2[1].y -= height;
 
-		MwLLLine(handle->lowlevel, &p2[0], color->lowlevel);
+		MwLine(handle, &p2[0], color);
 
 		p[0].x += height;
 		p[0].y -= height;
 		p[1].y -= height;
 	}
-	MwLLLine(handle->lowlevel, &p[0], color->lowlevel);
+	MwLine(handle, &p[0], color);
 }
 
 #define CALC_VMIN_VMAX \
@@ -126,14 +126,14 @@ static void bar_chart(MwWidget handle, MwRect* _r, double vmin, double vmax, int
 
 	p[1].x = node.x;
 	p[1].y = r.height - space;
-	MwLLLine(handle->lowlevel, &p[0], border->lowlevel);
+	MwLine(handle, &p[0], border);
 
 	p[0].x = node.x;
 	p[0].y = r.height - space;
 
 	p[1].x = node.x + twidth;
 	p[1].y = p[0].y;
-	MwLLLine(handle->lowlevel, &p[0], border->lowlevel);
+	MwLine(handle, &p[0], border);
 
 	node.width = width;
 	for(i = 0; i < arrlen(c->entries); i++) {
@@ -170,7 +170,7 @@ static void bar_chart(MwWidget handle, MwRect* _r, double vmin, double vmax, int
 
 			persp_top[4] = persp_top[0];
 
-			MwLLPolygon(handle->lowlevel, persp_top, 4, colorl->lowlevel);
+			MwPolygon(handle, persp_top, 4, colorl);
 
 			persp_right[0] = *(MwPoint*)&node2;
 			persp_right[1] = *(MwPoint*)&node2;
@@ -189,22 +189,22 @@ static void bar_chart(MwWidget handle, MwRect* _r, double vmin, double vmax, int
 
 			persp_right[4] = persp_right[0];
 
-			MwLLPolygon(handle->lowlevel, persp_right, 4, colord->lowlevel);
+			MwPolygon(handle, persp_right, 4, colord);
 		}
 
 		if(!modern) {
 			MwDrawRectLine(handle, &node, border);
 
 			if(type == MwCHART_BAR_3D) {
-				MwLLLine(handle->lowlevel, &persp_top[0], border->lowlevel);
-				MwLLLine(handle->lowlevel, &persp_top[1], border->lowlevel);
-				MwLLLine(handle->lowlevel, &persp_top[2], border->lowlevel);
-				MwLLLine(handle->lowlevel, &persp_top[3], border->lowlevel);
+				MwLine(handle, &persp_top[0], border);
+				MwLine(handle, &persp_top[1], border);
+				MwLine(handle, &persp_top[2], border);
+				MwLine(handle, &persp_top[3], border);
 
-				MwLLLine(handle->lowlevel, &persp_right[0], border->lowlevel);
-				MwLLLine(handle->lowlevel, &persp_right[1], border->lowlevel);
-				MwLLLine(handle->lowlevel, &persp_right[2], border->lowlevel);
-				MwLLLine(handle->lowlevel, &persp_right[3], border->lowlevel);
+				MwLine(handle, &persp_right[0], border);
+				MwLine(handle, &persp_right[1], border);
+				MwLine(handle, &persp_right[2], border);
+				MwLine(handle, &persp_right[3], border);
 			}
 		}
 
@@ -282,27 +282,27 @@ static void pie_chart(MwWidget handle, MwRect* _r, const char** colors, int n, M
 					p3[2] = p2[1];
 
 					if(k == 0) {
-						MwLLPolygon(handle->lowlevel, p3, count + 2, color->lowlevel);
+						MwPolygon(handle, p3, count + 2, color);
 					} else if(d == 1 && k == 1) {
 						for(j = 3; j < count + 1; j++) {
-							if(!modern) MwLLLine(handle->lowlevel, &p3[j], border->lowlevel);
+							if(!modern) MwLine(handle, &p3[j], border);
 						}
 
 						p2[0] = p2[1];
 						p2[0].y += radius / 8;
-						if(!modern) MwLLLine(handle->lowlevel, p2, border->lowlevel);
+						if(!modern) MwLine(handle, p2, border);
 					}
 				}
 			}
 
 			if(k == 2) {
-				MwLLPolygon(handle->lowlevel, p2, count, (type == MwCHART_PIE_3D ? colorl : color)->lowlevel);
+				MwPolygon(handle, p2, count, (type == MwCHART_PIE_3D ? colorl : color));
 			} else if(k == 3) {
 				int j;
 
 				p2[count] = p2[0];
 				for(j = 0; j < count; j++) {
-					if(!modern) MwLLLine(handle->lowlevel, &p2[j], border->lowlevel);
+					if(!modern) MwLine(handle, &p2[j], border);
 				}
 
 				p2[0].x += cos((cangle + angle / 2 - 90) / 180 * M_PI) * radius / 4;
@@ -325,10 +325,10 @@ static void pie_chart(MwWidget handle, MwRect* _r, const char** colors, int n, M
 		p[0].y = r.height / 2;
 		p[1]   = p[0];
 		p[1].y += radius / 8;
-		MwLLLine(handle->lowlevel, p, border->lowlevel);
+		MwLine(handle, p, border);
 
 		p[0].x = p[1].x = r.width / 2 + radius / 2;
-		MwLLLine(handle->lowlevel, p, border->lowlevel);
+		MwLine(handle, p, border);
 	}
 }
 
@@ -376,7 +376,7 @@ static void line_chart(MwWidget handle, MwRect* _r, double vmin, double vmax, in
 	p[1]   = p[0];
 	p[1].y = r.height - space;
 
-	MwLLLine(handle->lowlevel, p, border->lowlevel);
+	MwLine(handle, p, border);
 
 	for(j = 0; j < 2; j++) {
 		for(i = j == 0 ? 1 : 0; i < arrlen(c->entries); i++) {
@@ -386,7 +386,7 @@ static void line_chart(MwWidget handle, MwRect* _r, double vmin, double vmax, in
 			p[1].y = (r.height - space) - (c->entries[i].value - vmin) / (vmax - vmin) * (r.height - space);
 
 			if(j == 0) {
-				MwLLLine(handle->lowlevel, p, border->lowlevel);
+				MwLine(handle, p, border);
 			} else {
 				MwDrawText(handle, NULL, &p[1], c->entries[i].name, MwALIGNMENT_CENTER, border);
 			}

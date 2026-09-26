@@ -135,7 +135,7 @@ static void draw(MwWidget handle) {
 	p[4].y = p[0].y + gh * 7;
 	p[5].x = p[0].x + h;
 	p[5].y = p[0].y;
-	MwLLPolygon(handle->lowlevel, p, 6, cb_g->lowlevel);
+	MwPolygon(handle, p, 6, cb_g);
 
 	p[0].x = (r.width - h) / 2;
 	p[0].y = (r.height - h - sh) / 2;
@@ -149,7 +149,7 @@ static void draw(MwWidget handle) {
 	p[4].y = p[0].y + gh * 3;
 	p[5].x = p[0].x + h;
 	p[5].y = p[0].y;
-	MwLLPolygon(handle->lowlevel, p, 6, ct->lowlevel);
+	MwPolygon(handle, p, 6, ct);
 
 	r2.width  = h;
 	r2.height = h - ph - gh;
@@ -175,7 +175,7 @@ static void draw(MwWidget handle) {
 	p[2].y = r2.y + r2.height + ph;
 	p[3].x = r2.x + r2.width;
 	p[3].y = r2.y + r2.height;
-	MwLLPolygon(handle->lowlevel, p, 4, cb->lowlevel);
+	MwPolygon(handle, p, 4, cb);
 
 	p[0].x = r.width / 2;
 	p[0].y = (r.height - sh) / 2;

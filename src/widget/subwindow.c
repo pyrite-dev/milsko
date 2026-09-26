@@ -18,21 +18,21 @@ static void close_draw(MwWidget handle) {
 	p[0].y = bw * 2;
 	p[1].x = w - bw * 2 - 1;
 	p[1].y = h - bw * 2 - 1;
-	MwLLLine(handle->lowlevel, p, c->lowlevel);
+	MwLine(handle, p, c);
 
 	p[0].x++;
 	p[1].x--;
-	MwLLLine(handle->lowlevel, p, c->lowlevel);
+	MwLine(handle, p, c);
 
 	p[0].x = w - bw * 2 - 1;
 	p[0].y = bw * 2;
 	p[1].x = bw * 2;
 	p[1].y = h - bw * 2 - 1;
-	MwLLLine(handle->lowlevel, p, c->lowlevel);
+	MwLine(handle, p, c);
 
 	p[0].x--;
 	p[1].x++;
-	MwLLLine(handle->lowlevel, p, c->lowlevel);
+	MwLine(handle, p, c);
 
 	MwFreeColor(c);
 }
@@ -59,22 +59,22 @@ static void maximize_draw(MwWidget handle) {
 	p[0].y = bw * 2;
 	p[1].x = w - bw * 2 - 1;
 	p[1].y = bw * 2;
-	MwLLLine(handle->lowlevel, p, c->lowlevel);
+	MwLine(handle, p, c);
 
 	p[0].y = p[1].y = h - bw * 2 - 1;
-	MwLLLine(handle->lowlevel, p, c->lowlevel);
+	MwLine(handle, p, c);
 
 	p[0].y = p[1].y = bw * 2 + 1;
-	MwLLLine(handle->lowlevel, p, c->lowlevel);
+	MwLine(handle, p, c);
 
 	p[0].x = bw * 2;
 	p[0].y = bw * 2;
 	p[1].x = bw * 2;
 	p[1].y = h - bw * 2 - 1;
-	MwLLLine(handle->lowlevel, p, c->lowlevel);
+	MwLine(handle, p, c);
 
 	p[0].x = p[1].x = w - bw * 2 - 1;
-	MwLLLine(handle->lowlevel, p, c->lowlevel);
+	MwLine(handle, p, c);
 
 	MwFreeColor(c);
 }
@@ -124,11 +124,11 @@ static void minimize_draw(MwWidget handle) {
 	p[0].y = h - bw * 2 - 1;
 	p[1].x = w - bw * 2 - 1;
 	p[1].y = h - bw * 2 - 1;
-	MwLLLine(handle->lowlevel, p, c->lowlevel);
+	MwLine(handle, p, c);
 
 	p[0].y--;
 	p[1].y--;
-	MwLLLine(handle->lowlevel, p, c->lowlevel);
+	MwLine(handle, p, c);
 
 	MwFreeColor(c);
 }

@@ -43,12 +43,12 @@ static void hand(MwWidget handle, double x, double y, double width, double lengt
 
 	p[4] = p[0];
 
-	MwLLPolygon(handle->lowlevel, p, 4, inside->lowlevel);
+	MwPolygon(handle, p, 4, inside);
 
-	MwLLLine(handle->lowlevel, &p[0], border->lowlevel);
-	MwLLLine(handle->lowlevel, &p[1], border->lowlevel);
-	MwLLLine(handle->lowlevel, &p[2], border->lowlevel);
-	MwLLLine(handle->lowlevel, &p[3], border->lowlevel);
+	MwLine(handle, &p[0], border);
+	MwLine(handle, &p[1], border);
+	MwLine(handle, &p[2], border);
+	MwLine(handle, &p[3], border);
 }
 
 static void draw(MwWidget handle) {
@@ -96,7 +96,7 @@ static void draw(MwWidget handle) {
 		p[1].x = x;
 		p[1].y = y;
 
-		MwLLLine(handle->lowlevel, p, border->lowlevel);
+		MwLine(handle, p, border);
 	}
 
 	hand(handle, ShadowDist, ShadowDist, BaseWidth, w / 2 * 2 / 3, h, shadow, shadow);

@@ -42,7 +42,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 			l[0] = *p;
 			l[0].x -= LineSpace / 2;
 			l[1] = *p;
-			if(draw) MwLLLine(handle->lowlevel, &l[0], text2->lowlevel);
+			if(draw) MwLine(handle, &l[0], text2);
 		}
 
 		if(shift > LineSpace) {
@@ -53,7 +53,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 			if(next) {
 				l[1].y += MwTextHeight(handle, Font, "M") / 2;
 			}
-			if(draw) MwLLLine(handle->lowlevel, &l[0], text2->lowlevel);
+			if(draw) MwLine(handle, &l[0], text2);
 		}
 		if(tree->tree != NULL) {
 			r.width	 = OpenerSize;
@@ -74,7 +74,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 					l[1].x = l[0].x + len;
 					l[1].y = l[0].y;
 
-					MwLLLine(handle->lowlevel, &l[0], text->lowlevel);
+					MwLine(handle, &l[0], text);
 				} else {
 					l[0].x = r.x + (r.width - len) / 2;
 					l[0].y = r.y + r.height / 2;
@@ -82,7 +82,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 					l[1].x = l[0].x + len;
 					l[1].y = l[0].y;
 
-					MwLLLine(handle->lowlevel, &l[0], text->lowlevel);
+					MwLine(handle, &l[0], text);
 
 					l[0].x = r.x + r.width / 2;
 					l[0].y = r.y + (r.height - len) / 2;
@@ -90,7 +90,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 					l[1].x = l[0].x;
 					l[1].y = l[0].y + len;
 
-					MwLLLine(handle->lowlevel, &l[0], text->lowlevel);
+					MwLine(handle, &l[0], text);
 				}
 				r = r2;
 				MwDrawFrame(handle, &r, base, tree->opened);
@@ -160,7 +160,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 		if(skipped && p->y > l[0].y) {
 			skipped = 0;
 		}
-		if(draw && !skipped && i != (arrlen(tree->tree) - 1)) MwLLLine(handle->lowlevel, &l[0], text->lowlevel);
+		if(draw && !skipped && i != (arrlen(tree->tree) - 1)) MwLine(handle, &l[0], text);
 	}
 }
 

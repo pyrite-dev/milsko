@@ -131,7 +131,7 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwColor color) {
 	p[3].x = r.x;
 	p[3].y = r.y + r.height;
 
-	MwLLPolygon(handle->lowlevel, p, 4, color->lowlevel);
+	MwPolygon(handle, p, 4, color);
 }
 
 void MwDrawRectLine(MwWidget handle, MwRect* rect, MwColor color) {
@@ -154,10 +154,10 @@ void MwDrawRectLine(MwWidget handle, MwRect* rect, MwColor color) {
 
 	p[4] = p[0];
 
-	MwLLLine(handle->lowlevel, &p[0], color->lowlevel);
-	MwLLLine(handle->lowlevel, &p[1], color->lowlevel);
-	MwLLLine(handle->lowlevel, &p[2], color->lowlevel);
-	MwLLLine(handle->lowlevel, &p[3], color->lowlevel);
+	MwLine(handle, &p[0], color);
+	MwLine(handle, &p[1], color);
+	MwLine(handle, &p[2], color);
+	MwLine(handle, &p[3], color);
 }
 
 void MwDrawRectFading(MwWidget handle, MwRect* rect, MwColor color) {
@@ -200,6 +200,14 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwColor color) {
 	MwLLDestroyPixmap(pixmap);
 
 	free(data);
+}
+
+void MwPolygon(MwWidget handle, MwPoint* points, int points_count, MwColor color) {
+	MwLLPolygon(handle->lowlevel, points, points_count, color->lowlevel);
+}
+
+void MwLine(MwWidget handle, MwPoint* points, MwColor color) {
+	MwLLLine(handle->lowlevel, points, color->lowlevel);
 }
 
 void MwDrawFrame(MwWidget handle, MwRect* rect, MwColor color, int invert) {
@@ -305,7 +313,7 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwColor color, int invert) {
 	p[5].x = rect->x + border;
 	p[5].y = rect->y + rect->height / 2;
 
-	MwLLPolygon(handle->lowlevel, p, 6, (invert ? darker : lighter)->lowlevel);
+	MwPolygon(handle, p, 6, (invert ? darker : lighter));
 
 	p[0].x = rect->x;
 	p[0].y = rect->y + rect->height / 2;
@@ -325,7 +333,7 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwColor color, int invert) {
 	p[5].x = rect->x + border;
 	p[5].y = rect->y + rect->height / 2;
 
-	MwLLPolygon(handle->lowlevel, p, 6, (invert ? lighter : darker)->lowlevel);
+	MwPolygon(handle, p, 6, (invert ? lighter : darker));
 
 	p[0].x = rect->x + rect->width / 2;
 	p[0].y = rect->y + border;
@@ -339,7 +347,7 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwColor color, int invert) {
 	p[3].x = rect->x + border;
 	p[3].y = rect->y + rect->height / 2;
 
-	MwLLPolygon(handle->lowlevel, p, 4, col->lowlevel);
+	MwPolygon(handle, p, 4, col);
 
 	MwFreeColor(col);
 	MwFreeColor(lighter);
@@ -469,7 +477,7 @@ static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwColor color, i
 
 	p[5].x = rect->x;
 	p[5].y = rect->y + rect->height;
-	MwLLPolygon(handle->lowlevel, p, 6, (invert ? darker : lighter)->lowlevel);
+	MwPolygon(handle, p, 6, (invert ? darker : lighter));
 
 	p[0].x = rect->x + rect->width;
 	p[0].y = rect->y;
@@ -488,7 +496,7 @@ static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwColor color, i
 
 	p[5].x = rect->x + rect->width;
 	p[5].y = rect->y + rect->height;
-	MwLLPolygon(handle->lowlevel, p, 6, (invert ? lighter : darker)->lowlevel);
+	MwPolygon(handle, p, 6, (invert ? lighter : darker));
 
 	MwFreeColor(lighter);
 	MwFreeColor(darker);
@@ -521,7 +529,7 @@ static void frame_border_complex(MwWidget handle, MwRect* rect, MwColor lighter,
 
 	p[5].x = rect->x;
 	p[5].y = rect->y + rect->height;
-	MwLLPolygon(handle->lowlevel, p, 6, (invert ? lighter : darker)->lowlevel);
+	MwPolygon(handle, p, 6, (invert ? lighter : darker));
 
 	p[0].x = rect->x + rect->width;
 	p[0].y = rect->y;
@@ -540,7 +548,7 @@ static void frame_border_complex(MwWidget handle, MwRect* rect, MwColor lighter,
 
 	p[5].x = rect->x + rect->width;
 	p[5].y = rect->y + rect->height;
-	MwLLPolygon(handle->lowlevel, p, 6, (invert ? lighter : darker)->lowlevel);
+	MwPolygon(handle, p, 6, (invert ? lighter : darker));
 }
 
 static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwColor color, int invert, int border, int diff, int same) {
@@ -633,9 +641,9 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, in
 		p3[3].x = (int)(rect->x + rect->width - c * border);
 		p3[3].y = (int)(rect->y + rect->height - s * border);
 
-		MwLLPolygon(handle->lowlevel, p1, 4, (invert ? darker : lighter)->lowlevel);
-		MwLLPolygon(handle->lowlevel, p2, 4, (invert ? lighter : darker)->lowlevel);
-		MwLLPolygon(handle->lowlevel, p3, 4, (invert ? lighter : darker)->lowlevel);
+		MwPolygon(handle, p1, 4, (invert ? darker : lighter));
+		MwPolygon(handle, p2, 4, (invert ? lighter : darker));
+		MwPolygon(handle, p3, 4, (invert ? lighter : darker));
 
 		p4[0].x = (int)(rect->x + c * border);
 		p4[0].y = (int)(rect->y + rect->height - s * border);
@@ -682,9 +690,9 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, in
 		p3[3].x = (int)(rect->x + rect->width - c * border);
 		p3[3].y = (int)(rect->y + s * border);
 
-		MwLLPolygon(handle->lowlevel, p1, 4, (invert ? darker : lighter)->lowlevel);
-		MwLLPolygon(handle->lowlevel, p2, 4, (invert ? darker : lighter)->lowlevel);
-		MwLLPolygon(handle->lowlevel, p3, 4, (invert ? lighter : darker)->lowlevel);
+		MwPolygon(handle, p1, 4, (invert ? darker : lighter));
+		MwPolygon(handle, p2, 4, (invert ? darker : lighter));
+		MwPolygon(handle, p3, 4, (invert ? lighter : darker));
 
 		p4[0].x = (int)(rect->x + c * border);
 		p4[0].y = (int)(rect->y + s * border);
@@ -731,9 +739,9 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, in
 		p3[3].x = (int)(rect->x + rect->width - border);
 		p3[3].y = rect->y + rect->height / 2;
 
-		MwLLPolygon(handle->lowlevel, p1, 4, (invert ? darker : lighter)->lowlevel);
-		MwLLPolygon(handle->lowlevel, p2, 4, (invert ? darker : lighter)->lowlevel);
-		MwLLPolygon(handle->lowlevel, p3, 4, (invert ? lighter : darker)->lowlevel);
+		MwPolygon(handle, p1, 4, (invert ? darker : lighter));
+		MwPolygon(handle, p2, 4, (invert ? darker : lighter));
+		MwPolygon(handle, p3, 4, (invert ? lighter : darker));
 
 		p4[0].x = (int)(rect->x + rect->width - border);
 		p4[0].y = rect->y + rect->height / 2;
@@ -780,9 +788,9 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, in
 		p3[3].x = rect->x + rect->width;
 		p3[3].y = rect->y + rect->height;
 
-		MwLLPolygon(handle->lowlevel, p1, 4, (invert ? darker : lighter)->lowlevel);
-		MwLLPolygon(handle->lowlevel, p2, 4, (invert ? lighter : darker)->lowlevel);
-		MwLLPolygon(handle->lowlevel, p3, 4, (invert ? lighter : darker)->lowlevel);
+		MwPolygon(handle, p1, 4, (invert ? darker : lighter));
+		MwPolygon(handle, p2, 4, (invert ? lighter : darker));
+		MwPolygon(handle, p3, 4, (invert ? lighter : darker));
 
 		p4[0].x = (int)(rect->x + border);
 		p4[0].y = rect->y + rect->height / 2;
@@ -793,7 +801,7 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, in
 		p4[2].x = (int)(rect->x + rect->width - c * border);
 		p4[2].y = (int)(rect->y + s * border);
 	}
-	MwLLPolygon(handle->lowlevel, p4, 3, col->lowlevel);
+	MwPolygon(handle, p4, 3, col);
 
 	MwFreeColor(col);
 	MwFreeColor(lighter);
