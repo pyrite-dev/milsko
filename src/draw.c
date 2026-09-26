@@ -975,6 +975,9 @@ void MwPixmapReloadRaw(MwLLPixmap px, unsigned char* rgb) {
 
 		a /= 255;
 		if(a != 0) {
+#if 1
+			a = 1;
+#endif
 			pout[0] = (unsigned char)(pin[0] * a);
 			pout[1] = (unsigned char)(pin[1] * a);
 			pout[2] = (unsigned char)(pin[2] * a);
