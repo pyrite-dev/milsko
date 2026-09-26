@@ -23,7 +23,7 @@ static MwBool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwP
 
 /* Recursively dispatch a key event to a widget and its children */
 static void recursive_dispatch_key(MwLL handle, int* k) {
-	MwWidget h = (MwWidget)handle->common.intenral;
+	MwWidget h = (MwWidget)handle->common.internal;
 	MwLLDispatch(handle, key, k);
 	if(h) {
 		int i;
@@ -37,7 +37,7 @@ static void recursive_dispatch_key(MwLL handle, int* k) {
 };
 /* Recursively dispatch a key released event to a widget and its children */
 static void recursive_dispatch_key_released(MwLL handle, int* k) {
-	MwWidget h = (MwWidget)handle->common.intenral;
+	MwWidget h = (MwWidget)handle->common.internal;
 	MwLLDispatch(handle, key_released, k);
 	if(h) {
 		int i;
@@ -52,7 +52,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 
 /* Recursively dispatch a move event to a widget and its children */
 static void recursive_dispatch_move(MwLL handle, MwMouse* p) {
-	MwWidget h = (MwWidget)handle->common.intenral;
+	MwWidget h = (MwWidget)handle->common.internal;
 	if(h) {
 		int i;
 		for(i = 0; i < arrlen(h->children); i++) {
@@ -165,8 +165,8 @@ static void wl_data_device_leave(void*			data,
 static MwBool motion_cursor_change(MwLL self, wl_clipboard_device_context_t* ctx) {
 	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL && self->wayland.accepts_dnd) {
 		return MwTRUE;
-	} else if(self->common.intenral) {
-		MwWidget w = self->common.intenral;
+	} else if(self->common.internal) {
+		MwWidget w = self->common.internal;
 		int	 i, n;
 		for(i = 0; i < arrlen(w->children); i++) {
 			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
@@ -190,8 +190,8 @@ static MwBool motion_cursor_change(MwLL self, wl_clipboard_device_context_t* ctx
 static void clipboard_dispatch(MwLL self, char* buf) {
 	if(self->wayland.type == MwLL_WAYLAND_TOPLEVEL && self->wayland.accepts_dnd) {
 		MwLLDispatch(self, drag_and_drop, buf);
-	} else if(self->common.intenral) {
-		MwWidget w = self->common.intenral;
+	} else if(self->common.internal) {
+		MwWidget w = self->common.internal;
 		int	 i, n;
 		for(i = 0; i < arrlen(w->children); i++) {
 			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
@@ -722,7 +722,7 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 };
 
 static void recursive_dispatch_mouse_down(MwLL handle, MwMouse* p) {
-	MwWidget h = (MwWidget)handle->common.intenral;
+	MwWidget h = (MwWidget)handle->common.internal;
 	MwLLDispatch(handle, down, p);
 	if(h) {
 		int i;
@@ -735,7 +735,7 @@ static void recursive_dispatch_mouse_down(MwLL handle, MwMouse* p) {
 	}
 };
 static void recursive_dispatch_mouse_up(MwLL handle, MwMouse* p) {
-	MwWidget h = (MwWidget)handle->common.intenral;
+	MwWidget h = (MwWidget)handle->common.internal;
 	MwLLDispatch(handle, up, p);
 	if(h) {
 		int i;
@@ -793,8 +793,8 @@ static void mouse_dispatch(MwLL self, MwMouse p, MwU32 state) {
 		break;
 	}
 
-	if(self->common.intenral) {
-		MwWidget w = self->common.intenral;
+	if(self->common.internal) {
+		MwWidget w = self->common.internal;
 		int	 i, n;
 		for(i = 0; i < arrlen(w->children); i++) {
 			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
@@ -963,8 +963,8 @@ static void keyboard_leave(void*	       data,
 };
 
 void MwLLRecursiveKeyDispatch(MwLL self, int* k, MwBool down) {
-	if(self->common.intenral) {
-		MwWidget w = self->common.intenral;
+	if(self->common.internal) {
+		MwWidget w = self->common.internal;
 		int	 i, n;
 		for(i = 0; i < arrlen(w->children); i++) {
 			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {

@@ -14,8 +14,8 @@ MwBool MwWaylandVulkan = MwFALSE;
 MwBool MwWaylandCairoOnly = MwFALSE;
 
 void MwLLWaylandChildrenIterate(MwLL handle, void (*func)(MwLL handle, MwLL child)) {
-	if(handle->common.intenral) {
-		MwWidget w = handle->common.intenral;
+	if(handle->common.internal) {
+		MwWidget w = handle->common.internal;
 		int	 i;
 		for(i = 0; i < arrlen(w->children); i++) {
 			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
@@ -30,7 +30,7 @@ static int event_loop(MwLL handle);
 
 /* Recursively dispatch a resize event to a widget and its children */
 static void recursive_dispatch_resize(MwLL handle) {
-	MwWidget h = (MwWidget)handle->common.intenral;
+	MwWidget h = (MwWidget)handle->common.internal;
 	if(h) {
 		int i;
 		for(i = 0; i < arrlen(h->children); i++) {
@@ -45,7 +45,7 @@ static void recursive_dispatch_resize(MwLL handle) {
 static void recursive_render(MwLL handle) {
 	int i;
 
-	for(i = 0; i < arrlen(((MwWidget)handle->common.intenral)->children); i++) recursive_render(((MwWidget)handle->common.intenral)->children[i]->lowlevel);
+	for(i = 0; i < arrlen(((MwWidget)handle->common.internal)->children); i++) recursive_render(((MwWidget)handle->common.internal)->children[i]->lowlevel);
 
 	MwLLForceRender(handle);
 }
@@ -512,7 +512,7 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	r->wayland.popup = malloc(sizeof(struct _MwLLWaylandPopup));
 
 	if(parent) {
-		MwWidget p = parent->common.intenral;
+		MwWidget p = parent->common.internal;
 		while(topmost_parent->wayland.parent) {
 			topmost_parent = topmost_parent->wayland.parent;
 		}
@@ -1944,11 +1944,11 @@ static void MwLLRaiseImpl(MwLL handle) {
 		MwLL topmost_parent = handle;
 		int  children_num;
 		while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
-		children_num = arrlen(((MwWidget)topmost_parent->common.intenral)->children);
+		children_num = arrlen(((MwWidget)topmost_parent->common.internal)->children);
 
 		if(children_num > 1) {
 			printf("%d\n", children_num);
-			MwWidget last_child = ((MwWidget)topmost_parent->common.intenral)->children[children_num - 1];
+			MwWidget last_child = ((MwWidget)topmost_parent->common.internal)->children[children_num - 1];
 			wl_subsurface_place_above(handle->wayland.sublevel->subsurface, last_child->lowlevel->wayland.framebuffer.surface);
 		}
 		}*/
