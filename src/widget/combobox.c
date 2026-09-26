@@ -25,8 +25,8 @@ static void destroy(MwWidget handle) {
 
 static void draw(MwWidget handle) {
 	MwRect	   r, rc;
-	MwLLColor  base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor  text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	MwComboBox cb	= handle->internal;
 
 	r.x	 = 0;
@@ -59,8 +59,8 @@ static void draw(MwWidget handle) {
 	r.height = MwDefaultBorderWidth(handle) * 2;
 	MwDrawFrame(handle, &r, base, 0);
 
-	MwLLFreeColor(text);
-	MwLLFreeColor(base);
+	MwFreeColor(text);
+	MwFreeColor(base);
 }
 
 static void MWAPI listbox_activate(MwWidget handle, void* user, void* client) {

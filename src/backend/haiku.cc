@@ -589,14 +589,12 @@ static void MwLLEndDrawImpl(MwLL handle) {
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 	MwLLColor c = (MwLLColor)malloc(sizeof(*c));
 
-	MwLLColorUpdate(handle, c, r, g, b);
+	MwLLColorUpdate(c, r, g, b);
 
 	return c;
 }
 
-static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
-	(void)handle;
-
+static void MwLLColorUpdateImpl(MwLLColor c, int r, int g, int b) {
 	c->common.red	= r;
 	c->common.green = g;
 	c->common.blue	= b;

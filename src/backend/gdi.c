@@ -532,15 +532,17 @@ static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 		return NULL;
 	}
 
-	c->gdi.brush = NULL;
+	c->gdi.handle = handle;
+	c->gdi.brush  = NULL;
 
-	MwLLColorUpdate(handle, c, r, g, b);
+	MwLLColorUpdate(c, r, g, b);
 
 	return c;
 }
 
-static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
-	HDC	 dc = GetDC(handle->gdi.hWnd);
+static void MwLLColorUpdateImpl(MwLLColor c, int r, int g, int b) {
+	MwLL	 handle = c->gdi.handle;
+	HDC	 dc	= GetDC(handle->gdi.hWnd);
 	COLORREF color;
 
 	if(r > 255) r = 255;
@@ -665,14 +667,6 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 
 	memcpy(r->common.raw, data, 4 * width * height);
 
-	r->common.before_blend = malloc(width * height * 4);
-	if(!r->common.before_blend) {
-		printf("Out Of Memory\n");
-		return NULL;
-	}
-
-	memcpy(r->common.before_blend, data, 4 * width * height);
-
 	r->common.width	 = width;
 	r->common.height = height;
 
@@ -748,7 +742,6 @@ static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
-	free(pixmap->common.before_blend);
 	free(pixmap->common.raw);
 	DeleteObject(pixmap->gdi.hMask);
 	DeleteObject(pixmap->gdi.hMask2);

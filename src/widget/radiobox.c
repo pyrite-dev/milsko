@@ -11,16 +11,16 @@ static int wcreate(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	   r;
-	MwLLColor  base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwRect	 r;
+	MwColor	 base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;
 	r.width	 = MwGetInteger(handle, MwNwidth);
 	r.height = MwGetInteger(handle, MwNheight);
 	MwDrawRect(handle, &r, base);
-	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
+	if(bgpx != NULL) MwDrawPixmap(handle, &r, bgpx);
 
 	if(r.width < r.height) {
 		r.height = r.width;
@@ -31,17 +31,17 @@ static void draw(MwWidget handle) {
 	r.y = (MwGetInteger(handle, MwNheight) - r.height) / 2;
 
 	if(MwGetInteger(handle, MwNmodernLook) == 1) {
-		int	  is_checked = (handle->pressed || MwGetInteger(handle, MwNchecked));
-		MwLLColor darker;
-		MwLLColor inner;
-		MwLLColor innerunsel = base;
+		int	is_checked = (handle->pressed || MwGetInteger(handle, MwNchecked));
+		MwColor darker;
+		MwColor inner;
+		MwColor innerunsel = base;
 
 		if(MwGetInteger(handle, MwNdarkTheme) == 1) {
-			darker	   = MwLLAllocColor(handle->lowlevel, 255, 255, 255);
+			darker	   = MwAllocColor(handle, 255, 255, 255);
 			innerunsel = MwLightenColor(handle, base, 80, 80, 80);
 			inner	   = darker;
 		} else {
-			darker = MwLLAllocColor(handle->lowlevel, 0, 0, 0);
+			darker = MwAllocColor(handle, 0, 0, 0);
 			inner  = MwLightenColor(handle, is_checked ? darker : base, -80, -80, -80);
 		}
 		MwDrawCircle(handle, &r, darker, NULL, 1);
@@ -57,12 +57,12 @@ static void draw(MwWidget handle) {
 				MwDrawCircle(handle, &r, inner, innerunsel, 1);
 			}
 		}
-		MwLLFreeColor(darker);
+		MwFreeColor(darker);
 	} else {
 		MwDrawDiamond(handle, &r, base, (handle->pressed || MwGetInteger(handle, MwNchecked)) ? 1 : 0);
 	}
 
-	MwLLFreeColor(base);
+	MwFreeColor(base);
 }
 
 static void click(MwWidget handle) {

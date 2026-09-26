@@ -9,11 +9,11 @@ static int wcreate(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	   r;
-	MwLLColor  base	 = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor  base2 = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
-	MwLLColor  text2 = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
-	MwLLPixmap bgpx	 = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwRect	 r;
+	MwColor	 base  = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	 base2 = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
+	MwColor	 text2 = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
+	MwPixmap bgpx  = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -31,7 +31,7 @@ static void draw(MwWidget handle) {
 
 	MwDrawFrame(handle, &r, base, 1);
 	MwDrawRect(handle, &r, base2);
-	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
+	if(bgpx != NULL) MwDrawPixmap(handle, &r, bgpx);
 	if(handle->pressed || MwGetInteger(handle, MwNchecked)) {
 		MwPoint p[6];
 		int	gap_w = r.width / 4 / 3;
@@ -60,12 +60,12 @@ static void draw(MwWidget handle) {
 		p[5] = p[0];
 		p[5].y -= r.height / 3;
 
-		MwLLPolygon(handle->lowlevel, p, 6, text2);
+		MwLLPolygon(handle->lowlevel, p, 6, text2->lowlevel);
 	}
 
-	MwLLFreeColor(text2);
-	MwLLFreeColor(base2);
-	MwLLFreeColor(base);
+	MwFreeColor(text2);
+	MwFreeColor(base2);
+	MwFreeColor(base);
 }
 
 static void click(MwWidget handle) {

@@ -136,10 +136,10 @@ static void MWAPI frame_mouse_move(MwWidget handle, void* user, void* call) {
 static void frame_draw(MwWidget handle) {
 	MwRect	  r, r2;
 	MwListBox lb	= handle->parent->internal;
-	MwLLColor base	= MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor base2 = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
-	MwLLColor text	= MwParseColor(handle, MwGetText(handle, MwNforeground));
-	MwLLColor text2 = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
+	MwColor	  base	= MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	  base2 = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
+	MwColor	  text	= MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	  text2 = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
 	int	  i;
 	MwPoint	  p;
 	int	  st = 0;
@@ -180,12 +180,12 @@ static void frame_draw(MwWidget handle) {
 		}
 		if(lb->list[i].pixmap != NULL) {
 			MwRect r2;
-			int    h  = (lb->list[i].pixmap->common.height > (MwTextHeight(handle, Font, "M") + Padding)) ? (MwTextHeight(handle, Font, "M") + Padding) : lb->list[i].pixmap->common.height;
+			int    h  = (lb->list[i].pixmap->common->height > (MwTextHeight(handle, Font, "M") + Padding)) ? (MwTextHeight(handle, Font, "M") + Padding) : lb->list[i].pixmap->common->height;
 			r2.x	  = MwDefaultBorderWidth(handle);
 			r2.y	  = p.y + (MwTextHeight(handle, Font, "M") + Padding - h) / 2;
-			r2.width  = h * lb->list[i].pixmap->common.width / lb->list[i].pixmap->common.height;
+			r2.width  = h * lb->list[i].pixmap->common->width / lb->list[i].pixmap->common->height;
 			r2.height = h;
-			MwLLDrawPixmap(handle->lowlevel, &r2, lb->list[i].pixmap);
+			MwDrawPixmap(handle, &r2, lb->list[i].pixmap);
 		}
 		p.x = MwDefaultBorderWidth(handle) + MwGetInteger(handle->parent, MwNleftPadding);
 		for(j = 0; j < arrlen(lb->list[i].name); j++) {
@@ -259,10 +259,10 @@ static void frame_draw(MwWidget handle) {
 
 	MwDrawFrame(handle, &r, base, 1);
 
-	MwLLFreeColor(text2);
-	MwLLFreeColor(text);
-	MwLLFreeColor(base2);
-	MwLLFreeColor(base);
+	MwFreeColor(text2);
+	MwFreeColor(text);
+	MwFreeColor(base2);
+	MwFreeColor(base);
 }
 
 static void resize(MwWidget handle, int no_resize) {
@@ -359,8 +359,8 @@ static void destroy(MwWidget handle) {
 
 static void draw(MwWidget handle) {
 	MwRect	  r;
-	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	  base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	  text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	MwListBox lb   = handle->internal;
 
 	r.x	 = 0;
@@ -405,8 +405,8 @@ static void draw(MwWidget handle) {
 		}
 	}
 
-	MwLLFreeColor(text);
-	MwLLFreeColor(base);
+	MwFreeColor(text);
+	MwFreeColor(base);
 }
 
 static void prop_change(MwWidget handle, const char* prop) {
@@ -456,7 +456,7 @@ static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text)
 	return row;
 }
 
-static void mwListBoxSetIconImpl(MwWidget handle, int index, MwLLPixmap icon) {
+static void mwListBoxSetIconImpl(MwWidget handle, int index, MwPixmap icon) {
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
 	int new = 0;
@@ -585,8 +585,8 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		*(int*)out	 = mwListBoxSetImpl(handle, row, col, text);
 	}
 	if(strcmp(name, "mwListBoxSetIcon") == 0) {
-		int	   index = va_arg(va, int);
-		MwLLPixmap icon	 = va_arg(va, MwLLPixmap);
+		int	 index = va_arg(va, int);
+		MwPixmap icon  = va_arg(va, MwPixmap);
 		mwListBoxSetIconImpl(handle, index, icon);
 	}
 }

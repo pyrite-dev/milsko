@@ -15,11 +15,11 @@ static int wcreate(MwWidget handle) {
 static void draw(MwWidget handle) {
 	MwRect	    r;
 	MwPoint	    point;
-	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	    base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	    text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	const char* str	 = MwGetText(handle, MwNtext);
-	MwLLPixmap  px	 = MwGetVoid(handle, MwNpixmap);
-	MwLLPixmap  bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwPixmap    px	 = MwGetVoid(handle, MwNpixmap);
+	MwPixmap    bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 	int	    inv;
 
 	if(str == NULL) str = "";
@@ -38,7 +38,7 @@ static void draw(MwWidget handle) {
 	} else {
 		MwDrawWidgetBack(handle, &r, base, handle->pressed, MwDEFAULT);
 	}
-	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
+	if(bgpx != NULL) MwDrawPixmap(handle, &r, bgpx);
 	if(MwGetInteger(handle, MwNflat) && !(handle->pressed || ((inv = MwGetInteger(handle, MwNforceInverted)) != MwDEFAULT && inv))) {
 		r.x += MwDefaultBorderWidth(handle);
 		r.y += MwDefaultBorderWidth(handle);
@@ -51,27 +51,27 @@ static void draw(MwWidget handle) {
 		int oh = r.height;
 
 		if(MwGetInteger(handle, MwNfillArea)) {
-			double sw = (double)ow / px->common.width;
-			double sh = (double)oh / px->common.height;
+			double sw = (double)ow / px->common->width;
+			double sh = (double)oh / px->common->height;
 
 			if(sw < sh) {
-				r.width	 = (int)(px->common.width * sw);
-				r.height = (int)(px->common.height * sw);
+				r.width	 = (int)(px->common->width * sw);
+				r.height = (int)(px->common->height * sw);
 			} else {
-				r.width	 = (int)(px->common.width * sh);
-				r.height = (int)(px->common.height * sh);
+				r.width	 = (int)(px->common->width * sh);
+				r.height = (int)(px->common->height * sh);
 			}
 			r.width -= MwGetInteger(handle, MwNpadding) * 2;
 			r.height -= MwGetInteger(handle, MwNpadding) * 2;
 		} else {
-			r.width	 = px->common.width;
-			r.height = px->common.height;
+			r.width	 = px->common->width;
+			r.height = px->common->height;
 		}
 
 		r.x += (int)((double)(ow - r.width) / 2);
 		r.y += (int)((double)(oh - r.height) / 2);
 
-		MwLLDrawPixmap(handle->lowlevel, &r, px);
+		MwDrawPixmap(handle, &r, px);
 	} else {
 		point.x = r.x + r.width / 2;
 		point.y = r.x + r.height / 2;
@@ -79,8 +79,8 @@ static void draw(MwWidget handle) {
 		MwDrawText(handle, NULL, &point, str, MwALIGNMENT_CENTER, text);
 	}
 
-	MwLLFreeColor(text);
-	MwLLFreeColor(base);
+	MwFreeColor(text);
+	MwFreeColor(base);
 }
 
 static void click(MwWidget handle) {

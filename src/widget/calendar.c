@@ -29,10 +29,10 @@ static int wcreate(MwWidget handle) {
 	return 0;
 }
 
-static MwLLPixmap blit(MwWidget handle, const char* str, MwLLColor bg, MwLLColor fg, int scale) {
+static MwPixmap blit(MwWidget handle, const char* str, MwColor bg, MwColor fg, int scale) {
 	int	       i;
 	unsigned char* buf;
-	MwLLPixmap     px;
+	MwPixmap       px;
 	int	       w = (5 * strlen(str) + (strlen(str) - 1)) * scale;
 	int	       h = 5 * scale;
 	int	       y, x, s;
@@ -81,11 +81,11 @@ static MwLLPixmap blit(MwWidget handle, const char* str, MwLLColor bg, MwLLColor
 }
 
 static void draw(MwWidget handle) {
-	MwLLColor   c	 = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor   cf	 = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	MwLLColor   cb	 = MwParseColor(handle, "#fff");
-	MwLLColor   cb_g = MwParseColor(handle, "#666");
-	MwLLColor   ct	 = MwParseColor(handle, "#000");
+	MwColor	    c	 = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	    cf	 = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	    cb	 = MwParseColor(handle, "#fff");
+	MwColor	    cb_g = MwParseColor(handle, "#666");
+	MwColor	    ct	 = MwParseColor(handle, "#000");
 	MwRect	    r, r2, r3;
 	MwPoint	    p[6];
 	int	    h  = 32 * MwGetInteger(handle, MwNscale);
@@ -115,7 +115,7 @@ static void draw(MwWidget handle) {
 	    "THU",
 	    "FRI",
 	    "SAT"};
-	MwLLPixmap px;
+	MwPixmap px;
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -135,7 +135,7 @@ static void draw(MwWidget handle) {
 	p[4].y = p[0].y + gh * 7;
 	p[5].x = p[0].x + h;
 	p[5].y = p[0].y;
-	MwLLPolygon(handle->lowlevel, p, 6, cb_g);
+	MwLLPolygon(handle->lowlevel, p, 6, cb_g->lowlevel);
 
 	p[0].x = (r.width - h) / 2;
 	p[0].y = (r.height - h - sh) / 2;
@@ -149,7 +149,7 @@ static void draw(MwWidget handle) {
 	p[4].y = p[0].y + gh * 3;
 	p[5].x = p[0].x + h;
 	p[5].y = p[0].y;
-	MwLLPolygon(handle->lowlevel, p, 6, ct);
+	MwLLPolygon(handle->lowlevel, p, 6, ct->lowlevel);
 
 	r2.width  = h;
 	r2.height = h - ph - gh;
@@ -175,7 +175,7 @@ static void draw(MwWidget handle) {
 	p[2].y = r2.y + r2.height + ph;
 	p[3].x = r2.x + r2.width;
 	p[3].y = r2.y + r2.height;
-	MwLLPolygon(handle->lowlevel, p, 4, cb);
+	MwLLPolygon(handle->lowlevel, p, 4, cb->lowlevel);
 
 	p[0].x = r.width / 2;
 	p[0].y = (r.height - sh) / 2;
@@ -186,38 +186,38 @@ static void draw(MwWidget handle) {
 
 	px	  = blit(handle, days[MwGetInteger(handle, MwNday)], cb, ct, gh);
 	r2	  = r3;
-	r2.width  = px->common.width;
-	r2.height = px->common.height;
+	r2.width  = px->common->width;
+	r2.height = px->common->height;
 	r2.x	  = (r.width - r2.width) / 2;
 	r2.y	  = r2.y + gh * 2;
-	MwLLDrawPixmap(handle->lowlevel, &r2, px);
+	MwDrawPixmap(handle, &r2, px);
 	MwDestroyPixmap(px);
 
 	px	  = blit(handle, months[MwGetInteger(handle, MwNmonth)], cb, ct, gh);
 	r2	  = r3;
-	r2.width  = px->common.width;
-	r2.height = px->common.height;
+	r2.width  = px->common->width;
+	r2.height = px->common->height;
 	r2.x	  = (r.width - r2.width) / 2;
 	r2.y	  = r2.y + h - gh * 2 - r2.height;
-	MwLLDrawPixmap(handle->lowlevel, &r2, px);
+	MwDrawPixmap(handle, &r2, px);
 	MwDestroyPixmap(px);
 
 	MwStringPrintIntoBuffer(buf, 5, "%d", MwGetInteger(handle, MwNyear));
 
 	px	  = blit(handle, buf, c, cf, gh);
 	r2	  = r3;
-	r2.width  = px->common.width;
-	r2.height = px->common.height;
+	r2.width  = px->common->width;
+	r2.height = px->common->height;
 	r2.x	  = (r.width - r2.width) / 2;
 	r2.y	  = r2.y + h + gh * 6;
-	MwLLDrawPixmap(handle->lowlevel, &r2, px);
+	MwDrawPixmap(handle, &r2, px);
 	MwDestroyPixmap(px);
 
-	MwLLFreeColor(cf);
-	MwLLFreeColor(ct);
-	MwLLFreeColor(cb_g);
-	MwLLFreeColor(cb);
-	MwLLFreeColor(c);
+	MwFreeColor(cf);
+	MwFreeColor(ct);
+	MwFreeColor(cb_g);
+	MwFreeColor(cb);
+	MwFreeColor(c);
 }
 
 static void prop_change(MwWidget handle, const char* key) {

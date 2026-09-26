@@ -45,11 +45,11 @@ static int icon_width(MwWidget handle, const char* text) {
 
 	for(i = 0; i < arrlen(t->names); i++) {
 		if(strcmp(t->names[i], text) == 0) {
-			MwLLPixmap px = MwGetVoid(t->frames[i], MwNiconPixmap);
+			MwPixmap px = MwGetVoid(t->frames[i], MwNiconPixmap);
 
 			if(px == NULL) return 0;
 
-			return px->common.width * tab_height(handle) / px->common.height;
+			return px->common->width * tab_height(handle) / px->common->height;
 		}
 	}
 
@@ -57,14 +57,14 @@ static int icon_width(MwWidget handle, const char* text) {
 }
 
 static void draw(MwWidget handle) {
-	MwTab	  t  = handle->internal;
-	MwLLColor c  = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor ct = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	MwRect	  r, r2;
-	int	  h = tab_height(handle);
-	int	  i;
-	int	  n;
-	int	  x = 0;
+	MwTab	t  = handle->internal;
+	MwColor c  = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor ct = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwRect	r, r2;
+	int	h = tab_height(handle);
+	int	i;
+	int	n;
+	int	x = 0;
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -97,8 +97,8 @@ static void draw(MwWidget handle) {
 			x += r2.width;
 
 			if(iw > 0) {
-				MwLLPixmap px = MwGetVoid(t->frames[i], MwNiconPixmap);
-				MwRect	   rp;
+				MwPixmap px = MwGetVoid(t->frames[i], MwNiconPixmap);
+				MwRect	 rp;
 
 				rp = r2;
 
@@ -108,7 +108,7 @@ static void draw(MwWidget handle) {
 				rp.width  = iw - 10;
 				rp.height = rp.height * (iw - 10) / iw;
 
-				MwLLDrawPixmap(handle->lowlevel, &rp, px);
+				MwDrawPixmap(handle, &rp, px);
 			}
 
 			if(render) {
@@ -191,8 +191,8 @@ static void draw(MwWidget handle) {
 		}
 	}
 
-	MwLLFreeColor(ct);
-	MwLLFreeColor(c);
+	MwFreeColor(ct);
+	MwFreeColor(c);
 }
 
 static void show_frame(MwWidget handle) {

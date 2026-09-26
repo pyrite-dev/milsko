@@ -40,7 +40,7 @@ MwInline int MwListBoxSet(MwWidget handle, int row, int col, const char* text) {
  * @param index Index
  * @param icon Icon
  */
-MwInline void MwListBoxSetIcon(MwWidget handle, int index, MwLLPixmap icon) {
+MwInline void MwListBoxSetIcon(MwWidget handle, int index, MwPixmap icon) {
 	MwVaWidgetExecute(handle, "mwListBoxSetIcon", NULL, index, icon);
 }
 

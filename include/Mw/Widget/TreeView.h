@@ -25,7 +25,7 @@ MWDECL MwClass MwTreeViewClass;
  * @parma pixmap Pixmap
  * @param item Item
  */
-MwInline void* MwTreeViewAdd(MwWidget handle, void* parent, MwLLPixmap pixmap, const char* item) {
+MwInline void* MwTreeViewAdd(MwWidget handle, void* parent, MwPixmap pixmap, const char* item) {
 	void* out;
 	MwVaWidgetExecute(handle, "mwTreeViewAdd", &out, parent, pixmap, item);
 	return out;
@@ -76,7 +76,7 @@ MwInline void MwTreeViewSetLabel(MwWidget handle, void* item, const char* label)
  * @param item Item
  * @param pixmap Pixmap
  */
-MwInline void MwTreeViewSetPixmap(MwWidget handle, void* item, MwLLPixmap pixmap) {
+MwInline void MwTreeViewSetPixmap(MwWidget handle, void* item, MwPixmap pixmap) {
 	MwVaWidgetExecute(handle, "mwTreeViewSetPixmap", NULL, item, pixmap);
 }
 

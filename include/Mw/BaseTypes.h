@@ -5,12 +5,12 @@
 #ifndef __MW_BASETYPES_H__
 #define __MW_BASETYPES_H__
 
-typedef struct _MwPoint	    MwPoint;
-typedef struct _MwRect	    MwRect;
-typedef struct _MwSizeHints MwSizeHints;
-typedef struct _MwFont	    MwFont;
-typedef struct _MwCursor    MwCursor;
-typedef struct _MwRGB	    MwRGB;
+typedef struct _MwPoint	       MwPoint;
+typedef struct _MwRect	       MwRect;
+typedef struct _MwSizeHints    MwSizeHints;
+typedef struct _MwFontResource MwFontResource;
+typedef struct _MwCursor       MwCursor;
+typedef struct _MwRGB	       MwRGB;
 
 typedef unsigned char MwBool;
 #define MwTRUE ((MwBool)1)
@@ -98,7 +98,7 @@ struct _MwCursor {
 	unsigned int data[MwCursorDataHeight];
 };
 
-struct _MwFont {
+struct _MwFontResource {
 	int	      left;
 	int	      top;
 	unsigned char data[16];

@@ -120,4 +120,11 @@
 
 #define MwInline static __inline
 
+#ifdef __GNUC__
+/* when was this added to gcc? */
+#define MW_DEPRECATE(reason) __attribute__((deprecated((reason))))
+#else
+#define MW_DEPRECATE(reason)
+#endif
+
 #endif

@@ -549,13 +549,15 @@ static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
 }
 
 static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
-	MwLLColor c = malloc(sizeof(*c));
-	MwLLColorUpdate(handle, c, r, g, b);
+	MwLLColor c   = malloc(sizeof(*c));
+	c->x11.handle = handle;
+	MwLLColorUpdate(c, r, g, b);
 	return c;
 }
 
-static void MwLLColorUpdateImpl(MwLL handle, MwLLColor c, int r, int g, int b) {
+static void MwLLColorUpdateImpl(MwLLColor c, int r, int g, int b) {
 	XColor xc;
+	MwLL   handle = c->x11.handle;
 
 	if(handle->x11.red_mask == 0) {
 		if(r > 255) r = 255;
@@ -1097,9 +1099,6 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 	r->common.raw = malloc(4 * width * height);
 	memcpy(r->common.raw, data, 4 * width * height);
 
-	r->common.before_blend = malloc(4 * width * height);
-	memcpy(r->common.before_blend, data, 4 * width * height);
-
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &attr);
 
 	r->common.width	 = width;
@@ -1155,7 +1154,6 @@ static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
-	free(pixmap->common.before_blend);
 	free(pixmap->common.raw);
 	XDestroyImage(pixmap->x11.image);
 	XDestroyImage(pixmap->x11.mask);

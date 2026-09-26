@@ -28,7 +28,7 @@ static void destroy(MwWidget handle) {
 	free(handle->internal);
 }
 
-static void draw_v(MwWidget handle, unsigned char* raw, int x, int y, int stride, MwLLColor text) {
+static void draw_v(MwWidget handle, unsigned char* raw, int x, int y, int stride, MwColor text) {
 	int cy, cx, b;
 
 	int l_one = MwGetInteger(handle, MwNlength) - (MwGetInteger(handle, MwNlength) % 2);
@@ -37,9 +37,9 @@ static void draw_v(MwWidget handle, unsigned char* raw, int x, int y, int stride
 	for(cy = y; cy < y + l_one; cy++) {
 		for(cx = x; cx < x + s_one; cx++) {
 			unsigned char* px = &raw[(cy * stride + cx) * 4];
-			px[0]		  = text->common.red;
-			px[1]		  = text->common.green;
-			px[2]		  = text->common.blue;
+			px[0]		  = text->common->red;
+			px[1]		  = text->common->green;
+			px[2]		  = text->common->blue;
 			px[3]		  = 255;
 		}
 	}
@@ -52,9 +52,9 @@ static void draw_v(MwWidget handle, unsigned char* raw, int x, int y, int stride
 			unsigned char* px;
 
 			px    = &raw[(cy * stride + cx) * 4];
-			px[0] = text->common.red;
-			px[1] = text->common.green;
-			px[2] = text->common.blue;
+			px[0] = text->common->red;
+			px[1] = text->common->green;
+			px[2] = text->common->blue;
 			px[3] = 255;
 		}
 	}
@@ -67,15 +67,15 @@ static void draw_v(MwWidget handle, unsigned char* raw, int x, int y, int stride
 			unsigned char* px;
 
 			px    = &raw[(cy * stride + cx) * 4];
-			px[0] = text->common.red;
-			px[1] = text->common.green;
-			px[2] = text->common.blue;
+			px[0] = text->common->red;
+			px[1] = text->common->green;
+			px[2] = text->common->blue;
 			px[3] = 255;
 		}
 	}
 }
 
-static void draw_h(MwWidget handle, unsigned char* raw, int x, int y, int stride, MwLLColor text) {
+static void draw_h(MwWidget handle, unsigned char* raw, int x, int y, int stride, MwColor text) {
 	int cy, cx, b;
 
 	int l_one = MwGetInteger(handle, MwNlength) - (MwGetInteger(handle, MwNlength) % 2);
@@ -84,9 +84,9 @@ static void draw_h(MwWidget handle, unsigned char* raw, int x, int y, int stride
 	for(cx = x; cx < x + l_one; cx++) {
 		for(cy = y; cy < y + s_one; cy++) {
 			unsigned char* px = &raw[(cy * stride + cx) * 4];
-			px[0]		  = text->common.red;
-			px[1]		  = text->common.green;
-			px[2]		  = text->common.blue;
+			px[0]		  = text->common->red;
+			px[1]		  = text->common->green;
+			px[2]		  = text->common->blue;
 			px[3]		  = 255;
 		}
 	}
@@ -99,9 +99,9 @@ static void draw_h(MwWidget handle, unsigned char* raw, int x, int y, int stride
 			unsigned char* px;
 
 			px    = &raw[(cy * stride + cx) * 4];
-			px[0] = text->common.red;
-			px[1] = text->common.green;
-			px[2] = text->common.blue;
+			px[0] = text->common->red;
+			px[1] = text->common->green;
+			px[2] = text->common->blue;
 			px[3] = 255;
 		}
 	}
@@ -114,9 +114,9 @@ static void draw_h(MwWidget handle, unsigned char* raw, int x, int y, int stride
 			unsigned char* px;
 
 			px    = &raw[(cy * stride + cx) * 4];
-			px[0] = text->common.red;
-			px[1] = text->common.green;
-			px[2] = text->common.blue;
+			px[0] = text->common->red;
+			px[1] = text->common->green;
+			px[2] = text->common->blue;
 			px[3] = 255;
 		}
 	}
@@ -124,16 +124,16 @@ static void draw_h(MwWidget handle, unsigned char* raw, int x, int y, int stride
 
 static void draw_seven_segment(MwWidget handle) {
 	MwRect	       r;
-	MwLLColor      base   = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor      text   = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	MwLLColor      shadow = MwLightenColor(handle, base, MwDefaultShadow, MwDefaultShadow, MwDefaultShadow);
+	MwColor	       base   = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	       text   = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	       shadow = MwLightenColor(handle, base, MwDefaultShadow, MwDefaultShadow, MwDefaultShadow);
 	int	       align;
 	const char*    str   = MwGetText(handle, MwNtext);
-	MwLLPixmap     bgpx  = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwPixmap       bgpx  = MwGetVoid(handle, MwNbackgroundPixmap);
 	MwLabel	       lab   = handle->internal;
 	int	       l_one = MwGetInteger(handle, MwNlength) - (MwGetInteger(handle, MwNlength) % 2);
 	int	       s_one = (l_one * 3 / 4) - ((l_one * 3 / 4) % 2) + 1;
-	MwLLPixmap     px;
+	MwPixmap       px;
 	unsigned char* raw;
 	int	       w = 0, h = s_one * 3 + l_one * 2, i;
 	int	       x = 0;
@@ -146,7 +146,7 @@ static void draw_seven_segment(MwWidget handle) {
 	r.height = MwGetInteger(handle, MwNheight);
 
 	MwDrawRect(handle, &r, base);
-	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
+	if(bgpx != NULL) MwDrawPixmap(handle, &r, bgpx);
 
 	align = MwGetInteger(handle, MwNalignment);
 
@@ -234,7 +234,7 @@ static void draw_seven_segment(MwWidget handle) {
 			}
 
 			for(j = 1; j >= 0; j--) {
-				MwLLColor cl = j == 1 ? shadow : text;
+				MwColor cl = j == 1 ? shadow : text;
 
 				if(la) draw_h(handle, raw, x + s_one + j, j, w, cl);
 				if(lb) draw_v(handle, raw, x + s_one + l_one + j, s_one + j, w, cl);
@@ -250,7 +250,7 @@ static void draw_seven_segment(MwWidget handle) {
 			int cy, cx;
 			int j;
 			for(j = 1; j >= 0; j--) {
-				MwLLColor cl = j == 1 ? shadow : text;
+				MwColor cl = j == 1 ? shadow : text;
 				for(cy = 1; cy < h - 1; cy++) {
 					int h = s_one / 2;
 					int c = (l_one - h) / 2 + s_one;
@@ -261,9 +261,9 @@ static void draw_seven_segment(MwWidget handle) {
 					if(c1 || c2) {
 						for(cx = x; cx < x + s_one; cx++) {
 							unsigned char* px = &raw[((cy + j) * w + (cx + j)) * 4];
-							px[0]		  = cl->common.red;
-							px[1]		  = cl->common.green;
-							px[2]		  = cl->common.blue;
+							px[0]		  = cl->common->red;
+							px[1]		  = cl->common->green;
+							px[2]		  = cl->common->blue;
 							px[3]		  = 255;
 						}
 					}
@@ -276,13 +276,13 @@ static void draw_seven_segment(MwWidget handle) {
 			int cy, cx;
 			int j;
 			for(j = 1; j >= 0; j--) {
-				MwLLColor cl = j == 1 ? shadow : text;
+				MwColor cl = j == 1 ? shadow : text;
 				for(cy = h - (s_one - 1) / 2 - 1; cy < h; cy++) {
 					for(cx = x - Spacing - (s_one - 1) / 2 - 1; cx < (x - Spacing); cx++) {
 						unsigned char* px = &raw[((cy + j) * w + (cx + j)) * 4];
-						px[0]		  = cl->common.red;
-						px[1]		  = cl->common.green;
-						px[2]		  = cl->common.blue;
+						px[0]		  = cl->common->red;
+						px[1]		  = cl->common->green;
+						px[2]		  = cl->common->blue;
 						px[3]		  = 255;
 					}
 				}
@@ -305,7 +305,7 @@ static void draw_seven_segment(MwWidget handle) {
 		r.x = r.width - w;
 	}
 	r.width = w;
-	MwLLDrawPixmap(handle->lowlevel, &r, px);
+	MwDrawPixmap(handle, &r, px);
 
 	free(raw);
 
@@ -315,12 +315,12 @@ static void draw_seven_segment(MwWidget handle) {
 static void draw_normal(MwWidget handle) {
 	MwRect	    r;
 	MwPoint	    p;
-	MwLLColor   base   = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor   text   = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	MwLLColor   shadow = MwLightenColor(handle, base, MwDefaultShadow, MwDefaultShadow, MwDefaultShadow);
+	MwColor	    base   = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	    text   = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	    shadow = MwLightenColor(handle, base, MwDefaultShadow, MwDefaultShadow, MwDefaultShadow);
 	int	    align;
 	const char* str	 = MwGetText(handle, MwNtext);
-	MwLLPixmap  bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwPixmap    bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	if(str == NULL) str = "";
 
@@ -330,7 +330,7 @@ static void draw_normal(MwWidget handle) {
 	r.height = MwGetInteger(handle, MwNheight);
 
 	MwDrawRect(handle, &r, base);
-	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
+	if(bgpx != NULL) MwDrawPixmap(handle, &r, bgpx);
 
 	align = MwGetInteger(handle, MwNalignment);
 
@@ -359,9 +359,9 @@ static void draw_normal(MwWidget handle) {
 	p.y -= 1;
 	MwDrawText(handle, NULL, &p, str, MwALIGNMENT_CENTER, text);
 
-	MwLLFreeColor(shadow);
-	MwLLFreeColor(text);
-	MwLLFreeColor(base);
+	MwFreeColor(shadow);
+	MwFreeColor(text);
+	MwFreeColor(base);
 }
 
 static void draw(MwWidget handle) {

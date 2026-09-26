@@ -9,7 +9,7 @@ static int wcreate(MwWidget handle) {
 	return 0;
 }
 
-static void hand(MwWidget handle, double x, double y, double width, double length, double angle, MwLLColor inside, MwLLColor border) {
+static void hand(MwWidget handle, double x, double y, double width, double length, double angle, MwColor inside, MwColor border) {
 	double	w = MwGetInteger(handle, MwNwidth);
 	double	h = MwGetInteger(handle, MwNheight);
 	MwPoint p[5];
@@ -43,30 +43,30 @@ static void hand(MwWidget handle, double x, double y, double width, double lengt
 
 	p[4] = p[0];
 
-	MwLLPolygon(handle->lowlevel, p, 4, inside);
+	MwLLPolygon(handle->lowlevel, p, 4, inside->lowlevel);
 
-	MwLLLine(handle->lowlevel, &p[0], border);
-	MwLLLine(handle->lowlevel, &p[1], border);
-	MwLLLine(handle->lowlevel, &p[2], border);
-	MwLLLine(handle->lowlevel, &p[3], border);
+	MwLLLine(handle->lowlevel, &p[0], border->lowlevel);
+	MwLLLine(handle->lowlevel, &p[1], border->lowlevel);
+	MwLLLine(handle->lowlevel, &p[2], border->lowlevel);
+	MwLLLine(handle->lowlevel, &p[3], border->lowlevel);
 }
 
 static void draw(MwWidget handle) {
-	int	  ColorDiff = MwGetColorDifference(handle);
-	int	  ShadowDist;
-	int	  BaseWidth;
-	MwLLColor base	 = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor shadow = MwLightenColor(handle, base, -ColorDiff, -ColorDiff, -ColorDiff);
-	MwLLColor inside = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
-	MwLLColor border = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
-	MwRect	  r;
-	int	  i;
-	double	  w;
-	double	  fs = (MwGetInteger(handle, MwNsecond) % 60);
-	double	  fm = (MwGetInteger(handle, MwNminute) % 60) + (MwGetInteger(handle, MwNsecond) % 60) / 60.0;
-	double	  s  = (double)(MwGetInteger(handle, MwNsecond) % 60) / 60 * 360;
-	double	  m  = ((double)(MwGetInteger(handle, MwNminute) % 60) + fs / 60.0) / 60 * 360;
-	double	  h  = ((double)(MwGetInteger(handle, MwNhour) % 12) + fm / 60.0) / 12 * 360;
+	int	ColorDiff = MwGetColorDifference(handle);
+	int	ShadowDist;
+	int	BaseWidth;
+	MwColor base   = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor shadow = MwLightenColor(handle, base, -ColorDiff, -ColorDiff, -ColorDiff);
+	MwColor inside = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
+	MwColor border = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
+	MwRect	r;
+	int	i;
+	double	w;
+	double	fs = (MwGetInteger(handle, MwNsecond) % 60);
+	double	fm = (MwGetInteger(handle, MwNminute) % 60) + (MwGetInteger(handle, MwNsecond) % 60) / 60.0;
+	double	s  = (double)(MwGetInteger(handle, MwNsecond) % 60) / 60 * 360;
+	double	m  = ((double)(MwGetInteger(handle, MwNminute) % 60) + fs / 60.0) / 60 * 360;
+	double	h  = ((double)(MwGetInteger(handle, MwNhour) % 12) + fm / 60.0) / 12 * 360;
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -96,7 +96,7 @@ static void draw(MwWidget handle) {
 		p[1].x = x;
 		p[1].y = y;
 
-		MwLLLine(handle->lowlevel, p, border);
+		MwLLLine(handle->lowlevel, p, border->lowlevel);
 	}
 
 	hand(handle, ShadowDist, ShadowDist, BaseWidth, w / 2 * 2 / 3, h, shadow, shadow);
@@ -107,10 +107,10 @@ static void draw(MwWidget handle) {
 	hand(handle, 0, 0, BaseWidth, w / 2, m, inside, border);
 	hand(handle, 0, 0, BaseWidth / 4, w / 2, s, inside, border);
 
-	MwLLFreeColor(border);
-	MwLLFreeColor(inside);
-	MwLLFreeColor(shadow);
-	MwLLFreeColor(base);
+	MwFreeColor(border);
+	MwFreeColor(inside);
+	MwFreeColor(shadow);
+	MwFreeColor(base);
 }
 
 static void prop_change(MwWidget handle, const char* key) {

@@ -9,8 +9,8 @@ static int wcreate(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	  r;
-	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwRect	r;
+	MwColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -27,7 +27,7 @@ static void draw(MwWidget handle) {
 	}
 	MwDrawFrameEx(handle, &r, base, 1, 1, 0, 0);
 
-	MwLLFreeColor(base);
+	MwFreeColor(base);
 }
 
 static void prop_change(MwWidget handle, const char* key) {

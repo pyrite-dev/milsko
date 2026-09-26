@@ -11,11 +11,11 @@ struct _MwFLFont {
 	int	       descent;
 };
 
-static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwLLColor color) {
+static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwColor color) {
 	unsigned char* px;
 	int	       tw, th;
 	MwRect	       r;
-	MwLLPixmap     p;
+	MwPixmap       p;
 	int	       ax, lsb;
 	int	       x = 0, y = 0;
 
@@ -47,9 +47,9 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 				int	       ox  = x + ceil(lsb * ttf->scale) + cx;
 				int	       oy  = y + ceil(ttf->ascent * ttf->scale) + y0 + cy;
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
-				opx[0]		   = color->common.red;
-				opx[1]		   = color->common.green;
-				opx[2]		   = color->common.blue;
+				opx[0]		   = color->common->red;
+				opx[1]		   = color->common->green;
+				opx[2]		   = color->common->blue;
 				/* overflow check */
 				if(opx[3] + out[cy * ow + cx] < opx[3]) {
 					opx[3] = 255;
@@ -79,7 +79,7 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 	r.width	 = tw;
 	r.height = th;
 
-	MwLLDrawPixmap(handle->lowlevel, &r, p);
+	MwDrawPixmap(handle, &r, p);
 	MwDestroyPixmap(p);
 	free(px);
 

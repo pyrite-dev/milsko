@@ -33,10 +33,10 @@ struct _MwFLFont {
 	void*	   data;
 	int	   px;
 };
-static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwLLColor color) {
+static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwColor color) {
 	int	       tw, th;
 	unsigned char* px;
-	MwLLPixmap     p;
+	MwPixmap       p;
 	MwRect	       r;
 	int	       x = 0, y = 0;
 
@@ -62,9 +62,9 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 				int	       ox  = x + cx + ttf->face->glyph->bitmap_left;
 				int	       oy  = y + (ttf->face->height * ttf->px / ttf->face->units_per_EM) - ttf->face->glyph->bitmap_top + cy + (ttf->face->descender * ttf->px / ttf->face->units_per_EM);
 				unsigned char* opx = &px[(oy * tw + ox) * 4];
-				opx[0]		   = color->common.red;
-				opx[1]		   = color->common.green;
-				opx[2]		   = color->common.blue;
+				opx[0]		   = color->common->red;
+				opx[1]		   = color->common->green;
+				opx[2]		   = color->common->blue;
 				/* overflow check */
 				if(opx[3] + bmp->buffer[cy * bmp->pitch + cx] < opx[3]) {
 					opx[3] = 255;
@@ -92,7 +92,7 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	r.width	 = tw;
 	r.height = th;
 
-	MwLLDrawPixmap(handle->lowlevel, &r, p);
+	MwDrawPixmap(handle, &r, p);
 	MwDestroyPixmap(p);
 	free(px);
 

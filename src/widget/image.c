@@ -11,9 +11,9 @@ static int wcreate(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	   r;
-	MwLLPixmap px	= MwGetVoid(handle, MwNpixmap);
-	MwLLColor  base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwRect	 r;
+	MwPixmap px   = MwGetVoid(handle, MwNpixmap);
+	MwColor	 base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -25,16 +25,16 @@ static void draw(MwWidget handle) {
 	MwDrawRect(handle, &r, base);
 	if(px != NULL) {
 		if(!MwGetInteger(handle, MwNfillArea)) {
-			r.x	 = (r.width - px->common.width) / 2;
-			r.y	 = (r.height - px->common.height) / 2;
-			r.width	 = px->common.width;
-			r.height = px->common.height;
+			r.x	 = (r.width - px->common->width) / 2;
+			r.y	 = (r.height - px->common->height) / 2;
+			r.width	 = px->common->width;
+			r.height = px->common->height;
 		}
 
-		MwLLDrawPixmap(handle->lowlevel, &r, px);
+		MwDrawPixmap(handle, &r, px);
 	}
 
-	MwLLFreeColor(base);
+	MwFreeColor(base);
 }
 
 static void prop_change(MwWidget handle, const char* key) {

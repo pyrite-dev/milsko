@@ -31,7 +31,7 @@ typedef struct color_picker {
 	MwWidget      value_slider;
 	MwWidget      color_display_text;
 	MwWidget      finish;
-	MwLLPixmap    color_picker_pixmap;
+	MwPixmap      color_picker_pixmap;
 	double	      value;
 	MwRGB	      chosen_color;
 	unsigned char color_picker_image_data[PICKER_SIZE * PICKER_SIZE * 4];
@@ -239,7 +239,7 @@ static void MWAPI color_display_text_change(MwWidget handle, void* user,
 	color_picker_t* picker = user;
 	char		hexColor[9];
 	char		fgColor[9];
-	MwLLColor	color;
+	MwColor		color;
 	int		fr, fg, fb;
 
 	(void)call;
@@ -248,9 +248,9 @@ static void MWAPI color_display_text_change(MwWidget handle, void* user,
 
 	color = MwParseColor(handle, hexColor);
 
-	fr = color->common.red > 128 ? 0 : 255;
-	fg = color->common.green > 128 ? 0 : 255;
-	fb = color->common.blue > 128 ? 0 : 255;
+	fr = color->common->red > 128 ? 0 : 255;
+	fg = color->common->green > 128 ? 0 : 255;
+	fb = color->common->blue > 128 ? 0 : 255;
 
 	MwStringPrintIntoBuffer(fgColor, 9, "#%02X%02X%02X", fr, fg, fb);
 	MwSetText(picker->color_display_text, MwNforeground, fgColor);
@@ -258,11 +258,11 @@ static void MWAPI color_display_text_change(MwWidget handle, void* user,
 	MwSetText(picker->color_display_text, MwNbackground, hexColor);
 	MwSetText(picker->color_display_text, MwNtext, hexColor);
 
-	picker->chosen_color.red   = color->common.red;
-	picker->chosen_color.green = color->common.green;
-	picker->chosen_color.blue  = color->common.blue;
+	picker->chosen_color.red   = color->common->red;
+	picker->chosen_color.green = color->common->green;
+	picker->chosen_color.blue  = color->common->blue;
 
-	MwLLFreeColor(color);
+	MwFreeColor(color);
 }
 
 static void MWAPI color_picker_finish(MwWidget handle, void* user,

@@ -70,7 +70,7 @@ typedef struct waylandopengl {
 	struct gbm_surface* gbm_surface;
 	struct gbm_bo*	    previous_bo;
 	int		    drm_fd;
-	MwLLPixmap	    frontbuffer;
+	MwPixmap	    frontbuffer;
 	MwU8*		    frontbuffer_data;
 
 	void* gllib;
@@ -607,7 +607,7 @@ static void frontbuffer_draw(MwWidget handle) {
 		r.y	 = 0;
 		r.width	 = handle->lowlevel->wayland.ww;
 		r.height = handle->lowlevel->wayland.wh;
-		MwLLDrawPixmap(handle->lowlevel, &r, o->frontbuffer);
+		MwDrawPixmap(handle, &r, o->frontbuffer);
 	}
 }
 static void frontbuffer_resize(MwWidget handle) {

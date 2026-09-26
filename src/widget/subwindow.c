@@ -8,33 +8,33 @@
 static void resize(MwWidget handle);
 
 static void close_draw(MwWidget handle) {
-	int	  w = MwGetInteger(handle, MwNwidth);
-	int	  h = MwGetInteger(handle, MwNheight);
-	MwPoint	  p[2];
-	MwLLColor c  = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	int	  bw = MwDefaultBorderWidth(handle);
+	int	w = MwGetInteger(handle, MwNwidth);
+	int	h = MwGetInteger(handle, MwNheight);
+	MwPoint p[2];
+	MwColor c  = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	int	bw = MwDefaultBorderWidth(handle);
 
 	p[0].x = bw * 2;
 	p[0].y = bw * 2;
 	p[1].x = w - bw * 2 - 1;
 	p[1].y = h - bw * 2 - 1;
-	MwLLLine(handle->lowlevel, p, c);
+	MwLLLine(handle->lowlevel, p, c->lowlevel);
 
 	p[0].x++;
 	p[1].x--;
-	MwLLLine(handle->lowlevel, p, c);
+	MwLLLine(handle->lowlevel, p, c->lowlevel);
 
 	p[0].x = w - bw * 2 - 1;
 	p[0].y = bw * 2;
 	p[1].x = bw * 2;
 	p[1].y = h - bw * 2 - 1;
-	MwLLLine(handle->lowlevel, p, c);
+	MwLLLine(handle->lowlevel, p, c->lowlevel);
 
 	p[0].x--;
 	p[1].x++;
-	MwLLLine(handle->lowlevel, p, c);
+	MwLLLine(handle->lowlevel, p, c->lowlevel);
 
-	MwLLFreeColor(c);
+	MwFreeColor(c);
 }
 
 static void MWAPI close_activate(MwWidget handle, void* user, void* client) {
@@ -49,34 +49,34 @@ static void MWAPI close_activate(MwWidget handle, void* user, void* client) {
 }
 
 static void maximize_draw(MwWidget handle) {
-	int	  w = MwGetInteger(handle, MwNwidth);
-	int	  h = MwGetInteger(handle, MwNheight);
-	MwPoint	  p[2];
-	MwLLColor c  = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	int	  bw = MwDefaultBorderWidth(handle);
+	int	w = MwGetInteger(handle, MwNwidth);
+	int	h = MwGetInteger(handle, MwNheight);
+	MwPoint p[2];
+	MwColor c  = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	int	bw = MwDefaultBorderWidth(handle);
 
 	p[0].x = bw * 2;
 	p[0].y = bw * 2;
 	p[1].x = w - bw * 2 - 1;
 	p[1].y = bw * 2;
-	MwLLLine(handle->lowlevel, p, c);
+	MwLLLine(handle->lowlevel, p, c->lowlevel);
 
 	p[0].y = p[1].y = h - bw * 2 - 1;
-	MwLLLine(handle->lowlevel, p, c);
+	MwLLLine(handle->lowlevel, p, c->lowlevel);
 
 	p[0].y = p[1].y = bw * 2 + 1;
-	MwLLLine(handle->lowlevel, p, c);
+	MwLLLine(handle->lowlevel, p, c->lowlevel);
 
 	p[0].x = bw * 2;
 	p[0].y = bw * 2;
 	p[1].x = bw * 2;
 	p[1].y = h - bw * 2 - 1;
-	MwLLLine(handle->lowlevel, p, c);
+	MwLLLine(handle->lowlevel, p, c->lowlevel);
 
 	p[0].x = p[1].x = w - bw * 2 - 1;
-	MwLLLine(handle->lowlevel, p, c);
+	MwLLLine(handle->lowlevel, p, c->lowlevel);
 
-	MwLLFreeColor(c);
+	MwFreeColor(c);
 }
 
 static void MWAPI maximize_activate(MwWidget handle, void* user, void* client) {
@@ -114,23 +114,23 @@ static void MWAPI maximize_activate(MwWidget handle, void* user, void* client) {
 }
 
 static void minimize_draw(MwWidget handle) {
-	int	  w = MwGetInteger(handle, MwNwidth);
-	int	  h = MwGetInteger(handle, MwNheight);
-	MwPoint	  p[2];
-	MwLLColor c  = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	int	  bw = MwDefaultBorderWidth(handle);
+	int	w = MwGetInteger(handle, MwNwidth);
+	int	h = MwGetInteger(handle, MwNheight);
+	MwPoint p[2];
+	MwColor c  = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	int	bw = MwDefaultBorderWidth(handle);
 
 	p[0].x = bw * 2;
 	p[0].y = h - bw * 2 - 1;
 	p[1].x = w - bw * 2 - 1;
 	p[1].y = h - bw * 2 - 1;
-	MwLLLine(handle->lowlevel, p, c);
+	MwLLLine(handle->lowlevel, p, c->lowlevel);
 
 	p[0].y--;
 	p[1].y--;
-	MwLLLine(handle->lowlevel, p, c);
+	MwLLLine(handle->lowlevel, p, c->lowlevel);
 
-	MwLLFreeColor(c);
+	MwFreeColor(c);
 }
 
 static int sort_subwindow(const void* _a, const void* _b) {
@@ -285,13 +285,13 @@ static void destroy(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwLLColor   c  = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor   tb = MwParseColor(handle, MwGetText(handle, MwNtitleBackground));
-	MwLLColor   tf = MwParseColor(handle, MwGetText(handle, MwNtitleForeground));
+	MwColor	    c  = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	    tb = MwParseColor(handle, MwGetText(handle, MwNtitleBackground));
+	MwColor	    tf = MwParseColor(handle, MwGetText(handle, MwNtitleForeground));
 	MwRect	    r, r2, r3;
 	const char* title = MwGetText(handle, MwNtitle);
 	int	    incr  = 0;
-	MwLLPixmap  px	  = MwGetVoid(handle, MwNiconPixmap);
+	MwPixmap    px	  = MwGetVoid(handle, MwNiconPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -313,7 +313,7 @@ static void draw(MwWidget handle) {
 		r3.y += incr;
 		r3.width  = ButtonSize;
 		r3.height = ButtonSize;
-		MwLLDrawPixmap(handle->lowlevel, &r3, px);
+		MwDrawPixmap(handle, &r3, px);
 
 		incr += ButtonSize;
 	}
@@ -335,9 +335,9 @@ static void draw(MwWidget handle) {
 	r.height -= TitleHeight;
 	MwDrawFrame(handle, &r, c, 1);
 
-	MwLLFreeColor(tf);
-	MwLLFreeColor(tb);
-	MwLLFreeColor(c);
+	MwFreeColor(tf);
+	MwFreeColor(tb);
+	MwFreeColor(c);
 }
 
 static void parent_resize(MwWidget handle) {

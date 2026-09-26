@@ -9,10 +9,10 @@ struct color {
 
 static struct color* colors = NULL;
 
-MwLLColor MwParseColorName(MwWidget handle, const char* color) {
+MwColor MwParseColorName(MwWidget handle, const char* color) {
 	MwRGB rgb;
 	MwParseColorNameNoAllocate(color, &rgb);
-	return MwLLAllocColor(handle->lowlevel, rgb.red, rgb.green, rgb.blue);
+	return MwAllocColor(handle, rgb.red, rgb.green, rgb.blue);
 }
 
 void MwParseColorNameNoAllocate(const char* color, MwRGB* rgb) {

@@ -15,9 +15,9 @@ void (*MwLLLine)(MwLL handle, MwPoint* points, MwLLColor color)			     = NULL;
 void (*MwLLBeginDraw)(MwLL handle) = NULL;
 void (*MwLLEndDraw)(MwLL handle)   = NULL;
 
-MwLLColor (*MwLLAllocColor)(MwLL handle, int r, int g, int b)	       = NULL;
-void (*MwLLColorUpdate)(MwLL handle, MwLLColor c, int r, int g, int b) = NULL;
-void (*MwLLFreeColor)(MwLLColor color)				       = NULL;
+MwLLColor (*MwLLAllocColor)(MwLL handle, int r, int g, int b) = NULL;
+void (*MwLLColorUpdate)(MwLLColor c, int r, int g, int b)     = NULL;
+void (*MwLLFreeColor)(MwLLColor color)			      = NULL;
 
 void (*MwLLGetXYWH)(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) = NULL;
 void (*MwLLSetXY)(MwLL handle, int x, int y)					   = NULL;

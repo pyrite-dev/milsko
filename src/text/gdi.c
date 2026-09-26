@@ -14,7 +14,7 @@ struct _MwFLFont {
 	HDC    dc;
 };
 
-static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwLLColor color) {
+static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwColor color) {
 	BITMAPINFOHEADER bmih;
 	int		 tw;
 	int		 th;
@@ -26,7 +26,7 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	wchar_t*	 t16;
 	int		 y, x;
 	MwRect		 r;
-	MwLLPixmap	 p;
+	MwPixmap	 p;
 
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);
@@ -34,7 +34,7 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	if(handle->lowlevel->common.type == MwLLBackendGDI) {
 		HFONT	 old_font   = SelectObject(handle->lowlevel->gdi.hDC, ttf->font);
 		int	 old_bkmode = SetBkMode(handle->lowlevel->gdi.hDC, TRANSPARENT);
-		COLORREF old_color  = SetTextColor(handle->lowlevel->gdi.hDC, RGB(color->common.red, color->common.green, color->common.blue));
+		COLORREF old_color  = SetTextColor(handle->lowlevel->gdi.hDC, RGB(color->common->red, color->common->green, color->common->blue));
 
 		if(_TextOutW == NULL) {
 			t = MwUTF8TextToACPText(text);
@@ -89,9 +89,9 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 		for(x = 0; x < tw; x++) {
 			unsigned char* opx = &px[(y * tw + x) * 4];
 
-			opx[0] = color->common.red;
-			opx[1] = color->common.green;
-			opx[2] = color->common.blue;
+			opx[0] = color->common->red;
+			opx[1] = color->common->green;
+			opx[2] = color->common->blue;
 			opx[3] = 255 - bits[y * tw + x].rgbRed;
 		}
 	}
@@ -102,7 +102,7 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	r.width	 = tw;
 	r.height = th;
 
-	MwLLDrawPixmap(handle->lowlevel, &r, p);
+	MwDrawPixmap(handle, &r, p);
 	MwDestroyPixmap(p);
 	free(px);
 

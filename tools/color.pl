@@ -13,12 +13,10 @@ print(OUT "};\n");
 print(OUT "\n");
 print(OUT "static struct color* colors = NULL;\n");
 print(OUT "\n");
-print(OUT "MwLLColor MwParseColorName(MwWidget handle, const char* color){\n");
+print(OUT "MwColor MwParseColorName(MwWidget handle, const char* color){\n");
 print(OUT "	MwRGB rgb;\n");
 print(OUT "	MwParseColorNameNoAllocate(color, &rgb);\n");
-print(OUT
-"	return MwLLAllocColor(handle->lowlevel, rgb.red, rgb.green, rgb.blue);\n"
-);
+print(OUT "	return MwAllocColor(handle, rgb.red, rgb.green, rgb.blue);\n");
 print(OUT "}\n");
 print(OUT "\n");
 print(OUT "void MwParseColorNameNoAllocate(const char* color, MwRGB* rgb){\n");

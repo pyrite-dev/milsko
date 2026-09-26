@@ -12,11 +12,11 @@ static int wcreate(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	   r;
-	MwLLColor  base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor  fill = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	double	   w;
-	MwLLPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwRect	 r;
+	MwColor	 base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	 fill = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	double	 w;
+	MwPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -27,7 +27,7 @@ static void draw(MwWidget handle) {
 	w = w / (MwGetInteger(handle, MwNmaxValue) - MwGetInteger(handle, MwNminValue));
 
 	MwDrawWidgetBack(handle, &r, base, 1, MwDEFAULT);
-	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
+	if(bgpx != NULL) MwDrawPixmap(handle, &r, bgpx);
 
 	r.x += MwDefaultBorderWidth(handle);
 	r.y += MwDefaultBorderWidth(handle);
@@ -37,8 +37,8 @@ static void draw(MwWidget handle) {
 	r.width = (int)(r.width * w);
 	MwDrawRect(handle, &r, fill);
 
-	MwLLFreeColor(fill);
-	MwLLFreeColor(base);
+	MwFreeColor(fill);
+	MwFreeColor(base);
 }
 
 static void prop_change(MwWidget handle, const char* key) {

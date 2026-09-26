@@ -52,8 +52,8 @@ static void destroy(MwWidget handle) {
 
 static void draw(MwWidget handle) {
 	MwDocument d	= handle->internal;
-	MwLLColor  base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor  text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	MwRect	   r;
 	int	   i;
 	MwFLFont   font = NULL;
@@ -138,7 +138,7 @@ static void draw(MwWidget handle) {
 					if(j == 0 || j == 1) {
 						line[0].y += MwTextHeight(handle, font, l->text) / 2 * (2 - j);
 						line[1].y += MwTextHeight(handle, font, l->text) / 2 * (2 - j);
-						MwLLLine(handle->lowlevel, line, c ? base : text);
+						MwLLLine(handle->lowlevel, line, (c ? base : text)->lowlevel);
 					}
 				}
 			}
@@ -191,8 +191,8 @@ static void draw(MwWidget handle) {
 		if(IsFontChange(l->type)) font = l->font;
 	}
 
-	MwLLFreeColor(text);
-	MwLLFreeColor(base);
+	MwFreeColor(text);
+	MwFreeColor(base);
 }
 
 static char* in_hitbox(MwWidget handle, MwPoint* p) {

@@ -22,12 +22,12 @@ typedef struct filechooser {
 	MwWidget okay;
 	MwWidget cancel;
 
-	MwLLPixmap dir;
-	MwLLPixmap file;
-	MwLLPixmap back;
-	MwLLPixmap forward;
-	MwLLPixmap up;
-	MwLLPixmap computer;
+	MwPixmap dir;
+	MwPixmap file;
+	MwPixmap back;
+	MwPixmap forward;
+	MwPixmap up;
+	MwPixmap computer;
 } filechooser_t;
 
 static void scan(MwWidget handle, const char* path, int record);
@@ -506,7 +506,7 @@ static void scan(MwWidget handle, const char* path, int record) {
 
 static void setup_fallback_filechooser(MwWidget window, int dir) {
 	char*	       path;
-	MwLLPixmap     icon;
+	MwPixmap       icon;
 	filechooser_t* fc = malloc(sizeof(*fc));
 	memset(fc, 0, sizeof(*fc));
 

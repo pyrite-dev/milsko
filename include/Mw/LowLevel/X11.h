@@ -88,6 +88,7 @@ struct _MwLLX11 {
 struct _MwLLX11Color {
 	struct _MwLLCommonColor common;
 
+	MwLL	      handle;
 	unsigned long pixel;
 };
 

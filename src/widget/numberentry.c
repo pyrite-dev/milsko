@@ -19,12 +19,12 @@ static void destroy(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	int	  w = MwGetInteger(handle, MwNwidth);
-	int	  h = MwGetInteger(handle, MwNheight);
-	MwEntry	  e = handle->internal;
-	MwRect	  r;
-	int	  pr;
-	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	int	w = MwGetInteger(handle, MwNwidth);
+	int	h = MwGetInteger(handle, MwNheight);
+	MwEntry e = handle->internal;
+	MwRect	r;
+	int	pr;
+	MwColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
 
 	MwEntryClass->draw(handle);
 
@@ -60,7 +60,7 @@ static void draw(MwWidget handle) {
 	r.y = r.y + (h / 2 - r.height) / 2;
 	MwDrawTriangle(handle, &r, base, pr, MwSOUTH);
 
-	MwLLFreeColor(base);
+	MwFreeColor(base);
 }
 
 static void key(MwWidget handle, int code) {

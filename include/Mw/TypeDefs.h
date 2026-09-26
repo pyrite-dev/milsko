@@ -38,8 +38,14 @@ typedef struct _MwDocument*	      MwDocument;
 typedef struct _MwMouse		      MwMouse;
 typedef struct _MwTTFInfo*	      MwTTFInfo;
 #ifdef _MILSKO
+typedef struct _MwPixmap* MwPixmap;
+typedef struct _MwColor*  MwColor;
+typedef struct _MwFont*	  MwFont;
 typedef struct _MwWidget* MwWidget;
 #else
+typedef void* MwPixmap;
+typedef void* MwColor;
+typedef void* MwFont;
 typedef void* MwWidget;
 #endif
 typedef void (*MwHandler)(MwWidget handle);
@@ -84,9 +90,26 @@ struct _MwVoidKeyValue {
 #include <Mw/LowLevel.h>
 
 #ifdef _MILSKO
+struct _MwPixmap {
+	MwLLPixmap	 lowlevel;
+	MwLLCommonPixmap common;
+
+	MwWidget       handle;
+	unsigned char* raw;
+};
+
+struct _MwColor {
+	MwLLColor	lowlevel;
+	MwLLCommonColor common;
+};
+
+struct _MwFont {
+	MwFLFont lowlevel;
+};
+
 struct _MwWidget {
-	char*	  name;
-	MwLLColor bgcolor;
+	char*	name;
+	MwColor bgcolor;
 
 	MwLL	  lowlevel;
 	MwWidget  parent;
@@ -106,7 +129,7 @@ struct _MwWidget {
 	MwHandler     destroy_inject;
 	MwHandlerProp prop_inject_pixmap; /* this is for pixmap; do not use */
 
-	MwLLPixmap* pixmaps;
+	MwPixmap* pixmaps;
 
 	MwIntegerKeyValue*     integer;
 	MwTextKeyValue*	       text;
@@ -163,8 +186,8 @@ struct _MwViewport {
 };
 
 struct _MwListBoxEntry {
-	char**	   name;
-	MwLLPixmap pixmap;
+	char**	 name;
+	MwPixmap pixmap;
 };
 
 struct _MwListBox {
@@ -186,7 +209,7 @@ struct _MwComboBox {
 
 struct _MwTreeViewEntry {
 	char*		  label;
-	MwLLPixmap	  pixmap;
+	MwPixmap	  pixmap;
 	MwTreeViewEntry** tree;
 	int		  opened;
 	int		  selected;

@@ -47,10 +47,10 @@ static void tick(MwWidget handle) {
 static void draw(MwWidget handle) {
 	MwRect	    r;
 	MwEntry	    t	 = handle->internal;
-	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor   text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	    base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	    text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	const char* str	 = MwGetText(handle, MwNtext);
-	MwLLPixmap  bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwPixmap    bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 	MwFLFont    font = MwFLBuildFont(MwFLFlagMonospace);
 	if(str == NULL) str = "";
 
@@ -60,7 +60,7 @@ static void draw(MwWidget handle) {
 	r.height = MwGetInteger(handle, MwNheight);
 
 	MwDrawWidgetBack(handle, &r, base, 1, MwDEFAULT);
-	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
+	if(bgpx != NULL) MwDrawPixmap(handle, &r, bgpx);
 	if(str != NULL) {
 		int	w = MwTextWidth(handle, font, "M");
 		int	h = MwTextHeight(handle, font, "M");
@@ -108,8 +108,8 @@ static void draw(MwWidget handle) {
 		}
 	}
 
-	MwLLFreeColor(text);
-	MwLLFreeColor(base);
+	MwFreeColor(text);
+	MwFreeColor(base);
 }
 
 static void key(MwWidget handle, int code) {

@@ -38,19 +38,19 @@ static int hex(const char* txt, int len) {
 	return r;
 }
 
-static void color_set_disabled_if_disabled(MwWidget handle, MwLLColor rgb) {
+static void color_set_disabled_if_disabled(MwWidget handle, MwColor rgb) {
 	int n;
 
 	if((n = MwGetInteger(handle, MwNdisabled)) != MwDEFAULT && n) {
-		MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
+		MwColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
 
 		if(c != NULL) {
-			rgb->common.red	  = (MwU8)(rgb->common.red + (c->common.red - rgb->common.red) * 0.5);
-			rgb->common.green = (MwU8)(rgb->common.green + (c->common.green - rgb->common.green) * 0.5);
-			rgb->common.blue  = (MwU8)(rgb->common.blue + (c->common.blue - rgb->common.blue) * 0.5);
-			MwLLColorUpdate(handle->lowlevel, rgb, rgb->common.red, rgb->common.green, rgb->common.blue);
+			rgb->common->red   = (MwU8)(rgb->common->red + (c->common->red - rgb->common->red) * 0.5);
+			rgb->common->green = (MwU8)(rgb->common->green + (c->common->green - rgb->common->green) * 0.5);
+			rgb->common->blue  = (MwU8)(rgb->common->blue + (c->common->blue - rgb->common->blue) * 0.5);
+			MwColorUpdate(rgb, rgb->common->red, rgb->common->green, rgb->common->blue);
 
-			MwLLFreeColor(c);
+			MwFreeColor(c);
 		}
 	}
 };
@@ -74,7 +74,7 @@ void MwParseColorNoAllocate(const char* text, MwRGB* rgb) {
 	}
 }
 
-MwLLColor MwParseColor(MwWidget handle, const char* text) {
+MwColor MwParseColor(MwWidget handle, const char* text) {
 	MwRGB rgb;
 
 	rgb.red	  = 0;
@@ -83,13 +83,13 @@ MwLLColor MwParseColor(MwWidget handle, const char* text) {
 
 	MwParseColorNoAllocate(text, &rgb);
 
-	return MwLLAllocColor(handle->lowlevel, rgb.red, rgb.green, rgb.blue);
+	return MwAllocColor(handle, rgb.red, rgb.green, rgb.blue);
 }
 
-MwLLColor MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, int b) {
-	int cr = color->common.red + r;
-	int cg = color->common.green + g;
-	int cb = color->common.blue + b;
+MwColor MwLightenColor(MwWidget handle, MwColor color, int r, int g, int b) {
+	int cr = color->common->red + r;
+	int cg = color->common->green + g;
+	int cb = color->common->blue + b;
 
 	if(cr < 0) cr = 0;
 	if(cg < 0) cg = 0;
@@ -98,7 +98,7 @@ MwLLColor MwLightenColor(MwWidget handle, MwLLColor color, int r, int g, int b) 
 	if(cg > 255) cg = 255;
 	if(cb > 255) cb = 255;
 
-	return MwLLAllocColor(handle->lowlevel, cr, cg, cb);
+	return MwAllocColor(handle, cr, cg, cb);
 }
 
 void MwFixRect(MwRect* rect) {
@@ -113,7 +113,7 @@ void MwFixRect(MwRect* rect) {
 	}
 }
 
-void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
+void MwDrawRect(MwWidget handle, MwRect* rect, MwColor color) {
 	MwPoint p[4];
 	MwRect	r = *rect;
 
@@ -131,10 +131,10 @@ void MwDrawRect(MwWidget handle, MwRect* rect, MwLLColor color) {
 	p[3].x = r.x;
 	p[3].y = r.y + r.height;
 
-	MwLLPolygon(handle->lowlevel, p, 4, color);
+	MwLLPolygon(handle->lowlevel, p, 4, color->lowlevel);
 }
 
-void MwDrawRectLine(MwWidget handle, MwRect* rect, MwLLColor color) {
+void MwDrawRectLine(MwWidget handle, MwRect* rect, MwColor color) {
 	MwPoint p[5];
 	MwRect	r = *rect;
 
@@ -154,13 +154,13 @@ void MwDrawRectLine(MwWidget handle, MwRect* rect, MwLLColor color) {
 
 	p[4] = p[0];
 
-	MwLLLine(handle->lowlevel, &p[0], color);
-	MwLLLine(handle->lowlevel, &p[1], color);
-	MwLLLine(handle->lowlevel, &p[2], color);
-	MwLLLine(handle->lowlevel, &p[3], color);
+	MwLLLine(handle->lowlevel, &p[0], color->lowlevel);
+	MwLLLine(handle->lowlevel, &p[1], color->lowlevel);
+	MwLLLine(handle->lowlevel, &p[2], color->lowlevel);
+	MwLLLine(handle->lowlevel, &p[3], color->lowlevel);
 }
 
-void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
+void MwDrawRectFading(MwWidget handle, MwRect* rect, MwColor color) {
 	MwLLPixmap     pixmap;
 	int	       y;
 	double	       darken	  = 0.;
@@ -184,14 +184,14 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	r.height -= 2;
 
 	for(y = 0; y < rect->height; y++) {
-		MwLLColor col = MwLightenColor(handle, color, (int)-darken, (int)-darken, (int)-darken);
-		int	  idx = y * 4;
+		MwColor col = MwLightenColor(handle, color, (int)-darken, (int)-darken, (int)-darken);
+		int	idx = y * 4;
 		color_set_disabled_if_disabled(handle, col);
-		data[idx]     = col->common.red;
-		data[idx + 1] = col->common.green;
-		data[idx + 2] = col->common.blue;
+		data[idx]     = col->common->red;
+		data[idx + 1] = col->common->green;
+		data[idx + 2] = col->common->blue;
 		data[idx + 3] = 255;
-		MwLLFreeColor(col);
+		MwFreeColor(col);
 		darken += darkenStep;
 	}
 
@@ -202,7 +202,7 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwLLColor color) {
 	free(data);
 }
 
-void MwDrawFrame(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
+void MwDrawFrame(MwWidget handle, MwRect* rect, MwColor color, int invert) {
 	MwDrawFrameWithBorder(handle, rect, color, invert, MwDefaultBorderWidth(handle));
 }
 
@@ -212,7 +212,7 @@ static int translate_border(MwWidget handle, int border) {
 	return border;
 }
 
-void MwDrawFrameWithBorder(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
+void MwDrawFrameWithBorder(MwWidget handle, MwRect* rect, MwColor color, int invert, int border) {
 	int inv;
 
 	border = translate_border(handle, border);
@@ -236,18 +236,18 @@ void MwDrawFrameWithBorder(MwWidget handle, MwRect* rect, MwLLColor color, int i
 	}
 }
 
-void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border) {
-	MwLLColor col;
+void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwColor color, int invert, int border) {
+	MwColor col;
 
 	if(rect->width <= 0 || rect->height <= 0) return;
 
 	if(border) {
 		if(!handle->lowlevel->common.supports_transparency) {
-			MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
+			MwColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
 
 			if(c != NULL) {
 				MwDrawRect(handle, rect, c);
-				MwLLFreeColor(c);
+				MwFreeColor(c);
 			}
 		}
 
@@ -273,16 +273,16 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwLLColor color, int invert
 	} else {
 		MwDrawRect(handle, rect, col);
 	}
-	MwLLFreeColor(col);
+	MwFreeColor(col);
 }
 
-void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
-	MwPoint	  p[6];
-	int	  border    = MwDefaultBorderWidth(handle);
-	int	  ColorDiff = MwGetColorDifference(handle) + (MwGetInteger(handle, MwNmodernLook) ? 48 : 0);
-	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
-	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
-	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
+void MwDrawDiamond(MwWidget handle, MwRect* rect, MwColor color, int invert) {
+	MwPoint p[6];
+	int	border	  = MwDefaultBorderWidth(handle);
+	int	ColorDiff = MwGetColorDifference(handle) + (MwGetInteger(handle, MwNmodernLook) ? 48 : 0);
+	MwColor darker	  = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
+	MwColor lighter	  = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
+	MwColor col	  = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
 	color_set_disabled_if_disabled(handle, col);
 	color_set_disabled_if_disabled(handle, darker);
 	color_set_disabled_if_disabled(handle, lighter);
@@ -305,7 +305,7 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	p[5].x = rect->x + border;
 	p[5].y = rect->y + rect->height / 2;
 
-	MwLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
+	MwLLPolygon(handle->lowlevel, p, 6, (invert ? darker : lighter)->lowlevel);
 
 	p[0].x = rect->x;
 	p[0].y = rect->y + rect->height / 2;
@@ -325,7 +325,7 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	p[5].x = rect->x + border;
 	p[5].y = rect->y + rect->height / 2;
 
-	MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
+	MwLLPolygon(handle->lowlevel, p, 6, (invert ? lighter : darker)->lowlevel);
 
 	p[0].x = rect->x + rect->width / 2;
 	p[0].y = rect->y + border;
@@ -339,14 +339,14 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwLLColor color, int invert) {
 	p[3].x = rect->x + border;
 	p[3].y = rect->y + rect->height / 2;
 
-	MwLLPolygon(handle->lowlevel, p, 4, col);
+	MwLLPolygon(handle->lowlevel, p, 4, col->lowlevel);
 
-	MwLLFreeColor(col);
-	MwLLFreeColor(lighter);
-	MwLLFreeColor(darker);
+	MwFreeColor(col);
+	MwFreeColor(lighter);
+	MwFreeColor(darker);
 }
 
-void MwDrawCircle(MwWidget handle, MwRect* rect, MwLLColor color, MwLLColor background, int filled) {
+void MwDrawCircle(MwWidget handle, MwRect* rect, MwColor color, MwColor background, int filled) {
 	MwLLPixmap     pixmap;
 	int	       width  = rect->width;
 	int	       height = rect->height;
@@ -356,9 +356,9 @@ void MwDrawCircle(MwWidget handle, MwRect* rect, MwLLColor color, MwLLColor back
 	int	       border;
 	int	       x, y;
 	int	       ColorDiff = (MwGetColorDifference(handle));
-	MwLLColor      darker	 = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
-	MwLLColor      lighter	 = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
-	MwLLColor      base	 = MwLightenColor(handle, color, 0, 0, 0);
+	MwColor	       darker	 = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
+	MwColor	       lighter	 = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
+	MwColor	       base	 = MwLightenColor(handle, color, 0, 0, 0);
 
 	color_set_disabled_if_disabled(handle, darker);
 	color_set_disabled_if_disabled(handle, lighter);
@@ -394,8 +394,8 @@ void MwDrawCircle(MwWidget handle, MwRect* rect, MwLLColor color, MwLLColor back
 			}
 
 			if(inside) {
-				MwLLColor      mixColor;
-				MwLLColor      c = background ? background : (handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground)));
+				MwColor	       mixColor;
+				MwColor	       c = background ? background : (handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground)));
 				double	       mod;
 				unsigned char* pout = &data[(y * width + x) * 4];
 
@@ -413,23 +413,23 @@ void MwDrawCircle(MwWidget handle, MwRect* rect, MwLLColor color, MwLLColor back
 				color_set_disabled_if_disabled(handle, mixColor);
 
 				if(c != NULL) {
-					mixColor->common.red   = (MwU8)(mixColor->common.red + (c->common.red - mixColor->common.red) * mod);
-					mixColor->common.green = (MwU8)(mixColor->common.green + (c->common.green - mixColor->common.green) * mod);
-					mixColor->common.blue  = (MwU8)(mixColor->common.blue + (c->common.blue - mixColor->common.blue) * mod);
-					MwLLColorUpdate(handle->lowlevel, mixColor, mixColor->common.red, mixColor->common.green, mixColor->common.blue);
+					mixColor->common->red	= (MwU8)(mixColor->common->red + (c->common->red - mixColor->common->red) * mod);
+					mixColor->common->green = (MwU8)(mixColor->common->green + (c->common->green - mixColor->common->green) * mod);
+					mixColor->common->blue	= (MwU8)(mixColor->common->blue + (c->common->blue - mixColor->common->blue) * mod);
+					MwColorUpdate(mixColor, mixColor->common->red, mixColor->common->green, mixColor->common->blue);
 
 					if(c != background) {
-						MwLLFreeColor(c);
+						MwFreeColor(c);
 					}
 				}
 
-				pout[0] = (MwU8)mixColor->common.red;
-				pout[1] = (MwU8)mixColor->common.green;
-				pout[2] = (MwU8)mixColor->common.blue;
+				pout[0] = (MwU8)mixColor->common->red;
+				pout[1] = (MwU8)mixColor->common->green;
+				pout[2] = (MwU8)mixColor->common->blue;
 
 				pout[3] = 255;
 
-				MwLLFreeColor(mixColor);
+				MwFreeColor(mixColor);
 			}
 		}
 	}
@@ -438,18 +438,18 @@ void MwDrawCircle(MwWidget handle, MwRect* rect, MwLLColor color, MwLLColor back
 	MwLLDrawPixmap(handle->lowlevel, rect, pixmap);
 	MwLLDestroyPixmap(pixmap);
 
-	MwLLFreeColor(lighter);
-	MwLLFreeColor(darker);
-	MwLLFreeColor(base);
+	MwFreeColor(lighter);
+	MwFreeColor(darker);
+	MwFreeColor(base);
 
 	free(data);
 };
 
-static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same) {
-	MwPoint	  p[7];
-	int	  ColorDiff = MwGetColorDifference(handle);
-	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
-	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, ColorDiff - diff, ColorDiff - diff, ColorDiff - diff);
+static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwColor color, int invert, int border, int diff, int same) {
+	MwPoint p[7];
+	int	ColorDiff = MwGetColorDifference(handle);
+	MwColor darker	  = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
+	MwColor lighter	  = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, ColorDiff - diff, ColorDiff - diff, ColorDiff - diff);
 	color_set_disabled_if_disabled(handle, darker);
 	color_set_disabled_if_disabled(handle, lighter);
 
@@ -469,7 +469,7 @@ static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwLLColor color,
 
 	p[5].x = rect->x;
 	p[5].y = rect->y + rect->height;
-	MwLLPolygon(handle->lowlevel, p, 6, invert ? darker : lighter);
+	MwLLPolygon(handle->lowlevel, p, 6, (invert ? darker : lighter)->lowlevel);
 
 	p[0].x = rect->x + rect->width;
 	p[0].y = rect->y;
@@ -488,10 +488,10 @@ static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwLLColor color,
 
 	p[5].x = rect->x + rect->width;
 	p[5].y = rect->y + rect->height;
-	MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
+	MwLLPolygon(handle->lowlevel, p, 6, (invert ? lighter : darker)->lowlevel);
 
-	MwLLFreeColor(lighter);
-	MwLLFreeColor(darker);
+	MwFreeColor(lighter);
+	MwFreeColor(darker);
 
 	rect->x += border;
 	rect->y += border;
@@ -499,7 +499,7 @@ static void MwDrawFrameEx_simple(MwWidget handle, MwRect* rect, MwLLColor color,
 	rect->height -= border * 2;
 }
 
-static void frame_border_complex(MwWidget handle, MwRect* rect, MwLLColor lighter, MwLLColor darker, int invert, int border, int diff, int same) {
+static void frame_border_complex(MwWidget handle, MwRect* rect, MwColor lighter, MwColor darker, int invert, int border, int diff, int same) {
 	MwPoint p[7];
 
 	(void)diff;
@@ -521,7 +521,7 @@ static void frame_border_complex(MwWidget handle, MwRect* rect, MwLLColor lighte
 
 	p[5].x = rect->x;
 	p[5].y = rect->y + rect->height;
-	MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
+	MwLLPolygon(handle->lowlevel, p, 6, (invert ? lighter : darker)->lowlevel);
 
 	p[0].x = rect->x + rect->width;
 	p[0].y = rect->y;
@@ -540,14 +540,14 @@ static void frame_border_complex(MwWidget handle, MwRect* rect, MwLLColor lighte
 
 	p[5].x = rect->x + rect->width;
 	p[5].y = rect->y + rect->height;
-	MwLLPolygon(handle->lowlevel, p, 6, invert ? lighter : darker);
+	MwLLPolygon(handle->lowlevel, p, 6, (invert ? lighter : darker)->lowlevel);
 }
 
-static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same) {
-	int	  ColorDiff = MwGetColorDifference(handle);
-	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
-	MwLLColor lighter   = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff);
-	MwRect	  r	    = *rect;
+static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwColor color, int invert, int border, int diff, int same) {
+	int	ColorDiff = MwGetColorDifference(handle);
+	MwColor darker	  = MwLightenColor(handle, color, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff, -ColorDiff * 3 / 2 + diff);
+	MwColor lighter	  = same ? MwLightenColor(handle, darker, 0, 0, 0) : MwLightenColor(handle, color, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff, (ColorDiff / 2) - diff);
+	MwRect	r	  = *rect;
 
 	color_set_disabled_if_disabled(handle, darker);
 	color_set_disabled_if_disabled(handle, lighter);
@@ -562,8 +562,8 @@ static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwLLColor color
 		frame_border_complex(handle, &r, lighter, darker, !invert, border / 2, diff, same);
 	}
 
-	MwLLFreeColor(lighter);
-	MwLLFreeColor(darker);
+	MwFreeColor(lighter);
+	MwFreeColor(darker);
 
 	rect->x += border;
 	rect->y += border;
@@ -571,7 +571,7 @@ static void MwDrawFrameEx_complex(MwWidget handle, MwRect* rect, MwLLColor color
 	rect->height -= border * 2;
 }
 
-void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int border, int diff, int same) {
+void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwColor color, int invert, int border, int diff, int same) {
 	border = translate_border(handle, border);
 
 	if(MwGetInteger(handle, MwNmodernLook)) {
@@ -581,13 +581,13 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwLLColor color, int invert, i
 	}
 }
 
-void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, int direction) {
+void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, int direction) {
 	MwPoint	  p1[4], p2[4], p3[4], p4[3];
 	const int border    = MwGetInteger(handle, MwNmodernLook) ? 2 : MwDefaultBorderWidth(handle);
 	int	  ColorDiff = MwGetColorDifference(handle);
-	MwLLColor darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
-	MwLLColor lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
-	MwLLColor col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
+	MwColor	  darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
+	MwColor	  lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
+	MwColor	  col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
 	double	  deg	    = 30 * ((direction == MwEAST || direction == MwWEST) ? 2 : 1);
 	double	  c	    = cos(deg / 180 * M_PI);
 	double	  s	    = sin(deg / 180 * M_PI);
@@ -633,9 +633,9 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p3[3].x = (int)(rect->x + rect->width - c * border);
 		p3[3].y = (int)(rect->y + rect->height - s * border);
 
-		MwLLPolygon(handle->lowlevel, p1, 4, invert ? darker : lighter);
-		MwLLPolygon(handle->lowlevel, p2, 4, invert ? lighter : darker);
-		MwLLPolygon(handle->lowlevel, p3, 4, invert ? lighter : darker);
+		MwLLPolygon(handle->lowlevel, p1, 4, (invert ? darker : lighter)->lowlevel);
+		MwLLPolygon(handle->lowlevel, p2, 4, (invert ? lighter : darker)->lowlevel);
+		MwLLPolygon(handle->lowlevel, p3, 4, (invert ? lighter : darker)->lowlevel);
 
 		p4[0].x = (int)(rect->x + c * border);
 		p4[0].y = (int)(rect->y + rect->height - s * border);
@@ -682,9 +682,9 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p3[3].x = (int)(rect->x + rect->width - c * border);
 		p3[3].y = (int)(rect->y + s * border);
 
-		MwLLPolygon(handle->lowlevel, p1, 4, invert ? darker : lighter);
-		MwLLPolygon(handle->lowlevel, p2, 4, invert ? darker : lighter);
-		MwLLPolygon(handle->lowlevel, p3, 4, invert ? lighter : darker);
+		MwLLPolygon(handle->lowlevel, p1, 4, (invert ? darker : lighter)->lowlevel);
+		MwLLPolygon(handle->lowlevel, p2, 4, (invert ? darker : lighter)->lowlevel);
+		MwLLPolygon(handle->lowlevel, p3, 4, (invert ? lighter : darker)->lowlevel);
 
 		p4[0].x = (int)(rect->x + c * border);
 		p4[0].y = (int)(rect->y + s * border);
@@ -731,9 +731,9 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p3[3].x = (int)(rect->x + rect->width - border);
 		p3[3].y = rect->y + rect->height / 2;
 
-		MwLLPolygon(handle->lowlevel, p1, 4, invert ? darker : lighter);
-		MwLLPolygon(handle->lowlevel, p2, 4, invert ? darker : lighter);
-		MwLLPolygon(handle->lowlevel, p3, 4, invert ? lighter : darker);
+		MwLLPolygon(handle->lowlevel, p1, 4, (invert ? darker : lighter)->lowlevel);
+		MwLLPolygon(handle->lowlevel, p2, 4, (invert ? darker : lighter)->lowlevel);
+		MwLLPolygon(handle->lowlevel, p3, 4, (invert ? lighter : darker)->lowlevel);
 
 		p4[0].x = (int)(rect->x + rect->width - border);
 		p4[0].y = rect->y + rect->height / 2;
@@ -780,9 +780,9 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p3[3].x = rect->x + rect->width;
 		p3[3].y = rect->y + rect->height;
 
-		MwLLPolygon(handle->lowlevel, p1, 4, invert ? darker : lighter);
-		MwLLPolygon(handle->lowlevel, p2, 4, invert ? lighter : darker);
-		MwLLPolygon(handle->lowlevel, p3, 4, invert ? lighter : darker);
+		MwLLPolygon(handle->lowlevel, p1, 4, (invert ? darker : lighter)->lowlevel);
+		MwLLPolygon(handle->lowlevel, p2, 4, (invert ? lighter : darker)->lowlevel);
+		MwLLPolygon(handle->lowlevel, p3, 4, (invert ? lighter : darker)->lowlevel);
 
 		p4[0].x = (int)(rect->x + border);
 		p4[0].y = rect->y + rect->height / 2;
@@ -793,11 +793,11 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwLLColor color, int invert, 
 		p4[2].x = (int)(rect->x + rect->width - c * border);
 		p4[2].y = (int)(rect->y + s * border);
 	}
-	MwLLPolygon(handle->lowlevel, p4, 3, col);
+	MwLLPolygon(handle->lowlevel, p4, 3, col->lowlevel);
 
-	MwLLFreeColor(col);
-	MwLLFreeColor(lighter);
-	MwLLFreeColor(darker);
+	MwFreeColor(col);
+	MwFreeColor(lighter);
+	MwFreeColor(darker);
 }
 
 #if defined(NO_IMAGE)
@@ -939,10 +939,10 @@ static unsigned char* load_image(const char* path, int* w, int* h) {
 #endif
 }
 
-MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
+MwPixmap MwLoadImage(MwWidget handle, const char* path) {
 	int	       width, height;
 	unsigned char* rgb = load_image(path, &width, &height);
-	MwLLPixmap     px;
+	MwPixmap       px;
 
 	if(rgb == NULL) return NULL;
 
@@ -961,10 +961,15 @@ static void pixmap_prop(MwWidget handle, const char* prop) {
 	}
 }
 
-MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height) {
-	MwLLPixmap px = MwLLCreatePixmap(handle->lowlevel, rgb, width, height);
+MwPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height) {
+	MwPixmap px = malloc(sizeof(*px));
 
-	px->common.internal = handle;
+	px->lowlevel = MwLLCreatePixmap(handle->lowlevel, rgb, width, height);
+	px->common   = &px->lowlevel->common;
+	px->handle   = handle;
+	px->raw	     = malloc(width * height * 4);
+	memcpy(px->raw, rgb, width * height * 4);
+
 	MwPixmapReloadRaw(px, rgb);
 
 	handle->prop_inject_pixmap = pixmap_prop;
@@ -974,17 +979,17 @@ MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height)
 	return px;
 }
 
-void MwPixmapReloadRaw(MwLLPixmap px, unsigned char* rgb) {
-	int	  i;
-	MwWidget  handle = px->common.internal;
-	MwLLColor base	 = handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
+void MwPixmapReloadRaw(MwPixmap px, unsigned char* rgb) {
+	int	 i;
+	MwWidget handle = px->handle;
+	MwColor	 base	= handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
 
-	if(rgb != NULL) memcpy(px->common.before_blend, rgb, px->common.width * px->common.height * 4);
+	if(rgb != NULL) memcpy(px->raw, rgb, px->common->width * px->common->height * 4);
 
-	memset(px->common.raw, 0, px->common.width * px->common.height * 4);
-	for(i = 0; i < px->common.width * px->common.height; i++) {
-		unsigned char* pin  = &px->common.before_blend[i * 4];
-		unsigned char* pout = &px->common.raw[i * 4];
+	memset(px->common->raw, 0, px->common->width * px->common->height * 4);
+	for(i = 0; i < px->common->width * px->common->height; i++) {
+		unsigned char* pin  = &px->raw[i * 4];
+		unsigned char* pout = &px->common->raw[i * 4];
 		double	       a    = pin[3];
 
 		a /= 255;
@@ -996,30 +1001,34 @@ void MwPixmapReloadRaw(MwLLPixmap px, unsigned char* rgb) {
 			pout[1] = (unsigned char)(pin[1] * a);
 			pout[2] = (unsigned char)(pin[2] * a);
 
-			pout[0] += (unsigned char)(base->common.red * (1 - a));
-			pout[1] += (unsigned char)(base->common.green * (1 - a));
-			pout[2] += (unsigned char)(base->common.blue * (1 - a));
+			pout[0] += (unsigned char)(base->common->red * (1 - a));
+			pout[1] += (unsigned char)(base->common->green * (1 - a));
+			pout[2] += (unsigned char)(base->common->blue * (1 - a));
 			pout[3] = 255;
 		}
 	}
 
-	if(handle->bgcolor == NULL) MwLLFreeColor(base);
+	if(handle->bgcolor == NULL) MwFreeColor(base);
 
-	MwLLPixmapUpdate(px);
+	MwPixmapUpdate(px);
 }
 
-unsigned char* MwPixmapGetRaw(MwLLPixmap pixmap) {
-	return pixmap->common.raw;
+unsigned char* MwPixmapGetRaw(MwPixmap pixmap) {
+	return pixmap->common->raw;
 }
 
-void MwPixmapGetSize(MwLLPixmap pixmap, MwRect* rect) {
-	rect->width  = pixmap->common.width;
-	rect->height = pixmap->common.height;
+void MwPixmapGetSize(MwPixmap pixmap, MwRect* rect) {
+	rect->width  = pixmap->common->width;
+	rect->height = pixmap->common->height;
 }
 
-void MwDestroyPixmap(MwLLPixmap pixmap) {
+void MwPixmapUpdate(MwPixmap pixmap) {
+	MwLLPixmapUpdate(pixmap->lowlevel);
+}
+
+void MwDestroyPixmap(MwPixmap pixmap) {
 	int	 i;
-	MwWidget handle = pixmap->common.internal;
+	MwWidget handle = pixmap->handle;
 
 	for(i = 0; i < arrlen(handle->pixmaps); i++) {
 		if(handle->pixmaps[i] == pixmap) {
@@ -1030,20 +1039,44 @@ void MwDestroyPixmap(MwLLPixmap pixmap) {
 
 	if(arrlen(handle->pixmaps) == 0) handle->prop_inject_pixmap = NULL;
 
-	MwLLDestroyPixmap(pixmap);
+	MwLLDestroyPixmap(pixmap->lowlevel);
+	free(pixmap->raw);
+	free(pixmap);
 }
 
-void MwColorGet(MwLLColor color, int* red, int* green, int* blue) {
-	*red   = color->common.red;
-	*green = color->common.green;
-	*blue  = color->common.blue;
+void MwDrawPixmap(MwWidget handle, MwRect* rect, MwPixmap pixmap) {
+	MwLLDrawPixmap(handle->lowlevel, rect, pixmap->lowlevel);
 }
 
-MwLLPixmap MwLoadIcon(MwWidget handle, MwU32* data) {
+MwColor MwAllocColor(MwWidget handle, unsigned int red, unsigned int green, unsigned int blue) {
+	MwColor color = malloc(sizeof(*color));
+
+	color->lowlevel = MwLLAllocColor(handle->lowlevel, red, green, blue);
+	color->common	= &color->lowlevel->common;
+
+	return color;
+}
+
+void MwColorGet(MwColor color, int* red, int* green, int* blue) {
+	*red   = color->common->red;
+	*green = color->common->green;
+	*blue  = color->common->blue;
+}
+
+void MwColorUpdate(MwColor c, int r, int g, int b) {
+	MwLLColorUpdate(c->lowlevel, r, g, b);
+}
+
+void MwFreeColor(MwColor color) {
+	MwLLFreeColor(color->lowlevel);
+	free(color);
+}
+
+MwPixmap MwLoadIcon(MwWidget handle, MwU32* data) {
 	int	       width  = (data[0] >> 16) & 0xffff;
 	int	       height = (data[0]) & 0xffff;
 	unsigned char* rgba   = malloc(width * height * 4);
-	MwLLPixmap     px;
+	MwPixmap       px;
 	int	       i;
 
 	if(!rgba) {
@@ -1078,10 +1111,10 @@ typedef struct color {
 	int   a;
 } color_t;
 
-MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
+MwPixmap MwLoadXPM(MwWidget handle, char** data) {
 	int	       col, row, colors, cpp;
 	unsigned char* rgb;
-	MwLLPixmap     px;
+	MwPixmap       px;
 	color_t*       c = NULL;
 	int	       i, y, x;
 	char*	       comp;
@@ -1110,7 +1143,7 @@ MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
 			c[ind].b = 0;
 			c[ind].a = 0;
 		} else {
-			MwLLColor color = MwParseColor(handle, v);
+			MwColor color = MwParseColor(handle, v);
 
 			memcpy(k, data[i + 1], cpp);
 			k[cpp] = 0;
@@ -1118,12 +1151,12 @@ MwLLPixmap MwLoadXPM(MwWidget handle, char** data) {
 			shput(c, k, v);
 			ind = shgeti(c, k);
 
-			c[ind].r = color->common.red;
-			c[ind].g = color->common.green;
-			c[ind].b = color->common.blue;
+			c[ind].r = color->common->red;
+			c[ind].g = color->common->green;
+			c[ind].b = color->common->blue;
 			c[ind].a = 255;
 
-			MwLLFreeColor(color);
+			MwFreeColor(color);
 		}
 	}
 

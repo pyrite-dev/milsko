@@ -58,8 +58,6 @@ struct _MwLLCommonPixmap {
 	int	       width;
 	int	       height;
 	unsigned char* raw;
-	unsigned char* before_blend;
-	void*	       internal;
 };
 
 #ifdef USE_DBUS
@@ -255,7 +253,7 @@ MWDECL void (*MwLLBeginDraw)(MwLL handle);
 MWDECL void (*MwLLEndDraw)(MwLL handle);
 
 MWDECL MwLLColor (*MwLLAllocColor)(MwLL handle, int r, int g, int b);
-MWDECL void (*MwLLColorUpdate)(MwLL handle, MwLLColor c, int r, int g, int b);
+MWDECL void (*MwLLColorUpdate)(MwLLColor c, int r, int g, int b);
 MWDECL void (*MwLLFreeColor)(MwLLColor color);
 
 MWDECL void (*MwLLGetXYWH)(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h);
@@ -362,7 +360,7 @@ MWDECL int MwFL_STBTTSetup(void);
 MWDECL int MwFL_GDISetup(void);
 #endif
 
-MWDECL int (*MwFLDrawText)(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwLLColor color);
+MWDECL int (*MwFLDrawText)(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwColor color);
 MWDECL int (*MwFLTextWidth)(MwFLFont ttf, const char* text);
 MWDECL int (*MwFLTextHeight)(MwFLFont ttf, int count);
 MWDECL int (*MwFLTextHeightWithText)(MwFLFont ttf, const char* text);

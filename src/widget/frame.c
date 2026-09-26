@@ -10,11 +10,11 @@ static int wcreate(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwRect	   fr;
-	MwRect	   rr;
-	MwLLColor  base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	int	   inverted;
-	MwLLPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	MwRect	 fr;
+	MwRect	 rr;
+	MwColor	 base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	int	 inverted;
+	MwPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	if(MwGetInteger(handle, MwNhasBorder)) {
 		inverted  = MwGetInteger(handle, MwNinverted);
@@ -36,9 +36,9 @@ static void draw(MwWidget handle) {
 	}
 
 	MwDrawRect(handle, &rr, base);
-	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &rr, bgpx);
+	if(bgpx != NULL) MwDrawPixmap(handle, &rr, bgpx);
 
-	MwLLFreeColor(base);
+	MwFreeColor(base);
 }
 
 static void prop_change(MwWidget handle, const char* key) {

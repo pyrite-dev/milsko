@@ -29,10 +29,10 @@ static void destroy(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	MwRect	  r;
-	MwMenu	  menu = handle->internal;
+	MwColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwRect	r;
+	MwMenu	menu = handle->internal;
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -96,8 +96,8 @@ static void draw(MwWidget handle) {
 		}
 	}
 
-	MwLLFreeColor(text);
-	MwLLFreeColor(base);
+	MwFreeColor(text);
+	MwFreeColor(base);
 }
 
 static void click(MwWidget handle) {

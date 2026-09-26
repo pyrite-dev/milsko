@@ -55,12 +55,12 @@ static void add_value(MwWidget handle, int mul) {
 
 static void draw(MwWidget handle) {
 	MwRect	    r = {0}, rt = {0}, rbar = {0};
-	MwLLColor   base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor   dark = MwLightenColor(handle, base, -64, -64, -64);
+	MwColor	    base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	    dark = MwLightenColor(handle, base, -64, -64, -64);
 	MwScrollBar scr	 = handle->internal;
 	int or ;
-	int	   uy, dy, ux, dx;
-	MwLLPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
+	int	 uy, dy, ux, dx;
+	MwPixmap bgpx = MwGetVoid(handle, MwNbackgroundPixmap);
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -74,7 +74,7 @@ static void draw(MwWidget handle) {
 	dx = r.width - r.height;
 
 	MwDrawWidgetBack(handle, &r, dark, 1, MwDEFAULT);
-	if(bgpx != NULL) MwLLDrawPixmap(handle->lowlevel, &r, bgpx);
+	if(bgpx != NULL) MwDrawPixmap(handle, &r, bgpx);
 
 	rt = r;
 
@@ -133,8 +133,8 @@ static void draw(MwWidget handle) {
 
 	if(rbar.height >= 0) MwDrawWidgetBack(handle, &rbar, base, 0, MwDEFAULT);
 
-	MwLLFreeColor(dark);
-	MwLLFreeColor(base);
+	MwFreeColor(dark);
+	MwFreeColor(base);
 }
 
 static void mouse_move(MwWidget handle) {

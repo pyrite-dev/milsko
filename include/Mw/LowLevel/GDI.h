@@ -34,6 +34,7 @@ struct _MwLLGDI {
 struct _MwLLGDIColor {
 	struct _MwLLCommonColor common;
 
+	MwLL   handle;
 	HBRUSH brush;
 };
 

@@ -44,7 +44,6 @@ require("./pl/utils.pl");
 
 param_set("classic-theme",        0);
 param_set("stb-image",            1);
-param_set("opengl",               0);
 param_set("vulkan",               0);
 param_set("vulkan-string-helper", 1);
 param_set("shared",               1);
@@ -114,9 +113,11 @@ sub def_platform {
     }
     if ($target eq "Windows") {
         param_set("gdi-text", 1);
+        param_set("opengl",   1);
     }
     else {
         param_set("gdi-text", 0);
+        param_set("opengl",   0);
     }
 }
 

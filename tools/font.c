@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 	printf(" * Copyright notice:\n");
 	printf(" *   \"%s\"\n", rec.u.atom);
 	printf(" */\n");
-	printf("MwFont MwFontData[] = {\n");
+	printf("MwFontResource MwFontData[] = {\n");
 	for(i = 0; i < 0x100; i++) {
 		int	      y, x;
 		FT_Bitmap     bitmap;

@@ -1,11 +1,11 @@
 #include <Mw/Milsko.h>
 
-int (*MwFLDrawText)(MwWidget handle, MwFLFont font, MwPoint* point, const char* text, MwLLColor color) = NULL;
-int (*MwFLTextWidth)(MwFLFont font, const char* text)						       = NULL;
-int (*MwFLTextHeight)(MwFLFont font, int count)							       = NULL;
-int (*MwFLTextHeightWithText)(MwFLFont ttf, const char* text)					       = NULL;
-void* (*MwFLFontLoad)(unsigned char* data, unsigned int size, int px)				       = NULL;
-void (*MwFLFontFree)(void* handle)								       = NULL;
+int (*MwFLDrawText)(MwWidget handle, MwFLFont font, MwPoint* point, const char* text, MwColor color) = NULL;
+int (*MwFLTextWidth)(MwFLFont font, const char* text)						     = NULL;
+int (*MwFLTextHeight)(MwFLFont font, int count)							     = NULL;
+int (*MwFLTextHeightWithText)(MwFLFont ttf, const char* text)					     = NULL;
+void* (*MwFLFontLoad)(unsigned char* data, unsigned int size, int px)				     = NULL;
+void (*MwFLFontFree)(void* handle)								     = NULL;
 
 #if defined(USE_FREETYPE2) || defined(USE_STB_TRUETYPE) || defined(USE_GDI_TEXT)
 #define TTF
@@ -14,7 +14,7 @@ void (*MwFLFontFree)(void* handle)								       = NULL;
 #define FontWidth 7
 #define FontHeight 13
 
-static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, MwLLColor color);
+static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, MwColor color);
 
 static int count_nl(const char* text) {
 	int c = 1;
@@ -76,25 +76,25 @@ static MwFLFont assume_ttf(MwWidget handle, MwFLFont ttf) {
 }
 #endif
 
-void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, int align, MwLLColor color) {
-	MwPoint	  p	= *point;
-	char*	  input = (char*)text;
-	char*	  last	= input;
-	int	  cp;
-	MwLLColor fadedColor = NULL;
-	int	  n;
+void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, int align, MwColor color) {
+	MwPoint p     = *point;
+	char*	input = (char*)text;
+	char*	last  = input;
+	int	cp;
+	MwColor fadedColor = NULL;
+	int	n;
 
 	if((n = MwGetInteger(handle, MwNdisabled)) != MwDEFAULT && n) {
-		MwLLColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
+		MwColor c = handle->parent == NULL ? NULL : MwParseColor(handle->parent, MwGetText(handle->parent, MwNbackground));
 
 		if(c != NULL) {
-			fadedColor		 = MwLLAllocColor(handle->lowlevel, color->common.red, color->common.blue, color->common.green);
-			fadedColor->common.red	 = (MwU8)(fadedColor->common.red + (c->common.red - fadedColor->common.red) * 0.5);
-			fadedColor->common.green = (MwU8)(fadedColor->common.green + (c->common.green - fadedColor->common.green) * 0.5);
-			fadedColor->common.blue	 = (MwU8)(fadedColor->common.blue + (c->common.blue - fadedColor->common.blue) * 0.5);
-			MwLLColorUpdate(handle->lowlevel, fadedColor, fadedColor->common.red, fadedColor->common.green, fadedColor->common.blue);
+			fadedColor		  = MwAllocColor(handle, color->common->red, color->common->blue, color->common->green);
+			fadedColor->common->red	  = (MwU8)(fadedColor->common->red + (c->common->red - fadedColor->common->red) * 0.5);
+			fadedColor->common->green = (MwU8)(fadedColor->common->green + (c->common->green - fadedColor->common->green) * 0.5);
+			fadedColor->common->blue  = (MwU8)(fadedColor->common->blue + (c->common->blue - fadedColor->common->blue) * 0.5);
+			MwColorUpdate(fadedColor, fadedColor->common->red, fadedColor->common->green, fadedColor->common->blue);
 
-			MwLLFreeColor(c);
+			MwFreeColor(c);
 		}
 	}
 
@@ -159,13 +159,13 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 			l[0].y = l[1].y = p.y;
 
 			if((n = MwGetInteger(handle, MwNstrikethrough)) != MwDEFAULT && n) {
-				MwLLLine(handle->lowlevel, l, color);
+				MwLLLine(handle->lowlevel, l, color->lowlevel);
 			}
 
 			if((n = MwGetInteger(handle, MwNunderline)) != MwDEFAULT && n) {
 				l[0].y += th / 2;
 				l[1].y += th / 2;
-				MwLLLine(handle->lowlevel, l, color);
+				MwLLLine(handle->lowlevel, l, color->lowlevel);
 			}
 
 			p.y += th;
@@ -177,7 +177,7 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 	}
 
 	if(fadedColor) {
-		MwLLFreeColor(fadedColor);
+		MwFreeColor(fadedColor);
 	}
 }
 
@@ -269,12 +269,12 @@ void MwFontFree(void* handle) {
 	if(MwFLFontFree) MwFLFontFree(handle);
 }
 
-static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, MwLLColor color) {
+static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text, int bold, MwColor color) {
 	int	       i = 0, x, y, sx, sy;
 	int	       tw, th;
 	unsigned char* px;
 	MwRect	       r;
-	MwLLPixmap     p;
+	MwPixmap       p;
 
 	if(strlen(text) == 0) text = " ";
 	tw = MwTextWidth(handle, NULL, text);
@@ -307,9 +307,9 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 				for(x = 0; x < FontWidth; x++) {
 					unsigned char* ppx = &px[((sy + y) * tw + sx + x) * 4];
 					if((bold ? MwBoldFontData : MwFontData)[out].data[y] & (1 << ((FontWidth - 1) - x))) {
-						ppx[0] = color->common.red;
-						ppx[1] = color->common.green;
-						ppx[2] = color->common.blue;
+						ppx[0] = color->common->red;
+						ppx[1] = color->common->green;
+						ppx[2] = color->common->blue;
 						ppx[3] = 255;
 					} else {
 						ppx[0] = 0;
@@ -329,7 +329,7 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 	r.width	 = tw;
 	r.height = th;
 
-	MwLLDrawPixmap(handle->lowlevel, &r, p);
+	MwDrawPixmap(handle, &r, p);
 	MwDestroyPixmap(p);
 	free(px);
 }

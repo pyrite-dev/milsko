@@ -103,8 +103,8 @@ static void destroy(MwWidget handle) {
 	m->sub[i]->cleaned = 0;
 
 static void draw(MwWidget handle) {
-	MwLLColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor base = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor text = MwParseColor(handle, MwGetText(handle, MwNforeground));
 	MENU_LOOP_DECL;
 
 	MENU_LOOP_INIT;
@@ -120,8 +120,8 @@ static void draw(MwWidget handle) {
 	MwDrawText(handle, MwFLBuildFont((m->sub[i]->wsub != NULL || (in_area && handle->pressed)) ? MwFLFlagBold : 0), &p, m->sub[i]->name + incr, MwALIGNMENT_CENTER, text);
 	END_MENU_LOOP;
 
-	MwLLFreeColor(text);
-	MwLLFreeColor(base);
+	MwFreeColor(text);
+	MwFreeColor(base);
 }
 
 static void parent_resize(MwWidget handle) {

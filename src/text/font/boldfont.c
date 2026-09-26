@@ -4,7 +4,7 @@
  * Copyright notice:
  *   "Public domain font.  Share and enjoy."
  */
-MwFont MwBoldFontData[] = {
+MwFontResource MwBoldFontData[] = {
     {0, 11, {0, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 0}},	/* 0 */
     {0, 11, {0, 0, 0, 0, 0, 24, 60, 126, 60, 24, 0, 0, 0}},		/* 1 */
     {0, 11, {0, 102, 24, 102, 24, 102, 24, 102, 24, 102, 24, 102, 0}},	/* 2 */

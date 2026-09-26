@@ -25,7 +25,7 @@ static void set_all(MwTreeViewEntry** root, int v) {
 	}
 }
 
-static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** root, MwLLColor base, MwLLColor text, MwLLColor base2, MwLLColor text2, MwPoint* p, int next, int shift, int* skip, int* shared, int draw, MwPoint* mouse) {
+static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** root, MwColor base, MwColor text, MwColor base2, MwColor text2, MwPoint* p, int next, int shift, int* skip, int* shared, int draw, MwPoint* mouse) {
 	int	i;
 	MwPoint l[2];
 	int	skipped = 0;
@@ -42,7 +42,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 			l[0] = *p;
 			l[0].x -= LineSpace / 2;
 			l[1] = *p;
-			if(draw) MwLLLine(handle->lowlevel, &l[0], text2);
+			if(draw) MwLLLine(handle->lowlevel, &l[0], text2->lowlevel);
 		}
 
 		if(shift > LineSpace) {
@@ -53,7 +53,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 			if(next) {
 				l[1].y += MwTextHeight(handle, Font, "M") / 2;
 			}
-			if(draw) MwLLLine(handle->lowlevel, &l[0], text2);
+			if(draw) MwLLLine(handle->lowlevel, &l[0], text2->lowlevel);
 		}
 		if(tree->tree != NULL) {
 			r.width	 = OpenerSize;
@@ -61,7 +61,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 			r.x	 = p->x - LineSpace + (LineSpace - r.width) / 2;
 			r.y	 = p->y - MwTextHeight(handle, Font, "M") / 2 + (MwTextHeight(handle, Font, "M") - r.height) / 2;
 			if(draw) {
-				MwLLColor col = tree->opened ? MwLightenColor(handle, base, -8, -8, -8) : base;
+				MwColor	  col = tree->opened ? MwLightenColor(handle, base, -8, -8, -8) : base;
 				MwRect	  r2  = r;
 				const int len = 4;
 
@@ -74,7 +74,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 					l[1].x = l[0].x + len;
 					l[1].y = l[0].y;
 
-					MwLLLine(handle->lowlevel, &l[0], text);
+					MwLLLine(handle->lowlevel, &l[0], text->lowlevel);
 				} else {
 					l[0].x = r.x + (r.width - len) / 2;
 					l[0].y = r.y + r.height / 2;
@@ -82,7 +82,7 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 					l[1].x = l[0].x + len;
 					l[1].y = l[0].y;
 
-					MwLLLine(handle->lowlevel, &l[0], text);
+					MwLLLine(handle->lowlevel, &l[0], text->lowlevel);
 
 					l[0].x = r.x + r.width / 2;
 					l[0].y = r.y + (r.height - len) / 2;
@@ -90,12 +90,12 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 					l[1].x = l[0].x;
 					l[1].y = l[0].y + len;
 
-					MwLLLine(handle->lowlevel, &l[0], text);
+					MwLLLine(handle->lowlevel, &l[0], text->lowlevel);
 				}
 				r = r2;
 				MwDrawFrame(handle, &r, base, tree->opened);
 
-				if(col != base) MwLLFreeColor(col);
+				if(col != base) MwFreeColor(col);
 			} else {
 				if(r.x <= mouse->x && mouse->x <= (r.x + r.width) && r.y <= mouse->y && mouse->y <= (r.y + r.height)) {
 					tree->opened = tree->opened ? 0 : 1;
@@ -104,12 +104,12 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 		}
 		if(tree->pixmap != NULL) {
 			r.height = MwTextHeight(handle, Font, "M");
-			r.width	 = r.height * tree->pixmap->common.width / tree->pixmap->common.height;
+			r.width	 = r.height * tree->pixmap->common->width / tree->pixmap->common->height;
 
 			r.x = p->x + (MwGetInteger(handle->parent, MwNleftPadding) - r.width) / 2;
 			r.y = p->y - MwTextHeight(handle, Font, "M") / 2;
 
-			if(draw) MwLLDrawPixmap(handle->lowlevel, &r, tree->pixmap);
+			if(draw) MwDrawPixmap(handle, &r, tree->pixmap);
 		}
 		p->x += MwGetInteger(handle->parent, MwNleftPadding);
 		if(draw) {
@@ -160,17 +160,17 @@ static void recursion(MwWidget handle, MwTreeViewEntry* tree, MwTreeViewEntry** 
 		if(skipped && p->y > l[0].y) {
 			skipped = 0;
 		}
-		if(draw && !skipped && i != (arrlen(tree->tree) - 1)) MwLLLine(handle->lowlevel, &l[0], text);
+		if(draw && !skipped && i != (arrlen(tree->tree) - 1)) MwLLLine(handle->lowlevel, &l[0], text->lowlevel);
 	}
 }
 
 static void frame_draw(MwWidget handle) {
 	MwRect	   r, r2;
 	MwTreeView tv	 = handle->parent->internal;
-	MwLLColor  base	 = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwLLColor  base2 = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
-	MwLLColor  text	 = MwParseColor(handle, MwGetText(handle, MwNforeground));
-	MwLLColor  text2 = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
+	MwColor	   base	 = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwColor	   base2 = MwParseColor(handle, MwGetText(handle, MwNsubBackground));
+	MwColor	   text	 = MwParseColor(handle, MwGetText(handle, MwNforeground));
+	MwColor	   text2 = MwParseColor(handle, MwGetText(handle, MwNsubForeground));
 	MwPoint	   p;
 	int	   shared = 0;
 	int	   i;
@@ -197,10 +197,10 @@ static void frame_draw(MwWidget handle) {
 
 	MwDrawFrame(handle, &r, base, 1);
 
-	MwLLFreeColor(text2);
-	MwLLFreeColor(text);
-	MwLLFreeColor(base2);
-	MwLLFreeColor(base);
+	MwFreeColor(text2);
+	MwFreeColor(text);
+	MwFreeColor(base2);
+	MwFreeColor(base);
 }
 
 static int recursive_length(MwTreeViewEntry** e) {
@@ -322,8 +322,8 @@ static void destroy(MwWidget handle) {
 }
 
 static void draw(MwWidget handle) {
-	MwLLColor c = MwParseColor(handle, MwGetText(handle, MwNbackground));
-	MwRect	  r;
+	MwColor c = MwParseColor(handle, MwGetText(handle, MwNbackground));
+	MwRect	r;
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -331,10 +331,10 @@ static void draw(MwWidget handle) {
 	r.height = MwGetInteger(handle, MwNheight);
 	MwDrawRect(handle, &r, c);
 
-	MwLLFreeColor(c);
+	MwFreeColor(c);
 }
 
-static void* mwTreeViewAddImpl(MwWidget handle, void* parent, MwLLPixmap pixmap, const char* item) {
+static void* mwTreeViewAddImpl(MwWidget handle, void* parent, MwPixmap pixmap, const char* item) {
 	MwTreeView	 tv = handle->internal;
 	MwTreeViewEntry* t  = malloc(sizeof(*t));
 
@@ -412,7 +412,7 @@ static void mwTreeViewSetLabelImpl(MwWidget handle, void* item, const char* labe
 	}
 }
 
-static void mwTreeViewSetPixmapImpl(MwWidget handle, void* item, MwLLPixmap pixmap) {
+static void mwTreeViewSetPixmapImpl(MwWidget handle, void* item, MwPixmap pixmap) {
 	MwTreeView	 tv = handle->internal;
 	MwTreeViewEntry* e  = item;
 
@@ -447,7 +447,7 @@ static int mwTreeViewGetOpenedImpl(MwWidget handle, void* item) {
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	if(strcmp(name, "mwTreeViewAdd") == 0) {
 		void*	    parent = va_arg(va, void*);
-		MwLLPixmap  pixmap = va_arg(va, MwLLPixmap);
+		MwPixmap    pixmap = va_arg(va, MwPixmap);
 		const char* item   = va_arg(va, const char*);
 		*(void**)out	   = mwTreeViewAddImpl(handle, parent, pixmap, item);
 	}
@@ -468,8 +468,8 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		mwTreeViewSetLabelImpl(handle, item, label);
 	}
 	if(strcmp(name, "mwTreeViewSetPixmap") == 0) {
-		void*	   item	  = va_arg(va, void*);
-		MwLLPixmap pixmap = va_arg(va, MwLLPixmap);
+		void*	 item	= va_arg(va, void*);
+		MwPixmap pixmap = va_arg(va, MwPixmap);
 		mwTreeViewSetPixmapImpl(handle, item, pixmap);
 	}
 	if(strcmp(name, "mwTreeViewSetOpened") == 0) {

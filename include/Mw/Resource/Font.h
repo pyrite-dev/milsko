@@ -15,12 +15,12 @@ extern "C" {
 /*!
  * @brief Default font data
  */
-MWDECL MwFont MwFontData[];
+MWDECL MwFontResource MwFontData[];
 
 /*!
  * @brief Default bold font data
  */
-MWDECL MwFont MwBoldFontData[];
+MWDECL MwFontResource MwBoldFontData[];
 
 /*!
  * @brief Default TTF font data
