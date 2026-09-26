@@ -1097,6 +1097,9 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 	r->common.raw = malloc(4 * width * height);
 	memcpy(r->common.raw, data, 4 * width * height);
 
+	r->common.before_blend = malloc(4 * width * height);
+	memcpy(r->common.before_blend, data, 4 * width * height);
+
 	XGetWindowAttributes(handle->x11.display, handle->x11.window, &attr);
 
 	r->common.width	 = width;
@@ -1152,6 +1155,7 @@ static void MwLLPixmapUpdateImpl(MwLLPixmap r) {
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
+	free(pixmap->common.before_blend);
 	free(pixmap->common.raw);
 	XDestroyImage(pixmap->x11.image);
 	XDestroyImage(pixmap->x11.mask);

@@ -185,6 +185,12 @@ MWDECL unsigned char* MWAPI MwPixmapGetRaw(MwLLPixmap pixmap);
 MWDECL void MWAPI MwPixmapGetSize(MwLLPixmap pixmap, MwRect* rect);
 
 /*!
+ * @brief Destroys the pixmap
+ * @param pixmap Pixmap
+ */
+MWDECL void MWAPI MwDestroyPixmap(MwLLPixmap pixmap);
+
+/*!
  * @brief Creates a pixmap from XPM data
  * @param handle Widget
  * @param data Data

@@ -309,7 +309,7 @@ static void draw_seven_segment(MwWidget handle) {
 
 	free(raw);
 
-	MwLLDestroyPixmap(px);
+	MwDestroyPixmap(px);
 }
 
 static void draw_normal(MwWidget handle) {

@@ -30,11 +30,17 @@
 		} \
 	}
 
+#define PROP(handle, key) \
+	{ \
+		MwDispatch3((handle), prop_change, (key)); \
+		if((handle)->prop_inject_pixmap != NULL) handle->prop_inject_pixmap((handle), (key)); \
+	}
+
 static void MWAPI     MwVaListApply_Internal(MwWidget handle, va_list va, int only_early);
 static MwWidget MWAPI MwCreateWidget_Internal(MwClass widget_class, const char* name, MwWidget parent, int x, int y, unsigned int width, unsigned int height, int do_prop, va_list prop);
 
 static void lldrawhandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.internal;
 #ifdef PERIODIC
 	MwWidget top;
 #endif
@@ -67,7 +73,7 @@ static void lldrawhandler(MwLL handle, void* data) {
 }
 
 static void lluphandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.internal;
 	MwMouse* p = data;
 	int	 n;
 	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
@@ -82,7 +88,7 @@ static void lluphandler(MwLL handle, void* data) {
 }
 
 static void lldownhandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.internal;
 	MwMouse* p = data;
 	int	 n;
 	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
@@ -96,7 +102,7 @@ static void lldownhandler(MwLL handle, void* data) {
 }
 
 static void llresizehandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.internal;
 #ifdef RESIZE_ON_TICK
 	MwWidget top;
 #endif
@@ -129,7 +135,7 @@ static void llresizehandler(MwLL handle, void* data) {
 }
 
 static void llclosehandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.internal;
 	int	 n;
 
 	(void)data;
@@ -147,7 +153,7 @@ static void llclosehandler(MwLL handle, void* data) {
 }
 
 static void llmovehandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.internal;
 	MwPoint* p = data;
 
 	h->mouse_point.x = p->x;
@@ -158,7 +164,7 @@ static void llmovehandler(MwLL handle, void* data) {
 }
 
 static void llkeyhandler(MwLL handle, void* data) {
-	MwWidget h   = (MwWidget)handle->common.user;
+	MwWidget h   = (MwWidget)handle->common.internal;
 	int	 key = *(int*)data;
 	int	 n;
 	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
@@ -168,7 +174,7 @@ static void llkeyhandler(MwLL handle, void* data) {
 }
 
 static void llkeyrelhandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.internal;
 	int	 n;
 	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
@@ -176,7 +182,7 @@ static void llkeyrelhandler(MwLL handle, void* data) {
 }
 
 static void llfocusinhandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.internal;
 	int	 n;
 	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
@@ -184,7 +190,7 @@ static void llfocusinhandler(MwLL handle, void* data) {
 }
 
 static void llfocusouthandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.internal;
 	int	 n;
 	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
@@ -192,7 +198,7 @@ static void llfocusouthandler(MwLL handle, void* data) {
 }
 
 static void llclipboardhandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.internal;
 	int	 n;
 	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
@@ -201,7 +207,7 @@ static void llclipboardhandler(MwLL handle, void* data) {
 }
 
 static void lldraganddrophandler(MwLL handle, void* data) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.internal;
 	int	 n;
 	if((n = MwGetInteger(h, MwNdisabled)) != MwDEFAULT && n) return;
 
@@ -222,7 +228,7 @@ static void lldraganddrophandler(MwLL handle, void* data) {
 #define IsFirstVisible(handle) ((handle)->widget_class != NULL && ((handle)->parent == NULL || (handle)->parent->widget_class == NULL))
 
 static void lldarkthemehandler(MwLL handle, void* data) {
-	MwWidget h   = (MwWidget)handle->common.user;
+	MwWidget h   = (MwWidget)handle->common.internal;
 	int*	 ptr = data;
 	int	 s;
 
@@ -260,16 +266,18 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 	} else {
 		h->lowlevel = NULL;
 	}
-	h->widget_class	  = widget_class;
-	h->pressed	  = 0;
-	h->close	  = 0;
-	h->destroy_queue  = NULL;
-	h->prop_event	  = 1;
-	h->draw_inject	  = NULL;
-	h->destroy_inject = NULL;
-	h->tick_list	  = NULL;
-	h->destroyed	  = 0;
-	h->bgcolor	  = NULL;
+	h->widget_class	      = widget_class;
+	h->pressed	      = 0;
+	h->close	      = 0;
+	h->destroy_queue      = NULL;
+	h->prop_event	      = 1;
+	h->draw_inject	      = NULL;
+	h->destroy_inject     = NULL;
+	h->prop_inject_pixmap = NULL;
+	h->pixmaps	      = NULL;
+	h->tick_list	      = NULL;
+	h->destroyed	      = 0;
+	h->bgcolor	      = NULL;
 
 	h->berserk   = 0;
 	h->last_tick = MwTimeGetTick();
@@ -288,7 +296,7 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 	if(parent == NULL) h->top_step = 1;
 
 	if(h->lowlevel != NULL) {
-		h->lowlevel->common.user		   = h;
+		h->lowlevel->common.internal		   = h;
 		h->lowlevel->common.handler->draw	   = lldrawhandler;
 		h->lowlevel->common.handler->up		   = lluphandler;
 		h->lowlevel->common.handler->down	   = lldownhandler;
@@ -455,6 +463,9 @@ void MwFreeWidget(MwWidget handle) {
 
 	arrfree(handle->destroy_queue);
 	arrfree(handle->tick_list);
+
+	while(arrlen(handle->pixmaps) > 0) MwDestroyPixmap(handle->pixmaps[0]);
+	arrfree(handle->pixmaps);
 
 	arrfree(handle->draw_queue);
 	arrfree(handle->resize_queue);
@@ -628,6 +639,20 @@ static void force_render_all(MwWidget handle) {
 	if(handle->lowlevel != NULL) MwForceRender(handle);
 }
 
+static void notify_all_bgfg_prop(MwWidget handle) {
+	int i;
+
+	for(i = 0; i < arrlen(handle->children); i++) {
+		notify_all_bgfg_prop(handle->children[i]);
+	}
+
+	PROP(handle, MwNbackground);
+	PROP(handle, MwNforeground);
+	PROP(handle, MwNsubBackground);
+	PROP(handle, MwNsubForeground);
+	MwForceRender(handle);
+}
+
 void MwSetInteger(MwWidget handle, const char* key, int n) {
 	int xy;
 	int wh = 0;
@@ -653,7 +678,7 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 		MwDispatch3(handle, props_change, keys);
 		arrfree(keys);
 
-		MwDispatch3(handle, prop_change, key);
+		PROP(handle, key);
 	}
 
 	if(handle->parent != NULL && handle->parent->prop_event) {
@@ -663,7 +688,7 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 	if(strcmp(key, MwNforceInverted) == 0) {
 		MwForceRender(handle);
 	}
-	if(strcmp(key, MwNmodernLook) == 0 || strcmp(key, MwNdarkTheme) == 0 || strcmp(key, MwNbitmapFont) == 0) {
+	if(strcmp(key, MwNmodernLook) == 0 || strcmp(key, MwNbitmapFont) == 0) {
 		force_render_all(handle);
 	}
 
@@ -677,6 +702,8 @@ void MwSetInteger(MwWidget handle, const char* key, int n) {
 		}
 
 		if(h->lowlevel != NULL) MwLLSetDarkTheme(h->lowlevel, n);
+
+		notify_all_bgfg_prop(handle);
 	}
 
 	if(strcmp(key, MwNacceptsDnD) == 0 && n) {
@@ -706,7 +733,7 @@ void MwSetText(MwWidget handle, const char* key, const char* value) {
 		MwDispatch3(handle, props_change, keys);
 		arrfree(keys);
 
-		MwDispatch3(handle, prop_change, key);
+		PROP(handle, key);
 	}
 
 	if(handle->parent != NULL && handle->parent->prop_event) {
@@ -738,7 +765,7 @@ void MwSetVoid(MwWidget handle, const char* key, void* value) {
 		MwDispatch3(handle, props_change, keys);
 		arrfree(keys);
 
-		MwDispatch3(handle, prop_change, key);
+		PROP(handle, key);
 	}
 
 	if(handle->parent != NULL && handle->parent->prop_event) {
@@ -918,8 +945,8 @@ static void MwVaListApply_Internal(MwWidget handle, va_list va, int only_early) 
 	if(x != MwDEFAULT && y != MwDEFAULT) {
 		MwLLSetXY(handle->lowlevel, x, y);
 		if(handle->prop_event) {
-			MwDispatch3(handle, prop_change, MwNx);
-			MwDispatch3(handle, prop_change, MwNy);
+			PROP(handle, MwNx);
+			PROP(handle, MwNy);
 		}
 	} else {
 		if(x != MwDEFAULT) {
@@ -931,8 +958,8 @@ static void MwVaListApply_Internal(MwWidget handle, va_list va, int only_early) 
 	if(w != MwDEFAULT && h != MwDEFAULT) {
 		MwLLSetWH(handle->lowlevel, w, h);
 		if(handle->prop_event) {
-			MwDispatch3(handle, prop_change, MwNwidth);
-			MwDispatch3(handle, prop_change, MwNheight);
+			PROP(handle, MwNwidth);
+			PROP(handle, MwNheight);
 		}
 	} else {
 		if(w != MwDEFAULT) {
@@ -947,7 +974,7 @@ static void MwVaListApply_Internal(MwWidget handle, va_list va, int only_early) 
 
 	if(handle->prop_event) {
 		for(i = 0; keys[i] != NULL; i++) {
-			MwDispatch3(handle, prop_change, keys[i]);
+			PROP(handle, keys[i]);
 		}
 
 		MwDispatch3(handle, props_change, keys);

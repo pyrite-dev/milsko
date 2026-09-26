@@ -103,7 +103,7 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	r.height = th;
 
 	MwLLDrawPixmap(handle->lowlevel, &r, p);
-	MwLLDestroyPixmap(p);
+	MwDestroyPixmap(p);
 	free(px);
 
 	DeleteObject(hbm);

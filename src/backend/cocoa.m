@@ -64,7 +64,7 @@ static inline NSPoint localPointFlip(NSPoint point, NSView* view) {
 
 /* Recursively dispatch a key event to a widget and its children */
 static void recursive_dispatch_key(MwLL handle, int* k) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.intenral;
 	MwLLDispatch(handle, key, k);
 	if(h) {
 		int i;
@@ -78,7 +78,7 @@ static void recursive_dispatch_key(MwLL handle, int* k) {
 };
 /* Recursively dispatch a key released event to a widget and its children */
 static void recursive_dispatch_key_released(MwLL handle, int* k) {
-	MwWidget h = (MwWidget)handle->common.user;
+	MwWidget h = (MwWidget)handle->common.intenral;
 	MwLLDispatch(handle, key_released, k);
 	if(h) {
 		int i;
@@ -637,7 +637,7 @@ static void recursive_dispatch_key_released(MwLL handle, int* k) {
 	[topmost_parent->cocoa.real->view setNeedsDisplay:true];
 	MwLLDispatch(topmost_parent, draw, NULL);
 
-	h = (MwWidget)topmost_parent->common.user;
+	h = (MwWidget)topmost_parent->common.intenral;
 	if(h) {
 		int i;
 		for(i = 0; i < arrlen(h->children); i++) {

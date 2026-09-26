@@ -191,7 +191,7 @@ static void draw(MwWidget handle) {
 	r2.x	  = (r.width - r2.width) / 2;
 	r2.y	  = r2.y + gh * 2;
 	MwLLDrawPixmap(handle->lowlevel, &r2, px);
-	MwLLDestroyPixmap(px);
+	MwDestroyPixmap(px);
 
 	px	  = blit(handle, months[MwGetInteger(handle, MwNmonth)], cb, ct, gh);
 	r2	  = r3;
@@ -200,7 +200,7 @@ static void draw(MwWidget handle) {
 	r2.x	  = (r.width - r2.width) / 2;
 	r2.y	  = r2.y + h - gh * 2 - r2.height;
 	MwLLDrawPixmap(handle->lowlevel, &r2, px);
-	MwLLDestroyPixmap(px);
+	MwDestroyPixmap(px);
 
 	MwStringPrintIntoBuffer(buf, 5, "%d", MwGetInteger(handle, MwNyear));
 
@@ -211,7 +211,7 @@ static void draw(MwWidget handle) {
 	r2.x	  = (r.width - r2.width) / 2;
 	r2.y	  = r2.y + h + gh * 6;
 	MwLLDrawPixmap(handle->lowlevel, &r2, px);
-	MwLLDestroyPixmap(px);
+	MwDestroyPixmap(px);
 
 	MwLLFreeColor(cf);
 	MwLLFreeColor(ct);

@@ -46,10 +46,12 @@ MwLLPixmap MwLLCairoCreatePixmap(struct _MwLLCairo handle, unsigned char* data, 
 	if(width >= INT16_MAX) width = INT16_MAX;
 	if(height >= INT16_MAX) height = INT16_MAX;
 
-	r->common.width	 = width;
-	r->common.height = height;
-	r->common.raw	 = malloc(4 * width * height);
+	r->common.width	       = width;
+	r->common.height       = height;
+	r->common.raw	       = malloc(4 * width * height);
+	r->common.before_blend = malloc(4 * width * height);
 	memcpy(r->common.raw, data, 4 * width * height);
+	memcpy(r->common.before_blend, data, 4 * width * height);
 
 	r->wayland.cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
 
@@ -80,6 +82,7 @@ void MwLLCairoPixmapUpdate(MwLLPixmap r) {
 
 void MwLLCairoDestroyPixmap(MwLLPixmap pixmap) {
 	cairo_surface_destroy(pixmap->wayland.cs);
+	free(pixmap->common.before_blend);
 	free(pixmap->common.raw);
 	free(pixmap);
 }

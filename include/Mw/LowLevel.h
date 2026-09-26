@@ -34,7 +34,7 @@ enum MwLLBackends {
 };
 
 struct _MwLLCommon {
-	void*  user;
+	void*  internal;
 	int    copy_buffer;
 	int    type;
 	int    coordinate_type;
@@ -58,7 +58,8 @@ struct _MwLLCommonPixmap {
 	int	       width;
 	int	       height;
 	unsigned char* raw;
-	void*	       user;
+	unsigned char* before_blend;
+	void*	       internal;
 };
 
 #ifdef USE_DBUS

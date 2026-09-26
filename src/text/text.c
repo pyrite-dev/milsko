@@ -330,7 +330,7 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 	r.height = th;
 
 	MwLLDrawPixmap(handle->lowlevel, &r, p);
-	MwLLDestroyPixmap(p);
+	MwDestroyPixmap(p);
 	free(px);
 }
 

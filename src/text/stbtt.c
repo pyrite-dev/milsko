@@ -80,7 +80,7 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 	r.height = th;
 
 	MwLLDrawPixmap(handle->lowlevel, &r, p);
-	MwLLDestroyPixmap(p);
+	MwDestroyPixmap(p);
 	free(px);
 
 	return 0;

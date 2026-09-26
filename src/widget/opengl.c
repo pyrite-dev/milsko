@@ -617,7 +617,7 @@ static void frontbuffer_resize(MwWidget handle) {
 			free(o->frontbuffer_data);
 		}
 		if(o->frontbuffer) {
-			MwLLDestroyPixmap(o->frontbuffer);
+			MwDestroyPixmap(o->frontbuffer);
 		}
 		if(o->gbm_surface) {
 			o->gbm_surface_destroy(o->gbm_surface);

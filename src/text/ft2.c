@@ -93,7 +93,7 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	r.height = th;
 
 	MwLLDrawPixmap(handle->lowlevel, &r, p);
-	MwLLDestroyPixmap(p);
+	MwDestroyPixmap(p);
 	free(px);
 
 	return 0;

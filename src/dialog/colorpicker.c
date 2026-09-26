@@ -220,7 +220,7 @@ static void MWAPI color_picker_tick(MwWidget handle, void* user,
 }
 
 static void color_picker_destroy(color_picker_t* picker) {
-	MwLLDestroyPixmap(picker->color_picker_pixmap);
+	MwDestroyPixmap(picker->color_picker_pixmap);
 	free(picker);
 }
 

@@ -953,29 +953,43 @@ MwLLPixmap MwLoadImage(MwWidget handle, const char* path) {
 	return px;
 }
 
+static void pixmap_prop(MwWidget handle, const char* prop) {
+	if(strcmp(prop, MwNbackground) == 0 || strcmp(prop, MwNsubBackground) == 0) {
+		int i;
+
+		for(i = 0; i < arrlen(handle->pixmaps); i++) MwPixmapReloadRaw(handle->pixmaps[i], NULL);
+	}
+}
+
 MwLLPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height) {
 	MwLLPixmap px = MwLLCreatePixmap(handle->lowlevel, rgb, width, height);
 
-	px->common.user = handle;
+	px->common.internal = handle;
 	MwPixmapReloadRaw(px, rgb);
+
+	handle->prop_inject_pixmap = pixmap_prop;
+
+	arrput(handle->pixmaps, px);
 
 	return px;
 }
 
 void MwPixmapReloadRaw(MwLLPixmap px, unsigned char* rgb) {
 	int	  i;
-	MwWidget  handle = px->common.user;
+	MwWidget  handle = px->common.internal;
 	MwLLColor base	 = handle->bgcolor == NULL ? MwParseColor(handle, MwGetText(handle, MwNbackground)) : handle->bgcolor;
+
+	if(rgb != NULL) memcpy(px->common.before_blend, rgb, px->common.width * px->common.height * 4);
 
 	memset(px->common.raw, 0, px->common.width * px->common.height * 4);
 	for(i = 0; i < px->common.width * px->common.height; i++) {
-		unsigned char* pin  = &rgb[i * 4];
+		unsigned char* pin  = &px->common.before_blend[i * 4];
 		unsigned char* pout = &px->common.raw[i * 4];
 		double	       a    = pin[3];
 
 		a /= 255;
 		if(a != 0) {
-#if 1
+#if 0
 			a = 1;
 #endif
 			pout[0] = (unsigned char)(pin[0] * a);
@@ -1001,6 +1015,22 @@ unsigned char* MwPixmapGetRaw(MwLLPixmap pixmap) {
 void MwPixmapGetSize(MwLLPixmap pixmap, MwRect* rect) {
 	rect->width  = pixmap->common.width;
 	rect->height = pixmap->common.height;
+}
+
+void MwDestroyPixmap(MwLLPixmap pixmap) {
+	int	 i;
+	MwWidget handle = pixmap->common.internal;
+
+	for(i = 0; i < arrlen(handle->pixmaps); i++) {
+		if(handle->pixmaps[i] == pixmap) {
+			arrdel(handle->pixmaps, i);
+			break;
+		}
+	}
+
+	if(arrlen(handle->pixmaps) == 0) handle->prop_inject_pixmap = NULL;
+
+	MwLLDestroyPixmap(pixmap);
 }
 
 void MwColorGet(MwLLColor color, int* red, int* green, int* blue) {

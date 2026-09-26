@@ -43,12 +43,12 @@ static void destroy(MwWidget handle) {
 	for(i = 0; i < arrlen(fc->entries); i++) MwDirectoryFreeEntry(fc->entries[i]);
 	arrfree(fc->entries);
 
-	MwLLDestroyPixmap(fc->dir);
-	MwLLDestroyPixmap(fc->file);
-	MwLLDestroyPixmap(fc->back);
-	MwLLDestroyPixmap(fc->forward);
-	MwLLDestroyPixmap(fc->up);
-	MwLLDestroyPixmap(fc->computer);
+	MwDestroyPixmap(fc->dir);
+	MwDestroyPixmap(fc->file);
+	MwDestroyPixmap(fc->back);
+	MwDestroyPixmap(fc->forward);
+	MwDestroyPixmap(fc->up);
+	MwDestroyPixmap(fc->computer);
 	free(handle->opaque);
 }
 

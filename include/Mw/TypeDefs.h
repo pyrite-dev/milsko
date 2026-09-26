@@ -99,11 +99,14 @@ struct _MwWidget {
 	int	prop_event;
 	int	held;
 
-	void* internal;
-	void* opaque;
-	void* user;
-	void (*draw_inject)(MwWidget handle);
-	void (*destroy_inject)(MwWidget handle);
+	void*	      internal;
+	void*	      opaque;
+	void*	      user;
+	MwHandler     draw_inject;
+	MwHandler     destroy_inject;
+	MwHandlerProp prop_inject_pixmap; /* this is for pixmap; do not use */
+
+	MwLLPixmap* pixmaps;
 
 	MwIntegerKeyValue*     integer;
 	MwTextKeyValue*	       text;
