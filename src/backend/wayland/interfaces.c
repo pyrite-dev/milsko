@@ -721,33 +721,6 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	}
 };
 
-static void recursive_dispatch_mouse_down(MwLL handle, MwMouse* p) {
-	MwWidget h = (MwWidget)handle->common.internal;
-	MwLLDispatch(handle, down, p);
-	if(h) {
-		int i;
-		for(i = 0; i < arrlen(h->children); i++) {
-			MwLLDispatch(h->children[i]->lowlevel, down, p);
-			if(arrlen(h->children[i]->children) > 0) {
-				recursive_dispatch_mouse_down(h->children[i]->lowlevel, p);
-			}
-		}
-	}
-};
-static void recursive_dispatch_mouse_up(MwLL handle, MwMouse* p) {
-	MwWidget h = (MwWidget)handle->common.internal;
-	MwLLDispatch(handle, up, p);
-	if(h) {
-		int i;
-		for(i = 0; i < arrlen(h->children); i++) {
-			MwLLDispatch(h->children[i]->lowlevel, up, p);
-			if(arrlen(h->children[i]->children) > 0) {
-				recursive_dispatch_mouse_up(h->children[i]->lowlevel, p);
-			}
-		}
-	}
-};
-
 static MwBool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwPoint* _relative_mouse_pos, MwPoint* _absolute_pos) {
 	MwLL	topmost_parent = child;
 	MwPoint point;
@@ -761,10 +734,8 @@ static MwBool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwP
 		if(topmost_parent) {
 			/* if the topmost parent is a popup/subwindow then its x/y is irrelevant to us. */
 			if(topmost_parent->wayland.type != MwLL_WAYLAND_POPUP && topmost_parent->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
-				if(topmost_parent->wayland.x > 0)
-					absolute_pos.x += topmost_parent->wayland.x;
-				if(topmost_parent->wayland.y > 0)
-					absolute_pos.y += topmost_parent->wayland.y;
+				absolute_pos.x += topmost_parent->wayland.x;
+				absolute_pos.y += topmost_parent->wayland.y;
 			}
 		}
 	}
@@ -783,53 +754,74 @@ static MwBool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwP
 	       point.y >= absolute_pos.y && point.y <= absolute_pos.y + child->wayland.wh;
 }
 
+/* deepest, topmost-z sublevel under the pointer, or self if none */
+static MwLL find_target(MwLL self, MwPoint* local) {
+	MwLL* children = MwLLWaylandSublevelsByZIndex(self);
+	MwLL  target   = self;
+	int   i;
+	for(i = arrlen(children) - 1; i >= 0; i--) {
+		MwLL	tp;
+		MwPoint pt, rel, abs;
+		if(hit_detect(children[i], &tp, &pt, &rel, &abs)) {
+			*local = rel;
+			target = find_target(children[i], local);
+			break;
+		}
+	}
+	arrfree(children);
+	return target;
+}
+
 static void mouse_dispatch(MwLL self, MwMouse p, MwU32 state) {
+	MwLL target = find_target(self, &p.point);
+
 	switch(state) {
 	case WL_POINTER_BUTTON_STATE_PRESSED:
-		MwLLDispatch(self, down, &p);
+		MwLLDispatch(target, down, &p);
 		break;
 	case WL_POINTER_BUTTON_STATE_RELEASED:
-		MwLLDispatch(self, up, &p);
-		break;
+		MwLLDispatch(target, up, &p);
+		return;
 	}
 
-	if(self->common.internal) {
-		MwWidget w = self->common.internal;
-		int	 i, n;
-		for(i = 0; i < arrlen(w->children); i++) {
-			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
-				MwLL	child	       = w->children[i]->lowlevel;
-				MwLL	topmost_parent = child;
-				MwPoint point;
-				MwPoint relative_mouse_pos;
-				MwPoint absolute_pos;
+	{
+		/* walk from the top of the stack down so that only the highest z-index sublevel under the pointer gets the click */
+		MwLL* children = MwLLWaylandSublevelsByZIndex(self);
+		int   i, n;
+		for(i = arrlen(children) - 1; i >= 0; i--) {
+			MwLL	child	       = children[i];
+			MwLL	topmost_parent = child;
+			MwPoint point;
+			MwPoint relative_mouse_pos;
+			MwPoint absolute_pos;
 
-				if(hit_detect(child, &topmost_parent, &point, &relative_mouse_pos, &absolute_pos)) {
-					int idx = -1;
-					for(n = 0; n < arrlen(topmost_parent->wayland.currentlyHeldWidgets); n++) {
-						if(topmost_parent->wayland.currentlyHeldWidgets[n] == child) {
-							idx = n;
-						}
+			if(hit_detect(child, &topmost_parent, &point, &relative_mouse_pos, &absolute_pos)) {
+				int idx = -1;
+				for(n = 0; n < arrlen(topmost_parent->wayland.currentlyHeldWidgets); n++) {
+					if(topmost_parent->wayland.currentlyHeldWidgets[n] == child) {
+						idx = n;
 					}
-					p.point = relative_mouse_pos;
-
-					switch(state) {
-					case WL_POINTER_BUTTON_STATE_PRESSED:
-						if(idx == -1) {
-							arrpush(topmost_parent->wayland.currentlyHeldWidgets, child);
-						}
-						break;
-					case WL_POINTER_BUTTON_STATE_RELEASED:
-						if(idx != -1) {
-							arrdel(topmost_parent->wayland.currentlyHeldWidgets, idx);
-						}
-						break;
-					}
-
-					mouse_dispatch(child, p, state);
 				}
+				p.point = relative_mouse_pos;
+
+				switch(state) {
+				case WL_POINTER_BUTTON_STATE_PRESSED:
+					if(idx == -1) {
+						arrpush(topmost_parent->wayland.currentlyHeldWidgets, child);
+					}
+					break;
+				case WL_POINTER_BUTTON_STATE_RELEASED:
+					if(idx != -1) {
+						arrdel(topmost_parent->wayland.currentlyHeldWidgets, idx);
+					}
+					break;
+				}
+
+				mouse_dispatch(child, p, state);
+				break;
 			}
 		}
+		arrfree(children);
 	}
 }
 

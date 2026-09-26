@@ -341,6 +341,9 @@ struct _MwLLWayland {
 
 	MwBool is_toplevel;
 
+	/* Stacking order among sibling sublevels. Higher values are drawn on top and get the pointer first. */
+	MwI32 z_index;
+
 	MwBool is_clipping;
 	MwRect clip;
 
@@ -504,6 +507,11 @@ void MwLLWaylandClipboardRead(wl_clipboard_device_context_t* ctx, int clipboard_
 
 /* Flush Wayland events */
 void MwLLWaylandFlush(MwLL handle);
+
+/* Get the sublevel children of a widget ordered from lowest to highest z-index (ties keep creation order). Free the result with arrfree. */
+MwLL* MwLLWaylandSublevelsByZIndex(MwLL handle);
+/* Set a sublevel's z-index and schedule a redraw so the new stacking order is shown. */
+void MwLLWaylandSetZIndex(MwLL handle, MwI32 z_index);
 
 /* recursively dispatch the key event to focused widgets.  */
 void MwLLRecursiveKeyDispatch(MwLL self, int* k, MwBool down);

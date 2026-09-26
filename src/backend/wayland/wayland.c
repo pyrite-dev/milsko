@@ -13,17 +13,48 @@ MwBool MwWaylandVulkan = MwFALSE;
 
 MwBool MwWaylandCairoOnly = MwFALSE;
 
-void MwLLWaylandChildrenIterate(MwLL handle, void (*func)(MwLL handle, MwLL child)) {
+MwLL* MwLLWaylandSublevelsByZIndex(MwLL handle) {
+	MwLL* r = NULL;
 	if(handle->common.internal) {
 		MwWidget w = handle->common.internal;
-		int	 i;
+		int	 i, j;
 		for(i = 0; i < arrlen(w->children); i++) {
-			if(w->children[i]->lowlevel->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
-				MwLL child = w->children[i]->lowlevel;
-				func(handle, child);
+			MwLL child = w->children[i]->lowlevel;
+			if(child->wayland.type != MwLL_WAYLAND_SUBLEVEL) continue;
+
+			/* insertion sort, stable so that equal z-indexes keep their creation order */
+			arrput(r, child);
+			for(j = arrlen(r) - 1; j > 0 && r[j - 1]->wayland.z_index > child->wayland.z_index; j--) {
+				r[j] = r[j - 1];
 			}
+			r[j] = child;
 		}
 	}
+	return r;
+}
+
+void MwLLWaylandSetZIndex(MwLL handle, MwI32 z_index) {
+	MwLL root = handle;
+
+	if(handle->wayland.z_index == z_index) return;
+	handle->wayland.z_index = z_index;
+
+	/* sublevels are composited by their root, so that's what needs to redraw */
+	while(root->wayland.type == MwLL_WAYLAND_SUBLEVEL && root->wayland.parent) {
+		root = root->wayland.parent;
+	}
+	root->wayland.do_cascading_draw = MwTRUE;
+	root->wayland.events_pending	= 1;
+}
+
+/* Iterate over the sublevel children of a widget, from the bottom of the stack to the top */
+void MwLLWaylandChildrenIterate(MwLL handle, void (*func)(MwLL handle, MwLL child)) {
+	MwLL* children = MwLLWaylandSublevelsByZIndex(handle);
+	int   i;
+	for(i = 0; i < arrlen(children); i++) {
+		func(handle, children[i]);
+	}
+	arrfree(children);
 }
 
 static int event_loop(MwLL handle);
@@ -813,35 +844,21 @@ static void clip(MwLL handle) {
 		cy = 0;
 		mx = toplevel->wayland.ww;
 		my = toplevel->wayland.wh;
-		// ws is traversed result
-		// ws[ws.length - 1] is ignored bc it's toplevel
+		/* ws is traversed result */
+		/* ws[arrlen(ws) - 1] is the toplevel, which is the origin */
 		for(i = arrlen(ws) - 2; i >= 0; i--) {
-			int j;
-			int l = 0;
-
 			x += ws[i]->wayland.x;
 			y += ws[i]->wayland.y;
 
-			for(j = i - 1; j >= 0; j--) {
-				if(ws[j]->wayland.x > cx) l = 1;
-				if(ws[j]->wayland.y > cy) l = 1;
-				if(l) break;
-			}
-
-			if(!l) {
-				cx = MAX(cx, ws[i]->wayland.x);
-				cy = MAX(cy, ws[i]->wayland.y);
-			}
-
-			mx = MIN(mx, x + ws[i]->wayland.ww);
-			my = MIN(my, y + ws[i]->wayland.wh);
+			cx = MAX(cx, x);
+			cy = MAX(cy, y);
+			mx = MIN(mx, x + (int)ws[i]->wayland.ww);
+			my = MIN(my, y + (int)ws[i]->wayland.wh);
 		}
-
-		if(mx < cx) mx = cx;
-		if(my < cy) my = cy;
 
 		arrfree(ws);
 
+		/* fully hidden, clip to an empty rectangle */
 		if(mx < cx) mx = cx;
 		if(my < cy) my = cy;
 
@@ -1937,21 +1954,20 @@ static MwBool MwLLDoModernImpl(MwLL handle) {
 }
 
 static void MwLLRaiseImpl(MwLL handle) {
-	(void)handle;
-	/*
+	MwLL* siblings;
+	int   n;
 
-	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL) {
-		MwLL topmost_parent = handle;
-		int  children_num;
-		while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
-		children_num = arrlen(((MwWidget)topmost_parent->common.internal)->children);
+	if(handle->wayland.type != MwLL_WAYLAND_SUBLEVEL || !handle->wayland.parent) {
+		return;
+	}
 
-		if(children_num > 1) {
-			printf("%d\n", children_num);
-			MwWidget last_child = ((MwWidget)topmost_parent->common.internal)->children[children_num - 1];
-			wl_subsurface_place_above(handle->wayland.sublevel->subsurface, last_child->lowlevel->wayland.framebuffer.surface);
-		}
-		}*/
+	/* put it one above whichever sibling is currently on top */
+	siblings = MwLLWaylandSublevelsByZIndex(handle->wayland.parent);
+	n	 = arrlen(siblings);
+	if(n > 0 && siblings[n - 1] != handle) {
+		MwLLWaylandSetZIndex(handle, siblings[n - 1]->wayland.z_index + 1);
+	}
+	arrfree(siblings);
 }
 
 static void MwLLClipImpl(MwLL handle, MwRect* rect) {
