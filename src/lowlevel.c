@@ -66,22 +66,19 @@ void (*MwLLRaise)(MwLL handle) = NULL;
 void (*MwLLClip)(MwLL handle, MwRect* rect) = NULL;
 
 void MwLLCreateCommon(MwLL handle) {
-#if defined(USE_WAYLAND) || defined(USE_X11)
 	char* light_theme = getenv("MW_LIGHT_THEME");
 	char* dark_theme  = getenv("MW_DARK_THEME");
-#endif
 
 	handle->common.handler = malloc(sizeof(*handle->common.handler));
 	memset(handle->common.handler, 0, sizeof(*handle->common.handler));
 
 	handle->common.supports_transparency = 0;
 
-#if defined(USE_WAYLAND) || defined(USE_X11)
 	if(light_theme || dark_theme) {
 		handle->common.theme_override = (light_theme != NULL) ? 1 : ((dark_theme != NULL) ? 2 : 0);
+	} else {
+		handle->common.theme_override = 0;
 	}
-
-#endif
 }
 
 void MwLLDestroyCommon(MwLL handle) {

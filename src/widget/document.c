@@ -54,6 +54,7 @@ static void draw(MwWidget handle) {
 	MwDocument d	= handle->internal;
 	MwColor	   base = MwParseColor(handle, MwGetString(handle, MwNbackground));
 	MwColor	   text = MwParseColor(handle, MwGetString(handle, MwNforeground));
+	MwColor	   link = MwParseColor(handle, MwGetString(handle, MwNlinkForeground));
 	MwRect	   r;
 	int	   i;
 	MwFLFont   font = NULL;
@@ -124,28 +125,16 @@ static void draw(MwWidget handle) {
 					if(j == 1) s_p.x = line[1].x;
 					if(j == 2) c_p.x = line[1].x;
 
-					if(j == 2) {
-						MwRect c_r;
-
-						c_r.x	   = line[0].x;
-						c_r.y	   = line[0].y;
-						c_r.width  = line[1].x - line[0].x;
-						c_r.height = MwTextHeight(handle, font, l->text);
-
-						MwDrawRect(handle, &c_r, text);
-					}
-
-					if(j == 0 || j == 1) {
-						line[0].y += MwTextHeight(handle, font, l->text) / 2 * (2 - j);
-						line[1].y += MwTextHeight(handle, font, l->text) / 2 * (2 - j);
-						MwLine(handle, line, (c ? base : text));
+					if(j == 0 || j == 1 || j == 2) {
+						int am = MwTextHeight(handle, font, l->text) / 2 * (2 - (j == 2 ? 0 : j));
+						line[0].y += am;
+						line[1].y += am;
+						MwLine(handle, line, (c ? link : text));
 					}
 				}
 			}
 
-			handle->bgcolor = c ? text : NULL;
-			MwDrawText(handle, font, &p, l->text, MwALIGNMENT_BEGINNING, c ? base : text);
-			handle->bgcolor = NULL;
+			MwDrawText(handle, font, &p, l->text, MwALIGNMENT_BEGINNING, c ? link : text);
 			break;
 		}
 		case MwDOCUMENT_UNDERLINE:
@@ -191,6 +180,7 @@ static void draw(MwWidget handle) {
 		if(IsFontChange(l->type)) font = l->font;
 	}
 
+	MwFreeColor(link);
 	MwFreeColor(text);
 	MwFreeColor(base);
 }
@@ -658,23 +648,23 @@ static void resize(MwWidget handle) {
 }
 
 MwClassRec MwDocumentClassRec = {
-    wcreate,	 /* create */
-    destroy,	 /* destroy */
-    draw,	 /* draw */
-    click,	 /* click */
-    NULL,	 /* parent_resize */
-    prop_change, /* prop_change */
-    mouse_move,	 /* mouse_move */
-    NULL,	 /* mouse_up */
-    NULL,	 /* mouse_down */
-    NULL,	 /* key */
-    NULL,	 /* execute */
-    NULL,	 /* tick */
-    resize,	 /* resize */
-    NULL,	 /* children_update */
-    NULL,	 /* children_prop_change */
-    NULL,	 /* clipboard */
-    NULL,	 /* props_change */
+    wcreate,	    /* create */
+    destroy,	    /* destroy */
+    draw,	    /* draw */
+    click,	    /* click */
+    NULL,	    /* parent_resize */
+    prop_change,    /* prop_change */
+    mouse_move,	    /* mouse_move */
+    MwForceRender2, /* mouse_up */
+    MwForceRender2, /* mouse_down */
+    NULL,	    /* key */
+    NULL,	    /* execute */
+    NULL,	    /* tick */
+    resize,	    /* resize */
+    NULL,	    /* children_update */
+    NULL,	    /* children_prop_change */
+    NULL,	    /* clipboard */
+    NULL,	    /* props_change */
     NULL,
     NULL,
     NULL};

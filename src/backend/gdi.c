@@ -38,26 +38,31 @@ static void detect_darktheme_classictheme(MwLL handle) {
 
 /* Dark theme detection for modern Windows: use the registry to check if dark mode is enabled. */
 static void detect_darktheme(MwLL handle) {
-	DWORD dw;
-	DWORD sz = sizeof(dw);
-	int   err, t;
-	HKEY  hkey;
-	DWORD type;
+	int t;
+	if(handle->common.theme_override > 0) {
+		t = handle->common.theme_override - 1;
+	} else {
+		DWORD dw;
+		DWORD sz = sizeof(dw);
+		int   err;
+		HKEY  hkey;
+		DWORD type;
 
-	err = RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_QUERY_VALUE, &hkey);
-	if(err != ERROR_SUCCESS) {
-		detect_darktheme_classictheme(handle);
-		return;
+		err = RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_QUERY_VALUE, &hkey);
+		if(err != ERROR_SUCCESS) {
+			detect_darktheme_classictheme(handle);
+			return;
+		}
+
+		err = RegQueryValueEx(hkey, "AppsUseLightTheme", NULL, &type, (PBYTE)&dw, &sz);
+		RegCloseKey(hkey);
+		if(err != ERROR_SUCCESS || type != REG_DWORD) {
+			detect_darktheme_classictheme(handle);
+			return;
+		}
+
+		t = dw ? 0 : 1;
 	}
-
-	err = RegQueryValueEx(hkey, "AppsUseLightTheme", NULL, &type, (PBYTE)&dw, &sz);
-	RegCloseKey(hkey);
-	if(err != ERROR_SUCCESS || type != REG_DWORD) {
-		detect_darktheme_classictheme(handle);
-		return;
-	}
-
-	t = dw ? 0 : 1;
 
 	/* no don't do this here (nishi) */
 #if 0
