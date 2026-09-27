@@ -19,7 +19,9 @@ typedef struct dir {
 
 void* MwDirectoryOpen(const char* path) {
 	dir_t* dir = malloc(sizeof(*dir));
+#ifdef _WIN32
 	char*  p;
+#endif
 	if(!dir) {
 		printf("Out Of Memory\n");
 		return NULL;
