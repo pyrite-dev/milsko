@@ -20,6 +20,7 @@ Other changes include:
 - Document widget (MwDocumentClass) - text box widget that supports markdown.
 - Direct3D9 widget (MwDirect3D9Class) - helper widget that sets up a D3D9 context for you (Windows only)
 - Dark theme now uses Catppuccin Mocha theme
+- Better alpha blending for pixmaps (they now respect background color change)
 - MwNstrikethrough and MwNunderline now work on all text-based widgets
 - Stability/performance fixes for the Wayland backend, most likely for the last time.
 
