@@ -1797,7 +1797,7 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 			topmost_parent->wayland.locked_pointer = zwp_pointer_constraints_v1_lock_pointer(topmost_parent->wayland.pointer_constraints, topmost_parent->wayland.backbuffer.surface, topmost_parent->wayland.pointer, topmost_parent->wayland.region, ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT);
 			wl_surface_commit(topmost_parent->wayland.backbuffer.surface);
 			zwp_locked_pointer_v1_set_cursor_position_hint(topmost_parent->wayland.locked_pointer, 0, CSD_BORDER_FRAME_TOP);
-			handle->wayland.relative_pointer = zwp_relative_pointer_manager_v1_get_relative_pointer(handle->wayland.relative_pointer_manager, handle->wayland.pointer);
+			handle->wayland.relative_pointer = zwp_relative_pointer_manager_v1_get_relative_pointer(handle->wayland.relative_pointer_manager, topmost_parent->wayland.pointer);
 			zwp_relative_pointer_v1_add_listener(handle->wayland.relative_pointer, &MwLLWaylandRelativePointerListener, topmost_parent);
 		} else {
 			if(topmost_parent->wayland.locked_pointer) {
