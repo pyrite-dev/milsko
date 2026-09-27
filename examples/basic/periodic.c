@@ -382,6 +382,4 @@ int main() {
 		  NULL);
 
 	MwLoop(window);
-
-	MwDestroyPixmap(px);
 }
