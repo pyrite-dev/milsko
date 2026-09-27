@@ -12,13 +12,15 @@ Other changes include:
     - `MW_FORCE_CSD` (Linux only): set to force the wayland backend to use CSD instead of SSD
     - `MILSKO_BACKEND` has been renamed to `MW_BACKEND`
 - Redesigned look for radioboxes and checkboxes in the modern theme
-- Clock Widget
-- Chart Widgets
-    - Bar Chart (2D or 3D)
-    - Pie Chart (2D or 3D)
-    - Line Chart
-- New "Document" widget that supports markdown.
-- New Direct3D9 helper widget that allows you to use Direct3D9 (Windows only)
+- Clock Widget (MwClockClass)
+- Chart Widgets (MwChartClass)
+    - Bar Chart (MwCHART_BAR or MwCHART_BAR3D)
+    - Pie Chart (MwCHART_PIE or MwCHART_PIE3D)
+    - Line Chart (MwCHART_LINE)
+- Document widget (MwDocumentClass) - text box widget that supports markdown.
+- Direct3D9 widget (MwDirect3D9Class) - helper widget that sets up a D3D9 context for you (Windows only)
+- Dark theme now uses Catppuccin Mocha theme
+- MwNstrikethrough and MwNunderline now work on all text-based widgets
 - Stability/performance fixes for the Wayland backend, most likely for the last time.
 
 ========================= 1.4 =========================
