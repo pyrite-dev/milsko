@@ -2010,11 +2010,16 @@ static int MwLLWaylandCallInitImpl(void) {
 		loadWayland |= (getenv("WAYLAND_DISPLAY") != NULL);
 	}
 
-#ifdef MW_OPENGL
-	if(getenv("WSLENV") || getenv("WSL_DISTRO_NAME")) {
-		// loadWayland = 0;
+	if((getenv("WSLENV") || getenv("WSL_DISTRO_NAME")) && (!getenv("WESTON_CONFIG_FILE") || !getenv("MW_WSL_WAYLAND_FORCEFULLY_ENABLE"))) {
+		printf(
+		    "!!!!! Milsko's Wayland backend has known issues under Microsoft's WSLg !!!!!\n"
+		    "!!!!! (the default method of running GUI apps) that we're not fixing   !!!!!\n"
+		    "!!!!! If you want to try the Wayland backend, please either:           !!!!!\n"
+		    "!!!!! a.) actually install Weston and run it manually                  !!!!!\n"
+		    "!!!!! b.) set the env variable to MW_WSL_WAYLAND_FORCEFULLY_ENABLE     !!!!!\n");
+
+		loadWayland = 0;
 	}
-#endif
 
 	if(loadWayland) {
 		if(wayland_load_funcs()) {
