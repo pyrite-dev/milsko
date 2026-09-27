@@ -1,3 +1,7 @@
+========================= 2.1 =========================
+- Fixes a bug where key_released was not fired in GDI backend
+- Fixes examples
+
 ========================= 2.0 =========================
 2.0 is not the most significant release, but there are several breaking changes that justify its number:
 - There are no longer any public facing functions that use MwLL* types. Said functions now expect MwColor and MwPixmap, which are wrapper types over the LL ones.
