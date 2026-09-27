@@ -2,7 +2,7 @@
 2.0 is not the most significant release, but there are several breaking changes that justify its number:
 - There are no longer any public facing functions that use MwLL* types. Said functions now expect MwColor and MwPixmap, which are wrapper types over the LL ones.
 - MwSetVoid and MwGetVoid have been renamed to MwSetPointer and MwGetPointer
-- MwSetText and MwGetText have been renamed to MwSetStrign and MwGetString
+- MwSetText and MwGetText have been renamed to MwSetString and MwGetString
 
 Other changes include:
 - Widgets can now accept drag and dropped files via MwNacceptsDnD and the new MwNdragAndDropHandler handler.
