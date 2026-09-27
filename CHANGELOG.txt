@@ -14,8 +14,8 @@ Other changes include:
 - Redesigned look for radioboxes and checkboxes in the modern theme
 - Clock Widget (MwClockClass)
 - Chart Widgets (MwChartClass)
-    - Bar Chart (MwCHART_BAR or MwCHART_BAR3D)
-    - Pie Chart (MwCHART_PIE or MwCHART_PIE3D)
+    - Bar Chart (MwCHART_BAR or MwCHART_BAR_3D)
+    - Pie Chart (MwCHART_PIE or MwCHART_PIE_3D)
     - Line Chart (MwCHART_LINE)
 - Document widget (MwDocumentClass) - text box widget that supports markdown.
 - Direct3D9 widget (MwDirect3D9Class) - helper widget that sets up a D3D9 context for you (Windows only)
