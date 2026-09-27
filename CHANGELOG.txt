@@ -1,3 +1,26 @@
+========================= 2.0 =========================
+2.0 is not the most significant release, but there are several breaking changes that justify its number:
+- There are no longer any public facing functions that use MwLL* types. Said functions now expect MwColor and MwPixmap, which are wrapper types over the LL ones.
+- MwSetVoid and MwGetVoid have been renamed to MwSetPointer and MwGetPointer
+- MwSetText and MwGetText have been renamed to MwSetStrign and MwGetString
+
+Other changes include:
+- Widgets can now accept drag and dropped files via MwNacceptsDnD and the new MwNdragAndDropHandler handler.
+    - Currently only works on Wayland and Win32 due to limited ability to test this on X11.
+- New environment variables:
+    - `MW_LIGHT_THEME`/`MW_DARK_THEME`: set to ignore the system's appearence settings and either just use light theme/dark theme.
+    - `MW_FORCE_CSD` (Linux only): set to force the wayland backend to use CSD instead of SSD
+    - `MILSKO_BACKEND` has been renamed to `MW_BACKEND`
+- Redesigned look for radioboxes and checkboxes in the modern theme
+- Clock Widget
+- Chart Widgets
+    - Bar Chart (2D or 3D)
+    - Pie Chart (2D or 3D)
+    - Line Chart
+- New "Document" widget that supports markdown.
+- New Direct3D9 helper widget that allows you to use Direct3D9 (Windows only)
+- Stability/performance fixes for the Wayland backend, most likely for the last time.
+
 ========================= 1.4 =========================
 - CMakeLists.txt downgraded to version 3.13 to allow compiling on Windows XP
 - CMake build now generates a pkgconfig file.
