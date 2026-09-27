@@ -158,6 +158,7 @@ struct _MwWidget {
 	long last_tick;
 
 	MwBool is_menu;
+	MwBool is_submenu;
 };
 #endif
 

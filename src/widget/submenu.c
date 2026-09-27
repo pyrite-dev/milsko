@@ -8,7 +8,8 @@ static int wcreate(MwWidget handle) {
 	MwSetDefault(handle);
 	MwSetInteger(handle, MwNleftPadding, 0);
 
-	handle->internal = NULL;
+	handle->internal   = NULL;
+	handle->is_submenu = MwTRUE;
 
 	return 0;
 }

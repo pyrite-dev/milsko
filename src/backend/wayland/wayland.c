@@ -549,9 +549,13 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 		}
 
 		if(!topmost_parent->wayland.has_decorations && topmost_parent->wayland.do_csd) {
-			if(p->is_menu) {
-				r->wayland.x += round((float)CSD_BORDER_FRAME_LEFT / 2.);
-				r->wayland.y += ceil((float)CSD_BORDER_FRAME_TOP / 2.);
+			if(p->is_submenu) {
+			} else if(p->is_menu) {
+				r->wayland.x += ((float)CSD_BORDER_FRAME_LEFT / 2.);
+				r->wayland.y += ((float)CSD_BORDER_FRAME_TOP / 2.);
+			} else {
+				r->wayland.x += ((float)CSD_BORDER_FRAME_LEFT);
+				r->wayland.y += ((float)CSD_BORDER_FRAME_TOP);
 			}
 		}
 	}
