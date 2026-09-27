@@ -462,6 +462,8 @@ struct _MwLLWayland {
 	long   end_time;
 
 	MwBool accepts_dnd;
+
+	MwBool shown;
 };
 
 struct _MwLLWaylandColor {

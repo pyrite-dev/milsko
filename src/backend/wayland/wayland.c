@@ -1001,6 +1001,10 @@ static void draw_child(MwLL handle, MwLL child) {
 
 	wl_surface_commit(child->wayland.framebuffer.surface);
 
+	if(!child->wayland.shown) {
+		return;
+	}
+
 	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, child->wayland.ww, child->wayland.wh);
 	c  = cairo_create(cs);
 
@@ -1055,6 +1059,9 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	r->wayland.is_toplevel = parent == NULL;
 	r->wayland.is_clipping = 0;
+
+	/* notably not in widget setup, if a user detaches a widget or whatever it should keep this state */
+	r->wayland.shown = MwTRUE;
 
 	widget_setup(r, parent, x, y, width, height, MwLL_WAYLAND_UNKNOWN);
 
@@ -1723,6 +1730,8 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 }
 
 static void MwLLShowImpl(MwLL handle, int show) {
+	handle->wayland.shown = show;
+
 	if(!handle->wayland.configured) {
 		return;
 	}
