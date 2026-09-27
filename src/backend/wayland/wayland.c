@@ -1418,10 +1418,8 @@ static void MwLLEndDrawImpl(MwLL handle) {
 	if(handle->wayland.configured) {
 		if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 			MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
-			MwLLWaylandBackbufferResize(&handle->wayland);
 		}
 		MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
-		MwLLWaylandFramebufferResize(&handle->wayland);
 	}
 }
 
