@@ -79,7 +79,7 @@ void MWAPI tick(MwWidget handle, void* user, void* call) {
 
 	if(render && w > 0 && h > 0) {
 		unsigned char* buffer = malloc(w * h * 4);
-		MwLLPixmap     px;
+		MwPixmap       px;
 		int	       j;
 
 		glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
@@ -96,7 +96,7 @@ void MWAPI tick(MwWidget handle, void* user, void* call) {
 		MwVaApply(window,
 			  MwNiconPixmap, px,
 			  NULL);
-		MwLLDestroyPixmap(px);
+		MwDestroyPixmap(px);
 
 		free(buffer);
 	}
@@ -133,7 +133,7 @@ void MWAPI resize(MwWidget handle, void* user, void* call) {
 }
 
 int main() {
-	MwLLColor bgcolor, fgcolor;
+	MwColor bgcolor, fgcolor;
 
 	MwLibraryInit();
 
@@ -164,6 +164,6 @@ int main() {
 
 	MwLoop(window);
 
-	MwLLFreeColor(fgcolor);
-	MwLLFreeColor(bgcolor);
+	MwFreeColor(fgcolor);
+	MwFreeColor(bgcolor);
 }

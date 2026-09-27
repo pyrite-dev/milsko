@@ -23,11 +23,11 @@ void MWAPI activate(MwWidget handle, void* user, void* call) {
 }
 
 int main() {
-	MwWidget   lb;
-	int	   len = sizeof(harvard) / sizeof(harvard[0]) - 1;
-	int	   i;
-	int	   index;
-	MwLLPixmap px;
+	MwWidget lb;
+	int	 len = sizeof(harvard) / sizeof(harvard[0]) - 1;
+	int	 i;
+	int	 index;
+	MwPixmap px;
 
 	MwLibraryInit();
 

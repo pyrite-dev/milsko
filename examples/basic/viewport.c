@@ -16,8 +16,8 @@ static void MWAPI resize(MwWidget handle, void* user, void* call) {
 }
 
 int main() {
-	MwWidget   w;
-	MwLLPixmap px;
+	MwWidget w;
+	MwPixmap px;
 
 	MwLibraryInit();
 

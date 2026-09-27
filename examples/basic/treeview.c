@@ -21,10 +21,10 @@ void MWAPI activate(MwWidget handle, void* user, void* call) {
 }
 
 int main() {
-	MwWidget   tv;
-	MwLLPixmap px;
-	int	   i;
-	void *	   p = NULL, *r;
+	MwWidget tv;
+	MwPixmap px;
+	int	 i;
+	void *	 p = NULL, *r;
 
 	MwLibraryInit();
 

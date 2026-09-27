@@ -140,13 +140,13 @@ static void MWAPI menu_handler(MwWidget handle, void* user, void* call) {
 }
 
 int main() {
-	int	   i, j;
-	MwWidget   f, w, b;
-	MwLLPixmap px;
-	int	   index;
-	MwMenu	   m, m2;
-	void*	   v;
-	MwRect	   rc;
+	int	 i, j;
+	MwWidget f, w, b;
+	MwPixmap px;
+	int	 index;
+	MwMenu	 m, m2;
+	void*	 v;
+	MwRect	 rc;
 
 	MwLibraryInit();
 
@@ -383,5 +383,5 @@ int main() {
 
 	MwLoop(window);
 
-	MwLLDestroyPixmap(px);
+	MwDestroyPixmap(px);
 }

@@ -1,8 +1,8 @@
 #include <Mw/Milsko.h>
 
 int main() {
-	MwWidget   window, image, image2, image3;
-	MwLLPixmap px, px2, px3;
+	MwWidget window, image, image2, image3;
+	MwPixmap px, px2, px3;
 
 	MwLibraryInit();
 
