@@ -10,8 +10,8 @@ void MwLLWaylandFramebufferSetup(struct _MwLLWayland* wayland) {
 	memset(wayland->framebuffer.buf_back, 255, wayland->framebuffer.buf_size);
 	if(wayland->configured)
 		wl_surface_attach(wayland->framebuffer.surface, wayland->framebuffer.shm_buffer, 0, 0);
-	if(wayland->framebuffer.fifo)
-		wp_fifo_v1_set_barrier(wayland->framebuffer.fifo);
+	// if(wayland->framebuffer.fifo)
+	// wp_fifo_v1_set_barrier(wayland->framebuffer.fifo);
 
 	wl_surface_commit(wayland->framebuffer.surface);
 
@@ -25,11 +25,13 @@ void MwLLWaylandFramebufferDestroy(struct _MwLLWayland* wayland) {
 };
 
 void MwLLWaylandBackbufferSetup(struct _MwLLWayland* wayland) {
+	MwU32 w = wayland->ww;
+	MwU32 h = wayland->wh;
+
 	if(wayland->type != MwLL_WAYLAND_TOPLEVEL) {
 		return;
 	}
-	MwU32 w = wayland->ww;
-	MwU32 h = wayland->wh;
+
 	if(!wayland->has_decorations && wayland->do_csd) {
 		w += (CSD_BORDER_FRAME_LEFT + CSD_BORDER_FRAME_RIGHT);
 		h += (CSD_BORDER_FRAME_TOP + CSD_BORDER_FRAME_BOTTOM);
@@ -140,8 +142,8 @@ void MwLLWaylandFramebufferResize(struct _MwLLWayland* wayland) {
 
 	if(wayland->configured)
 		wl_surface_attach(wayland->framebuffer.surface, wayland->framebuffer.shm_buffer, 0, 0);
-	if(wayland->framebuffer.fifo)
-		wp_fifo_v1_set_barrier(wayland->framebuffer.fifo);
+	// if(wayland->framebuffer.fifo)
+	// wp_fifo_v1_set_barrier(wayland->framebuffer.fifo);
 
 	wl_surface_commit(wayland->framebuffer.surface);
 
@@ -183,8 +185,8 @@ void MwLLWaylandBufferUpdate(MwLL self, struct _MwLLWaylandShmBuffer* buffer) {
 			if(self->wayland.configured) {
 				wl_surface_attach(buffer->surface, buffer->shm_buffer, 0, 0);
 			}
-			if(buffer->fifo)
-				wp_fifo_v1_wait_barrier(buffer->fifo);
+			// if(buffer->fifo)
+			// wp_fifo_v1_wait_barrier(buffer->fifo);
 			wl_surface_commit(buffer->surface);
 		}
 	}

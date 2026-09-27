@@ -202,21 +202,18 @@ static void xdg_toplevel_configure(void*		data,
 	// 	}
 	// }
 
-	if(self->wayland.resizing == 0) {
-		xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, 0, 0, self->wayland.ww, self->wayland.wh);
+	xdg_surface_set_window_geometry(self->wayland.toplevel->xdg_surface, 0, 0, self->wayland.ww, self->wayland.wh);
+	MwLLWaylandFramebufferResize(&self->wayland);
+	MwLLWaylandBackbufferResize(&self->wayland);
 
-		MwLLWaylandFramebufferResize(&self->wayland);
+	MwLLWaylandRegionSetup(self);
+	MwLLDispatch(self, resize, NULL);
 
-		MwLLWaylandRegionSetup(self);
-		MwLLDispatch(self, resize, NULL);
+	recursive_dispatch_resize(self);
 
-		recursive_dispatch_resize(self);
-
-		if(self->wayland.pointer_constrained) {
-			zwp_locked_pointer_v1_set_cursor_position_hint(self->wayland.locked_pointer, 0, CSD_BORDER_FRAME_TOP);
-			wl_surface_commit(self->wayland.framebuffer.surface);
-		}
-		self->wayland.resizing = 1;
+	if(self->wayland.pointer_constrained) {
+		zwp_locked_pointer_v1_set_cursor_position_hint(self->wayland.locked_pointer, 0, CSD_BORDER_FRAME_TOP);
+		wl_surface_commit(self->wayland.framebuffer.surface);
 	}
 };
 
@@ -1414,9 +1411,10 @@ static void MwLLEndDrawImpl(MwLL handle) {
 	if(handle->wayland.configured) {
 		if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL) {
 			MwLLWaylandBufferUpdate(handle, &handle->wayland.backbuffer);
+			MwLLWaylandBackbufferResize(&handle->wayland);
 		}
-
 		MwLLWaylandBufferUpdate(handle, &handle->wayland.framebuffer);
+		MwLLWaylandFramebufferResize(&handle->wayland);
 	}
 }
 
