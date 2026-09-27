@@ -819,7 +819,7 @@ int MwGetInteger(MwWidget handle, const char* key) {
 }
 
 const char* MwGetString(MwWidget handle, const char* key) {
-	if((shgeti(handle->string, key) == -1 || strcmp(shget(handle->string, key), "DEFAULT") == 0) && (strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0 || strcmp(key, MwNtitleBackground) == 0 || strcmp(key, MwNtitleForeground) == 0)) {
+	if((shgeti(handle->string, key) == -1 || strcmp(shget(handle->string, key), "DEFAULT") == 0) && (strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0 || strcmp(key, MwNtitleBackground) == 0 || strcmp(key, MwNtitleForeground) == 0 || strcmp(key, MwNlinkForeground) == 0)) {
 		const char* v = NULL;
 		if(shgeti(handle->string, key) != -1 && strcmp(shget(handle->string, key), "DEFAULT") != 0) {
 			MwWidget h = handle->parent;
@@ -836,6 +836,7 @@ const char* MwGetString(MwWidget handle, const char* key) {
 				if(strcmp(key, MwNsubForeground) == 0) return MwDefaultDarkSubForeground;
 				if(strcmp(key, MwNtitleBackground) == 0) return MwDefaultDarkTitleBackground;
 				if(strcmp(key, MwNtitleForeground) == 0) return MwDefaultDarkTitleForeground;
+				if(strcmp(key, MwNlinkForeground) == 0) return MwDefaultDarkLinkForeground;
 			} else {
 				if(strcmp(key, MwNbackground) == 0) return MwDefaultBackground;
 				if(strcmp(key, MwNforeground) == 0) return MwDefaultForeground;
@@ -843,6 +844,7 @@ const char* MwGetString(MwWidget handle, const char* key) {
 				if(strcmp(key, MwNsubForeground) == 0) return MwDefaultSubForeground;
 				if(strcmp(key, MwNtitleBackground) == 0) return MwDefaultTitleBackground;
 				if(strcmp(key, MwNtitleForeground) == 0) return MwDefaultTitleForeground;
+				if(strcmp(key, MwNlinkForeground) == 0) return MwDefaultLinkForeground;
 			}
 		}
 		return v;

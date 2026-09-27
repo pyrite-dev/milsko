@@ -124,6 +124,7 @@
 		<string name="foreground" common="yes" />
 		<string name="subForeground" common="yes" />
 		<string name="titleForeground" common="yes" />
+		<string name="linkForeground" common="yes" />
 
 		<!-- Early string properties -->
 		<string name="vulkanExtension" early="yes" />

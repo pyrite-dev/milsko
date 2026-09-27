@@ -42,10 +42,8 @@ struct _MwLLCommon {
 
 	MwLLHandler handler;
 
-#if defined(USE_WAYLAND) || defined(USE_X11)
 	/*  0 = default, 1 = light, 2 = dark */
 	int theme_override;
-#endif
 };
 
 struct _MwLLCommonColor {
