@@ -265,7 +265,9 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		if(HIBYTE(VkKeyScan(wp)) & 2) n |= MwKEY_CONTROL_FLAG;
 		if(msg == WM_SYSCHAR) n |= MwKEY_ALT_FLAG;
 
-		if((0x20 <= n && n <= 0x7f) || (n & MwKEY_FLAG)) MwLLDispatch(u->ll, key, &n);
+		if((0x20 <= n && n <= 0x7f) || (n & MwKEY_FLAG)) {
+			MwLLDispatch(u->ll, key, &n);
+		}
 		break;
 	}
 	case WM_SETFOCUS:
@@ -320,6 +322,17 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		case VK_CONTROL:
 			n = MwKEY_CONTROL;
 			break;
+		}
+
+		if(n == -1 && (msg == WM_KEYUP || msg == WM_SYSKEYUP)) {
+			WORD ch;
+			BYTE state[256];
+
+			GetKeyboardState(state);
+
+			if(ToAscii(wp, HIWORD(lp) & 0xff, state, &ch, 0)) {
+				n = ch;
+			}
 		}
 
 		if((msg == WM_SYSKEYDOWN || msg == WM_SYSKEYUP) && n != -1 && wp != VK_MENU) {
