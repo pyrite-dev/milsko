@@ -2010,7 +2010,7 @@ static int MwLLWaylandCallInitImpl(void) {
 		loadWayland |= (getenv("WAYLAND_DISPLAY") != NULL);
 	}
 
-	if((getenv("WSLENV") || getenv("WSL_DISTRO_NAME")) && (!getenv("WESTON_CONFIG_FILE") || !getenv("MW_WSL_WAYLAND_FORCEFULLY_ENABLE"))) {
+	if((getenv("WSLENV") || getenv("WSL_DISTRO_NAME")) && (!getenv("WESTON_CONFIG_FILE") && !getenv("MW_WSL_WAYLAND_FORCEFULLY_ENABLE"))) {
 		printf(
 		    "!!!!! Milsko's Wayland backend has known issues under Microsoft's WSLg !!!!!\n"
 		    "!!!!! (the default method of running GUI apps) that we're not fixing   !!!!!\n"
