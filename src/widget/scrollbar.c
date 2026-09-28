@@ -89,7 +89,7 @@ static void draw(MwWidget handle) {
 		rt.y = r.y;
 		if(MwGetInteger(handle, MwNshowArrows)) {
 			MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.y <= uy) ? 1 : 0, MwNORTH);
-			if(handle->pressed && scr->point.y <= uy) {
+			if(handle->pressed && scr->point.y < uy) {
 				add_value(handle, -1);
 			}
 		} else {
@@ -114,7 +114,7 @@ static void draw(MwWidget handle) {
 		rt.x = r.x;
 		if(MwGetInteger(handle, MwNshowArrows)) {
 			MwDrawTriangle(handle, &rt, base, (handle->pressed && scr->point.x <= ux) ? 1 : 0, MwWEST);
-			if(handle->pressed && scr->point.x <= ux) {
+			if(handle->pressed && scr->point.x < ux) {
 				add_value(handle, -1);
 			}
 		} else {
