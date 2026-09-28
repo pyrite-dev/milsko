@@ -341,7 +341,7 @@ int main() {
 	f = frame("Separator", -PaddingContent, -PaddingContent, MwSeparatorClass, NULL);
 
 	f = frame("SubWindow", -PaddingContent, -PaddingContent, MwViewportClass,
-		  MwNcolumnSpan, 2,
+		  MwNcolumnSpan, 3,
 		  NULL);
 	w = child(f);
 	MwViewportSetSize(w, 512, 512);
@@ -352,7 +352,9 @@ int main() {
 			 MwNtitle, "Sub window 2",
 			 NULL);
 
-	f = frame("Tab", -PaddingContent, -PaddingContent, MwTabClass, NULL);
+	f = frame("Tab", -PaddingContent, -PaddingContent, MwTabClass,
+		  MwNcolumnSpan, 2,
+		  NULL);
 	w = child(f);
 	MwSetString(MwTabAdd(w, "ABC"), MwNbackground, "#f00");
 	MwSetString(MwTabAdd(w, "DEF"), MwNbackground, "#0f0");
@@ -364,7 +366,14 @@ int main() {
 	v = MwTreeViewAdd(w, v, NULL, "def");
 	v = MwTreeViewAdd(w, v, NULL, "ghi");
 
-	f = frame("Viewport", -PaddingContent, -PaddingContent, MwViewportClass, NULL);
+	f = frame("Text", -PaddingContent, -PaddingContent, MwViewportClass,
+		  MwNcolumnSpan, 2,
+		  NULL);
+	w = child(f);
+
+	f = frame("Viewport", -PaddingContent, -PaddingContent, MwViewportClass,
+		  MwNcolumnSpan, 2,
+		  NULL);
 	w = child(f);
 	MwViewportSetSize(w, 256, 256);
 	MwVaCreateWidget(MwButtonClass, "btn", MwViewportGetViewport(w), 64, 64, 128, 128,

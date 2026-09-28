@@ -27,6 +27,7 @@ static int calc_length(MwWidget handle) {
 	int len	 = MwGetInteger(handle, MwNmaxValue) - MwGetInteger(handle, MwNminValue);
 	int area = MwGetInteger(handle, MwNareaShown);
 	if(area > len) area = len;
+	if(len == 0) return max;
 
 	return (int)(max * (double)area / len);
 }
@@ -35,6 +36,7 @@ static int calc_position(MwWidget handle) {
 	int max = MwScrollBarGetVisibleLength(handle);
 	int len = MwGetInteger(handle, MwNmaxValue) - MwGetInteger(handle, MwNminValue);
 	int val = MwGetInteger(handle, MwNvalue);
+	if(len == 0) return 0;
 
 	return (int)((max - calc_length(handle)) * (double)val / len);
 }
@@ -49,8 +51,10 @@ static void add_value(MwWidget handle, int mul) {
 	if(val < min) val = min;
 	if(val > max) val = max;
 
-	MwSetInteger(handle, MwNvalue, val);
-	MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
+	if(MwGetInteger(handle, MwNvalue) != val) {
+		MwSetInteger(handle, MwNvalue, val);
+		MwDispatchUserHandler(handle, MwNchangedHandler, NULL);
+	}
 }
 
 static void draw(MwWidget handle) {
@@ -223,6 +227,7 @@ static void mouse_down(MwWidget handle, void* ptr) {
 static void prop_change(MwWidget handle, const char* key) {
 	if(strcmp(key, MwNminValue) == 0 || strcmp(key, MwNvalue) == 0 || strcmp(key, MwNmaxValue) == 0) {
 		if(MwGetInteger(handle, MwNvalue) > MwGetInteger(handle, MwNmaxValue)) MwSetInteger(handle, MwNvalue, MwGetInteger(handle, MwNmaxValue));
+		if(MwGetInteger(handle, MwNvalue) < MwGetInteger(handle, MwNminValue)) MwSetInteger(handle, MwNvalue, MwGetInteger(handle, MwNminValue));
 		MwForceRender(handle);
 	}
 	if(strcmp(key, MwNshowArrows) == 0 || strcmp(key, MwNareaShown) == 0) {

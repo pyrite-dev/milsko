@@ -267,6 +267,8 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 		h->lowlevel = NULL;
 	}
 	h->widget_class	      = widget_class;
+	h->mouse_point.x      = 0;
+	h->mouse_point.y      = 0;
 	h->pressed	      = 0;
 	h->close	      = 0;
 	h->destroy_queue      = NULL;
