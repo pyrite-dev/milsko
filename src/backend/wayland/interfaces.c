@@ -762,8 +762,9 @@ static MwBool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwP
 	while(topmost_parent->wayland.parent) {
 		topmost_parent = topmost_parent->wayland.parent;
 		if(topmost_parent) {
-			/* if the topmost parent is a popup/subwindow then its x/y is irrelevant to us. */
-			if(topmost_parent->wayland.type != MwLL_WAYLAND_POPUP && topmost_parent->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
+			/* if the topmost parent is a popup/subwindow/layer surface then its x/y is irrelevant to us,
+			 * it's the window's position on screen and pointer coordinates are relative to the window. */
+			if(topmost_parent->wayland.type == MwLL_WAYLAND_SUBLEVEL || topmost_parent->wayland.type == MwLL_WAYLAND_SUBSURFACE) {
 				absolute_pos.x += topmost_parent->wayland.x;
 				absolute_pos.y += topmost_parent->wayland.y;
 			}
