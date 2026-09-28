@@ -736,8 +736,10 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 
 		for(i = 0; i < arrlen(currentlyHeldWidgets); i++) {
 			MwLL new_topmost = currentlyHeldWidgets[i];
-			p.point		 = topmost_parent->wayland.cur_mouse_pos;
-			while(new_topmost->wayland.parent) {
+			/* the position is relative to the surface the pointer is on (ours), so only widgets below
+			 * us are offset from it. going further would also subtract e.g. a popup's position */
+			p.point = self->wayland.cur_mouse_pos;
+			while(new_topmost != self && new_topmost->wayland.parent) {
 				p.point.x -= new_topmost->wayland.x;
 				p.point.y -= new_topmost->wayland.y;
 				new_topmost = new_topmost->wayland.parent;
@@ -1052,21 +1054,24 @@ static void keyboard_key(void*		     data,
 		MwU64		    syms_num;
 		int		    i;
 
-		if(!self->wayland.xkb_keymap) {
+		struct xkb_keymap* xkb_keymap = topmost_parent->wayland.xkb_keymap;
+		struct xkb_state*  xkb_state  = topmost_parent->wayland.xkb_state;
+
+		if(!xkb_keymap || !xkb_state) {
 
 			return;
 		}
 
-		layout = xkb_state_key_get_layout(self->wayland.xkb_state, keycode);
+		layout = xkb_state_key_get_layout(xkb_state, keycode);
 		levels =
-		    xkb_keymap_num_levels_for_key(self->wayland.xkb_keymap, keycode, layout);
+		    xkb_keymap_num_levels_for_key(xkb_keymap, keycode, layout);
 
 		if((((self->wayland.mod_state & 1) == 1) || ((self->wayland.mod_state & 2) == 2)) && levels >= 2) {
 			level = 1;
 		} else if(levels >= 1) {
 			level = 0;
 		}
-		syms_num = xkb_keymap_key_get_syms_by_level(self->wayland.xkb_keymap, keycode, layout, level, &syms_out);
+		syms_num = xkb_keymap_key_get_syms_by_level(xkb_keymap, keycode, layout, level, &syms_out);
 		if(syms_out == NULL) {
 
 			return;
