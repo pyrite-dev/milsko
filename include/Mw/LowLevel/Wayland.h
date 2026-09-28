@@ -464,6 +464,8 @@ struct _MwLLWayland {
 	MwBool accepts_dnd;
 
 	MwBool shown;
+
+	enum zwlr_layer_shell_v1_layer layer_surface_type;
 };
 
 struct _MwLLWaylandColor {
@@ -525,5 +527,14 @@ typedef struct zxdg_decoration_manager_v1_context {
 } zxdg_decoration_manager_v1_context_t;
 
 extern struct zwp_relative_pointer_v1_listener MwLLWaylandRelativePointerListener;
+
+/*
+ * function for setting the layer surface type used when creating a tool window
+ * (assuming layer surfaces are used).
+ *
+ * NOTE: Must be called after MwLLMakeToolWindow, as that function sets the type to
+ * the default of ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY.
+ */
+MWDECL void MWAPI MwLLWaylandSetToolWindowType(MwLL handle, enum zwlr_layer_shell_v1_layer type);
 
 #endif
