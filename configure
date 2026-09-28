@@ -36,6 +36,7 @@ our $executable_suffix = "";
 our @library_targets  = ();
 our @examples_targets = ();
 our %examples_libs    = ();
+our %examples_all = ();
 
 our $cross = 0;
 our $host  = "";
@@ -331,11 +332,11 @@ if (param_get("examples")) {
 
         if (param_get("shared")) {
             print(OUT
-"${l}: ${s}${object_suffix} src/${library_prefix}Mw${library_suffix}\n"
+"${l}: ${s}${object_suffix} ${add} src/${library_prefix}Mw${library_suffix}\n"
             );
         }
         else {
-            print(OUT "${l}: ${s}${object_suffix} src/${library_prefix}Mw.a\n");
+            print(OUT "${l}: ${s}${object_suffix} ${add} src/${library_prefix}Mw.a\n");
         }
         if (grep(/^cocoa$/, @backends)) {
             print(OUT
