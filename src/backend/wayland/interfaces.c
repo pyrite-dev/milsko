@@ -17,8 +17,8 @@
 static void setup_clipboard(MwLL self, struct wl_seat* wl_seat);
 static void setup_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
 
-static void   destroy_clipboard(MwLL self, struct wl_seat* wl_seat);
-static void   destroy_zwp_clipboard(MwLL self, struct wl_seat* wl_seat);
+static void   destroy_clipboard(MwLL self);
+static void   destroy_zwp_clipboard(MwLL self);
 static MwBool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwPoint* _relative_mouse_pos, MwPoint* _absolute_pos);
 
 /* Recursively dispatch a key event to a widget and its children */
@@ -133,6 +133,9 @@ static void wl_data_device_data_offer(void*		     data,
 
 	wl_data_offer_add_listener(offer, &offer_listener, data);
 
+	if(self->offer.wl && self->offer.wl != offer) {
+		wl_data_offer_destroy(self->offer.wl);
+	}
 	self->offer.wl = offer;
 };
 
@@ -320,6 +323,9 @@ static void zwp_primary_selection_device_v1_data_offer(void*				       data,
 	wl_clipboard_device_context_t* self = data;
 	(void)zwp_primary_selection_device_v1;
 
+	if(self->offer.zwp && self->offer.zwp != offer) {
+		zwp_primary_selection_offer_v1_destroy(self->offer.zwp);
+	}
 	self->offer.zwp = offer;
 };
 
@@ -491,13 +497,14 @@ static wayland_protocol_t* wl_data_device_manager_setup(MwU32 name, struct _MwLL
 
 static void wl_data_device_manager_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)data;
+	destroy_clipboard((MwLL)wayland);
+	if(wayland->clipboard_source.wl) {
+		wl_data_source_destroy(wayland->clipboard_source.wl);
+		wayland->clipboard_source.wl = NULL;
+	}
 	if(wayland->clipboard_manager.wl != NULL) {
 		wl_data_device_manager_destroy(wayland->clipboard_manager.wl);
 		wayland->clipboard_manager.wl = NULL;
-	}
-	if(wayland->clipboard_source.wl) {
-		// wl_data_source_destroy(wayland->clipboard_source.wl);
-		wayland->clipboard_source.wl = NULL;
 	}
 }
 
@@ -526,8 +533,17 @@ static wayland_protocol_t* zwp_primary_selection_device_manager_v1_setup(MwU32 n
 }
 
 static void zwp_primary_selection_device_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
 	(void)data;
+	destroy_zwp_clipboard((MwLL)wayland);
+	if(wayland->clipboard_source.zwp) {
+		zwp_primary_selection_source_v1_destroy(wayland->clipboard_source.zwp);
+		wayland->clipboard_source.zwp = NULL;
+	}
+	if(wayland->clipboard_manager.zwp != NULL) {
+		zwp_primary_selection_device_manager_v1_destroy(wayland->clipboard_manager.zwp);
+		wayland->clipboard_manager.zwp = NULL;
+	}
+	wayland->supports_zwp = MwFALSE;
 }
 
 /* zwp_primary_selection_device_manager_v1 setup function */
@@ -538,8 +554,15 @@ static wayland_protocol_t* zwp_pointer_constraints_v1_setup(MwU32 name, struct _
 }
 
 static void zwp_pointer_constraints_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
 	(void)data;
+	if(wayland->locked_pointer) {
+		zwp_locked_pointer_v1_destroy(wayland->locked_pointer);
+		wayland->locked_pointer = NULL;
+	}
+	if(wayland->pointer_constraints) {
+		zwp_pointer_constraints_v1_destroy(wayland->pointer_constraints);
+		wayland->pointer_constraints = NULL;
+	}
 }
 
 static struct wl_surface* curSurface = NULL;
@@ -667,8 +690,15 @@ static wayland_protocol_t* zwp_relative_pointer_manager_v1_setup(MwU32 name, str
 }
 
 static void zwp_relative_pointer_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
 	(void)data;
+	if(wayland->relative_pointer) {
+		zwp_relative_pointer_v1_destroy(wayland->relative_pointer);
+		wayland->relative_pointer = NULL;
+	}
+	if(wayland->relative_pointer_manager) {
+		zwp_relative_pointer_manager_v1_destroy(wayland->relative_pointer_manager);
+		wayland->relative_pointer_manager = NULL;
+	}
 }
 
 /* `wl_pointer.motion` callback */
@@ -918,9 +948,16 @@ static void keyboard_keymap(void*		data,
 
 		struct xkb_state* xkb_state = xkb_state_new(xkb_keymap);
 
+		/* the compositor sends a new keymap whenever the layout changes */
+		if(self->wayland.xkb_state) xkb_state_unref(self->wayland.xkb_state);
+		if(self->wayland.xkb_keymap) xkb_keymap_unref(self->wayland.xkb_keymap);
+
 		self->wayland.xkb_keymap = xkb_keymap;
 		self->wayland.xkb_state	 = xkb_state;
 	} else {
+		/* we don't read it, but the fd is still ours to close */
+		close(fd);
+
 		self->wayland.xkb_keymap = self->wayland.parent->wayland.xkb_keymap;
 		self->wayland.xkb_state	 = self->wayland.parent->wayland.xkb_state;
 	}
@@ -1159,6 +1196,31 @@ static void setup_clipboard(MwLL self, struct wl_seat* wl_seat) {
 	device_ctx_wl->accepted_types[5] = "text/uri-list";
 };
 
+static void destroy_zwp_clipboard(MwLL self) {
+	int i;
+	for(i = 0; i < arrlen(self->wayland.clipboard_devices_zwp); i++) {
+		wl_clipboard_device_context_t* ctx = self->wayland.clipboard_devices_zwp[i];
+		if(ctx->offer.zwp) zwp_primary_selection_offer_v1_destroy(ctx->offer.zwp);
+		zwp_primary_selection_device_v1_destroy(ctx->device.zwp);
+		free(ctx);
+	}
+	arrfree(self->wayland.clipboard_devices_zwp);
+}
+static void destroy_clipboard(MwLL self) {
+	int i;
+	for(i = 0; i < arrlen(self->wayland.clipboard_devices_wl); i++) {
+		wl_clipboard_device_context_t* ctx = self->wayland.clipboard_devices_wl[i];
+		if(ctx->offer.wl) wl_data_offer_destroy(ctx->offer.wl);
+		if(wl_proxy_get_version((struct wl_proxy*)ctx->device.wl) >= WL_DATA_DEVICE_RELEASE_SINCE_VERSION) {
+			wl_data_device_release(ctx->device.wl);
+		} else {
+			wl_data_device_destroy(ctx->device.wl);
+		}
+		free(ctx);
+	}
+	arrfree(self->wayland.clipboard_devices_wl);
+}
+
 static void keyboard_repeat_info(void*		     data,
 				 struct wl_keyboard* wl_keyboard,
 				 int32_t	     rate,
@@ -1307,8 +1369,10 @@ static void wl_seat_interface_destroy(struct _MwLLWayland* wayland, wayland_prot
 		wayland->pointer_seat = NULL;
 	}
 
-	free(data->listener);
-	free(data);
+	if(data) {
+		free(data->listener);
+		free(data);
+	}
 }
 
 /* wl_output setup function */
@@ -1321,8 +1385,11 @@ static wayland_protocol_t* wl_output_setup(MwU32 name, MwLL ll, MwU32 version) {
 }
 
 static void wl_output_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
 	(void)data;
+	if(wayland->output) {
+		wl_output_destroy(wayland->output);
+		wayland->output = NULL;
+	}
 }
 
 /* wl_compositor setup function */
@@ -1334,8 +1401,11 @@ static wayland_protocol_t* wl_compositor_setup(MwU32 name, struct _MwLLWayland* 
 }
 
 static void wl_compositor_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
 	(void)data;
+	if(wayland->compositor) {
+		wl_compositor_destroy(wayland->compositor);
+		wayland->compositor = NULL;
+	}
 }
 
 /* wl_subcompositor setup function */
@@ -1351,13 +1421,10 @@ static wayland_protocol_t* wl_subcompositor_setup(MwU32 name, struct _MwLLWaylan
 }
 
 static void wl_subcompositor_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	(void)wayland;
 	(void)data;
-	if(wayland->type == MwLL_WAYLAND_TOPLEVEL) {
-		wl_subcompositor_destroy(wayland->toplevel->scompositor);
-	}
-	if(wayland->type == MwLL_WAYLAND_SUBSURFACE) {
-		wl_subcompositor_destroy(wayland->subsurface->subcompositor);
-	}
+	/* The subcompositor lives in the toplevel/subsurface struct, which is already freed by the time this runs,
+	 * so destroy_toplevel()/destroy_subsurface() release it instead. */
 }
 
 /* xdg_wm_base setup function */
@@ -1376,8 +1443,11 @@ static wayland_protocol_t* xdg_wm_base_setup(MwU32 name, struct _MwLLWayland* wa
 
 static void xdg_wm_base_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)wayland;
-	free(data->listener);
-	free(data);
+	if(data) {
+		xdg_wm_base_destroy(data->context);
+		free(data->listener);
+		free(data);
+	}
 }
 
 /* zxdg_decoration_manager_v1 setup function */
@@ -1387,8 +1457,8 @@ static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _
 	(void)version;
 	proto->listener = NULL;
 
-	ctx->manager = wl_registry_bind(wayland->registry, name, &zxdg_decoration_manager_v1_interface, 1);
-	;
+	ctx->manager	= wl_registry_bind(wayland->registry, name, &zxdg_decoration_manager_v1_interface, 1);
+	ctx->decoration = NULL;
 
 	proto->context = ctx;
 
@@ -1396,8 +1466,15 @@ static wayland_protocol_t* zxdg_decoration_manager_v1_setup(MwU32 name, struct _
 }
 
 static void zxdg_decoration_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
+	zxdg_decoration_manager_v1_context_t* ctx;
 	(void)wayland;
-	(void)data;
+	if(!data) return;
+
+	/* the toplevel decoration itself has to go before the xdg_toplevel, so destroy_toplevel() handles that */
+	ctx = data->context;
+	zxdg_decoration_manager_v1_destroy(ctx->manager);
+	free(ctx);
+	free(data);
 }
 
 /* wl_shm setup function */
@@ -1411,8 +1488,13 @@ static wayland_protocol_t* wl_shm_setup(MwU32 name, struct _MwLLWayland* wayland
 }
 
 static void wl_shm_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
-	(void)wayland;
 	(void)data;
+	if(wayland->framebuffer.shm) wl_shm_destroy(wayland->framebuffer.shm);
+	if(wayland->backbuffer.shm) wl_shm_destroy(wayland->backbuffer.shm);
+	if(wayland->cursor.shm) wl_shm_destroy(wayland->cursor.shm);
+	wayland->framebuffer.shm = NULL;
+	wayland->backbuffer.shm	 = NULL;
+	wayland->cursor.shm	 = NULL;
 }
 
 static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
@@ -1428,8 +1510,11 @@ static wayland_protocol_t* xdg_toplevel_icon_manager_v1_setup(MwU32 name, struct
 
 static void xdg_toplevel_icon_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)wayland;
-	free(data->listener);
-	free(data);
+	if(data) {
+		xdg_toplevel_icon_manager_v1_destroy(data->context);
+		free(data->listener);
+		free(data);
+	}
 }
 
 static wayland_protocol_t* zwlr_layer_shell_v1_setup(MwU32 name, struct _MwLLWayland* wayland, MwU32 version) {
@@ -1443,7 +1528,14 @@ static wayland_protocol_t* zwlr_layer_shell_v1_setup(MwU32 name, struct _MwLLWay
 
 static void zwlr_layer_shell_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)wayland;
+	if(!data) return;
 
+	/* the destroy request only exists from version 3, before that the proxy is all there is to free */
+	if(wl_proxy_get_version(data->context) >= ZWLR_LAYER_SHELL_V1_DESTROY_SINCE_VERSION) {
+		zwlr_layer_shell_v1_destroy(data->context);
+	} else {
+		wl_proxy_destroy(data->context);
+	}
 	free(data);
 }
 
@@ -1458,7 +1550,9 @@ static wayland_protocol_t* wp_fifo_manager_v1_setup(MwU32 name, struct _MwLLWayl
 
 static void wp_fifo_manager_v1_interface_destroy(struct _MwLLWayland* wayland, wayland_protocol_t* data) {
 	(void)wayland;
+	if(!data) return;
 
+	wp_fifo_manager_v1_destroy(data->context);
 	free(data);
 }
 

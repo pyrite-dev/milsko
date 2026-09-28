@@ -396,7 +396,7 @@ struct _MwLLWayland {
 		struct wl_data_device_manager*			wl;
 		struct zwp_primary_selection_device_manager_v1* zwp;
 	} clipboard_manager;
-	union {
+	struct {
 		struct wl_data_source*			wl;
 		struct zwp_primary_selection_source_v1* zwp;
 	} clipboard_source;

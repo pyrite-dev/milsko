@@ -134,16 +134,28 @@ void MwLLCairoBackSetup(struct _MwLLCairo* cairo, MwU8* data, MwU32 width, MwU32
 	cairo->back_cairo = cairo_create(cairo->back_cs);
 }
 
+/* Pointers are cleared so that destroying twice (or before any setup) is harmless; cairo ignores NULL. */
 void MwLLCairoFrontDestroy(struct _MwLLCairo* cairo) {
 	cairo_destroy(cairo->front_cairo);
 	cairo_destroy(cairo->front_cairo_back);
-	cairo_surface_destroy(cairo->front_cs);
-	cairo_surface_destroy(cairo->frontbuffer_cs);
 	cairo_destroy(cairo->frontbuffer_cairo);
+	cairo_surface_destroy(cairo->front_cs);
+	cairo_surface_destroy(cairo->front_cs_back);
+	cairo_surface_destroy(cairo->frontbuffer_cs);
+
+	cairo->front_cairo	 = NULL;
+	cairo->front_cairo_back	 = NULL;
+	cairo->frontbuffer_cairo = NULL;
+	cairo->front_cs		 = NULL;
+	cairo->front_cs_back	 = NULL;
+	cairo->frontbuffer_cs	 = NULL;
 };
 void MwLLCairoBackDestroy(struct _MwLLCairo* cairo) {
 	cairo_destroy(cairo->back_cairo);
 	cairo_surface_destroy(cairo->back_cs);
+
+	cairo->back_cairo = NULL;
+	cairo->back_cs	  = NULL;
 };
 
 void MwLLCairoDestroy(struct _MwLLCairo handle) {

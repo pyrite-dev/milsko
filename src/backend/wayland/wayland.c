@@ -342,10 +342,14 @@ static void setup_toplevel(MwLL r, int x, int y) {
 
 /* Toplevel destroy function */
 static void destroy_toplevel(MwLL r) {
-	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
+	/* The toplevel decoration must go before the xdg_toplevel. The manager itself is released in
+	 * zxdg_decoration_manager_v1_interface_destroy along with every other global. */
+	if(WAYLAND_GET_INTERFACE(r->wayland, zxdg_decoration_manager_v1) != NULL) {
 		zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(r->wayland, zxdg_decoration_manager_v1)->context;
-		zxdg_toplevel_decoration_v1_destroy(dec->decoration);
-		zxdg_decoration_manager_v1_destroy(dec->manager);
+		if(dec->decoration) {
+			zxdg_toplevel_decoration_v1_destroy(dec->decoration);
+			dec->decoration = NULL;
+		}
 	}
 
 	MwLLWaylandFramebufferDestroy(&r->wayland);
@@ -355,19 +359,34 @@ static void destroy_toplevel(MwLL r) {
 
 	xdg_surface_destroy(r->wayland.toplevel->xdg_surface);
 
-	wl_compositor_destroy(r->wayland.compositor);
+	xkb_state_unref(r->wayland.xkb_state);
 
 	xkb_keymap_unref(r->wayland.xkb_keymap);
 
-	xkb_state_unref(r->wayland.xkb_state);
-
 	xkb_context_unref(r->wayland.xkb_context);
+
+	r->wayland.xkb_state   = NULL;
+	r->wayland.xkb_keymap  = NULL;
+	r->wayland.xkb_context = NULL;
 
 	/* wl_pointer/wl_keyboard/wl_seat are torn down centrally in wl_seat_interface_destroy,
 	 * after this function returns, so every widget type that binds a seat (toplevel, popup,
 	 * layer surface) releases them the same way instead of leaking or double-freeing them. */
 
+	/* framebuffer.surface has the wl_subsurface role, so that has to go first or the compositor raises defunct_role_object. */
+	wl_subsurface_destroy(r->wayland.toplevel->ssurface);
+	wl_subcompositor_destroy(r->wayland.toplevel->scompositor);
+
+	if(r->wayland.framebuffer.fifo) {
+		wp_fifo_v1_destroy(r->wayland.framebuffer.fifo);
+		r->wayland.framebuffer.fifo = NULL;
+	}
+
 	wl_surface_destroy(r->wayland.framebuffer.surface);
+	r->wayland.framebuffer.surface = NULL;
+
+	wl_surface_destroy(r->wayland.backbuffer.surface);
+	r->wayland.backbuffer.surface = NULL;
 
 	free(r->wayland.toplevel);
 
@@ -421,6 +440,10 @@ static void setup_sublevel(MwLL parent, MwLL r, int x, int y) {
 static void destroy_sublevel(MwLL r) {
 	MwLLWaylandBackbufferDestroy(&r->wayland);
 	MwLLWaylandFramebufferDestroy(&r->wayland);
+
+	/* xkb state is borrowed from the parent, so it is not ours to unref */
+	wl_surface_destroy(r->wayland.framebuffer.surface);
+	r->wayland.framebuffer.surface = NULL;
 
 	free(r->wayland.sublevel);
 
@@ -482,7 +505,14 @@ static void destroy_subsurface(MwLL r) {
 	MwLLWaylandBackbufferDestroy(&r->wayland);
 	MwLLWaylandFramebufferDestroy(&r->wayland);
 
-	free(r->wayland.sublevel);
+	/* role object before the surface */
+	wl_subsurface_destroy(r->wayland.subsurface->subsurface);
+	wl_subcompositor_destroy(r->wayland.subsurface->subcompositor);
+
+	wl_surface_destroy(r->wayland.framebuffer.surface);
+	r->wayland.framebuffer.surface = NULL;
+
+	free(r->wayland.subsurface);
 
 	r->wayland.configured = MwFALSE;
 }
@@ -642,8 +672,7 @@ static void destroy_popup(MwLL r) {
 	xdg_positioner_destroy(r->wayland.popup->xdg_positioner);
 
 	wl_surface_destroy(r->wayland.framebuffer.surface);
-
-	wl_registry_destroy(r->wayland.registry);
+	r->wayland.framebuffer.surface = NULL;
 
 	free(r->wayland.popup);
 
@@ -747,24 +776,27 @@ static void setup_layer_surface(MwLL r, int x, int y, int width, int height) {
 	}
 }
 
-/* Toplevel destroy function */
+/* Layer surface destroy function */
 static void destroy_layer_surface(MwLL r) {
-	if(shget(r->wayland.wl_protocol_map, zxdg_decoration_manager_v1_interface.name) != NULL) {
-		zxdg_decoration_manager_v1_context_t* dec = WAYLAND_GET_INTERFACE(r->wayland, zxdg_decoration_manager_v1)->context;
-		zxdg_decoration_manager_v1_destroy(dec->manager);
-	}
+	MwLLWaylandFramebufferDestroy(&r->wayland);
+
+	/* The role object has to go before the wl_surface, otherwise the compositor raises defunct_role_object. */
+	zwlr_layer_surface_v1_destroy(r->wayland.layer_surface->surface);
+
+	free(r->wayland.layer_surface);
 
 	wl_surface_destroy(r->wayland.framebuffer.surface);
-
-	wl_compositor_destroy(r->wayland.compositor);
-
-	xkb_keymap_unref(r->wayland.xkb_keymap);
+	r->wayland.framebuffer.surface = NULL;
 
 	xkb_state_unref(r->wayland.xkb_state);
 
+	xkb_keymap_unref(r->wayland.xkb_keymap);
+
 	xkb_context_unref(r->wayland.xkb_context);
 
-	wl_registry_destroy(r->wayland.registry);
+	r->wayland.xkb_state   = NULL;
+	r->wayland.xkb_keymap  = NULL;
+	r->wayland.xkb_context = NULL;
 
 	r->wayland.configured = MwFALSE;
 }
@@ -793,6 +825,9 @@ static void destroy_widget(MwLL handle) {
 	case MwLL_WAYLAND_LAYER_SURFACE:
 		destroy_layer_surface(handle);
 		break;
+	case MwLL_WAYLAND_SUBSURFACE:
+		destroy_subsurface(handle);
+		break;
 	default:
 		printf("Handle with unknown type(%d) tried to be destroyed (%p)\n", handle->wayland.type, handle);
 		break;
@@ -805,17 +840,21 @@ static void destroy_widget(MwLL handle) {
 	}
 
 	for(i = 0; i < shlen(handle->wayland.wl_protocol_setup_map); i++) {
-		void* ctx = shget(handle->wayland.wl_protocol_map, handle->wayland.wl_protocol_setup_map[i].key);
+		const char* key = handle->wayland.wl_protocol_setup_map[i].key;
 
-		if(ctx != NULL) {
-			handle->wayland.wl_protocol_setup_map[i].value->destroy(&handle->wayland, ctx);
+		/* Many setup functions keep what they bind in the MwLL and store a NULL context, so check
+		 * whether the global was bound at all rather than whether the context is NULL. */
+		if(shgeti(handle->wayland.wl_protocol_map, key) != -1) {
+			handle->wayland.wl_protocol_setup_map[i].value->destroy(&handle->wayland, shget(handle->wayland.wl_protocol_map, key));
 		}
-		shdel(handle->wayland.wl_protocol_map, handle->wayland.wl_protocol_setup_map[i].value);
 		free(handle->wayland.wl_protocol_setup_map[i].value);
 	}
 
 	shfree(handle->wayland.wl_protocol_map);
 	shfree(handle->wayland.wl_protocol_setup_map);
+
+	wl_registry_destroy(handle->wayland.registry);
+	handle->wayland.registry = NULL;
 
 	MwLLWaylandFlush(handle);
 }
@@ -880,6 +919,9 @@ static void clip(MwLL handle) {
 			cairo_clip(handle->wayland.cairo.front_cairo_back);
 		}
 	}
+
+	/* parentless handles skip the branch above (arrfree sets ws to NULL, so this is a no-op otherwise) */
+	arrfree(ws);
 }
 
 static void wl_logger(const char* fmt, va_list args) {
@@ -948,6 +990,10 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 			break;
 		}
 	}
+
+	/* widget_setup runs again on every state change, drop the regions from the last one */
+	if(r->wayland.region) wl_region_destroy(r->wayland.region);
+	if(r->wayland.o_region) wl_region_destroy(r->wayland.o_region);
 
 	r->wayland.region   = wl_compositor_create_region(r->wayland.compositor);
 	r->wayland.o_region = wl_compositor_create_region(r->wayland.compositor);
@@ -1090,6 +1136,9 @@ static void MwLLDestroyImpl(MwLL handle) {
 	MwLLWaylandFlush(handle);
 
 	MwLLDestroyCommon(handle);
+	/* destroy_widget() roundtrips, which can still deliver events (keyboard leave etc.) to this handle;
+	 * MwLLDispatch skips a NULL handler table instead of reading the freed one */
+	handle->common.handler = NULL;
 
 	tv.tv_sec  = 0;
 	tv.tv_usec = 1000;
@@ -1104,23 +1153,38 @@ static void MwLLDestroyImpl(MwLL handle) {
 #endif
 
 	if(handle->wayland.valid) {
-		MwLLWaylandBufferDestroy(&handle->wayland.cursor);
-		wl_region_destroy(handle->wayland.region);
-
-		if(handle->wayland.supports_zwp) {
-			zwp_primary_selection_source_v1_destroy(handle->wayland.clipboard_source.zwp);
-		} else {
-			wl_data_source_destroy(handle->wayland.clipboard_source.wl);
+		if(handle->wayland.cursor.setup) {
+			MwLLWaylandBufferDestroy(&handle->wayland.cursor);
+			wl_surface_destroy(handle->wayland.cursor.surface);
 		}
+		wl_region_destroy(handle->wayland.region);
+		wl_region_destroy(handle->wayland.o_region);
+
+		/* clipboard sources are released with their managers in destroy_widget */
 		if(handle->wayland.icon != NULL) {
-			MwLLWaylandBufferDestroy(handle->wayland.icon);
-			wl_surface_destroy(handle->wayland.icon->surface);
+			if(handle->wayland.icon->setup) {
+				MwLLWaylandBufferDestroy(handle->wayland.icon);
+				wl_surface_destroy(handle->wayland.icon->surface);
+			}
+			free(handle->wayland.icon);
 		}
 
 		destroy_widget(handle);
+
+		/* Only parentless handles connect (children borrow the parent's display), and children are
+		 * always freed before their parent, so nothing else is using it by now. */
+		if(!handle->wayland.parent && handle->wayland.display) {
+			wl_display_disconnect(handle->wayland.display);
+			handle->wayland.display = NULL;
+		}
 	} else {
 		printf("widget invalid\n");
 	}
+
+	if(handle->wayland.icon_pixmap) MwLLDestroyPixmap(handle->wayland.icon_pixmap);
+	if(handle->wayland.snapshot) cairo_surface_destroy(handle->wayland.snapshot);
+	free(handle->wayland.clipboard_buffer);
+	arrfree(handle->wayland.currentlyHeldWidgets);
 
 	for(i = 0; i < arrlen(topmost_parent->wayland.currentlyHeldWidgets); i++) {
 		if(topmost_parent->wayland.currentlyHeldWidgets[i] == handle) {
@@ -1605,8 +1669,9 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 			if(handle->wayland.icon == NULL) {
 				handle->wayland.icon = malloc(sizeof(struct _MwLLWaylandShmBuffer));
 				memset(handle->wayland.icon, 0, sizeof(struct _MwLLWaylandShmBuffer));
-				handle->wayland.icon->shm = handle->wayland.framebuffer.shm;
 			}
+			/* wl_shm is rebound whenever the widget changes state, so don't hold on to an old one */
+			handle->wayland.icon->shm = handle->wayland.framebuffer.shm;
 
 			if(handle->wayland.icon->setup) {
 				MwLLWaylandBufferDestroy(handle->wayland.icon);
@@ -1619,11 +1684,17 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 			wl_surface_attach(handle->wayland.icon->surface, handle->wayland.icon->shm_buffer, 0, 0);
 			wl_surface_commit(handle->wayland.icon->surface);
 
-			for(; i < size; i += 2) {
-				handle->wayland.icon->buf_back[i]     = pixmap->common.raw[i + 2];
-				handle->wayland.icon->buf_back[i + 1] = pixmap->common.raw[i + 1];
-				handle->wayland.icon->buf_back[i + 2] = pixmap->common.raw[i + 0];
-				handle->wayland.icon->buf_back[i + 3] = 255;
+			/* RGBA -> BGRA, one pixel (4 bytes) at a time. The icon buffer is line x line, so rows
+			 * have to be placed with its stride rather than the pixmap's. */
+			for(; i < size; i += 4) {
+				int	      x	  = (i / 4) % pixmap->common.width;
+				int	      y	  = (i / 4) / pixmap->common.width;
+				unsigned char* dst = &handle->wayland.icon->buf_back[(y * line + x) * 4];
+
+				dst[0] = pixmap->common.raw[i + 2];
+				dst[1] = pixmap->common.raw[i + 1];
+				dst[2] = pixmap->common.raw[i + 0];
+				dst[3] = 255;
 			}
 
 			if(handle->wayland.configured) MwLLWaylandBufferUpdate(handle, handle->wayland.icon);
@@ -1631,6 +1702,9 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 			xdg_toplevel_icon_v1_add_buffer(icon, handle->wayland.icon->shm_buffer_back, 1);
 
 			xdg_toplevel_icon_manager_v1_set_icon(icon_manager, handle->wayland.toplevel->xdg_top_level, icon);
+
+			/* the icon is immutable once set, destroying it doesn't unset it */
+			xdg_toplevel_icon_v1_destroy(icon);
 		}
 	}
 	if(!handle->wayland.has_decorations && handle->wayland.do_csd) {
@@ -1794,11 +1868,15 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
 	if(handle->wayland.pointer_constraints && handle->wayland.relative_pointer_manager) {
 		if(toggle) {
-			topmost_parent->wayland.locked_pointer = zwp_pointer_constraints_v1_lock_pointer(topmost_parent->wayland.pointer_constraints, topmost_parent->wayland.backbuffer.surface, topmost_parent->wayland.pointer, topmost_parent->wayland.region, ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT);
-			wl_surface_commit(topmost_parent->wayland.backbuffer.surface);
+			if(!topmost_parent->wayland.locked_pointer) {
+				topmost_parent->wayland.locked_pointer = zwp_pointer_constraints_v1_lock_pointer(topmost_parent->wayland.pointer_constraints, topmost_parent->wayland.backbuffer.surface, topmost_parent->wayland.pointer, topmost_parent->wayland.region, ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT);
+				wl_surface_commit(topmost_parent->wayland.backbuffer.surface);
+			}
 			zwp_locked_pointer_v1_set_cursor_position_hint(topmost_parent->wayland.locked_pointer, 0, CSD_BORDER_FRAME_TOP);
-			handle->wayland.relative_pointer = zwp_relative_pointer_manager_v1_get_relative_pointer(handle->wayland.relative_pointer_manager, topmost_parent->wayland.pointer);
-			zwp_relative_pointer_v1_add_listener(handle->wayland.relative_pointer, &MwLLWaylandRelativePointerListener, topmost_parent);
+			if(!topmost_parent->wayland.relative_pointer) {
+				topmost_parent->wayland.relative_pointer = zwp_relative_pointer_manager_v1_get_relative_pointer(handle->wayland.relative_pointer_manager, topmost_parent->wayland.pointer);
+				zwp_relative_pointer_v1_add_listener(topmost_parent->wayland.relative_pointer, &MwLLWaylandRelativePointerListener, topmost_parent);
+			}
 		} else {
 			if(topmost_parent->wayland.locked_pointer) {
 				zwp_locked_pointer_v1_destroy(topmost_parent->wayland.locked_pointer);
@@ -1821,7 +1899,7 @@ static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_ty
 	if(handle->wayland.clipboard_buffer != NULL) {
 		free(handle->wayland.clipboard_buffer);
 	}
-	handle->wayland.clipboard_buffer = malloc(strlen(text));
+	handle->wayland.clipboard_buffer = malloc(strlen(text) + 1);
 	strcpy(handle->wayland.clipboard_buffer, text);
 
 	if(clipboard_type == MwCLIPBOARD_PRIMARY) {

@@ -5,6 +5,7 @@
 void MwLLWaylandFramebufferSetup(struct _MwLLWayland* wayland) {
 	MwLLWaylandBufferSetup(&wayland->framebuffer, wayland->ww, wayland->wh);
 
+	MwLLCairoFrontDestroy(&wayland->cairo);
 	MwLLCairoFrontSetup(&wayland->cairo, wayland->framebuffer.buf_back, wayland->ww, wayland->wh);
 
 	memset(wayland->framebuffer.buf_back, 255, wayland->framebuffer.buf_size);
@@ -38,6 +39,7 @@ void MwLLWaylandBackbufferSetup(struct _MwLLWayland* wayland) {
 	}
 	MwLLWaylandBufferSetup(&wayland->backbuffer, w, h);
 
+	MwLLCairoBackDestroy(&wayland->cairo);
 	MwLLCairoBackSetup(&wayland->cairo, wayland->backbuffer.buf_back, w, h);
 
 	memset(wayland->backbuffer.buf_back, 0, wayland->backbuffer.buf_size);
@@ -57,8 +59,11 @@ void MwLLWaylandBackbufferDestroy(struct _MwLLWayland* wayland) {
 
 void MwLLWaylandBufferSetup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height) {
 	int  stride	      = width * 4;
+	int  err;
 	char temp_name[]      = "/tmp/milsko-wl-shm-XXXXXXXX";
 	char temp_name_back[] = "/tmp/milsko-wl-shm-back-XXXXXXXX";
+
+	MwLLWaylandBufferDestroy(buffer);
 
 	buffer->buf_size = width * height * 4;
 
@@ -66,31 +71,32 @@ void MwLLWaylandBufferSetup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, M
 	buffer->fd_back = mkstemp(temp_name_back);
 	if(buffer->fd >= 65536) {
 		MwDispatchError(-1, "Amount of allocated buffers has gone above 65536! Cannot continue.\n");
-		return;
+		goto fail;
+	}
+	if(buffer->fd == -1 || buffer->fd_back == -1) {
+		printf("failure setting up wl_shm: could not create file. %s.\n", strerror(errno));
+		goto fail;
 	}
 
 	unlink(temp_name);
 	unlink(temp_name_back);
 
-	if(posix_fallocate(buffer->fd, 0, buffer->buf_size) != 0) {
-		printf("failure setting up wl_shm (front buf): could not fallocate. %s.\n", strerror(errno));
-		close(buffer->fd);
-		return;
+	/* posix_fallocate returns the error rather than setting errno */
+	if((err = posix_fallocate(buffer->fd, 0, buffer->buf_size)) != 0) {
+		printf("failure setting up wl_shm (front buf): could not fallocate %llu bytes. %s.\n", (unsigned long long)buffer->buf_size, strerror(err));
+		goto fail;
 	}
-	if(posix_fallocate(buffer->fd_back, 0, buffer->buf_size) != 0) {
-		printf("failure setting up wl_shm (back buf): could not fallocate. %s.\n", strerror(errno));
-		close(buffer->fd_back);
-		return;
+	if((err = posix_fallocate(buffer->fd_back, 0, buffer->buf_size)) != 0) {
+		printf("failure setting up wl_shm (back buf): could not fallocate %llu bytes. %s.\n", (unsigned long long)buffer->buf_size, strerror(err));
+		goto fail;
 	}
 	if(ftruncate(buffer->fd, buffer->buf_size) != 0) {
 		printf("failure setting up wl_shm: could not truncate. %s.\n", strerror(errno));
-		close(buffer->fd);
-		return;
+		goto fail;
 	}
 	if(ftruncate(buffer->fd_back, buffer->buf_size) != 0) {
 		printf("failure setting up wl_shm: could not truncate. %s.\n", strerror(errno));
-		close(buffer->fd_back);
-		return;
+		goto fail;
 	}
 
 	buffer->buf	 = mmap(NULL, buffer->buf_size, PROT_WRITE, MAP_SHARED, buffer->fd, 0);
@@ -110,6 +116,13 @@ void MwLLWaylandBufferSetup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, M
 	buffer->shm_buffer	= wl_shm_pool_create_buffer(buffer->shm_pool, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
 	buffer->shm_buffer_back = wl_shm_pool_create_buffer(buffer->shm_pool_back, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
 	buffer->setup		= MwTRUE;
+	return;
+
+fail:
+	if(buffer->fd >= 0) close(buffer->fd);
+	if(buffer->fd_back >= 0) close(buffer->fd_back);
+	buffer->fd	= -1;
+	buffer->fd_back = -1;
 }
 
 void MwLLWaylandBufferDestroy(struct _MwLLWaylandShmBuffer* buffer) {
@@ -124,7 +137,16 @@ void MwLLWaylandBufferDestroy(struct _MwLLWaylandShmBuffer* buffer) {
 	if(buffer->shm_pool_back) wl_shm_pool_destroy(buffer->shm_pool_back);
 	close(buffer->fd);
 	close(buffer->fd_back);
-	buffer->setup = MwFALSE;
+
+	buffer->buf		= NULL;
+	buffer->buf_back	= NULL;
+	buffer->shm_buffer	= NULL;
+	buffer->shm_buffer_back = NULL;
+	buffer->shm_pool	= NULL;
+	buffer->shm_pool_back	= NULL;
+	buffer->fd		= -1;
+	buffer->fd_back		= -1;
+	buffer->setup		= MwFALSE;
 }
 
 void MwLLWaylandBufferResize(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height) {
