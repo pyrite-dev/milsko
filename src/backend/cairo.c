@@ -134,7 +134,6 @@ void MwLLCairoBackSetup(struct _MwLLCairo* cairo, MwU8* data, MwU32 width, MwU32
 	cairo->back_cairo = cairo_create(cairo->back_cs);
 }
 
-/* Pointers are cleared so that destroying twice (or before any setup) is harmless; cairo ignores NULL. */
 void MwLLCairoFrontDestroy(struct _MwLLCairo* cairo) {
 	cairo_destroy(cairo->front_cairo);
 	cairo_destroy(cairo->front_cairo_back);
@@ -143,6 +142,7 @@ void MwLLCairoFrontDestroy(struct _MwLLCairo* cairo) {
 	cairo_surface_destroy(cairo->front_cs_back);
 	cairo_surface_destroy(cairo->frontbuffer_cs);
 
+	/* set all to null so that cairo ignores future destroys */
 	cairo->front_cairo	 = NULL;
 	cairo->front_cairo_back	 = NULL;
 	cairo->frontbuffer_cairo = NULL;
@@ -229,8 +229,8 @@ static void MwLLFreeColorImpl(MwLLColor color) {}
 
 static MwBool lmao = MwFALSE;
 static int    MwLLPendingImpl(MwLL handle) {
-	   lmao = !lmao;
-	   return lmao;
+	lmao = !lmao;
+	return lmao;
 }
 static void MwLLNextEventImpl(MwLL handle) {
 	MwLLDispatch(handle, draw, NULL);
@@ -274,10 +274,10 @@ static void MwLLRaiseImpl(MwLL handle) {}
 static void MwLLClipImpl(MwLL handle, MwRect* rect) {}
 static void MwLLSetupDragAndDropImpl(MwLL handle) {}
 static int  MwLLCairoCallInitImpl(void) {
-	 if(cairo_load_funcs() != 0) {
-		 return 1;
-	 }
-	 return 0;
+	if(cairo_load_funcs() != 0) {
+		return 1;
+	}
+	return 0;
 }
 #include "call.c"
 CALL(Cairo);

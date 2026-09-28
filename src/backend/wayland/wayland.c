@@ -990,7 +990,6 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 		}
 	}
 
-	/* widget_setup runs again on every state change, drop the regions from the last one */
 	if(r->wayland.region) wl_region_destroy(r->wayland.region);
 	if(r->wayland.o_region) wl_region_destroy(r->wayland.o_region);
 
