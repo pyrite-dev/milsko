@@ -41,8 +41,11 @@ sub add_libs {
 }
 
 sub new_example {
-    if (@_ == 2) {
+    if (@_ >= 2) {
         $examples_libs{"$_[0]${executable_suffix}"} = $_[1];
+    }
+    if (@_ >= 3) {
+        $examples_all{"$_[0]${executable_suffix}"} = $_[2];
     }
     push(@examples_targets, "${_[0]}${executable_suffix}");
 }

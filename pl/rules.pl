@@ -221,6 +221,8 @@ new_example("examples/basic/subwindow");
 new_example("examples/basic/tab");
 new_example("examples/basic/document");
 
+#new_example("examples/doom/mwdoom", "", 1);
+
 if (param_get("opengl")) {
     new_example("examples/gldemos/boing",    $gl_libs);
     new_example("examples/gldemos/clock",    $gl_libs);
