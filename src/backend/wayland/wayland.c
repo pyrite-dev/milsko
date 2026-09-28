@@ -616,9 +616,12 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 	r->wayland.popup->xdg_positioner = xdg_wm_base_create_positioner(r->wayland.popup->xdg_wm_base);
 
 	xdg_positioner_set_size(r->wayland.popup->xdg_positioner, r->wayland.ww, r->wayland.wh);
+	/* the anchor rect is relative to the parent surface, so a layer surface's position on screen doesn't apply */
 	xdg_positioner_set_anchor_rect(
 	    r->wayland.popup->xdg_positioner,
-	    topmost_parent->wayland.x, topmost_parent->wayland.y, r->wayland.ww, r->wayland.wh);
+	    topmost_parent->wayland.type == MwLL_WAYLAND_LAYER_SURFACE ? 0 : topmost_parent->wayland.x,
+	    topmost_parent->wayland.type == MwLL_WAYLAND_LAYER_SURFACE ? 0 : topmost_parent->wayland.y,
+	    r->wayland.ww, r->wayland.wh);
 	xdg_positioner_set_offset(
 	    r->wayland.popup->xdg_positioner,
 	    r->wayland.x, r->wayland.y);
@@ -1772,7 +1775,8 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 	int  x = 0, y = 0;
 
 	while(p != NULL) {
-		if(p->wayland.type != MwLL_WAYLAND_TOPLEVEL) {
+		/* a layer surface's x/y is its position on screen, which like a toplevel's isn't part of the offset */
+		if(p->wayland.type != MwLL_WAYLAND_TOPLEVEL && p->wayland.type != MwLL_WAYLAND_LAYER_SURFACE) {
 			x += p->wayland.x;
 			y += p->wayland.y;
 		} else {
