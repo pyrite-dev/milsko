@@ -951,7 +951,6 @@ static void widget_setup(MwLL r, MwLL parent, int x, int y, int width, int heigh
 	r->wayland.x	  = x;
 	r->wayland.y	  = y;
 	r->wayland.parent = parent;
-	r->wayland.valid  = MwTRUE;
 
 	if(ty == MwLL_WAYLAND_UNKNOWN) {
 		if(parent == NULL) {
@@ -1152,33 +1151,29 @@ static void MwLLDestroyImpl(MwLL handle) {
 	}
 #endif
 
-	if(handle->wayland.valid) {
-		if(handle->wayland.cursor.setup) {
-			MwLLWaylandBufferDestroy(&handle->wayland.cursor);
-			wl_surface_destroy(handle->wayland.cursor.surface);
-		}
-		wl_region_destroy(handle->wayland.region);
-		wl_region_destroy(handle->wayland.o_region);
+	if(handle->wayland.cursor.setup) {
+		MwLLWaylandBufferDestroy(&handle->wayland.cursor);
+		wl_surface_destroy(handle->wayland.cursor.surface);
+	}
+	wl_region_destroy(handle->wayland.region);
+	wl_region_destroy(handle->wayland.o_region);
 
-		/* clipboard sources are released with their managers in destroy_widget */
-		if(handle->wayland.icon != NULL) {
-			if(handle->wayland.icon->setup) {
-				MwLLWaylandBufferDestroy(handle->wayland.icon);
-				wl_surface_destroy(handle->wayland.icon->surface);
-			}
-			free(handle->wayland.icon);
+	/* clipboard sources are released with their managers in destroy_widget */
+	if(handle->wayland.icon != NULL) {
+		if(handle->wayland.icon->setup) {
+			MwLLWaylandBufferDestroy(handle->wayland.icon);
+			wl_surface_destroy(handle->wayland.icon->surface);
 		}
+		free(handle->wayland.icon);
+	}
 
-		destroy_widget(handle);
+	destroy_widget(handle);
 
-		/* Only parentless handles connect (children borrow the parent's display), and children are
-		 * always freed before their parent, so nothing else is using it by now. */
-		if(!handle->wayland.parent && handle->wayland.display) {
-			wl_display_disconnect(handle->wayland.display);
-			handle->wayland.display = NULL;
-		}
-	} else {
-		printf("widget invalid\n");
+	/* Only parentless handles connect (children borrow the parent's display), and children are
+	 * always freed before their parent, so nothing else is using it by now. */
+	if(!handle->wayland.parent && handle->wayland.display) {
+		wl_display_disconnect(handle->wayland.display);
+		handle->wayland.display = NULL;
 	}
 
 	if(handle->wayland.icon_pixmap) MwLLDestroyPixmap(handle->wayland.icon_pixmap);
@@ -1198,13 +1193,6 @@ static void MwLLDestroyImpl(MwLL handle) {
 }
 
 static void MwLLGetXYWHImpl(MwLL handle, int* x, int* y, unsigned int* w, unsigned int* h) {
-	if(!handle->wayland.valid) {
-		*x = 0;
-		*y = 0;
-		*w = 1;
-		*h = 1;
-		return;
-	}
 	*x = handle->wayland.x;
 	*y = handle->wayland.y;
 	*w = handle->wayland.ww;
@@ -1687,8 +1675,8 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 			/* RGBA -> BGRA, one pixel (4 bytes) at a time. The icon buffer is line x line, so rows
 			 * have to be placed with its stride rather than the pixmap's. */
 			for(; i < size; i += 4) {
-				int	      x	  = (i / 4) % pixmap->common.width;
-				int	      y	  = (i / 4) / pixmap->common.width;
+				int	       x   = (i / 4) % pixmap->common.width;
+				int	       y   = (i / 4) / pixmap->common.width;
 				unsigned char* dst = &handle->wayland.icon->buf_back[(y * line + x) * 4];
 
 				dst[0] = pixmap->common.raw[i + 2];

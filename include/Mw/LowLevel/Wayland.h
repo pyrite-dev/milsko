@@ -381,7 +381,6 @@ struct _MwLLWayland {
 	struct zwp_relative_pointer_v1*		relative_pointer;
 	struct zwp_locked_pointer_v1*		locked_pointer;
 	MwBool					pointer_constrained;
-	MwBool					valid;
 
 #ifdef USE_DBUS
 	MwLLDBusContext dbus;
