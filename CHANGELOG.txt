@@ -1,3 +1,8 @@
+========================= 2.0b ========================
+- Fixed scrollbar bug where it can freeze entire toolkit
+- Fixed scroller bug where it bar could appear "empty"
+- Added function specific to Wayland backend (MwLLWaylandSetToolWindowType) that changes what type a created layer surface is when using MwLLMakeToolWindow
+
 ========================= 2.0a ========================
 - Fixed a bug where key_released was not fired in GDI backend
 - Fixed examples
