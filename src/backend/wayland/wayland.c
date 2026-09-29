@@ -628,6 +628,8 @@ static void setup_popup(MwLL r, int x, int y, MwLL parent) {
 
 	xdg_positioner_set_anchor(r->wayland.popup->xdg_positioner, XDG_POSITIONER_ANCHOR_NONE);
 	xdg_positioner_set_gravity(r->wayland.popup->xdg_positioner, XDG_POSITIONER_GRAVITY_NONE);
+	/* we can't see where we are on screen, so let the compositor keep the popup on it */
+	xdg_positioner_set_constraint_adjustment(r->wayland.popup->xdg_positioner, XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_SLIDE_X | XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_SLIDE_Y);
 
 	r->wayland.xkb_keymap = topmost_parent->wayland.xkb_keymap;
 	r->wayland.xkb_state  = topmost_parent->wayland.xkb_state;
@@ -1776,7 +1778,12 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 
 	while(p != NULL) {
 		/* a layer surface's x/y is its position on screen, which like a toplevel's isn't part of the offset */
-		if(p->wayland.type != MwLL_WAYLAND_TOPLEVEL && p->wayland.type != MwLL_WAYLAND_LAYER_SURFACE) {
+		if(p->wayland.type == MwLL_WAYLAND_POPUP) {
+			/* a popup's x/y is already relative to the topmost surface, so anything above it is counted already */
+			x += p->wayland.x;
+			y += p->wayland.y;
+			break;
+		} else if(p->wayland.type != MwLL_WAYLAND_TOPLEVEL && p->wayland.type != MwLL_WAYLAND_LAYER_SURFACE) {
 			x += p->wayland.x;
 			y += p->wayland.y;
 		} else {

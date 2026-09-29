@@ -169,6 +169,7 @@ struct _MwMenu {
 	MwMenu*	 sub;
 	void*	 opaque;
 	int	 cleaned;
+	int	 bold;
 };
 
 struct _MwEntry {

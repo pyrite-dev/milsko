@@ -57,8 +57,9 @@ static void draw(MwWidget handle) {
 
 				p.y += 2 + 1;
 			} else {
-				int tw = MwTextWidth(handle, NULL, menu->sub[i]->name);
-				int th = MwTextHeight(handle, NULL, menu->sub[i]->name);
+				MwFLFont font = MwFLBuildFont(menu->sub[i]->wsub != NULL ? MwFLFlagBold : 0);
+				int	 tw   = MwTextWidth(handle, font, menu->sub[i]->name);
+				int	 th   = MwTextHeight(handle, NULL, menu->sub[i]->name);
 
 				if(menu->sub[i]->wsub != NULL) {
 					r.x	 = MwGetInteger(handle, MwNleftPadding);
@@ -71,7 +72,7 @@ static void draw(MwWidget handle) {
 				p.x = 5 + tw / 2 + MwGetInteger(handle, MwNleftPadding);
 
 				p.y += th / 2;
-				MwDrawText(handle, MwFLBuildFont(menu->sub[i]->wsub != NULL ? MwFLFlagBold : 0), &p, menu->sub[i]->name, MwALIGNMENT_CENTER, text);
+				MwDrawText(handle, font, &p, menu->sub[i]->name, MwALIGNMENT_CENTER, text);
 
 				if(arrlen(menu->sub[i]->sub) > 0) {
 					MwRect tr;
@@ -182,6 +183,11 @@ static void mwSubMenuAppearImpl(MwWidget handle, MwMenu menu, MwPoint* point, in
 	MwLLMakeToolWindow(handle->lowlevel);
 	MwLLDetach(handle->lowlevel, &p);
 
+	MwVaApply(handle,
+		  MwNwidth, sz.width,
+		  MwNheight, sz.height,
+		  NULL);
+
 	if(handle->lowlevel->common.coordinate_type == MwCOORDINATE_GLOBAL) {
 		if(MwGetInteger(handle, MwNy) + sz.height > rc.height) {
 			MwVaApply(handle,
@@ -208,7 +214,7 @@ static void mwSubMenuGetSizeImpl(MwWidget handle, MwMenu menu, MwRect* rect) {
 		if(strcmp(menu->sub[i]->name, "----") == 0) {
 			rect->height += 2 + 2;
 		} else {
-			int tw = MwTextWidth(handle, NULL, menu->sub[i]->name);
+			int tw = MwTextWidth(handle, MwFLBuildFont(arrlen(menu->sub[i]->sub) > 0 ? MwFLFlagBold : 0), menu->sub[i]->name);
 			rect->height += MwTextHeight(handle, NULL, menu->sub[i]->name) + 3;
 			if(tw > rect->width) {
 				rect->width = tw;

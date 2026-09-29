@@ -248,6 +248,7 @@ static MwMenu mwMenuAddImpl(MwWidget handle, MwMenu menu, const char* name) {
 	new->wsub    = NULL;
 	new->keep    = 0;
 	new->cleaned = 0;
+	new->bold    = 0;
 
 	arrput(m->sub, new);
 
