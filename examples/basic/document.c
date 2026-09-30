@@ -45,7 +45,17 @@ int main() {
 
 	strcpy(text, "# Hello world!\nThis is a __test__ text...\n\n");
 	strcat(text, "`Some monospace here`\n\n");
-	strcat(text, "~~Removed~~\n");
+	strcat(text, "> hello\n");
+	strcat(text, "> > hello\n\n");
+	strcat(text, "> > > hello\n");
+	strcat(text, "> > > > hello\n\n");
+	strcat(text, " - list 1\n");
+	strcat(text, " - list 2\n");
+	strcat(text, " - list 3\n\n");
+	strcat(text, "1. list 1\n");
+	strcat(text, "2. list 2\n");
+	strcat(text, "3. list 3\n\n");
+	strcat(text, "~~Removed~~\n\n");
 	strcat(text, "```\nint main(){\n  printf(\"Hello, world!\\n\");\n}\n```\n");
 	strcat(text, "[Click me!](you_clicked)\n\n");
 	for(i = 0; i < 10; i++) {

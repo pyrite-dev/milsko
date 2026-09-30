@@ -173,6 +173,11 @@ static void draw(MwWidget handle) {
 			}
 			break;
 		}
+		case MwDOCUMENT_RECTANGLE:
+		{
+			MwDrawRect(handle, &l->rect, text);
+			break;
+		}
 		default:
 			break;
 		}
@@ -231,6 +236,22 @@ static int enter_block(MD_BLOCKTYPE type, void* detail, void* userdata) {
 		arrput(d->layouts, l);
 		break;
 	}
+	case MD_BLOCK_QUOTE:
+	{
+		l.type	  = MwDOCUMENT_QUOTE;
+		l.integer = 1;
+
+		arrput(d->layouts, l);
+
+		l.type	  = MwDOCUMENT_RECTANGLE;
+		l.rect.x = 0;
+		l.rect.y = 0;
+		l.rect.width = 0;
+		l.rect.height = 0;
+
+		arrput(d->layouts, l);
+		break;
+	}
 	default:
 		break;
 	}
@@ -265,6 +286,14 @@ static int leave_block(MD_BLOCKTYPE type, void* detail, void* userdata) {
 	case MD_BLOCK_CODE:
 	{
 		l.type	  = MwDOCUMENT_MONOSPACE;
+		l.integer = 0;
+
+		arrput(d->layouts, l);
+		break;
+	}
+	case MD_BLOCK_QUOTE:
+	{
+		l.type	  = MwDOCUMENT_QUOTE;
 		l.integer = 0;
 
 		arrput(d->layouts, l);
@@ -495,6 +524,9 @@ static void layout(MwWidget handle) {
 	MwRect	   clickable;
 	char*	   c_title = NULL;
 	MwRect	   size;
+	int indent = 0;
+	int iw = MwTextWidth(handle, NULL, "m");
+	MwDocumentLayout** quotes = NULL;
 
 	arrput(fontstack, NULL);
 
@@ -511,10 +543,10 @@ static void layout(MwWidget handle) {
 		{
 			int t = MwTextWidth(handle, TOPFONT, l->text);
 
-			if(x > 0) x += MwTextWidth(handle, TOPFONT, ".");
+			if(x > indent * iw) x += MwTextWidth(handle, TOPFONT, ".");
 
 			if((x + t) >= w) {
-				x = 0;
+				x = indent * iw;
 				y += MwTextHeight(handle, TOPFONT, "M");
 			}
 
@@ -545,7 +577,7 @@ static void layout(MwWidget handle) {
 		}
 		case MwDOCUMENT_NEWLINE:
 		{
-			x = 0;
+			x = indent * iw;
 			y += MwTextHeight(handle, TOPFONT, "M");
 
 			if(c_title != NULL) {
@@ -581,7 +613,7 @@ static void layout(MwWidget handle) {
 			if(l->integer) {
 				arrput(fontstack, d->headers[l->integer - 1]);
 			} else {
-				x = 0;
+				x = indent * iw;
 				y += MwTextHeight(handle, TOPFONT, "M");
 
 				POP;
@@ -604,10 +636,36 @@ static void layout(MwWidget handle) {
 			}
 			break;
 		}
+		case MwDOCUMENT_QUOTE:
+		{
+			indent += l->integer ? 1 : -1;
+			x = indent * iw;
+
+			if(l->integer){
+				MwDocumentLayout* l2 = &d->layouts[i + 1];
+
+				l2->rect.width = iw / 3;
+				l2->rect.x = x - iw + (iw - l2->rect.width) / 2;
+				l2->rect.y = y;
+
+				arrput(quotes, l2);
+			}else{
+				int last = arrlen(quotes) - 1;
+				MwDocumentLayout* l2 = quotes[last];
+
+				l2->rect.height = y - l2->rect.y;
+
+				arrdel(quotes, last);
+			}
+
+			break;
+		}
 		}
 
 		l->font = TOPFONT;
 	}
+
+	arrfree(quotes);
 
 	size.width  = w;
 	size.height = y + MwTextHeight(handle, TOPFONT, "M");

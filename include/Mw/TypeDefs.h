@@ -308,6 +308,7 @@ struct _MwDocumentLayout {
 
 	char* text;
 	int   integer;
+	MwRect rect;
 
 	MwFLFont font;
 };
