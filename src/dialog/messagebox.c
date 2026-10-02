@@ -110,6 +110,7 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 		px = MwLoadIcon(icon, data);
 
 		MwSetPointer(icon, MwNpixmap, px);
+		MwSetPointer(window, MwNiconPixmap, px);
 
 		left = 8 + 48 + 8;
 	}

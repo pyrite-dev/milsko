@@ -340,9 +340,9 @@ static void draw_normal(MwWidget handle) {
 	if(align == MwALIGNMENT_CENTER) {
 		p.x = r.width / 2;
 	} else if(align == MwALIGNMENT_BEGINNING) {
-		p.x = MwTextWidth(handle, NULL, str) / 2;
+		p.x = 0;
 	} else if(align == MwALIGNMENT_END) {
-		p.x = r.width - MwTextWidth(handle, NULL, str) / 2;
+		p.x = r.width;
 	}
 #else
 	p.x = 0;
@@ -353,11 +353,11 @@ static void draw_normal(MwWidget handle) {
 
 	p.x += 1;
 	p.y += 1;
-	MwDrawText(handle, NULL, &p, str, MwALIGNMENT_CENTER, shadow);
+	MwDrawText(handle, NULL, &p, str, align, shadow);
 
 	p.x -= 1;
 	p.y -= 1;
-	MwDrawText(handle, NULL, &p, str, MwALIGNMENT_CENTER, text);
+	MwDrawText(handle, NULL, &p, str, align, text);
 
 	MwFreeColor(shadow);
 	MwFreeColor(text);
