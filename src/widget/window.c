@@ -26,11 +26,11 @@ static void draw(MwWidget handle) {
 }
 
 static void prop_change(MwWidget handle, const char* key) {
-	if(strcmp(key, MwNhasBorder) == 0 || strcmp(key, MwNinverted) == 0){
+	if(strcmp(key, MwNhasBorder) == 0 || strcmp(key, MwNinverted) == 0) {
 		MwForceRender(handle);
-	}else if(strcmp(key, MwNiconPixmap) == 0) {
+	} else if(strcmp(key, MwNiconPixmap) == 0) {
 		MwLLSetIcon(handle->lowlevel, ((MwPixmap)MwGetPointer(handle, key))->lowlevel);
-	}else if(strcmp(key, MwNsizeHints) == 0) {
+	} else if(strcmp(key, MwNsizeHints) == 0) {
 		MwSizeHints* sz = MwGetPointer(handle, key);
 
 		MwLLBeginStateChange(handle->lowlevel);
