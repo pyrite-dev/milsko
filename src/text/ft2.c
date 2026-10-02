@@ -34,15 +34,13 @@ struct _MwFLFont {
 	int	   px;
 };
 
-static int ft2_MwTextWidth(MwFLFont ttf, const char* text);
-
 static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwColor color) {
 	int	       tw, th;
 	unsigned char* px;
 	MwPixmap       p;
 	MwRect	       r;
 	int	       x = 0, y = 0;
-	int	       tab = ft2_MwTextWidth(ttf, "MMMMMMMM");
+	int	       tab = MwTextWidth(handle, ttf, "MMMMMMMM");
 
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);
@@ -120,7 +118,7 @@ static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
 		text += MwUTF8ToUTF32(text, &c);
 
 		if(c == '\t') {
-			if(tab == 0) tab = stbtt_MwTextWidth(ttf, "MMMMMMMM");
+			if(tab == 0) tab = ft2_MwTextWidth(ttf, "MMMMMMMM");
 			tw = ((tw / tab) + 1) * tab;
 			continue;
 		}

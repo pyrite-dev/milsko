@@ -20,7 +20,7 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 	MwPixmap       p;
 	int	       ax, lsb;
 	int	       x = 0, y = 0;
-	int	       tab = stbtt_MwTextWidth(ttf, "MMMMMMMM");
+	int	       tab = MwTextWidth(handle, ttf, "MMMMMMMM");
 
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);

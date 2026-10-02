@@ -752,17 +752,7 @@ void MwSetString(MwWidget handle, const char* key, const char* value) {
 }
 
 void MwSetPointer(MwWidget handle, const char* key, void* value) {
-	if(IsFirstVisible(handle) && strcmp(key, MwNiconPixmap) == 0) {
-		MwLLSetIcon(handle->lowlevel, ((MwPixmap)value)->lowlevel);
-	} else if(strcmp(key, MwNsizeHints) == 0) {
-		MwSizeHints* sz = value;
-
-		MwLLBeginStateChange(handle->lowlevel);
-		MwLLSetSizeHints(handle->lowlevel, sz->min_width, sz->min_height, sz->max_width, sz->max_height);
-		MwLLEndStateChange(handle->lowlevel);
-	} else {
-		shput(handle->data, key, value);
-	}
+	shput(handle->data, key, value);
 	if(handle->prop_event) {
 		char** keys = NULL;
 
