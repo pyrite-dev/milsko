@@ -689,20 +689,39 @@ static void layer_shell_configure(void*				data,
 				  uint32_t			serial,
 				  uint32_t			width,
 				  uint32_t			height) {
-	MwLL self = data;
+	MwLL	 self	= data;
+	MwBool	 first	= !self->wayland.configured;
+	MwWidget widget = (MwWidget)self->common.internal;
 	zwlr_layer_surface_v1_ack_configure(surface, serial);
 
-	if(width < 50) width = 50;
-	if(height < 50) height = 50;
+	if(width == 0) width = self->wayland.ww;
+	if(height == 0) height = self->wayland.wh;
+	if(width < 1) width = 1;
+	if(height < 1) height = 1;
 
+	/* The compositor re-sends configures whenever it rearranges layers (e.g. another layer surface mapping); don't throw away what we've drawn for nothing. */
+	if(!first && width == (uint32_t)self->wayland.ww && height == (uint32_t)self->wayland.wh) {
+		return;
+	}
+
+	MwLLWaylandRegionInvalidate(self);
 	self->wayland.ww = width;
 	self->wayland.wh = height;
 
-	self->wayland.configured = MwTRUE;
-
-	MwLLWaylandFramebufferSetup(&self->wayland);
+	if(first) {
+		self->wayland.configured = MwTRUE;
+		MwLLWaylandFramebufferSetup(&self->wayland);
+	} else {
+		MwLLWaylandFramebufferResize(&self->wayland);
+	}
 	MwLLWaylandRegionSetup(self);
 	MwLLDispatch(self, resize, NULL);
+
+	if(widget) {
+		recursive_dispatch_resize(self);
+		recursive_render(self);
+	}
+	MwLLDispatch(self, draw, NULL);
 
 	wl_surface_commit(self->wayland.framebuffer.surface);
 };
@@ -1249,6 +1268,11 @@ static void actually_set_wh(MwLL handle) {
 
 	if(handle->wayland.type == MwLL_WAYLAND_TOPLEVEL && handle->wayland.configured) {
 		xdg_surface_set_window_geometry(handle->wayland.toplevel->xdg_surface, 0, 0, handle->wayland.ww, handle->wayland.wh);
+	}
+
+	/* Otherwise the compositor keeps the size we were created with and hands it back on the next configure */
+	if(handle->wayland.type == MwLL_WAYLAND_LAYER_SURFACE) {
+		zwlr_layer_surface_v1_set_size(handle->wayland.layer_surface->surface, handle->wayland.ww, handle->wayland.wh);
 	}
 
 	if(handle->wayland.type == MwLL_WAYLAND_SUBLEVEL && handle->wayland.configured && !handle->wayland.dispatching_resize) {

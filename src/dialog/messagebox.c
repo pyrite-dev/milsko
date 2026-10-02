@@ -34,8 +34,8 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 	MwWidget    window;
 	int	    w, h;
 	int	    left = 8;
-	int	    th;
-	int	    x = 0;
+	int	    th	 = 0;
+	int	    x	 = 0;
 	int	    wx;
 	int	    wy;
 	MwSizeHints sh;
@@ -114,7 +114,7 @@ MwWidget MwMessageBox(MwWidget handle, const char* text, const char* title, unsi
 		left = 8 + 48 + 8;
 	}
 
-	th = MwTextHeight(handle, NULL, text);
+	th = MwTextHeight(window, NULL, text);
 	(void)MwVaCreateWidget(MwLabelClass, "label", window, left, (h - th) / 2, w - left - 8, th,
 			       MwNtext, text,
 			       MwNalignment, MwALIGNMENT_BEGINNING,
