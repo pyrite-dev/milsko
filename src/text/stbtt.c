@@ -18,6 +18,7 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 	MwPixmap       p;
 	int	       ax, lsb;
 	int	       x = 0, y = 0;
+	int	       tab = stbtt_MwTextWidth(ttf, "MMMMMMMM");
 
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);
@@ -33,6 +34,11 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 		const char*    old_text;
 
 		text += MwUTF8ToUTF32(text, &c);
+
+		if(c == '\t') {
+			x = ((x / tab) + 1) * tab;
+			continue;
+		}
 
 		stbtt_GetCodepointHMetrics(&ttf->font, c, &ax, &lsb);
 
@@ -92,12 +98,19 @@ static int stbtt_MwTextWidth(MwFLFont ttf, const char* text) {
 	int c;
 	int x0, y0, x1, y1;
 	int kern;
+	int tab = 0;
 
 	while(text[0] != 0) {
 		int	    c2;
 		const char* old_text;
 
 		text += MwUTF8ToUTF32(text, &c);
+
+		if(c == '\t') {
+			if(tab == 0) tab = stbtt_MwTextWidth(ttf, "MMMMMMMM");
+			tw = ((tw / tab) + 1) * tab;
+			continue;
+		}
 
 		stbtt_GetCodepointHMetrics(&ttf->font, c, &ax, &lsb);
 

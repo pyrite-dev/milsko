@@ -39,6 +39,7 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	MwPixmap       p;
 	MwRect	       r;
 	int	       x = 0, y = 0;
+	int	       tab = ft2_MwTextWidth(ttf, "MMMMMMMM");
 
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);
@@ -53,6 +54,11 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 		const char* old_text;
 
 		text += MwUTF8ToUTF32(text, &c);
+
+		if(c == '\t') {
+			x = ((x / tab) + 1) * tab;
+			continue;
+		}
 
 		ft_table.FT_Load_Char(ttf->face, c, FT_LOAD_RENDER);
 		bmp = &ttf->face->glyph->bitmap;
@@ -102,12 +108,19 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
 	int	  tw = 0;
 	FT_Vector vec;
+	int	  tab = 0;
 
 	while(text[0] != 0) {
 		int	    c, c2;
 		const char* old_text;
 
 		text += MwUTF8ToUTF32(text, &c);
+
+		if(c == '\t') {
+			if(tab == 0) tab = stbtt_MwTextWidth(ttf, "MMMMMMMM");
+			tw = ((tw / tab) + 1) * tab;
+			continue;
+		}
 
 		ft_table.FT_Load_Char(ttf->face, c, FT_LOAD_DEFAULT);
 
