@@ -33,6 +33,9 @@ struct _MwFLFont {
 	void*	   data;
 	int	   px;
 };
+
+static int ft2_MwTextWidth(MwFLFont ttf, const char* text);
+
 static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwColor color) {
 	int	       tw, th;
 	unsigned char* px;

@@ -11,6 +11,8 @@ struct _MwFLFont {
 	int	       descent;
 };
 
+static int stbtt_MwTextWidth(MwFLFont ttf, const char* text);
+
 static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwColor color) {
 	unsigned char* px;
 	int	       tw, th;
