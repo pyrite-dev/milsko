@@ -114,7 +114,7 @@ static void MWAPI okay_activate(MwWidget handle, void* user, void* call) {
 
 	if(t != NULL && (t[0] == '/'
 #ifdef _WIN32
-			 || (strlen(t) >= 2 && t[0] == '/' && t[1] == '/') || (strlen(t) >= 2 && t[0] == '\\' && t[1] == '\\') || (strstr(t, ":/") != NULL) || (strstr(t, ":\\") != NULL)
+			 || t[0] == '\\' || (strstr(t, ":/") != NULL) || (strstr(t, ":\\") != NULL)
 #endif
 			     )) {
 		p = MwStringDuplicate(t);
