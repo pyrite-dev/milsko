@@ -782,7 +782,7 @@ int MwGetInteger(MwWidget handle, const char* key) {
 	if(handle->widget_class != NULL && handle->widget_class->get_prop != NULL) {
 		int out;
 
-		if(MwDispatch5(handle, get_prop, &out) == 0) return out;
+		if(MwDispatch5(handle, get_prop, key, &out) == 0) return out;
 	}
 
 	if(strcmp(key, MwNx) == 0 || strcmp(key, MwNy) == 0 || strcmp(key, MwNwidth) == 0 || strcmp(key, MwNheight) == 0) {
@@ -820,7 +820,7 @@ const char* MwGetString(MwWidget handle, const char* key) {
 	if(handle->widget_class != NULL && handle->widget_class->get_prop != NULL) {
 		const char* out;
 
-		if(MwDispatch5(handle, get_prop, &out) == 0) return out;
+		if(MwDispatch5(handle, get_prop, key, &out) == 0) return out;
 	}
 
 	if((shgeti(handle->string, key) == -1 || strcmp(shget(handle->string, key), "DEFAULT") == 0) && (strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0 || strcmp(key, MwNtitleBackground) == 0 || strcmp(key, MwNtitleForeground) == 0 || strcmp(key, MwNlinkForeground) == 0)) {
@@ -874,7 +874,7 @@ void* MwGetPointer(MwWidget handle, const char* key) {
 	if(handle->widget_class != NULL && handle->widget_class->get_prop != NULL) {
 		void* out;
 
-		if(MwDispatch5(handle, get_prop, &out) == 0) return out;
+		if(MwDispatch5(handle, get_prop, key, &out) == 0) return out;
 	}
 
 	if(v != NULL) return v;

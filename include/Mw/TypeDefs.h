@@ -58,7 +58,7 @@ typedef void (*MwHandlerKey)(MwWidget handle, int key);
 typedef void (*MwHandlerMouse)(MwWidget handle, void* ptr);
 typedef void (*MwHandlerExecute)(MwWidget handle, const char* name, void* out, va_list args);
 typedef void (*MwHandlerClipboardReceived)(MwWidget handle, const char* data);
-typedef int (*MwHandlerGetProp)(MwWidget handle, void* ptr);
+typedef int (*MwHandlerGetProp)(MwWidget handle, const char* key, void* ptr);
 
 typedef void(MWAPI* MwUserHandler)(MwWidget handle, void* user_data, void* call_data);
 typedef void(MWAPI* MwErrorHandler)(int code, const char* message, void* user_data);

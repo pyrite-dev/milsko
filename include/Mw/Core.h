@@ -54,10 +54,11 @@
  * @param x Widget
  * @param y Handler name
  * @param z Argument
+ * @param w Argument
  * @return `0` for success, otherwise failed
  */
-#define MwDispatch5(x, y, z) \
-	((!x->destroyed && x->widget_class != NULL && x->widget_class->y != NULL) ? x->widget_class->y(x, z) : 0)
+#define MwDispatch5(x, y, z, w) \
+	((!x->destroyed && x->widget_class != NULL && x->widget_class->y != NULL) ? x->widget_class->y(x, z, w) : 0)
 
 #define MwWaitMS 30
 
