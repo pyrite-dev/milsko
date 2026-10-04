@@ -252,24 +252,6 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		MwLLDispatch(u->ll, close, NULL);
 		break;
 	}
-	case WM_CHAR:
-	case WM_SYSCHAR:
-	{
-		int	  n    = wp;
-		const int base = 'A' - 1;
-
-		if(n != 0x1b && n <= 0x1f) {
-			n = (n + base) | MwKEY_CONTROL_FLAG;
-			if(!(GetKeyState(VK_LSHIFT) || GetKeyState(VK_RSHIFT))) n += 0x20;
-		}
-		if(HIBYTE(VkKeyScan(wp)) & 2) n |= MwKEY_CONTROL_FLAG;
-		if(msg == WM_SYSCHAR) n |= MwKEY_ALT_FLAG;
-
-		if((0x20 <= n && n <= 0x7f) || (n & MwKEY_FLAG)) {
-			MwLLDispatch(u->ll, key, &n);
-		}
-		break;
-	}
 	case WM_SETFOCUS:
 	{
 		MwLLDispatch(u->ll, focus_in, NULL);
@@ -324,14 +306,19 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 			break;
 		}
 
-		if(n == -1 && (msg == WM_KEYUP || msg == WM_SYSKEYUP)) {
+		if(n == -1) {
 			WORD ch;
 			BYTE state[256];
 
 			GetKeyboardState(state);
 
 			if(ToAscii(wp, HIWORD(lp) & 0xff, state, &ch, 0)) {
-				n = ch;
+				n = LOBYTE(ch);
+
+				if(n < 0x20){
+					n = 'a' + n - 1;
+					n |= MwKEY_CONTROL_FLAG;
+				}
 			}
 		}
 
