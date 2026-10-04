@@ -58,7 +58,7 @@ void MwLLWaylandBackbufferDestroy(struct _MwLLWayland* wayland) {
 };
 
 void MwLLWaylandBufferSetup(struct _MwLLWaylandShmBuffer* buffer, MwU32 width, MwU32 height) {
-	int  stride	      = width * 4;
+	int  stride = width * 4;
 	int  err;
 	char temp_name[]      = "/tmp/milsko-wl-shm-XXXXXXXX";
 	char temp_name_back[] = "/tmp/milsko-wl-shm-back-XXXXXXXX";

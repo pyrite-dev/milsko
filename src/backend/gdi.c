@@ -315,7 +315,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 			if(ToAscii(wp, HIWORD(lp) & 0xff, state, &ch, 0)) {
 				n = LOBYTE(ch);
 
-				if(n < 0x20){
+				if(n < 0x20) {
 					n = 'a' + n - 1;
 					n |= MwKEY_CONTROL_FLAG;
 				}

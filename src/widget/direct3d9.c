@@ -98,7 +98,9 @@ MwClassRec MwDirect3D9ClassRec = {wcreate_d3d9,	     /* create */
 				  NULL,		     /* children_prop_change */
 				  NULL,		     /* clipboard */
 				  NULL,		     /* props_change */
-				  NULL, NULL, NULL};
+				  NULL,		     /* drag_and_drop */
+				  NULL,		     /* get_prop */
+				  NULL};
 MwClass	   MwDirect3D9Class    = &MwDirect3D9ClassRec;
 #else
 MwClass MwDirect3D9Class = NULL;
