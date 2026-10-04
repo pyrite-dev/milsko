@@ -112,11 +112,17 @@ static void MWAPI okay_activate(MwWidget handle, void* user, void* call) {
 	(void)user;
 	(void)call;
 
-	if(t != NULL && t[0] == '/') {
+	if(t != NULL && (t[0] == '/'
+#ifdef _WIN32
+			 || (strlen(t) >= 2 && t[0] == '/' && t[1] == '/') || (strlen(t) >= 2 && t[0] == '\\' && t[1] == '\\') || (strstr(t, ":/") != NULL) || (strstr(t, ":\\") != NULL)
+#endif
+			     )) {
 		p = MwStringDuplicate(t);
 	} else {
 		p = MwDirectoryJoin(fc->path, t);
 	}
+
+	printf("%s\n", p);
 
 	if(t == NULL || strlen(t) == 0) {
 		MwWidget msgbox = MwMessageBox(handle->parent, fc->dir_only ? "You have to type directory!" : "You have to type filename!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
