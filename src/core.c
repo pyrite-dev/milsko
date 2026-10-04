@@ -779,7 +779,7 @@ static int inherit_integer(MwWidget handle, const char* key, int default_v) {
 }
 
 int MwGetInteger(MwWidget handle, const char* key) {
-	if(handle->widget_class->get_prop != NULL) {
+	if(handle->widget_class != NULL && handle->widget_class->get_prop != NULL) {
 		int out;
 
 		if(MwDispatch5(handle, get_prop, &out) == 0) return out;
@@ -817,7 +817,7 @@ int MwGetInteger(MwWidget handle, const char* key) {
 }
 
 const char* MwGetString(MwWidget handle, const char* key) {
-	if(handle->widget_class->get_prop != NULL) {
+	if(handle->widget_class != NULL && handle->widget_class->get_prop != NULL) {
 		const char* out;
 
 		if(MwDispatch5(handle, get_prop, &out) == 0) return out;
@@ -871,7 +871,7 @@ static void* inherit_void(MwWidget handle, const char* key) {
 void* MwGetPointer(MwWidget handle, const char* key) {
 	void* v = shget(handle->data, key);
 
-	if(handle->widget_class->get_prop != NULL) {
+	if(handle->widget_class != NULL && handle->widget_class->get_prop != NULL) {
 		void* out;
 
 		if(MwDispatch5(handle, get_prop, &out) == 0) return out;
