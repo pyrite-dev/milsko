@@ -243,10 +243,10 @@ static int enter_block(MD_BLOCKTYPE type, void* detail, void* userdata) {
 
 		arrput(d->layouts, l);
 
-		l.type	  = MwDOCUMENT_RECTANGLE;
-		l.rect.x = 0;
-		l.rect.y = 0;
-		l.rect.width = 0;
+		l.type	      = MwDOCUMENT_RECTANGLE;
+		l.rect.x      = 0;
+		l.rect.y      = 0;
+		l.rect.width  = 0;
 		l.rect.height = 0;
 
 		arrput(d->layouts, l);
@@ -515,17 +515,17 @@ static void mouse_move(MwWidget handle) {
 }
 
 static void layout(MwWidget handle) {
-	MwDocument d = handle->internal;
-	int	   w = MwGetInteger(handle, MwNwidth);
-	int	   i;
-	int	   x	     = 0;
-	int	   y	     = 0;
-	MwFLFont*  fontstack = NULL;
-	MwRect	   clickable;
-	char*	   c_title = NULL;
-	MwRect	   size;
-	int indent = 0;
-	int iw = MwTextWidth(handle, NULL, "m");
+	MwDocument	   d = handle->internal;
+	int		   w = MwGetInteger(handle, MwNwidth);
+	int		   i;
+	int		   x	     = 0;
+	int		   y	     = 0;
+	MwFLFont*	   fontstack = NULL;
+	MwRect		   clickable;
+	char*		   c_title = NULL;
+	MwRect		   size;
+	int		   indent = 0;
+	int		   iw	  = MwTextWidth(handle, NULL, "m");
 	MwDocumentLayout** quotes = NULL;
 
 	arrput(fontstack, NULL);
@@ -641,17 +641,17 @@ static void layout(MwWidget handle) {
 			indent += l->integer ? 1 : -1;
 			x = indent * iw;
 
-			if(l->integer){
+			if(l->integer) {
 				MwDocumentLayout* l2 = &d->layouts[i + 1];
 
 				l2->rect.width = iw / 3;
-				l2->rect.x = x - iw + (iw - l2->rect.width) / 2;
-				l2->rect.y = y;
+				l2->rect.x     = x - iw + (iw - l2->rect.width) / 2;
+				l2->rect.y     = y;
 
 				arrput(quotes, l2);
-			}else{
-				int last = arrlen(quotes) - 1;
-				MwDocumentLayout* l2 = quotes[last];
+			} else {
+				int		  last = arrlen(quotes) - 1;
+				MwDocumentLayout* l2   = quotes[last];
 
 				l2->rect.height = y - l2->rect.y;
 
@@ -723,7 +723,7 @@ MwClassRec MwDocumentClassRec = {
     NULL,	    /* children_prop_change */
     NULL,	    /* clipboard */
     NULL,	    /* props_change */
-    NULL,
-    NULL,
+    NULL,	    /* drag_and_drop */
+    NULL,	    /* get_prop */
     NULL};
 MwClass MwDocumentClass = &MwDocumentClassRec;

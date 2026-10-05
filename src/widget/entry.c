@@ -250,7 +250,7 @@ MwClassRec MwEntryClassRec = {
     NULL,	 /* children_prop_change */
     clipboard,	 /* clipboard */
     NULL,	 /* props_change */
-    NULL,
-    NULL,
+    NULL,	 /* drag_and_drop */
+    NULL,	 /* get_prop */
     NULL};
 MwClass MwEntryClass = &MwEntryClassRec;

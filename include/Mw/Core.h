@@ -48,6 +48,18 @@
 #define MwDispatch4(x, y, z, w) \
 	if(!x->destroyed && x->widget_class != NULL && x->widget_class->y != NULL) x->widget_class->y(x, z, w)
 
+/*!
+ * @warning Used internally
+ * @brief Dispatches the handler of widget class
+ * @param x Widget
+ * @param y Handler name
+ * @param z Argument
+ * @param w Argument
+ * @return `0` for success, otherwise failed
+ */
+#define MwDispatch5(x, y, z, w) \
+	((!x->destroyed && x->widget_class != NULL && x->widget_class->y != NULL) ? x->widget_class->y(x, z, w) : 0)
+
 #define MwWaitMS 30
 
 #define MwDoubleClickTimeout 250

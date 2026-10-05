@@ -752,17 +752,7 @@ void MwSetString(MwWidget handle, const char* key, const char* value) {
 }
 
 void MwSetPointer(MwWidget handle, const char* key, void* value) {
-	if(IsFirstVisible(handle) && strcmp(key, MwNiconPixmap) == 0) {
-		MwLLSetIcon(handle->lowlevel, ((MwPixmap)value)->lowlevel);
-	} else if(strcmp(key, MwNsizeHints) == 0) {
-		MwSizeHints* sz = value;
-
-		MwLLBeginStateChange(handle->lowlevel);
-		MwLLSetSizeHints(handle->lowlevel, sz->min_width, sz->min_height, sz->max_width, sz->max_height);
-		MwLLEndStateChange(handle->lowlevel);
-	} else {
-		shput(handle->data, key, value);
-	}
+	shput(handle->data, key, value);
 	if(handle->prop_event) {
 		char** keys = NULL;
 
@@ -789,6 +779,12 @@ static int inherit_integer(MwWidget handle, const char* key, int default_v) {
 }
 
 int MwGetInteger(MwWidget handle, const char* key) {
+	if(handle->widget_class != NULL && handle->widget_class->get_prop != NULL) {
+		int out;
+
+		if(MwDispatch5(handle, get_prop, key, &out) == 0) return out;
+	}
+
 	if(strcmp(key, MwNx) == 0 || strcmp(key, MwNy) == 0 || strcmp(key, MwNwidth) == 0 || strcmp(key, MwNheight) == 0) {
 		int	     x, y;
 		unsigned int w, h;
@@ -821,6 +817,12 @@ int MwGetInteger(MwWidget handle, const char* key) {
 }
 
 const char* MwGetString(MwWidget handle, const char* key) {
+	if(handle->widget_class != NULL && handle->widget_class->get_prop != NULL) {
+		const char* out;
+
+		if(MwDispatch5(handle, get_prop, key, &out) == 0) return out;
+	}
+
 	if((shgeti(handle->string, key) == -1 || strcmp(shget(handle->string, key), "DEFAULT") == 0) && (strcmp(key, MwNbackground) == 0 || strcmp(key, MwNforeground) == 0 || strcmp(key, MwNsubBackground) == 0 || strcmp(key, MwNsubForeground) == 0 || strcmp(key, MwNtitleBackground) == 0 || strcmp(key, MwNtitleForeground) == 0 || strcmp(key, MwNlinkForeground) == 0)) {
 		const char* v = NULL;
 		if(shgeti(handle->string, key) != -1 && strcmp(shget(handle->string, key), "DEFAULT") != 0) {
@@ -868,6 +870,12 @@ static void* inherit_void(MwWidget handle, const char* key) {
 
 void* MwGetPointer(MwWidget handle, const char* key) {
 	void* v = shget(handle->data, key);
+
+	if(handle->widget_class != NULL && handle->widget_class->get_prop != NULL) {
+		void* out;
+
+		if(MwDispatch5(handle, get_prop, key, &out) == 0) return out;
+	}
 
 	if(v != NULL) return v;
 

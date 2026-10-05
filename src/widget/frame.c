@@ -63,7 +63,7 @@ MwClassRec MwFrameClassRec = {
     NULL,	 /* children_prop_change */
     NULL,	 /* clipboard */
     NULL,	 /* props_change */
-    NULL,
-    NULL,
+    NULL,	 /* drag_and_drop */
+    NULL,	 /* get_prop */
     NULL};
 MwClass MwFrameClass = &MwFrameClassRec;

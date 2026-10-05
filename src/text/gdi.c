@@ -5,8 +5,8 @@ static HANDLE(WINAPI* _AddFontMemResourceEx)(PVOID pFileView, DWORD cjSize, PVOI
 static BOOL(WINAPI* _RemoveFontMemResourceEx)(HANDLE h)							       = NULL;
 static HANDLE WINAPI _AddFontMemResourceExPolyFill(PVOID pFileView, DWORD cjSize, PVOID pvResrved, DWORD* pNumFonts);
 static BOOL WINAPI   _RemoveFontMemResourceExPolyFill(HANDLE h);
-static BOOL(WINAPI* _TextOutW)(HDC hdc, int x, int y, LPCWSTR lpString, int c);
-static BOOL(WINAPI* _GetTextExtentPoint32W)(HDC hdc, LPCWSTR lpString, int c, LPSIZE psizl);
+static BOOL(WINAPI* _TabbedTextOutW)(HDC hdc, int x, int y, LPCWSTR lpString, int chCount, int nTabPositions, const INT* lpnTabStopPositions, int nTabOrigin);
+static BOOL(WINAPI* _GetTabbedTextExtentW)(HDC hdc, LPCWSTR lpString, int c, int nTabPositions, const INT* lpnTabStopPositions);
 
 struct _MwFLFont {
 	HANDLE handle;
@@ -36,13 +36,13 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 		int	 old_bkmode = SetBkMode(handle->lowlevel->gdi.hDC, TRANSPARENT);
 		COLORREF old_color  = SetTextColor(handle->lowlevel->gdi.hDC, RGB(color->common->red, color->common->green, color->common->blue));
 
-		if(_TextOutW == NULL) {
+		if(_TabbedTextOutW == NULL) {
 			t = MwUTF8TextToACPText(text);
-			TextOutA(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t, strlen(t));
+			TabbedTextOutA(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t, strlen(t), 0, NULL, 0);
 			free(t);
 		} else {
 			t16 = MwUTF8TextToUTF16Text(text);
-			TextOutW(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t16, wcslen(t16));
+			_TabbedTextOutW(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t16, wcslen(t16), 0, NULL, 0);
 			free(t16);
 		}
 
@@ -73,13 +73,13 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	SelectObject(hmdc, hbm);
 	SelectObject(hmdc, ttf->font);
 
-	if(_TextOutW == NULL) {
+	if(_TabbedTextOutW == NULL) {
 		t = MwUTF8TextToACPText(text);
-		TextOutA(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t, strlen(t));
+		TabbedTextOutA(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t, strlen(t), 0, NULL, 0);
 		free(t);
 	} else {
 		t16 = MwUTF8TextToUTF16Text(text);
-		TextOutW(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t16, wcslen(t16));
+		_TabbedTextOutW(handle->lowlevel->gdi.hDC, point->x, point->y - th / 2, t16, wcslen(t16), 0, NULL, 0);
 		free(t16);
 	}
 
@@ -112,19 +112,19 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 }
 
 static int GDI_MwTextWidth(MwFLFont ttf, const char* text) {
-	SIZE sz;
+	DWORD x;
 
-	if(_GetTextExtentPoint32W == NULL) {
+	if(_GetTabbedTextExtentW == NULL) {
 		char* t = MwUTF8TextToACPText(text);
-		GetTextExtentPoint32A(ttf->dc, t, strlen(t), &sz);
+		x	= GetTabbedTextExtentA(ttf->dc, t, strlen(t), 0, NULL);
 		free(t);
 	} else {
 		wchar_t* t16 = MwUTF8TextToUTF16Text(text);
-		_GetTextExtentPoint32W(ttf->dc, t16, wcslen(t16), &sz);
+		x	     = _GetTabbedTextExtentW(ttf->dc, t16, wcslen(t16), 0, NULL);
 		free(t16);
 	}
 
-	return sz.cx;
+	return LOWORD(x);
 }
 
 static int GDI_MwTextHeight(MwFLFont ttf, int count) {
@@ -277,8 +277,8 @@ int MwFL_GDISetup(void) {
 			_RemoveFontMemResourceEx = _RemoveFontMemResourceExPolyFill;
 		}
 
-		_TextOutW	       = (void*)GetProcAddress(gdilib, "TextOutW");
-		_GetTextExtentPoint32W = (void*)GetProcAddress(gdilib, "GetTextExtentPoint32W");
+		_TabbedTextOutW	      = (void*)GetProcAddress(gdilib, "TabbedTextOutW");
+		_GetTabbedTextExtentW = (void*)GetProcAddress(gdilib, "GetTabbedTextExtentW");
 	}
 
 	MwFLDrawText   = GDI_MwDrawText;
