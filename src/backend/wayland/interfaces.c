@@ -714,7 +714,8 @@ static void pointer_motion(void* data, struct wl_pointer* wl_pointer, MwU32 time
 	(void)time;
 	(void)wl_pointer;
 
-	while(topmost_parent->wayland.parent) topmost_parent = topmost_parent->wayland.parent;
+	/* (stopping at a popup, as hit_detect does, which is where mouse_dispatch keeps them) */
+	while(topmost_parent->wayland.parent && topmost_parent->wayland.type != MwLL_WAYLAND_POPUP) topmost_parent = topmost_parent->wayland.parent;
 
 	currentlyHeldWidgets = topmost_parent->wayland.currentlyHeldWidgets;
 
@@ -761,7 +762,9 @@ static MwBool hit_detect(MwLL child, MwLL* _topmost_parent, MwPoint* _point, MwP
 
 	absolute_pos.x = child->wayland.x;
 	absolute_pos.y = child->wayland.y;
-	while(topmost_parent->wayland.parent) {
+	/* a popup is a surface of its own, and pointer coordinates over it are relative to it, so its children
+	 * stop there; going further would offset them by whatever the popup was opened from (e.g. a combobox) */
+	while(topmost_parent->wayland.parent && topmost_parent->wayland.type != MwLL_WAYLAND_POPUP) {
 		topmost_parent = topmost_parent->wayland.parent;
 		if(topmost_parent) {
 			/* if the topmost parent is a popup/subwindow/layer surface then its x/y is irrelevant to us,
@@ -910,14 +913,36 @@ static void pointer_button(void* data, struct wl_pointer* wl_pointer, MwU32 seri
 	MwLLForceRender(self);
 };
 
+/* How much wl_pointer.axis motion makes one wheel step; one notch of a mouse wheel, usually. */
+#define AXIS_STEP 10.0
+
 /* `wl_pointer.axis` callback */
 static void pointer_axis(void* data, struct wl_pointer* wl_pointer, MwU32 time,
 			 MwU32 axis, wl_fixed_t value) {
-	(void)data;
+	MwLL	      self = data;
+	MwMouse	      p;
+	static double accumulated = 0;
+
 	(void)wl_pointer;
 	(void)time;
-	(void)axis;
-	(void)value;
+
+	/* every surface's wl_pointer gets this, but only the one under the pointer should act on it */
+	if(axis != WL_POINTER_AXIS_VERTICAL_SCROLL || self->wayland.framebuffer.surface == NULL || self->wayland.framebuffer.surface != curSurface) return;
+
+	/* touchpads send lots of small amounts, so they're added up into steps like a wheel's */
+	accumulated += wl_fixed_to_double(value);
+	while(accumulated >= AXIS_STEP || accumulated <= -AXIS_STEP) {
+		p.point	 = self->wayland.cur_mouse_pos;
+		p.button = accumulated > 0 ? MwMOUSE_WHEELDOWN : MwMOUSE_WHEELUP;
+		accumulated += accumulated > 0 ? -AXIS_STEP : AXIS_STEP;
+
+		/* as X11 does: a press and a release of a wheel "button" */
+		arrsetlen(self->wayland.currentlyHeldWidgets, 0);
+		mouse_dispatch(self, p, WL_POINTER_BUTTON_STATE_PRESSED);
+		mouse_dispatch(self, p, WL_POINTER_BUTTON_STATE_RELEASED);
+	}
+
+	MwLLForceRender(self);
 };
 
 struct wl_pointer_listener pointer_listener = {
