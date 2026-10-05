@@ -778,7 +778,9 @@ static void setup_layer_surface(MwLL r, int x, int y, int width, int height) {
 
 	r->wayland.framebuffer.surface = wl_compositor_create_surface(r->wayland.compositor);
 
-	r->wayland.layer_surface->surface = zwlr_layer_shell_v1_get_layer_surface(layer_shell, r->wayland.framebuffer.surface, NULL, r->wayland.layer_surface_type, "milsko-surfaces");
+	r->wayland.layer_surface->surface = zwlr_layer_shell_v1_get_layer_surface(layer_shell, r->wayland.framebuffer.surface,
+										  r->wayland.layer_surface_output_name ? r->wayland.output : NULL,
+										  r->wayland.layer_surface_type, "milsko-surfaces");
 
 	zwlr_layer_surface_v1_set_size(r->wayland.layer_surface->surface, width, height);
 	zwlr_layer_surface_v1_set_margin(r->wayland.layer_surface->surface,
@@ -1980,6 +1982,10 @@ static void MwLLMakeToolWindowImpl(MwLL handle) {
 
 MWDECL void MWAPI MwLLWaylandSetToolWindowType(MwLL handle, enum zwlr_layer_shell_v1_layer type) {
 	handle->wayland.layer_surface_type = type;
+}
+
+MWDECL void MWAPI MwLLWaylandSetToolWindowOutput(MwLL handle, MwU32 wl_output_name) {
+	handle->wayland.layer_surface_output_name = wl_output_name;
 }
 
 static void MwLLGetCursorCoordImpl(MwLL handle, MwPoint* point) {

@@ -465,6 +465,7 @@ struct _MwLLWayland {
 	MwBool shown;
 
 	enum zwlr_layer_shell_v1_layer layer_surface_type;
+	MwU32			       layer_surface_output_name;
 };
 
 struct _MwLLWaylandColor {
@@ -535,5 +536,11 @@ extern struct zwp_relative_pointer_v1_listener MwLLWaylandRelativePointerListene
  * the default of ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY.
  */
 MWDECL void MWAPI MwLLWaylandSetToolWindowType(MwLL handle, enum zwlr_layer_shell_v1_layer type);
+
+/*
+ * function for choosing the output a tool window's layer surface goes on.
+ * setting wl_output_name to 0 lets the compositor choose.
+ */
+MWDECL void MWAPI MwLLWaylandSetToolWindowOutput(MwLL handle, MwU32 wl_output_name);
 
 #endif

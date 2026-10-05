@@ -1409,6 +1409,10 @@ static void wl_seat_interface_destroy(struct _MwLLWayland* wayland, wayland_prot
 /* wl_output setup function */
 static wayland_protocol_t* wl_output_setup(MwU32 name, MwLL ll, MwU32 version) {
 	(void)version;
+	/* if we set an output for the layer surface then save time/memory and don't bind any other then the ones we're on. */
+	if(ll->wayland.layer_surface_output_name != 0 && ll->wayland.layer_surface_output_name != name) {
+		return NULL;
+	}
 	ll->wayland.output = wl_registry_bind(ll->wayland.registry, name, &wl_output_interface, 1);
 	wl_output_add_listener(ll->wayland.output, &output_listener, ll);
 
