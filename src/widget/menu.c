@@ -69,6 +69,7 @@ static void destroy(MwWidget handle) {
 	MwMenu	m = handle->internal; \
 	MwPoint p; \
 	MwRect	r; \
+	int	x; \
 	int	rx; \
 	int	in_area;
 
@@ -81,6 +82,7 @@ static void destroy(MwWidget handle) {
 	r.width	 = MwGetInteger(handle, MwNwidth); \
 	r.height = MwGetInteger(handle, MwNheight); \
 \
+	x  = 0; \
 	rx = r.width;
 
 #define BEGIN_MENU_LOOP \
@@ -90,7 +92,10 @@ static void destroy(MwWidget handle) {
 		int th	 = MwTextHeight(handle, MwFLBuildFont(MwFLFlagBold), m->sub[i]->name + incr); \
 \
 		if(incr) { \
-			p.x = rx -= 10 + tw; \
+			rx -= 10 + tw; \
+			p.x = rx; \
+		} else { \
+			p.x = x; \
 		} \
 \
 		r.x	 = p.x; \
@@ -99,10 +104,12 @@ static void destroy(MwWidget handle) {
 		r.height = th + 10; \
 \
 		in_area = (r.x <= handle->mouse_point.x && r.y <= handle->mouse_point.y && handle->mouse_point.x <= (int)(r.x + r.width) && handle->mouse_point.y <= (int)(r.y + r.height)) ? 1 : 0; \
-		p.x += 5 + tw / 2;
+		p.x += 5 + tw / 2; \
+		if(!incr) x = p.x;
 
 #define END_MENU_LOOP \
 	p.x += tw / 2 + 5; \
+	if(!incr) x = p.x; \
 	}
 
 /* some backends (e.g. Wayland) dispatch input while creating a widget, which can re-enter these
