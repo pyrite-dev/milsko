@@ -39,6 +39,16 @@ MwInline void MwViewportSetSize(MwWidget handle, int w, int h) {
 	MwVaWidgetExecute(handle, "mwViewportSetSize", NULL, w, h);
 }
 
+/*!
+ * @brief Scroll viewport to specified position
+ * @param handle Widget
+ * @param x X
+ * @param y Y
+ */
+MwInline void MwViewportScrollTo(MwWidget handle, int x, int y) {
+	MwVaWidgetExecute(handle, "mwViewportScrollTo", NULL, x, y);
+}
+
 #ifdef __cplusplus
 }
 #endif

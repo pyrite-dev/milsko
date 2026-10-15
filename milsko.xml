@@ -886,6 +886,12 @@
 						<integer name="h" />
 					</arguments>
 				</function>
+				<function name="ScrollTo">
+					<arguments>
+						<integer name="x" />
+						<integer name="y" />
+					</arguments>
+				</function>
 			</functions>
 		</widget>
 		<widget name="Window">

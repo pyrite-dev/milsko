@@ -135,6 +135,22 @@ static void mwViewportSetSizeImpl(MwWidget handle, int w, int h) {
 	resize(handle);
 }
 
+static void mwViewportScrollToImpl(MwWidget handle, int x, int y) {
+	MwViewport vp = handle->internal;
+
+	if(x < MwGetInteger(vp->hscroll, MwNminValue)) x = MwGetInteger(vp->hscroll, MwNminValue);
+	if(x > MwGetInteger(vp->hscroll, MwNmaxValue)) x = MwGetInteger(vp->hscroll, MwNmaxValue);
+
+	if(y < MwGetInteger(vp->hscroll, MwNminValue)) y = MwGetInteger(vp->hscroll, MwNminValue);
+	if(y > MwGetInteger(vp->hscroll, MwNmaxValue)) y = MwGetInteger(vp->hscroll, MwNmaxValue);
+
+	MwVaApply(vp->hscroll, MwNvalue, x, NULL);
+	MwVaApply(vp->vscroll, MwNvalue, y, NULL);
+
+	vp->hchanged = 1;
+	vp->vchanged = 1;
+}
+
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	if(strcmp(name, "mwViewportGetViewport") == 0) {
 		*(MwWidget*)out = mwViewportGetViewportImpl(handle);
@@ -143,6 +159,11 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		int w = va_arg(va, int);
 		int h = va_arg(va, int);
 		mwViewportSetSizeImpl(handle, w, h);
+	}
+	if(strcmp(name, "mwViewportScrollTo") == 0) {
+		int x = va_arg(va, int);
+		int y = va_arg(va, int);
+		mwViewportScrollToImpl(handle, x, y);
 	}
 }
 
