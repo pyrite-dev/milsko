@@ -905,13 +905,16 @@ static void MwLLMakePopupImpl(MwLL handle, MwLL parent) {
 }
 
 static void MwLLSetSizeHintsImpl(MwLL handle, int minx, int miny, int maxx, int maxy) {
-	userdata_t* u = (userdata_t*)GetWindowLongPtr(handle->gdi.hWnd, GWLP_USERDATA);
+	userdata_t* u  = (userdata_t*)GetWindowLongPtr(handle->gdi.hWnd, GWLP_USERDATA);
+	LPARAM	    lp = GetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE);
 
 	u->min_set = u->max_set = 1;
 	u->min.x		= minx;
 	u->min.y		= miny;
 	u->max.x		= maxx;
 	u->max.y		= maxy;
+
+	SetWindowLongPtr(handle->gdi.hWnd, GWL_STYLE, (LPARAM)lp & ~(WS_MAXIMIZEBOX));
 }
 
 static void MwLLMakeBorderlessImpl(MwLL handle, int toggle) {
