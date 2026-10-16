@@ -277,8 +277,8 @@ int MwFL_GDISetup(void) {
 			_RemoveFontMemResourceEx = _RemoveFontMemResourceExPolyFill;
 		}
 
-		_TabbedTextOutW	      = (void*)GetProcAddress(gdilib, "TabbedTextOutW");
-		_GetTabbedTextExtentW = (void*)GetProcAddress(gdilib, "GetTabbedTextExtentW");
+		_TabbedTextOutW	      = (void*)GetProcAddress(GetModuleHandle("user32.dll"), "TabbedTextOutW");
+		_GetTabbedTextExtentW = (void*)GetProcAddress(GetModuleHandle("user32.dll"), "GetTabbedTextExtentW");
 	}
 
 	MwFLDrawText   = GDI_MwDrawText;
