@@ -56,6 +56,7 @@
 #include <Mw/Widget/SubWindow.h>
 #include <Mw/Widget/Tab.h>
 #include <Mw/Widget/Table.h>
+#include <Mw/Widget/Text.h>
 #include <Mw/Widget/TreeView.h>
 #include <Mw/Widget/Viewport.h>
 #include <Mw/Widget/Window.h>

@@ -49,6 +49,15 @@ MwInline void MwViewportScrollTo(MwWidget handle, int x, int y) {
 	MwVaWidgetExecute(handle, "mwViewportScrollTo", NULL, x, y);
 }
 
+/*!
+ * @brief Get size of the frame (visible area)
+ * @param handle Widget
+ * @param frame Frame
+ */
+MwInline void MwViewportGetFrame(MwWidget handle, MwRect* frame) {
+	MwVaWidgetExecute(handle, "mwViewportGetFrame", NULL, frame);
+};
+
 #ifdef __cplusplus
 }
 #endif

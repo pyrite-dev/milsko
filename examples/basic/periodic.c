@@ -87,6 +87,23 @@ static void MWAPI resize_frame(MwWidget handle, void* user, void* call) {
 	}
 }
 
+static void MWAPI text_layout(MwWidget handle, void* user, void* call) {
+	MwRect	r;
+	MwRect* l = call;
+	int	w, h;
+
+	MwViewportGetFrame(user, &r);
+
+	w = l->width > r.width ? l->width : r.width;
+	h = l->height > r.height ? l->height : r.height;
+
+	MwViewportSetSize(user, w, h);
+	MwVaApply(handle,
+		  MwNwidth, w,
+		  MwNheight, h,
+		  NULL);
+}
+
 static MwWidget frame(const char* name, int width, int height, MwClass cl, ...) {
 	MwWidget f     = MwVaCreateWidget(MwFrameClass, "frame", table, 0, 0, 0, 0,
 					  MwNhasBorder, 1,
@@ -370,6 +387,12 @@ int main() {
 		  MwNcolumnSpan, 2,
 		  NULL);
 	w = child(f);
+	b = MwCreateWidget(MwTextClass, "text", MwViewportGetViewport(w), 0, 0, 0, 0);
+	MwAddUserHandler(b, MwNlayoutHandler, text_layout, w);
+
+	MwVaApply(b,
+		  MwNtext, "Impressive text here",
+		  NULL);
 
 	f = frame("Viewport", -PaddingContent, -PaddingContent, MwViewportClass,
 		  MwNcolumnSpan, 2,

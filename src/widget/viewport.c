@@ -151,6 +151,16 @@ static void mwViewportScrollToImpl(MwWidget handle, int x, int y) {
 	vp->vchanged = 1;
 }
 
+static void mwViewportGetFrameImpl(MwWidget handle, MwRect* frame) {
+	MwViewport vp = handle->internal;
+
+	frame->x = 0;
+	frame->y = 0;
+
+	frame->width  = MwGetInteger(vp->frame, MwNwidth);
+	frame->height = MwGetInteger(vp->frame, MwNheight);
+}
+
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	if(strcmp(name, "mwViewportGetViewport") == 0) {
 		*(MwWidget*)out = mwViewportGetViewportImpl(handle);
@@ -164,6 +174,10 @@ static void func_handler(MwWidget handle, const char* name, void* out, va_list v
 		int x = va_arg(va, int);
 		int y = va_arg(va, int);
 		mwViewportScrollToImpl(handle, x, y);
+	}
+	if(strcmp(name, "mwViewportGetFrame") == 0) {
+		MwRect* frame = va_arg(va, MwRect*);
+		mwViewportGetFrameImpl(handle, frame);
 	}
 }
 

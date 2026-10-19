@@ -35,6 +35,8 @@ typedef struct _MwChart*	      MwChart;
 typedef struct _MwDocumentLayout      MwDocumentLayout;
 typedef struct _MwDocumentClickable   MwDocumentClickable;
 typedef struct _MwDocument*	      MwDocument;
+typedef struct _MwTextLine	      MwTextLine;
+typedef struct _MwText*		      MwText;
 typedef struct _MwMouse		      MwMouse;
 typedef struct _MwTTFInfo*	      MwTTFInfo;
 #ifdef _MILSKO
@@ -325,6 +327,21 @@ struct _MwDocument {
 	MwFLFont	     headers[6];
 
 	int center_cursor;
+};
+
+struct _MwTextLine {
+	char* line;
+	int   width;
+};
+
+struct _MwText {
+	MwTextLine* lines;
+	int	    width;
+	MwPoint	    cursor;
+	int	    line;
+	int	    index;
+	int	    force_prop;
+	char*	    result;
 };
 
 struct _MwTTFInfo {

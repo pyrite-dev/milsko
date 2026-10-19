@@ -717,6 +717,15 @@
 				<handler name="documentActivate" />
 			</handlers>
 		</widget>
+		<widget name="Text">
+			<properties>
+				<property name="text" />
+			</properties>
+			<handlers>
+				<handler name="layout" />
+				<handler name="changed" />
+			</handlers>
+		</widget>
 		<widget name="Entry">
 			<properties>
 				<property name="text" />
