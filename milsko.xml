@@ -901,6 +901,11 @@
 						<integer name="y" />
 					</arguments>
 				</function>
+				<function name="GetFrame">
+					<arguments>
+						<struct defname="MwRect" pointer="yes" name="rect" />
+					</arguments>
+				</function>
 			</functions>
 		</widget>
 		<widget name="Window">
