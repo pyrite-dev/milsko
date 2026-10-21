@@ -596,7 +596,7 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, in
 	MwColor	  darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwColor	  lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 	MwColor	  col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
-	double	  deg	    = 30 * ((direction == MwEAST || direction == MwWEST) ? 2 : 1);
+	double	  deg	    = (direction == MwNORTH || direction == MwSOUTH) ? atan2(rect->width / 2, rect->height) : atan2(rect->width, rect->height / 2);
 	double	  c	    = cos(deg / 180 * M_PI);
 	double	  s	    = sin(deg / 180 * M_PI);
 
