@@ -232,6 +232,7 @@
 			<integer name="MwMB_ICONNEWS" />
 			<integer name="MwMB_ICONERROR" />
 			<integer name="MwMB_ICONCLOCK" />
+			<integer name="MwMB_ICONBOMB" />
 		</enumeration>
 		<enumeration name="MwCOORDINATE">
 			<integer name="MwCOORDINATE_GLOBAL">0</integer>
