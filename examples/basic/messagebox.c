@@ -32,7 +32,7 @@ void MWAPI spawn3(MwWidget handle, void* user, void* call) {
 	(void)handle;
 	(void)call;
 
-	for(i = 0; i <= MwMB_ICONCLOCK; i++) {
+	for(i = 0; i <= MwMB_ICONBOMB; i++) {
 		MwWidget mb = MwMessageBox(user, "messagebox test", "title", i | MwMB_BUTTONOK);
 		MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, ok, mb);
 		MwAddUserHandler(mb, MwNcloseHandler, ok, mb);
