@@ -17,6 +17,11 @@ extern "C" {
 MWDECL MwU32 MwIconBack[];
 
 /*!
+ * @brief Bomb icon
+ */
+MWDECL MwU32 MwIconBomb[];
+
+/*!
  * @brief Clock icon
  */
 MWDECL MwU32 MwIconClock[];
