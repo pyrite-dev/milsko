@@ -225,7 +225,9 @@ static void key(MwWidget handle, int key) {
 		arrput(txt->lines, l);
 	}
 
-	if(key == MwKEY_ENTER) {
+	switch(key) {
+	case MwKEY_ENTER:
+	{
 		MwTextLine l;
 
 		l.line	= MwStringDuplicate(txt->lines[txt->line].line + txt->index);
@@ -249,7 +251,9 @@ static void key(MwWidget handle, int key) {
 		MwForceRender(handle);
 		MwDispatchUserHandler(handle, MwNchangedHandler, &p);
 		return;
-	} else if(key == MwKEY_BACKSPACE) {
+	}
+	case MwKEY_BACKSPACE:
+	{
 		if(txt->index > 0) {
 			char* text = txt->lines[txt->line].line;
 			int   b	   = 0;
@@ -299,7 +303,10 @@ static void key(MwWidget handle, int key) {
 		MwForceRender(handle);
 		MwDispatchUserHandler(handle, MwNchangedHandler, &p);
 		return;
-	} else if(key == MwKEY_LEFT || key == MwKEY_RIGHT) {
+	}
+	case MwKEY_LEFT:
+	case MwKEY_RIGHT:
+	{
 		if(key == MwKEY_LEFT ? (txt->index > 0) : (txt->index < strlen(txt->lines[txt->line].line))) {
 			char* text = txt->lines[txt->line].line;
 			int   m	   = key == MwKEY_LEFT ? -1 : 1;
@@ -334,9 +341,12 @@ static void key(MwWidget handle, int key) {
 		layout(handle);
 		MwForceRender(handle);
 		return;
-	} else if(key == (MwKEY_CONTROL_FLAG | 'v')) {
+	}
+	case(MwKEY_CONTROL_FLAG | 'v'):
+	{
 		MwLLGetClipboard(handle->lowlevel, MwCLIPBOARD_MAIN);
 		return;
+	}
 	}
 
 	if(key & MwKEY_FLAG) return;
