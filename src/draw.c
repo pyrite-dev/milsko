@@ -646,7 +646,7 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, in
 		MwPolygon(handle, p3, 4, (invert ? lighter : darker));
 
 		p4[0].x = (int)(rect->x + c * border);
-		p4[0].y = (int)(rect->y + rect->height + s * border);
+		p4[0].y = (int)(rect->y + rect->height - s * border);
 
 		p4[1].x = (int)(rect->x + rect->width - c * border);
 		p4[1].y = (int)(rect->y + rect->height - s * border);
