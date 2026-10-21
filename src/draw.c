@@ -284,74 +284,133 @@ void MwDrawWidgetBack(MwWidget handle, MwRect* rect, MwColor color, int invert, 
 	MwFreeColor(col);
 }
 
-void MwDrawDiamond(MwWidget handle, MwRect* rect, MwColor color, int invert) {
-	MwPoint p[6];
-	int	border	  = MwDefaultBorderWidth(handle);
-	int	ColorDiff = MwGetColorDifference(handle) + (MwGetInteger(handle, MwNmodernLook) ? 48 : 0);
-	MwColor darker	  = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
-	MwColor lighter	  = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
-	MwColor col	  = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
+typedef struct _FltPoint {
+	double x;
+	double y;
+} FltPoint;
+
+static void sub(FltPoint* dest, FltPoint* a, FltPoint* b) {
+	dest->x = a->x - b->x;
+	dest->y = a->y - b->y;
+}
+
+static double cross(FltPoint* a, FltPoint* b) {
+	return a->x * b->y - a->y * b->x;
+}
+
+static int intersect_lines(FltPoint* dest, FltPoint* p, FltPoint* u, FltPoint* q, FltPoint* v) {
+	FltPoint qp;
+	double	 den;
+	double	 t;
+
+	sub(&qp, q, p);
+	den = cross(u, v);
+
+	if(den == 0) return 0;
+
+	t = cross(&qp, v) / den;
+
+	dest->x = p->x + t * u->x;
+	dest->y = p->y + t * u->y;
+
+	return 1;
+}
+
+void MwPolygonInset(MwWidget handle, MwPoint* points, int points_count, MwColor color, int invert) {
+	const int border    = MwGetInteger(handle, MwNmodernLook) ? 2 : MwDefaultBorderWidth(handle);
+	int	  ColorDiff = MwGetColorDifference(handle);
+	MwColor	  darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
+	MwColor	  lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
+	MwColor	  col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
+	FltPoint  outside[8]; /* FIXME */
+	FltPoint  inside[8];  /* FIXME */
+	FltPoint  inner[8];   /* FIXME */
+	MwPoint	  inner_p[8]; /* FIXME */
+	FltPoint  normals[8]; /* FIXME */
+	int	  i;
+
 	color_set_disabled_if_disabled(handle, col);
 	color_set_disabled_if_disabled(handle, darker);
 	color_set_disabled_if_disabled(handle, lighter);
 
-	p[0].x = rect->x;
-	p[0].y = rect->y + rect->height / 2;
+	for(i = 0; i < points_count; i++) {
+		int    next = (i + 1) % points_count;
+		int    dx   = points[next].x - points[i].x;
+		int    dy   = points[next].y - points[i].y;
+		double len  = sqrt(dx * dx + dy * dy);
+		double nx   = dy / len;
+		double ny   = -dx / len;
 
-	p[1].x = rect->x + rect->width / 2;
-	p[1].y = rect->y;
+		inside[i].x = points[i].x + border * nx;
+		inside[i].y = points[i].y + border * ny;
 
-	p[2].x = rect->x + rect->width;
-	p[2].y = rect->y + rect->height / 2;
+		outside[i].x = dx;
+		outside[i].y = dy;
 
-	p[3].x = rect->x + rect->width - border;
-	p[3].y = rect->y + rect->height / 2;
+		normals[i].x = nx;
+		normals[i].y = ny;
+	}
 
-	p[4].x = rect->x + rect->width / 2;
-	p[4].y = rect->y + border;
+	for(i = 0; i < points_count; i++) {
+		int prev = (i + points_count - 1) % points_count; /* `+ points_count` is to avoid `-1 % points_count` */
 
-	p[5].x = rect->x + border;
-	p[5].y = rect->y + rect->height / 2;
+		if(!intersect_lines(&inner[i], &inside[prev], &outside[prev], &inside[i], &outside[i])) goto err;
+	}
 
-	MwPolygon(handle, p, 6, (invert ? darker : lighter));
+	for(i = 0; i < points_count; i++) {
+		int	next = (i + 1) % points_count;
+		MwPoint p[4];
+		int	n = 0;
+		double	dot;
 
-	p[0].x = rect->x;
-	p[0].y = rect->y + rect->height / 2;
+		p[0].x = points[i].x;
+		p[0].y = points[i].y;
 
-	p[1].x = rect->x + rect->width / 2;
-	p[1].y = rect->y + rect->height;
+		p[1].x = points[next].x;
+		p[1].y = points[next].y;
 
-	p[2].x = rect->x + rect->width;
-	p[2].y = rect->y + rect->height / 2;
+		p[2].x = inner[next].x;
+		p[2].y = inner[next].y;
 
-	p[3].x = rect->x + rect->width - border;
-	p[3].y = rect->y + rect->height / 2;
+		p[3].x = inner[i].x;
+		p[3].y = inner[i].y;
 
-	p[4].x = rect->x + rect->width / 2;
-	p[4].y = rect->y + rect->height - border;
+		inner_p[i].x = inner[i].x;
+		inner_p[i].y = inner[i].y;
 
-	p[5].x = rect->x + border;
-	p[5].y = rect->y + rect->height / 2;
+		dot = normals[i].x * -512 + normals[i].y * -512;
 
-	MwPolygon(handle, p, 6, (invert ? lighter : darker));
+		if(dot < 0) n = 1;
 
-	p[0].x = rect->x + rect->width / 2;
-	p[0].y = rect->y + border;
+		if(invert) n = 1 - n;
 
-	p[1].x = rect->x + rect->width - border;
-	p[1].y = rect->y + rect->height / 2;
+		MwPolygon(handle, p, 4, n == 1 ? lighter : darker);
+	}
 
-	p[2].x = rect->x + rect->width / 2;
-	p[2].y = rect->y + rect->height - border;
+	MwPolygon(handle, inner_p, points_count, col);
 
-	p[3].x = rect->x + border;
-	p[3].y = rect->y + rect->height / 2;
-
-	MwPolygon(handle, p, 4, col);
-
+err:;
 	MwFreeColor(col);
 	MwFreeColor(lighter);
 	MwFreeColor(darker);
+}
+
+void MwDrawDiamond(MwWidget handle, MwRect* rect, MwColor color, int invert) {
+	MwPoint p[4];
+
+	p[0].x = rect->x + rect->width / 2;
+	p[0].y = rect->y;
+
+	p[1].x = rect->x;
+	p[1].y = rect->y + rect->height / 2;
+
+	p[2].x = rect->x + rect->width / 2;
+	p[2].y = rect->y + rect->height;
+
+	p[3].x = rect->x + rect->width;
+	p[3].y = rect->y + rect->height / 2;
+
+	MwPolygonInset(handle, p, 4, color, invert);
 }
 
 void MwDrawCircle(MwWidget handle, MwRect* rect, MwColor color, MwColor background, int filled) {
@@ -590,222 +649,55 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwColor color, int invert, int
 }
 
 void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, int direction) {
-	MwPoint	  p1[4], p2[4], p3[4], p4[3];
-	const int border    = MwGetInteger(handle, MwNmodernLook) ? 2 : MwDefaultBorderWidth(handle);
-	int	  ColorDiff = MwGetColorDifference(handle);
-	MwColor	  darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
-	MwColor	  lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
-	MwColor	  col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
-	double	  rad	    = ((direction == MwNORTH || direction == MwSOUTH) ? 0 : 90) / 180.0 * M_PI;
-	double	  c	    = cos(rad);
-	double	  s	    = sin(rad);
+	MwPoint p[3];
 
-	color_set_disabled_if_disabled(handle, col);
-	color_set_disabled_if_disabled(handle, darker);
-	color_set_disabled_if_disabled(handle, lighter);
+	switch(direction) {
+	case MwNORTH:
+		p[0].x = rect->x + rect->width / 2;
+		p[0].y = rect->y;
 
-	if(direction == MwNORTH) {
-		p1[0].x = rect->x + rect->width / 2;
-		p1[0].y = rect->y;
+		p[1].x = rect->x;
+		p[1].y = rect->y + rect->height;
 
-		p1[1].x = rect->x;
-		p1[1].y = rect->y + rect->height;
+		p[2].x = rect->x + rect->width;
+		p[2].y = rect->y + rect->height;
+		break;
 
-		p1[2].x = (int)(rect->x + c * border);
-		p1[2].y = (int)(rect->y + rect->height - s * border);
+	case MwSOUTH:
+		p[0].x = rect->x;
+		p[0].y = rect->y;
 
-		p1[3].x = rect->x + rect->width / 2;
-		p1[3].y = (int)(rect->y + border);
+		p[1].x = rect->x + rect->width / 2;
+		p[1].y = rect->y + rect->height;
 
-		p2[0].x = rect->x + rect->width / 2;
-		p2[0].y = rect->y;
+		p[2].x = rect->x + rect->width;
+		p[2].y = rect->y;
+		break;
 
-		p2[1].x = rect->x + rect->width;
-		p2[1].y = rect->y + rect->height;
+	case MwEAST:
+		p[0].x = rect->x;
+		p[0].y = rect->y;
 
-		p2[2].x = (int)(rect->x + rect->width - c * border);
-		p2[2].y = (int)(rect->y + rect->height - s * border);
+		p[1].x = rect->x;
+		p[1].y = rect->y + rect->height;
 
-		p2[3].x = rect->x + rect->width / 2;
-		p2[3].y = (int)(rect->y + border);
+		p[2].x = rect->x + rect->width;
+		p[2].y = rect->y + rect->height / 2;
+		break;
 
-		p3[0].x = (int)(rect->x + c * border);
-		p3[0].y = (int)(rect->y + rect->height - s * border);
+	case MwWEST:
+		p[0].x = rect->x;
+		p[0].y = rect->y + rect->height / 2;
 
-		p3[1].x = rect->x;
-		p3[1].y = rect->y + rect->height;
+		p[1].x = rect->x + rect->width;
+		p[1].y = rect->y + rect->height;
 
-		p3[2].x = rect->x + rect->width;
-		p3[2].y = rect->y + rect->height;
-
-		p3[3].x = (int)(rect->x + rect->width - c * border);
-		p3[3].y = (int)(rect->y + rect->height - s * border);
-
-		MwPolygon(handle, p1, 4, (invert ? darker : lighter));
-		MwPolygon(handle, p2, 4, (invert ? lighter : darker));
-		MwPolygon(handle, p3, 4, (invert ? lighter : darker));
-
-		p4[0].x = (int)(rect->x + c * border);
-		p4[0].y = (int)(rect->y + rect->height - s * border);
-
-		p4[1].x = (int)(rect->x + rect->width - c * border);
-		p4[1].y = (int)(rect->y + rect->height - s * border);
-
-		p4[2].x = rect->x + rect->width / 2;
-		p4[2].y = (int)(rect->y + border);
-	} else if(direction == MwSOUTH) {
-		p1[0].x = rect->x;
-		p1[0].y = rect->y;
-
-		p1[1].x = (int)(rect->x + c * border);
-		p1[1].y = (int)(rect->y + s * border);
-
-		p1[2].x = (int)(rect->x + rect->width - c * border);
-		p1[2].y = (int)(rect->y + s * border);
-
-		p1[3].x = rect->x + rect->width;
-		p1[3].y = rect->y;
-
-		p2[0].x = rect->x;
-		p2[0].y = rect->y;
-
-		p2[1].x = (int)(rect->x + c * border);
-		p2[1].y = (int)(rect->y + s * border);
-
-		p2[2].x = rect->x + rect->width / 2;
-		p2[2].y = (int)(rect->y + rect->height - border);
-
-		p2[3].x = rect->x + rect->width / 2;
-		p2[3].y = rect->y + rect->height;
-
-		p3[0].x = rect->x + rect->width;
-		p3[0].y = rect->y;
-
-		p3[1].x = rect->x + rect->width / 2;
-		p3[1].y = rect->y + rect->height;
-
-		p3[2].x = rect->x + rect->width / 2;
-		p3[2].y = (int)(rect->y + rect->height - border);
-
-		p3[3].x = (int)(rect->x + rect->width - c * border);
-		p3[3].y = (int)(rect->y + s * border);
-
-		MwPolygon(handle, p1, 4, (invert ? darker : lighter));
-		MwPolygon(handle, p2, 4, (invert ? darker : lighter));
-		MwPolygon(handle, p3, 4, (invert ? lighter : darker));
-
-		p4[0].x = (int)(rect->x + c * border);
-		p4[0].y = (int)(rect->y + s * border);
-
-		p4[1].x = (int)(rect->x + rect->width - c * border);
-		p4[1].y = (int)(rect->y + s * border);
-
-		p4[2].x = rect->x + rect->width / 2;
-		p4[2].y = (int)(rect->y + rect->height - border);
-	} else if(direction == MwEAST) {
-		p1[0].x = rect->x;
-		p1[0].y = rect->y;
-
-		p1[1].x = (int)(rect->x + c * border);
-		p1[1].y = (int)(rect->y + s * border);
-
-		p1[2].x = (int)(rect->x + c * border);
-		p1[2].y = (int)(rect->y + rect->height - s * border);
-
-		p1[3].x = rect->x;
-		p1[3].y = rect->y + rect->height;
-
-		p2[0].x = rect->x;
-		p2[0].y = rect->y;
-
-		p2[1].x = rect->x + rect->width;
-		p2[1].y = rect->y + rect->height / 2;
-
-		p2[2].x = (int)(rect->x + rect->width - border);
-		p2[2].y = rect->y + rect->height / 2;
-
-		p2[3].x = (int)(rect->x + c * border);
-		p2[3].y = (int)(rect->y + s * border);
-
-		p3[0].x = (int)(rect->x + c * border);
-		p3[0].y = (int)(rect->y + rect->height - s * border);
-
-		p3[1].x = rect->x;
-		p3[1].y = rect->y + rect->height;
-
-		p3[2].x = rect->x + rect->width;
-		p3[2].y = rect->y + rect->height / 2;
-
-		p3[3].x = (int)(rect->x + rect->width - border);
-		p3[3].y = rect->y + rect->height / 2;
-
-		MwPolygon(handle, p1, 4, (invert ? darker : lighter));
-		MwPolygon(handle, p2, 4, (invert ? darker : lighter));
-		MwPolygon(handle, p3, 4, (invert ? lighter : darker));
-
-		p4[0].x = (int)(rect->x + rect->width - border);
-		p4[0].y = rect->y + rect->height / 2;
-
-		p4[1].x = (int)(rect->x + c * border);
-		p4[1].y = (int)(rect->y + rect->height - s * border);
-
-		p4[2].x = (int)(rect->x + c * border);
-		p4[2].y = (int)(rect->y + s * border);
-	} else if(direction == MwWEST) {
-		p1[0].x = rect->x;
-		p1[0].y = rect->y + rect->height / 2;
-
-		p1[1].x = (int)(rect->x + border);
-		p1[1].y = rect->y + rect->height / 2;
-
-		p1[2].x = (int)(rect->x + rect->width - c * border);
-		p1[2].y = (int)(rect->y + s * border);
-
-		p1[3].x = rect->x + rect->width;
-		p1[3].y = rect->y;
-
-		p2[0].x = rect->x;
-		p2[0].y = rect->y + rect->height / 2;
-
-		p2[1].x = (int)(rect->x + border);
-		p2[1].y = rect->y + rect->height / 2;
-
-		p2[2].x = (int)(rect->x + rect->width - c * border);
-		p2[2].y = (int)(rect->y + rect->height - s * border);
-
-		p2[3].x = rect->x + rect->width;
-		p2[3].y = rect->y + rect->height;
-
-		p3[0].x = rect->x + rect->width;
-		p3[0].y = rect->y;
-
-		p3[1].x = (int)(rect->x + rect->width - c * border);
-		p3[1].y = (int)(rect->y + s * border);
-
-		p3[2].x = (int)(rect->x + rect->width - c * border);
-		p3[2].y = (int)(rect->y + rect->height - s * border);
-
-		p3[3].x = rect->x + rect->width;
-		p3[3].y = rect->y + rect->height;
-
-		MwPolygon(handle, p1, 4, (invert ? darker : lighter));
-		MwPolygon(handle, p2, 4, (invert ? lighter : darker));
-		MwPolygon(handle, p3, 4, (invert ? lighter : darker));
-
-		p4[0].x = (int)(rect->x + border);
-		p4[0].y = rect->y + rect->height / 2;
-
-		p4[1].x = (int)(rect->x + rect->width - c * border);
-		p4[1].y = (int)(rect->y + rect->height - s * border);
-
-		p4[2].x = (int)(rect->x + rect->width - c * border);
-		p4[2].y = (int)(rect->y + s * border);
+		p[2].x = rect->x + rect->width;
+		p[2].y = rect->y;
+		break;
 	}
-	MwPolygon(handle, p4, 3, col);
 
-	MwFreeColor(col);
-	MwFreeColor(lighter);
-	MwFreeColor(darker);
+	MwPolygonInset(handle, p, 3, color, invert);
 }
 
 #if defined(NO_IMAGE)
