@@ -591,14 +591,14 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwColor color, int invert, int
 
 void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, int direction) {
 	MwPoint	  p1[4], p2[4], p3[4], p4[3];
-	const int border    = MwGetInteger(handle, MwNmodernLook) ? 2 : MwDefaultBorderWidth(handle);
+	const int border    = MwGetInteger(handle, MwNmodernLook) ? 1 : MwDefaultBorderWidth(handle);
 	int	  ColorDiff = MwGetColorDifference(handle);
 	MwColor	  darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwColor	  lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 	MwColor	  col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
-	double	  deg	    = (direction == MwNORTH || direction == MwSOUTH) ? atan2(rect->width / 2, rect->height) : atan2(rect->width, rect->height / 2);
-	double	  c	    = cos(deg / 180 * M_PI);
-	double	  s	    = sin(deg / 180 * M_PI);
+	double	  rad	    = (direction == MwNORTH || direction == MwSOUTH) ? atan2(0, rect->width / 2) : atan2(rect->height / 2, 0);
+	double	  c	    = cos(rad);
+	double	  s	    = sin(rad);
 
 	color_set_disabled_if_disabled(handle, col);
 	color_set_disabled_if_disabled(handle, darker);
