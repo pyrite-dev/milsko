@@ -378,7 +378,7 @@ void MwPolygonInset(MwWidget handle, MwPoint* points, int points_count, MwColor 
 		inner_p[i].x = inner[i].x;
 		inner_p[i].y = inner[i].y;
 
-		dot = normals[i].x * -512 + normals[i].y * -512;
+		dot = -normals[i].x + -normals[i].y;
 
 		if(dot < 0) n = 1;
 
