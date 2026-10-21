@@ -591,12 +591,12 @@ void MwDrawFrameEx(MwWidget handle, MwRect* rect, MwColor color, int invert, int
 
 void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, int direction) {
 	MwPoint	  p1[4], p2[4], p3[4], p4[3];
-	const int border    = MwGetInteger(handle, MwNmodernLook) ? 1 : MwDefaultBorderWidth(handle);
+	const int border    = MwGetInteger(handle, MwNmodernLook) ? 2 : MwDefaultBorderWidth(handle);
 	int	  ColorDiff = MwGetColorDifference(handle);
 	MwColor	  darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
 	MwColor	  lighter   = MwLightenColor(handle, color, ColorDiff, ColorDiff, ColorDiff);
 	MwColor	  col	    = invert ? MwLightenColor(handle, color, -8, -8, -8) : MwLightenColor(handle, color, 0, 0, 0);
-	double	  rad	    = (direction == MwNORTH || direction == MwSOUTH) ? atan2(0, rect->width / 2) : atan2(rect->height / 2, 0);
+	double	  rad	    = ((direction == MwNORTH || direction == MwSOUTH) ? 0 : 90) / 180.0 * M_PI;
 	double	  c	    = cos(rad);
 	double	  s	    = sin(rad);
 
@@ -646,7 +646,7 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, in
 		MwPolygon(handle, p3, 4, (invert ? lighter : darker));
 
 		p4[0].x = (int)(rect->x + c * border);
-		p4[0].y = (int)(rect->y + rect->height - s * border);
+		p4[0].y = (int)(rect->y + rect->height + s * border);
 
 		p4[1].x = (int)(rect->x + rect->width - c * border);
 		p4[1].y = (int)(rect->y + rect->height - s * border);
