@@ -399,6 +399,9 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
     set_target_properties(Mw PROPERTIES COMPILE_FLAGS "-ffunction-sections -mcpu=601 -Os -Wall -Wextra -Wno-unused-parameter")
     set_target_properties(Mw PROPERTIES LINK_FLAGS "-Wl,-gc-sections")
   endif()
+  if(CMAKE_SYSTEM_NAME MATCHES RetroPPC)
+    list(APPEND LIBRARIES CursorDevicesGlue)
+  endif()
 
   list(APPEND LIBRARIES InterfaceLib)
 

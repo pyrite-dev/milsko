@@ -4,7 +4,7 @@
 #include <Menus.h>
 #include <Devices.h>
 #include <Scrap.h>
-#include <LowMem.h>
+#include <CursorDevices.h>
 #include <ToolUtils.h>
 #include <Sound.h>
 #include <AppleEvents.h>
@@ -960,9 +960,9 @@ static void dispatch_modifiers(short modifiers) {
 }
 
 static void warp_mouse(Point p) {
-	LMSetMouseTemp(p);
-	LMSetRawMouseLocation(p);
-	LMSetCursorNew(true);
+	CursorDevicePtr dev = NULL;
+
+	if(CursorDeviceNextDevice(&dev) == noErr && dev != NULL) CursorDeviceMoveTo(dev, p.h, p.v);
 }
 
 static void grab_center(MwLL handle, Point* p) {
