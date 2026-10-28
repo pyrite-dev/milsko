@@ -60,9 +60,9 @@ c("Requirements");
 l("");
 l("  Milsko requires either");
 l("  * A Windows environment with GDI (so anything NT or 9x)");
-
 #l("  * A MacOS environment with Cocoa (10.4 or above supported)");
 l("  * A Unix-like environment with Wayland and/or X11 for runtime.");
+l("  * A PowerPC environment running Classic Mac OS");
 l("");
 l("  To build Milsko for Windows, you must have one of following compilers:");
 l("  * Visual C++ 6.0 or newer");
@@ -70,10 +70,12 @@ l("  * Borland C++ 5.5 or newer");
 l("  * Open Watcom 2.0 or newer");
 l("  * MinGW-w64");
 l("");
-l("  and for Unix-like and MacOS:");
+l("  For Unix-like and MacOS:");
 l("  * GNU C Compiler");
 l("  * Clang");
 l("");
+l("  and Classic Mac OS is currently only supported via cross-compiling");
+
 
 l("");
 c("Contents");
@@ -114,6 +116,18 @@ l(
 );
 l("");
 l("3) Run `make'.");
+h("E. Classic Mac OS");
+l("1) Build and install the Retro68 toolchain (https://github.com/autc04/Retro68).");
+l("");
+l(
+"2) Set `RETRO68_TOOLCHAIN_PATH' to the toolchain directory of your Retro68 build; i.e. `Retro68-build/toolchain'."
+);
+l("");
+l("3) Configure and build with CMake using the PowerPC toolchain file:");
+print(OUT "   `cmake -B build-ppc -DPLATFORM=retroppc \\\n");
+print(OUT
+"      -DCMAKE_TOOLCHAIN_FILE=\$RETRO68_TOOLCHAIN_PATH/powerpc-apple-macos/cmake/retroppc.toolchain.cmake'\n"
+);
 l("");
 
 l(" -- Nishi  (nishi\@nishi.boats)");

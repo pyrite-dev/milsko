@@ -11,10 +11,11 @@ Currently, the Tier 1 backends are:
 - Windows 9x+/NT 4.0+
 - Any Unix/Linux system that supports X11 or Wayland.
 
-There are currently no Tier 2 backends.
+The Tier 2 backends are:
+
+- Mac OS 7-9, PowerPC (68k support not planned).
 
 Tier 3 backends are:
 
 - Mac OS X 10.4+ with Cocoa
-- Mac OS 7-9, PowerPC (68k support not planned).
 - Haiku

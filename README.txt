@@ -9,6 +9,7 @@ distributions and building instructions for Milsko GUI Toolkit.
   Milsko requires either 
   * A Windows environment with GDI (so anything NT or 9x) 
   * A Unix-like environment with Wayland and/or X11 for runtime. 
+  * A PowerPC environment running Classic Mac OS 
 
   To build Milsko for Windows, you must have one of following compilers: 
   * Visual C++ 6.0 or newer 
@@ -16,10 +17,11 @@ distributions and building instructions for Milsko GUI Toolkit.
   * Open Watcom 2.0 or newer 
   * MinGW-w64 
 
-  and for Unix-like and MacOS: 
+  For Unix-like and MacOS: 
   * GNU C Compiler 
   * Clang 
 
+  and Classic Mac OS is currently only supported via cross-compiling 
 
                                     Contents
 
@@ -68,5 +70,17 @@ D. MinGW-w64/GCC/Clang
 folder build as that's what's included in the .gitignore) 
 
 3) Run `make'. 
+
+E. Classic Mac OS
+-----------------
+
+1) Build and install the Retro68 toolchain (https://github.com/autc04/Retro68). 
+
+2) Set `RETRO68_TOOLCHAIN_PATH' to the toolchain directory of your Retro68 
+build; i.e. `Retro68-build/toolchain'. 
+
+3) Configure and build with CMake using the PowerPC toolchain file: 
+   `cmake -B build-ppc -DPLATFORM=retroppc \
+      -DCMAKE_TOOLCHAIN_FILE=$RETRO68_TOOLCHAIN_PATH/powerpc-apple-macos/cmake/retroppc.toolchain.cmake'
 
  -- Nishi  (nishi@nishi.boats) 
