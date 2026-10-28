@@ -101,14 +101,14 @@ MWDECL void MWAPI MwPolygon(MwWidget handle, MwPoint* points, int points_count, 
 MWDECL void MWAPI MwLine(MwWidget handle, MwPoint* points, MwColor color);
 
 /*!
- * @brief Draws an inset polygon
+ * @brief Draws an outset polygon
  * @param handle Widget
  * @param points Points (counter-clockwise)
  * @param points_count Amount of points
  * @param color Color
  * @param invert Invert the 3D border color or not
  */
-MWDECL void MWAPI MwPolygonInset(MwWidget handle, MwPoint* points, int points_count, MwColor color, int invert);
+MWDECL void MWAPI MwPolygonOutset(MwWidget handle, MwPoint* points, int points_count, MwColor color, int invert);
 
 /*!
  * @brief Draws a frame

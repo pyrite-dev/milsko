@@ -316,7 +316,7 @@ static int intersect_lines(FltPoint* dest, FltPoint* p, FltPoint* u, FltPoint* q
 	return 1;
 }
 
-void MwPolygonInset(MwWidget handle, MwPoint* points, int points_count, MwColor color, int invert) {
+void MwPolygonOutset(MwWidget handle, MwPoint* points, int points_count, MwColor color, int invert) {
 	const int border    = MwGetInteger(handle, MwNmodernLook) ? 2 : MwDefaultBorderWidth(handle);
 	int	  ColorDiff = MwGetColorDifference(handle);
 	MwColor	  darker    = MwLightenColor(handle, color, -ColorDiff, -ColorDiff, -ColorDiff);
@@ -410,7 +410,7 @@ void MwDrawDiamond(MwWidget handle, MwRect* rect, MwColor color, int invert) {
 	p[3].x = rect->x + rect->width;
 	p[3].y = rect->y + rect->height / 2;
 
-	MwPolygonInset(handle, p, 4, color, invert);
+	MwPolygonOutset(handle, p, 4, color, invert);
 }
 
 void MwDrawCircle(MwWidget handle, MwRect* rect, MwColor color, MwColor background, int filled) {
@@ -697,7 +697,7 @@ void MwDrawTriangle(MwWidget handle, MwRect* rect, MwColor color, int invert, in
 		break;
 	}
 
-	MwPolygonInset(handle, p, 3, color, invert);
+	MwPolygonOutset(handle, p, 3, color, invert);
 }
 
 #if defined(NO_IMAGE)
