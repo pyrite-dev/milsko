@@ -151,8 +151,7 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 			l[1].x = l[0].x + tw;
 
 #ifdef TTF
-			if(MwFLDrawText)
-				if(is_bitmap(handle, ttf) || ttf == NULL || MwFLDrawText(handle, ttf, &p, line, fadedColor ? fadedColor : color))
+			if(MwFLDrawText == NULL || is_bitmap(handle, ttf) || ttf == NULL || MwFLDrawText(handle, ttf, &p, line, fadedColor ? fadedColor : color))
 #endif
 					bitmap_MwDrawText(handle, &p, line, is_bold(handle, ttf), fadedColor ? fadedColor : color);
 
