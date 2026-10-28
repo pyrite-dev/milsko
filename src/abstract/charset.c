@@ -30,6 +30,17 @@ char* MwACPTextToUTF8Text(const char* input) {
 	free(wout);
 
 	return mbout;
+#elif defined(USE_QUICKDRAW)
+	char* out = malloc(strlen(input) * 3 + 1);
+	int   n	  = 0;
+
+	while(*input != 0) {
+		n += MwUTF32ToUTF8(MwMacRomanToUTF32(*(unsigned char*)input), out + n);
+		input++;
+	}
+	out[n] = 0;
+
+	return out;
 #else
 	return MwStringDuplicate(input);
 #endif
@@ -57,6 +68,22 @@ char* MwUTF8TextToACPText(const char* input) {
 	free(wout);
 
 	return mbout;
+#elif defined(USE_QUICKDRAW)
+	char* out = malloc(strlen(input) + 1);
+	int   n	  = 0;
+
+	while(*input != 0) {
+		int cp;
+		int l = MwUTF8ToUTF32(input, &cp);
+
+		if(l == 0) break;
+		input += l;
+
+		out[n++] = MwUTF32ToMacRoman(cp);
+	}
+	out[n] = 0;
+
+	return out;
 #else
 	return MwStringDuplicate(input);
 #endif

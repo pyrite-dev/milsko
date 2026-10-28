@@ -1,6 +1,6 @@
 #include <Mw/Milsko.h>
 
-void MWAPI ok(MwWidget handle, void* user, void* call) {
+void MWAPI chosen_ok(MwWidget handle, void* user, void* call) {
 	(void)handle;
 	(void)call;
 	MwDestroyWidget(user);
@@ -12,8 +12,8 @@ void MWAPI spawn(MwWidget handle, void* user, void* call) {
 	(void)handle;
 	(void)call;
 
-	MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, ok, mb);
-	MwAddUserHandler(mb, MwNcloseHandler, ok, mb);
+	MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, chosen_ok, mb);
+	MwAddUserHandler(mb, MwNcloseHandler, chosen_ok, mb);
 }
 
 void MWAPI spawn2(MwWidget handle, void* user, void* call) {
@@ -22,8 +22,8 @@ void MWAPI spawn2(MwWidget handle, void* user, void* call) {
 	(void)handle;
 	(void)call;
 
-	MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, ok, mb);
-	MwAddUserHandler(mb, MwNcloseHandler, ok, mb);
+	MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, chosen_ok, mb);
+	MwAddUserHandler(mb, MwNcloseHandler, chosen_ok, mb);
 }
 
 void MWAPI spawn3(MwWidget handle, void* user, void* call) {
@@ -34,8 +34,8 @@ void MWAPI spawn3(MwWidget handle, void* user, void* call) {
 
 	for(i = 0; i <= MwMB_ICONBOMB; i++) {
 		MwWidget mb = MwMessageBox(user, "messagebox test", "title", i | MwMB_BUTTONOK);
-		MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, ok, mb);
-		MwAddUserHandler(mb, MwNcloseHandler, ok, mb);
+		MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, chosen_ok, mb);
+		MwAddUserHandler(mb, MwNcloseHandler, chosen_ok, mb);
 	}
 }
 

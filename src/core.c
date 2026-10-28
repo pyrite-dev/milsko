@@ -344,7 +344,7 @@ static MwWidget MwCreateWidget_Internal(MwClass widget_class, const char* name, 
 		MwAddTickList(h);
 	}
 
-#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT)
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT) || defined(USE_ATSUI)
 	if(IsFirstVisible(h)) {
 #ifdef USE_STB_TRUETYPE
 	font_setup:
@@ -798,7 +798,7 @@ int MwGetInteger(MwWidget handle, const char* key) {
 		return MwDEFAULT;
 	} else {
 		if(shgeti(handle->integer, key) == -1) {
-#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT)
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT) || defined(USE_ATSUI)
 			if(strcmp(key, MwNbitmapFont) == 0) return inherit_integer(handle, key, 0);
 #else
 			if(strcmp(key, MwNbitmapFont) == 0) return inherit_integer(handle, key, 1);
@@ -857,7 +857,7 @@ const char* MwGetString(MwWidget handle, const char* key) {
 	return shget(handle->string, key);
 }
 
-#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT)
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT) || defined(USE_ATSUI)
 static void* inherit_void(MwWidget handle, const char* key) {
 	void* v;
 
@@ -879,7 +879,7 @@ void* MwGetPointer(MwWidget handle, const char* key) {
 
 	if(v != NULL) return v;
 
-#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT)
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT) || defined(USE_ATSUI)
 	if(strcmp(key, MwNfont) == 0 || strcmp(key, MwNboldFont) == 0 || strcmp(key, MwNmonospaceFont) == 0 || strcmp(key, MwNboldMonospaceFont) == 0) {
 		v = inherit_void(handle, key);
 
@@ -1061,6 +1061,10 @@ void MwDispatchError(int code, const char* message) {
 		char buffer[1024];
 		MwStringPrintIntoBuffer(buffer, 1024, "Error: %s\r\nCode : %d\r\n\r\nMilsko is exiting.", message, code);
 		MessageBox(NULL, buffer, "Error", MB_ICONERROR | MB_OK);
+#elif defined(USE_QUICKDRAW)
+		char buffer[1024];
+		MwStringPrintIntoBuffer(buffer, 1024, "Error: %s\nCode : %d\n\nMilsko is exiting.", message, code);
+		MwLLQuickdrawAlert(buffer);
 #else
 		fprintf(stderr, "Error: %s\nCode : %d\n\nMilsko is exiting.", message, code);
 #endif
@@ -1131,8 +1135,8 @@ int MwLibraryInit(void) {
 #ifdef USE_GDI
 	    MwLLGDICallInit,
 #endif
-#ifdef CLASSIC_MAC_OS
-	    MwLLClassicMacOSCallInit,
+#ifdef USE_QUICKDRAW
+	    MwLLQuickdrawCallInit,
 #endif
 #ifdef USE_HAIKU
 	    MwLLHaikuCallInit,
@@ -1186,8 +1190,8 @@ int MwLibraryInit(void) {
 #ifdef USE_GDI
 	       " GDI"
 #endif
-#ifdef CLASSIC_MAC_OS
-	       " ClassicMacOS"
+#ifdef USE_QUICKDRAW
+	       " QuickDraw"
 #endif
 	       "\n");
 #endif

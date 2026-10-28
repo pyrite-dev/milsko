@@ -11,7 +11,8 @@ static int get_first_entry(MwWidget handle, MwListBox lb) {
 	int y  = MwGetInteger(handle, MwNhasHeading) ? 1 : 0;
 
 	st = MwGetInteger(lb->vscroll, MwNvalue);
-	st = st * (MwGetInteger(lb->vscroll, MwNmaxValue) - MwGetInteger(lb->vscroll, MwNareaShown)) / MwGetInteger(lb->vscroll, MwNmaxValue);
+	/* round to nearest, otherwise the last rows are only reachable at the very end of the scrollbar */
+	st = (st * (MwGetInteger(lb->vscroll, MwNmaxValue) - MwGetInteger(lb->vscroll, MwNareaShown)) + MwGetInteger(lb->vscroll, MwNmaxValue) / 2) / MwGetInteger(lb->vscroll, MwNmaxValue);
 	if(st < y) st = y;
 
 	return st;

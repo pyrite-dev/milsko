@@ -174,7 +174,7 @@ static void frame_draw(MwWidget handle) {
 	MwPoint	   p;
 	int	   shared = 0;
 	int	   i;
-	int	   skip = MwGetInteger(tv->vscroll, MwNvalue) * (MwGetInteger(tv->vscroll, MwNmaxValue) - MwGetInteger(tv->vscroll, MwNareaShown)) / MwGetInteger(tv->vscroll, MwNmaxValue);
+	int	   skip = (MwGetInteger(tv->vscroll, MwNvalue) * (MwGetInteger(tv->vscroll, MwNmaxValue) - MwGetInteger(tv->vscroll, MwNareaShown)) + MwGetInteger(tv->vscroll, MwNmaxValue) / 2) / MwGetInteger(tv->vscroll, MwNmaxValue);
 
 	r.x	 = 0;
 	r.y	 = 0;
@@ -227,7 +227,7 @@ static void resize(MwWidget handle, int no_resize);
 static void MWAPI frame_mouse_up(MwWidget handle, void* user, void* call) {
 	MwTreeView tv	  = handle->parent->internal;
 	int	   shared = 0;
-	int	   skip	  = MwGetInteger(tv->vscroll, MwNvalue) * (MwGetInteger(tv->vscroll, MwNmaxValue) - MwGetInteger(tv->vscroll, MwNareaShown)) / MwGetInteger(tv->vscroll, MwNmaxValue);
+	int	   skip	  = (MwGetInteger(tv->vscroll, MwNvalue) * (MwGetInteger(tv->vscroll, MwNmaxValue) - MwGetInteger(tv->vscroll, MwNareaShown)) + MwGetInteger(tv->vscroll, MwNmaxValue) / 2) / MwGetInteger(tv->vscroll, MwNmaxValue);
 	MwPoint	   p;
 	MwMouse*   mouse = call;
 

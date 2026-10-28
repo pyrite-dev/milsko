@@ -12,41 +12,42 @@ void* MwDynamicSymbol(void* handle, const char* symbol) {
 void MwDynamicClose(void* handle) {
 	FreeLibrary(handle);
 }
-#elif defined(CLASSIC_MAC_OS)
-void* MwDynamicOpen(const char* path) {
-	// CFragConnectionID connID;
-	// Ptr*		  addr;
-	// unsigned char	  err[255];
+#elif defined(macintosh)
+static void to_pstring(unsigned char* out, const char* in, size_t max) {
+	size_t l = strlen(in);
 
-	// if(GetSharedLibrary((ConstStr63Param)path, kPowerPCCFragArch, kPrivateCFragCopy,
-	// 		    &connID, addr, err)) {
-	// 	printf("Error getting %s: %s\n", path, err);
-	// 	return NULL;
-	// };
-	// return connID;
-	printf("MwDynamicOpen not implemented yet.\n");
-	getchar();
-	return NULL;
+	if(l > max) l = max;
+	out[0] = l;
+	memcpy(out + 1, in, l);
+}
+
+void* MwDynamicOpen(const char* path) {
+	CFragConnectionID conn;
+	Ptr		  main_addr;
+	Str255		  err;
+	Str63		  name;
+
+	to_pstring(name, path, 63);
+	if(GetSharedLibrary(name, kPowerPCCFragArch, kReferenceCFrag, &conn, &main_addr, err) != noErr) return NULL;
+
+	return (void*)conn;
 }
 
 void* MwDynamicSymbol(void* handle, const char* symbol) {
-	// CFragConnectionID connID = (CFragConnectionID)handle;
-	// Ptr*		  symAddr;
-	// CFragSymbolClass* symClass;
-	// OSErr		  err;
-	// if((err = FindSymbol(connID, (ConstStr63Param)symbol, symAddr, symClass))) {
-	// 	printf("Error getting %s: %d\n", symbol, err);
-	// 	return NULL;
-	// };
-	// return symAddr;
-	printf("MwDynamicSymbol not implemented yet.\n");
-	getchar();
-	return NULL;
+	Ptr		 addr;
+	CFragSymbolClass cls;
+	Str255		 name;
+
+	to_pstring(name, symbol, 255);
+	if(FindSymbol((CFragConnectionID)handle, name, &addr, &cls) != noErr) return NULL;
+
+	return (void*)addr;
 }
 
 void MwDynamicClose(void* handle) {
-	// CFragConnectionID connID = (CFragConnectionID)handle;
-	// CloseConnection(&connID);
+	CFragConnectionID conn = (CFragConnectionID)handle;
+
+	CloseConnection(&conn);
 }
 #elif defined(__unix__) || defined(__APPLE__) || defined(__HAIKU__)
 void* MwDynamicOpen(const char* path) {

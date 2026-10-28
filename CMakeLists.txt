@@ -24,7 +24,7 @@ option(MW_USE_STB_TRUETYPE "Use stb_truetype" OFF)
 if(${CMAKE_SYSTEM_NAME} MATCHES Retro)
   option(MW_BUILD_SHARED "Build a shared library" OFF)
   option(MW_BUILD_STATIC "Build a static library" ON)
-  option(MW_TRY_OPENGL "Try to compile OpenGL widget or not" OFF)
+  option(MW_TRY_OPENGL "Try to compile OpenGL widget or not" ON)
   option(MW_TRY_VULKAN "Try to compile Vulkan widget or not" OFF)
 else()
   option(MW_BUILD_SHARED "Build a shared library" ON)
@@ -54,6 +54,10 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
   option(MW_USE_GDI_TEXT "Use GDI for text rendering" ON)
 endif()
 
+if(${CMAKE_SYSTEM_NAME} MATCHES Retro)
+  option(MW_USE_ATSUI "Use ATSUI for text rendering where available (Mac OS 8.5 and later)" ON)
+endif()
+
 if(${CMAKE_SYSTEM_NAME} STREQUAL Linux OR ${CMAKE_SYSTEM_NAME} STREQUAL FreeBSD)
   option(MW_USE_WAYLAND "Enable Wayland backend" ON)
 endif()
@@ -77,7 +81,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
   list(APPEND CMAKE_REQUIRED_INCLUDES "/usr/pkg/include")
 endif()
 
-if(MW_TRY_OPENGL)
+if(MW_TRY_OPENGL AND ${CMAKE_SYSTEM_NAME} MATCHES Retro)
+  # AGL gets loaded at runtime, the headers are in external/agl
+  set(MW_BUILD_OPENGL ON)
+  message(STATUS "OpenGL widget has been enabled")
+elseif(MW_TRY_OPENGL)
   find_package(OpenGL)
   if(OpenGL_FOUND AND NOT APPLE)
     set(MW_BUILD_OPENGL ON)
@@ -168,6 +176,14 @@ if(MW_USE_FREETYPE2)
   endif()
 endif()
 
+
+if(MW_USE_ATSUI)
+  target_compile_definitions(
+   Mw
+   PRIVATE
+   USE_ATSUI
+  )
+endif()
 
 if(MW_USE_GDI_TEXT)
   target_compile_definitions(
@@ -377,20 +393,28 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
   target_sources(
    Mw
    PRIVATE
-   src/backend/classicmacos.c
+   src/backend/quickdraw.c
   )
   if(PLATFORM MATCHES retroppc)
     set_target_properties(Mw PROPERTIES COMPILE_FLAGS "-ffunction-sections -mcpu=601 -Os -Wall -Wextra -Wno-unused-parameter")
     set_target_properties(Mw PROPERTIES LINK_FLAGS "-Wl,-gc-sections")
   endif()
 
-  list(APPEND LIBRARIES InterfaceLib WindowsLib ThreadsLib)
+  list(APPEND LIBRARIES InterfaceLib)
 
   target_compile_definitions(
    Mw
    PRIVATE
-   CLASSIC_MAC_OS
+   USE_QUICKDRAW
+   STBI_NO_THREAD_LOCALS
   )
+  if(MW_BUILD_OPENGL)
+    target_include_directories(
+     Mw
+     PUBLIC
+     ${CMAKE_CURRENT_SOURCE_DIR}/external/agl/include
+    )
+  endif()
 else()
 
   find_package(PkgConfig)

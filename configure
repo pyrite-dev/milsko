@@ -91,7 +91,7 @@ sub def_platform {
         param_set("direct3d9",    1);
     }
     elsif ( $target ne "Darwin"
-        and $target ne "ClassicMacOS"
+        and $target ne "QuickDraw"
         and $target ne "Haiku")
     {
         param_set("freetype2",    1);
@@ -351,7 +351,7 @@ if (param_get("examples")) {
             );
         }
 
-        if ($target eq "ClassicMacOS") {
+        if ($target eq "QuickDraw") {
             print(  OUT "	"
                   . $ENV{RETRO68_TOOLCHAIN_PATH}
                   . "/bin/MakePEF ${l} -o ${s}.pef\n");

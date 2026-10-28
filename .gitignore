@@ -16,6 +16,7 @@ examples/*/*.exe
 *.a
 /Makefile
 /build
+/build*
 compile_flags.txt
 .cache
 .DS_Store

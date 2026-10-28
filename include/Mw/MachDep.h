@@ -41,7 +41,7 @@
 #define GET_WHEEL_DELTA_WPARAM(x) ((short)HIWORD(x))
 #endif
 #endif
-#elif defined(CLASSIC_MAC_OS)
+#elif defined(macintosh)
 #include <unistd.h>
 #include <MacTypes.h>
 #include <CFBundle.h>

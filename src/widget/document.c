@@ -26,9 +26,13 @@ static int wcreate(MwWidget handle) {
 
 	memset(d, 0, sizeof(*d));
 
+#if defined(USE_STB_TRUETYPE) || defined(USE_FREETYPE2) || defined(USE_GDI_TEXT) || defined(USE_ATSUI)
 	for(i = 0; i < 6; i++) {
 		d->headers[i] = MwFLFontLoad == NULL ? NULL : MwFLFontLoad(MwBoldTTFData, MwBoldTTFDataSize, 13 + 2 * (6 - i));
 	}
+#else
+	(void)i;
+#endif
 
 	handle->internal = d;
 

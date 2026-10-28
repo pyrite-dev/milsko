@@ -103,11 +103,40 @@ static void MWAPI files_activate(MwWidget handle, void* user, void* call) {
 	}
 }
 
+/* 0 if path does not exist, 1 if it is a file, 2 if it is a directory */
+static int path_info(const char* path) {
+#ifdef macintosh
+	/* stat() is not implemented by the Retro68 libc */
+	void* dir = MwDirectoryOpen(path);
+	FILE* f;
+
+	if(dir != NULL) {
+		MwDirectoryClose(dir);
+		return 2;
+	}
+	if((f = fopen(path, "rb")) != NULL) {
+		fclose(f);
+		return 1;
+	}
+
+	return 0;
+#else
+	struct stat s;
+
+	if(stat(path, &s) != 0) return 0;
+#ifdef _S_IFDIR
+	return ((s.st_mode & _S_IFDIR) == _S_IFDIR) ? 2 : 1;
+#else
+	return S_ISDIR(s.st_mode) ? 2 : 1;
+#endif
+#endif
+}
+
 static void MWAPI okay_activate(MwWidget handle, void* user, void* call) {
 	filechooser_t* fc = handle->parent->opaque;
 	char*	       t  = (char*)MwGetString(fc->filename, MwNtext);
-	struct stat    s;
-	char*	       p = NULL;
+	char*	       p  = NULL;
+	int	       info;
 
 	(void)user;
 	(void)call;
@@ -115,6 +144,9 @@ static void MWAPI okay_activate(MwWidget handle, void* user, void* call) {
 	if(t != NULL && (t[0] == '/'
 #ifdef _WIN32
 			 || t[0] == '\\' || (strstr(t, ":/") != NULL) || (strstr(t, ":\\") != NULL)
+#endif
+#ifdef macintosh
+			 || (t[0] != ':' && strchr(t, ':') != NULL)
 #endif
 			     )) {
 		p = MwStringDuplicate(t);
@@ -127,14 +159,10 @@ static void MWAPI okay_activate(MwWidget handle, void* user, void* call) {
 	if(t == NULL || strlen(t) == 0) {
 		MwWidget msgbox = MwMessageBox(handle->parent, fc->dir_only ? "You have to type directory!" : "You have to type filename!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
 		MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, msgbox_okay, NULL);
-	} else if(stat(p, &s) != 0) {
+	} else if((info = path_info(p)) == 0) {
 		MwWidget msgbox = MwMessageBox(handle->parent, "File does not exist!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
 		MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, msgbox_okay, NULL);
-#ifdef _S_IFDIR
-	} else if(fc->dir_only ? ((s.st_mode & _S_IFDIR) != _S_IFDIR) : 0) {
-#else
-	} else if(fc->dir_only ? !S_ISDIR(s.st_mode) : 0) {
-#endif
+	} else if(fc->dir_only ? (info != 2) : 0) {
 		MwWidget msgbox = MwMessageBox(handle->parent, "File is not permitted here!", "Error", MwMB_ICONERROR | MwMB_BUTTONOK);
 		MwAddUserHandler(MwMessageBoxGetChild(msgbox, MwMB_BUTTONOK), MwNactivateHandler, msgbox_okay, NULL);
 	} else {
@@ -152,7 +180,10 @@ static void MWAPI nav_activate(MwWidget handle, void* user, void* call) {
 	(void)user;
 
 	if(strcmp(e, "Home") == 0) {
-#if defined(_WIN32) || defined(CLASSIC_MAC_OS)
+#if defined(_WIN32)
+#elif defined(macintosh)
+		/* the closest thing to a home directory is the list of disks */
+		scan(handle->parent, ":", 1);
 #else
 		struct passwd* p = getpwuid(getuid());
 

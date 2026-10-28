@@ -7,7 +7,7 @@ int (*MwFLTextHeightWithText)(MwFLFont ttf, const char* text)					     = NULL;
 void* (*MwFLFontLoad)(unsigned char* data, unsigned int size, int px)				     = NULL;
 void (*MwFLFontFree)(void* handle)								     = NULL;
 
-#if defined(USE_FREETYPE2) || defined(USE_STB_TRUETYPE) || defined(USE_GDI_TEXT)
+#if defined(USE_FREETYPE2) || defined(USE_STB_TRUETYPE) || defined(USE_GDI_TEXT) || defined(USE_ATSUI)
 #define TTF
 #endif
 
@@ -339,6 +339,9 @@ void MwFLSetup(void) {
 	call_t calls[] = {
 #ifdef USE_GDI_TEXT
 	    MwFL_GDISetup,
+#endif
+#ifdef USE_ATSUI
+	    MwFL_ATSUISetup,
 #endif
 #ifdef USE_FREETYPE2
 	    MwFL_FT2Setup,

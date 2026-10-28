@@ -7,7 +7,7 @@ file(
 foreach(PATH IN LISTS EXAMPLES_BASIC_SOURCES)
   get_filename_component(TARGET ${PATH} NAME_WE)
   if(CMAKE_SYSTEM_NAME MATCHES Retro)
-    add_application(${TARGET} ${PATH})
+    add_application(${TARGET} ${PATH} ${PROJECT_SOURCE_DIR}/resource/macos.r)
   else()
     add_executable(${TARGET} MACOSX_BUNDLE ${PATH})
   endif()

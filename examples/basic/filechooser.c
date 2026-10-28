@@ -10,7 +10,7 @@ MwBool fpicker_wait = MwFALSE;
 MwBool msgbox_wait  = MwFALSE;
 #endif
 
-void MWAPI ok(MwWidget handle, void* user, void* call) {
+void MWAPI chosen_ok(MwWidget handle, void* user, void* call) {
 	(void)handle;
 	(void)call;
 #ifdef BUG
@@ -25,8 +25,8 @@ void MWAPI file_callback(MwWidget handle, void* user_data, void* call_data) {
 
 	(void)user_data;
 
-	MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, ok, mb);
-	MwAddUserHandler(mb, MwNcloseHandler, ok, mb);
+	MwAddUserHandler(MwMessageBoxGetChild(mb, MwMB_BUTTONOK), MwNactivateHandler, chosen_ok, mb);
+	MwAddUserHandler(mb, MwNcloseHandler, chosen_ok, mb);
 
 #ifdef BUG
 	msgbox_wait = MwTRUE;

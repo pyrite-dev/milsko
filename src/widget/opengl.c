@@ -52,6 +52,232 @@ typedef struct x11opengl {
 } x11opengl_t;
 #endif
 
+#ifdef USE_QUICKDRAW
+#include <agl.h>
+
+typedef AGLPixelFormat (*MWaglChoosePixelFormat)(const AGLDevice* gdevs, GLint ndev, const GLint* attribs);
+typedef void (*MWaglDestroyPixelFormat)(AGLPixelFormat pix);
+typedef AGLContext (*MWaglCreateContext)(AGLPixelFormat pix, AGLContext share);
+typedef GLboolean (*MWaglDestroyContext)(AGLContext ctx);
+typedef GLboolean (*MWaglCopyContext)(AGLContext src, AGLContext dst, GLuint mask);
+typedef GLboolean (*MWaglSetDrawable)(AGLContext ctx, AGLDrawable draw);
+typedef GLboolean (*MWaglSetOffScreen)(AGLContext ctx, GLsizei width, GLsizei height, GLsizei rowbytes, GLvoid* baseaddr);
+typedef GLboolean (*MWaglSetCurrentContext)(AGLContext ctx);
+typedef GLboolean (*MWaglUpdateContext)(AGLContext ctx);
+typedef GLboolean (*MWaglEnable)(AGLContext ctx, GLenum pname);
+typedef GLboolean (*MWaglSetInteger)(AGLContext ctx, GLenum pname, const GLint* params);
+typedef void (*MWaglSwapBuffers)(AGLContext ctx);
+
+typedef void (*MWglFinish)(void);
+typedef void (*MWglGetFloatv)(GLenum pname, GLfloat* params);
+typedef void (*MWglGetIntegerv)(GLenum pname, GLint* params);
+typedef void (*MWglMatrixMode)(GLenum mode);
+typedef void (*MWglLoadMatrixf)(const GLfloat* m);
+
+/* AGL can only render into a rectangle inside of the window. While the widget fits, it renders there directly
+ * (hardware accelerated if possible). Otherwise a second context renders into memory the size of the widget,
+ * and the visible part of it gets copied to the window, like every other widget */
+typedef struct quickdrawopengl {
+	AGLPixelFormat format;
+	AGLContext     gl;
+
+	AGLPixelFormat off_format;
+	AGLContext     off_gl;
+	int	       offscreen;
+	int	       used; /* the application has set up state, which has to survive switching */
+
+	unsigned char* buffer;
+	int	       buffer_width;
+	int	       buffer_height;
+	PixMapHandle   pixmap;
+
+	void* lib;
+
+	/* what the onscreen context was last set up for */
+	WindowPtr window;
+	long	  window_serial;
+	MwRect	  rect;
+	Point	  origin;
+	int	  window_height;
+
+	RgnHandle clip;
+	RgnHandle saved_clip;
+
+	MWaglChoosePixelFormat	aglChoosePixelFormat;
+	MWaglDestroyPixelFormat aglDestroyPixelFormat;
+	MWaglCreateContext	aglCreateContext;
+	MWaglDestroyContext	aglDestroyContext;
+	MWaglCopyContext	aglCopyContext;
+	MWaglSetDrawable	aglSetDrawable;
+	MWaglSetOffScreen	aglSetOffScreen;
+	MWaglSetCurrentContext	aglSetCurrentContext;
+	MWaglUpdateContext	aglUpdateContext;
+	MWaglEnable		aglEnable;
+	MWaglSetInteger		aglSetInteger;
+	MWaglSwapBuffers	aglSwapBuffers;
+
+	MWglFinish	glFinish;
+	MWglGetFloatv	glGetFloatv;
+	MWglGetIntegerv glGetIntegerv;
+	MWglMatrixMode	glMatrixMode;
+	MWglLoadMatrixf glLoadMatrixf;
+} quickdrawopengl_t;
+
+#define agl_current(o) ((o)->offscreen ? (o)->off_gl : (o)->gl)
+
+static int agl_resize_buffer(quickdrawopengl_t* o, int width, int height) {
+	PixMap*	       pm;
+	unsigned char* buffer;
+
+	if(width < 1) width = 1;
+	if(height < 1) height = 1;
+	if(o->buffer != NULL && o->buffer_width == width && o->buffer_height == height) return 1;
+
+	if((buffer = MwLLQuickdrawAllocBig(width * height * 4)) == NULL) return 0;
+	memset(buffer, 0, width * height * 4);
+
+	if(!o->aglSetOffScreen(o->off_gl, width, height, width * 4, buffer)) {
+		MwLLQuickdrawFreeBig(buffer);
+		return 0;
+	}
+
+	MwLLQuickdrawFreeBig(o->buffer);
+	o->buffer	 = buffer;
+	o->buffer_width	 = width;
+	o->buffer_height = height;
+
+	/* 32-bit direct pixmap over the buffer, for CopyBits */
+	pm	       = *o->pixmap;
+	pm->baseAddr   = (Ptr)buffer;
+	pm->rowBytes   = (width * 4) | 0x8000;
+	pm->pixelType  = RGBDirect;
+	pm->pixelSize  = 32;
+	pm->cmpCount   = 3;
+	pm->cmpSize    = 8;
+	pm->packType   = 0;
+	pm->packSize   = 0;
+	pm->pmVersion  = 0;
+	SetRect(&pm->bounds, 0, 0, width, height);
+
+	return 1;
+}
+
+/* carry the state of the application over when switching between the contexts */
+static void agl_copy_state(quickdrawopengl_t* o, AGLContext from, AGLContext to) {
+	static const GLenum matrices[] = {GL_MODELVIEW, GL_PROJECTION, GL_TEXTURE};
+	static const GLenum queries[]  = {GL_MODELVIEW_MATRIX, GL_PROJECTION_MATRIX, GL_TEXTURE_MATRIX};
+	GLfloat		    m[3][16];
+	GLint		    mode;
+	int		    i;
+
+	/* attributes, as glPushAttrib knows them. the matrices are not part of that */
+	o->aglCopyContext(from, to, GL_ALL_ATTRIB_BITS);
+
+	o->aglSetCurrentContext(from);
+	o->glGetIntegerv(GL_MATRIX_MODE, &mode);
+	for(i = 0; i < 3; i++) o->glGetFloatv(queries[i], m[i]);
+
+	o->aglSetCurrentContext(to);
+	for(i = 0; i < 3; i++) {
+		o->glMatrixMode(matrices[i]);
+		o->glLoadMatrixf(m[i]);
+	}
+	o->glMatrixMode(mode);
+}
+
+static void agl_switch(MwWidget handle, quickdrawopengl_t* o, int offscreen) {
+	AGLContext from = agl_current(o);
+
+	if(offscreen && o->off_gl == NULL) {
+		GLint attribs[] = {AGL_RGBA, AGL_OFFSCREEN, AGL_PIXEL_SIZE, 32, AGL_DEPTH_SIZE, 16, AGL_NONE};
+
+		if((o->off_format = o->aglChoosePixelFormat(NULL, 0, attribs)) == NULL) return;
+
+		/* share display lists and textures, if the renderers allow it */
+		if((o->off_gl = o->aglCreateContext(o->off_format, o->gl)) == NULL) o->off_gl = o->aglCreateContext(o->off_format, NULL);
+		if(o->off_gl == NULL) {
+			o->aglDestroyPixelFormat(o->off_format);
+			o->off_format = NULL;
+			return;
+		}
+	}
+
+	if(offscreen) {
+		if(!agl_resize_buffer(o, MwGetInteger(handle, MwNwidth), MwGetInteger(handle, MwNheight))) return;
+
+		o->aglSetDrawable(o->gl, NULL);
+		o->window = NULL;
+	}
+
+	if(o->used) agl_copy_state(o, from, offscreen ? o->off_gl : o->gl);
+	o->offscreen = offscreen;
+}
+
+/* follow the widget and its window around */
+static void agl_sync(MwWidget handle, quickdrawopengl_t* o) {
+	MwRect	  r;
+	long	  serial;
+	WindowPtr w	 = MwLLQuickdrawGetWindow(handle->lowlevel, &r, &serial);
+	Point	  origin = {0, 0};
+	int	  height = 0;
+	int	  force	 = 0;
+
+	if(w != NULL) {
+		GrafPtr old;
+		int	width = w->portRect.right - w->portRect.left;
+		int	fits;
+
+		GetPort(&old);
+		SetPort(w);
+		LocalToGlobal(&origin);
+		SetPort(old);
+
+		height = w->portRect.bottom - w->portRect.top;
+
+		fits = r.x >= 0 && r.y >= 0 && r.x + r.width <= width && r.y + r.height <= height;
+		if(fits == o->offscreen) agl_switch(handle, o, !fits);
+	}
+
+	if(o->offscreen) {
+		if(w != NULL) agl_resize_buffer(o, r.width, r.height);
+		return;
+	}
+
+	/* the window gets recreated when its style changes, possibly at the same address */
+	if(w != o->window || (w != NULL && serial != o->window_serial)) {
+		o->aglSetDrawable(o->gl, (AGLDrawable)w);
+		o->window	 = w;
+		o->window_serial = serial;
+		force		 = 1;
+	}
+	if(w == NULL) return;
+
+	if(force || memcmp(&r, &o->rect, sizeof(r)) != 0 || origin.h != o->origin.h || origin.v != o->origin.v || height != o->window_height) {
+		/* the buffer rect is measured from the bottom of the window. it only reaches outside of the window
+		 * when there is no offscreen renderer, AGL would fall back to the whole window then */
+		int   width = w->portRect.right - w->portRect.left;
+		int   x0    = r.x < 0 ? 0 : r.x;
+		int   y0    = r.y < 0 ? 0 : r.y;
+		int   x1    = r.x + r.width > width ? width : r.x + r.width;
+		int   y1    = r.y + r.height > height ? height : r.y + r.height;
+		GLint br[4];
+
+		br[0] = x0;
+		br[1] = height - y1;
+		br[2] = x1 > x0 ? x1 - x0 : 1;
+		br[3] = y1 > y0 ? y1 - y0 : 1;
+
+		o->aglSetInteger(o->gl, AGL_BUFFER_RECT, br);
+		o->aglEnable(o->gl, AGL_BUFFER_RECT);
+		o->aglUpdateContext(o->gl);
+
+		o->rect		 = r;
+		o->origin	 = origin;
+		o->window_height = height;
+	}
+}
+#endif
+
 #ifdef USE_WAYLAND
 #include <EGL/egl.h>
 #include <wayland-egl-core.h>
@@ -206,6 +432,64 @@ static int wcreate(MwWidget handle) {
 					       attribs);
 		o->gl	  = o->glXCreateContext(handle->lowlevel->x11.display, o->visual, NULL,
 						GL_TRUE);
+	}
+#endif
+#ifdef USE_QUICKDRAW
+	if(handle->lowlevel->common.type == MwLLBackendQuickDraw) {
+		GLint		   attribs[] = {AGL_RGBA, AGL_DOUBLEBUFFER, AGL_DEPTH_SIZE, 16, AGL_NONE};
+		GLint		   interval  = 1;
+		quickdrawopengl_t* o	     = r = malloc(sizeof(*o));
+
+		memset(o, 0, sizeof(*o));
+
+		if((o->lib = MwDynamicOpen("OpenGLLibrary")) == NULL) {
+			MwDispatchError(1, "Could not load OpenGL widget under AGL! Is OpenGL installed?");
+			free(o);
+			return 1;
+		}
+
+#define AGL_FUNC(x) \
+	if((o->x = (MW##x)MwDynamicSymbol(o->lib, #x)) == NULL) { \
+		MwDispatchError(1, "Could not load OpenGL widget under AGL! " #x " missing."); \
+		MwDynamicClose(o->lib); \
+		free(o); \
+		return 1; \
+	}
+
+		AGL_FUNC(aglChoosePixelFormat);
+		AGL_FUNC(aglDestroyPixelFormat);
+		AGL_FUNC(aglCreateContext);
+		AGL_FUNC(aglDestroyContext);
+		AGL_FUNC(aglCopyContext);
+		AGL_FUNC(aglSetDrawable);
+		AGL_FUNC(aglSetOffScreen);
+		AGL_FUNC(aglSetCurrentContext);
+		AGL_FUNC(aglUpdateContext);
+		AGL_FUNC(aglEnable);
+		AGL_FUNC(aglSetInteger);
+		AGL_FUNC(aglSwapBuffers);
+
+		AGL_FUNC(glFinish);
+		AGL_FUNC(glGetFloatv);
+		AGL_FUNC(glGetIntegerv);
+		AGL_FUNC(glMatrixMode);
+		AGL_FUNC(glLoadMatrixf);
+
+		if((o->format = o->aglChoosePixelFormat(NULL, 0, attribs)) == NULL || (o->gl = o->aglCreateContext(o->format, NULL)) == NULL) {
+			MwDispatchError(1, "Could not load OpenGL widget under AGL! No usable pixel format.");
+			if(o->format != NULL) o->aglDestroyPixelFormat(o->format);
+			MwDynamicClose(o->lib);
+			free(o);
+			return 1;
+		}
+
+		o->aglSetInteger(o->gl, AGL_SWAP_INTERVAL, &interval);
+
+		o->clip	      = NewRgn();
+		o->saved_clip = NewRgn();
+
+		o->pixmap = NewPixMap();
+		HLock((Handle)o->pixmap);
 	}
 #endif
 #ifdef USE_WAYLAND
@@ -424,6 +708,31 @@ static void destroy(MwWidget handle) {
 		MwDynamicClose(o->lib);
 	}
 #endif
+#ifdef USE_QUICKDRAW
+	if(handle->lowlevel->common.type == MwLLBackendQuickDraw) {
+		quickdrawopengl_t* o = handle->internal;
+
+		o->aglSetCurrentContext(NULL);
+		o->aglSetDrawable(o->gl, NULL);
+		o->aglDestroyContext(o->gl);
+		o->aglDestroyPixelFormat(o->format);
+
+		if(o->off_gl != NULL) {
+			o->aglDestroyContext(o->off_gl);
+			o->aglDestroyPixelFormat(o->off_format);
+		}
+		MwLLQuickdrawFreeBig(o->buffer);
+
+		/* the pixmap does not own the buffer */
+		(**o->pixmap).baseAddr = NULL;
+		DisposePixMap(o->pixmap);
+
+		DisposeRgn(o->clip);
+		DisposeRgn(o->saved_clip);
+
+		MwDynamicClose(o->lib);
+	}
+#endif
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
 		/* todo */
@@ -481,6 +790,15 @@ static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 		}
 	}
 #endif
+#ifdef USE_QUICKDRAW
+	if(handle->lowlevel->common.type == MwLLBackendQuickDraw) {
+		quickdrawopengl_t* o = handle->internal;
+
+		agl_sync(handle, o);
+		o->aglSetCurrentContext(agl_current(o));
+		o->used = 1;
+	}
+#endif
 #ifdef USE_WAYLAND
 	if(handle->lowlevel->common.type == MwLLBackendWayland) {
 		waylandopengl_t* o = handle->internal;
@@ -509,6 +827,49 @@ static void mwOpenGLSwapBufferImpl(MwWidget handle) {
 
 		o->glXSwapBuffers(handle->lowlevel->x11.display,
 				  handle->lowlevel->x11.window);
+	}
+#endif
+#ifdef USE_QUICKDRAW
+	if(handle->lowlevel->common.type == MwLLBackendQuickDraw) {
+		quickdrawopengl_t* o = handle->internal;
+
+		GrafPtr		   port;
+		MwRect		   r;
+		WindowPtr	   w;
+		long		   serial;
+
+		agl_sync(handle, o);
+		if((w = MwLLQuickdrawGetWindow(handle->lowlevel, &r, &serial)) == NULL) return;
+
+		/* the part of the widget that is not covered or scrolled away */
+		MwLLQuickdrawGetVisibleRegion(handle->lowlevel, o->clip);
+
+		GetPort(&port);
+		SetPort(w);
+
+		if(o->offscreen) {
+			Rect src, dst;
+
+			o->aglSetCurrentContext(o->off_gl);
+			o->glFinish();
+
+			SetRect(&src, 0, 0, o->buffer_width, o->buffer_height);
+			SetRect(&dst, r.x, r.y, r.x + o->buffer_width, r.y + o->buffer_height);
+
+			ForeColor(blackColor);
+			BackColor(whiteColor);
+			CopyBits((BitMap*)*o->pixmap, &((GrafPtr)w)->portBits, &src, &dst, srcCopy, o->clip);
+		} else {
+			/* this AGL has no clip region of its own, but the buffer reaches the screen through the window */
+			GetClip(o->saved_clip);
+			SetClip(o->clip);
+
+			o->aglSwapBuffers(o->gl);
+
+			SetClip(o->saved_clip);
+		}
+
+		SetPort(port);
 	}
 #endif
 #ifdef USE_WAYLAND
@@ -573,6 +934,14 @@ static void* mwOpenGLGetProcAddressImpl(MwWidget handle, const char* name) {
 		x11opengl_t* o = handle->internal;
 
 		return o->glXGetProcAddress((const GLubyte*)name);
+	}
+#endif
+#ifdef USE_QUICKDRAW
+	if(handle->lowlevel->common.type == MwLLBackendQuickDraw) {
+		quickdrawopengl_t* o = handle->internal;
+
+		/* OpenGLLibrary exports every gl* function it has */
+		return MwDynamicSymbol(o->lib, name);
 	}
 #endif
 #ifdef USE_WAYLAND

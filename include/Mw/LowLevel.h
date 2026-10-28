@@ -30,7 +30,8 @@ enum MwLLBackends {
 	MwLLBackendGDI,
 	MwLLBackendWayland,
 	MwLLBackendCocoa,
-	MwLLBackendHaiku
+	MwLLBackendHaiku,
+	MwLLBackendQuickDraw
 };
 
 struct _MwLLCommon {
@@ -117,8 +118,8 @@ MWDECL void   MwLLDBusFreeContext(MwLLDBusFuncTable* tbl, MwLLDBusContext* ctx);
 #ifdef USE_COCOA
 #include <Mw/LowLevel/Cocoa.h>
 #endif
-#ifdef CLASSIC_MAC_OS
-#include <Mw/LowLevel/ClassicMacOS.h>
+#ifdef USE_QUICKDRAW
+#include <Mw/LowLevel/QuickDraw.h>
 #endif
 #ifdef USE_HAIKU
 #include <Mw/LowLevel/Haiku.h>
@@ -139,8 +140,8 @@ union _MwLL {
 #ifdef USE_COCOA
 	struct _MwLLCocoa cocoa;
 #endif
-#ifdef CLASSIC_MAC_OS
-	struct _MwLLClassicMacOS cmacos;
+#ifdef USE_QUICKDRAW
+	struct _MwLLQuickdraw quickdraw;
 #endif
 #ifdef USE_HAIKU
 	struct _MwLLHaiku haiku;
@@ -160,6 +161,9 @@ union _MwLLColor {
 #endif
 #ifdef USE_COCOA
 	struct _MwLLCocoaColor cocoa;
+#endif
+#ifdef USE_QUICKDRAW
+	struct _MwLLQuickdrawColor quickdraw;
 #endif
 #ifdef USE_HAIKU
 	struct _MwLLHaikuColor haiku;
@@ -181,8 +185,8 @@ union _MwLLPixmap {
 #ifdef USE_COCOA
 	struct _MwLLCocoaPixmap cocoa;
 #endif
-#ifdef CLASSIC_MAC_OS
-	struct _MwLLClassicMacOSPixmap cmacos;
+#ifdef USE_QUICKDRAW
+	struct _MwLLQuickdrawPixmap quickdraw;
 #endif
 #ifdef USE_HAIKU
 	struct _MwLLHaikuPixmap haiku;
@@ -356,6 +360,9 @@ MWDECL int MwFL_STBTTSetup(void);
 
 #ifdef USE_GDI_TEXT
 MWDECL int MwFL_GDISetup(void);
+#endif
+#ifdef USE_ATSUI
+MWDECL int MwFL_ATSUISetup(void);
 #endif
 
 MWDECL int (*MwFLDrawText)(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text, MwColor color);

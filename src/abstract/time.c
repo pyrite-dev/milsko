@@ -32,28 +32,27 @@ void MwTimeSleep(int ms) {
 
 	nanosleep(&ts, NULL);
 }
-#elif defined(CLASSIC_MAC_OS)
-// static TMTask tm;
-// static int    timer;
-// void	      timerUpdateFunc(void) {
-// 	 timer += 1;
-// 	 PrimeTime((QElemPtr)&tm, 1);
-// };
-
+#elif defined(macintosh)
 long MwTimeGetTick(void) {
-	UnsignedWide h;
-	Microseconds(&h);
-	return h.lo;
+	UnsignedWide us;
+
+	Microseconds(&us);
+
+	return (long)((((unsigned long long)us.hi << 32) | us.lo) / 1000);
 }
+
 void MwTimeSleep(int ms) {
-	// tm.tmAddr     = NewTimerProc(timerUpdateFunc);
-	// tm.tmWakeUp   = 0;
-	// tm.tmReserved = 0;
+	EventRecord ev;
+	long	    end = MwTimeGetTick() + ms;
 
-	// InsTime((QElemPtr)&tm);
-	// PrimeTime((QElemPtr)&tm, 1);
+	/* an empty event mask lets the Process Manager run other applications while we wait,
+	 * without taking any events out of our queue */
+	while(MwTimeGetTick() < end) {
+		long ticks = (end - MwTimeGetTick()) * 60 / 1000;
 
-	// DisposeTimerUPP(tm.tmAddr);
+		WaitNextEvent(0, &ev, ticks > 0 ? ticks : 0, NULL);
+		if(EventAvail(everyEvent, &ev)) break;
+	}
 }
 #elif defined(__unix__) || defined(__HAIKU__)
 long MwTimeGetTick(void) {
