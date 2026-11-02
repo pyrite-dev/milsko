@@ -8,7 +8,7 @@ long MwTimeGetTick(void) {
 void MwTimeSleep(int ms) {
 	Sleep(ms);
 }
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && !defined(macintosh)
 #include <mach/mach_time.h>
 
 long MwTimeGetTick(void) {

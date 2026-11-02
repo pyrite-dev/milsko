@@ -1173,7 +1173,7 @@ int MwLibraryInit(void) {
 		if(calls[i]() == 0) return 0;
 	}
 
-#if defined(__APPLE__) && !defined(USE_COCOA)
+#if defined(__APPLE__) && !defined(USE_COCOA) && !defined(__macintosh__)
 	void MwLLNoCocoaErrorMessage(void);
 	MwLLNoCocoaErrorMessage();
 #else
