@@ -1,68 +1,132 @@
-#include "Mw/BaseTypes.h"
-#include "Mw/Core.h"
-#include "Mw/LowLevel/Cocoa.h"
-#include "Mw/StringDefs.h"
 #include <Mw/Milsko.h>
 #include <Mw/Widget/OpenGL.h>
-#import <mach-o/dyld.h>
 
-@interface MacOpenGLWidget : NSObject {
-	NSOpenGLPixelFormat* pixelFormat;
-	NSOpenGLContext*     glc;
-	MilskoCocoa*	     _win;
-}
+#include <AvailabilityMacros.h>
+#if defined(__LP64__) || (MAC_OS_X_VERSION_MIN_REQUIRED >= 1030)
+#include <dlfcn.h>
+#define MW_GL_DLSYM
+#else
+#include <mach-o/dyld.h>
+#endif
 
-- (MacOpenGLWidget*)initWithWindow:(MilskoCocoa*)w;
-- (void)destroy;
-- (void)makeCurrent;
-- (void)swapBuffer;
-- (void*)getProcAddressWithName:(const char*)name;
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
-@end
+typedef struct cocoaopengl {
+	NSOpenGLContext* context;
+	int		 attached;
+	NSRect		 frame;
+} cocoaopengl_t;
 
 static int wcreate(MwWidget handle) {
-	void*	 r = NULL;
-	MwWidget w = handle;
+	NSOpenGLPixelFormatAttribute attrs[] = {
+	    NSOpenGLPFAColorSize, 24,
+	    NSOpenGLPFAAlphaSize, 8,
+	    NSOpenGLPFADepthSize, 24,
+	    NSOpenGLPFAStencilSize, 8,
+	    NSOpenGLPFADoubleBuffer,
+	    0};
+	NSAutoreleasePool*   pool = [[NSAutoreleasePool alloc] init];
+	NSOpenGLPixelFormat* format;
+	cocoaopengl_t*	     o = malloc(sizeof(*o));
+	MwWidget	     w = handle;
 
-	int x	   = MwGetInteger(w, MwNx);
-	int y	   = MwGetInteger(w, MwNy);
-	int width  = MwGetInteger(w, MwNwidth);
-	int height = MwGetInteger(w, MwNheight);
+	memset(o, 0, sizeof(*o));
 
-	printf("%d %d\n", width, height);
+	format	   = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
+	o->context = [[NSOpenGLContext alloc] initWithFormat:format shareContext:nil];
+	[format release];
 
-	handle->internal =
-	    [[MacOpenGLWidget alloc] initWithWindow:handle->lowlevel->cocoa.real];
+	handle->internal		     = o;
 	handle->lowlevel->common.copy_buffer = 0;
 
 	MwSetDefault(handle);
 
-	while(w->parent != NULL)
-		w = w->parent;
-
+	while(w->parent != NULL) w = w->parent;
 	w->berserk++;
+
+	[pool release];
 
 	return 0;
 }
 
 static void destroy(MwWidget handle) {
-	[(MacOpenGLWidget*)handle->internal destroy];
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	cocoaopengl_t*	   o	= handle->internal;
+	MwWidget	   w	= handle;
+
+	if([NSOpenGLContext currentContext] == o->context) [NSOpenGLContext clearCurrentContext];
+	[o->context clearDrawable];
+	[o->context release];
+
+	while(w->parent != NULL) w = w->parent;
+	w->berserk--;
+
+	free(o);
+
+	[pool release];
+}
+
+static void sync_view(MwWidget handle) {
+	cocoaopengl_t* o    = handle->internal;
+	NSView*	       view = MwLLCocoaGetView(handle->lowlevel);
+	NSRect	       f;
+
+	if(o->context == nil || [view window] == nil || ![[view window] isVisible]) return;
+
+	if(!o->attached) {
+		[o->context setView:view];
+		o->attached = 1;
+	}
+
+	f = [view frame];
+	if(!NSEqualRects(f, o->frame)) {
+		o->frame = f;
+		[o->context update];
+	}
 }
 
 static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
-	[(MacOpenGLWidget*)handle->internal makeCurrent];
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	cocoaopengl_t*	   o	= handle->internal;
+
+	sync_view(handle);
+	[o->context makeCurrentContext];
+
+	[pool release];
 }
 
 static void mwOpenGLSwapBufferImpl(MwWidget handle) {
-	[(MacOpenGLWidget*)handle->internal swapBuffer];
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	cocoaopengl_t*	   o	= handle->internal;
+
+	sync_view(handle);
+	[o->context flushBuffer];
+
+	[pool release];
 }
 
 static void* mwOpenGLGetProcAddressImpl(MwWidget handle, const char* name) {
-	return [(MacOpenGLWidget*)handle->internal getProcAddressWithName:name];
+#ifdef MW_GL_DLSYM
+	(void)handle;
+
+	return dlsym(RTLD_DEFAULT, name);
+#else
+	char buf[256];
+
+	(void)handle;
+
+	buf[0] = '_';
+	strncpy(buf + 1, name, sizeof(buf) - 2);
+	buf[sizeof(buf) - 1] = 0;
+
+	if(!NSIsSymbolNameDefined(buf)) return NULL;
+	return NSAddressOfSymbol(NSLookupAndBindSymbol(buf));
+#endif
 }
 
-static void func_handler(MwWidget handle, const char* name, void* out,
-			 va_list va) {
+static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {
 	if(strcmp(name, "mwOpenGLMakeCurrent") == 0) {
 		mwOpenGLMakeCurrentImpl(handle);
 	}
@@ -74,42 +138,6 @@ static void func_handler(MwWidget handle, const char* name, void* out,
 		*(void**)out	  = mwOpenGLGetProcAddressImpl(handle, _name);
 	}
 }
-
-@implementation MacOpenGLWidget
-
-- (MacOpenGLWidget*)initWithWindow:(MilskoCocoa*)w {
-	NSOpenGLPixelFormatAttribute pixelFormatAttributes[] = {
-	    NSOpenGLPFAColorSize, 24,
-	    NSOpenGLPFAStencilSize, 8,
-	    NSOpenGLPFAAlphaSize, 8,
-	    NSOpenGLPFADoubleBuffer, NSOpenGLPFAAccelerated,
-	    NSOpenGLPFANoRecovery, 0};
-	self->pixelFormat =
-	    [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes];
-	self->glc =
-	    [[NSOpenGLContext alloc] initWithFormat:pixelFormat
-				       shareContext:nil];
-	[self->glc setView:[w getView]];
-	self->_win = w;
-	return self;
-};
-- (void)destroy {
-};
-- (void)makeCurrent {
-	[self->glc makeCurrentContext];
-};
-- (void)swapBuffer {
-	[self->glc flushBuffer];
-};
-- (void*)getProcAddressWithName:(const char*)name {
-	if(NSIsSymbolNameDefined(name)) {
-		return NSAddressOfSymbol(NSLookupAndBindSymbol(name));
-	} else {
-		return NULL;
-	}
-};
-
-@end
 
 MwClassRec MwOpenGLClassRec = {wcreate,	     /* create */
 			       destroy,	     /* destroy */
@@ -127,5 +155,8 @@ MwClassRec MwOpenGLClassRec = {wcreate,	     /* create */
 			       NULL,	     /* children_update */
 			       NULL,	     /* children_prop_change */
 			       NULL,	     /* clipboard */
-			       NULL, NULL, NULL, NULL};
+			       NULL,
+			       NULL,
+			       NULL,
+			       NULL};
 MwClass	   MwOpenGLClass    = &MwOpenGLClassRec;

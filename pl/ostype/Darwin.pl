@@ -1,10 +1,9 @@
 $library_suffix = ".dylib";
 set_shared_flag("-dynamiclib");
 
-#use_backend("cocoa");
-new_object("src/backend/nococoa.m");
+use_backend("cocoa");
 
 add_cflags("-DSTBI_NO_THREAD_LOCALS");
-add_ldflags("-framework Cocoa -lobjc");
+add_ldflags("-framework Cocoa -framework ApplicationServices -lobjc");
 
 1;

@@ -17,5 +17,5 @@ The Tier 2 backends are:
 
 Tier 3 backends are:
 
-- Mac OS X 10.4+ with Cocoa
+- Mac OS X 10.0+ with Cocoa
 - Haiku
