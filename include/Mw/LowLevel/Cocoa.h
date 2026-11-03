@@ -13,7 +13,7 @@
 #ifdef __OBJC__
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
-#include <ApplicationServices/ApplicationServices.h>
+// #include <ApplicationServices/ApplicationServices.h>
 
 @class MilskoCocoaWindow;
 @class MilskoCocoaView;

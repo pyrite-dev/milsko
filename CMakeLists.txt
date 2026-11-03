@@ -386,7 +386,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   Mw
   PRIVATE
   "-framework Cocoa"
-  "-framework ApplicationServices"
  )
 elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
 
