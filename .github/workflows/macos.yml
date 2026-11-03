@@ -20,7 +20,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-26
     strategy:
       # let every arch finish, so one failing doesn't hide the others' results
       fail-fast: false
@@ -80,13 +80,18 @@ jobs:
           curl -fL "https://github.com/alexey-lysiuk/macos-sdk/releases/download/10.4u/MacOSX10.4u.tar.bz2" | tar -xf - -C "$HOME/ppc/SDKs"
           curl -fL "https://github.com/alexey-lysiuk/macos-sdk/releases/download/10.5/MacOSX10.5.tar.bz2" | tar -xf - -C "$HOME/ppc/SDKs"
 
-      # The current Xcode has no PowerPC assembler; gcc 4.2.1 looks for it here.
-      - name: Install PowerPC assembler into Xcode
+      # gcc 4.2.1 calls `as -arch ppc` and `ld`, but the current Xcode's
+      # versions can't handle PowerPC: since Xcode 16-ish `as` is just clang
+      # ("invalid arch name '-arch ppc'"), so it no longer hands off to
+      # libexec/as/ppc/as like schismtracker's setup relies on, and the new
+      # linker dropped PowerPC too. Point gcc straight at Xcode 3's assembler
+      # and linker instead: it searches -B directories before anything else.
+      - name: Set up PowerPC assembler and linker
         if: matrix.arch == 'ppc'
         run: |
-          as_dir="$(xcode-select --print-path)/Toolchains/XcodeDefault.xctoolchain/usr/libexec/as/ppc"
-          mkdir -p "$as_dir"
-          cp "$HOME/ppc/usr/libexec/gcc/darwin/ppc/as" "$as_dir/as"
+          mkdir -p "$RUNNER_TEMP/ppc-bin"
+          ln -sf "$HOME/ppc/usr/libexec/gcc/darwin/ppc/as" "$RUNNER_TEMP/ppc-bin/as"
+          ln -sf "$HOME/ppc/usr/bin/ld" "$RUNNER_TEMP/ppc-bin/ld"
 
       # CC carries the arch/SDK flags, since it's the only thing the generated
       # Makefile uses on every compile and link line (library and examples).
@@ -108,7 +113,7 @@ jobs:
             sdk="$HOME/ppc/SDKs/MacOSX10.4u.sdk"
             libgcc="$HOME/ppc/SDKs/MacOSX10.5.sdk/usr/lib/gcc/powerpc-apple-darwin10/4.2.1/libgcc.a"
             echo "EXTRA_PATH=$HOME/ppc/usr/bin" >> "$GITHUB_ENV"
-            echo "CC=powerpc-apple-darwin10-gcc-4.2.1 -isysroot $sdk -mmacosx-version-min=10.4 -I$sdk/usr/include/gcc/darwin/3.3 -mcpu=G3" >> "$GITHUB_ENV"
+            echo "CC=powerpc-apple-darwin10-gcc-4.2.1 -B$RUNNER_TEMP/ppc-bin/ -isysroot $sdk -mmacosx-version-min=10.4 -I$sdk/usr/include/gcc/darwin/3.3 -mcpu=G3" >> "$GITHUB_ENV"
             echo "LINK=-F$sdk/System/Library/Frameworks -L/usr/lib -L/usr/lib/system -Wl,-syslibroot,$sdk -static-libgcc $libgcc" >> "$GITHUB_ENV"
             # No Vulkan on PowerPC (no MoltenVK). No static library either:
             # the toolchain has no ar, and the host's can't index ppc objects.

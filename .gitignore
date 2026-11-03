@@ -14,6 +14,8 @@ examples/*/*.exe
 *.lib
 *.dylib
 *.a
+# prebuilt Retro68 import stubs for OpenGLLibrary/OpenGLUtility, not build output
+!external/agl/lib/*.a
 /Makefile
 /build
 /build*
