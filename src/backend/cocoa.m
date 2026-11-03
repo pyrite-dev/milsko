@@ -1035,6 +1035,9 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 		handle->cocoa.x = x;
 		handle->cocoa.y = y;
 		place_view(handle);
+		if(handle->cocoa.parent != NULL) {
+			mark_dirty(handle->cocoa.parent);
+		}
 	}
 
 	[pool release];
@@ -1060,6 +1063,9 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 		create_context(handle, w, h);
 		place_view(handle);
 		place_children(handle);
+		if(handle->cocoa.parent != NULL) {
+			mark_dirty(handle->cocoa.parent);
+		}
 
 		push_unique(CE_RESIZE, handle);
 		push_unique(CE_DRAW, handle);
