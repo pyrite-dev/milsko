@@ -7,8 +7,11 @@
 
 typedef struct cocoaopengl {
 	NSOpenGLContext* context;
+	NSView*		 view;
 	int		 attached;
-	NSRect		 frame;
+	int		 viewport;
+	NSRect		 visible;
+	NSRect		 placed;
 } cocoaopengl_t;
 
 static int wcreate(MwWidget handle) {
@@ -29,6 +32,9 @@ static int wcreate(MwWidget handle) {
 	format	   = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
 	o->context = [[NSOpenGLContext alloc] initWithFormat:format shareContext:nil];
 	[format release];
+
+	o->view = [[NSView alloc] initWithFrame:NSZeroRect];
+	[MwLLCocoaGetView(handle->lowlevel) addSubview:o->view];
 
 	handle->internal		     = o;
 	handle->lowlevel->common.copy_buffer = 0;
@@ -51,6 +57,8 @@ static void destroy(MwWidget handle) {
 	if([NSOpenGLContext currentContext] == o->context) [NSOpenGLContext clearCurrentContext];
 	[o->context clearDrawable];
 	[o->context release];
+	[o->view removeFromSuperview];
+	[o->view release];
 
 	while(w->parent != NULL) w = w->parent;
 	w->berserk--;
@@ -63,19 +71,31 @@ static void destroy(MwWidget handle) {
 static void sync_view(MwWidget handle) {
 	cocoaopengl_t* o    = handle->internal;
 	NSView*	       view = MwLLCocoaGetView(handle->lowlevel);
-	NSRect	       f;
+	NSRect	       v, p;
 
-	if(o->context == nil || [view window] == nil || ![[view window] isVisible]) return;
-
-	if(!o->attached) {
-		[o->context setView:view];
-		o->attached = 1;
+	if(o->context == nil || [view window] == nil || ![[view window] isVisible]) {
+		return;
 	}
 
-	f = [view frame];
-	if(!NSEqualRects(f, o->frame)) {
-		o->frame = f;
-		[o->context update];
+	v = [view visibleRect];
+	p = [view convertRect:[view bounds] toView:nil];
+	if(NSIsEmptyRect(v)) {
+		return;
+	}
+
+	if(!NSEqualRects(v, o->visible) || !NSEqualRects(p, o->placed)) {
+		o->visible  = v;
+		o->placed   = p;
+		o->viewport = 1;
+		[o->view setFrame:v];
+		if(o->attached) {
+			[o->context update];
+		}
+	}
+
+	if(!o->attached) {
+		[o->context setView:o->view];
+		o->attached = 1;
 	}
 }
 
@@ -85,6 +105,15 @@ static void mwOpenGLMakeCurrentImpl(MwWidget handle) {
 
 	sync_view(handle);
 	[o->context makeCurrentContext];
+
+	if(o->viewport) {
+		void (*viewport)(GLint, GLint, GLsizei, GLsizei) = MwDynamicSymbol(NULL, "glViewport");
+
+		o->viewport = 0;
+		if(viewport != NULL) {
+			viewport(-o->visible.origin.x, -o->visible.origin.y, o->placed.size.width, o->placed.size.height);
+		}
+	}
 
 	[pool release];
 }
