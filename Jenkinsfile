@@ -94,6 +94,22 @@ pipeline {
 						archiveArtifacts("milsko-examples-win32.zip")
 					}
 				}
+				stage("Build for Mac OS X (Github)") {
+					agent {
+						label "built-in"
+					}
+					options {
+						timeout(time: 60, unit: "MINUTES")
+					}
+					steps {
+						sh("git clean -dfx")
+						withCredentials([string(credentialsId: "github-token", variable: "GH_TOKEN")]) {
+							sh("./tools/gh-wait.sh pyrite-dev/milsko macos.yml ${env.GIT_COMMIT} milsko-macos macos-out")
+						}
+						sh("mv macos-out/libMwMac-*.dylib .")
+						archiveArtifacts("libMwMac-*.dylib")
+					}
+				}
 			}
 			post {
 				always {

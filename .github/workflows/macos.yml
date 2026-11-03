@@ -1,0 +1,27 @@
+# Mac OS X builds run on GitHub's runners (via the github.com/pyrite-dev/milsko
+# mirror). Jenkins does not receive anything from here; it polls this workflow
+# with tools/gh-wait.sh and archives the artifact itself.
+name: macos
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: ./configure --enable-opengl --enable-vulkan
+      - name: Build
+        run: make -j"$(sysctl -n hw.ncpu)"
+      # Named here, since only the runner knows its architecture (arm64, x86_64).
+      - name: Rename
+        run: mv src/libMw.dylib "libMwMac-$(uname -m).dylib"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: milsko-macos
+          path: libMwMac-*.dylib
+          if-no-files-found: error
+          retention-days: 7
