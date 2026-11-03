@@ -17,8 +17,7 @@ on:
 
 jobs:
   build:
-    # macos-14 because that's what the PowerPC hack is known to work on.
-    runs-on: macos-14
+    runs-on: macos-26
     strategy:
       # let every arch finish, so one failing doesn't hide the others' results
       fail-fast: false
