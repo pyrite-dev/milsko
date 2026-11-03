@@ -788,6 +788,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 			}
 			handle->x11.width  = ev.xconfigure.width;
 			handle->x11.height = ev.xconfigure.height;
+			break;
 		};
 		case ClientMessage:
 		{
@@ -809,6 +810,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 					unsigned char* formats = NULL;
 					unsigned long  i;
 					handle->x11.xdnd_source = ev.xclient.data.l[0];
+					(void)version;
 					if(list) {
 						Atom	      actualType;
 						int32_t	      actualFormat;
@@ -1093,7 +1095,9 @@ static void MwLLSetTitleImpl(MwLL handle, const char* title) {
 
 static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int width, int height) {
 	MwLLPixmap	  r = malloc(sizeof(*r));
+#ifdef USE_XRENDER
 	int		  evbase, erbase;
+#endif
 	XWindowAttributes attr;
 
 	r->common.raw = malloc(4 * width * height);
