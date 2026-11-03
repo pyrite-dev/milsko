@@ -3,7 +3,7 @@
 # Only makes outbound requests, so it works from behind a firewall.
 #
 # usage: tools/gh-wait.sh <repo> <workflow file> <commit sha> <artifact> <outdir>
-# needs: gh, with GH_TOKEN set
+# needs: gh, logged in (gh auth login) as the user running this
 set -e
 
 repo=$1
