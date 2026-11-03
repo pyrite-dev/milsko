@@ -17,6 +17,7 @@ typedef struct _MwLLCocoaGraphics {
 	void (*draw_pixmap)(MwLL handle, MwRect* rect, MwLLPixmap pixmap);
 } MwLLCocoaGraphics;
 
+int MwLLCocoaMetalSetup(MwLLCocoaGraphics* graphics);
 int MwLLCocoaCoreGraphicsSetup(MwLLCocoaGraphics* graphics);
 
 #endif
