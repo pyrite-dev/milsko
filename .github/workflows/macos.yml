@@ -9,6 +9,9 @@
 #
 # Per-architecture files (SDKs, toolchains) live in $HOME/<arch>, so they
 # stay out of the checkout and can be cached.
+#
+# Classic Mac OS (PowerPC) is a separate job on Linux, in the Retro68 Docker
+# image (container jobs only run on Linux runners).
 name: macos
 
 on:
@@ -17,7 +20,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-26
+    runs-on: macos-15
     strategy:
       # let every arch finish, so one failing doesn't hide the others' results
       fail-fast: false
@@ -127,10 +130,68 @@ jobs:
       - name: Rename
         run: mv src/libMw.dylib "libMwMac-${{ matrix.arch }}.dylib"
 
-      # artifact names must be unique per run; Jenkins fetches milsko-macos-*
+      # artifact names must be unique per run; Jenkins fetches milsko-*
       - uses: actions/upload-artifact@v4
         with:
           name: milsko-macos-${{ matrix.arch }}
           path: libMwMac-*.dylib
+          if-no-files-found: error
+          retention-days: 7
+
+  classic:
+    runs-on: ubuntu-latest
+    container: ghcr.io/autc04/retro68
+    env:
+      RETRO68: /Retro68-build/toolchain
+      # Pinned so an upstream change can't silently change what we build with.
+      INTERFACES_COMMIT: 17fc24355e97167b977f32ea64982a06f3245e48
+    steps:
+      - uses: actions/checkout@v4
+
+      # The image only has the multiversal headers, which lack things milsko
+      # uses (ATSUnicode.h, CursorDevices.h, Folders.h, QDOffscreen.h,
+      # Scrap.h, ...), so install Apple's Universal Interfaces from MPW 3.5.
+      # GitHub runs the container without the image's entrypoint, so this does
+      # by hand what docker-entrypoint.sh would with INTERFACES=universal.
+      - name: Install Universal Interfaces
+        run: |
+          il="$RUNNER_TEMP/InterfacesAndLibraries"
+          git init -q "$il"
+          git -C "$il" fetch -q --depth 1 https://github.com/PowerMacTools/InterfacesAndLibraries "$INTERFACES_COMMIT"
+          git -C "$il" checkout -q FETCH_HEAD
+          # That repo keeps resource forks as "X.rsrc" next to "X"; on Linux,
+          # Retro68 reads them from ".rsrc/X" (Basilisk II layout). Without
+          # this, the PowerPC import libraries (InterfaceLib etc.) can't be
+          # built from the real shared libraries.
+          find "$il" -path "$il/.git" -prune -o -type f -name '*.rsrc' -print | while IFS= read -r f; do
+            d=$(dirname "$f")
+            mkdir -p "$d/.rsrc"
+            mv "$f" "$d/.rsrc/$(basename "$f" .rsrc)"
+          done
+          /Retro68-build/bin/interfaces-and-libraries.sh "$RETRO68" "$il"
+
+      # Same as README.txt section E.
+      - name: Configure
+        run: cmake -B build-ppc -DPLATFORM=retroppc -DMW_BUILD_EXAMPLES=ON -DCMAKE_TOOLCHAIN_FILE="$RETRO68/powerpc-apple-macos/cmake/retroppc.toolchain.cmake"
+
+      - name: Build
+        run: cmake --build build-ppc -j"$(nproc)"
+
+      # Retro68 builds hfsutils into its toolchain; fall back to the distro's.
+      - name: Pack examples
+        run: |
+          if ! command -v hformat >/dev/null; then
+            apt-get update && apt-get install -y hfsutils
+          fi
+          ./tools/retro68-pack.sh build-ppc milsko-examples-classicmac-ppc.dsk
+          mv build-ppc/libMw.a libMwClassicMac-ppc.a
+
+      # Jenkins fetches milsko-*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: milsko-classicmac-ppc
+          path: |
+            libMwClassicMac-ppc.a
+            milsko-examples-classicmac-ppc.dsk
           if-no-files-found: error
           retention-days: 7
