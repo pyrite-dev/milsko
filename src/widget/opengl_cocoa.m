@@ -1,14 +1,6 @@
 #include <Mw/Milsko.h>
 #include <Mw/Widget/OpenGL.h>
 
-#include <AvailabilityMacros.h>
-#if defined(__LP64__) || (MAC_OS_X_VERSION_MIN_REQUIRED >= 1030)
-#include <dlfcn.h>
-#define MW_GL_DLSYM
-#else
-#include <mach-o/dyld.h>
-#endif
-
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
@@ -108,22 +100,9 @@ static void mwOpenGLSwapBufferImpl(MwWidget handle) {
 }
 
 static void* mwOpenGLGetProcAddressImpl(MwWidget handle, const char* name) {
-#ifdef MW_GL_DLSYM
 	(void)handle;
 
-	return dlsym(RTLD_DEFAULT, name);
-#else
-	char buf[256];
-
-	(void)handle;
-
-	buf[0] = '_';
-	strncpy(buf + 1, name, sizeof(buf) - 2);
-	buf[sizeof(buf) - 1] = 0;
-
-	if(!NSIsSymbolNameDefined(buf)) return NULL;
-	return NSAddressOfSymbol(NSLookupAndBindSymbol(buf));
-#endif
+	return MwDynamicSymbol(NULL, name);
 }
 
 static void func_handler(MwWidget handle, const char* name, void* out, va_list va) {

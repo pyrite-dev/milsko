@@ -2,12 +2,6 @@
 #include "../../external/stb_ds.h"
 
 #include <AvailabilityMacros.h>
-#if defined(__LP64__) || (MAC_OS_X_VERSION_MIN_REQUIRED >= 1030)
-#include <dlfcn.h>
-#define MW_COCOA_DLSYM
-#else
-#include <mach-o/dyld.h>
-#endif
 
 #ifdef MW_VULKAN
 #include <vulkan/vulkan_core.h>
@@ -1984,9 +1978,6 @@ static int MwLLCocoaCallInitImpl(void) {
 		unsigned int high;
 		unsigned int low;
 	} psn = {0, current_process};
-#ifndef MW_COCOA_DLSYM
-	char buf[] = "_TransformProcessType";
-#endif
 
 	[NSApplication sharedApplication];
 
@@ -2001,13 +1992,7 @@ static int MwLLCocoaCallInitImpl(void) {
 	} else
 #endif
 	{
-#ifdef MW_COCOA_DLSYM
-		transform = (int (*)(void*, unsigned int))dlsym(RTLD_DEFAULT, "TransformProcessType");
-#else
-		if(NSIsSymbolNameDefined(buf)) {
-			transform = (int (*)(void*, unsigned int))NSAddressOfSymbol(NSLookupAndBindSymbol(buf));
-		}
-#endif
+		transform = (int (*)(void*, unsigned int))MwDynamicSymbol(NULL, "TransformProcessType");
 		if(transform != NULL) {
 			transform(&psn, transform_to_foreground);
 		}
