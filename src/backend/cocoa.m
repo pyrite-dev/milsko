@@ -55,17 +55,6 @@ enum cevent_type {
 
 static void after_resize(MwLL top);
 
-static int clamp_byte(int n) {
-	if(n < 0) {
-		return 0;
-	}
-	if(n > 255) {
-		return 255;
-	}
-
-	return n;
-}
-
 static MwLL get_top(MwLL handle) {
 	while(handle->cocoa.parent != NULL) {
 		handle = handle->cocoa.parent;
@@ -550,24 +539,6 @@ static void global_to_handle(MwLL handle, int gx, int gy, int* x, int* y) {
 	*y = gy - oy - hy;
 }
 
-static void handle_center(MwLL handle, int* x, int* y) {
-	int ox, oy, hx, hy;
-
-	content_origin(get_top(handle), &ox, &oy);
-	get_offset(handle, &hx, &hy);
-
-	*x = ox + hx + handle->cocoa.width / 2;
-	*y = oy + hy + handle->cocoa.height / 2;
-}
-
-static void warp_pointer(int x, int y) {
-	CGPoint p;
-
-	p.x = x;
-	p.y = y;
-	CGWarpMouseCursorPosition(p);
-}
-
 static void event_global(NSEvent* ev, int* x, int* y) {
 	NSPoint	  p = [ev locationInWindow];
 	NSWindow* w = [ev window];
@@ -1029,9 +1000,9 @@ static MwLLColor MwLLAllocColorImpl(MwLL handle, int r, int g, int b) {
 }
 
 static void MwLLColorUpdateImpl(MwLLColor c, int r, int g, int b) {
-	c->common.red	= clamp_byte(r);
-	c->common.green = clamp_byte(g);
-	c->common.blue	= clamp_byte(b);
+	c->common.red	= r;
+	c->common.green = g;
+	c->common.blue	= b;
 }
 
 static void MwLLFreeColorImpl(MwLLColor color) {
@@ -1611,24 +1582,13 @@ static void MwLLForceRenderImpl(MwLL handle) {
 	push_unique(CE_DRAW, handle);
 }
 
-static int clamp_hotspot(int n) {
-	if(n < 0) {
-		return 0;
-	}
-	if(n >= MwCursorDataHeight) {
-		return MwCursorDataHeight - 1;
-	}
-
-	return n;
-}
-
 static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	MwLL		   top	= get_top(handle);
 	NSBitmapImageRep*  rep;
 	NSImage*	   img;
 	unsigned char*	   d;
-	int		   x, y, xs, ys;
+	int		   x, y, xs, ys, hx, hy;
 
 	rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL pixelsWide:MwCursorDataHeight pixelsHigh:MwCursorDataHeight bitsPerSample:8 samplesPerPixel:4 hasAlpha:YES isPlanar:NO colorSpaceName:NSDeviceRGBColorSpace bytesPerRow:MwCursorDataHeight * 4 bitsPerPixel:32];
 	if(rep == nil) {
@@ -1673,8 +1633,23 @@ static void MwLLSetCursorImpl(MwLL handle, MwCursor* image, MwCursor* mask) {
 	img = [[NSImage alloc] initWithSize:NSMakeSize(MwCursorDataHeight, MwCursorDataHeight)];
 	[img addRepresentation:rep];
 
+	hx = xs - image->x;
+	if(hx < 0) {
+		hx = 0;
+	}
+	if(hx >= MwCursorDataHeight) {
+		hx = MwCursorDataHeight - 1;
+	}
+	hy = ys + (MwCursorDataHeight + image->y);
+	if(hy < 0) {
+		hy = 0;
+	}
+	if(hy >= MwCursorDataHeight) {
+		hy = MwCursorDataHeight - 1;
+	}
+
 	[handle->cocoa.cursor release];
-	handle->cocoa.cursor = [[NSCursor alloc] initWithImage:img hotSpot:NSMakePoint(clamp_hotspot(xs - image->x), clamp_hotspot(ys + (MwCursorDataHeight + image->y)))];
+	handle->cocoa.cursor = [[NSCursor alloc] initWithImage:img hotSpot:NSMakePoint(hx, hy)];
 
 	[img release];
 	[rep release];
@@ -1725,10 +1700,6 @@ static void MwLLDetachImpl(MwLL handle, MwPoint* point) {
 
 static void MwLLShowImpl(MwLL handle, int show) {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
-	if(show) {
-		show = 1;
-	}
 
 	if(handle->cocoa.window != nil) {
 		handle->cocoa.shown = show;
@@ -1829,14 +1800,18 @@ static void MwLLFocusImpl(MwLL handle) {
 static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	MwLL		   top	= get_top(handle);
-	int		   x, y;
+	int		   ox, oy, hx, hy;
+	CGPoint		   p;
 
 	if(top != NULL && toggle) {
 		top->cocoa.grab = handle;
 		set_focus(handle);
 
-		handle_center(handle, &x, &y);
-		warp_pointer(x, y);
+		content_origin(top, &ox, &oy);
+		get_offset(handle, &hx, &hy);
+		p.x = ox + hx + handle->cocoa.width / 2;
+		p.y = oy + hy + handle->cocoa.height / 2;
+		CGWarpMouseCursorPosition(p);
 		CGAssociateMouseAndMouseCursorPosition(false);
 
 		if(handle->cocoa.cursor != nil) {
