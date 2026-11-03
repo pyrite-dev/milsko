@@ -1,12 +1,7 @@
 #!/bin/sh
-# Wait for one job of a GitHub Actions run on the mirror to finish and fetch
-# its artifact. Only makes outbound requests, so it works from behind a
-# firewall. Waiting on a single job (not the whole run) lets each Jenkins
-# stage report its own platform as soon as that job is done.
-#
+# waits for a GitHub Actions job to finish and downloads its artifact
 # usage: tools/gh-wait.sh <repo> <workflow file> <commit sha> <job name> <artifact> <outdir>
-# The artifact's files end up directly in <outdir>.
-# needs: gh, with GH_TOKEN set
+# needs gh, with GH_TOKEN set
 set -e
 
 repo=$1
@@ -16,9 +11,7 @@ job=$4
 artifact=$5
 outdir=$6
 
-# The mirror only syncs from forgejo every 10 minutes, so the run may not
-# exist yet. Wait up to 20 minutes: a full sync interval, plus slack for a
-# late sync and for GitHub to queue the run.
+# the mirror syncs every 10 minutes, so the run may not exist yet
 appear_timeout=${GH_WAIT_APPEAR_TIMEOUT:-1200}
 waited=0
 while :; do
@@ -36,10 +29,9 @@ done
 
 echo "https://github.com/$repo/actions/runs/$id"
 
-# Poll the job; the overall time limit is the Jenkins stage's timeout.
 last=
 while :; do
-	# "<status> <conclusion> <job id>"; conclusion is empty until it's done
+	# "<status> <conclusion> <job id>"
 	info=$(gh run view "$id" -R "$repo" --json jobs -q ".jobs[] | select(.name == \"$job\") | \"\(.status) \(.conclusion) \(.databaseId)\"")
 	status=${info%% *}
 	if [ "$info" != "$last" ]; then
@@ -63,7 +55,5 @@ if [ "$conclusion" != "success" ]; then
 	exit 1
 fi
 
-# Artifacts can be downloaded as soon as their job uploads them, even while
-# other jobs in the run are still going.
 rm -rf "$outdir"
 gh run download "$id" -R "$repo" -n "$artifact" -D "$outdir"

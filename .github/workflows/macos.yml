@@ -1,17 +1,5 @@
-# Mac OS X builds run on GitHub's runners (via the github.com/pyrite-dev/milsko
-# mirror). Jenkins does not receive anything from here; it polls this workflow
-# with tools/gh-wait.sh and archives the artifacts itself.
-#
-# Everything builds on one Apple Silicon runner: arm64 natively, x86_64 and
-# PowerPC by cross compiling. The PowerPC setup follows schismtracker's
-# workflow (.github/workflows/osx.yml there): Xcode 3's powerpc gcc 4.2.1,
-# which is an x86_64 binary run under Rosetta, against the 10.4u SDK.
-#
-# Per-architecture files (SDKs, toolchains) live in $HOME/<arch>, so they
-# stay out of the checkout and can be cached.
-#
-# Classic Mac OS (PowerPC) is a separate job on Linux, in the Retro68 Docker
-# image (container jobs only run on Linux runners).
+# Polled by Jenkins (tools/gh-wait.sh). The PowerPC setup is based on
+# schismtracker's .github/workflows/osx.yml.
 name: macos
 
 on:
@@ -20,23 +8,17 @@ on:
 
 jobs:
   build:
-    # Jenkins waits on each job by this name (tools/gh-wait.sh), keep in sync
+    # job names must match the Jenkinsfile
     name: macos-${{ matrix.arch }}
     runs-on: macos-26
     strategy:
-      # let every arch finish, so one failing doesn't hide the others' results
       fail-fast: false
       matrix:
         arch: [arm64, x86_64, ppc]
     steps:
       - uses: actions/checkout@v4
 
-      # MoltenVK is the Vulkan driver on macOS. The library dlopen()s
-      # libvulkan.dylib at runtime (from vulkan-loader), so building only
-      # needs the headers, which are the same for arm64 and x86_64.
-      # Homebrew's include dir isn't on Apple clang's default search path.
-      # Use CPATH rather than --cflags: the generated Makefile only passes
-      # CFLAGS to library objects, not to the examples (e.g. vkdemos/vulkan).
+      # CPATH, not --cflags: the Makefile doesn't pass CFLAGS to the examples
       - name: Install Vulkan
         if: matrix.arch != 'ppc'
         run: |
@@ -65,9 +47,7 @@ jobs:
           path: /Users/runner/ppc
           key: mac-powerpc-files
 
-      # Same zip schismtracker uses. It's third-party binaries from a Dropbox
-      # link, so pin its hash: if it ever changes, this fails instead of
-      # running something different.
+      # third-party binaries, so the hash is pinned
       - name: Download PowerPC cross compile binaries
         if: matrix.arch == 'ppc' && steps.cache-ppc.outputs.cache-hit != 'true'
         run: |
@@ -82,12 +62,7 @@ jobs:
           curl -fL "https://github.com/alexey-lysiuk/macos-sdk/releases/download/10.4u/MacOSX10.4u.tar.bz2" | tar -xf - -C "$HOME/ppc/SDKs"
           curl -fL "https://github.com/alexey-lysiuk/macos-sdk/releases/download/10.5/MacOSX10.5.tar.bz2" | tar -xf - -C "$HOME/ppc/SDKs"
 
-      # gcc 4.2.1 calls `as -arch ppc` and `ld`, but the current Xcode's
-      # versions can't handle PowerPC: since Xcode 16-ish `as` is just clang
-      # ("invalid arch name '-arch ppc'"), so it no longer hands off to
-      # libexec/as/ppc/as like schismtracker's setup relies on, and the new
-      # linker dropped PowerPC too. Point gcc straight at Xcode 3's assembler
-      # and linker instead: it searches -B directories before anything else.
+      # current Xcode's as/ld can't do PowerPC; gcc uses these via -B
       - name: Set up PowerPC assembler and linker
         if: matrix.arch == 'ppc'
         run: |
@@ -95,10 +70,8 @@ jobs:
           ln -sf "$HOME/ppc/usr/libexec/gcc/darwin/ppc/as" "$RUNNER_TEMP/ppc-bin/as"
           ln -sf "$HOME/ppc/usr/bin/ld" "$RUNNER_TEMP/ppc-bin/ld"
 
-      # CC carries the arch/SDK flags, since it's the only thing the generated
-      # Makefile uses on every compile and link line (library and examples).
-      # LINK goes in through LIBDIR, which on Darwin is otherwise empty and
-      # only appears on link lines.
+      # flags go in CC since it's on every compile/link line; LINK goes in via
+      # LIBDIR, which is empty on Darwin and only used when linking
       - name: Set up toolchain
         run: |
           case "${{ matrix.arch }}" in
@@ -117,15 +90,13 @@ jobs:
             echo "EXTRA_PATH=$HOME/ppc/usr/bin" >> "$GITHUB_ENV"
             echo "CC=powerpc-apple-darwin10-gcc-4.2.1 -B$RUNNER_TEMP/ppc-bin/ -isysroot $sdk -mmacosx-version-min=10.4 -I$sdk/usr/include/gcc/darwin/3.3 -mcpu=G3" >> "$GITHUB_ENV"
             echo "LINK=-F$sdk/System/Library/Frameworks -L/usr/lib -L/usr/lib/system -Wl,-syslibroot,$sdk -static-libgcc $libgcc" >> "$GITHUB_ENV"
-            # No Vulkan on PowerPC (no MoltenVK). No static library either:
-            # the toolchain has no ar, and the host's can't index ppc objects.
+            # no static lib: no ppc-capable ar
             echo "CONFIGURE_FLAGS=--enable-opengl --disable-static" >> "$GITHUB_ENV"
             ;;
           esac
 
       - name: Configure
         run: |
-          # appended, not prepended, so the host's tools still come first
           [ -n "$EXTRA_PATH" ] && export PATH="$PATH:$EXTRA_PATH"
           ./configure $CONFIGURE_FLAGS
 
@@ -137,7 +108,6 @@ jobs:
       - name: Rename
         run: mv src/libMw.dylib "libMwMac-${{ matrix.arch }}.dylib"
 
-      # artifact names must be unique per run; Jenkins fetches each by name
       - uses: actions/upload-artifact@v4
         with:
           name: milsko-macos-${{ matrix.arch }}
@@ -146,32 +116,23 @@ jobs:
           retention-days: 7
 
   classic:
-    # Jenkins waits on each job by this name (tools/gh-wait.sh), keep in sync
     name: classicmac-ppc
     runs-on: ubuntu-latest
     container: ghcr.io/autc04/retro68
     env:
       RETRO68: /Retro68-build/toolchain
-      # Pinned so an upstream change can't silently change what we build with.
       INTERFACES_COMMIT: 17fc24355e97167b977f32ea64982a06f3245e48
     steps:
       - uses: actions/checkout@v4
 
-      # The image only has the multiversal headers, which lack things milsko
-      # uses (ATSUnicode.h, CursorDevices.h, Folders.h, QDOffscreen.h,
-      # Scrap.h, ...), so install Apple's Universal Interfaces from MPW 3.5.
-      # GitHub runs the container without the image's entrypoint, so this does
-      # by hand what docker-entrypoint.sh would with INTERFACES=universal.
+      # the image's multiversal headers lack ATSUnicode.h, Folders.h, etc.
       - name: Install Universal Interfaces
         run: |
           il="$RUNNER_TEMP/InterfacesAndLibraries"
           git init -q "$il"
           git -C "$il" fetch -q --depth 1 https://github.com/PowerMacTools/InterfacesAndLibraries "$INTERFACES_COMMIT"
           git -C "$il" checkout -q FETCH_HEAD
-          # That repo keeps resource forks as "X.rsrc" next to "X"; on Linux,
-          # Retro68 reads them from ".rsrc/X" (Basilisk II layout). Without
-          # this, the PowerPC import libraries (InterfaceLib etc.) can't be
-          # built from the real shared libraries.
+          # Retro68 wants resource forks at .rsrc/X, not X.rsrc
           find "$il" -path "$il/.git" -prune -o -type f -name '*.rsrc' -print | while IFS= read -r f; do
             d=$(dirname "$f")
             mkdir -p "$d/.rsrc"
@@ -179,14 +140,12 @@ jobs:
           done
           /Retro68-build/bin/interfaces-and-libraries.sh "$RETRO68" "$il"
 
-      # Same as README.txt section E.
       - name: Configure
         run: cmake -B build-ppc -DPLATFORM=retroppc -DMW_BUILD_EXAMPLES=ON -DCMAKE_TOOLCHAIN_FILE="$RETRO68/powerpc-apple-macos/cmake/retroppc.toolchain.cmake"
 
       - name: Build
         run: cmake --build build-ppc -j"$(nproc)"
 
-      # Retro68 builds hfsutils into its toolchain; fall back to the distro's.
       - name: Pack examples
         run: |
           if ! command -v hformat >/dev/null; then
@@ -195,7 +154,6 @@ jobs:
           ./tools/retro68-pack.sh build-ppc milsko-examples-classicmac-ppc.dsk
           mv build-ppc/libMw.a libMwClassicMac-ppc.a
 
-      # Jenkins fetches this by name
       - uses: actions/upload-artifact@v4
         with:
           name: milsko-classicmac-ppc

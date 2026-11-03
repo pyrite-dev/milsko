@@ -1,7 +1,4 @@
-// Mac builds run on GitHub (github.com/pyrite-dev/milsko mirror, see
-// .github/workflows/macos.yml). This waits for one job there and archives its
-// artifact. The stage timeout (60 min) covers up to 20 min for the mirror to
-// sync (every 10 min), plus waiting for a runner and the build itself.
+// waits for a job in .github/workflows/macos.yml on the GitHub mirror
 def fromGitHub(job, artifact, files) {
 	sh("git clean -dfx")
 	withCredentials([string(credentialsId: "github-token", variable: "GH_TOKEN")]) {
