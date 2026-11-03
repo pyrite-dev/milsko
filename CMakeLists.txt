@@ -24,7 +24,11 @@ option(MW_USE_STB_TRUETYPE "Use stb_truetype" OFF)
 if(${CMAKE_SYSTEM_NAME} MATCHES Retro)
   option(MW_BUILD_SHARED "Build a shared library" OFF)
   option(MW_BUILD_STATIC "Build a static library" ON)
-  option(MW_TRY_OPENGL "Try to compile OpenGL widget or not" ON)
+  if(PLATFORM MATCHES retroppc)
+    option(MW_TRY_OPENGL "Try to compile OpenGL widget or not" ON)
+  else()
+    option(MW_TRY_OPENGL "Try to compile OpenGL widget or not" OFF)
+  endif()
   option(MW_TRY_VULKAN "Try to compile Vulkan widget or not" OFF)
 else()
   option(MW_BUILD_SHARED "Build a shared library" ON)
@@ -397,9 +401,13 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
   endif()
   if(CMAKE_SYSTEM_NAME MATCHES RetroPPC)
     list(APPEND LIBRARIES CursorDevicesGlue)
+    list(APPEND LIBRARIES InterfaceLib)
+  else()
+    # we do not plan to support 16-bit 68k any time soon
+    target_compile_options(Mw PUBLIC -m68030)
+    target_link_options(Mw PUBLIC -m68030)
   endif()
 
-  list(APPEND LIBRARIES InterfaceLib)
 
   target_compile_definitions(
    Mw

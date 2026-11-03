@@ -148,6 +148,17 @@ pipeline {
 						fromGitHub("classicmac-ppc", "milsko-classicmac-ppc", "libMwClassicMac-ppc.a,milsko-examples-classicmac-ppc.dsk")
 					}
 				}
+				stage("Build for Classic Mac OS 68k (GitHub)") {
+					agent {
+						label "built-in"
+					}
+					options {
+						timeout(time: 60, unit: "MINUTES")
+					}
+					steps {
+						fromGitHub("classicmac-68k", "milsko-classicmac-68k", "libMwClassicMac-68k.a,milsko-examples-classicmac-68k.dsk")
+					}
+				}
 			}
 			post {
 				always {

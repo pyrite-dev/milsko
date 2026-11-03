@@ -115,7 +115,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  classic:
+  classic-ppc:
     name: classicmac-ppc
     runs-on: ubuntu-latest
     container: ghcr.io/autc04/retro68
@@ -160,5 +160,52 @@ jobs:
           path: |
             libMwClassicMac-ppc.a
             milsko-examples-classicmac-ppc.dsk
+          if-no-files-found: error
+          retention-days: 7
+  classic-68k:
+    name: classicmac-68k
+    runs-on: ubuntu-latest
+    container: ghcr.io/autc04/retro68
+    env:
+      RETRO68: /Retro68-build/toolchain
+      INTERFACES_COMMIT: 17fc24355e97167b977f32ea64982a06f3245e48
+    steps:
+      - uses: actions/checkout@v4
+
+      # the image's multiversal headers lack ATSUnicode.h, Folders.h, etc.
+      - name: Install Universal Interfaces
+        run: |
+          il="$RUNNER_TEMP/InterfacesAndLibraries"
+          git init -q "$il"
+          git -C "$il" fetch -q --depth 1 https://github.com/PowerMacTools/InterfacesAndLibraries "$INTERFACES_COMMIT"
+          git -C "$il" checkout -q FETCH_HEAD
+          # Retro68 wants resource forks at .rsrc/X, not X.rsrc
+          find "$il" -path "$il/.git" -prune -o -type f -name '*.rsrc' -print | while IFS= read -r f; do
+            d=$(dirname "$f")
+            mkdir -p "$d/.rsrc"
+            mv "$f" "$d/.rsrc/$(basename "$f" .rsrc)"
+          done
+          /Retro68-build/bin/interfaces-and-libraries.sh "$RETRO68" "$il"
+
+      - name: Configure
+        run: cmake -B build-68k -DPLATFORM=retro68 -DMW_BUILD_EXAMPLES=ON -DCMAKE_TOOLCHAIN_FILE="$RETRO68/m68k-apple-macos/cmake/retro68.toolchain.cmake"
+
+      - name: Build
+        run: cmake --build build-68k -j"$(nproc)"
+
+      - name: Pack examples
+        run: |
+          if ! command -v hformat >/dev/null; then
+            apt-get update && apt-get install -y hfsutils
+          fi
+          ./tools/retro68-pack.sh build-68k milsko-examples-classicmac-68k.dsk 68k
+          mv build-68k/libMw.a libMwClassicMac68k.a
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: milsko-classicmac-68k
+          path: |
+            libMwClassicMac-68k.a
+            milsko-examples-classicmac-68k.dsk
           if-no-files-found: error
           retention-days: 7

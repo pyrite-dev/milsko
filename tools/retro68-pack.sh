@@ -5,6 +5,7 @@
 set -e
 build=${1:-build-ppc}
 out=${2:-milsko-examples.dsk}
+buildfor=${3:ppc}
 folder="Milsko Examples"
 
 rm -f "$out"
@@ -12,12 +13,22 @@ dd if=/dev/zero of="$out" bs=1M count=32 2>/dev/null
 hformat -l "Milsko" "$out" >/dev/null
 hmount "$out" >/dev/null
 hmkdir ":$folder"
+if [[ $buildfor == ppc ]]; then
 for i in "$build"/examples/basic/*.bin "$build"/examples/gldemos/*.bin; do
 	case "$i" in
 	*.rsrc.bin) ;;
 	*) hcopy -m "$i" ":$folder:" ;;
 	esac
 done
+else
+for i in "$build"/examples/basic/*[^.code].bin; do
+	case "$i" in
+	*.rsrc.bin) ;;
+	*) hcopy -m "$i" ":$folder:" ;;
+	esac
+done
+fi
+
 # the examples fall back to loading these from their own folder
 hcopy -r resource/logo/logo.png ":$folder:logo.png"
 hcopy -r examples/picture.jpg ":$folder:picture.jpg"
