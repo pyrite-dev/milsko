@@ -12,8 +12,14 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      # MoltenVK is the Vulkan driver on macOS. The library dlopen()s
+      # libvulkan.dylib at runtime (from vulkan-loader), so building only
+      # needs the headers.
+      - name: Install Vulkan
+        run: brew install molten-vk vulkan-loader vulkan-headers
+      # Homebrew's include dir isn't on Apple clang's default search path.
       - name: Configure
-        run: ./configure --enable-opengl --enable-vulkan
+        run: ./configure --enable-opengl --enable-vulkan --without-vulkan-string-helper --cflags="-I$(brew --prefix)/include" --enable-vulkan
       - name: Build
         run: make -j"$(sysctl -n hw.ncpu)"
       # Named here, since only the runner knows its architecture (arm64, x86_64).
