@@ -99,6 +99,8 @@ pipeline {
 						label "built-in"
 					}
 					options {
+						// up to 20 min for the mirror to sync (every 10 min),
+						// plus waiting for a macOS runner and the build itself
 						timeout(time: 60, unit: "MINUTES")
 					}
 					steps {

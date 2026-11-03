@@ -12,8 +12,10 @@ sha=$3
 artifact=$4
 outdir=$5
 
-# The mirror can lag behind forgejo, so the run may not exist yet.
-appear_timeout=${GH_WAIT_APPEAR_TIMEOUT:-900}
+# The mirror only syncs from forgejo every 10 minutes, so the run may not
+# exist yet. Wait up to 20 minutes: a full sync interval, plus slack for a
+# late sync and for GitHub to queue the run.
+appear_timeout=${GH_WAIT_APPEAR_TIMEOUT:-1200}
 waited=0
 while :; do
 	id=$(gh run list -R "$repo" -w "$workflow" -c "$sha" -L 1 --json databaseId -q '.[0].databaseId')
