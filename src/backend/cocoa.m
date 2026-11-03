@@ -319,6 +319,15 @@ static void mark_dirty(MwLL handle) {
 	}
 }
 
+static void push_draw_tree(MwLL handle) {
+	int i;
+
+	push_unique(CE_DRAW, handle);
+	for(i = 0; i < arrlen(handle->cocoa.children); i++) {
+		push_draw_tree(handle->cocoa.children[i]);
+	}
+}
+
 static void place_view(MwLL handle) {
 	MwLL p = handle->cocoa.parent;
 
@@ -1038,6 +1047,7 @@ static void MwLLSetXYImpl(MwLL handle, int x, int y) {
 		if(handle->cocoa.parent != NULL) {
 			mark_dirty(handle->cocoa.parent);
 		}
+		push_draw_tree(handle);
 	}
 
 	[pool release];
