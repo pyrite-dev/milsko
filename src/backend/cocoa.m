@@ -1136,13 +1136,13 @@ static int MwLLPendingImpl(MwLL handle) {
 
 				event_global(ev, &gx, &gy);
 				et = from_window([ev window]);
-				if(et != NULL && et->cocoa.capture != NULL) {
-					t		   = et->cocoa.capture;
-					button		   = et->cocoa.capture_button;
-					et->cocoa.capture = NULL;
-				} else if((t = pointer_target(gx, gy)) == NULL) {
+				if(et == NULL || et->cocoa.capture == NULL) {
 					break;
 				}
+
+				t		  = et->cocoa.capture;
+				button		  = et->cocoa.capture_button;
+				et->cocoa.capture = NULL;
 
 				global_to_handle(t, gx, gy, &x, &y);
 				push_mouse(CE_UP, t, x, y, button);
