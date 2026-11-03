@@ -53,7 +53,7 @@ pipeline {
 					steps {
 						sh("git clean -dfx")
 						sh("./configure --enable-opengl")
-						sh("make -j4")
+						sh("gmake -j4")
 						sh("mv src/libMw.so libMwSol64.so")
 						archiveArtifacts("libMwSol64.so")
 					}
