@@ -60,7 +60,7 @@ c("Requirements");
 l("");
 l("  Milsko requires either");
 l("  * A Windows environment with GDI (so anything NT or 9x)");
-#l("  * A MacOS environment with Cocoa (10.4 or above supported)");
+l("  * A MacOS environment with Cocoa (10.0 or above supported)");
 l("  * A Unix-like environment with Wayland and/or X11 for runtime.");
 l("  * A PowerPC environment running Classic Mac OS");
 l("");

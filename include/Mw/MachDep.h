@@ -58,9 +58,12 @@
 #include <limits.h>
 #endif
 
-#if defined(__unix__) || defined(__APPLE__) || defined(__HAIKU__)
+#if defined(__unix__) || defined(__HAIKU__)
 #include <dirent.h>
 #include <dlfcn.h>
+#elif defined(__APPLE__)
+#include <dirent.h>
+#include <mach-o/dyld.h>
 #endif
 
 #ifdef __HAIKU__

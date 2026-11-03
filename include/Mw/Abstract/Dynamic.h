@@ -20,7 +20,7 @@ MWDECL void* MWAPI MwDynamicOpen(const char* path);
 
 /*!
  * @brief Gets a symbol from the dynamic library
- * @param handle Handle
+ * @param handle Handle, or NULL to search every loaded image (Mac OS X)
  * @param symbol Symbol
  */
 MWDECL void* MWAPI MwDynamicSymbol(void* handle, const char* symbol);

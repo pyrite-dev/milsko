@@ -1,7 +1,7 @@
 #define TITLE "cube"
 #include "glutlayer.c"
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(macintosh)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #else

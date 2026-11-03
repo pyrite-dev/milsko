@@ -367,26 +367,22 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "MSYS")
  )
   endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  #  target_sources(
-  #  Mw
-  #  PRIVATE
-  #  src/backend/cocoa.m
-  # )
   target_sources(
- Mw
- PRIVATE
- src/backend/nococoa.m
-)
-  #  target_compile_definitions(
-  #  Mw
-  #  PRIVATE
-  #  USE_COCOA
-  # )
+  Mw
+  PRIVATE
+  src/backend/cocoa.m
+ )
+  target_compile_definitions(
+  Mw
+  PRIVATE
+  USE_COCOA
+ )
   list(APPEND LIBRARIES objc)
   target_link_options(
   Mw
   PRIVATE
   -framework Cocoa
+  -framework ApplicationServices
  )
 elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
 

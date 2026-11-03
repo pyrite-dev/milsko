@@ -8,21 +8,15 @@ long MwTimeGetTick(void) {
 void MwTimeSleep(int ms) {
 	Sleep(ms);
 }
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && !defined(macintosh)
+#include <mach/mach_time.h>
+
 long MwTimeGetTick(void) {
-	struct timespec ts;
-	long		n = 0;
-	clock_serv_t	cclock;
-	mach_timespec_t mts;
+	mach_timebase_info_data_t tb;
 
-	host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-	clock_get_time(cclock, &mts);
-	mach_port_deallocate(mach_task_self(), cclock);
+	mach_timebase_info(&tb);
 
-	n += ts.tv_nsec / 1000 / 1000;
-	n += ts.tv_sec * 1000;
-
-	return n;
+	return (long)((double)mach_absolute_time() * tb.numer / tb.denom / 1000000.0);
 }
 void MwTimeSleep(int ms) {
 	struct timespec ts;

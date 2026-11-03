@@ -49,7 +49,30 @@ void MwDynamicClose(void* handle) {
 
 	CloseConnection(&conn);
 }
-#elif defined(__unix__) || defined(__APPLE__) || defined(__HAIKU__)
+#elif defined(__APPLE__)
+void* MwDynamicOpen(const char* path) {
+	return (void*)NSAddImage(path, NSADDIMAGE_OPTION_RETURN_ON_ERROR | NSADDIMAGE_OPTION_WITH_SEARCHING);
+}
+
+void* MwDynamicSymbol(void* handle, const char* symbol) {
+	NSSymbol sym  = NULL;
+	char*	 name = MwStringConcat("_", symbol);
+
+	if(handle == NULL) {
+		if(NSIsSymbolNameDefined(name)) sym = NSLookupAndBindSymbol(name);
+	} else {
+		sym = NSLookupSymbolInImage(handle, name, NSLOOKUPSYMBOLINIMAGE_OPTION_BIND | NSLOOKUPSYMBOLINIMAGE_OPTION_RETURN_ON_ERROR);
+	}
+	free(name);
+
+	if(sym == NULL) return NULL;
+	return NSAddressOfSymbol(sym);
+}
+
+void MwDynamicClose(void* handle) {
+	(void)handle;
+}
+#elif defined(__unix__) || defined(__HAIKU__)
 void* MwDynamicOpen(const char* path) {
 	return dlopen(path, RTLD_LOCAL | RTLD_LAZY);
 }
