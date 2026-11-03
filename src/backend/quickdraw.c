@@ -670,7 +670,7 @@ static IconSuiteRef make_icon_suite(const unsigned char* rgba) {
 			for(j = 0; j <= (**clut).ctSize; j++) {
 				RGBColor* c  = &(**clut).ctTable[j].rgb;
 				long	  dr = (c->red >> 8) - rgba[i * 4], dg = (c->green >> 8) - rgba[i * 4 + 1], db = (c->blue >> 8) - rgba[i * 4 + 2];
-				long	  d  = dr * dr + dg * dg + db * db;
+				long	  d = dr * dr + dg * dg + db * db;
 
 				if(d < best) {
 					best   = d;
@@ -1757,7 +1757,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 #define BIG_HEADER 16
 
 void* MwLLQuickdrawAllocBig(size_t size) {
-	OSErr err;
+	OSErr  err;
 	Handle h = TempNewHandle(size + BIG_HEADER, &err);
 	char*  p;
 
@@ -1808,8 +1808,8 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 
 	mask_bytes = ((width + 15) / 16) * 2;
 
-	r->common.width		   = width;
-	r->common.height	   = height;
+	r->common.width	 = width;
+	r->common.height = height;
 	if(PIXMAP_BIG(width, height)) {
 		r->common.raw	    = MwLLQuickdrawAllocBig(4 * width * height);
 		r->quickdraw.pixels = MwLLQuickdrawAllocBig(4 * width * height);
@@ -1930,6 +1930,15 @@ static void MwLLSetIconImpl(MwLL handle, MwLLPixmap pixmap) {
 	IconRef		      icon;
 	OSType		      creator, type;
 	ProcessSerialNumber   psn;
+	long		      response;
+
+	if(Gestalt(gestaltOSAttr, &response) != noErr) {
+		return;
+	}
+
+	if((response & (1L << gestaltLaunchControl)) != 0) {
+		return;
+	}
 
 	if(pixmap == NULL || pixmap->common.width < 1 || pixmap->common.height < 1) return;
 
@@ -2171,7 +2180,14 @@ static void MwLLSetupDragAndDropImpl(MwLL handle) {
 	if(done) return;
 	done = 1;
 
-	if(Gestalt(gestaltDragMgrAttr, &response) != noErr || !(response & (1 << gestaltDragMgrPresent))) return;
+	if(Gestalt(gestaltDragMgrAttr, &response) != noErr) {
+		return;
+	}
+
+	if((response & (1L << gestaltDragMgrPresent)) != 0) {
+		return;
+	}
+
 	if((dtbl.lib = MwDynamicOpen("DragLib")) == NULL) return;
 
 #define DRAG_FUNC(x) \

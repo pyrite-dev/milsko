@@ -404,8 +404,8 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
     list(APPEND LIBRARIES InterfaceLib)
   else()
     # we do not plan to support 16-bit 68k any time soon
-    target_compile_options(Mw PUBLIC -m68030)
-    target_link_options(Mw PUBLIC -m68030)
+    target_compile_options(Mw PUBLIC -m68020)
+    target_link_options(Mw PUBLIC -m68020)
   endif()
 
 

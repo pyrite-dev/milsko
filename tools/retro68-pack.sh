@@ -13,21 +13,17 @@ dd if=/dev/zero of="$out" bs=1M count=32 2>/dev/null
 hformat -l "Milsko" "$out" >/dev/null
 hmount "$out" >/dev/null
 hmkdir ":$folder"
-if [[ $buildfor == ppc ]]; then
-for i in "$build"/examples/basic/*.bin "$build"/examples/gldemos/*.bin; do
-	case "$i" in
-	*.rsrc.bin) ;;
-	*) hcopy -m "$i" ":$folder:" ;;
-	esac
-done
+if [ "$buildfor" = ppc ]; then
+	set -- "$build"/examples/basic/*.bin "$build"/examples/gldemos/*.bin
 else
-for i in "$build"/examples/basic/*[^.code].bin; do
+	set -- "$build"/examples/basic/*.bin
+fi
+for i in "$@"; do
 	case "$i" in
-	*.rsrc.bin) ;;
+	*.rsrc.bin | *.code.bin) ;;
 	*) hcopy -m "$i" ":$folder:" ;;
 	esac
 done
-fi
 
 # the examples fall back to loading these from their own folder
 hcopy -r resource/logo/logo.png ":$folder:logo.png"
