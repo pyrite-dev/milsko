@@ -14,8 +14,8 @@ Currently, the Tier 1 backends are:
 The Tier 2 backends are:
 
 - Mac OS 7-9, PowerPC (68k support not planned).
+- Mac OS X 10.0+ with Cocoa
 
 Tier 3 backends are:
 
-- Mac OS X 10.0+ with Cocoa
 - Haiku
