@@ -82,7 +82,7 @@ if (grep(/( |^)-DUSE_DBUS( |$)/, $cflags)) {
 
 if (grep(/^cocoa$/, @backends) || param_get("gnustep")) {
     add_cflags("-DUSE_COCOA");
-    new_object("src/backend/cocoa.m");
+    new_object("src/backend/apple/cocoa.m");
 
     if (param_get("gnustep")) {
         add_incdir("-I" . `gnustep-config --variable=GNUSTEP_SYSTEM_HEADERS`);

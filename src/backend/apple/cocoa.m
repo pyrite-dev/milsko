@@ -628,9 +628,9 @@ static MwLL key_target(void) {
 }
 
 - (void)drawRect:(NSRect)rect {
-	NSRect		b = [self bounds];
-	size_t		size;
-	CGColorSpaceRef rgb;
+	NSRect		  b = [self bounds];
+	size_t		  size;
+	CGColorSpaceRef	  rgb;
 	CGContextRef	  port;
 	CGDataProviderRef provider;
 	CGImageRef	  image;
@@ -1458,8 +1458,7 @@ static void MwLLNextEventImpl(MwLL handle) {
 		dark = 0;
 		if(handle->common.theme_override != 0) {
 			dark = handle->common.theme_override == 2;
-		}
-		else if(s != nil && [s caseInsensitiveCompare:@"Dark"] == NSOrderedSame) {
+		} else if(s != nil && [s caseInsensitiveCompare:@"Dark"] == NSOrderedSame) {
 			dark = 1;
 		}
 
@@ -1959,7 +1958,7 @@ static int MwLLCocoaCallInitImpl(void) {
 	NSString*	     name;
 	NSMenu*		     bar;
 	NSMenuItem*	     item;
-	NSMenu* app;
+	NSMenu*		     app;
 	enum {
 		current_process		= 2,
 		transform_to_foreground = 1
@@ -2053,5 +2052,5 @@ VkMetalSurfaceCreateInfoEXT MwCocoaGetMetalSurfaceCreateInfo(MwWidget handle) {
 };
 #endif
 
-#include "call.c"
+#include "../call.c"
 CALL(Cocoa);

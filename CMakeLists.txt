@@ -374,7 +374,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_sources(
   Mw
   PRIVATE
-  src/backend/cocoa.m
+  src/backend/apple/cocoa.m
  )
   target_compile_definitions(
   Mw
@@ -385,8 +385,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_options(
   Mw
   PRIVATE
-  -framework Cocoa
-  -framework ApplicationServices
+  "-framework Cocoa"
+  "-framework ApplicationServices"
  )
 elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
 
