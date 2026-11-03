@@ -5,7 +5,7 @@
 set -e
 build=${1:-build-ppc}
 out=${2:-milsko-examples.dsk}
-buildfor=${3:ppc}
+buildfor=${3:-ppc}
 folder="Milsko Examples"
 
 rm -f "$out"
