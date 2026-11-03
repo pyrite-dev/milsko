@@ -106,9 +106,9 @@ pipeline {
 					steps {
 						sh("git clean -dfx")
 						withCredentials([string(credentialsId: "github-token", variable: "GH_TOKEN")]) {
-							sh("./tools/gh-wait.sh pyrite-dev/milsko macos.yml ${env.GIT_COMMIT} milsko-macos macos-out")
+							sh("./tools/gh-wait.sh pyrite-dev/milsko macos.yml ${env.GIT_COMMIT} 'milsko-macos-*' macos-out")
 						}
-						sh("mv macos-out/libMwMac-*.dylib .")
+						sh("mv macos-out/*/libMwMac-*.dylib .")
 						archiveArtifacts("libMwMac-*.dylib")
 					}
 				}

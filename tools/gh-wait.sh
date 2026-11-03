@@ -2,7 +2,8 @@
 # Wait for a GitHub Actions run on the mirror to finish and fetch its artifact.
 # Only makes outbound requests, so it works from behind a firewall.
 #
-# usage: tools/gh-wait.sh <repo> <workflow file> <commit sha> <artifact> <outdir>
+# usage: tools/gh-wait.sh <repo> <workflow file> <commit sha> <artifact glob> <outdir>
+# Each matching artifact is downloaded into <outdir>/<artifact name>/.
 # needs: gh, with GH_TOKEN set
 set -e
 
@@ -38,4 +39,4 @@ if ! gh run watch "$id" -R "$repo" --exit-status -i 30; then
 fi
 
 rm -rf "$outdir"
-gh run download "$id" -R "$repo" -n "$artifact" -D "$outdir"
+gh run download "$id" -R "$repo" -p "$artifact" -D "$outdir"
