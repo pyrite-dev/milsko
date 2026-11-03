@@ -40,13 +40,18 @@ struct _MwLLCocoa {
 	MwLL  parent;
 	MwLL* children;
 
-	MW_COCOA_OBJC(MilskoCocoaWindow*) window;
-	MW_COCOA_OBJC(MilskoCocoaView*) view;
-	MW_COCOA_OBJC(NSString*) title;
-	MW_COCOA_OBJC(NSCursor*) cursor;
-	MW_COCOA_OBJC(NSWindow*) popup_owner;
+	MW_COCOA_OBJC(MilskoCocoaWindow*)
+	window;
+	MW_COCOA_OBJC(MilskoCocoaView*)
+	view;
+	MW_COCOA_OBJC(NSString*)
+	title;
+	MW_COCOA_OBJC(NSCursor*)
+	cursor;
+	MW_COCOA_OBJC(NSWindow*)
+	popup_owner;
 
-	MW_COCOA_OBJC(CGContextRef) context;
+	void*	       context;
 	unsigned char* buffer;
 
 	MwLLCocoaEvent* events;
@@ -88,7 +93,7 @@ struct _MwLLCocoaPixmap {
 	struct _MwLLCommonPixmap common;
 
 	unsigned char* premultiplied;
-	MW_COCOA_OBJC(CGImageRef) image;
+	void*	       image;
 };
 
 MWDECL int MwLLCocoaCallInit(void);

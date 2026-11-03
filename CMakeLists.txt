@@ -375,6 +375,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   Mw
   PRIVATE
   src/backend/apple/cocoa.m
+  src/backend/apple/coregraphics.m
  )
   target_compile_definitions(
   Mw
