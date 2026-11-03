@@ -1,3 +1,16 @@
+// Mac builds run on GitHub (github.com/pyrite-dev/milsko mirror, see
+// .github/workflows/macos.yml). This waits for one job there and archives its
+// artifact. The stage timeout (60 min) covers up to 20 min for the mirror to
+// sync (every 10 min), plus waiting for a runner and the build itself.
+def fromGitHub(job, artifact, files) {
+	sh("git clean -dfx")
+	withCredentials([string(credentialsId: "github-token", variable: "GH_TOKEN")]) {
+		sh("./tools/gh-wait.sh pyrite-dev/milsko macos.yml ${env.GIT_COMMIT} ${job} ${artifact} github-out")
+	}
+	sh("mv github-out/* .")
+	archiveArtifacts(files)
+}
+
 pipeline {
 	agent {
 		label "built-in"
@@ -94,22 +107,48 @@ pipeline {
 						archiveArtifacts("milsko-examples-win32.zip")
 					}
 				}
-				stage("Build for Mac OS X (Github)") {
+				stage("Build for Mac OS X arm64 (GitHub)") {
 					agent {
 						label "built-in"
 					}
 					options {
-						// up to 20 min for the mirror to sync (every 10 min),
-						// plus waiting for a macOS runner and the build itself
 						timeout(time: 60, unit: "MINUTES")
 					}
 					steps {
-						sh("git clean -dfx")
-						withCredentials([string(credentialsId: "github-token", variable: "GH_TOKEN")]) {
-							sh("./tools/gh-wait.sh pyrite-dev/milsko macos.yml ${env.GIT_COMMIT} 'milsko-*' macos-out")
-						}
-						sh("mv macos-out/*/* .")
-						archiveArtifacts("libMwMac-*.dylib,libMwClassicMac-ppc.a,milsko-examples-classicmac-ppc.dsk")
+						fromGitHub("macos-arm64", "milsko-macos-arm64", "libMwMac-arm64.dylib")
+					}
+				}
+				stage("Build for Mac OS X x86_64 (GitHub)") {
+					agent {
+						label "built-in"
+					}
+					options {
+						timeout(time: 60, unit: "MINUTES")
+					}
+					steps {
+						fromGitHub("macos-x86_64", "milsko-macos-x86_64", "libMwMac-x86_64.dylib")
+					}
+				}
+				stage("Build for Mac OS X PowerPC (GitHub)") {
+					agent {
+						label "built-in"
+					}
+					options {
+						timeout(time: 60, unit: "MINUTES")
+					}
+					steps {
+						fromGitHub("macos-ppc", "milsko-macos-ppc", "libMwMac-ppc.dylib")
+					}
+				}
+				stage("Build for Classic Mac OS PowerPC (GitHub)") {
+					agent {
+						label "built-in"
+					}
+					options {
+						timeout(time: 60, unit: "MINUTES")
+					}
+					steps {
+						fromGitHub("classicmac-ppc", "milsko-classicmac-ppc", "libMwClassicMac-ppc.a,milsko-examples-classicmac-ppc.dsk")
 					}
 				}
 			}

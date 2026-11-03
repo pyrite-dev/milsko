@@ -20,6 +20,8 @@ on:
 
 jobs:
   build:
+    # Jenkins waits on each job by this name (tools/gh-wait.sh), keep in sync
+    name: macos-${{ matrix.arch }}
     runs-on: macos-26
     strategy:
       # let every arch finish, so one failing doesn't hide the others' results
@@ -135,7 +137,7 @@ jobs:
       - name: Rename
         run: mv src/libMw.dylib "libMwMac-${{ matrix.arch }}.dylib"
 
-      # artifact names must be unique per run; Jenkins fetches milsko-*
+      # artifact names must be unique per run; Jenkins fetches each by name
       - uses: actions/upload-artifact@v4
         with:
           name: milsko-macos-${{ matrix.arch }}
@@ -144,6 +146,8 @@ jobs:
           retention-days: 7
 
   classic:
+    # Jenkins waits on each job by this name (tools/gh-wait.sh), keep in sync
+    name: classicmac-ppc
     runs-on: ubuntu-latest
     container: ghcr.io/autc04/retro68
     env:
@@ -191,7 +195,7 @@ jobs:
           ./tools/retro68-pack.sh build-ppc milsko-examples-classicmac-ppc.dsk
           mv build-ppc/libMw.a libMwClassicMac-ppc.a
 
-      # Jenkins fetches milsko-*
+      # Jenkins fetches this by name
       - uses: actions/upload-artifact@v4
         with:
           name: milsko-classicmac-ppc
