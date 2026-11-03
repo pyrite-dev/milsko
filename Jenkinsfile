@@ -46,6 +46,18 @@ pipeline {
 						archiveArtifacts("libMw64.so")
 					}
 				}
+				stage("Build for Solaris 64-bit") {
+					agent {
+						label "solaris"
+					}
+					steps {
+						sh("git clean -dfx")
+						sh("./configure --enable-opengl")
+						sh("gmake -j4")
+						sh("mv src/libMw.so libMwSol64.so")
+						archiveArtifacts("libMwSol64.so")
+					}
+				}
 				stage("Build for Windows 32-bit") {
 					agent {
 						label "built-in"

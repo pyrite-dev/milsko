@@ -154,7 +154,6 @@ static void prop_change(MwWidget handle, const char* key) {
 
 static void mouse_down(MwWidget handle, void* mouse) {
 	int	 th  = MwTextHeight(handle, NULL, "M");
-	int	 th2 = th / 2;
 	int	 i;
 	MwText	 txt = handle->internal;
 	MwMouse* m   = mouse;
@@ -210,7 +209,6 @@ static void mouse_down(MwWidget handle, void* mouse) {
 
 static void key(MwWidget handle, int key) {
 	MwText	txt = handle->internal;
-	int	i;
 	char	u[5];
 	char*	l;
 	int	tw;
