@@ -579,6 +579,26 @@ static MwLL key_target(void) {
 	graphics.present(mw, [self bounds]);
 }
 
+- (BOOL)wantsUpdateLayer {
+	return graphics.make_layer != NULL;
+}
+
+- (id)makeBackingLayer {
+	if(graphics.make_layer != NULL) {
+		return graphics.make_layer();
+	}
+
+	return [super makeBackingLayer];
+}
+
+- (void)updateLayer {
+	[self drawRect:[self bounds]];
+}
+
+- (void)viewDidChangeBackingProperties {
+	[self setNeedsDisplay:YES];
+}
+
 - (void)resetCursorRects {
 	if(mw != NULL && mw->cocoa.cursor != nil) {
 		[self addCursorRect:[self visibleRect] cursor:mw->cocoa.cursor];
@@ -772,6 +792,9 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 
 	r->cocoa.view	  = [[MilskoCocoaView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
 	r->cocoa.view->mw = r;
+	if(graphics.make_layer != NULL) {
+		[r->cocoa.view setWantsLayer:YES];
+	}
 
 	if(parent == NULL) {
 		NSRect s = [[NSScreen mainScreen] visibleFrame];
@@ -1861,9 +1884,11 @@ static int MwLLCocoaCallInitImpl(void) {
 		return 0;
 	}
 
-	if(MwLLCocoaCoreGraphicsSetup(&graphics) != 0) {
-		[pool release];
-		return 1;
+	if(MwLLCocoaMetalSetup(&graphics) != 0) {
+		if(MwLLCocoaCoreGraphicsSetup(&graphics) != 0) {
+			[pool release];
+			return 1;
+		}
 	}
 
 	_CGWarpMouseCursorPosition		= MwDynamicSymbol(NULL, "CGWarpMouseCursorPosition");

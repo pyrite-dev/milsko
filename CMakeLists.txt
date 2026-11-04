@@ -91,7 +91,7 @@ if(MW_TRY_OPENGL AND ${CMAKE_SYSTEM_NAME} MATCHES Retro)
   message(STATUS "OpenGL widget has been enabled")
 elseif(MW_TRY_OPENGL)
   find_package(OpenGL)
-  if(OpenGL_FOUND AND NOT APPLE)
+  if(OpenGL_FOUND)
     set(MW_BUILD_OPENGL ON)
     message(STATUS "OpenGL widget has been enabled")
   else()
@@ -372,12 +372,19 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "MSYS")
   endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_sources(
-  Mw
-  PRIVATE
-  src/backend/apple/cocoa.m
-  src/backend/apple/cocoa_coregraphics.m
-  src/backend/apple/cocoa_metal.m
- )
+    Mw
+    PRIVATE
+    src/backend/apple/cocoa.m
+    src/backend/apple/cocoa_coregraphics.m
+    src/backend/apple/cocoa_metal.m
+  )
+  if(MW_TRY_OPENGL)
+    target_sources(
+      Mw
+      PRIVATE
+      src/widget/opengl_cocoa.m
+    )
+  endif()
   target_compile_definitions(
   Mw
   PRIVATE
@@ -387,7 +394,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_options(
   Mw
   PRIVATE
-  "-framework Cocoa"
+  -framework Cocoa
  )
 elseif(CMAKE_SYSTEM_NAME MATCHES "Retro")
 

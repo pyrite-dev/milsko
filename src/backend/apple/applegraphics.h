@@ -9,6 +9,9 @@ typedef struct _MwLLCocoaGraphics {
 	void (*apply_clip)(MwLL handle);
 	void (*present)(MwLL handle, NSRect bounds);
 
+	/* if set, views are layer-backed by this and present from updateLayer instead of drawRect */
+	id (*make_layer)(void);
+
 	void (*polygon)(MwLL handle, MwPoint* points, int points_count, MwLLColor color);
 	void (*line)(MwLL handle, MwPoint* points, MwLLColor color);
 
