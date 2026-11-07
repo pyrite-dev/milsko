@@ -1,6 +1,5 @@
 #include <Mw/Milsko.h>
-#include "../../../external/stb_ds.h"
-#include "applegraphics.h"
+#include "../../external/stb_ds.h"
 
 #include <AvailabilityMacros.h>
 
@@ -14,22 +13,11 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-static MwLLCocoaGraphics graphics;
-
-static int (*_CGWarpMouseCursorPosition)(CGPoint point);
-static int (*_CGAssociateMouseAndMouseCursorPosition)(int connected);
-
-static void warp_cursor(CGPoint point) {
-	if(_CGWarpMouseCursorPosition != NULL) {
-		_CGWarpMouseCursorPosition(point);
-	}
-}
-
-static void associate_cursor(int connected) {
-	if(_CGAssociateMouseAndMouseCursorPosition != NULL) {
-		_CGAssociateMouseAndMouseCursorPosition(connected);
-	}
-}
+#ifdef __BIG_ENDIAN__
+#define BITMAP_INFO ((CGBitmapInfo)kCGImageAlphaPremultipliedFirst)
+#else
+#define BITMAP_INFO ((CGBitmapInfo)kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little)
+#endif
 
 enum cevent_type {
 	CE_DRAW = 0,
@@ -226,7 +214,7 @@ static void forget(MwLL top, MwLL handle) {
 	}
 	if(is_inside(top->cocoa.grab, handle)) {
 		top->cocoa.grab = NULL;
-		associate_cursor(1);
+		CGAssociateMouseAndMouseCursorPosition(true);
 	}
 }
 
@@ -250,6 +238,76 @@ static void quit_all(void) {
 			return;
 		}
 	}
+}
+
+static void apply_clip(MwLL handle) {
+	CGContextRef c = handle->cocoa.context;
+
+	CGContextRestoreGState(c);
+	CGContextSaveGState(c);
+
+	if(handle->cocoa.has_clip) {
+		MwRect* r = &handle->cocoa.clip;
+
+		CGContextClipToRect(c, CGRectMake(r->x, r->y, r->width, r->height));
+	}
+}
+
+static void create_context(MwLL handle, int w, int h) {
+	unsigned char*	buffer = malloc((size_t)w * h * 4);
+	CGColorSpaceRef rgb;
+	CGContextRef	c;
+	int		y;
+
+	if(buffer == NULL) {
+		return;
+	}
+	memset(buffer, 0xff, (size_t)w * h * 4);
+
+	if(handle->cocoa.buffer != NULL) {
+		int cw = handle->cocoa.width;
+		int ch = handle->cocoa.height;
+
+		if(w < cw) {
+			cw = w;
+		}
+		if(h < ch) {
+			ch = h;
+		}
+
+		CGContextFlush(handle->cocoa.context);
+		for(y = 0; y < ch; y++) {
+			memcpy(buffer + (size_t)y * w * 4, handle->cocoa.buffer + (size_t)y * handle->cocoa.width * 4, cw * 4);
+		}
+	}
+
+	rgb = CGColorSpaceCreateDeviceRGB();
+	c   = CGBitmapContextCreate(buffer, w, h, 8, w * 4, rgb, BITMAP_INFO);
+	CGColorSpaceRelease(rgb);
+	if(c == NULL) {
+		free(buffer);
+		return;
+	}
+
+	if(handle->cocoa.context != NULL) {
+		CGContextRelease(handle->cocoa.context);
+	}
+	free(handle->cocoa.buffer);
+
+	CGContextTranslateCTM(c, 0, h);
+	CGContextScaleCTM(c, 1, -1);
+	CGContextSetShouldAntialias(c, false);
+	CGContextSetInterpolationQuality(c, kCGInterpolationNone);
+	CGContextSetLineWidth(c, 1);
+	CGContextSetLineCap(c, kCGLineCapSquare);
+	CGContextSaveGState(c);
+
+	handle->cocoa.context = c;
+	handle->cocoa.buffer  = buffer;
+	handle->cocoa.width   = w;
+	handle->cocoa.height  = h;
+
+	apply_clip(handle);
 }
 
 static void mark_dirty(MwLL handle) {
@@ -560,6 +618,12 @@ static MwLL key_target(void) {
 	return NO;
 }
 
+/* children such as the inner frame of a viewport rely on being clipped to their parent,
+ * which stopped being the default for apps linked against the macOS 14 SDK */
+- (BOOL)clipsToBounds {
+	return YES;
+}
+
 - (BOOL)acceptsFirstMouse:(NSEvent*)ev {
 	(void)ev;
 	return YES;
@@ -570,13 +634,33 @@ static MwLL key_target(void) {
 }
 
 - (void)drawRect:(NSRect)rect {
+	NSRect		  b = [self bounds];
+	size_t		  size;
+	CGColorSpaceRef	  rgb;
+	CGContextRef	  port;
+	CGDataProviderRef provider;
+	CGImageRef	  image;
+
 	(void)rect;
 
 	if(mw == NULL || !mw->common.copy_buffer || mw->cocoa.context == NULL) {
 		return;
 	}
 
-	graphics.present(mw, [self bounds]);
+	CGContextFlush(mw->cocoa.context);
+	size = (size_t)mw->cocoa.width * mw->cocoa.height * 4;
+
+	port	 = [[NSGraphicsContext currentContext] graphicsPort];
+	rgb	 = CGColorSpaceCreateDeviceRGB();
+	provider = CGDataProviderCreateWithData(NULL, mw->cocoa.buffer, size, NULL);
+	image	 = CGImageCreate(mw->cocoa.width, mw->cocoa.height, 8, 32, mw->cocoa.width * 4, rgb, BITMAP_INFO, provider, NULL, false, kCGRenderingIntentDefault);
+
+	CGContextSetInterpolationQuality(port, kCGInterpolationNone);
+	CGContextDrawImage(port, CGRectMake(b.origin.x, b.origin.y, b.size.width, b.size.height), image);
+
+	CGImageRelease(image);
+	CGDataProviderRelease(provider);
+	CGColorSpaceRelease(rgb);
 }
 
 - (void)resetCursorRects {
@@ -734,7 +818,7 @@ static void after_resize(MwLL top) {
 		return;
 	}
 
-	graphics.create_context(top, w, h);
+	create_context(top, w, h);
 	place_children(top);
 
 	push_unique(CE_RESIZE, top);
@@ -768,7 +852,7 @@ static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
 	r->cocoa.parent	   = parent;
 	r->cocoa.shown	   = 1;
 	r->cocoa.last_pump = -1;
-	graphics.create_context(r, width, height);
+	create_context(r, width, height);
 
 	r->cocoa.view	  = [[MilskoCocoaView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
 	r->cocoa.view->mw = r;
@@ -856,7 +940,10 @@ static void MwLLDestroyImpl(MwLL handle) {
 	[handle->cocoa.title release];
 	[handle->cocoa.cursor release];
 	[handle->cocoa.popup_owner release];
-	graphics.destroy_context(handle);
+	if(handle->cocoa.context != NULL) {
+		CGContextRelease(handle->cocoa.context);
+	}
+	free(handle->cocoa.buffer);
 
 	free(handle);
 
@@ -876,21 +963,39 @@ static void MwLLEndDrawImpl(MwLL handle) {
 }
 
 static void MwLLPolygonImpl(MwLL handle, MwPoint* points, int points_count, MwLLColor color) {
-	if(points_count < 3 || handle->cocoa.context == NULL) {
+	CGContextRef c = handle->cocoa.context;
+	int	     i;
+
+	if(points_count < 3 || c == NULL) {
 		return;
 	}
 
-	graphics.polygon(handle, points, points_count, color);
+	CGContextBeginPath(c);
+	CGContextMoveToPoint(c, points[0].x, points[0].y);
+	for(i = 1; i < points_count; i++) {
+		CGContextAddLineToPoint(c, points[i].x, points[i].y);
+	}
+	CGContextClosePath(c);
+
+	CGContextSetRGBFillColor(c, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
+	CGContextEOFillPath(c);
 
 	mark_dirty(handle);
 }
 
 static void MwLLLineImpl(MwLL handle, MwPoint* points, MwLLColor color) {
-	if(handle->cocoa.context == NULL) {
+	CGContextRef c = handle->cocoa.context;
+
+	if(c == NULL) {
 		return;
 	}
 
-	graphics.line(handle, points, color);
+	CGContextBeginPath(c);
+	CGContextMoveToPoint(c, points[0].x + 0.5, points[0].y + 0.5);
+	CGContextAddLineToPoint(c, points[1].x + 0.5, points[1].y + 0.5);
+
+	CGContextSetRGBStrokeColor(c, color->common.red / 255.0, color->common.green / 255.0, color->common.blue / 255.0, 1.0);
+	CGContextStrokePath(c);
 
 	mark_dirty(handle);
 }
@@ -971,7 +1076,7 @@ static void MwLLSetWHImpl(MwLL handle, int w, int h) {
 		[win setFrame:[win frameRectForContentRect:NSMakeRect(x, primary_frame().size.height - y - h, w, h)] display:NO];
 		after_resize(handle);
 	} else if(handle->cocoa.width != w || handle->cocoa.height != h) {
-		graphics.create_context(handle, w, h);
+		create_context(handle, w, h);
 		place_view(handle);
 		place_children(handle);
 		if(handle->cocoa.parent != NULL) {
@@ -1410,9 +1515,11 @@ static MwLLPixmap MwLLCreatePixmapImpl(MwLL handle, unsigned char* data, int wid
 }
 
 static void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {
-	size_t n = (size_t)pixmap->common.width * pixmap->common.height;
-	MwU32* d = (MwU32*)pixmap->cocoa.premultiplied;
-	size_t i;
+	size_t		  n = (size_t)pixmap->common.width * pixmap->common.height;
+	MwU32*		  d = (MwU32*)pixmap->cocoa.premultiplied;
+	CGDataProviderRef provider;
+	CGColorSpaceRef	  rgb;
+	size_t		  i;
 
 	for(i = 0; i < n; i++) {
 		unsigned char* s = &pixmap->common.raw[i * 4];
@@ -1421,12 +1528,20 @@ static void MwLLPixmapUpdateImpl(MwLLPixmap pixmap) {
 		d[i] = (a << 24) | ((s[0] * a / 255) << 16) | ((s[1] * a / 255) << 8) | (s[2] * a / 255);
 	}
 
-	graphics.update_pixmap(pixmap);
+	if(pixmap->cocoa.image != NULL) {
+		CGImageRelease(pixmap->cocoa.image);
+	}
+
+	rgb		    = CGColorSpaceCreateDeviceRGB();
+	provider	    = CGDataProviderCreateWithData(NULL, pixmap->cocoa.premultiplied, n * 4, NULL);
+	pixmap->cocoa.image = CGImageCreate(pixmap->common.width, pixmap->common.height, 8, 32, pixmap->common.width * 4, rgb, BITMAP_INFO, provider, NULL, false, kCGRenderingIntentDefault);
+	CGDataProviderRelease(provider);
+	CGColorSpaceRelease(rgb);
 }
 
 static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 	if(pixmap->cocoa.image != NULL) {
-		graphics.destroy_pixmap(pixmap);
+		CGImageRelease(pixmap->cocoa.image);
 	}
 	free(pixmap->cocoa.premultiplied);
 	free(pixmap->common.raw);
@@ -1434,11 +1549,17 @@ static void MwLLDestroyPixmapImpl(MwLLPixmap pixmap) {
 }
 
 static void MwLLDrawPixmapImpl(MwLL handle, MwRect* rect, MwLLPixmap pixmap) {
-	if(rect->width <= 0 || rect->height <= 0 || handle->cocoa.context == NULL || pixmap->cocoa.image == NULL) {
+	CGContextRef c = handle->cocoa.context;
+
+	if(rect->width <= 0 || rect->height <= 0 || c == NULL || pixmap->cocoa.image == NULL) {
 		return;
 	}
 
-	graphics.draw_pixmap(handle, rect, pixmap);
+	CGContextSaveGState(c);
+	CGContextTranslateCTM(c, rect->x, rect->y + rect->height);
+	CGContextScaleCTM(c, 1, -1);
+	CGContextDrawImage(c, CGRectMake(0, 0, rect->width, rect->height), pixmap->cocoa.image);
+	CGContextRestoreGState(c);
 
 	mark_dirty(handle);
 }
@@ -1711,15 +1832,15 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 		get_offset(handle, &hx, &hy);
 		p.x = ox + hx + handle->cocoa.width / 2;
 		p.y = oy + hy + handle->cocoa.height / 2;
-		warp_cursor(p);
-		associate_cursor(0);
+		CGWarpMouseCursorPosition(p);
+		CGAssociateMouseAndMouseCursorPosition(false);
 
 		if(handle->cocoa.cursor != nil) {
 			[handle->cocoa.cursor set];
 		}
 	} else if(top != NULL && top->cocoa.grab == handle) {
 		top->cocoa.grab = NULL;
-		associate_cursor(1);
+		CGAssociateMouseAndMouseCursorPosition(true);
 	}
 
 	[pool release];
@@ -1829,7 +1950,7 @@ static void MwLLClipImpl(MwLL handle, MwRect* rect) {
 	}
 
 	if(handle->cocoa.context != NULL) {
-		graphics.apply_clip(handle);
+		apply_clip(handle);
 	}
 }
 
@@ -1860,14 +1981,6 @@ static int MwLLCocoaCallInitImpl(void) {
 		[pool release];
 		return 0;
 	}
-
-	if(MwLLCocoaCoreGraphicsSetup(&graphics) != 0) {
-		[pool release];
-		return 1;
-	}
-
-	_CGWarpMouseCursorPosition		= MwDynamicSymbol(NULL, "CGWarpMouseCursorPosition");
-	_CGAssociateMouseAndMouseCursorPosition = MwDynamicSymbol(NULL, "CGAssociateMouseAndMouseCursorPosition");
 
 #if defined(MAC_OS_X_VERSION_MAX_ALLOWED) && MAC_OS_X_VERSION_MAX_ALLOWED >= 1060
 	if([NSApp respondsToSelector:@selector(setActivationPolicy:)]) {
@@ -1945,5 +2058,5 @@ VkMetalSurfaceCreateInfoEXT MwCocoaGetMetalSurfaceCreateInfo(MwWidget handle) {
 };
 #endif
 
-#include "../call.c"
+#include "call.c"
 CALL(Cocoa);
