@@ -54,6 +54,9 @@ enum cevent_type {
 @end
 
 static void after_resize(MwLL top);
+static void live_resize_step(MwLL top);
+
+static int in_live_resize_step = 0;
 
 static MwLL get_top(MwLL handle) {
 	while(handle->cocoa.parent != NULL) {
@@ -758,6 +761,10 @@ static MwLL key_target(void) {
 
 	if(mw != NULL) {
 		after_resize(mw);
+
+		if([[self contentView] inLiveResize]) {
+			live_resize_step(mw);
+		}
 	}
 }
 
@@ -823,6 +830,34 @@ static void after_resize(MwLL top) {
 
 	push_unique(CE_RESIZE, top);
 	push_unique(CE_DRAW, top);
+}
+
+/* MwStep that happens while the app is in live resize */
+static void live_resize_step(MwLL top) {
+	MwWidget w = (MwWidget)top->common.internal;
+	int	 i;
+
+	if(w == NULL || in_live_resize_step) {
+		return;
+	}
+
+	while(w->parent != NULL && !w->top_step) {
+		w = w->parent;
+	}
+	if(w->close || w->destroyed) {
+		return;
+	}
+
+	in_live_resize_step = 1;
+	if(MwStep(w) != 0) {
+		in_live_resize_step = 0;
+		return;
+	}
+	in_live_resize_step = 0;
+
+	if(top->cocoa.window != nil) {
+		[top->cocoa.window displayIfNeeded];
+	}
 }
 
 static MwLL MwLLCreateImpl(MwLL parent, int x, int y, int width, int height) {
@@ -1109,7 +1144,7 @@ static int MwLLPendingImpl(MwLL handle) {
 	NSEvent*	   ev;
 	MwLL		   top;
 
-	if(now != handle->cocoa.last_pump) {
+	if(now != handle->cocoa.last_pump && !in_live_resize_step) {
 		handle->cocoa.last_pump = now;
 
 		while((ev = [NSApp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES]) != nil) {
