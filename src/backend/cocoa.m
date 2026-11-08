@@ -849,9 +849,11 @@ static void live_resize_step(MwLL top) {
 	}
 
 	in_live_resize_step = 1;
-	if(MwStep(w) != 0) {
-		in_live_resize_step = 0;
-		return;
+	while(MwPending(w)) {
+		if(MwStep(w) != 0) {
+			in_live_resize_step = 0;
+			break;
+		}
 	}
 	in_live_resize_step = 0;
 
