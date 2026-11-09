@@ -614,26 +614,64 @@ static void MwLLNextEventImpl(MwLL handle) {
 	(void)handle;
 
 	if(handle->gdi.get_clipboard) {
-		HGLOBAL hg;
-		if(OpenClipboard(handle->gdi.hWnd) != 0 && (hg = GetClipboardData(CF_TEXT)) != NULL) {
-			int   sz  = GlobalSize(hg);
-			char* txt = malloc(sz);
-			char* clp = GlobalLock(hg);
+		char* txt = NULL;
 
-			if(!txt || !clp) {
-				printf("Out of Memory\n");
-				return;
+		if(OpenClipboard(handle->gdi.hWnd) != 0) {
+			HGLOBAL hg;
+
+			/* try unicode */
+			if((hg = GetClipboardData(CF_UNICODETEXT)) != NULL) {
+				wchar_t* clp = GlobalLock(hg);
+
+				if(clp != NULL) {
+					size_t	 max = GlobalSize(hg) / sizeof(wchar_t);
+					size_t	 len = 0;
+					wchar_t* w;
+
+					while(len < max && clp[len] != 0) len++;
+
+					if((w = malloc((len + 2) * sizeof(*w))) != NULL) {
+						memcpy(w, clp, len * sizeof(*w));
+						w[len]	   = 0;
+						w[len + 1] = 0;
+
+						txt = MwUTF16TextToUTF8Text(w);
+
+						free(w);
+					}
+
+					GlobalUnlock(hg);
+				}
 			}
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-			strcpy_s(txt, sz, clp);
-#else
-			strcpy(txt, clp);
-#endif
+			/* or try ansi */
+			if(txt == NULL && (hg = GetClipboardData(CF_TEXT)) != NULL) {
+				char* clp = GlobalLock(hg);
 
-			GlobalUnlock(hg);
+				if(clp != NULL) {
+					size_t max = GlobalSize(hg);
+					size_t len = 0;
+					char*  a;
+
+					while(len < max && clp[len] != 0) len++;
+
+					if((a = malloc(len + 1)) != NULL) {
+						memcpy(a, clp, len);
+						a[len] = 0;
+
+						txt = MwACPTextToUTF8Text(a);
+
+						free(a);
+					}
+
+					GlobalUnlock(hg);
+				}
+			}
+
 			CloseClipboard();
+		}
 
+		if(txt != NULL) {
 			MwLLDispatch(handle, clipboard, txt);
 
 			free(txt);
@@ -964,38 +1002,53 @@ static void MwLLGrabPointerImpl(MwLL handle, int toggle) {
 	}
 }
 
+static void set_clipboard_data(UINT format, const void* data, size_t size) {
+	HGLOBAL hg = GlobalAlloc(GHND | GMEM_SHARE, size);
+	void*	lock;
+
+	if(!hg) {
+		printf("Out of Memory\n");
+		return;
+	}
+
+	lock = GlobalLock(hg);
+	if(!lock) {
+		printf("Out Of Memory\n");
+		GlobalFree(hg);
+		return;
+	}
+
+	memcpy(lock, data, size);
+	GlobalUnlock(hg);
+
+	/* the clipboard owns it only if this succeeds */
+	if(SetClipboardData(format, hg) == NULL) GlobalFree(hg);
+}
+
 static void MwLLSetClipboardImpl(MwLL handle, const char* text, int clipboard_type) {
-	HGLOBAL hg;
 	(void)clipboard_type;
 	if(OpenClipboard(handle->gdi.hWnd) != 0) {
-		char* lock;
-		int   sz = strlen(text) + 1;
+		char* acp;
+#ifdef MW_HAS_WCHAR
+		wchar_t* w;
+#endif
 
 		EmptyClipboard();
-		hg = GlobalAlloc(GHND | GMEM_SHARE, sz);
 
-		if(!hg) {
-			printf("Out of Memory\n");
-			return;
+#ifdef MW_HAS_WCHAR
+		if((w = MwUTF8TextToUTF16Text(text)) != NULL) {
+			set_clipboard_data(CF_UNICODETEXT, w, (wcslen(w) + 1) * sizeof(*w));
+
+			free(w);
 		}
-
-		lock = GlobalLock(hg);
-
-		if(!lock) {
-			printf("Out Of Memory\n");
-			GlobalUnlock(hg);
-			CloseClipboard();
-			return;
-		}
-
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-		strcpy_s(lock, sz, text);
-#else
-		strcpy(lock, text);
 #endif
-		GlobalUnlock(hg);
 
-		SetClipboardData(CF_TEXT, hg);
+		/* 9x does not make this one out of the unicode text for us */
+		if((acp = MwUTF8TextToACPText(text)) != NULL) {
+			set_clipboard_data(CF_TEXT, acp, strlen(acp) + 1);
+
+			free(acp);
+		}
 
 		CloseClipboard();
 	}

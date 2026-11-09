@@ -1441,7 +1441,9 @@ static void MwLLBeginDrawImpl(MwLL handle) {
 
 			while(handle->wayland.title[i]) {
 				int out;
-				i += MwUTF8ToUTF32(handle->wayland.title + i, &out);
+				int l = MwUTF8ToUTF32(handle->wayland.title + i, &out);
+				if(l == 0) break;
+				i += l;
 
 				if(out > 0xff) {
 					out = 0;

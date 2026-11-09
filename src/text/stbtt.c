@@ -34,8 +34,9 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 		unsigned char* out;
 		int	       kern;
 		const char*    old_text;
-
-		text += MwUTF8ToUTF32(text, &c);
+		int	       l = MwUTF8ToUTF32(text, &c);
+		if(l == 0) break;
+		text += l;
 
 		if(c == '\t') {
 			x = ((x / tab) + 1) * tab;
@@ -105,8 +106,9 @@ static int stbtt_MwTextWidth(MwFLFont ttf, const char* text) {
 	while(text[0] != 0) {
 		int	    c2;
 		const char* old_text;
-
-		text += MwUTF8ToUTF32(text, &c);
+		int	    l = MwUTF8ToUTF32(text, &c);
+		if(l == 0) break;
+		text += l;
 
 		if(c == '\t') {
 			if(tab == 0) tab = stbtt_MwTextWidth(ttf, "MMMMMMMM");
@@ -119,7 +121,9 @@ static int stbtt_MwTextWidth(MwFLFont ttf, const char* text) {
 		tw += ceil(ax * ttf->scale);
 
 		old_text = text;
-		text += MwUTF8ToUTF32(text, &c2);
+		l	 = MwUTF8ToUTF32(text, &c2);
+		if(l == 0) break;
+		text += l;
 
 		kern = stbtt_GetCodepointKernAdvance(&ttf->font, c, c2);
 

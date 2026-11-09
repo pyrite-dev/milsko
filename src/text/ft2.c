@@ -53,8 +53,9 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 		int	    c, c2;
 		FT_Vector   vec;
 		const char* old_text;
-
-		text += MwUTF8ToUTF32(text, &c);
+		int	    l = MwUTF8ToUTF32(text, &c);
+		if(l == 0) break;
+		text += l;
 
 		if(c == '\t') {
 			x = ((x / tab) + 1) * tab;
@@ -84,7 +85,9 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 		x += (ttf->face->glyph->advance.x >> 6);
 
 		old_text = text;
-		text += MwUTF8ToUTF32(text, &c2);
+		l	 = MwUTF8ToUTF32(text, &c2);
+		if(l == 0) break;
+		text += l;
 
 		ft_table.FT_Get_Kerning(ttf->face, c, c2, FT_KERNING_DEFAULT, &vec);
 
@@ -114,8 +117,9 @@ static int ft2_MwTextWidth(MwFLFont ttf, const char* text) {
 	while(text[0] != 0) {
 		int	    c, c2;
 		const char* old_text;
-
-		text += MwUTF8ToUTF32(text, &c);
+		int	    l = MwUTF8ToUTF32(text, &c);
+		if(l == 0) break;
+		text += l;
 
 		if(c == '\t') {
 			if(tab == 0) tab = ft2_MwTextWidth(ttf, "MMMMMMMM");

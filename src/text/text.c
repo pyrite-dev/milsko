@@ -105,7 +105,11 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 	p.y -= (MwTextHeight(handle, ttf, text) - (MwTextHeight(handle, ttf, text) / count_nl(text))) / 2;
 
 	while(*input != 0) {
-		input += MwUTF8ToUTF32(input, &cp);
+		int l = MwUTF8ToUTF32(input, &cp);
+		if(l == 0) {
+			break;
+		}
+		input += l;
 
 		if(*input == 0 || cp == '\n') {
 			char*	line = malloc(input - last + 1);
@@ -153,7 +157,7 @@ void MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const char* text,
 #ifdef TTF
 			if(MwFLDrawText == NULL || is_bitmap(handle, ttf) || ttf == NULL || MwFLDrawText(handle, ttf, &p, line, fadedColor ? fadedColor : color))
 #endif
-					bitmap_MwDrawText(handle, &p, line, is_bold(handle, ttf), fadedColor ? fadedColor : color);
+				bitmap_MwDrawText(handle, &p, line, is_bold(handle, ttf), fadedColor ? fadedColor : color);
 
 			l[0].y = l[1].y = p.y;
 
@@ -196,7 +200,11 @@ int MwTextWidth(MwWidget handle, MwFLFont ttf, const char* text) {
 #endif
 
 	while(*input != 0) {
-		input += MwUTF8ToUTF32(input, &cp);
+		int l = MwUTF8ToUTF32(input, &cp);
+		if(l == 0) {
+			break;
+		}
+		input += l;
 
 		if(*input == 0 || cp == '\n') {
 			char* line = malloc(input - last + 1);
@@ -291,8 +299,13 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 	sy = 0;
 
 	while(text[i] != 0) {
-		int out;
-		i += MwUTF8ToUTF32(text + i, &out);
+		int out = 0;
+		int l	= MwUTF8ToUTF32(text + i, &out);
+		if(l == 0) {
+			break;
+		}
+
+		i += l;
 
 		if(out > 0xff) {
 			out = 0;

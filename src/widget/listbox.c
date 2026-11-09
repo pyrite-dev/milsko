@@ -218,9 +218,12 @@ static void frame_draw(MwWidget handle) {
 
 				while(str[seek] != 0) {
 					int cp;
+					int n = 0;
 					if(l == ind) break;
 
-					seek += MwUTF8ToUTF32(str + seek, &cp);
+					n = MwUTF8ToUTF32(str + seek, &cp);
+					if(n == 0) break;
+					seek += n;
 
 					l++;
 				}
@@ -431,8 +434,8 @@ static void redrawIfNeeded(MwWidget handle, int row) {
 static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text) {
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
-	char*	       t = text == NULL ? NULL : MwStringDuplicate(text);
-	int new		 = 0;
+	char*	       t   = text == NULL ? NULL : MwStringDuplicate(text);
+	int	       new = 0;
 	if(row == -1) row = arrlen(lb->list);
 
 	entry.name   = NULL;
@@ -460,7 +463,7 @@ static int mwListBoxSetImpl(MwWidget handle, int row, int col, const char* text)
 static void mwListBoxSetIconImpl(MwWidget handle, int index, MwPixmap icon) {
 	MwListBox      lb = handle->internal;
 	MwListBoxEntry entry;
-	int new = 0;
+	int	       new = 0;
 	if(index == -1) index = arrlen(lb->list);
 
 	entry.name   = NULL;

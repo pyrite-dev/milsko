@@ -152,8 +152,54 @@ static void prop_change(MwWidget handle, const char* key) {
 	}
 }
 
+/* keeps the cursor inside the text, it can be stale after the text was replaced */
+static void clamp_cursor(MwWidget handle) {
+	MwText txt     = handle->internal;
+	int    changed = 0;
+	int    len;
+
+	if(arrlen(txt->lines) == 0) {
+		MwTextLine l;
+
+		l.line	= MwStringDuplicate("");
+		l.width = 0;
+
+		arrput(txt->lines, l);
+	}
+
+	if(txt->line < 0) {
+		txt->line = 0;
+		changed	  = 1;
+	}
+	if(txt->line >= arrlen(txt->lines)) {
+		txt->line = arrlen(txt->lines) - 1;
+		changed	  = 1;
+	}
+
+	len = strlen(txt->lines[txt->line].line);
+	if(txt->index < 0) {
+		txt->index = 0;
+		changed	   = 1;
+	}
+	if(txt->index > len) {
+		txt->index = len;
+		changed	   = 1;
+	}
+
+	if(changed) {
+		char* s = MwStringDuplicate(txt->lines[txt->line].line);
+
+		s[txt->index] = 0;
+
+		txt->cursor.x = MwTextWidth(handle, NULL, s);
+		txt->cursor.y = txt->line * MwTextHeight(handle, NULL, "M");
+
+		free(s);
+	}
+}
+
 static void mouse_down(MwWidget handle, void* mouse) {
-	int	 th  = MwTextHeight(handle, NULL, "M");
+	int	 th = MwTextHeight(handle, NULL, "M");
 	int	 i;
 	MwText	 txt = handle->internal;
 	MwMouse* m   = mouse;
@@ -171,10 +217,13 @@ static void mouse_down(MwWidget handle, void* mouse) {
 				int tw = MwTextWidth(handle, NULL, line);
 				int c2;
 				int l = strlen(line);
+				int n = MwUTF8ToUTF32(text, &c);
+				if(n == 0) break;
 
-				text += MwUTF8ToUTF32(text, &c);
-
-				line[l + MwUTF32ToUTF8(c, line + l)] = 0;
+				/* copy the bytes as they are, index has to match the original line */
+				memcpy(line + l, text, n);
+				line[l + n] = 0;
+				text += n;
 
 				c2 = MwTextWidth(handle, NULL, line + l) / 2;
 
@@ -214,14 +263,7 @@ static void key(MwWidget handle, int key) {
 	int	tw;
 	MwPoint p;
 
-	while(arrlen(txt->lines) < txt->line) {
-		MwTextLine l;
-
-		l.line	= MwStringDuplicate("");
-		l.width = 0;
-
-		arrput(txt->lines, l);
-	}
+	clamp_cursor(handle);
 
 	switch(key) {
 	case MwKEY_ENTER:
@@ -256,14 +298,17 @@ static void key(MwWidget handle, int key) {
 			char* text = txt->lines[txt->line].line;
 			int   b	   = 0;
 
-			l    = malloc(strlen(text) + 1); /* this is technically wrong... */
+			l    = malloc(strlen(text) + 1);
 			l[0] = 0;
 
 			while(*text) {
 				int c;
 
-				text += b	       = MwUTF8ToUTF32(text, &c);
-				u[MwUTF32ToUTF8(c, u)] = 0;
+				b = MwUTF8ToUTF32(text, &c);
+				if(b == 0) break;
+				memcpy(u, text, b);
+				u[b] = 0;
+				text += b;
 
 				if((text - txt->lines[txt->line].line) == txt->index) {
 					txt->cursor.x -= MwTextWidth(handle, NULL, u);
@@ -318,9 +363,12 @@ static void key(MwWidget handle, int key) {
 
 				while(*text) {
 					int c;
+					int n = MwUTF8ToUTF32(text, &c);
+					if(n == 0) break;
+					memcpy(u, text, n);
+					u[n] = 0;
+					text += n;
 
-					text += MwUTF8ToUTF32(text, &c);
-					u[MwUTF32ToUTF8(c, u)] = 0;
 					strcat(l, u);
 
 					if((text - txt->lines[txt->line].line) == (txt->index + m)) {
@@ -384,9 +432,14 @@ static void clipboard(MwWidget handle, const char* data) {
 	char*  clip = MwStringDuplicate(data);
 	char*  last = clip;
 	int    i;
-	int    nl	  = 0;
-	int    oldindex	  = txt->index;
-	char*  oldlinestr = MwStringDuplicate(txt->lines[txt->line].line);
+	int    nl = 0;
+	int    oldindex;
+	char*  oldlinestr;
+
+	clamp_cursor(handle);
+
+	oldindex   = txt->index;
+	oldlinestr = MwStringDuplicate(txt->lines[txt->line].line);
 
 	for(i = 0;; i++) {
 		if(clip[i] == '\n' || clip[i] == 0) {
@@ -403,7 +456,7 @@ static void clipboard(MwWidget handle, const char* data) {
 
 			if(c == 0) {
 				memcpy(l + (nl == 0 ? oldindex : 0) + strlen(last), oldlinestr + oldindex, strlen(oldlinestr + oldindex));
-				l[(nl == 0 ? oldindex : 0) + strlen(last)] = 0;
+				l[(nl == 0 ? oldindex : 0) + strlen(last) + strlen(oldlinestr + oldindex)] = 0;
 			}
 
 			free(txt->lines[txt->line].line);
@@ -460,7 +513,6 @@ static int get_prop(MwWidget handle, const char* key, void* out) {
 
 		*s = txt->result = malloc(sz);
 		**s		 = 0;
-		(*s)[sz]	 = 0;
 
 		for(i = 0; i < arrlen(txt->lines); i++) {
 			strcat(*s, txt->lines[i].line);

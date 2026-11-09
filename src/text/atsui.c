@@ -50,7 +50,6 @@ static UniChar* to_utf16(const char* text, UniCharCount* length) {
 	while(*text != 0) {
 		int cp;
 		int l = MwUTF8ToUTF32(text, &cp);
-
 		if(l == 0) break;
 		text += l;
 
@@ -166,8 +165,8 @@ static void write32(unsigned char* p, unsigned long v) {
 
 /* glyph for a code point in a format 4 cmap subtable */
 static unsigned int format4_glyph(const unsigned char* sub, int cp) {
-	unsigned int	     segs = read16(sub + 6) / 2;
-	const unsigned char* end  = sub + 14;
+	unsigned int	     segs  = read16(sub + 6) / 2;
+	const unsigned char* end   = sub + 14;
 	const unsigned char* start = end + segs * 2 + 2;
 	const unsigned char* delta = start + segs * 2;
 	const unsigned char* range = delta + segs * 2;
@@ -210,7 +209,7 @@ static unsigned char* add_mac_cmap(const unsigned char* data, unsigned int size,
 	cmap = data + read32(entry + 8);
 	subs = read16(cmap + 2);
 	for(i = 0; i < subs; i++) {
-		const unsigned char* rec = cmap + 4 + i * 8;
+		const unsigned char* rec      = cmap + 4 + i * 8;
 		unsigned int	     platform = read16(rec), encoding = read16(rec + 2);
 
 		if(platform == 1 && encoding == 0) return NULL;
@@ -282,13 +281,13 @@ static short free_family(void) {
 }
 
 static int install_font(MwFLFont font, unsigned char* data, unsigned int size) {
-	static int serial = 0;
-	short	   vref;
-	long	   dir;
-	Str63	   name;
-	Handle	   sfnt, fond;
-	short	   sfnt_id;
-	short*	   f;
+	static int     serial = 0;
+	short	       vref;
+	long	       dir;
+	Str63	       name;
+	Handle	       sfnt, fond;
+	short	       sfnt_id;
+	short*	       f;
 	unsigned char* fixed;
 	unsigned int   fixed_size;
 	OSErr	       err;
@@ -328,18 +327,18 @@ static int install_font(MwFLFont font, unsigned char* data, unsigned int size) {
 
 	/* the smallest FOND there can be: no tables, one association pointing at the outline */
 	f     = (short*)*fond;
-	f[0]  = 0x4000;	       /* ffFlags: no character width table */
+	f[0]  = 0x4000;	      /* ffFlags: no character width table */
 	f[1]  = font->family; /* ffFamID */
-	f[2]  = 0;	       /* ffFirstChar */
-	f[3]  = 255;	       /* ffLastChar */
-	f[4]  = 0x0c00;	       /* ffAscent, 4.12 fixed */
-	f[5]  = -0x0400;       /* ffDescent */
-	f[6]  = 0;	       /* ffLeading */
-	f[7]  = 0x1000;	       /* ffWidMax */
-	f[25] = 2;	       /* ffVersion */
-	f[26] = 0;	       /* number of associations - 1 */
-	f[27] = 0;	       /* size 0: an outline font */
-	f[28] = 0;	       /* style */
+	f[2]  = 0;	      /* ffFirstChar */
+	f[3]  = 255;	      /* ffLastChar */
+	f[4]  = 0x0c00;	      /* ffAscent, 4.12 fixed */
+	f[5]  = -0x0400;      /* ffDescent */
+	f[6]  = 0;	      /* ffLeading */
+	f[7]  = 0x1000;	      /* ffWidMax */
+	f[25] = 2;	      /* ffVersion */
+	f[26] = 0;	      /* number of associations - 1 */
+	f[27] = 0;	      /* size 0: an outline font */
+	f[28] = 0;	      /* style */
 	f[29] = sfnt_id;
 
 	AddResource(fond, 'FOND', font->family, name);

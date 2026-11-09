@@ -27,42 +27,58 @@ static int utf8_later(unsigned char c) {
 int MwUTF8ToUTF32(const char* input, int* output) {
 	const unsigned char* inbuf = (const unsigned char*)input;
 	int		     b	   = utf8_count(inbuf[0]);
-	if(b == 0) return 0;
+	if(!output) return 0;
+	if(b == 0) goto invalid;
 
 	if(b == 1) *output = inbuf[0];
 	if(b == 2) {
-		if(!utf8_later(inbuf[1])) return 0;
-		if((inbuf[0] & 0x1e) == 0) return 0;
+		if(!utf8_later(inbuf[1])) goto invalid;
+		if((inbuf[0] & 0x1e) == 0) goto invalid;
 
 		*output = CAST_I32(inbuf[0] & 0x1f) << 6;
 		*output |= CAST_I32(inbuf[1] & 0x3f);
 	}
 	if(b == 3) {
-		if(!utf8_later(inbuf[1]) || !utf8_later(inbuf[2])) return 0;
-		if((inbuf[0] & 0x0f) == 0 && (inbuf[1] & 0x20) == 0) return 0;
+		if(!utf8_later(inbuf[1]) || !utf8_later(inbuf[2])) goto invalid;
+		if((inbuf[0] & 0x0f) == 0 && (inbuf[1] & 0x20) == 0) goto invalid;
 
 		*output = CAST_I32(inbuf[0] & 0x0f) << 12;
 		*output |= CAST_I32(inbuf[1] & 0x3f) << 6;
 		*output |= CAST_I32(inbuf[2] & 0x3f);
+		if(*output >= 0xD800 && *output <= 0xDFFF) {
+			goto invalid;
+		}
 	}
 	if(b == 4) {
-		if(!utf8_later(inbuf[1]) || !utf8_later(inbuf[2]) || !utf8_later(inbuf[3])) return 0;
-		if((inbuf[0] & 0x07) == 0 && (inbuf[1] & 0x30) == 0) return 0;
+		if(!utf8_later(inbuf[1]) || !utf8_later(inbuf[2]) || !utf8_later(inbuf[3])) goto invalid;
+		if((inbuf[0] & 0x07) == 0 && (inbuf[1] & 0x30) == 0) goto invalid;
 
 		*output = CAST_I32(inbuf[0] & 0x07) << 18;
 		*output |= CAST_I32(inbuf[1] & 0x3f) << 12;
 		*output |= CAST_I32(inbuf[2] & 0x3f) << 6;
 		*output |= CAST_I32(inbuf[3] & 0x3f);
+		if(*output > 0x10FFFF) {
+			goto invalid;
+		}
 	}
-
 	return b;
+invalid:
+	*output = 0xFFFD;
+	return 1;
 }
 
 int MwUTF8ToUTF16(const char* input, wchar_t* output) {
 	int o;
 	int n = MwUTF8ToUTF32(input, &o);
 
-	if(n == 0 || n >= 0x10ffff) return 0;
+	if(n == 0 || o > 0x10ffff) {
+		if(!output) {
+			return 0;
+		} else {
+			*output = 0xFFFD;
+			return 1;
+		}
+	};
 
 	if(o < 0x10000) {
 		output[0] = o;
@@ -107,9 +123,9 @@ int MwUTF8Length(const char* input) {
 	int len = 0;
 
 	while(input[0] != 0) {
-		int new;
-
-		input += (new = MwUTF8ToUTF32(input, &out));
+		int new = MwUTF8ToUTF32(input, &out);
+		if(new == 0) break;
+		input += new;
 		len++;
 
 		if(new == 0) return -1;
@@ -122,13 +138,22 @@ int MwUTF8Copy(const char* src, int srcskip, char* dst, int dstskip, int len) {
 	int i;
 	int out;
 	int total = 0;
-	for(i = 0; i < srcskip; i++) src += MwUTF8ToUTF32(src, &out);
-	for(i = 0; i < dstskip; i++) dst += MwUTF8ToUTF32(dst, &out);
+	for(i = 0; i < srcskip; i++) {
+		int l = MwUTF8ToUTF32(src, &out);
+		if(l == 0) break;
+		src += l;
+	}
+	for(i = 0; i < dstskip; i++) {
+		int l = MwUTF8ToUTF32(dst, &out);
+		if(l == 0) break;
+		dst += l;
+	}
 	for(i = 0; i < len; i++) {
 		int len;
 		if(src[0] == 0) break;
 
 		len = MwUTF8ToUTF32(src, &out);
+		if(len == 0) break;
 
 		memcpy(dst, src, len);
 
@@ -154,13 +179,13 @@ int MwUTF16Count(const wchar_t* input) {
 		if(is_u16_low(input[1])) {
 			return 2;
 		} else if(input[1] == 0) {
-			return 2;
+			return 1;
 		} else {
 			return 0;
 		}
 	} else if(is_u16_low(input[0])) {
 		if(input[1] == 0) {
-			return 2;
+			return 1;
 		} else {
 			return 0;
 		}
