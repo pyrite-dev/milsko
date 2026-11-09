@@ -282,18 +282,21 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 	unsigned char* px;
 	MwRect	       r;
 	MwPixmap       p;
+	size_t	       sz;
 
 	if(strlen(text) == 0) text = " ";
 	tw = MwTextWidth(handle, NULL, text);
 	th = MwTextHeight(handle, NULL, text);
-	px = malloc(tw * th * 4);
+	if(!MwCalculatePixmapSize(tw, th, &sz)) return;
+
+	px = malloc(sz);
 
 	if(!px) {
 		printf("Out of Memory\n");
 		return;
 	}
 
-	memset(px, 0, tw * th * 4);
+	memset(px, 0, sz);
 
 	sx = 0;
 	sy = 0;
@@ -341,8 +344,10 @@ static void bitmap_MwDrawText(MwWidget handle, MwPoint* point, const char* text,
 	r.width	 = tw;
 	r.height = th;
 
-	MwDrawPixmap(handle, &r, p);
-	MwDestroyPixmap(p);
+	if(p != NULL) {
+		MwDrawPixmap(handle, &r, p);
+		MwDestroyPixmap(p);
+	}
 	free(px);
 }
 

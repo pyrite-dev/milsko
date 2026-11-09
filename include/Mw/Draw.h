@@ -172,6 +172,15 @@ MWDECL void MWAPI MwDrawFrameEx(MwWidget handle, MwRect* rect, MwColor color, in
 MWDECL MwPixmap MWAPI MwLoadImage(MwWidget handle, const char* path);
 
 /*!
+ * @brief Calculates the size of RGBA data, checking for the overflow
+ * @param width Width
+ * @param height Height
+ * @param size Size in bytes, can be `NULL`
+ * @return `1` if the size is valid, `0` if either of them is not positive or the size does not fit in `int`
+ */
+MWDECL int MWAPI MwCalculatePixmapSize(int width, int height, size_t* size);
+
+/*!
  * @brief Creates a pixmap from raw data
  * @param handle Widget
  * @param rgb RGBA data

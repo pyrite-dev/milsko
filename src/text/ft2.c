@@ -41,12 +41,15 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	MwRect	       r;
 	int	       x = 0, y = 0;
 	int	       tab = MwTextWidth(handle, ttf, "MMMMMMMM");
+	size_t	       sz;
 
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);
-	px = malloc(tw * th * 4);
+	if(!MwCalculatePixmapSize(tw, th, &sz)) return 0;
 
-	memset(px, 0, tw * th * 4);
+	if((px = malloc(sz)) == NULL) return 0;
+
+	memset(px, 0, sz);
 	while(text[0] != 0) {
 		FT_Bitmap*  bmp;
 		int	    cy, cx;
@@ -102,8 +105,10 @@ static int ft2_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	r.width	 = tw;
 	r.height = th;
 
-	MwDrawPixmap(handle, &r, p);
-	MwDestroyPixmap(p);
+	if(p != NULL) {
+		MwDrawPixmap(handle, &r, p);
+		MwDestroyPixmap(p);
+	}
 	free(px);
 
 	return 0;

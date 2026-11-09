@@ -27,6 +27,7 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	int		 y, x;
 	MwRect		 r;
 	MwPixmap	 p;
+	size_t		 sz;
 
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);
@@ -53,7 +54,9 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 		return 0;
 	}
 
-	px = malloc(tw * th * 4);
+	if(!MwCalculatePixmapSize(tw, th, &sz)) return 0;
+
+	if((px = malloc(sz)) == NULL) return 0;
 
 	bmih.biSize	     = sizeof(bmih);
 	bmih.biWidth	     = tw;
@@ -102,8 +105,10 @@ static int GDI_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const c
 	r.width	 = tw;
 	r.height = th;
 
-	MwDrawPixmap(handle, &r, p);
-	MwDestroyPixmap(p);
+	if(p != NULL) {
+		MwDrawPixmap(handle, &r, p);
+		MwDestroyPixmap(p);
+	}
 	free(px);
 
 	DeleteObject(hbm);

@@ -55,6 +55,16 @@ static void color_set_disabled_if_disabled(MwWidget handle, MwColor rgb) {
 	}
 };
 
+/* backends calculate width * height * 4 in int, so it has to fit in there */
+int MwCalculatePixmapSize(int width, int height, size_t* size) {
+	if(width <= 0 || height <= 0) return 0;
+	if(width > INT_MAX / 4 / height) return 0;
+
+	if(size != NULL) *size = (size_t)width * height * 4;
+
+	return 1;
+}
+
 void MwParseColorNoAllocate(const char* text, MwRGB* rgb) {
 	if(text[0] == '#' && strlen(text) == 4) {
 		rgb->red   = hex(text + 1, 1);
@@ -166,14 +176,14 @@ void MwDrawRectFading(MwWidget handle, MwRect* rect, MwColor color) {
 	double	       darken	  = 0.;
 	int	       ColorDiff  = MwGetColorDifference(handle);
 	double	       darkenStep = (ColorDiff / 2.) / rect->height;
-	unsigned long  sz	  = 1 * rect->height * 4;
-	unsigned char* data	  = malloc(sz * 2);
-	MwRect	       r	  = *rect;
-	if(!data) {
+	size_t	       sz;
+	unsigned char* data;
+	MwRect	       r = *rect;
+	if(rect->width <= 0 || !MwCalculatePixmapSize(1, rect->height, &sz)) {
 		return;
 	}
-	if(rect->width <= 0 || rect->height <= 0) {
-		free(data);
+	data = malloc(sz);
+	if(!data) {
 		return;
 	}
 	memset(data, 0, sz);
@@ -417,7 +427,7 @@ void MwDrawCircle(MwWidget handle, MwRect* rect, MwColor color, MwColor backgrou
 	MwLLPixmap     pixmap;
 	int	       width  = rect->width;
 	int	       height = rect->height;
-	unsigned long  sz     = (unsigned long)width * height * 4;
+	size_t	       sz;
 	unsigned char* data;
 	double	       cx, cy, rx, ry;
 	int	       border;
@@ -431,7 +441,7 @@ void MwDrawCircle(MwWidget handle, MwRect* rect, MwColor color, MwColor backgrou
 	color_set_disabled_if_disabled(handle, lighter);
 	color_set_disabled_if_disabled(handle, base);
 
-	if(width <= 0 || height <= 0) return;
+	if(!MwCalculatePixmapSize(width, height, &sz)) return;
 
 	data = malloc(sz);
 	if(!data) return;
@@ -862,13 +872,26 @@ static void pixmap_prop(MwWidget handle, const char* prop) {
 }
 
 MwPixmap MwLoadRaw(MwWidget handle, unsigned char* rgb, int width, int height) {
-	MwPixmap px = malloc(sizeof(*px));
+	MwPixmap px;
+	size_t	 sz;
 
-	px->lowlevel = MwLLCreatePixmap(handle->lowlevel, rgb, width, height);
-	px->common   = &px->lowlevel->common;
-	px->handle   = handle;
-	px->raw	     = malloc(width * height * 4);
-	memcpy(px->raw, rgb, width * height * 4);
+	if(!MwCalculatePixmapSize(width, height, &sz)) return NULL;
+
+	if((px = malloc(sizeof(*px))) == NULL) return NULL;
+
+	if((px->raw = malloc(sz)) == NULL) {
+		free(px);
+		return NULL;
+	}
+	memcpy(px->raw, rgb, sz);
+
+	if((px->lowlevel = MwLLCreatePixmap(handle->lowlevel, rgb, width, height)) == NULL) {
+		free(px->raw);
+		free(px);
+		return NULL;
+	}
+	px->common = &px->lowlevel->common;
+	px->handle = handle;
 
 	MwPixmapReloadRaw(px, rgb);
 
@@ -985,16 +1008,20 @@ void MwFreeColor(MwColor color) {
 MwPixmap MwLoadIcon(MwWidget handle, MwU32* data) {
 	int	       width  = (data[0] >> 16) & 0xffff;
 	int	       height = (data[0]) & 0xffff;
-	unsigned char* rgba   = malloc(width * height * 4);
+	unsigned char* rgba;
 	MwPixmap       px;
 	int	       i;
+	size_t	       sz;
 
+	if(!MwCalculatePixmapSize(width, height, &sz)) return NULL;
+
+	rgba = malloc(sz);
 	if(!rgba) {
 		printf("Null malloc! out of memory?\n");
 		return NULL;
 	}
 
-	memset(rgba, 0, width * height * 4);
+	memset(rgba, 0, sz);
 
 	for(i = 0; i < width * height; i++) {
 		unsigned char* px = &rgba[i * 4];
@@ -1028,6 +1055,7 @@ MwPixmap MwLoadXPM(MwWidget handle, char** data) {
 	color_t*       c = NULL;
 	int	       i, y, x;
 	char*	       comp;
+	size_t	       sz;
 
 	sh_new_strdup(c);
 
@@ -1070,10 +1098,18 @@ MwPixmap MwLoadXPM(MwWidget handle, char** data) {
 		}
 	}
 
-	rgb  = malloc(row * col * 4);
+	if(!MwCalculatePixmapSize(col, row, &sz) || cpp < 1) {
+		shfree(c);
+		return NULL;
+	}
+
+	rgb  = malloc(sz);
 	comp = malloc(cpp + 1);
 	if(!rgb || !comp) {
 		printf("Null malloc! Out of memory?");
+		free(rgb);
+		free(comp);
+		shfree(c);
 		return NULL;
 	}
 	comp[cpp] = 0;

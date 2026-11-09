@@ -21,12 +21,15 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 	int	       ax, lsb;
 	int	       x = 0, y = 0;
 	int	       tab = MwTextWidth(handle, ttf, "MMMMMMMM");
+	size_t	       sz;
 
 	tw = MwTextWidth(handle, ttf, text);
 	th = MwTextHeight(handle, ttf, text);
-	px = malloc(tw * th * 4);
+	if(!MwCalculatePixmapSize(tw, th, &sz)) return 0;
 
-	memset(px, 0, tw * th * 4);
+	if((px = malloc(sz)) == NULL) return 0;
+
+	memset(px, 0, sz);
 	while(text[0] != 0) {
 		int	       c, c2;
 		int	       x0, y0, x1, y1, cx, cy;
@@ -88,8 +91,10 @@ static int stbtt_MwDrawText(MwWidget handle, MwFLFont ttf, MwPoint* point, const
 	r.width	 = tw;
 	r.height = th;
 
-	MwDrawPixmap(handle, &r, p);
-	MwDestroyPixmap(p);
+	if(p != NULL) {
+		MwDrawPixmap(handle, &r, p);
+		MwDestroyPixmap(p);
+	}
 	free(px);
 
 	return 0;
