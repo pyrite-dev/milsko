@@ -87,7 +87,9 @@ static void draw(MwWidget handle) {
 			if((attr = MwGetInteger(handle, MwNhideInput)) == MwDEFAULT || !attr) {
 				MwUTF8Copy(str, start, show, 0, len);
 			} else {
-				for(i = 0; i < MwUTF8Length(str) - start; i++) show[i] = '*';
+				int n = MwUTF8Length(str) - start;
+				if(n > len) n = len;
+				for(i = 0; i < n; i++) show[i] = '*';
 			}
 
 			MwDrawText(handle, font, &p, show, MwALIGNMENT_BEGINNING, text);
