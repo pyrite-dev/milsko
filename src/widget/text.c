@@ -95,6 +95,11 @@ static void calc(MwWidget handle) {
 	int    i;
 	MwText txt = handle->internal;
 
+	txt->line     = 0;
+	txt->index    = 0;
+	txt->cursor.x = 0;
+	txt->cursor.y = 0;
+
 	txt->force_prop = 1;
 	text		= (char*)MwGetString(handle, MwNtext);
 	last		= text;
@@ -171,7 +176,7 @@ static void clamp_cursor(MwWidget handle) {
 		txt->line = 0;
 		changed	  = 1;
 	}
-	if(txt->line >= arrlen(txt->lines)) {
+	if(txt->line > arrlen(txt->lines) - 1) {
 		txt->line = arrlen(txt->lines) - 1;
 		changed	  = 1;
 	}
@@ -185,7 +190,6 @@ static void clamp_cursor(MwWidget handle) {
 		txt->index = len;
 		changed	   = 1;
 	}
-
 	if(changed) {
 		char* s = MwStringDuplicate(txt->lines[txt->line].line);
 
