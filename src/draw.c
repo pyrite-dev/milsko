@@ -58,7 +58,11 @@ static void color_set_disabled_if_disabled(MwWidget handle, MwColor rgb) {
 /* backends calculate width * height * 4 in int, so it has to fit in there */
 int MwCalculatePixmapSize(int width, int height, size_t* size) {
 	if(width <= 0 || height <= 0) return 0;
+#ifndef INT_MAX
+	if(width > 2147483647 / 4 / height) return 0;
+#else
 	if(width > INT_MAX / 4 / height) return 0;
+#endif
 
 	if(size != NULL) *size = (size_t)width * height * 4;
 
