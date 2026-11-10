@@ -799,19 +799,20 @@ static unsigned char* load_jpeg(FILE* f, int* w, int* h) {
 	jpeg_stdio_src(&cinfo, f);
 	jpeg_read_header(&cinfo, TRUE);
 
+	cinfo.out_color_space = JCS_RGB;
 	jpeg_start_decompress(&cinfo);
 
 	*w = cinfo.output_width;
 	*h = cinfo.output_height;
 
 	data = malloc((*w) * (*h) * 4);
-	row  = malloc((*h) * cinfo.num_components);
+	row  = malloc((*h) * cinfo.output_components);
 	for(i = 0; i < (*h); i++) {
 		int j;
 		jpeg_read_scanlines(&cinfo, &row, 1);
 
 		for(j = 0; j < (*w); j++) {
-			unsigned char* from = &row[j * cinfo.num_components];
+			unsigned char* from = &row[j * cinfo.output_components];
 			unsigned char* to   = &data[(i * (*w) + j) * 4];
 
 			memcpy(to, from, 3);
